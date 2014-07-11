@@ -19,6 +19,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +29,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClientConfig;
 
 /**
  * @author Dave Syer
@@ -34,6 +37,8 @@ import com.netflix.discovery.DiscoveryManager;
  */
 @Configuration
 @EnableConfigurationProperties({EurekaClientConfigBean.class, EurekaInstanceConfigBean.class})
+@ConditionalOnClass(EurekaClientConfig.class)
+@ConditionalOnExpression("${eureka.client.enabled:true}")
 public class EurekaClientAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
