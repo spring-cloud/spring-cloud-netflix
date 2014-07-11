@@ -1,0 +1,21 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: client
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8080/v2/
+      default.defaultZone: http://localhost:8080/v2/
+    region: default
+    availabilityZones:
+      us-east-1: default
+    preferSameZoneEureka: true
+    useDnsForFetchingServiceUrls: false
+  instance:
+    nonSecurePort: ${server.port}
+    appname: ${spring.application.name}
+    virtualHostName: ${spring.application.name}.mydomain.net
+    statusPageUrlPath: /info
+    healthCheckUrlPath: /health
