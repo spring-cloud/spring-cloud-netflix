@@ -38,6 +38,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	public static final String DEFAULT_ZONE = "defaultZone";
 	
 	private static final int MINUTES = 60;
+	
+	private boolean enabled = true;
 
 	private int registryFetchIntervalSeconds = 30;
 
