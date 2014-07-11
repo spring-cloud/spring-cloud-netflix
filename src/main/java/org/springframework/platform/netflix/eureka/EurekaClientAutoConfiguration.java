@@ -38,6 +38,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Contex
 
 	@Autowired
 	private EurekaClientConfigBean clientConfig;
+
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 	

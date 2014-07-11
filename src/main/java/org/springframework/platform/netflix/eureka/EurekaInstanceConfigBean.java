@@ -27,6 +27,7 @@ import lombok.Setter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.netflix.appinfo.DataCenterInfo;
@@ -45,12 +46,14 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE)
 	private String[] hostInfo = initHostInfo();
 
+	@Value("${spring.application.name:unkown}")
     private String appname = "unknown";
 
     private String appGroupName;
     
     private boolean instanceEnabledOnit;
 
+	@Value("${server.port:80}")
     private int nonSecurePort = 80;
 
     private int securePort = 443;
@@ -63,6 +66,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
     private int leaseExpirationDurationInSeconds = 90;
 
+	@Value("${spring.application.name:unkown}.mydomain.net")
     private String virtualHostName;
 
     private String secureVirtualHostName;
