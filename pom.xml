@@ -20,6 +20,7 @@
 
     <modules>
         <module>spring-platform-netflix-core</module>
+        <module>spring-platform-netflix-hystrix</module>
         <module>spring-platform-netflix-zuul</module>
     </modules>
 
@@ -79,6 +80,12 @@
                 <groupId>com.netflix.ribbon</groupId>
                 <artifactId>ribbon-eureka</artifactId>
                 <version>${ribbon.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.netflix.zuul</groupId>

@@ -1,5 +1,5 @@
 info:
-  component: Platform Router (Zuul)
+  component: Hystrix Dashboard
   
 endpoints:
   restart:
@@ -8,19 +8,11 @@ endpoints:
     enabled: true
 
 server:
-  port: 6080
-
-management:
-  port: 6081
+  port: 7979
+  context-path: /hystrix-dashboard
 
 logging:
   level: INFO
-
-logging:
-  level:
-    com:
-      netflix: WARN
-
 
 eureka:
   client:
