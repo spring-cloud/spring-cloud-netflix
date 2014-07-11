@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: zuul
+  platform:
+    config:
+      uri: http://localhost:${config.port:8888}

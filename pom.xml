@@ -1,74 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.springframework.platform</groupId>
-	<artifactId>spring-platform-netflix</artifactId>
-	<version>1.0.0.BUILD-SNAPSHOT</version>
+    <groupId>org.springframework.platform</groupId>
+    <artifactId>spring-platform-netflix</artifactId>
+    <version>1.0.0.BUILD-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>spring-platform-netflix</name>
+    <description>Spring Platform Netflix</description>
 
-	<name>spring-platform-netflix</name>
-	<description>Eureka integration project</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.1.5.BUILD-SNAPSHOT</version>
+        <relativePath/>
+        <!-- lookup parent from repository -->
+    </parent>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.1.5.BUILD-SNAPSHOT</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
-	
-	<dependencyManagement>
-	<dependencies>
-		<dependency>
-			<groupId>com.netflix.eureka</groupId>
-			<artifactId>eureka-client</artifactId>
-			<version>1.1.135</version>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.eureka</groupId>
-			<artifactId>eureka-client</artifactId>
-			<version>1.1.135</version>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.12.6</version>
-		</dependency>
-	</dependencies>
-	</dependencyManagement>
+    <modules>
+        <module>spring-platform-netflix-core</module>
+        <module>spring-platform-netflix-zuul</module>
+    </modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.eureka</groupId>
-			<artifactId>eureka-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.eureka</groupId>
-			<artifactId>eureka-client</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.netflix.archaius</groupId>
+                <artifactId>archaius-core</artifactId>
+                <version>${archaius.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.eureka</groupId>
+                <artifactId>eureka-client</artifactId>
+                <version>${eureka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-core</artifactId>
+                <version>${feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-ribbon</artifactId>
+                <version>${feign.version}</version>
+            </dependency>
+            <!--<dependency>
+                <groupId>com.netflix.feign</groupId>
+                <artifactId>feign-slf4j</artifactId>
+                <version>${feign.version}</version>
+            </dependency>-->
+            <dependency>
+                <groupId>com.netflix.hystrix</groupId>
+                <artifactId>hystrix-core</artifactId>
+                <version>${hystrix.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.hystrix</groupId>
+                <artifactId>hystrix-metrics-event-stream</artifactId>
+                <version>${hystrix.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.hystrix</groupId>
+                <artifactId>hystrix-javanica</artifactId>
+                <version>${hystrix.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.ribbon</groupId>
+                <artifactId>ribbon-core</artifactId>
+                <version>${ribbon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.ribbon</groupId>
+                <artifactId>ribbon-httpclient</artifactId>
+                <version>${ribbon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.ribbon</groupId>
+                <artifactId>ribbon-eureka</artifactId>
+                <version>${ribbon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.zuul</groupId>
+                <artifactId>zuul-core</artifactId>
+                <version>${zuul.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.12.6</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.7</java.version>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.7</java.version>
+        <archaius.version>0.6.0</archaius.version>
+        <eureka.version>1.1.135</eureka.version>
+        <feign.version>6.1.2</feign.version>
+        <hystrix.version>1.4.0-RC4</hystrix.version>
+        <ribbon.version>0.3.12</ribbon.version>
+        <zuul.version>1.0.24</zuul.version>
+    </properties>
 
 </project>

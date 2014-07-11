@@ -147,16 +147,16 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	@Override
 	public List<String> getEurekaServerServiceUrls(String myZone) {
-        String serviceUrls = serviceUrl .get(myZone);
+        String serviceUrls = serviceUrl.get(myZone);
         if (serviceUrls == null || serviceUrls.isEmpty()) {
-            serviceUrls = serviceUrl.get("default" + myZone);
+            serviceUrls = serviceUrl.get("default");
 
         }
         if (serviceUrls != null) {
             return Arrays.asList(serviceUrls.split(","));
         }
 
-        return new ArrayList<String>();
+        return new ArrayList<>();
 	}
 
 	@Override

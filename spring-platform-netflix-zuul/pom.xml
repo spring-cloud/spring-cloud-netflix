@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.springframework.platform</groupId>
+    <artifactId>spring-platform-netflix-zuul</artifactId>
+    <version>1.0.0.BUILD-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Spring Platform Netflix Zuul</name>
+    <url>http://projects.spring.io/spring-platform/</url>
+    <parent>
+        <groupId>org.springframework.platform</groupId>
+        <artifactId>spring-platform-netflix</artifactId>
+        <version>1.0.0.BUILD-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <spring-platform-config.version>1.0.0.BUILD-SNAPSHOT</spring-platform-config.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.platform</groupId>
+                <artifactId>spring-platform-config</artifactId>
+                <version>${spring-platform-config.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.platform</groupId>
+            <artifactId>spring-platform-netflix-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.platform</groupId>
+            <artifactId>spring-platform-config-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.hystrix</groupId>
+            <artifactId>hystrix-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.ribbon</groupId>
+            <artifactId>ribbon-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.ribbon</groupId>
+            <artifactId>ribbon-httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.zuul</groupId>
+            <artifactId>zuul-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

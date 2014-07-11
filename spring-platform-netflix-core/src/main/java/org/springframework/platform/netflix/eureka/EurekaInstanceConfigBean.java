@@ -46,7 +46,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE)
 	private String[] hostInfo = initHostInfo();
 
-	@Value("${spring.application.name:unkown}")
+	@Value("${spring.application.name:unknown}")
     private String appname = "unknown";
 
     private String appGroupName;
@@ -66,7 +66,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
     private int leaseExpirationDurationInSeconds = 90;
 
-	@Value("${spring.application.name:unkown}.mydomain.net")
+	@Value("${spring.application.name:unknown}.mydomain.net")
     private String virtualHostName;
 
     private String secureVirtualHostName;
