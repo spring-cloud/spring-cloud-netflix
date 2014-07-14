@@ -53,7 +53,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
     
     private boolean instanceEnabledOnit;
 
-	@Value("${server.port:80}")
+	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
     private int nonSecurePort = 80;
 
     private int securePort = 443;

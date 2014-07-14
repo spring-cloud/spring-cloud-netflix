@@ -36,29 +36,29 @@ import com.netflix.discovery.EurekaClientConfig;
  *
  */
 @Configuration
-@EnableConfigurationProperties({EurekaClientConfigBean.class, EurekaInstanceConfigBean.class})
+@EnableConfigurationProperties({ EurekaClientConfigBean.class,
+		EurekaInstanceConfigBean.class })
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
-public class EurekaClientAutoConfiguration implements ApplicationListener<ContextRefreshedEvent> {
+public class EurekaClientAutoConfiguration implements
+		ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
 	private EurekaClientConfigBean clientConfig;
 
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
-	
+
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);		
+		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
 	}
 
 	@PostConstruct
 	public void init() {
-		DiscoveryManager.getInstance().initComponent(
-				instanceConfig,
-				clientConfig);
+		DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
 	}
-	
+
 	@PreDestroy
 	public void close() {
 		DiscoveryManager.getInstance().shutdownComponent();
