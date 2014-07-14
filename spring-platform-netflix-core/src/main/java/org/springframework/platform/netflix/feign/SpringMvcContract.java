@@ -1,15 +1,16 @@
 package org.springframework.platform.netflix.feign;
 
-import feign.Contract;
-import feign.MethodMetadata;
-import org.springframework.web.bind.annotation.RequestMapping;
+import static feign.Util.checkState;
+import static feign.Util.emptyToNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import static feign.Util.checkState;
-import static feign.Util.emptyToNull;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import feign.Contract;
+import feign.MethodMetadata;
 
 /**
  * Created by sgibb on 6/27/14.
@@ -20,7 +21,6 @@ public class SpringMvcContract extends Contract.BaseContract {
 
     @Override
     protected void processAnnotationOnMethod(MethodMetadata data, Annotation methodAnnotation, Method method) {
-        Class<? extends Annotation> annotationType = methodAnnotation.annotationType();
         RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
         if (mapping != null) {
             //HTTP Method

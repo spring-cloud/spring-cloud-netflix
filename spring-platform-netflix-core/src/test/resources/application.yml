@@ -4,6 +4,8 @@ spring:
   application:
     name: client
 eureka:
+  server:
+    enabled: false
   client:
     serviceUrl:
       defaultZone: http://localhost:8080/v2/

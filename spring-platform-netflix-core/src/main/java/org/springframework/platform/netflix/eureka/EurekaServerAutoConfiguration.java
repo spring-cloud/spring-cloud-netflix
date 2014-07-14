@@ -31,6 +31,7 @@ import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
+import com.netflix.eureka.PeerAwareInstanceRegistry;
 
 /**
  * @author Dave Syer
@@ -69,9 +70,12 @@ public class EurekaServerAutoConfiguration implements ServletContextAware,
 						LoggingConfiguration.getInstance().configure();
 						EurekaServerConfigurationManager.getInstance()
 								.setConfiguration(eurekaServerConfig);
+						PeerAwareInstanceRegistry.getInstance();
+						applicationContext.publishEvent(new EurekaRegistryAvailableEvent(eurekaServerConfig));
 					}
 				}.contextInitialized(new ServletContextEvent(servletContext));
 				running = true;
+				applicationContext.publishEvent(new EurekaServerStartedEvent(eurekaServerConfig));
 			}
 		}).start();
 	}

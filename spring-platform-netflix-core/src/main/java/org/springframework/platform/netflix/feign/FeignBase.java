@@ -1,5 +1,12 @@
 package org.springframework.platform.netflix.feign;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.transform.Source;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -13,12 +20,6 @@ import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConvert
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-
-import javax.xml.transform.Source;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sgibb on 6/27/14.
@@ -54,7 +55,8 @@ public class FeignBase {
         this.messageConverters.addAll(messageConverters);
     }
 
-    protected void addDefaultConverters(List<HttpMessageConverter<?>> messageConverters) {
+    @SuppressWarnings("deprecation")
+	protected void addDefaultConverters(List<HttpMessageConverter<?>> messageConverters) {
         messageConverters.add(new ByteArrayHttpMessageConverter());
         messageConverters.add(new StringHttpMessageConverter());
         messageConverters.add(new ResourceHttpMessageConverter());

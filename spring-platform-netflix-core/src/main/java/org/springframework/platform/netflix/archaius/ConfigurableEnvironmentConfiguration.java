@@ -1,12 +1,22 @@
 package org.springframework.platform.netflix.archaius;
 
-import org.apache.commons.configuration.AbstractConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.*;
-import org.springframework.util.ReflectionUtils;
-
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Created by sgibb on 6/27/14.

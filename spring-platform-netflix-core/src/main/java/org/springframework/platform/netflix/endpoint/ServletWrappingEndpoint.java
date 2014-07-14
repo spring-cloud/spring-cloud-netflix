@@ -70,7 +70,7 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
     }
 
     @Override
-    public Class<? extends Endpoint> getEndpointType() {
+    public Class<? extends Endpoint<?>> getEndpointType() {
         return null;
     }
 }

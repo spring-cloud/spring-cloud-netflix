@@ -35,6 +35,12 @@
                 <groupId>com.netflix.archaius</groupId>
                 <artifactId>archaius-core</artifactId>
                 <version>${archaius.version}</version>
+			    <exclusions>
+				  <exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				  </exclusion>
+			    </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.netflix.eureka</groupId>
@@ -45,6 +51,16 @@
                 <groupId>com.netflix.eureka</groupId>
                 <artifactId>eureka-core</artifactId>
                 <version>${eureka.version}</version>
+			    <exclusions>
+				  <exclusion>
+					<artifactId>commons-logging</artifactId>
+					<groupId>commons-logging</groupId>
+				  </exclusion>
+				  <exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				  </exclusion>
+			    </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.netflix.feign</groupId>

@@ -50,7 +50,7 @@ public class CircuitBreakerConfiguration implements ImportAware {
             throw new IllegalStateException("Only one TransactionManagementConfigurer may exist");
         }
         //TODO: create CircuitBreakerConfigurer API
-        CircuitBreakerConfigurer configurer = configurers.iterator().next();
+        // CircuitBreakerConfigurer configurer = configurers.iterator().next();
         //this.txManager = configurer.annotationDrivenTransactionManager();
     }
 }
