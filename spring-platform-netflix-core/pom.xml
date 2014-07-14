@@ -3,9 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.springframework.platform</groupId>
 	<artifactId>spring-platform-netflix-core</artifactId>
-	<version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 	<name>spring-platform-netflix-core</name>
 	<description>Spring Platform Netflix Core</description>
@@ -29,10 +27,7 @@
         <dependency>
             <groupId>com.netflix.archaius</groupId>
             <artifactId>archaius-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.netflix.eureka</groupId>
-            <artifactId>eureka-client</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.netflix.eureka</groupId>
@@ -40,8 +35,20 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>com.netflix.eureka</groupId>
+            <artifactId>eureka-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+        	<groupId>net.java.dev.rome</groupId>
+        	<artifactId>rome</artifactId>
+        	<version>1.0.0</version>
+        	<optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>com.netflix.feign</groupId>
             <artifactId>feign-core</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.netflix.feign</groupId>
@@ -54,22 +61,27 @@
         <dependency>
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-core</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-metrics-event-stream</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-javanica</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.netflix.ribbon</groupId>
             <artifactId>ribbon-core</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.netflix.ribbon</groupId>
             <artifactId>ribbon-eureka</artifactId>
+            <optional>true</optional>
         </dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
