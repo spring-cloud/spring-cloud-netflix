@@ -21,6 +21,7 @@
     <modules>
         <module>spring-platform-netflix-core</module>
         <module>spring-platform-netflix-hystrix</module>
+        <module>spring-platform-netflix-turbine</module>
         <module>spring-platform-netflix-zuul</module>
     </modules>
 
@@ -119,8 +120,12 @@
                 <version>${turbine.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

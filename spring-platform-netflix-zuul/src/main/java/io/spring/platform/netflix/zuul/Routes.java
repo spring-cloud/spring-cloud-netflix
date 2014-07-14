@@ -1,4 +1,4 @@
-package org.springframework.platform.netflix.zuul;
+package io.spring.platform.netflix.zuul;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

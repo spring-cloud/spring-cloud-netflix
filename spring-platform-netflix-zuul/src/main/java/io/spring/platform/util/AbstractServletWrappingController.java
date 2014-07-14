@@ -1,4 +1,4 @@
-package org.springframework.platform.util;
+package io.spring.platform.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;

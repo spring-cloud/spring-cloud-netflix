@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: turbine
+  platform:
+    config:
+      uri: http://localhost:${config.port:8888}

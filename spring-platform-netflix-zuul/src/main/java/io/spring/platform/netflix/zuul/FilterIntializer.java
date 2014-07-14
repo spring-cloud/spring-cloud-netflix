@@ -1,4 +1,4 @@
-package org.springframework.platform.netflix.zuul;
+package io.spring.platform.netflix.zuul;
 
 import com.netflix.zuul.FilterFileManager;
 import com.netflix.zuul.FilterLoader;

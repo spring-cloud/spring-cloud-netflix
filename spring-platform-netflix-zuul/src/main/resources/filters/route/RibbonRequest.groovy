@@ -15,7 +15,7 @@ import com.netflix.zuul.util.HTTPRequestUtils
 import com.sun.jersey.core.util.MultivaluedMapImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.platform.netflix.zuul.RibbonCommand
+import io.spring.platform.netflix.zuul.RibbonCommand
 
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MultivaluedMap
