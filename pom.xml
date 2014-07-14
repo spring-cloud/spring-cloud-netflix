@@ -114,6 +114,17 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>com.netflix.turbine</groupId>
+                <artifactId>turbine-core</artifactId>
+                <version>${turbine.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>com.netflix.zuul</groupId>
                 <artifactId>zuul-core</artifactId>
                 <version>${zuul.version}</version>
@@ -134,6 +145,7 @@
         <feign.version>6.1.2</feign.version>
         <hystrix.version>1.4.0-RC4</hystrix.version>
         <ribbon.version>0.3.12</ribbon.version>
+        <turbine.version>0.4</turbine.version>
         <zuul.version>1.0.24</zuul.version>
     </properties>
 

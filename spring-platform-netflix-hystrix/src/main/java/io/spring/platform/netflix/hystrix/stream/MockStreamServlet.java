@@ -1,4 +1,4 @@
-package hystrix.stream;
+package io.spring.platform.netflix.hystrix.stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
