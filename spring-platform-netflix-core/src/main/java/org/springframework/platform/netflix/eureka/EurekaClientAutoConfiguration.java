@@ -18,6 +18,8 @@ package org.springframework.platform.netflix.eureka;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -43,6 +45,8 @@ import com.netflix.discovery.EurekaClientConfig;
 public class EurekaClientAutoConfiguration implements
 		ApplicationListener<ContextRefreshedEvent> {
 
+    private static final Logger logger = LoggerFactory.getLogger(EurekaClientAutoConfiguration.class);
+
 	@Autowired
 	private EurekaClientConfigBean clientConfig;
 
@@ -51,6 +55,7 @@ public class EurekaClientAutoConfiguration implements
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
+        logger.info("Registering application {} with eureka with status UP", instanceConfig.getAppname());
 		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
 	}
 
@@ -61,6 +66,7 @@ public class EurekaClientAutoConfiguration implements
 
 	@PreDestroy
 	public void close() {
+        logger.info("Removing application {} from eureka", instanceConfig.getAppname());
 		DiscoveryManager.getInstance().shutdownComponent();
 	}
 

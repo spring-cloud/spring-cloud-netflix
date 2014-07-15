@@ -163,6 +163,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
      */
     protected String getClusterName(InstanceInfo iInfo) {
         return iInfo.getASGName();
+        //TODO: why did this break things? return iInfo.getAppGroupName();
     }
 
     /**

@@ -65,7 +65,7 @@
   
 ## Sandbox Sample Backend
 
-  `spring-platform-sandbox-sample-backend$ java -jar target/spring-platform-sandbox-sample-backend-1.0.0.BUILD-SNAPSHOT.jar`0
+  `spring-platform-sandbox-sample-backend$ java -jar target/spring-platform-sandbox-sample-backend-1.0.0.BUILD-SNAPSHOT.jar`
   
 ## Sandbox Sample Frontend
 
