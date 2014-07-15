@@ -162,8 +162,9 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
      * @return
      */
     protected String getClusterName(InstanceInfo iInfo) {
-        return iInfo.getASGName();
-        //TODO: why did this break things? return iInfo.getAppGroupName();
+        //TODO: make ASG configurable return iInfo.getASGName();
+        //AppGroupName is UPPERCASE from eureka
+        return iInfo.getAppGroupName();
     }
 
     /**

@@ -61,7 +61,7 @@
   
 ## Netflix Turbine
  
-  `spring-platform-netflix-turbine$ java -jar target/spring-platform-netflix-turbine-1.0.0.BUILD-SNAPSHOT.war --InstanceDiscovery.impl=io.spring.platform.netflix.turbine.EurekaInstanceDiscovery --turbine.appConfig=samplefrontendservice --turbine.aggregator.clusterConfig=sampleApps --turbine.instanceUrlSuffix=/hystrix.stream --turbine.instanceInsertPort=true`
+  `spring-platform-netflix-turbine$ java -jar target/spring-platform-netflix-turbine-1.0.0.BUILD-SNAPSHOT.war --InstanceDiscovery.impl=io.spring.platform.netflix.turbine.EurekaInstanceDiscovery --turbine.appConfig=samplefrontendservice --turbine.aggregator.clusterConfig=SAMPLEAPPS --turbine.instanceUrlSuffix=/hystrix.stream --turbine.instanceInsertPort=true`
   
 ## Sandbox Sample Backend
 
