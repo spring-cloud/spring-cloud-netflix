@@ -54,6 +54,10 @@
             <artifactId>spring-platform-config-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.netflix.eureka</groupId>
+            <artifactId>eureka-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.netflix.turbine</groupId>
             <artifactId>turbine-core</artifactId>
         </dependency>

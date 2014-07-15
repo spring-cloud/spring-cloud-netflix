@@ -58,4 +58,5 @@ The default application name, virtual host and non-secure port are taken from th
 - [ ] Better observable example
 - [ ] Distributed refresh environment via platform bus
 - [x] Metrics aggregation (turbine)
-  - [ ] Use Eureka for instance discovery rather than static list see https://github.com/Netflix/Turbine/blob/master/turbine-contrib/src/main/java/com/netflix/turbine/discovery/EurekaInstanceDiscovery.java
+  - [x] Use Eureka for instance discovery rather than static list see https://github.com/Netflix/Turbine/blob/master/turbine-contrib/src/main/java/com/netflix/turbine/discovery/EurekaInstanceDiscovery.java
+  - [ ] Configure InstanceDiscovery.impl using auto config/config props

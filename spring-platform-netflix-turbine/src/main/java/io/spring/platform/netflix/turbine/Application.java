@@ -1,6 +1,7 @@
 package io.spring.platform.netflix.turbine;
 
 import com.netflix.turbine.init.TurbineInit;
+import com.netflix.turbine.plugins.PluginsFactory;
 import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -47,6 +48,7 @@ public class Application extends SpringBootServletInitializer implements SmartLi
 
     @Override
     public void start() {
+        PluginsFactory.setClusterMonitorFactory(new SpringAggregatorFactory());
         TurbineInit.init();
     }
 
