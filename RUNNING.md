@@ -2,7 +2,7 @@
 
 ## Config Server
 
-  `spring-platform-config$ java -Dspring.platform.config.server.uri=https://github.com/spencergibb/config-repo -jar spring-platform-config-server/target/spring-platform-config-server-1.0.0.BUILD-SNAPSHOT.jar`
+  `spring-platform-config$ java -Dspring.platform.config.server.uri=https://github.com/spencergibb/config-repo -jar spring-platform-config-server/target/spring-platform-config-server-1.0.0.BUILD-SNAPSHOT-exec.jar`
   
 ## Netflix Eureka
 
