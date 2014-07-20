@@ -164,4 +164,106 @@
         <zuul.version>1.0.24</zuul.version>
     </properties>
 
+    <profiles>
+		<profile>
+			<id>milestone</id>
+			<distributionManagement>
+				<repository>
+					<id>repo.spring.io</id>
+					<name>Spring Milestone Repository</name>
+					<url>https://repo.spring.io/libs-milestone-local</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>central</id>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>sonatype-nexus-snapshots</id>
+					<name>Sonatype Nexus Snapshots</name>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+				</snapshotRepository>
+				<repository>
+					<id>sonatype-nexus-staging</id>
+					<name>Nexus Release Repository</name>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+    </profiles>
+	<distributionManagement>
+		<!-- see 'staging' profile for dry-run deployment settings -->
+		<downloadUrl>http://www.springsource.com/download/community
+		</downloadUrl>
+		<site>
+			<id>spring-docs</id>
+			<url>scp://static.springframework.org/var/www/domains/springframework.org/static/htdocs/spring-retry/docs/${project.version}
+			</url>
+		</site>
+		<repository>
+			<id>repo.spring.io</id>
+			<name>Spring Release Repository</name>
+			<url>https://repo.spring.io/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>repo.spring.io</id>
+			<name>Spring Snapshot Repository</name>
+			<url>https://repo.spring.io/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<repositories>
+		<repository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>http://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>http://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-snapshots</id>
+			<name>Spring Snapshots</name>
+			<url>http://repo.spring.io/snapshot</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>http://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
 </project>

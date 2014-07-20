@@ -80,6 +80,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	private int cacheRefreshExecutorThreadPoolSize = 2;
 
 	private Map<String,String> serviceUrl = new HashMap<String, String>();
+	
+	{
+		serviceUrl.put(DEFAULT_ZONE, "http://localhost:8761/v2/");
+	}
 
 	private boolean gZipContent = true;
 
