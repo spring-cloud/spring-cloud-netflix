@@ -154,7 +154,6 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
         String serviceUrls = serviceUrl.get(myZone);
         if (serviceUrls == null || serviceUrls.isEmpty()) {
             serviceUrls = serviceUrl.get("default");
-
         }
         if (serviceUrls != null) {
             return Arrays.asList(serviceUrls.split(","));
