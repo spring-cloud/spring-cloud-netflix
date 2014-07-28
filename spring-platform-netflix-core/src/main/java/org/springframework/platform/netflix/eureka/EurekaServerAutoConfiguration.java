@@ -25,6 +25,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.blitz4j.LoggingConfiguration;
@@ -42,7 +43,7 @@ import com.netflix.eureka.PeerAwareInstanceRegistry;
 @ConditionalOnClass(EurekaServerConfig.class)
 @ConditionalOnExpression("${eureka.server.enabled:true}")
 public class EurekaServerAutoConfiguration implements ServletContextAware,
-		SmartLifecycle {
+		SmartLifecycle, Ordered {
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;
@@ -53,6 +54,8 @@ public class EurekaServerAutoConfiguration implements ServletContextAware,
 	private ApplicationContext applicationContext;
 
 	private boolean running;
+
+	private int order = 0;
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {
@@ -105,4 +108,9 @@ public class EurekaServerAutoConfiguration implements ServletContextAware,
 		callback.run();
 	}
 
+	@Override
+	public int getOrder() {
+		return order;
+	}
+	
 }

@@ -17,6 +17,8 @@ package org.springframework.platform.netflix.eureka;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
@@ -24,6 +26,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.MapPropertySource;
 
 /**
  * @author Dave Syer
@@ -55,6 +59,24 @@ public class EurekaClientConfigBeanTests {
 	public void serviceUrl() {
 		EnvironmentTestUtils.addEnvironment(context,
 				"eureka.client.serviceUrl.defaultZone:http://example.com");
+		context.register(PropertyPlaceholderAutoConfiguration.class,
+				TestConfiguration.class);
+		context.refresh();
+		assertEquals("{defaultZone=http://example.com}",
+				context.getBean(EurekaClientConfigBean.class).getServiceUrl().toString());
+		assertEquals(
+				"[http://example.com]",
+				context.getBean(EurekaClientConfigBean.class)
+						.getEurekaServerServiceUrls("defaultZone").toString());
+	}
+
+	@Test
+	public void serviceUrlWithCompositePropertySource() {
+		CompositePropertySource source = new CompositePropertySource("composite");
+		context.getEnvironment().getPropertySources().addFirst(source);
+		source.addPropertySource(new MapPropertySource("config", Collections
+				.<String, Object> singletonMap("eureka.client.serviceUrl.defaultZone",
+						"http://example.com")));
 		context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		context.refresh();
