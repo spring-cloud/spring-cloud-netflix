@@ -1,9 +1,9 @@
-package org.springframework.platform.netflix.circuitbreaker.annotations;
+package org.springframework.platform.netflix.hystrix.annotations;
 
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
-import org.springframework.platform.netflix.circuitbreaker.CircuitBreakerConfigurationSelector;
+import org.springframework.platform.netflix.hystrix.HystrixConfigurationSelector;
 
 import java.lang.annotation.*;
 
@@ -13,9 +13,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(CircuitBreakerConfigurationSelector.class)
-public @interface EnableCircuitBreaker {
-
+@Import(HystrixConfigurationSelector.class)
+public @interface EnableHystrix {
     /**
      * Indicate whether subclass-based (CGLIB) proxies are to be created ({@code true}) as
      * opposed to standard Java interface-based proxies ({@code false}). The default is
@@ -43,5 +42,4 @@ public @interface EnableCircuitBreaker {
      * The default is {@link org.springframework.core.Ordered#LOWEST_PRECEDENCE}.
      */
     int order() default Ordered.LOWEST_PRECEDENCE;
-
 }

@@ -73,7 +73,7 @@ public class EurekaServerAutoConfiguration implements ServletContextAware,
 						LoggingConfiguration.getInstance().configure();
 						EurekaServerConfigurationManager.getInstance()
 								.setConfiguration(eurekaServerConfig);
-						PeerAwareInstanceRegistry.getInstance();
+						//PeerAwareInstanceRegistry.getInstance();
 						applicationContext.publishEvent(new EurekaRegistryAvailableEvent(eurekaServerConfig));
 					}
 				}.contextInitialized(new ServletContextEvent(servletContext));

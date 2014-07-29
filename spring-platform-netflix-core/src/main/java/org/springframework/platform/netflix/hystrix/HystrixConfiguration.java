@@ -1,4 +1,4 @@
-package org.springframework.platform.netflix.circuitbreaker;
+package org.springframework.platform.netflix.hystrix;
 
 import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.platform.netflix.circuitbreaker.annotations.EnableCircuitBreaker;
+import org.springframework.platform.netflix.hystrix.annotations.EnableHystrix;
 import org.springframework.platform.netflix.endpoint.HystrixStreamEndpoint;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -18,9 +18,9 @@ import java.util.Collection;
  * Created by sgibb on 6/19/14.
  */
 @Configuration
-public class CircuitBreakerConfiguration implements ImportAware {
+public class HystrixConfiguration implements ImportAware {
 
-    private AnnotationAttributes enableCircuitBreaker;
+    private AnnotationAttributes enableHystrix;
 
     @Bean
     HystrixCommandAspect hystrixCommandAspect() {
@@ -35,14 +35,14 @@ public class CircuitBreakerConfiguration implements ImportAware {
 
     @Override
     public void setImportMetadata(AnnotationMetadata importMetadata) {
-        this.enableCircuitBreaker = AnnotationAttributes.fromMap(
-                importMetadata.getAnnotationAttributes(EnableCircuitBreaker.class.getName(), false));
-        Assert.notNull(this.enableCircuitBreaker,
-                "@EnableCircuitBreaker is not present on importing class " + importMetadata.getClassName());
+        this.enableHystrix = AnnotationAttributes.fromMap(
+                importMetadata.getAnnotationAttributes(EnableHystrix.class.getName(), false));
+        Assert.notNull(this.enableHystrix,
+                "@EnableHystrix is not present on importing class " + importMetadata.getClassName());
     }
 
     @Autowired(required=false)
-    void setConfigurers(Collection<CircuitBreakerConfigurer> configurers) {
+    void setConfigurers(Collection<HystrixConfigurer> configurers) {
         if (CollectionUtils.isEmpty(configurers)) {
             return;
         }
