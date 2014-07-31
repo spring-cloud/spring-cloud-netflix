@@ -43,10 +43,10 @@ import com.netflix.discovery.EurekaClientConfig;
 		EurekaInstanceConfigBean.class })
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
-public class EurekaClientAutoConfiguration implements
+public class EurekaClientConfiguration implements
 		ApplicationListener<ContextRefreshedEvent>, SmartLifecycle, Ordered {
 
-    private static final Logger logger = LoggerFactory.getLogger(EurekaClientAutoConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(EurekaClientConfiguration.class);
 
 	private boolean running;
 	

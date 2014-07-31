@@ -32,7 +32,6 @@ import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
-import com.netflix.eureka.PeerAwareInstanceRegistry;
 
 /**
  * @author Dave Syer
@@ -42,6 +41,7 @@ import com.netflix.eureka.PeerAwareInstanceRegistry;
 @EnableConfigurationProperties(EurekaServerConfigBean.class)
 @ConditionalOnClass(EurekaServerConfig.class)
 @ConditionalOnExpression("${eureka.server.enabled:true}")
+@EnableEurekaClient
 public class EurekaServerAutoConfiguration implements ServletContextAware,
 		SmartLifecycle, Ordered {
 
