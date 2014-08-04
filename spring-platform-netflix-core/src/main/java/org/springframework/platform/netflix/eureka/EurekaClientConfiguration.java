@@ -25,12 +25,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
 
@@ -103,6 +105,11 @@ public class EurekaClientConfiguration implements
 	@Override
 	public int getOrder() {
 		return order;
+	}
+	
+	@Bean
+	public DiscoveryClient discoveryClient() {
+		return DiscoveryManager.getInstance().getDiscoveryClient();
 	}
 	
 }
