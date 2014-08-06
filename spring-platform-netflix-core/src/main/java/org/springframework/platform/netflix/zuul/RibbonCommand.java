@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.zuul;
+package org.springframework.platform.netflix.zuul;
 
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpResponse;

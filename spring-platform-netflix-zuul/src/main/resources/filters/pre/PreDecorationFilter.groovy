@@ -3,8 +3,8 @@ package filters.pre
 import com.netflix.zuul.context.RequestContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import io.spring.platform.netflix.zuul.Routes
-import io.spring.platform.netflix.zuul.SpringFilter
+import org.springframework.platform.netflix.zuul.Routes
+import org.springframework.platform.netflix.zuul.SpringFilter
 
 class PreDecorationFilter extends SpringFilter {
     private static Logger LOG = LoggerFactory.getLogger(PreDecorationFilter.class);

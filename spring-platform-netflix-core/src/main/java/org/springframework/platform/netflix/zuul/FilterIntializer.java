@@ -1,7 +1,9 @@
-package io.spring.platform.netflix.zuul;
+package org.springframework.platform.netflix.zuul;
 
 import com.netflix.zuul.FilterFileManager;
 import com.netflix.zuul.FilterLoader;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.groovy.GroovyCompiler;
 import com.netflix.zuul.groovy.GroovyFileFilter;
 import com.netflix.zuul.monitoring.MonitoringHelper;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: spencergibb
@@ -23,7 +27,7 @@ public class FilterIntializer implements ServletContextListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterIntializer.class);
 
     @Autowired
-    ZuulProperties props;
+    private Map<String, ZuulFilter> filters;
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -33,8 +37,11 @@ public class FilterIntializer implements ServletContextListener {
         //FIXME: mocks monitoring infrastructure as we don't need it for this simple app
         MonitoringHelper.initMocks();
 
-        // initializes groovy filesystem poller
-        initGroovyFilterManager();
+        FilterRegistry registry = FilterRegistry.instance();
+
+        for (Map.Entry<String, ZuulFilter> entry : filters.entrySet()) {
+            registry.put(entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
@@ -42,9 +49,9 @@ public class FilterIntializer implements ServletContextListener {
         LOGGER.info("Stopping filter initializer context listener");
     }
 
-    private void initGroovyFilterManager() {
+    /*private void initGroovyFilterManager() {
 
-        //TODO: pluggable filter initialzer
+        //TODO: support groovy filters loaded from filesystem in proxy
         FilterLoader.getInstance().setCompiler(new GroovyCompiler());
 
         final String scriptRoot = props.getFilterRoot();
@@ -61,5 +68,5 @@ public class FilterIntializer implements ServletContextListener {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 }

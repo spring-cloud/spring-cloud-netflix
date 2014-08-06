@@ -50,11 +50,11 @@ public class FeignConfigurer {
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
         String name = URI.create(schemeName).getHost();
-        setServiceListClass(name);
+        setServiceListClassAndVIP(name);
         return builder.target(LoadBalancingTarget.create(type, schemeName));
     }
 
-    public static void setServiceListClass(String serviceId) {
+    public static void setServiceListClassAndVIP(String serviceId) {
         setProp(serviceId, "NIWSServerListClassName", DiscoveryEnabledNIWSServerList.class.getName());
         setProp(serviceId, "DeploymentContextBasedVipAddresses", serviceId); //FIXME: what should this be?
     }

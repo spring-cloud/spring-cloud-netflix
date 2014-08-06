@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.platform.netflix.endpoint.HystrixStreamEndpoint;
+import org.springframework.platform.netflix.zuul.Routes;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.ArrayList;

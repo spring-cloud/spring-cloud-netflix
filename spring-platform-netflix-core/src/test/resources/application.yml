@@ -1,12 +1,14 @@
 server:
-  port: 9000
+  port: 9999
 spring:
   application:
-    name: client
+    name: testclient
 eureka:
   server:
     enabled: false
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8080/v2/
-      default.defaultZone: http://localhost:8080/v2/
+
+zuul:
+  proxy:
+    route:
+      testclient: /testing123
+      stores: /stores

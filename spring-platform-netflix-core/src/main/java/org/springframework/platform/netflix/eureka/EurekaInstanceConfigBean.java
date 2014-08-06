@@ -66,7 +66,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
     private int leaseExpirationDurationInSeconds = 90;
 
-	@Value("${spring.application.name:unknown}.mydomain.net")
+	@Value("${spring.application.name:unknown}") //TODO: why is .mydomain.net here?
     private String virtualHostName;
 
     private String secureVirtualHostName;

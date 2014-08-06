@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.zuul;
+package org.springframework.platform.netflix.zuul;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +22,20 @@ public class Routes {
 
     @Autowired
     ConfigurableEnvironment env;
-    private final Field propertySourcesField;
+    private Field propertySourcesField;
+    private String keyPrefix;
 
     public Routes() {
+        keyPrefix = "zuul.route.";
+        initField();
+    }
+
+    public Routes(String keyPrefix) {
+        this.keyPrefix = keyPrefix;
+        initField();
+    }
+
+    private void initField() {
         propertySourcesField = ReflectionUtils.findField(CompositePropertySource.class, "propertySources");
         propertySourcesField.setAccessible(true);
     }
@@ -63,7 +74,7 @@ public class Routes {
             //EnumerablePropertySource enumerable = (EnumerablePropertySource) propertySource;
             MutablePropertySources propertySources = new MutablePropertySources();
             propertySources.addLast(propertySource);
-            Map<String, Object> routeEntries = PropertySourceUtils.getSubProperties(propertySources, "zuul.route.");
+            Map<String, Object> routeEntries = PropertySourceUtils.getSubProperties(propertySources, keyPrefix);
             for (Map.Entry<String, Object> entry : routeEntries.entrySet()) {
                 String serviceId = entry.getKey();
                 String route = entry.getValue().toString();
