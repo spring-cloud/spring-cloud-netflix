@@ -162,9 +162,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
         MultivaluedMap<String, String> params = new MultivaluedMapImpl();
         if (map == null) return params;
 
-        for (String key : params.keySet()) {
+        for (String key : map.keySet()) {
 
-            for (String value : params.get(key)) {
+            for (String value : map.get(key)) {
                 params.add(key, value);
             }
         }
