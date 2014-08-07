@@ -90,6 +90,12 @@
             <groupId>com.netflix.zuul</groupId>
             <artifactId>zuul-core</artifactId>
             <optional>true</optional>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>groovy-all</artifactId>
+            		<groupId>org.codehaus.groovy</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
