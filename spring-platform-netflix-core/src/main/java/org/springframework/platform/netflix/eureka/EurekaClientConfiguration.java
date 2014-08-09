@@ -41,6 +41,7 @@ import com.netflix.discovery.EurekaClientConfig;
  *
  */
 @Configuration
+// TODO: make these beans @Conditional
 @EnableConfigurationProperties({ EurekaClientConfigBean.class,
 		EurekaInstanceConfigBean.class })
 @ConditionalOnClass(EurekaClientConfig.class)
