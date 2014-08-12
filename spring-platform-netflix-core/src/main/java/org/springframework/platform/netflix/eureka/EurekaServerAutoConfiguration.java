@@ -18,20 +18,33 @@ package org.springframework.platform.netflix.eureka;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import com.netflix.eureka.PeerAwareInstanceRegistry;
+import com.netflix.eureka.lease.LeaseManager;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.platform.netflix.eureka.advice.PiggybackMethodInterceptor;
+import org.springframework.platform.netflix.eureka.event.EurekaRegistryAvailableEvent;
+import org.springframework.platform.netflix.eureka.event.EurekaServerStartedEvent;
+import org.springframework.platform.netflix.eureka.event.LeaseManagerMessageBroker;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 /**
  * @author Dave Syer
@@ -112,5 +125,42 @@ public class EurekaServerAutoConfiguration implements ServletContextAware,
 	public int getOrder() {
 		return order;
 	}
-	
+
+    @Configuration
+    @ConditionalOnClass(PeerAwareInstanceRegistry.class)
+    protected static class Initializer implements
+            ApplicationListener<EurekaRegistryAvailableEvent> {
+
+        @Autowired
+        private ApplicationContext applicationContext;
+
+        @Bean
+        public LeaseManagerMessageBroker leaseManagerMessageBroker() {
+            return new LeaseManagerMessageBroker();
+        }
+
+        @Override
+        public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
+            //wrap the instance registry...
+            ProxyFactory factory = new ProxyFactory(PeerAwareInstanceRegistry.getInstance());
+            //...with the LeaseManagerMessageBroker
+            factory.addAdvice(new PiggybackMethodInterceptor(leaseManagerMessageBroker(), LeaseManager.class));
+            factory.setProxyTargetClass(true);
+
+            //Now replace the PeerAwareInstanceRegistry with our wrapped version
+            Field field = ReflectionUtils.findField(PeerAwareInstanceRegistry.class, "instance");
+            try {
+                // Awful ugly hack to work around lack of DI in eureka
+                field.setAccessible(true);
+                Field modifiersField = Field.class.getDeclaredField("modifiers");
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+                ReflectionUtils.setField(field, null, factory.getProxy());
+            }
+            catch (Exception e) {
+                throw new IllegalStateException("Cannot modify instance registry", e);
+            }
+        }
+
+    }
 }

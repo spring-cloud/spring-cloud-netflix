@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.platform.netflix.eureka;
+package org.springframework.platform.netflix.eureka.event;
 
 import org.springframework.context.ApplicationEvent;
 

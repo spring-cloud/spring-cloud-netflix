@@ -13,16 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.platform.netflix.eureka.advice;
+package org.springframework.platform.netflix.eureka.event;
 
-import com.netflix.appinfo.InstanceInfo;
+import org.springframework.context.ApplicationEvent;
+
+import com.netflix.eureka.EurekaServerConfig;
 
 /**
  * @author Dave Syer
  *
  */
-public interface LeaseManagerLite {
+@SuppressWarnings("serial")
+public class EurekaServerStartedEvent extends ApplicationEvent {
 
-	void register(final InstanceInfo info, final boolean isReplication);
+	/**
+	 * @param eurekaServerConfig
+	 */
+	public EurekaServerStartedEvent(EurekaServerConfig eurekaServerConfig) {
+		super(eurekaServerConfig);
+	}
 
 }
