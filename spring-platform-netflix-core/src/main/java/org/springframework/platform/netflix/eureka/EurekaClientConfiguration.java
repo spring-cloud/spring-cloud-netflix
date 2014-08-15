@@ -27,6 +27,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
@@ -109,6 +112,8 @@ public class EurekaClientConfiguration implements
 	}
 	
 	@Bean
+	@Lazy
+	@Scope(proxyMode=ScopedProxyMode.TARGET_CLASS)
 	public DiscoveryClient discoveryClient() {
 		return DiscoveryManager.getInstance().getDiscoveryClient();
 	}

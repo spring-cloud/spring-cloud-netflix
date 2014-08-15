@@ -66,7 +66,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
     private int leaseExpirationDurationInSeconds = 90;
 
-	@Value("${spring.application.name:unknown}") //TODO: why is .mydomain.net here?
+	@Value("${spring.application.name:unknown}")
     private String virtualHostName;
 
     private String secureVirtualHostName;
@@ -99,6 +99,12 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
     private String namespace = "eureka";
 
 	private String hostname  = hostInfo[1];
+	
+	private boolean preferIpAddress = false;
+	
+	public String getHostname() {
+		return preferIpAddress ? ipAddress : hostname;
+	}
 
 	@Override
 	public boolean getSecurePortEnabled() {
@@ -118,7 +124,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	@Override
 	public String getHostName(boolean refresh) {
-		return hostname;
+		return preferIpAddress ? ipAddress : hostname;
 	}
 
 }
