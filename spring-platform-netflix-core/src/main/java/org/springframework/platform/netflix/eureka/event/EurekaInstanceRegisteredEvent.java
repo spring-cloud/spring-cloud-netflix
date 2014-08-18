@@ -1,5 +1,6 @@
 package org.springframework.platform.netflix.eureka.event;
 
+import com.netflix.appinfo.InstanceInfo;
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
 
@@ -8,15 +9,13 @@ import org.springframework.context.ApplicationEvent;
  */
 @Data
 public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
-    private String appName;
-    private String vip;
+    private InstanceInfo instanceInfo;
     private int leaseDuration;
     boolean replication;
 
-    public EurekaInstanceRegisteredEvent(Object source, String appName, String vip, int leaseDuration, boolean replication) {
+    public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo, int leaseDuration, boolean replication) {
         super(source);
-        this.appName = appName;
-        this.vip = vip;
+        this.instanceInfo = instanceInfo;
         this.leaseDuration = leaseDuration;
         this.replication = replication;
     }
