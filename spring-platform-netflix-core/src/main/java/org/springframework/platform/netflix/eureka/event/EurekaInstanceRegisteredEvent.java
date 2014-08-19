@@ -1,13 +1,18 @@
 package org.springframework.platform.netflix.eureka.event;
 
 import com.netflix.appinfo.InstanceInfo;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Spencer Gibb
  */
 @Data
+@EqualsAndHashCode(callSuper=false)
+@SuppressWarnings("serial")
 public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
     private InstanceInfo instanceInfo;
     private int leaseDuration;

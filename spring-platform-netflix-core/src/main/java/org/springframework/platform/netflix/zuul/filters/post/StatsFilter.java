@@ -1,7 +1,6 @@
 package org.springframework.platform.netflix.zuul.filters.post;
 
 import com.netflix.zuul.ZuulFilter;
-
 import com.netflix.zuul.context.RequestContext;
 
 import java.util.List;
@@ -30,7 +29,8 @@ public class StatsFilter extends ZuulFilter {
     }
 
     public void dumpRequestDebug() {
-        List<String> rd = (List<String>) RequestContext.getCurrentContext().get("requestDebug");
+        @SuppressWarnings("unchecked")
+		List<String> rd = (List<String>) RequestContext.getCurrentContext().get("requestDebug");
         if (rd != null) {
             for (String it : rd) {
                 System.out.println("REQUEST_DEBUG::" + it);
@@ -39,7 +39,8 @@ public class StatsFilter extends ZuulFilter {
     }
 
     public void dumpRoutingDebug() {
-        List<String> rd = (List<String>) RequestContext.getCurrentContext().get("routingDebug");
+        @SuppressWarnings("unchecked")
+		List<String> rd = (List<String>) RequestContext.getCurrentContext().get("routingDebug");
         if (rd != null) {
             for (String it : rd) {
                 System.out.println("ZUUL_DEBUG::"+it);

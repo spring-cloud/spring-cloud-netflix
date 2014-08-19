@@ -176,7 +176,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
         RequestContext context = RequestContext.getCurrentContext();
 
         MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-        Enumeration headerNames = request.getHeaderNames();
+        Enumeration<?> headerNames = request.getHeaderNames();
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {
                 String name = (String) headerNames.nextElement();

@@ -2,7 +2,6 @@ package org.springframework.platform.netflix.zuul.filters.post;
 
 import com.google.common.base.Throwables;
 import com.netflix.config.DynamicBooleanProperty;
-
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.util.Pair;
@@ -13,6 +12,7 @@ import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,7 +143,8 @@ public class SendResponseFilter extends ZuulFilter {
         List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
         String debugHeader = "";
 
-        List<String> rd = (List<String>) RequestContext.getCurrentContext().get("routingDebug");
+        @SuppressWarnings("unchecked")
+		List<String> rd = (List<String>) RequestContext.getCurrentContext().get("routingDebug");
         for (String it : rd) {
             debugHeader += "[[["+it+"]]]";
         }

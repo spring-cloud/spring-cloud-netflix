@@ -1,21 +1,22 @@
 package org.springframework.platform.netflix.eureka.event;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryManager;
-import com.netflix.discovery.shared.Application;
-import com.netflix.eureka.PeerAwareInstanceRegistry;
-import com.netflix.eureka.lease.LeaseManager;
+import static com.google.common.collect.Iterables.tryFind;
+
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.collect.Iterables.*;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.shared.Application;
+import com.netflix.eureka.PeerAwareInstanceRegistry;
+import com.netflix.eureka.lease.LeaseManager;
 
 /**
  * @author Spencer Gibb

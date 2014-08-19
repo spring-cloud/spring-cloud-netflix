@@ -1,20 +1,17 @@
 package org.springframework.platform.netflix.zuul;
 
-import com.netflix.zuul.FilterFileManager;
-import com.netflix.zuul.FilterLoader;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.filters.FilterRegistry;
-import com.netflix.zuul.groovy.GroovyCompiler;
-import com.netflix.zuul.groovy.GroovyFileFilter;
-import com.netflix.zuul.monitoring.MonitoringHelper;
+import java.util.Map;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import java.util.List;
-import java.util.Map;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.filters.FilterRegistry;
+import com.netflix.zuul.monitoring.MonitoringHelper;
 
 /**
  * User: spencergibb
