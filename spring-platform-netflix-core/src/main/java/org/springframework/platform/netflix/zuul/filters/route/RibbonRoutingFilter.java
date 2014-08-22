@@ -105,7 +105,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 			RequestContext context = RequestContext.getCurrentContext();
 			info.put("remote", true);
-			info.put("servideId", context.get("serviceId"));
+			info.put("serviceId", context.get("serviceId"));
 			Map<String, Object> trace = new LinkedHashMap<String, Object>();
 			Map<String, Object> input = new LinkedHashMap<String, Object>();
 			trace.put("request", input);
