@@ -195,6 +195,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
         if (headers.containsKey("transfer-encoding"))
             headers.remove("transfer-encoding");
 
+        if (headers.containsKey("host"))
+            headers.remove("host");
+
         return headers;
     }
 
