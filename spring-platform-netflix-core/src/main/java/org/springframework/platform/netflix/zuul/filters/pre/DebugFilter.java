@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 public class DebugFilter extends ZuulFilter {
 
     static final DynamicBooleanProperty routingDebug = DynamicPropertyFactory.getInstance()
-            .getBooleanProperty(ZuulConstants.ZUUL_DEBUG_REQUEST, true);
+            .getBooleanProperty(ZuulConstants.ZUUL_DEBUG_REQUEST, false);
     static final DynamicStringProperty debugParameter = DynamicPropertyFactory.getInstance()
-            .getStringProperty(ZuulConstants.ZUUL_DEBUG_PARAMETER, "d");
+            .getStringProperty(ZuulConstants.ZUUL_DEBUG_PARAMETER, "debug");
 
     @Override
     public String filterType() {

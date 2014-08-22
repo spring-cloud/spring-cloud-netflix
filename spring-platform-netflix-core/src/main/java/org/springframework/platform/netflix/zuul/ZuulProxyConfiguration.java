@@ -1,8 +1,10 @@
 package org.springframework.platform.netflix.zuul;
 
-import com.netflix.zuul.context.ContextLifecycleFilter;
-import com.netflix.zuul.http.ZuulServlet;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
@@ -11,14 +13,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.platform.netflix.zuul.filters.post.SendResponseFilter;
-import org.springframework.platform.netflix.zuul.filters.post.StatsFilter;
 import org.springframework.platform.netflix.zuul.filters.pre.DebugFilter;
-import org.springframework.platform.netflix.zuul.filters.pre.DebugRequestFilter;
 import org.springframework.platform.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.platform.netflix.zuul.filters.route.RibbonRoutingFilter;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import com.netflix.zuul.context.ContextLifecycleFilter;
+import com.netflix.zuul.http.ZuulServlet;
 
 /**
  * @author Spencer Gibb
@@ -31,6 +31,9 @@ public class ZuulProxyConfiguration {
 
     @Autowired
     private ZuulProxyProperties props;
+    
+    @Autowired(required=false)
+    private TraceRepository traces;
 
     @Bean
     public FilterRegistrationBean contextLifecycleFilter() {
@@ -65,11 +68,6 @@ public class ZuulProxyConfiguration {
     }
 
     @Bean
-    public DebugRequestFilter debugRequestFilter() {
-        return new DebugRequestFilter();
-    }
-
-    @Bean
     public PreDecorationFilter preDecorationFilter() {
         return new PreDecorationFilter();
     }
@@ -77,18 +75,17 @@ public class ZuulProxyConfiguration {
     // route filters
     @Bean
     public RibbonRoutingFilter ribbonRoutingFilter() {
-        return new RibbonRoutingFilter();
+        RibbonRoutingFilter filter = new RibbonRoutingFilter();
+        if (traces!=null) {
+        	filter.setTraces(traces);
+        }
+		return filter;
     }
 
     // post filters
     @Bean
     public SendResponseFilter sendResponseFilter() {
         return new SendResponseFilter();
-    }
-
-    @Bean
-    public StatsFilter statsFilter() {
-        return new StatsFilter();
     }
 
 }
