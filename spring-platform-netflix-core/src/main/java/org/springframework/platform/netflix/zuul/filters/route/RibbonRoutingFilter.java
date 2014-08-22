@@ -167,7 +167,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 				Map<String, Object> trace = (Map<String, Object>) info.get("headers");
 				Map<String, Object> output = new LinkedHashMap<String, Object>();
 				trace.put("response", output);
-				info.put("status", response.getStatus());
+				info.put("status", ""+response.getStatus());
 				for (Entry<String, Collection<String>> key : response.getHeaders()
 						.entrySet()) {
 					Collection<String> collection = key.getValue();
@@ -181,7 +181,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			return response;
 		}
 		catch (HystrixRuntimeException e) {
-			info.put("status", 500);
+			info.put("status", "500");
 			if (e.getFallbackException() != null
 					&& e.getFallbackException().getCause() != null
 					&& e.getFallbackException().getCause() instanceof ClientException) {
