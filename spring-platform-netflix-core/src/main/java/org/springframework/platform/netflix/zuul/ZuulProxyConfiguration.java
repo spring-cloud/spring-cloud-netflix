@@ -57,8 +57,8 @@ public class ZuulProxyConfiguration {
     }
 
     @Bean
-    FilterIntializer filterIntializer() {
-        return new FilterIntializer();
+    FilterInitializer zuulFilterInitializer() {
+        return new FilterInitializer();
     }
 
     // pre filters

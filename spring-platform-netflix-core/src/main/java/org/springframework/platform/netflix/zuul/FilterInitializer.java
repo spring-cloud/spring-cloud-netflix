@@ -19,9 +19,9 @@ import com.netflix.zuul.monitoring.MonitoringHelper;
  * Time: 9:23 PM
  * TODO:  .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
  */
-public class FilterIntializer implements ServletContextListener {
+public class FilterInitializer implements ServletContextListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FilterIntializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilterInitializer.class);
 
     @Autowired
     private Map<String, ZuulFilter> filters;
@@ -29,7 +29,7 @@ public class FilterIntializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-        LOGGER.info("Starting filter initialzer context listener");
+        LOGGER.info("Starting filter initializer context listener");
 
         //FIXME: mocks monitoring infrastructure as we don't need it for this simple app
         MonitoringHelper.initMocks();
