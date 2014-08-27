@@ -68,7 +68,7 @@ public class EurekaServerAutoConfiguration implements ServletContextAware,
 
 	private boolean running;
 
-	private int order = 0;
+	private int order = 1;
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {

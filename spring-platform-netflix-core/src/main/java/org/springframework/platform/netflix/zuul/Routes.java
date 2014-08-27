@@ -26,7 +26,7 @@ public class Routes {
     private String keyPrefix;
 
     public Routes() {
-        keyPrefix = "zuul.route.";
+        keyPrefix = "zuul.proxy.route.";
         initField();
     }
 

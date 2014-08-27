@@ -53,7 +53,7 @@ public class ZuulProxyConfiguration {
 
     @Bean
     Routes routes() {
-        return new Routes("zuul.proxy.route.");
+        return new Routes();
     }
 
     @Bean
