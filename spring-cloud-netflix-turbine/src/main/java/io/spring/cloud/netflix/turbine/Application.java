@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.turbine;
+package io.spring.cloud.netflix.turbine;
 
 import com.netflix.turbine.init.TurbineInit;
 import com.netflix.turbine.plugins.PluginsFactory;

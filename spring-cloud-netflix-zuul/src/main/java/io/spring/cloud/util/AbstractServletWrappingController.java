@@ -1,4 +1,4 @@
-package io.spring.platform.util;
+package io.spring.cloud.util;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;

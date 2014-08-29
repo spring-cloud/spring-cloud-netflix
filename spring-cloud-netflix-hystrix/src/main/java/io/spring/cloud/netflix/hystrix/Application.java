@@ -1,7 +1,7 @@
-package io.spring.platform.netflix.hystrix;
+package io.spring.cloud.netflix.hystrix;
 
-import io.spring.platform.netflix.hystrix.stream.MockStreamServlet;
-import io.spring.platform.netflix.hystrix.stream.ProxyStreamServlet;
+import io.spring.cloud.netflix.hystrix.stream.MockStreamServlet;
+import io.spring.cloud.netflix.hystrix.stream.ProxyStreamServlet;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;

@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.turbine;
+package io.spring.cloud.netflix.turbine;
 
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.DataCenterInfo;

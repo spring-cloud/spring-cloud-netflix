@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.zuul;
+package io.spring.cloud.netflix.zuul;
 
 import com.netflix.zuul.context.ContextLifecycleFilter;
 import org.springframework.boot.SpringApplication;

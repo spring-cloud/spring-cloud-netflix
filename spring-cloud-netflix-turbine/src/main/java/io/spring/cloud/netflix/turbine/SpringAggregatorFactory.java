@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.turbine;
+package io.spring.cloud.netflix.turbine;
 
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;

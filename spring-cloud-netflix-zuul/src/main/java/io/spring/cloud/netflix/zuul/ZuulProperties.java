@@ -1,4 +1,4 @@
-package io.spring.platform.netflix.zuul;
+package io.spring.cloud.netflix.zuul;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -1,7 +1,7 @@
-package io.spring.platform.netflix.zuul;
+package io.spring.cloud.netflix.zuul;
 
 import com.netflix.zuul.http.ZuulServlet;
-import io.spring.platform.util.AbstractServletWrappingController;
+import io.spring.cloud.util.AbstractServletWrappingController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
