@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.springframework.platform</groupId>
-    <artifactId>spring-platform-netflix</artifactId>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-netflix</artifactId>
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>spring-platform-netflix</name>
-    <description>Spring Platform Netflix</description>
+    <name>spring-cloud-netflix</name>
+    <description>Spring Cloud Netflix</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -19,17 +19,17 @@
     </parent>
 
     <modules>
-        <module>spring-platform-netflix-core</module>
-        <module>spring-platform-netflix-hystrix</module>
-        <module>spring-platform-netflix-turbine</module>
-        <module>spring-platform-netflix-zuul</module>
+        <module>spring-cloud-netflix-core</module>
+        <module>spring-cloud-netflix-hystrix</module>
+        <module>spring-cloud-netflix-turbine</module>
+        <module>spring-cloud-netflix-zuul</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-              <groupId>org.springframework.platform</groupId>
-              <artifactId>spring-platform-netflix-core</artifactId>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-netflix-core</artifactId>
               <version>1.0.0.BUILD-SNAPSHOT</version>
             </dependency>
             <dependency>

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.springframework.platform</groupId>
-    <artifactId>spring-platform-netflix-zuul</artifactId>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-netflix-zuul</artifactId>
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Spring Platform Netflix Zuul</name>
-    <url>http://projects.spring.io/spring-platform/</url>
+    <name>Spring Cloud Netflix Zuul</name>
+    <url>http://projects.spring.io/spring-cloud/</url>
     <parent>
-        <groupId>org.springframework.platform</groupId>
-        <artifactId>spring-platform-netflix</artifactId>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-netflix</artifactId>
         <version>1.0.0.BUILD-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
@@ -31,15 +31,15 @@
     </build>
 
     <properties>
-        <spring-platform-config.version>1.0.0.BUILD-SNAPSHOT</spring-platform-config.version>
+        <spring-cloud-config.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-config.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.springframework.platform</groupId>
-                <artifactId>spring-platform-config</artifactId>
-                <version>${spring-platform-config.version}</version>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-config</artifactId>
+                <version>${spring-cloud-config.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -51,13 +51,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.platform</groupId>
-            <artifactId>spring-platform-netflix-core</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-netflix-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.platform</groupId>
-            <artifactId>spring-platform-config-client</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.netflix.hystrix</groupId>

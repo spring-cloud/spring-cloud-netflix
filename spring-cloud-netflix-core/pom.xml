@@ -3,14 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>spring-platform-netflix-core</artifactId>
+	<artifactId>spring-cloud-netflix-core</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-platform-netflix-core</name>
-	<description>Spring Platform Netflix Core</description>
+	<name>spring-cloud-netflix-core</name>
+	<description>Spring Cloud Netflix Core</description>
 
 	<parent>
-		<groupId>org.springframework.platform</groupId>
-		<artifactId>spring-platform-netflix</artifactId>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-netflix</artifactId>
 		<version>1.0.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
