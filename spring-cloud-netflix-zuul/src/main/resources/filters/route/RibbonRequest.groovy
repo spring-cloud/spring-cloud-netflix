@@ -15,14 +15,14 @@ import com.netflix.zuul.util.HTTPRequestUtils
 import com.sun.jersey.core.util.MultivaluedMapImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.platform.netflix.zuul.RibbonCommand
+import org.springframework.cloud.netflix.zuul.RibbonCommand
 
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MultivaluedMap
 import java.util.zip.GZIPInputStream
 
 import static HttpRequest.Verb
-import static org.springframework.platform.netflix.feign.FeignConfigurer.setServiceListClassAndVIP
+import static org.springframework.cloud.netflix.feign.FeignConfigurer.setServiceListClassAndVIP
 
 class RibbonRequest extends ZuulFilter {
 

@@ -1,4 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.platform.netflix.archaius.ArchaiusAutoConfiguration,\
-org.springframework.platform.netflix.eureka.EurekaServerAutoConfiguration,\
-org.springframework.platform.netflix.feign.FeignAutoConfiguration
+org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration,\
+org.springframework.cloud.netflix.eureka.EurekaServerAutoConfiguration,\
+org.springframework.cloud.netflix.feign.FeignAutoConfiguration
