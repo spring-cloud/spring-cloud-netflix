@@ -1,13 +1,14 @@
 package io.spring.cloud.netflix.zuul;
 
 import com.netflix.zuul.context.ContextLifecycleFilter;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.cloud.netflix.endpoint.HystrixStreamEndpoint;
+import org.springframework.cloud.netflix.hystrix.HystrixStreamEndpoint;
 import org.springframework.cloud.netflix.zuul.Routes;
 import org.springframework.scheduling.annotation.EnableScheduling;
 

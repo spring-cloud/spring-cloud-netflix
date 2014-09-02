@@ -1,6 +1,7 @@
 package org.springframework.cloud.netflix.hystrix;
 
 import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +9,6 @@ import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.cloud.netflix.hystrix.annotations.EnableHystrix;
-import org.springframework.cloud.netflix.endpoint.HystrixStreamEndpoint;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 

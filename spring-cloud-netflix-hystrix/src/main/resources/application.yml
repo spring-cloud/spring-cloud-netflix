@@ -9,7 +9,6 @@ endpoints:
 
 server:
   port: 7979
-  context-path: /hystrix-dashboard
 
 logging:
   level: INFO

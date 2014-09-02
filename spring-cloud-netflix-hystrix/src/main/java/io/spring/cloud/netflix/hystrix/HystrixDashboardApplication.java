@@ -1,11 +1,12 @@
 package io.spring.cloud.netflix.hystrix;
 
 import io.spring.cloud.netflix.hystrix.stream.MockStreamServlet;
-import io.spring.cloud.netflix.hystrix.stream.ProxyStreamServlet;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.cloud.netflix.hystrix.annotations.EnableHystrixDashboard;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,16 +16,17 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan
+@EnableHystrixDashboard
 @EnableAutoConfiguration
-public class Application extends SpringBootServletInitializer {
+public class HystrixDashboardApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(Application.class).web(true);
+        return application.sources(HystrixDashboardApplication.class).web(true);
     }
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder(Application.class).web(true).run(args);
+        new SpringApplicationBuilder(HystrixDashboardApplication.class).web(true).run(args);
     }
 
     @Bean
@@ -32,8 +34,4 @@ public class Application extends SpringBootServletInitializer {
         return new ServletRegistrationBean(new MockStreamServlet(), "/mock.stream");
     }
 
-    @Bean
-    public ServletRegistrationBean proxyStreamServlet() {
-        return new ServletRegistrationBean(new ProxyStreamServlet(), "/proxy.stream");
-    }
 }
