@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.hystrix;
+package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import java.io.IOException;
 import java.io.InputStream;

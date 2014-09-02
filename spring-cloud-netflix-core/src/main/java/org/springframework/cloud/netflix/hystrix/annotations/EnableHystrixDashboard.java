@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.cloud.netflix.hystrix.HystrixDashboardConfiguration;
+import org.springframework.cloud.netflix.hystrix.dashboard.HystrixDashboardConfiguration;
 import org.springframework.context.annotation.Import;
 
 /**
