@@ -3,7 +3,6 @@ package org.springframework.cloud.netflix.hystrix;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.AdviceModeImportSelector;
 import org.springframework.context.annotation.AutoProxyRegistrar;
-import org.springframework.cloud.netflix.hystrix.annotations.EnableHystrix;
 
 /**
  * Created by sgibb on 6/19/14.

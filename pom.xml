@@ -20,7 +20,7 @@
 
     <modules>
         <module>spring-cloud-netflix-core</module>
-        <module>spring-cloud-netflix-hystrix</module>
+        <module>spring-cloud-netflix-hystrix-dashboard</module>
         <module>spring-cloud-netflix-turbine</module>
         <module>spring-cloud-netflix-zuul</module>
     </modules>
@@ -30,6 +30,11 @@
             <dependency>
               <groupId>org.springframework.cloud</groupId>
               <artifactId>spring-cloud-netflix-core</artifactId>
+              <version>1.0.0.BUILD-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-netflix-hystrix-dashboard</artifactId>
               <version>1.0.0.BUILD-SNAPSHOT</version>
             </dependency>
             <dependency>

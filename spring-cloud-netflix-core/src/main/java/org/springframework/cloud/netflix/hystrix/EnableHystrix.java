@@ -1,9 +1,8 @@
-package org.springframework.cloud.netflix.hystrix.annotations;
+package org.springframework.cloud.netflix.hystrix;
 
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
-import org.springframework.cloud.netflix.hystrix.HystrixConfigurationSelector;
 
 import java.lang.annotation.*;
 

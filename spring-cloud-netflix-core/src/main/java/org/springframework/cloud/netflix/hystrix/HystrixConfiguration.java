@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.cloud.netflix.hystrix.annotations.EnableHystrix;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 

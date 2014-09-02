@@ -1,8 +1,0 @@
-#org.springframework.context.ApplicationListener=\
-#org.springframework.cloud.netflix.eureka.EurekaStartingListener,\
-#org.springframework.cloud.netflix.eureka.EurekaUpListener,\
-#org.springframework.cloud.netflix.eureka.EurekaOutOfServiceListener
-
-#org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-#org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration,\
-#org.springframework.cloud.netflix.feign.FeignAutoConfiguration
