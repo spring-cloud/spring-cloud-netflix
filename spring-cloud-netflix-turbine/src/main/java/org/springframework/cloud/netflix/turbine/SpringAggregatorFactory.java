@@ -1,4 +1,4 @@
-package io.spring.cloud.netflix.turbine;
+package org.springframework.cloud.netflix.turbine;
 
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
@@ -28,7 +28,7 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
     private static final DynamicStringProperty aggClusters = DynamicPropertyFactory.getInstance().getStringProperty("turbine.aggregator.clusterConfig", null);
 
     /**
-     * @return {@link ClusterMonitor}<{@link AggDataFromCluster}>
+     * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}<{@link com.netflix.turbine.data.AggDataFromCluster}>
      */
     @Override
     public ClusterMonitor<AggDataFromCluster> getClusterMonitor(String name) {

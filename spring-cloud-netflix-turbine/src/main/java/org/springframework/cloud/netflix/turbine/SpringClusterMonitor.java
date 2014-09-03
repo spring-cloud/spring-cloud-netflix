@@ -1,4 +1,4 @@
-package io.spring.cloud.netflix.turbine;
+package org.springframework.cloud.netflix.turbine;
 
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -13,6 +13,7 @@ import com.netflix.turbine.monitor.instance.InstanceUrlClosure;
 
 /**
  * Created by sgibb on 7/14/14.
+ * TODO: convert to ConfigurationProperties (how to do per-cluster configuration?)
  */
 public class SpringClusterMonitor extends AggregateClusterMonitor {
 
@@ -32,8 +33,8 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
      */
     public static InstanceUrlClosure ClusterConfigBasedUrlClosure = new InstanceUrlClosure() {
 
-        private final DynamicStringProperty defaultUrlClosureConfig = DynamicPropertyFactory.getInstance().getStringProperty("turbine.instanceUrlSuffix", null);
-        private final DynamicBooleanProperty instanceInsertPort = DynamicPropertyFactory.getInstance().getBooleanProperty("turbine.instanceInsertPort", false);
+        private final DynamicStringProperty defaultUrlClosureConfig = DynamicPropertyFactory.getInstance().getStringProperty("turbine.instanceUrlSuffix", "hystrix.stream");
+        private final DynamicBooleanProperty instanceInsertPort = DynamicPropertyFactory.getInstance().getBooleanProperty("turbine.instanceInsertPort", true);
         @Override
         public String getUrlPath(Instance host) {
 

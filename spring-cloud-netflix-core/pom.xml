@@ -5,7 +5,7 @@
 
 	<artifactId>spring-cloud-netflix-core</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-cloud-netflix-core</name>
+	<name>Spring Cloud Netflix Core</name>
 	<description>Spring Cloud Netflix Core</description>
 
 	<parent>

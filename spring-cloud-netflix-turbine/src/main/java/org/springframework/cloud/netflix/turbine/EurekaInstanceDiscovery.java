@@ -1,4 +1,4 @@
-package io.spring.cloud.netflix.turbine;
+package org.springframework.cloud.netflix.turbine;
 
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.DataCenterInfo;
@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Class that encapsulates an {@link InstanceDiscovery} implementation that uses Eureka (see https://github.com/Netflix/eureka)
- * The plugin requires a list of applications configured. It then queries the set of instances for each application. 
- * Instance information retrieved from Eureka must be translated to something that Turbine can understand i.e the {@link Instance} class.
+ * Class that encapsulates an {@link com.netflix.turbine.discovery.InstanceDiscovery} implementation that uses Eureka (see https://github.com/Netflix/eureka)
+ * The plugin requires a list of applications configured. It then queries the set of instances for each application.
+ * Instance information retrieved from Eureka must be translated to something that Turbine can understand i.e the {@link com.netflix.turbine.discovery.Instance} class.
  *
  * All the logic to perform this translation can be overriden here, so that you can provide your own implementation if needed.  
  */
@@ -31,7 +31,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 
     public EurekaInstanceDiscovery() {
         // Eureka client should already be configured by spring-platform-netflix-core
-        // initialize eureka client.  make sure eureka properties are properly configured in config.properties
+        // initialize eureka client.
         //DiscoveryManager.getInstance().initComponent(new MyDataCenterInstanceConfig(), new DefaultEurekaClientConfig());
     }
 
@@ -42,7 +42,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
     @Override
     public Collection<Instance> getInstanceList() throws Exception {
 
-        List<Instance> instances = new ArrayList<>();
+        List<Instance> instances = new ArrayList<Instance>();
 
         List<String> appNames = parseApps();
         if (appNames == null || appNames.size() == 0) {
@@ -75,7 +75,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
      */
     private List<Instance> getInstancesForApp(String appName) throws Exception {
 
-        List<Instance> instances = new ArrayList<>();
+        List<Instance> instances = new ArrayList<Instance>();
 
         logger.info("Fetching instances for app: {}", appName);
         Application app = DiscoveryManager.getInstance().getDiscoveryClient().getApplication(appName);
@@ -162,9 +162,10 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
      * @return
      */
     protected String getClusterName(InstanceInfo iInfo) {
-        //TODO: make ASG configurable return iInfo.getASGName();
+        //TODO: make ASG configurable using app name for demo. //return iInfo.getASGName();
         //AppGroupName is UPPERCASE from eureka
-        return iInfo.getAppGroupName();
+        //return iInfo.getAppGroupName();
+        return iInfo.getAppName();
     }
 
     /**
