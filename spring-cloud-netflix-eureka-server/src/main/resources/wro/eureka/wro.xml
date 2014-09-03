@@ -1,5 +1,0 @@
-<groups xmlns="http://www.isdc.ro/wro">
-  <group name="wro">
-    <css>file:${project.basedir}/src/main/resources/wro/eureka/main.less</css>
-  </group>
-</groups>
