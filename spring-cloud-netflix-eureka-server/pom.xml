@@ -17,17 +17,6 @@
 		<wro4j.version>1.7.6</wro4j.version>
 	</properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starters</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -61,7 +50,6 @@
 		<dependency>
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-client</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
@@ -96,9 +84,6 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>target/generated-resources</directory>
-			</resource>
-			<resource>
 				<directory>src/main/resources</directory>
 				<excludes>
 					<exclude>wro/**</exclude>
@@ -107,12 +92,33 @@
 		</resources>
 		<plugins>
 			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/wro</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/resources/wro</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>ro.isdc.wro4j</groupId>
 				<artifactId>wro4j-maven-plugin</artifactId>
 				<version>${wro4j.version}</version>
 				<executions>
 					<execution>
-						<phase>generate-resources</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
@@ -120,10 +126,30 @@
 				</executions>
 				<configuration>
 					<wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-					<destinationFolder>${basedir}/target/generated-resources/static/eureka/</destinationFolder>
-					<wroFile>${basedir}/src/main/resources/wro/wro.xml</wroFile>
-					<extraConfigFile>${basedir}/src/main/resources/wro/wro.properties</extraConfigFile>
+					<destinationFolder>${project.build.directory}/classes/static/eureka/</destinationFolder>
+					<wroFile>${project.build.directory}/wro/eureka/wro.xml</wroFile>
+					<extraConfigFile>${basedir}/src/main/resources/wro/eureka/wro.properties</extraConfigFile>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-resource</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>add-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/generated-resources</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
