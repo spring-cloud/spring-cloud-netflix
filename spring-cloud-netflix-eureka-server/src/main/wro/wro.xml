@@ -1,0 +1,5 @@
+<groups xmlns="http://www.isdc.ro/wro">
+  <group name="wro">
+    <css>file:${project.basedir}/src/main/wro/main.less</css>
+  </group>
+</groups>
