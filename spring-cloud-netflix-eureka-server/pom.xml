@@ -84,6 +84,9 @@
 	<build>
 		<resources>
 			<resource>
+				<directory>${project.build.directory}/generated-resources</directory>
+			</resource>
+			<resource>
 				<directory>src/main/resources</directory>
 				<excludes>
 					<exclude>wro/**</exclude>
@@ -118,7 +121,7 @@
 				<version>${wro4j.version}</version>
 				<executions>
 					<execution>
-						<phase>process-resources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
@@ -126,7 +129,7 @@
 				</executions>
 				<configuration>
 					<wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-					<destinationFolder>${project.build.directory}/classes/static/eureka/</destinationFolder>
+					<destinationFolder>${project.build.directory}/generated-resources/static/eureka/</destinationFolder>
 					<wroFile>${project.build.directory}/wro/eureka/wro.xml</wroFile>
 					<extraConfigFile>${basedir}/src/main/resources/wro/eureka/wro.properties</extraConfigFile>
 				</configuration>
@@ -137,7 +140,7 @@
 				<executions>
 					<execution>
 						<id>add-resource</id>
-						<phase>process-resources</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>add-resource</goal>
 						</goals>
