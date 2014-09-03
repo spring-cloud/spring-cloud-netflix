@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.eureka;
+package org.springframework.cloud.netflix.eureka.server;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
-import com.netflix.eureka.PeerAwareInstanceRegistry;
-import com.netflix.eureka.lease.LeaseManager;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
+import org.springframework.cloud.netflix.eureka.advice.PiggybackMethodInterceptor;
+import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEvent;
+import org.springframework.cloud.netflix.eureka.event.EurekaServerStartedEvent;
+import org.springframework.cloud.netflix.eureka.event.LeaseManagerMessageBroker;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.cloud.netflix.eureka.advice.PiggybackMethodInterceptor;
-import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEvent;
-import org.springframework.cloud.netflix.eureka.event.EurekaServerStartedEvent;
-import org.springframework.cloud.netflix.eureka.event.LeaseManagerMessageBroker;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.ServletContextAware;
 
@@ -42,9 +43,8 @@ import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import com.netflix.eureka.PeerAwareInstanceRegistry;
+import com.netflix.eureka.lease.LeaseManager;
 
 /**
  * @author Dave Syer
@@ -52,10 +52,7 @@ import java.lang.reflect.Modifier;
  */
 @Configuration
 @EnableConfigurationProperties(EurekaServerConfigBean.class)
-@ConditionalOnClass(EurekaServerConfig.class)
-@ConditionalOnExpression("${eureka.server.enabled:true}")
-@EnableEurekaClient
-public class EurekaServerAutoConfiguration implements ServletContextAware,
+public class EurekaServerInitializerConfiguration implements ServletContextAware,
 		SmartLifecycle, Ordered {
 
 	@Autowired

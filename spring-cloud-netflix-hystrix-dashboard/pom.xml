@@ -51,5 +51,13 @@
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-metrics-event-stream</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>d3js</artifactId>
+		</dependency>
     </dependencies>
 </project>
