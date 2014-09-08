@@ -16,13 +16,16 @@
 package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PreDestroy;
+import javax.management.MBeanServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +37,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
@@ -116,6 +120,12 @@ public class EurekaClientConfiguration implements
 	@Scope(proxyMode=ScopedProxyMode.TARGET_CLASS)
 	public DiscoveryClient discoveryClient() {
 		return DiscoveryManager.getInstance().getDiscoveryClient();
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean
+	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server, EurekaInstanceConfig config) {
+		return new EurekaHealthIndicator(discoveryClient(), new ServoMetricReader(server), config);
 	}
 	
 }
