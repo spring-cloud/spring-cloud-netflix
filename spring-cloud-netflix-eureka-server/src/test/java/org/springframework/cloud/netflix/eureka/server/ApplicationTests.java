@@ -22,7 +22,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=eureka", "management.contextPath=/admin" })
+@IntegrationTest({ "server.port=0", "spring.application.name=eureka", "management.contextPath=/admin", "spring.jmx.enabled=true" })
 public class ApplicationTests {
 
 	@Value("${local.server.port}")

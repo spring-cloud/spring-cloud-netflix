@@ -21,6 +21,10 @@ import java.lang.reflect.Modifier;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -31,10 +35,11 @@ import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEve
 import org.springframework.cloud.netflix.eureka.event.EurekaServerStartedEvent;
 import org.springframework.cloud.netflix.eureka.event.LeaseManagerMessageBroker;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.ServletContextAware;
@@ -54,6 +59,9 @@ import com.netflix.eureka.lease.LeaseManager;
 @EnableConfigurationProperties(EurekaServerConfigBean.class)
 public class EurekaServerInitializerConfiguration implements ServletContextAware,
 		SmartLifecycle, Ordered {
+
+	private static Log logger = LogFactory
+			.getLog(EurekaServerInitializerConfiguration.class);
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;
@@ -77,18 +85,27 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				new EurekaBootStrap() {
-					@Override
-					protected void initEurekaEnvironment() {
-						LoggingConfiguration.getInstance().configure();
-						EurekaServerConfigurationManager.getInstance()
-								.setConfiguration(eurekaServerConfig);
-						//PeerAwareInstanceRegistry.getInstance();
-						applicationContext.publishEvent(new EurekaRegistryAvailableEvent(eurekaServerConfig));
-					}
-				}.contextInitialized(new ServletContextEvent(servletContext));
-				running = true;
-				applicationContext.publishEvent(new EurekaServerStartedEvent(eurekaServerConfig));
+				try {
+					new EurekaBootStrap() {
+						@Override
+						protected void initEurekaEnvironment() {
+							LoggingConfiguration.getInstance().configure();
+							EurekaServerConfigurationManager.getInstance()
+									.setConfiguration(eurekaServerConfig);
+							// PeerAwareInstanceRegistry.getInstance();
+							applicationContext
+									.publishEvent(new EurekaRegistryAvailableEvent(
+											eurekaServerConfig));
+						}
+					}.contextInitialized(new ServletContextEvent(servletContext));
+					running = true;
+					applicationContext.publishEvent(new EurekaServerStartedEvent(
+							eurekaServerConfig));
+				}
+				catch (Exception e) {
+					// Help!
+					logger.error("Could not initialize Eureka servlet context", e);
+				}
 			}
 		}).start();
 	}
@@ -123,41 +140,130 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		return order;
 	}
 
-    @Configuration
-    @ConditionalOnClass(PeerAwareInstanceRegistry.class)
-    protected static class Initializer implements
-            ApplicationListener<EurekaRegistryAvailableEvent> {
+	@Configuration
+	@ConditionalOnClass(PeerAwareInstanceRegistry.class)
+	protected static class RegistryInstanceProxyInitializer implements
+			SmartApplicationListener {
 
-        @Autowired
-        private ApplicationContext applicationContext;
+		@Autowired
+		private ApplicationContext applicationContext;
 
-        @Bean
-        public LeaseManagerMessageBroker leaseManagerMessageBroker() {
-            return new LeaseManagerMessageBroker();
-        }
+		private PeerAwareInstanceRegistry instance;
 
-        @Override
-        public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
-            //wrap the instance registry...
-            ProxyFactory factory = new ProxyFactory(PeerAwareInstanceRegistry.getInstance());
-            //...with the LeaseManagerMessageBroker
-            factory.addAdvice(new PiggybackMethodInterceptor(leaseManagerMessageBroker(), LeaseManager.class));
-            factory.setProxyTargetClass(true);
+		@Bean
+		public LeaseManagerMessageBroker leaseManagerMessageBroker() {
+			return new LeaseManagerMessageBroker();
+		}
 
-            //Now replace the PeerAwareInstanceRegistry with our wrapped version
-            Field field = ReflectionUtils.findField(PeerAwareInstanceRegistry.class, "instance");
-            try {
-                // Awful ugly hack to work around lack of DI in eureka
-                field.setAccessible(true);
-                Field modifiersField = Field.class.getDeclaredField("modifiers");
-                modifiersField.setAccessible(true);
-                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-                ReflectionUtils.setField(field, null, factory.getProxy());
-            }
-            catch (Exception e) {
-                throw new IllegalStateException("Cannot modify instance registry", e);
-            }
-        }
+		@Override
+		public void onApplicationEvent(ApplicationEvent event) {
+			if (instance == null) {
+				instance = PeerAwareInstanceRegistry.getInstance();
+				// Our instance is the un-proxied version so we can hack it
+				expectRegistrations(1);
+			}
+			if (event instanceof EurekaServerStartedEvent) {
+				// Do it again in case this message came in late
+				expectRegistrations(1);
+			}
+			else {
+				replaceInstance(getProxyForInstance());
+			}
+		}
 
-    }
+		private void replaceInstance(Object proxy) {
+			Field field = ReflectionUtils.findField(PeerAwareInstanceRegistry.class,
+					"instance");
+			try {
+				// Awful ugly hack to work around lack of DI in eureka
+				field.setAccessible(true);
+				Field modifiersField = Field.class.getDeclaredField("modifiers");
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+				ReflectionUtils.setField(field, null, proxy);
+			}
+			catch (Exception e) {
+				throw new IllegalStateException("Cannot modify instance registry", e);
+			}
+		}
+
+		private Object getProxyForInstance() {
+			// Wrap the instance registry...
+			ProxyFactory factory = new ProxyFactory(instance);
+			// ...with the LeaseManagerMessageBroker
+			factory.addAdvice(new PiggybackMethodInterceptor(leaseManagerMessageBroker(),
+					LeaseManager.class));
+			factory.addAdvice(new TrafficOpener());
+			factory.setProxyTargetClass(true);
+
+			return factory.getProxy();
+		}
+
+		private void expectRegistrations(int count) {
+			/*
+			 * Setting expectedNumberOfRenewsPerMin to non-zero to ensure that even an
+			 * isolated server can adjust its eviction policy to the number of
+			 * registrations (when it's zero, even a successful registration won't reset
+			 * the rate threshold in InstanceRegistry.register()).
+			 */
+			Field field = ReflectionUtils.findField(PeerAwareInstanceRegistry.class,
+					"expectedNumberOfRenewsPerMin");
+			try {
+				// Awful ugly hack to work around lack of DI in eureka
+				field.setAccessible(true);
+				int value = (int) ReflectionUtils.getField(field, instance);
+				if (value == 0 && count > 0) {
+					ReflectionUtils.setField(field, instance, count);
+				}
+			}
+			catch (Exception e) {
+				throw new IllegalStateException(
+						"Cannot modify instance registry expected renews", e);
+			}
+		}
+
+		@Override
+		public int getOrder() {
+			return 0;
+		}
+
+		@Override
+		public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+			return eventType.isAssignableFrom(EurekaServerStartedEvent.class)
+					|| eventType.isAssignableFrom(EurekaRegistryAvailableEvent.class);
+		}
+
+		@Override
+		public boolean supportsSourceType(Class<?> sourceType) {
+			return true;
+		}
+
+	}
+
+	/**
+	 * Additional aspect for intercepting method invocations on PeerAwareInstanceRegistry.
+	 * If {@link PeerAwareInstanceRegistry#openForTraffic(int)} is called with a zero
+	 * argument, it means that leases are not automatically cancelled if the instance
+	 * hasn't sent any renewals recently. This happens for a standalone server. It seems
+	 * like a bad default, so we set it to the smallest non-zero value we can, so that any
+	 * instances that subsequently register can bump up the threshold.
+	 * 
+	 * @author Dave Syer
+	 *
+	 */
+	protected static class TrafficOpener implements MethodInterceptor {
+
+		@Override
+		public Object invoke(MethodInvocation invocation) throws Throwable {
+			if ("openForTraffic".equals(invocation.getMethod().getName())) {
+				int count = (int) invocation.getArguments()[0];
+				if (count == 0) {
+					ReflectionUtils.invokeMethod(invocation.getMethod(),
+							invocation.getThis(), 1);
+					return null;
+				}
+			}
+			return invocation.proceed();
+		}
+	}
 }
