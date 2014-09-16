@@ -5,15 +5,15 @@
       <#if amazonInfo??>
         <tr>
           <td>EUREKA SERVER</td>
-          <td>AMI: ${amiId}</td>
+          <td>AMI: ${amiId!}</td>
         </tr>
         <tr>
           <td>Zone</td>
-          <td>${availabilityZone}</td>
+          <td>${availabilityZone!}</td>
         </tr>
         <tr>
           <td>instance-id</td>
-          <td>${instanceId}</td>
+          <td>${instanceId!}</td>
         </tr>
       </#if>
       <tr>
