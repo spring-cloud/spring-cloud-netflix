@@ -64,7 +64,7 @@ public class HystrixConfiguration implements ImportAware {
 		}
 		if (configurers.size() > 1) {
 			throw new IllegalStateException(
-					"Only one TransactionManagementConfigurer may exist");
+					"Only one HystrixConfigurer may exist");
 		}
 		// TODO: create CircuitBreakerConfigurer API
 		// CircuitBreakerConfigurer configurer = configurers.iterator().next();
