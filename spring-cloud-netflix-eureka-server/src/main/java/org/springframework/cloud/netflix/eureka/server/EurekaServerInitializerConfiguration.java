@@ -35,11 +35,10 @@ import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEve
 import org.springframework.cloud.netflix.eureka.event.EurekaServerStartedEvent;
 import org.springframework.cloud.netflix.eureka.event.LeaseManagerMessageBroker;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.ServletContextAware;
@@ -143,7 +142,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 	@Configuration
 	@ConditionalOnClass(PeerAwareInstanceRegistry.class)
 	protected static class RegistryInstanceProxyInitializer implements
-			SmartApplicationListener {
+			ApplicationListener<EurekaRegistryAvailableEvent> {
 
 		@Autowired
 		private ApplicationContext applicationContext;
@@ -156,18 +155,11 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		}
 
 		@Override
-		public void onApplicationEvent(ApplicationEvent event) {
+		public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
 			if (instance == null) {
 				instance = PeerAwareInstanceRegistry.getInstance();
-				// Our instance is the un-proxied version so we can hack it
-				expectRegistrations(1);
-			}
-			if (event instanceof EurekaServerStartedEvent) {
-				// Do it again in case this message came in late
-				expectRegistrations(1);
-			}
-			else {
 				replaceInstance(getProxyForInstance());
+				expectRegistrations(1);
 			}
 		}
 
@@ -222,48 +214,31 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 			}
 		}
 
-		@Override
-		public int getOrder() {
-			return 0;
-		}
+		/**
+		 * Additional aspect for intercepting method invocations on PeerAwareInstanceRegistry.
+		 * If {@link PeerAwareInstanceRegistry#openForTraffic(int)} is called with a zero
+		 * argument, it means that leases are not automatically cancelled if the instance
+		 * hasn't sent any renewals recently. This happens for a standalone server. It seems
+		 * like a bad default, so we set it to the smallest non-zero value we can, so that any
+		 * instances that subsequently register can bump up the threshold.
+		 * 
+		 * @author Dave Syer
+		 *
+		 */
+		private class TrafficOpener implements MethodInterceptor {
 
-		@Override
-		public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-			return eventType.isAssignableFrom(EurekaServerStartedEvent.class)
-					|| eventType.isAssignableFrom(EurekaRegistryAvailableEvent.class);
-		}
-
-		@Override
-		public boolean supportsSourceType(Class<?> sourceType) {
-			return true;
-		}
-
-	}
-
-	/**
-	 * Additional aspect for intercepting method invocations on PeerAwareInstanceRegistry.
-	 * If {@link PeerAwareInstanceRegistry#openForTraffic(int)} is called with a zero
-	 * argument, it means that leases are not automatically cancelled if the instance
-	 * hasn't sent any renewals recently. This happens for a standalone server. It seems
-	 * like a bad default, so we set it to the smallest non-zero value we can, so that any
-	 * instances that subsequently register can bump up the threshold.
-	 * 
-	 * @author Dave Syer
-	 *
-	 */
-	protected static class TrafficOpener implements MethodInterceptor {
-
-		@Override
-		public Object invoke(MethodInvocation invocation) throws Throwable {
-			if ("openForTraffic".equals(invocation.getMethod().getName())) {
-				int count = (int) invocation.getArguments()[0];
-				if (count == 0) {
+			@Override
+			public Object invoke(MethodInvocation invocation) throws Throwable {
+				if ("openForTraffic".equals(invocation.getMethod().getName())) {
+					int count = (int) invocation.getArguments()[0];
 					ReflectionUtils.invokeMethod(invocation.getMethod(),
-							invocation.getThis(), 1);
+							invocation.getThis(), count==0 ? 1 : count);
 					return null;
 				}
+				return invocation.proceed();
 			}
-			return invocation.proceed();
 		}
+
 	}
+
 }
