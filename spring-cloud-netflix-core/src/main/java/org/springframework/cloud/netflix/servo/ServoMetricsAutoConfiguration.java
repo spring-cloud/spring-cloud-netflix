@@ -35,14 +35,15 @@ import com.netflix.servo.monitor.Monitors;
  *
  */
 @Configuration
-@ConditionalOnClass({Monitors.class,MetricReader.class})
-@ConditionalOnBean({MBeanServer.class,MetricReader.class})
+@ConditionalOnClass({ Monitors.class, MetricReader.class })
+@ConditionalOnBean(MetricReader.class)
 @AutoConfigureBefore(EndpointAutoConfiguration.class)
 @AutoConfigureAfter(MetricRepositoryAutoConfiguration.class)
 public class ServoMetricsAutoConfiguration {
-	
+
 	@Bean
 	@ConditionalOnMissingBean
+	@ConditionalOnBean(MBeanServer.class)
 	public ServoPublicMetrics servoPublicMetrics(MetricReader reader, MBeanServer server) {
 		return new ServoPublicMetrics(reader, server);
 	}

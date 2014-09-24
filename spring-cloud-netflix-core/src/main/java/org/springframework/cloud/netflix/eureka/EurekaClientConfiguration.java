@@ -21,6 +21,7 @@ import javax.management.MBeanServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -56,10 +57,11 @@ import com.netflix.discovery.EurekaClientConfig;
 public class EurekaClientConfiguration implements
 		ApplicationListener<ContextRefreshedEvent>, SmartLifecycle, Ordered {
 
-    private static final Logger logger = LoggerFactory.getLogger(EurekaClientConfiguration.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(EurekaClientConfiguration.class);
 
 	private boolean running;
-	
+
 	private int order = 0;
 
 	@Autowired
@@ -70,16 +72,17 @@ public class EurekaClientConfiguration implements
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-       logger.info("Registering application {} with eureka with status UP", instanceConfig.getAppname());
+		logger.info("Registering application {} with eureka with status UP",
+				instanceConfig.getAppname());
 		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
 	}
 
 	@PreDestroy
 	public void close() {
-        logger.info("Removing application {} from eureka", instanceConfig.getAppname());
+		logger.info("Removing application {} from eureka", instanceConfig.getAppname());
 		DiscoveryManager.getInstance().shutdownComponent();
 	}
-	
+
 	@Override
 	public void start() {
 		DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
@@ -109,23 +112,26 @@ public class EurekaClientConfiguration implements
 	public void stop(Runnable callback) {
 		callback.run();
 	}
-	
+
 	@Override
 	public int getOrder() {
 		return order;
 	}
-	
+
 	@Bean
 	@Lazy
-	@Scope(proxyMode=ScopedProxyMode.TARGET_CLASS)
+	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 	public DiscoveryClient discoveryClient() {
 		return DiscoveryManager.getInstance().getDiscoveryClient();
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
-	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server, EurekaInstanceConfig config) {
-		return new EurekaHealthIndicator(discoveryClient(), new ServoMetricReader(server), config);
+	@ConditionalOnBean(MBeanServer.class)
+	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server,
+			EurekaInstanceConfig config) {
+		return new EurekaHealthIndicator(discoveryClient(),
+				new ServoMetricReader(server), config);
 	}
-	
+
 }
