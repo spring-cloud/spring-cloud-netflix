@@ -9,6 +9,8 @@ eureka:
 
 zuul:
   proxy:
+    mapping: /api
     route:
-      testclient: /testing123
-      stores: /stores
+      testclient: /api/testing123
+      stores: /api/stores
+      customers: /api/customers
