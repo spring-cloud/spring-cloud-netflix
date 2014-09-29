@@ -1,25 +1,14 @@
 
 include::intro.adoc[]
 
-== TODO List
+== Features
 
-- [x] Example front end app (currently in sandbox)
-- [x] Example back end service (currently in sandbox)
-- [x] Use platform config
-- [x] Hystrix integration (hystrix-javanica)
-- [x] Feign use spring message converters
-- [x] Ribbon (static server list)
-- [x] Eureka boot app (Service registration)
-- [x] Eureka (apache -> tomcat) see https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0
-- [x] Archaius bridge to spring environment
-- [x] Ribbon (Client side load balancing) (Eureka integration)
-  - [x] Remove need for *-eureka.properties
-  - [ ] Use spring boot values as defaults where appropriate
-  - [x] Synchronous removal of service from eureka on shutdown
-- [x] Refresh log levels dynamically
-- [x] Router (Zuul) integrated using hystrix/ribbon/eureka
-- [ ] Better observable example
-- [ ] Distributed refresh environment via platform bus
-- [x] Metrics aggregation (turbine)
-  - [x] Use Eureka for instance discovery rather than static list see https://github.com/Netflix/Turbine/blob/master/turbine-contrib/src/main/java/com/netflix/turbine/discovery/EurekaInstanceDiscovery.java
-  - [ ] Configure InstanceDiscovery.impl using auto config/config props
+* Service Discovery: Eureka instances can be registered and clients can discover the instances using Spring-managed beans
+* Service Discovery: an embedded Eureka server can be created with declarative Java configuration
+* Circuit Breaker: Hystrix clients can be built with a simple annotation-driven method decorator
+* Circuit Breaker: embedded Hystrix dashboard with declarative Java configuration
+* Declarative REST Client: Feign creates a dynamic implementation of an interface decorated with JAX-RS or Spring MVC annotations
+* Client Side Load Balancer: Ribbon
+* External Configuration: a bridge from the Sprnig Environment to Archaius (enabls native configuration of Netflix components using Spring Boot conventions)
+* Router and Filter: automatic regsitration of Zuul filters,a nd a simple convention over configuration approach to reverse proxy creation
+

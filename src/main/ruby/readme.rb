@@ -1,3 +1,5 @@
+require 'open-uri'
+
 module SpringCloud
   module Build
 
@@ -6,13 +8,13 @@ module SpringCloud
     class << self
 
       def process_include out, src, target, attrs
-        unless target.start_with?('/')
-          target = File.new(File.join(src, target))
-        else
-          target = File.new(target)
+        unless target.include?(':') || target.start_with?('/')
+          target = File.join(src, target)
         end
-        target.each do |line|
-          self.process(out, File.dirname(target), line)
+        open(target) do |file|
+            file.each do |line|
+            self.process(out, File.dirname(target), line)
+          end
         end
       end
 
