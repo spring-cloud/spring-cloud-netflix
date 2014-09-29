@@ -238,6 +238,7 @@
                   <tasks>
                     <java classname="org.jruby.Main" failonerror="yes">
                       <arg value="${basedir}/src/main/ruby/generate_readme.sh" />
+                      <arg value="-o" />
                       <arg value="${basedir}/README.adoc" />
                     </java>
                   </tasks>
@@ -245,6 +246,30 @@
               </execution>
             </executions>
           </plugin>
+		  <plugin>
+		    <groupId>org.asciidoctor</groupId>
+		    <artifactId>asciidoctor-maven-plugin</artifactId>
+		    <version>1.5.0</version>
+		    <executions>
+			  <execution>
+			    <id>generate-</id>
+			    <phase>process-resources</phase>
+			    <goals>
+				  <goal>process-asciidoc</goal>
+			    </goals>
+                <inherited>false</inherited>
+			    <configuration>
+				  <sourceDocumentName>${project.artifactId}.adoc</sourceDocumentName>
+                  <backend>html</backend>
+				  <doctype>article</doctype>
+				  <attributes>
+				    <docinfo>true</docinfo>
+				    <spring-cloud-version>${project.version}</spring-cloud-version>
+				  </attributes>
+			    </configuration>
+			  </execution>
+		    </executions>
+		  </plugin>
         </plugins>
 	</build>
 
