@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.ApplicationListener;
@@ -34,7 +35,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -54,8 +54,7 @@ import com.netflix.discovery.EurekaClientConfig;
 		EurekaInstanceConfigBean.class })
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
-public class EurekaClientConfiguration implements
-		ApplicationListener<ContextRefreshedEvent>, SmartLifecycle, Ordered {
+public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(EurekaClientConfiguration.class);
@@ -64,18 +63,13 @@ public class EurekaClientConfiguration implements
 
 	private int order = 0;
 
+	private int port = 0;
+
 	@Autowired
 	private EurekaClientConfigBean clientConfig;
 
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
-
-	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
-		logger.info("Registering application {} with eureka with status UP",
-				instanceConfig.getAppname());
-		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
-	}
 
 	@PreDestroy
 	public void close() {
@@ -85,11 +79,20 @@ public class EurekaClientConfiguration implements
 
 	@Override
 	public void start() {
-		DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
+		if (port != 0) {
+			instanceConfig.setNonSecurePort(port);
+			DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
+			logger.info("Registering application {} with eureka with status UP",
+					instanceConfig.getAppname());
+			ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
+		}
 	}
 
 	@Override
 	public void stop() {
+		logger.info("Unregistering application {} with eureka with status OUT_OF_SERVICE",
+				instanceConfig.getAppname());
+		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.OUT_OF_SERVICE);
 		running = false;
 	}
 
@@ -132,6 +135,20 @@ public class EurekaClientConfiguration implements
 			EurekaInstanceConfig config) {
 		return new EurekaHealthIndicator(discoveryClient(),
 				new ServoMetricReader(server), config);
+	}
+
+	@Bean
+	protected ApplicationListener<EmbeddedServletContainerInitializedEvent> containerPortInitializer() {
+		return new ApplicationListener<EmbeddedServletContainerInitializedEvent>() {
+
+			@Override
+			public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
+				// TODO: take SSL into account when Spring Boot 1.2 is available
+				EurekaClientConfiguration.this.port = event.getEmbeddedServletContainer()
+						.getPort();
+				EurekaClientConfiguration.this.start();
+			}
+		};
 	}
 
 }
