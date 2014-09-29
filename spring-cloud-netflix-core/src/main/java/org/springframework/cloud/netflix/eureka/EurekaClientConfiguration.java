@@ -49,9 +49,7 @@ import com.netflix.discovery.EurekaClientConfig;
  *
  */
 @Configuration
-// TODO: make these beans @Conditional
-@EnableConfigurationProperties({ EurekaClientConfigBean.class,
-		EurekaInstanceConfigBean.class })
+@EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
 public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
