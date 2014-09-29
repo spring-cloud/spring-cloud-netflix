@@ -1,6 +1,6 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import static org.springframework.cloud.netflix.feign.FeignConfigurer.setServiceListClassAndVIP;
+import static org.springframework.cloud.netflix.eureka.EurekaRibbonInitializer.setServiceListClassAndVIP;
 
 import java.io.IOException;
 import java.io.InputStream;

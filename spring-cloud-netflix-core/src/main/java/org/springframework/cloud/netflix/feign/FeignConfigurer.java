@@ -1,7 +1,5 @@
 package org.springframework.cloud.netflix.feign;
 
-import com.netflix.config.ConfigurationManager;
-import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 import feign.Contract;
 import feign.Feign;
 import feign.Logger;
@@ -50,16 +48,7 @@ public class FeignConfigurer {
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
         String name = URI.create(schemeName).getHost();
-        setServiceListClassAndVIP(name);
         return builder.target(LoadBalancingTarget.create(type, schemeName));
     }
 
-    public static void setServiceListClassAndVIP(String serviceId) {
-        setProp(serviceId, "NIWSServerListClassName", DiscoveryEnabledNIWSServerList.class.getName());
-        setProp(serviceId, "DeploymentContextBasedVipAddresses", serviceId); //FIXME: what should this be?
-    }
-
-    private static void setProp(String serviceId, String suffix, String value) {
-        ConfigurationManager.getConfigInstance().setProperty(serviceId + ".ribbon." + suffix, value);
-    }
 }
