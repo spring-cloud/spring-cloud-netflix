@@ -10,24 +10,24 @@ redcarpet:
 ### The following properties will change on a project-by-project basis
 
 # Context path in the remote website (usually /<project>), will be prepended to absolute URLs for static resources
-baseurl: /gh-pages
+baseurl: /spring-cloud-netflix
 
 # Name of the project for display in places like page titles
-name: Spring Framework
+name: Spring Cloud Netflix
 
 # ID of the project in the metadata API at spring.io (if this is not a
 # valid project ID the javascript widgets in the home page will not work)
-project: spring-framework
+project: spring-cloud-netflix
 
 # Project github URL
-github_repo_url: http://github.com/spring-projects/spring-framework
+github_repo_url: http://github.com/spring-cloud/spring-cloud-netflix
 
 # Project forum URL
-forum: http://forum.spring.io/forum/spring-projects/container
+forum: http://stackoverflow.com/questions/tagged/spring-cloud
 
 # If you want to include a custom pom.xml or gradle template set these value to true and add _include files
-custom_pom_template: false
-custom_gradle_template: false
+custom_pom_template: true
+custom_gradle_template: true
 
 
 ### The following properties are constant for most projects

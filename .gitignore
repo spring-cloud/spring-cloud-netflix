@@ -1,8 +1,11 @@
 #*
 .#*
+*#
 *~
 _site
 .idea
 *.sw[op]
 .project
 sample-pages
+spring-cloud-*/
+target/

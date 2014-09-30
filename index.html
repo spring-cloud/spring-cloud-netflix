@@ -1,0 +1,93 @@
+---
+# The name of your project
+title: Spring CLoud Config
+
+badges:
+
+  # Customize your project's badges. Delete any entries that do not apply.
+  custom:
+    - name: Source (GitHub)
+      url:  https://github.com/spring-cloud/spring-cloud-config
+      icon: github
+
+    - name: StackOverflow
+      url:  http://stackoverflow.com/questions/tagged/spring-cloud
+      icon: stackoverflow
+
+---
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<!-- Specify the parent of this project (or delete if none) to influence the rendering of the breadcrumb -->
+{% capture parent_link %}
+[Spring Cloud]({{ site.projects_site_url }}/spring-cloud)
+{% endcapture %}
+
+
+{% capture billboard_description %}
+
+Spring CLoud Netflix provides Netflix OSS integrations for Spring Boot apps through autoconfiguration and binding to the Spring Environment and other Spring programming model idioms. With a few simple annotations you can quickly enable and configure the common patterns inside your application and build large distributed systems with battle-tested Netflix components. The patterns provided include Service Discovery (Eureka), Circuit Breaker (Hystrix), Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon)..
+
+{% endcapture %}
+
+{% capture main_content %}
+
+## Features
+
+Spring Cloud Netflix features:
+
+* Service Discovery: Eureka instances can be registered and clients can discover the instances using Spring-managed beans
+* Service Discovery: an embedded Eureka server can be created with declarative Java configuration
+* Circuit Breaker: Hystrix clients can be built with a simple annotation-driven method decorator
+* Circuit Breaker: embedded Hystrix dashboard with declarative Java configuration
+* Declarative REST Client: Feign creates a dynamic implementation of an interface decorated with JAX-RS or Spring MVC annotations
+* Client Side Load Balancer: Ribbon
+* External Configuration: a bridge from the Sprnig Environment to Archaius (enables native configuration of Netflix components using Spring Boot conventions)
+* Router and Filter: automatic regsitration of Zuul filters,a nd a simple convention over configuration approach to reverse proxy creation
+
+<span id="quick-start"></span>
+## Quick Start
+
+{% include download_widget.md %}
+
+As long as Spring Cloud Netflix and Eureka Core are on the
+classpath any Spring Boot application with `@EnableEurekaClient` will try to contact a Eureka
+server on `http://localhost:8761` (the default value of
+`eureka.client.serviceUrl.defaultZone`):
+
+```java
+@Configuration
+@EnableAutoConfiguration
+@EnableEurekaClient
+@RestController
+public class Application {
+
+  @RequestMapping("/")
+  String home() {
+    "Hello World"
+  }
+
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  }
+
+}
+```
+
+To run your own server use the `spring-cloud-starter-eureka-server` dependency and `@EnableEurekaServer`.
+
+{% endcapture %}
+
+{% capture related_resources %}
+
+### Sample Projects
+
+* [Eureka Server](https://github.com/spring-cloud-samples/eureka)
+* [Eureka Clients](https://github.com/spring-cloud-samples/customers-stores)
+* [Minimal (Groovy) Client](https://github.com/spring-cloud-samples/scripts/blob/master/demo/client.groovy)
+
+{% endcapture %}
+
+
+{% include project_page.html %}
+</html>
