@@ -7,5 +7,6 @@
 .settings/
 .springBeans
 target/
+_site/
 .idea
 *.iml
