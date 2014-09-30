@@ -63,8 +63,8 @@ server on `http://localhost:8761` (the default value of
 public class Application {
 
   @RequestMapping("/")
-  String home() {
-    "Hello World"
+  public String home() {
+    return "Hello World";
   }
 
   public static void main(String[] args) {
