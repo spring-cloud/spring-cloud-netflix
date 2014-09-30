@@ -28,7 +28,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.eureka.DiscoveryManagerIntitializer;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.cloud.netflix.eureka.advice.PiggybackMethodInterceptor;
 import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEvent;
@@ -79,9 +81,16 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		this.servletContext = servletContext;
 	}
 
+    @Bean
+    @ConditionalOnMissingBean(DiscoveryManagerIntitializer.class)
+    public DiscoveryManagerIntitializer discoveryManagerIntitializer() {
+        return new DiscoveryManagerIntitializer();
+    }
+
 	@Override
 	public void start() {
-		new Thread(new Runnable() {
+        discoveryManagerIntitializer().init();
+        new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {

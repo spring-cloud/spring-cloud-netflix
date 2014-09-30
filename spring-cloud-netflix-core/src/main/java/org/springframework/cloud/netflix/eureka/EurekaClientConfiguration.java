@@ -79,7 +79,7 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	public void start() {
 		if (port != 0) {
 			instanceConfig.setNonSecurePort(port);
-			DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
+            discoveryManagerIntitializer().init();
 			logger.info("Registering application {} with eureka with status UP",
 					instanceConfig.getAppname());
 			ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
@@ -118,6 +118,12 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	public int getOrder() {
 		return order;
 	}
+
+    @Bean
+    @ConditionalOnMissingBean(DiscoveryManagerIntitializer.class)
+    public DiscoveryManagerIntitializer discoveryManagerIntitializer() {
+        return new DiscoveryManagerIntitializer();
+    }
 
 	@Bean
 	@Lazy
