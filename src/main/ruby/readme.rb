@@ -41,8 +41,9 @@ module SpringCloud
         unless options[:to_file]
           puts out
         else
-          writer = File.new(options[:to_file],'w+')
-          out.each { |line| writer.write(line) }
+          File.open(options[:to_file],'w+') do |file|
+            out.each { |line| file.write(line) }
+          end
         end
 
       end
