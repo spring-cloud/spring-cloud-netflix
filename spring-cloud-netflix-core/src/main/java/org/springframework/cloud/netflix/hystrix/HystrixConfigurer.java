@@ -1,7 +1,7 @@
 package org.springframework.cloud.netflix.hystrix;
 
 /**
- * Created by sgibb on 6/19/14.
+ * @author Spencer Gibb
  */
 public interface HystrixConfigurer {
 }

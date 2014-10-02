@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by sgibb on 7/10/14.
+ * @author Spencer Gibb
  */
 public class Routes {
     private static final Logger logger = LoggerFactory.getLogger(Routes.class);

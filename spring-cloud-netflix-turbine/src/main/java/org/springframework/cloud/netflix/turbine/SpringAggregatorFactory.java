@@ -20,7 +20,7 @@ import java.util.List;
 import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.AggregatorClusterMonitorConsole;
 
 /**
- * Created by sgibb on 7/14/14.
+ * @author Spencer Gibb
  */
 public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFromCluster> {
     private static final Logger logger = LoggerFactory.getLogger(SpringAggregatorFactory.class);

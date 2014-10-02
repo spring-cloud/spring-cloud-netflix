@@ -5,7 +5,7 @@ import org.springframework.context.annotation.AdviceModeImportSelector;
 import org.springframework.context.annotation.AutoProxyRegistrar;
 
 /**
- * Created by sgibb on 6/19/14.
+ * @author Spencer Gibb
  */
 public class HystrixConfigurationSelector extends AdviceModeImportSelector<EnableHystrix> {
     /**

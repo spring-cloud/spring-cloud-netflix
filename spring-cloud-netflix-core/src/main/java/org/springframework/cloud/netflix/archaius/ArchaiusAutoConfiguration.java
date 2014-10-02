@@ -20,7 +20,7 @@ import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
 import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
 
 /**
- * Created by sgibb on 7/3/14.
+ * @author Spencer Gibb
  */
 @Configuration
 public class ArchaiusAutoConfiguration {

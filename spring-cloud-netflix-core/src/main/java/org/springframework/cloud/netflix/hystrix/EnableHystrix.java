@@ -7,7 +7,7 @@ import org.springframework.core.Ordered;
 import java.lang.annotation.*;
 
 /**
- * Created by sgibb on 6/19/14.
+ * @author Spencer Gibb
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

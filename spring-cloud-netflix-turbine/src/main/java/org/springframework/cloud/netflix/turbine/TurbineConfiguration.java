@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
 /**
- * Created by sgibb on 7/11/14.
+ * @author Spencer Gibb
  */
 @Configuration
 @EnableEurekaClient

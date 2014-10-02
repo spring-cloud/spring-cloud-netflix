@@ -13,7 +13,7 @@ import feign.Contract;
 import feign.MethodMetadata;
 
 /**
- * Created by sgibb on 6/27/14.
+ * @author Spencer Gibb
  */
 public class SpringMvcContract extends Contract.BaseContract {
     static final String ACCEPT = "Accept";

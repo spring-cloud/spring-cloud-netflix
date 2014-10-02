@@ -19,7 +19,7 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Created by sgibb on 6/27/14.
+ * @author Spencer Gibb
  */
 public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration {
     ConfigurableEnvironment environment;

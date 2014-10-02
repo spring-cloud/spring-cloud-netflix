@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
- * Created by sgibb on 6/19/14.
+ * @author Spencer Gibb
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

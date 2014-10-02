@@ -1,7 +1,5 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import static org.springframework.cloud.netflix.eureka.EurekaRibbonInitializer.setServiceListClassAndVIP;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -18,7 +16,9 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 import org.springframework.cloud.netflix.zuul.RibbonCommand;
+import org.springframework.cloud.netflix.zuul.SpringFilter;
 import org.springframework.util.StringUtils;
 
 import com.netflix.client.ClientException;
@@ -27,13 +27,12 @@ import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.niws.client.http.RestClient;
-import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.util.HTTPRequestUtils;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-public class RibbonRoutingFilter extends ZuulFilter {
+public class RibbonRoutingFilter extends SpringFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RibbonRoutingFilter.class);
 
@@ -72,8 +71,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 		String serviceId = (String) context.get("serviceId");
 
-		// TODO: can this be set be default? or an implementation of an interface?
-		setServiceListClassAndVIP(serviceId);
+        //TODO: should this be an interface or just config?
+        getBean(ServerListInitializer.class).initialize(serviceId);
 
 		RestClient restClient = (RestClient) ClientFactory.getNamedClient(serviceId);
 

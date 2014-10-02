@@ -28,7 +28,7 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
 
 /**
- * Created by sgibb on 6/19/14.
+ * @author Spencer Gibb
  */
 @Configuration
 public class HystrixConfiguration implements ImportAware {

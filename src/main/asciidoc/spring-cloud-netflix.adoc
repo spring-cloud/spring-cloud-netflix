@@ -99,16 +99,6 @@ public class StoreIntegration {
 
 == Declarative REST Client: Feign
 
-Example application.yml:
-
-```
-spring:
-  cloud:
-    client:
-      serviceIds:
-        - stores
-```
-
 Example spring boot app
 ```
 @Configuration
@@ -142,16 +132,6 @@ public interface StoreClient {
 
 == Client Side Load Balancer: Ribbon
 
-Example application.yml:
-
-```
-spring:
-  cloud:
-    client:
-      serviceIds:
-        - stores
-```
-
 Usage of `LoadBalancerClient` directly:
 
 ```
@@ -160,7 +140,6 @@ public class MyClass {
     private LoadBalancerClient loadBalancer;
 
     public void doStuff() {
-        //"stores" in choose() must match a service in spring.cloud.client.serviceIds
         ServiceInstance instance = loadBalancer.choose("stores");
         URI storesUri = URI.create(String.format("http://%s:%s", instance.getHost(), instance.getPort()));
         // ... do something with the URI
@@ -168,7 +147,7 @@ public class MyClass {
 }
 ```
 
-Indirect usage via `RestTemplate`.  Notice the `stores` hostname part, must match a service id in spring.cloud.client.serviceIds:
+Indirect usage via `RestTemplate`.
 
 ```
 public class MyClass {

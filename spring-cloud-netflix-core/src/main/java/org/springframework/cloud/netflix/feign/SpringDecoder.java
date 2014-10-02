@@ -17,7 +17,7 @@ import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
 /**
- * Created by sgibb on 6/26/14.
+ * @author Spencer Gibb
  */
 public class SpringDecoder extends FeignBase implements Decoder {
 

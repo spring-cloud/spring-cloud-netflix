@@ -20,7 +20,7 @@ import java.net.URI;
 import java.util.*;
 
 /**
- * Created by sgibb on 7/29/14.
+ * @author Spencer Gibb
  */
 @Controller
 public class EurekaController {

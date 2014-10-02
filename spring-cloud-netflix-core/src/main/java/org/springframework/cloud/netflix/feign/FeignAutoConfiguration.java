@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 
 /**
- * Created by sgibb on 7/3/14.
+ * @author Spencer Gibb
  */
 @Configuration
 @AutoConfigureAfter(ArchaiusAutoConfiguration.class)

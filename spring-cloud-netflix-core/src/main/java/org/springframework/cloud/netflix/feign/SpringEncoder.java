@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by sgibb on 6/26/14.
+ * @author Spencer Gibb
  */
 public class SpringEncoder extends FeignBase implements Encoder {
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);

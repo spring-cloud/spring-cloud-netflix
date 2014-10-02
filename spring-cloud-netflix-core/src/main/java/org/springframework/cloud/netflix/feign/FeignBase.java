@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
- * Created by sgibb on 6/27/14.
+ * @author Spencer Gibb
  */
 public class FeignBase {
     public static final boolean romePresent =

@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Created by sgibb on 8/5/14.
+ * @author Spencer Gibb
  */
 @Data
 @ConfigurationProperties("zuul.proxy")

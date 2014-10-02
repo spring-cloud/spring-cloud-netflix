@@ -12,7 +12,7 @@ import com.netflix.turbine.monitor.cluster.ObservationCriteria;
 import com.netflix.turbine.monitor.instance.InstanceUrlClosure;
 
 /**
- * Created by sgibb on 7/14/14.
+ * @author Spencer Gibb
  * TODO: convert to ConfigurationProperties (how to do per-cluster configuration?)
  */
 public class SpringClusterMonitor extends AggregateClusterMonitor {

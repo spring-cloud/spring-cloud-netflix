@@ -7,18 +7,22 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.ribbon.LoadBalancingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
 
 import java.net.URI;
 
 /**
- * Created by sgibb on 7/3/14.
+ * @author Spencer Gibb
  */
 @Configuration
 public class FeignConfigurer {
     @Autowired
     ConfigurableEnvironmentConfiguration envConfig; //FIXME: howto enforce this?
+
+    @Autowired
+    ServerListInitializer serverListInitializer;
 
     @Autowired
     Decoder decoder;
@@ -48,6 +52,7 @@ public class FeignConfigurer {
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
         String name = URI.create(schemeName).getHost();
+        serverListInitializer.initialize(name);
         return builder.target(LoadBalancingTarget.create(type, schemeName));
     }
 

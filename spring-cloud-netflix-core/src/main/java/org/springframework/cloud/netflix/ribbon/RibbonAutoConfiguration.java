@@ -1,11 +1,9 @@
 package org.springframework.cloud.netflix.ribbon;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.EurekaRibbonInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -20,10 +18,6 @@ import java.util.List;
 @Configuration
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
 public class RibbonAutoConfiguration {
-
-    //TODO: why doesn't @AutoConfigureAfter(EurekaClientAutoConfiguration.class) do what the following does for order?
-    @Autowired
-    EurekaRibbonInitializer eurekaRibbonInitializer;
 
     @Bean
     @ConditionalOnMissingBean(RestTemplate.class)
