@@ -39,4 +39,14 @@ public class RibbonAutoConfiguration {
     public RibbonInterceptor ribbonInterceptor(LoadBalancerClient loadBalancerClient) {
         return new RibbonInterceptor(loadBalancerClient);
     }
+
+    @Bean
+    public ServerListInitializer serverListInitializer() {
+        return new ServerListInitializer() {
+            @Override
+            public void initialize(String serviceId) {
+                //no-op
+            }
+        };
+    }
 }

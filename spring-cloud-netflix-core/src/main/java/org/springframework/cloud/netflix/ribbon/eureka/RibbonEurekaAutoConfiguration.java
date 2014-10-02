@@ -16,10 +16,9 @@
 package org.springframework.cloud.netflix.ribbon.eureka;
 
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
@@ -34,11 +33,10 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConditionalOnClass(DiscoveryEnabledNIWSServerList.class)
 @ConditionalOnExpression("${ribbon.eureka.enabled:true}")
-@AutoConfigureBefore(RibbonAutoConfiguration.class)
+@AutoConfigureAfter(RibbonAutoConfiguration.class)
 public class RibbonEurekaAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(ServerListInitializer.class)
     public ServerListInitializer serverListInitializer() {
         return new EurekaRibbonInitializer();
     }
