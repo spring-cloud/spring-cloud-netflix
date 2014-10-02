@@ -14,14 +14,14 @@ Example eureka client:
 @RestController
 public class Application {
 
-	@RequestMapping("/")
-	public String home() {
-		return "Hello world";
-	}
-	
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(Application.class).web(true).run(args);
-	}
+    @RequestMapping("/")
+    public String home() {
+        return "Hello world";
+    }
+    
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
 
 }
 
@@ -50,9 +50,9 @@ Example eureka server:
 @EnableEurekaServer
 public class Application {
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(Application.class).web(true).run(args);
-	}
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
 
 }
 
@@ -65,13 +65,122 @@ Eureka (apache -> tomcat) see https://github.com/cfregly/fluxcapacitor/wiki/Netf
 
 == Circuit Breaker: Hystrix Clients
 
+Example boot app:
+
+```
+@Configuration
+@EnableAutoConfiguration
+@EnableHystrix
+public class Application {
+
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
+
+}
+
+@Component
+public class StoreIntegration {
+    @HystrixCommand(fallbackMethod = "defaultStores")
+    public Object getStores(Map<String, Object> parameters) {
+        //do stuff that might fail
+    }
+
+    public Object defaultStores(Map<String, Object> parameters) {
+        return /* something useful */;
+    }
+}
+
+```
+
 == Circuit Breaker: Hystrix Dashboard
 
 === Turbine
 
 == Declarative REST Client: Feign
 
+Example application.yml:
+
+```
+spring:
+  cloud:
+    client:
+      serviceIds:
+        - stores
+```
+
+Example spring boot app
+```
+@Configuration
+@ComponentScan
+@EnableAutoConfiguration
+@EnableEurekaClient
+public class Application extends FeignConfigurer {
+    @Bean
+    public StoreClient storeClient() {
+        //loadBalance plugs Feign into ribbon.  feign() works without load balancing.
+        return loadBalance(StoreClient.class, "http://stores");
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+```
+
+StoreClient.java
+```
+public interface StoreClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/stores")
+    Stores getStores();
+
+    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
+    Store update(@PathParameter("storeId") Long storeId, Store store);
+}
+```
+
 == Client Side Load Balancer: Ribbon
+
+Example application.yml:
+
+```
+spring:
+  cloud:
+    client:
+      serviceIds:
+        - stores
+```
+
+Usage of `LoadBalancerClient` directly:
+
+```
+public class MyClass {
+    @Autowired
+    private LoadBalancerClient loadBalancer;
+
+    public void doStuff() {
+        //"stores" in choose() must match a service in spring.cloud.client.serviceIds
+        ServiceInstance instance = loadBalancer.choose("stores");
+        URI storesUri = URI.create(String.format("http://%s:%s", instance.getHost(), instance.getPort()));
+        // ... do something with the URI
+    }
+}
+```
+
+Indirect usage via `RestTemplate`.  Notice the `stores` hostname part, must match a service id in spring.cloud.client.serviceIds:
+
+```
+public class MyClass {
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public String doOtherStuff() {
+        String results = restTemplate.getForObject("http://stores/stores", String.class);
+        return results;
+    }
+}
+```
 
 == External Configuration: Archaius
 
