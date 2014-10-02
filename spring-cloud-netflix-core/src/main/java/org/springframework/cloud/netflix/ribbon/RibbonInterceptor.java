@@ -1,8 +1,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
-import com.netflix.client.ClientFactory;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -17,6 +16,13 @@ import java.net.URI;
  * @author Spencer Gibb
  */
 public class RibbonInterceptor implements ClientHttpRequestInterceptor {
+
+    private LoadBalancerClient loadBalancer;
+
+    public RibbonInterceptor(LoadBalancerClient loadBalancer) {
+        this.loadBalancer = loadBalancer;
+    }
+
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         HttpRequestWrapper wrapper = new HttpRequestWrapper(request) {
@@ -24,14 +30,10 @@ public class RibbonInterceptor implements ClientHttpRequestInterceptor {
             public URI getURI() {
                 URI originalUri = super.getURI();
                 String serviceName = originalUri.getHost();
-                ILoadBalancer loadBalancer = ClientFactory.getNamedLoadBalancer(serviceName);
-                Server server = loadBalancer.chooseServer(null);
-                if (server == null) {
-                    throw new IllegalStateException("Unable to locate ILoadBalancer for service: "+ serviceName);
-                }
+                ServiceInstance instance = loadBalancer.choose(serviceName);
                 URI uri = UriComponentsBuilder.fromUri(originalUri)
-                        .host(server.getHost())
-                        .port(server.getPort())
+                        .host(instance.getHost())
+                        .port(instance.getPort())
                         .build()
                         .toUri();
                 return uri;

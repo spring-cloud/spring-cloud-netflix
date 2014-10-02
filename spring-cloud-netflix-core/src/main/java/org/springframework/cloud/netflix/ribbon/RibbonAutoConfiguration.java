@@ -3,6 +3,7 @@ package org.springframework.cloud.netflix.ribbon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaRibbonInitializer;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,19 +27,22 @@ public class RibbonAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(RestTemplate.class)
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public RestTemplate restTemplate(RibbonInterceptor ribbonInterceptor) {
+        RestTemplate restTemplate = new RestTemplate();
+        List<ClientHttpRequestInterceptor> list = new ArrayList<>();
+        list.add(ribbonInterceptor);
+        restTemplate.setInterceptors(list);
+        return restTemplate;
     }
 
     @Bean
-    public RibbonInterceptor ribbonInterceptor() {
-        return new RibbonInterceptor();
+    @ConditionalOnMissingBean(LoadBalancerClient.class)
+    public LoadBalancerClient loadBalancerClient() {
+        return new RibbonLoadBalancerClient();
     }
 
-    @PostConstruct
-    public void init() {
-        List<ClientHttpRequestInterceptor> list = new ArrayList<>();
-        list.add(ribbonInterceptor());
-        restTemplate().setInterceptors(list);
+    @Bean
+    public RibbonInterceptor ribbonInterceptor(LoadBalancerClient loadBalancerClient) {
+        return new RibbonInterceptor(loadBalancerClient);
     }
 }
