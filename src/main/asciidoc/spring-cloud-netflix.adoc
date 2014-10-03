@@ -4,6 +4,10 @@ include::intro.adoc[]
 
 == Service Discovery: Eureka Clients
 
+Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.
+
+When clients register with Eureka, they provide eureka with meta-data about themselves such as host and port, health indicator URL, home page etc.  Eureka receives heartbeat messages from each instance belonging to a service.  If the heartbeat fails over a configurable timetable, the instance is normally removed from Eureka.
+
 Example eureka client:
 
 ```
@@ -34,11 +38,33 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8080/v2/
-      default.defaultZone: http://localhost:8080/v2/
 ```
 
 The default application name, virtual host and non-secure port are taken from the `Environment` is 
 `${spring.application.name}`, `${spring.application.name}.mydomain.net` and `${server.port}` respectively.
+
+`@EnableEurekaClient` makes the app into both a Eureka "instance"
+(i.e. it registers itself) and a "client" (i.e. it can query the
+registry to locate other services). The instance behaviour is driven
+by `eureka.instance.*` configuration keys, but the defaults will be
+fine if you ensure that your application has a
+`spring.application.name` (this is the default for the Eureka service
+ID, or VIP). 
+
+See {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
+
+=== Why is it so Slow to Register a Service?
+
+Being an instance also involves a periodic heartbeat to the registry
+(via the client's `serviceUrl`) with default duration 30 seconds. A
+service is not available for discovery by clients until the instance,
+the server and the client all have the same metadata in their local
+cache (so it could take 3 hearbeats). You can change the period using
+`eureka.instance.leaseRenewalIntervalInSeconds` and this will speed up
+the process of getting clients connected to other services. In
+production it's probably better to stick with the default because
+there are some computations internally in the server that make
+assumptions about the lease renewal period.
 
 == Service Discovery: Eureka Server
 
@@ -61,9 +87,21 @@ public class Application {
 The server has a home page with a UI, and HTTP API endpoints per the
 normal Eureka functionality under `/v2/*`.
 
-Eureka (apache -> tomcat) see https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
+Eureka background reading: see https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
 
 == Circuit Breaker: Hystrix Clients
+
+Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
+
+.Microservice Graph
+image::HystrixGraph.png[]
+
+A service failure in the lower level of services can cause cascading failure all the way up to the user.  When calls to a particular service reach a certain threshold (20 failures in 5 seconds is the default in Hystrix), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.
+
+.Hystrix fallback prevents cascading failures
+image::HystrixFallback.png[]
+
+Having an open circuit stops cascading failures and allows overwhelmed or failing services time to heal.  The fallback can be another Hystrix protected call, static data or a sane empty value.  Fallbacks may be chained so the first fallback makes some other business call which in turn falls back to static data.
 
 Example boot app:
 
@@ -81,6 +119,7 @@ public class Application {
 
 @Component
 public class StoreIntegration {
+
     @HystrixCommand(fallbackMethod = "defaultStores")
     public Object getStores(Map<String, Object> parameters) {
         //do stuff that might fail
@@ -93,11 +132,28 @@ public class StoreIntegration {
 
 ```
 
+The `@HystrixCommand` is provided by a Netflix contrib library called
+"javanica". Spring Cloud automatically wraps Spring beans with that
+annotation in a proxy that is connected to the Hystrix circuit
+breaker. The circuit breaker calculates when to open and close the
+circuit, and what to do in case of a failure.
+
 == Circuit Breaker: Hystrix Dashboard
+
+One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.  The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.
+
+.Hystrix Dashboard
+image::Hystrix.png[]
+
+To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableHystrixDashboard`.  You then visit `/hystrix/index.html` and point the dashboard to an individual instances `/hystrix.stream` endpoint in a Hystrix client application.
 
 === Turbine
 
+Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation.
+
 == Declarative REST Client: Feign
+
+https://github.com/Netflix/feign[Feign] is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same `HttpMessageConverters` used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.
 
 Example spring boot app
 ```
@@ -163,5 +219,46 @@ public class MyClass {
 
 == External Configuration: Archaius
 
+https://github.com/Netflix/archaius[Archaius] is the Netflix client side configuration library.  It is the library used by all of the Netflix OSS components for configuration.  Archaius is an extension of the http://commons.apache.org/proper/commons-configuration[Apache Commons Configuration] project.  It allows updates to configuration by either polling a source for changes or for a source to push changes to the client.  Archaius uses Dynamic<Type>Property classes as handles to properties.
+
+.Archaius Example
+[source,java]
+----
+class ArchaiusTest {
+    DynamicStringProperty myprop = DynamicPropertyFactory
+            .getInstance()
+            .getStringProperty("my.prop");
+
+    void doSomething() {
+        OtherClass.someMethod(myprop.get());
+    }
+}
+----
+
+Archaius has its own set of configuration files and loading priorities.  Spring applications should generally not use Archaius directly., but the need to configure the Netflix tools natively remains.  Spring Cloud has a Spring Environment Bridge so Archaius can read properties from the Spring Environment.  This allows Spring Boot projects to use the normal configuration toolchain, while allowing them to configure the Netflix tools, for the most part, as documented.
+
 == Router and Filter: Zuul
+
+Routing in an integral part of a microservice architecture.  For example, `/` may be mapped to your web application, `/api/users` is mapped to the user service and `/api/shop` is mapped to the shop service.  https://github.com/Netflix/zuul[Zuul] is a JVM based router and server side load balancer by Netflix.
+
+http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27[Netflix uses Zuul] for the following:
+
+* Authentication
+* Insights
+* Stress Testing
+* Canary Testing
+* Dynamic Routing
+* Service Migration
+* Load Shedding
+* Security
+* Static Response handling
+* Active/Active traffic management
+
+Zuul's rule engine allows rules and filters to be written in essentially any JVM language, with built in support for Java and Groovy.
+
+Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`.  This forwards local calls to `/proxy/*` to the appropriate service.  The proxy uses Ribbon to locate an instance to forward to via Eureka.  Forwarding to the service is protected by a Hystrix circuit breaker.  Rules are configured via the Spring environment.  The Config Server is an ideal place for the Zuul configuration.  Configuration rules look like the following:
+
+ zuul.proxy.route.users: /users
+
+This means that http calls to /proxy/users to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.
 
