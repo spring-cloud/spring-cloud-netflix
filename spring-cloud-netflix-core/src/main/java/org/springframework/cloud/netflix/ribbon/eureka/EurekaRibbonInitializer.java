@@ -4,6 +4,8 @@ import com.netflix.config.ConfigurationManager;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 
+import static com.netflix.client.config.CommonClientConfigKey.*;
+
 /**
  * @author Spencer Gibb
  */
@@ -12,8 +14,9 @@ public class EurekaRibbonInitializer implements ServerListInitializer {
     @Override
     public void initialize(String serviceId) {
         //TODO: should this look more like hibernate spring boot props?
-        setProp(serviceId, "NIWSServerListClassName", DiscoveryEnabledNIWSServerList.class.getName());
-        setProp(serviceId, "DeploymentContextBasedVipAddresses", serviceId); //FIXME: what should this be?
+        //TODO: only set the property if it hasn't already been set?
+        setProp(serviceId, NIWSServerListClassName.key(), DiscoveryEnabledNIWSServerList.class.getName());
+        setProp(serviceId, DeploymentContextBasedVipAddresses.key(), serviceId); //FIXME: what should this be?
     }
 
     protected void setProp(String serviceId, String suffix, String value) {

@@ -27,6 +27,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.EurekaDiscoverClient;
 import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
@@ -40,7 +42,6 @@ import org.springframework.core.Ordered;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
 
@@ -128,16 +129,21 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	@Bean
 	@Lazy
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-	public DiscoveryClient discoveryClient() {
+	public com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient() {
 		return DiscoveryManager.getInstance().getDiscoveryClient();
 	}
+
+    @Bean
+    public DiscoveryClient discoveryClient() {
+        return new EurekaDiscoverClient();
+    }
 
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnBean(MBeanServer.class)
 	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server,
 			EurekaInstanceConfig config) {
-		return new EurekaHealthIndicator(discoveryClient(),
+		return new EurekaHealthIndicator(eurekaDiscoveryClient(),
 				new ServoMetricReader(server), config);
 	}
 

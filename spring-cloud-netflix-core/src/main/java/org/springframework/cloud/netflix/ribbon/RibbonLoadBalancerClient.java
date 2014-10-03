@@ -22,14 +22,21 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
         if (server == null) {
             throw new IllegalStateException("Unable to locate ILoadBalancer for service: "+ serviceId);
         }
-        return new RibbonServer(server);
+        return new RibbonServer(serviceId, server);
     }
 
     private class RibbonServer implements ServiceInstance {
+        private String serviceId;
         private Server server;
 
-        private RibbonServer(Server server) {
+        private RibbonServer(String serviceId, Server server) {
+            this.serviceId = serviceId;
             this.server = server;
+        }
+
+        @Override
+        public String getServiceId() {
+            return serviceId;
         }
 
         @Override
