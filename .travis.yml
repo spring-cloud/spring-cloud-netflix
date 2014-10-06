@@ -1,14 +1,16 @@
 language: java
-before_install: git config user.name "$GIT_NAME" && git config user.email "$GIT_EMAIL"
-  && git config credential.helper "store --file=.git/credentials" && echo "https://$GH_TOKEN:@github.com" > .git/credentials
+before_install:
+  - git config user.name "$GIT_NAME"
+  - git config user.email "$GIT_EMAIL"
+  - git config credential.helper "store --file=.git/credentials"
+  - echo "https://$GH_TOKEN:@github.com" > .git/credentials
 install:
-  - mvn install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
-  - ./src/main/asciidoc/ghpages.sh
+- mvn install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
+- ./src/main/asciidoc/ghpages.sh
 script: mvn --settings .settings.xml deploy -nsu -Dmaven.test.redirectTestOutputToFile=true
 env:
   global:
-    - GIT_NAME="Dave Syer"
-    - GIT_EMAIL=dsyer@pivotal.io
-    - secure: JXDn4awZAYbhxPV9PIn0I+wUv+PwLJ5TLWFVW2q9rQqeJVDJd3KB0WRXSFOi03g/rGFbN0j+JCqgJPW/I91yEwC55AWbr2DG9fB7HuyQe6OKNT7qZkmoDxrfkYhaN7OLwcNf7vP4kXwzKqIbmSLfsrF1M/aVAPdXw9u6TPL+9i0=
-    - secure: cwftjc6405DztK+P2oJYsxSZWYqozsAWPaLPzuqq/1bTjp+3WAPkV+/OGWiZDW7Exd/z958McQMSONIab/CgLvfenrYc38ErjKstdovyduYs905aVitlUk19dOiH35qJgeFl9+6zNWIOB4OysWsBmdnmtbk1avM/v/Ove3bJvcE=
-    - secure: mk2cdXuMTQKL3bIyFsE+dAmxHN5PvKKptPhsV4TjeBq7nYGqchnfUNRhRabCZNj7FpRP5G8CyXmWWb9RQX8gYzlEAjD+XIOPB2PX1+nphaWRjoInXIVFFzHzAb5tVdrvO/NVAdd9dbFqq7Eoj4QrS+5bRR8V/NtK1TFfsOyWFgY=
+  - GIT_NAME="Dave Syer"
+  - GIT_EMAIL=dsyer@pivotal.io
+  - CI_DEPLOY_USERNAME=buildmaster
+  - secure: aeLXRC5oFSddwnZt1/7G2/OHr7jDbxz0ET7sej3I+eSbe3N5vbzQ6FC08es4l89l54ciXd90I1g2BMw7DTYKOO373FP78XPdAEbifJTU4DGd6fCELmoTtUPhjunBIk7E49hisPbv82892IYYA7qi/hzG548cPyZ1IgiJjq0NCsc=
