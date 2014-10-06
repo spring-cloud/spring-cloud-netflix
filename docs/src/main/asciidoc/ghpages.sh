@@ -7,8 +7,8 @@ if ! (git remote set-branches --add origin gh-pages && git fetch -q); then
     exit 0
 fi
 
-if ! [ -d target/generated-docs ]; then
-    echo "No gh-pages sources in target/generated-docs, so not syncing"
+if ! [ -d docs/target/generated-docs ]; then
+    echo "No gh-pages sources in docs/target/generated-docs, so not syncing"
     exit 0
 fi
 
@@ -22,8 +22,8 @@ if [ "$dirty" != "0" ]; then git stash; fi
 ###################################################################
 git checkout gh-pages
 
-for f in target/generated-docs/*; do
-    file=${f#target/generated-docs/*}
+for f in docs/target/generated-docs/*; do
+    file=${f#docs/target/generated-docs/*}
     if ! git ls-files -i -o --exclude-standard --directory | grep -q ^$file$; then
         # Not ignored...
         cp -rf $f .

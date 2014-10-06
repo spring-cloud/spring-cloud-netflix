@@ -24,6 +24,7 @@
         <module>spring-cloud-netflix-eureka-server</module>
         <module>spring-cloud-netflix-turbine</module>
         <module>spring-cloud-netflix-zuul</module>
+        <module>docs</module>
     </modules>
 
     <dependencyManagement>
@@ -212,30 +213,5 @@
         <turbine.version>0.4</turbine.version>
         <zuul.version>1.0.24</zuul.version>
     </properties>
-
-    <profiles>
-		<profile>
-			<id>docs</id>
-            <build>
-               <plugins>
-		        <plugin>
-		          <groupId>org.asciidoctor</groupId>
-		          <artifactId>asciidoctor-maven-plugin</artifactId>
-                  <inherited>false</inherited>
-                </plugin>
-			    <plugin>
-				  <groupId>org.apache.maven.plugins</groupId>
-				  <artifactId>maven-antrun-plugin</artifactId>
-                  <inherited>false</inherited>
-                </plugin>
- 				<plugin>
-				  <groupId>org.codehaus.mojo</groupId>
-				  <artifactId>build-helper-maven-plugin</artifactId>
-                  <inherited>false</inherited>
-                </plugin>
-              </plugins>
-            </build>
-		</profile>
-    </profiles>
 
 </project>
