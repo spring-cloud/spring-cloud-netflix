@@ -5,7 +5,7 @@ before_install:
   - git config credential.helper "store --file=.git/credentials"
   - echo "https://$GH_TOKEN:@github.com" > .git/credentials
 install:
-- mvn install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
+- mvn --settings .settings.xml install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
 - ./src/main/asciidoc/ghpages.sh
 script: mvn --settings .settings.xml deploy -nsu -Dmaven.test.redirectTestOutputToFile=true
 env:
