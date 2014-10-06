@@ -2,7 +2,7 @@ language: java
 before_install: git config user.name "$GIT_NAME" && git config user.email "$GIT_EMAIL"
   && git config credential.helper "store --file=.git/credentials" && echo "https://$GH_TOKEN:@github.com" > .git/credentials
 install:
-  - mvn install -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
+  - mvn install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
   - ./src/main/asciidoc/ghpages.sh
 script: mvn --settings .settings.xml deploy -nsu -Dmaven.test.redirectTestOutputToFile=true
 env:

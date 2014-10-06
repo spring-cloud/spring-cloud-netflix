@@ -11,9 +11,9 @@
     <description>Spring Cloud Netflix</description>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.1.5.RELEASE</version>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-build</artifactId>
+        <version>1.0.0.BUILD-SNAPSHOT</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -204,8 +204,6 @@
     </dependencyManagement>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>1.7</java.version>
         <archaius.version>0.6.0</archaius.version>
         <eureka.version>1.1.135</eureka.version>
         <feign.version>6.1.2</feign.version>
@@ -215,164 +213,29 @@
         <zuul.version>1.0.24</zuul.version>
     </properties>
 
-	<build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <dependencies>
-              <dependency>
-                <groupId>org.jruby</groupId>
-                <artifactId>jruby-complete</artifactId>
-                <version>1.7.12</version>
-              </dependency>
-            </dependencies>
-            <executions>
-              <execution>
-                <id>readme</id>
-                <phase>process-resources</phase>
-				<goals>
-				  <goal>run</goal>
-				</goals>
-                <inherited>false</inherited>
-                <configuration>
-                  <tasks>
-                    <java classname="org.jruby.Main" failonerror="yes">
-                      <arg value="${basedir}/src/main/ruby/generate_readme.sh" />
-                      <arg value="-o" />
-                      <arg value="${basedir}/README.adoc" />
-                    </java>
-                  </tasks>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-		  <plugin>
-		    <groupId>org.asciidoctor</groupId>
-		    <artifactId>asciidoctor-maven-plugin</artifactId>
-		    <version>1.5.0</version>
-		    <executions>
-			  <execution>
-			    <id>generate-</id>
-			    <phase>process-resources</phase>
-			    <goals>
-				  <goal>process-asciidoc</goal>
-			    </goals>
-                <inherited>false</inherited>
-			    <configuration>
-				  <sourceDocumentName>${project.artifactId}.adoc</sourceDocumentName>
-                  <backend>html</backend>
-				  <doctype>article</doctype>
-				  <attributes>
-				    <docinfo>true</docinfo>
-				    <spring-cloud-version>${project.version}</spring-cloud-version>
-				  </attributes>
-			    </configuration>
-			  </execution>
-		    </executions>
-		  </plugin>
-        </plugins>
-	</build>
-
     <profiles>
 		<profile>
-			<id>milestone</id>
-			<distributionManagement>
-				<repository>
-					<id>repo.spring.io</id>
-					<name>Spring Milestone Repository</name>
-					<url>https://repo.spring.io/libs-milestone-local</url>
-				</repository>
-			</distributionManagement>
-		</profile>
-		<profile>
-			<id>central</id>
-			<distributionManagement>
-				<snapshotRepository>
-					<id>sonatype-nexus-snapshots</id>
-					<name>Sonatype Nexus Snapshots</name>
-					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-				</snapshotRepository>
-				<repository>
-					<id>sonatype-nexus-staging</id>
-					<name>Nexus Release Repository</name>
-					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-				</repository>
-			</distributionManagement>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
+			<id>docs</id>
+            <build>
+               <plugins>
+		        <plugin>
+		          <groupId>org.asciidoctor</groupId>
+		          <artifactId>asciidoctor-maven-plugin</artifactId>
+                  <inherited>false</inherited>
+                </plugin>
+			    <plugin>
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-antrun-plugin</artifactId>
+                  <inherited>false</inherited>
+                </plugin>
+ 				<plugin>
+				  <groupId>org.codehaus.mojo</groupId>
+				  <artifactId>build-helper-maven-plugin</artifactId>
+                  <inherited>false</inherited>
+                </plugin>
+              </plugins>
+            </build>
 		</profile>
     </profiles>
-	<distributionManagement>
-		<!-- see 'staging' profile for dry-run deployment settings -->
-		<downloadUrl>http://www.springsource.com/download/community
-		</downloadUrl>
-		<site>
-			<id>spring-docs</id>
-			<url>scp://static.springframework.org/var/www/domains/springframework.org/static/htdocs/spring-retry/docs/${project.version}
-			</url>
-		</site>
-		<repository>
-			<id>repo.spring.io</id>
-			<name>Spring Release Repository</name>
-			<url>https://repo.spring.io/libs-release-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>repo.spring.io</id>
-			<name>Spring Snapshot Repository</name>
-			<url>https://repo.spring.io/libs-snapshot-local</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<repositories>
-		<repository>
-			<id>spring-snapshots</id>
-			<name>Spring Snapshots</name>
-			<url>http://repo.spring.io/snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>spring-milestones</id>
-			<name>Spring Milestones</name>
-			<url>http://repo.spring.io/milestone</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>spring-snapshots</id>
-			<name>Spring Snapshots</name>
-			<url>http://repo.spring.io/snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>spring-milestones</id>
-			<name>Spring Milestones</name>
-			<url>http://repo.spring.io/milestone</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 
 </project>
