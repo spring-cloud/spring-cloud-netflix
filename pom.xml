@@ -18,6 +18,13 @@
         <!-- lookup parent from repository -->
     </parent>
 
+	<scm>
+		<url>https://github.com/spring-cloud/spring-cloud-netflix</url>
+		<connection>scm:git:git://github.com/spring-cloud/spring-cloud-netflix.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/spring-cloud/spring-cloud-netflix.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
     <modules>
         <module>spring-cloud-netflix-core</module>
         <module>spring-cloud-netflix-hystrix-dashboard</module>
