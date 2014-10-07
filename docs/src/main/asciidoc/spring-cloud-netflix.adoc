@@ -89,6 +89,47 @@ normal Eureka functionality under `/v2/*`.
 
 Eureka background reading: see https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
 
+[TIP]
+====
+You can run the Eureka server as an executable JAR (or WAR) using the
+http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#build-tool-plugins[Spring
+Boot build tools], but to avoid problems with classpath scanning in
+Jersey 1.x you have to tell the build plugins to unpack the jars that
+contain JAX-RS resources, e.g. (for Maven)
+
+.pom.xml
+[source,xml,indent=0]
+----
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <requiresUnpack>
+                        <dependency>
+                            <groupId>com.netflix.eureka</groupId>
+                            <artifactId>eureka-core</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.netflix.eureka</groupId>
+                            <artifactId>eureka-client</artifactId>
+                        </dependency>
+                    </requiresUnpack>
+                </configuration>
+            </plugin>
+----
+
+or with Gradle
+
+.build.gradle
+[source,java,indent=0]
+----
+apply plugin: 'spring-boot'
+springBoot {
+    requiresUnpack = ['com.netflix.eureka:eureka-core','com.netflix.eureka:eureka-client']
+}
+----
+====
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
@@ -255,6 +296,9 @@ http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-confe
 * Active/Active traffic management
 
 Zuul's rule engine allows rules and filters to be written in essentially any JVM language, with built in support for Java and Groovy.
+
+[[netflix-zuul-reverse-proxy]]
+=== Embedded Zuul Reverse Proxy
 
 Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`.  This forwards local calls to `/proxy/*` to the appropriate service.  The proxy uses Ribbon to locate an instance to forward to via Eureka.  Forwarding to the service is protected by a Hystrix circuit breaker.  Rules are configured via the Spring environment.  The Config Server is an ideal place for the Zuul configuration.  Configuration rules look like the following:
 
