@@ -78,13 +78,19 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 
 	@Override
 	public void start() {
-		if (port != 0) {
+        //only set the port if the nonSecurePort is 0 and this.port != 0
+		if (port != 0 && instanceConfig.getNonSecurePort() == 0) {
 			instanceConfig.setNonSecurePort(port);
+        }
+        //only initialize if nonSecurePort is greater than 0 and it isn't already running
+        //because of containerPortInitializer below
+        if (!running && instanceConfig.getNonSecurePort() > 0) {
             discoveryManagerIntitializer().init();
-			logger.info("Registering application {} with eureka with status UP",
-					instanceConfig.getAppname());
-			ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
-		}
+            logger.info("Registering application {} with eureka with status UP",
+                    instanceConfig.getAppname());
+            ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
+            running = true;
+        }
 	}
 
 	@Override
