@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-netflix</artifactId>
-    <version>1.0.0.BUILD-SNAPSHOT</version>
+    <version>1.0.0.M1</version>
     <packaging>pom</packaging>
     <name>Spring Cloud Netflix</name>
     <description>Spring Cloud Netflix</description>
@@ -13,8 +12,8 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-build</artifactId>
-        <version>1.0.0.BUILD-SNAPSHOT</version>
-        <relativePath/>
+        <version>1.0.0.M1</version>
+        <relativePath />
         <!-- lookup parent from repository -->
     </parent>
 
@@ -22,7 +21,7 @@
 		<url>https://github.com/spring-cloud/spring-cloud-netflix</url>
 		<connection>scm:git:git://github.com/spring-cloud/spring-cloud-netflix.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/spring-cloud/spring-cloud-netflix.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>1.0.0.M1</tag>
 	</scm>
 
     <modules>
@@ -39,22 +38,22 @@
             <dependency>
               <groupId>org.springframework.cloud</groupId>
               <artifactId>spring-cloud-netflix-core</artifactId>
-              <version>1.0.0.BUILD-SNAPSHOT</version>
+              <version>1.0.0.M1</version>
             </dependency>
             <dependency>
               <groupId>org.springframework.cloud</groupId>
               <artifactId>spring-cloud-netflix-eureka-server</artifactId>
-              <version>1.0.0.BUILD-SNAPSHOT</version>
+              <version>1.0.0.M1</version>
             </dependency>
             <dependency>
               <groupId>org.springframework.cloud</groupId>
               <artifactId>spring-cloud-netflix-hystrix-dashboard</artifactId>
-              <version>1.0.0.BUILD-SNAPSHOT</version>
+              <version>1.0.0.M1</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-netflix-turbine</artifactId>
-                <version>1.0.0.BUILD-SNAPSHOT</version>
+                <version>1.0.0.M1</version>
             </dependency>
             <dependency>
                 <groupId>com.netflix.archaius</groupId>

@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-netflix-zuul</artifactId>
-    <version>1.0.0.BUILD-SNAPSHOT</version>
+    <version>1.0.0.M1</version>
     <packaging>jar</packaging>
     <name>Spring Cloud Netflix Zuul</name>
     <url>http://projects.spring.io/spring-cloud/</url>
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-netflix</artifactId>
-        <version>1.0.0.BUILD-SNAPSHOT</version>
+        <version>1.0.0.M1</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -31,7 +31,7 @@
     </build>
 
     <properties>
-        <spring-cloud-config.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-config.version>
+        <spring-cloud-config.version>1.0.0.M1</spring-cloud-config.version>
     </properties>
 
     <dependencyManagement>

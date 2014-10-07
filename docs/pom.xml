@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-netflix-docs</artifactId>
-	<version>1.0.0.BUILD-SNAPSHOT</version>
+	<version>1.0.0.M1</version>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>1.0.0.BUILD-SNAPSHOT</version>
-		<relativePath/>
+		<version>1.0.0.M1</version>
+		<relativePath />
 	</parent>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix Docs</name>
