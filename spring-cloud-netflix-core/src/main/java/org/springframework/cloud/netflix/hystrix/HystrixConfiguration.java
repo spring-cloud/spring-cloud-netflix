@@ -1,3 +1,18 @@
+/*
+ * Copyright 2013-2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.cloud.netflix.hystrix;
 
 import java.io.IOException;
@@ -9,6 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -23,12 +39,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.Hystrix;
 import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
 
 /**
  * @author Spencer Gibb
+ * @author Christian Dupuis
  */
 @Configuration
 public class HystrixConfiguration implements ImportAware {
@@ -36,8 +54,13 @@ public class HystrixConfiguration implements ImportAware {
 	private AnnotationAttributes enableHystrix;
 
 	@Bean
-	HystrixCommandAspect hystrixCommandAspect() {
+	public HystrixCommandAspect hystrixCommandAspect() {
 		return new HystrixCommandAspect();
+	}
+	
+	@Bean
+	public HystrixShutdownHook hystrixShutdownHook() {
+		return new HystrixShutdownHook();
 	}
 
 	@Bean
@@ -168,5 +191,14 @@ public class HystrixConfiguration implements ImportAware {
 			callback.run();
 		}
 
+	}
+	
+	private class HystrixShutdownHook implements DisposableBean {
+
+		@Override
+		public void destroy() throws Exception {
+			Hystrix.reset();
+			
+		}
 	}
 }
