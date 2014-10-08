@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -193,12 +194,17 @@ public class HystrixConfiguration implements ImportAware {
 
 	}
 	
+	/**
+	 * {@link DisposableBean} that makes sure that Hystrix internal state is cleared
+	 * when {@link ApplicationContext} shuts down.
+	 */
 	private class HystrixShutdownHook implements DisposableBean {
 
 		@Override
 		public void destroy() throws Exception {
+			// Just call Hystrix to reset thread pool etc.
 			Hystrix.reset();
-			
 		}
+		
 	}
 }
