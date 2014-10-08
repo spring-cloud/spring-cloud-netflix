@@ -8,5 +8,6 @@ package org.springframework.cloud.client;
 public interface ServiceInstance {
     public String getServiceId();
     public String getHost();
+    public String getIpAddress();
     public int getPort();
 }

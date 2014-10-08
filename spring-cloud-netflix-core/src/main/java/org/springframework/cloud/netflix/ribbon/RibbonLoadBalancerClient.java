@@ -45,6 +45,11 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
         }
 
         @Override
+        public String getIpAddress() {
+            return null; //TODO: ribbon doesn't supply ip
+        }
+
+        @Override
         public int getPort() {
             return server.getPort();
         }
