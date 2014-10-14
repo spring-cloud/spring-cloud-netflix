@@ -1,6 +1,4 @@
-package org.springframework.cloud.netflix.eureka.event;
-
-import com.netflix.appinfo.InstanceInfo;
+package org.springframework.cloud.netflix.eureka.server.event;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,17 +11,15 @@ import org.springframework.context.ApplicationEvent;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @SuppressWarnings("serial")
-public class EurekaInstanceRenewedEvent extends ApplicationEvent {
+public class EurekaInstanceCanceledEvent extends ApplicationEvent {
     private String appName;
     private String serverId;
-    private InstanceInfo instanceInfo;
     boolean replication;
 
-    public EurekaInstanceRenewedEvent(Object source, String appName, String serverId, InstanceInfo instanceInfo, boolean replication) {
+    public EurekaInstanceCanceledEvent(Object source, String appName, String serverId, boolean replication) {
         super(source);
         this.appName = appName;
         this.serverId = serverId;
-        this.instanceInfo = instanceInfo;
         this.replication = replication;
     }
 }

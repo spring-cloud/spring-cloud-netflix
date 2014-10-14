@@ -32,11 +32,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.DiscoveryManagerIntitializer;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
-import org.springframework.cloud.netflix.eureka.advice.LeaseManagerLite;
-import org.springframework.cloud.netflix.eureka.advice.PiggybackMethodInterceptor;
-import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEvent;
-import org.springframework.cloud.netflix.eureka.event.EurekaServerStartedEvent;
-import org.springframework.cloud.netflix.eureka.event.LeaseManagerMessageBroker;
+import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
+import org.springframework.cloud.netflix.eureka.server.advice.PiggybackMethodInterceptor;
+import org.springframework.cloud.netflix.eureka.server.event.EurekaRegistryAvailableEvent;
+import org.springframework.cloud.netflix.eureka.server.event.EurekaServerStartedEvent;
+import org.springframework.cloud.netflix.eureka.server.event.LeaseManagerMessageBroker;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;

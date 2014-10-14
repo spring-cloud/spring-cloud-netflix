@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.eureka.event;
+package org.springframework.cloud.netflix.eureka.server.event;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -24,12 +24,12 @@ import com.netflix.eureka.EurekaServerConfig;
  *
  */
 @SuppressWarnings("serial")
-public class EurekaServerStartedEvent extends ApplicationEvent {
+public class EurekaRegistryAvailableEvent extends ApplicationEvent {
 
 	/**
 	 * @param eurekaServerConfig
 	 */
-	public EurekaServerStartedEvent(EurekaServerConfig eurekaServerConfig) {
+	public EurekaRegistryAvailableEvent(EurekaServerConfig eurekaServerConfig) {
 		super(eurekaServerConfig);
 	}
 

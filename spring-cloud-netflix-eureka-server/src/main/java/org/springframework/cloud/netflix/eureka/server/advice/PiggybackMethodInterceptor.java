@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.eureka.advice;
+package org.springframework.cloud.netflix.eureka.server.advice;
 
 import java.lang.reflect.Method;
 

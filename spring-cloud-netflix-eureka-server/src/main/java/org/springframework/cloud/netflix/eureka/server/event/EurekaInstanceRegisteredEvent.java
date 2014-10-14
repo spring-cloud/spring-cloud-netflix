@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.eureka.event;
+package org.springframework.cloud.netflix.eureka.server.event;
 
 import com.netflix.appinfo.InstanceInfo;
 

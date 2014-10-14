@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.eureka.event;
+package org.springframework.cloud.netflix.eureka.server.event;
 
 import static com.google.common.collect.Iterables.tryFind;
 
@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.netflix.eureka.advice.LeaseManagerLite;
+import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
 import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Optional;
