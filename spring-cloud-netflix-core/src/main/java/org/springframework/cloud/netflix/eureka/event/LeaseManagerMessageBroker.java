@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.eureka.advice.LeaseManagerLite;
 import org.springframework.context.ApplicationContext;
 
 import com.google.common.base.Optional;
@@ -16,16 +17,21 @@ import com.google.common.base.Predicate;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
-import com.netflix.eureka.lease.LeaseManager;
+import com.netflix.eureka.lease.Lease;
 
 /**
  * @author Spencer Gibb
  */
-public class LeaseManagerMessageBroker implements LeaseManager<InstanceInfo> {
+public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo> {
     private static final Logger logger = LoggerFactory.getLogger(LeaseManagerMessageBroker.class);
 
     @Autowired
     private ApplicationContext ctxt;
+    
+    @Override
+    public void register(InstanceInfo info, boolean isReplication) {
+    	register(info, Lease.DEFAULT_DURATION_IN_SECS, isReplication);
+    }
 
     @Override
     public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {

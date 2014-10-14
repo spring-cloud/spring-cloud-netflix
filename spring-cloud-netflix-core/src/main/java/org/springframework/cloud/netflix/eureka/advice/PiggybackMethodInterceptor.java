@@ -55,10 +55,7 @@ public class PiggybackMethodInterceptor implements MethodInterceptor {
 	private Method getTarget(Class<?> type, Method method) {
 		Method target = ReflectionUtils.findMethod(type, method.getName(),
 				method.getParameterTypes());
-		if (target != null) {
-			return target;
-		}
-		return null;
+		return target;
 	}
 
 }

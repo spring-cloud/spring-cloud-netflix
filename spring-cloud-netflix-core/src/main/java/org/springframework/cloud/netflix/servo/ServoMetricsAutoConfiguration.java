@@ -24,7 +24,9 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,12 +40,12 @@ import com.netflix.servo.monitor.Monitors;
 @ConditionalOnClass({ Monitors.class, MetricReader.class })
 @ConditionalOnBean(MetricReader.class)
 @AutoConfigureBefore(EndpointAutoConfiguration.class)
-@AutoConfigureAfter(MetricRepositoryAutoConfiguration.class)
+@AutoConfigureAfter({MetricRepositoryAutoConfiguration.class, JmxAutoConfiguration.class})
+@ConditionalOnExpression("${spring.jmx.enabled:true}")
 public class ServoMetricsAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnBean(MBeanServer.class)
 	public ServoPublicMetrics servoPublicMetrics(MetricReader reader, MBeanServer server) {
 		return new ServoPublicMetrics(reader, server);
 	}

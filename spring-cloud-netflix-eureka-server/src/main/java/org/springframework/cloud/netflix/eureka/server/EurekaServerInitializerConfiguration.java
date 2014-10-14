@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.DiscoveryManagerIntitializer;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
+import org.springframework.cloud.netflix.eureka.advice.LeaseManagerLite;
 import org.springframework.cloud.netflix.eureka.advice.PiggybackMethodInterceptor;
 import org.springframework.cloud.netflix.eureka.event.EurekaRegistryAvailableEvent;
 import org.springframework.cloud.netflix.eureka.event.EurekaServerStartedEvent;
@@ -50,7 +51,6 @@ import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
-import com.netflix.eureka.lease.LeaseManager;
 
 /**
  * @author Dave Syer
@@ -193,7 +193,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 			ProxyFactory factory = new ProxyFactory(instance);
 			// ...with the LeaseManagerMessageBroker
 			factory.addAdvice(new PiggybackMethodInterceptor(leaseManagerMessageBroker(),
-					LeaseManager.class));
+					LeaseManagerLite.class));
 			factory.addAdvice(new TrafficOpener());
 			factory.setProxyTargetClass(true);
 
