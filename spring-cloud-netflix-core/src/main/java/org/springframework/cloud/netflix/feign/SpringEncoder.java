@@ -8,6 +8,8 @@ import feign.codec.Encoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -17,19 +19,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.List;
+
+import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
 /**
  * @author Spencer Gibb
  */
-public class SpringEncoder extends FeignBase implements Encoder {
+public class SpringEncoder implements Encoder {
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
-	public SpringEncoder() {
-	}
+    @Autowired
+    HttpMessageConverters messageConverters;
 
-	public SpringEncoder(List<HttpMessageConverter<?>> messageConverters) {
-		super(messageConverters);
+	public SpringEncoder() {
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public class SpringEncoder extends FeignBase implements Encoder {
 				requestContentType = MediaType.valueOf(type);
 			}
 
-			for (HttpMessageConverter<?> messageConverter : getMessageConverters()) {
+			for (HttpMessageConverter<?> messageConverter : messageConverters.getConverters()) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
 					if (logger.isDebugEnabled()) {
 						if (requestContentType != null) {

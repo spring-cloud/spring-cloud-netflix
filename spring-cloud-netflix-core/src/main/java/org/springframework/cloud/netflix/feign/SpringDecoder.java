@@ -3,12 +3,12 @@ package org.springframework.cloud.netflix.feign;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.client.HttpMessageConverterExtractor;
 
 import feign.FeignException;
@@ -16,25 +16,25 @@ import feign.Response;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
+import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
+
 /**
  * @author Spencer Gibb
  */
-public class SpringDecoder extends FeignBase implements Decoder {
+public class SpringDecoder implements Decoder {
+
+    @Autowired
+    HttpMessageConverters messageConverters;
 
 	public SpringDecoder() {
 	}
 
-	public SpringDecoder(List<HttpMessageConverter<?>> messageConverters) {
-		super(messageConverters);
-	}
-
 	@Override
-	public Object decode(final Response response, Type type) throws IOException,
-			DecodeException, FeignException {
+	public Object decode(final Response response, Type type) throws IOException, FeignException {
 		if (type instanceof Class) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-					(Class<?>) type, getMessageConverters());
+					(Class<?>) type, messageConverters.getConverters());
 
 			Object data = extractor.extractData(new FeignResponseAdapter(response));
 			return data;
