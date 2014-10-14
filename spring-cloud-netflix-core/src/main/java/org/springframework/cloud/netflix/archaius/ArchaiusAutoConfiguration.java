@@ -3,6 +3,7 @@ package org.springframework.cloud.netflix.archaius;
 import com.netflix.config.ConcurrentCompositeConfiguration;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DynamicURLConfiguration;
+
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.slf4j.Logger;
@@ -16,8 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.netflix.config.ConfigurationBasedDeploymentContext.DEPLOYMENT_APPLICATION_ID_PROPERTY;
 import static com.netflix.config.ConfigurationManager.*;
-import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
-import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
 
 /**
  * @author Spencer Gibb
@@ -38,7 +37,8 @@ public class ArchaiusAutoConfiguration {
         return envConfig;
     }
 
-    protected void configureArchaius(ConfigurableEnvironmentConfiguration envConfig) {
+    @SuppressWarnings("deprecation")
+	protected void configureArchaius(ConfigurableEnvironmentConfiguration envConfig) {
         if (initialized.compareAndSet(false, true)) {
             String appName = env.getProperty("spring.application.name");
             if (appName == null) {
