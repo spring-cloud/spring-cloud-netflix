@@ -8,11 +8,10 @@ import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilt
 
 import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 
-import com.netflix.appinfo.AmazonInfo;
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.client.ClientFactory;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
+import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.loadbalancer.DynamicServerListLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -29,24 +28,21 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
  */
 public class EurekaRibbonInitializer implements ServerListInitializer {
 
-	private EurekaInstanceConfig instance;
+	private EurekaClientConfig client;
 
-	public EurekaRibbonInitializer(EurekaInstanceConfig instance) {
-		this.instance = instance;
+	public EurekaRibbonInitializer(EurekaClientConfig client) {
+		this.client = client;
 	}
 
 	@Override
 	public void initialize(String serviceId) {
-		if (instance != null
+		if (client != null
 				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
-			// You can set this with archaius.deployment.* (maybe requires
-			// custom deployment context)?
-			String zone = instance.getMetadataMap().get("zone");
-			if (zone == null && instance.getDataCenterInfo() instanceof AmazonInfo) {
-				AmazonInfo info = (AmazonInfo) instance.getDataCenterInfo();
-				zone = info.getMetadata().get(AmazonInfo.MetaDataKey.availabilityZone);
-			}
+			String[] zones = client.getAvailabilityZones(client.getRegion());
+			String zone = zones != null && zones.length > 0 ? zones[0] : null;
 			if (zone != null) {
+				// You can set this with archaius.deployment.* (maybe requires
+				// custom deployment context)?
 				ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone,
 						zone);
 			}
@@ -71,10 +67,10 @@ public class EurekaRibbonInitializer implements ServerListInitializer {
 			@SuppressWarnings("unchecked")
 			DynamicServerListLoadBalancer<Server> dynamic = (DynamicServerListLoadBalancer<Server>) balancer;
 			ServerList<Server> list = dynamic.getServerListImpl();
-			if (!(list instanceof DomainExtractingServerList)
-					&& !(instance.getDataCenterInfo() instanceof AmazonInfo)) {
-				// This is optional: you can use the native Eureka AWS features by making
-				// the EurekaInstanceConfig.dataCenterInfo an AmazonInfo
+			if (!(list instanceof DomainExtractingServerList)) {
+				// This is optional: you can use the native Eureka AWS features as long as
+				// the server zone is populated. TODO: find a way to back off if AWS
+				// metadata *is* available.
 				dynamic.setServerListImpl(new DomainExtractingServerList(list));
 			}
 		}

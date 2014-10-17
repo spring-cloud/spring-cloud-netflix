@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Spencer Gibb
  */
-public class DiscoveryManagerIntitializer {
+public class DiscoveryManagerInitializer {
 
     @Autowired
     private EurekaClientConfigBean clientConfig;

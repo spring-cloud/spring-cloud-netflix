@@ -15,8 +15,6 @@
  */
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 import org.springframework.util.StringUtils;
@@ -50,32 +48,23 @@ public class DomainExtractingServerList implements ServerList<Server> {
 
 	private List<Server> setZones(List<Server> servers) {
 		for (Server server : servers) {
-			if (!server.getZone().equals("default")) {
-				String zone = extractApproximateZone(server.getId());
-				server.setZone(zone);
-			}
+			String zone = extractApproximateZone(server);
+			server.setZone(zone);
 		}
 		return servers;
 	}
 
-	private String extractApproximateZone(String id) {
-		try {
-			URL url = new URL("http://" + id);
-			String host = url.getHost();
-			if (!host.contains(".")) {
-				return host;
-			}
-			String[] split = StringUtils.split(host, ".");
-			StringBuilder builder = new StringBuilder(split[1]);
-			for (int i=2; i<split.length; i++) {
-				builder.append(".").append(split[i]);
-			}
-			return builder.toString();
+	private String extractApproximateZone(Server server) {
+		String host = server.getHost();
+		if (!host.contains(".")) {
+			return host;
 		}
-		catch (MalformedURLException e) {
+		String[] split = StringUtils.split(host, ".");
+		StringBuilder builder = new StringBuilder(split[1]);
+		for (int i = 2; i < split.length; i++) {
+			builder.append(".").append(split[i]);
 		}
-		return "defaultZone";
+		return builder.toString();
 	}
 
 }
-

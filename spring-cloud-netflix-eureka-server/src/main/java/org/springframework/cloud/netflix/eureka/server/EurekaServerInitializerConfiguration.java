@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.DiscoveryManagerIntitializer;
+import org.springframework.cloud.netflix.eureka.DiscoveryManagerInitializer;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
 import org.springframework.cloud.netflix.eureka.server.advice.PiggybackMethodInterceptor;
@@ -82,9 +82,9 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 	}
 
     @Bean
-    @ConditionalOnMissingBean(DiscoveryManagerIntitializer.class)
-    public DiscoveryManagerIntitializer discoveryManagerIntitializer() {
-        return new DiscoveryManagerIntitializer();
+    @ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
+    public DiscoveryManagerInitializer discoveryManagerIntitializer() {
+        return new DiscoveryManagerInitializer();
     }
 
 	@Override

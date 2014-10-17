@@ -126,9 +126,9 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	}
 
     @Bean
-    @ConditionalOnMissingBean(DiscoveryManagerIntitializer.class)
-    public DiscoveryManagerIntitializer discoveryManagerIntitializer() {
-        return new DiscoveryManagerIntitializer();
+    @ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
+    public DiscoveryManagerInitializer discoveryManagerIntitializer() {
+        return new DiscoveryManagerInitializer();
     }
 
 	@Bean

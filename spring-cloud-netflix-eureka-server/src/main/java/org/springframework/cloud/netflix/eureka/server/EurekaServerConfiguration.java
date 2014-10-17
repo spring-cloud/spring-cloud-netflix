@@ -36,7 +36,7 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.addInitParameter("com.sun.jersey.config.property.packages",
 				"com.netflix.discovery;com.netflix.eureka");
-		bean.addInitParameter(ServletContainer.FEATURE_FILTER_FORWARD_ON_404, "true");
+		// bean.addInitParameter(ServletContainer.FEATURE_FILTER_FORWARD_ON_404, "true");
 		bean.setUrlPatterns(Lists.newArrayList("/v2/*"));
 		return bean;
 	}
