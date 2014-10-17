@@ -91,8 +91,7 @@ public class EurekaClientConfigBeanTests {
 	@Test
 	public void serviceUrlWithDefault() {
 		EnvironmentTestUtils.addEnvironment(context,
-				"eureka.client.serviceUrl.defaultZone:",
-				"eureka.client.serviceUrl.default:http://example.com");
+				"eureka.client.serviceUrl.defaultZone:http://example.com");
 		context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		context.refresh();
