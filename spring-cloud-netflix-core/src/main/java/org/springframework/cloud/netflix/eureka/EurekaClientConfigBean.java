@@ -83,7 +83,6 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	
 	{
 		serviceUrl.put(DEFAULT_ZONE, "http://localhost:8761/v2/");
-		serviceUrl.put("default", "http://localhost:8761/v2/");
 	}
 
 	private boolean gZipContent = true;
@@ -154,7 +153,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	public List<String> getEurekaServerServiceUrls(String myZone) {
         String serviceUrls = serviceUrl.get(myZone);
         if (serviceUrls == null || serviceUrls.isEmpty()) {
-            serviceUrls = serviceUrl.get("default");
+            serviceUrls = serviceUrl.get(DEFAULT_ZONE);
         }
         if (serviceUrls != null) {
             return Arrays.asList(serviceUrls.split(","));

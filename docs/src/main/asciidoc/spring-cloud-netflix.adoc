@@ -1,3 +1,7 @@
+:github-tag: master
+:github-repo: spring-cloud/spring-cloud-netflix
+:github-raw: http://raw.github.com/{github-repo}/{github-tag}
+:github-code: http://github.com/{github-repo}/tree/{github-tag}
 = Spring Cloud Netflix
 
 include::intro.adoc[]
