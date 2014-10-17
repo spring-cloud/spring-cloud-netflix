@@ -2,6 +2,7 @@ package org.springframework.cloud.netflix.ribbon;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -28,14 +29,18 @@ public class RibbonInterceptor implements ClientHttpRequestInterceptor {
         HttpRequestWrapper wrapper = new HttpRequestWrapper(request) {
             @Override
             public URI getURI() {
-                URI originalUri = super.getURI();
+                final URI originalUri = super.getURI();
                 String serviceName = originalUri.getHost();
-                ServiceInstance instance = loadBalancer.choose(serviceName);
-                URI uri = UriComponentsBuilder.fromUri(originalUri)
-                        .host(instance.getHost())
-                        .port(instance.getPort())
-                        .build()
-                        .toUri();
+                URI uri = loadBalancer.choose(serviceName, new LoadBalancerRequest<URI>() {
+                    @Override
+                    public URI apply(ServiceInstance instance) {
+                        return UriComponentsBuilder.fromUri(originalUri)
+                                .host(instance.getHost())
+                                .port(instance.getPort())
+                                .build()
+                                .toUri();
+                    }
+                });
                 return uri;
             }
         };

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.loadbalancer.AbstractLoadBalancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -11,6 +12,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 
 /**
  * @author Spencer Gibb
@@ -34,20 +36,45 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-		ribbonClientPreprocessor.preprocess(serviceId);
-		ILoadBalancer loadBalancer = this.balancers.get(serviceId);
-		if (loadBalancer == null) {
-			loadBalancer = clientFactory.getNamedLoadBalancer(serviceId);
-		}
-		Server server = loadBalancer.chooseServer("default");
-		if (server == null) {
-			throw new IllegalStateException(
-					"Unable to locate ILoadBalancer for service: " + serviceId);
-		}
-		return new RibbonServer(serviceId, server);
+		return new RibbonServer(serviceId, getServer(serviceId));
 	}
 
-	private class RibbonServer implements ServiceInstance {
+    @Override
+    public <T> T choose(String serviceId, LoadBalancerRequest<T> request) {
+        ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
+        Server server = getServer(serviceId, loadBalancer);
+        RibbonServer ribbonServer = new RibbonServer(serviceId, server);
+        try {
+            return request.apply(ribbonServer);
+        } finally {
+            if (loadBalancer instanceof AbstractLoadBalancer) {
+                AbstractLoadBalancer.class.cast(loadBalancer).getLoadBalancerStats().incrementNumRequests(server);
+            }
+        }
+    }
+
+    protected Server getServer(String serviceId) {
+        return getServer(serviceId, getLoadBalancer(serviceId));
+    }
+    protected Server getServer(String serviceId, ILoadBalancer loadBalancer) {
+        Server server = loadBalancer.chooseServer("default");
+        if (server == null) {
+            throw new IllegalStateException(
+                    "Unable to locate ILoadBalancer for service: " + serviceId);
+        }
+        return server;
+    }
+
+    protected ILoadBalancer getLoadBalancer(String serviceId) {
+        ribbonClientPreprocessor.preprocess(serviceId);
+        ILoadBalancer loadBalancer = this.balancers.get(serviceId);
+        if (loadBalancer == null) {
+            loadBalancer = clientFactory.getNamedLoadBalancer(serviceId);
+        }
+        return loadBalancer;
+    }
+
+    private class RibbonServer implements ServiceInstance {
 		private String serviceId;
 		private Server server;
 
