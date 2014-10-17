@@ -7,7 +7,7 @@ import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClas
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
+import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
 
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -20,24 +20,25 @@ import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
 /**
- * Convenience class that sets up some configuration defaults for eureka-discovered ribbon
- * clients.
+ * Preprocessor that configures defaults for eureka-discovered ribbon clients.
+ * Such as: @zone, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
+ *   NFLoadBalancerRuleClassName, NIWSServerListFilterClassName and more
  * 
  * @author Spencer Gibb
  * @author Dave Syer
  */
-public class EurekaRibbonInitializer implements ServerListInitializer {
+public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor {
 
 	private EurekaClientConfig clientConfig;
     private SpringClientFactory clientFactory;
 
-    public EurekaRibbonInitializer(EurekaClientConfig clientConfig, SpringClientFactory clientFactory) {
+    public EurekaRibbonClientPreprocessor(EurekaClientConfig clientConfig, SpringClientFactory clientFactory) {
 		this.clientConfig = clientConfig;
         this.clientFactory = clientFactory;
     }
 
 	@Override
-	public void initialize(String serviceId) {
+	public void preprocess(String serviceId) {
 		if (clientConfig != null
 				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
 			String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());

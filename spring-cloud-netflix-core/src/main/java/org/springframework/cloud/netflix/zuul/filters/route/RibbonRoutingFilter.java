@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
+import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
 import org.springframework.cloud.netflix.zuul.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.SpringFilter;
 import org.springframework.util.StringUtils;
@@ -71,7 +71,7 @@ public class RibbonRoutingFilter extends SpringFilter {
 
 		String serviceId = (String) context.get("serviceId");
 
-        getBean(ServerListInitializer.class).initialize(serviceId);
+        getBean(RibbonClientPreprocessor.class).preprocess(serviceId);
 
 		RestClient restClient = getBean(SpringClientFactory.class).namedClient(serviceId, RestClient.class);
 

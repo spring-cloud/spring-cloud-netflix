@@ -34,7 +34,7 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  * @author Dave Syer
  *
  */
-public class EurekaRibbonInitializerTests {
+public class EurekaRibbonClientPreprocessorTests {
 	
 	@After
 	public void close() {
@@ -46,9 +46,9 @@ public class EurekaRibbonInitializerTests {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
         SpringClientFactory clientFactory = new SpringClientFactory();
-        EurekaRibbonInitializer initializer = new EurekaRibbonInitializer(
+        EurekaRibbonClientPreprocessor clientPreprocessor = new EurekaRibbonClientPreprocessor(
 				client, clientFactory);
-		initializer.initialize("service");
+		clientPreprocessor.preprocess("service");
 		ILoadBalancer balancer = clientFactory.getNamedLoadBalancer("service");
 		assertNotNull(balancer);
 		@SuppressWarnings("unchecked")

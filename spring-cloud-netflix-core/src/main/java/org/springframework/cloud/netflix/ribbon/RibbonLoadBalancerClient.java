@@ -19,7 +19,7 @@ import com.netflix.loadbalancer.Server;
 public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Autowired
-	private ServerListInitializer serverListInitializer;
+	private RibbonClientPreprocessor ribbonClientPreprocessor;
 
     @Autowired
     private SpringClientFactory clientFactory;
@@ -34,7 +34,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-		serverListInitializer.initialize(serviceId);
+		ribbonClientPreprocessor.preprocess(serviceId);
 		ILoadBalancer loadBalancer = this.balancers.get(serviceId);
 		if (loadBalancer == null) {
 			loadBalancer = clientFactory.getNamedLoadBalancer(serviceId);

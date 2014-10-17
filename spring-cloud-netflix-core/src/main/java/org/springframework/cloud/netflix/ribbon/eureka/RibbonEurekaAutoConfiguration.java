@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
+import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -44,7 +44,7 @@ public class RibbonEurekaAutoConfiguration {
 	private EurekaClientConfig clientConfig;
 
     @Bean
-    public ServerListInitializer serverListInitializer(SpringClientFactory clientFactory) {
-        return new EurekaRibbonInitializer(clientConfig, clientFactory);
+    public RibbonClientPreprocessor ribbonClientPreprocessor(SpringClientFactory clientFactory) {
+        return new EurekaRibbonClientPreprocessor(clientConfig, clientFactory);
     }
 }
