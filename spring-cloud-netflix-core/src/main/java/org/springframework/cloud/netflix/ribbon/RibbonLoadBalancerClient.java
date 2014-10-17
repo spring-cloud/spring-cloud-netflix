@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 
-import com.netflix.client.ClientFactory;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -21,6 +20,9 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Autowired
 	private ServerListInitializer serverListInitializer;
+
+    @Autowired
+    private SpringClientFactory clientFactory;
 
 	private Map<String, ILoadBalancer> balancers = new HashMap<String, ILoadBalancer>();
 
@@ -35,7 +37,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		serverListInitializer.initialize(serviceId);
 		ILoadBalancer loadBalancer = this.balancers.get(serviceId);
 		if (loadBalancer == null) {
-			loadBalancer = ClientFactory.getNamedLoadBalancer(serviceId);
+			loadBalancer = clientFactory.getNamedLoadBalancer(serviceId);
 		}
 		Server server = loadBalancer.chooseServer("default");
 		if (server == null) {

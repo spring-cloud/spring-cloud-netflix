@@ -6,9 +6,9 @@ import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRule
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
 
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 
-import com.netflix.client.ClientFactory;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
 import com.netflix.discovery.EurekaClientConfig;
@@ -28,17 +28,19 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
  */
 public class EurekaRibbonInitializer implements ServerListInitializer {
 
-	private EurekaClientConfig client;
+	private EurekaClientConfig clientConfig;
+    private SpringClientFactory clientFactory;
 
-	public EurekaRibbonInitializer(EurekaClientConfig client) {
-		this.client = client;
-	}
+    public EurekaRibbonInitializer(EurekaClientConfig clientConfig, SpringClientFactory clientFactory) {
+		this.clientConfig = clientConfig;
+        this.clientFactory = clientFactory;
+    }
 
 	@Override
 	public void initialize(String serviceId) {
-		if (client != null
+		if (clientConfig != null
 				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
-			String[] zones = client.getAvailabilityZones(client.getRegion());
+			String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
 			String zone = zones != null && zones.length > 0 ? zones[0] : null;
 			if (zone != null) {
 				// You can set this with archaius.deployment.* (maybe requires
@@ -58,7 +60,7 @@ public class EurekaRibbonInitializer implements ServerListInitializer {
 		setProp(serviceId, NIWSServerListFilterClassName.key(),
 				ZonePreferenceServerListFilter.class.getName());
 		setProp(serviceId, EnableZoneAffinity.key(), "true");
-		ILoadBalancer loadBalancer = ClientFactory.getNamedLoadBalancer(serviceId);
+		ILoadBalancer loadBalancer = clientFactory.getNamedLoadBalancer(serviceId);
 		wrapServerList(loadBalancer);
 	}
 
@@ -71,6 +73,7 @@ public class EurekaRibbonInitializer implements ServerListInitializer {
 				// This is optional: you can use the native Eureka AWS features as long as
 				// the server zone is populated. TODO: find a way to back off if AWS
 				// metadata *is* available.
+                // @see com.netflix.appinfo.AmazonInfo.Builder
 				dynamic.setServerListImpl(new DomainExtractingServerList(list));
 			}
 		}

@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.EurekaDiscoverClient;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
@@ -140,7 +140,12 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 
     @Bean
     public DiscoveryClient discoveryClient() {
-        return new EurekaDiscoverClient();
+        return new EurekaDiscoveryClient();
+    }
+
+    @Bean
+    public SpringClientFactory springClientFactory() {
+        return new SpringClientFactory();
     }
 
 	@Bean

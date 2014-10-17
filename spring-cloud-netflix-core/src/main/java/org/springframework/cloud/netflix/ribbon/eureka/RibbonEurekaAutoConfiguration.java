@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 import org.springframework.context.annotation.Bean;
@@ -40,10 +41,10 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 public class RibbonEurekaAutoConfiguration {
 	
 	@Autowired(required=false)
-	private EurekaClientConfig client;
+	private EurekaClientConfig clientConfig;
 
     @Bean
-    public ServerListInitializer serverListInitializer() {
-        return new EurekaRibbonInitializer(client);
+    public ServerListInitializer serverListInitializer(SpringClientFactory clientFactory) {
+        return new EurekaRibbonInitializer(clientConfig, clientFactory);
     }
 }

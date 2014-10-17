@@ -21,9 +21,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 
-import com.netflix.client.ClientFactory;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -45,10 +45,11 @@ public class EurekaRibbonInitializerTests {
 	public void basicConfigurationCreatedForLoadBalancer() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
-		EurekaRibbonInitializer initializer = new EurekaRibbonInitializer(
-				client);
+        SpringClientFactory clientFactory = new SpringClientFactory();
+        EurekaRibbonInitializer initializer = new EurekaRibbonInitializer(
+				client, clientFactory);
 		initializer.initialize("service");
-		ILoadBalancer balancer = ClientFactory.getNamedLoadBalancer("service");
+		ILoadBalancer balancer = clientFactory.getNamedLoadBalancer("service");
 		assertNotNull(balancer);
 		@SuppressWarnings("unchecked")
 		ZoneAwareLoadBalancer<Server> aware = (ZoneAwareLoadBalancer<Server>) balancer;

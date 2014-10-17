@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix;
+package org.springframework.cloud.netflix.eureka;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -8,7 +8,7 @@ import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 /**
  * @author Spencer Gibb
  */
-public class EurekaDiscoverClient implements DiscoveryClient {
+public class EurekaDiscoveryClient implements DiscoveryClient {
 
     @Autowired
     private EurekaInstanceConfigBean config;

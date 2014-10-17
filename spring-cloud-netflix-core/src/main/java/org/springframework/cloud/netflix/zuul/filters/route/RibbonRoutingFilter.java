@@ -16,13 +16,13 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.ServerListInitializer;
 import org.springframework.cloud.netflix.zuul.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.SpringFilter;
 import org.springframework.util.StringUtils;
 
 import com.netflix.client.ClientException;
-import com.netflix.client.ClientFactory;
 import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -71,10 +71,9 @@ public class RibbonRoutingFilter extends SpringFilter {
 
 		String serviceId = (String) context.get("serviceId");
 
-        //TODO: should this be an interface or just config?
         getBean(ServerListInitializer.class).initialize(serviceId);
 
-		RestClient restClient = (RestClient) ClientFactory.getNamedClient(serviceId);
+		RestClient restClient = getBean(SpringClientFactory.class).namedClient(serviceId, RestClient.class);
 
 		String uri = request.getRequestURI();
 		if (context.get("requestURI") != null) {

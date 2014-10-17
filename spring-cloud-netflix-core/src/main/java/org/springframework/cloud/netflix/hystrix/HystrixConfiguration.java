@@ -29,6 +29,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,7 +66,7 @@ public class HystrixConfiguration implements ImportAware {
 	}
 
 	@Bean
-	// TODO: add enable/disable
+    @ConditionalOnExpression("${hystrix.stream.endpoint.enabled:true}")
 	// TODO: make it @ConditionalOnWebApp (need a nested class)
 	public HystrixStreamEndpoint hystrixStreamEndpoint() {
 		return new HystrixStreamEndpoint();
@@ -79,20 +80,6 @@ public class HystrixConfiguration implements ImportAware {
 				this.enableHystrix,
 				"@EnableHystrix is not present on importing class "
 						+ importMetadata.getClassName());
-	}
-
-	@Autowired(required = false)
-	void setConfigurers(Collection<HystrixConfigurer> configurers) {
-		if (CollectionUtils.isEmpty(configurers)) {
-			return;
-		}
-		if (configurers.size() > 1) {
-			throw new IllegalStateException(
-					"Only one HystrixConfigurer may exist");
-		}
-		// TODO: create CircuitBreakerConfigurer API
-		// CircuitBreakerConfigurer configurer = configurers.iterator().next();
-		// this.txManager = configurer.annotationDrivenTransactionManager();
 	}
 
 	@Configuration
