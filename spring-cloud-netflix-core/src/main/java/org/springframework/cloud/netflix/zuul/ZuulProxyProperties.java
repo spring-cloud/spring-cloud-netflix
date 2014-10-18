@@ -10,5 +10,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("zuul.proxy")
 public class ZuulProxyProperties {
     private String mapping = "/proxy";
-    private boolean stripMapping = false;
+    private boolean stripMapping = true; // this is currently the default behaviour
 }

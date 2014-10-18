@@ -10,6 +10,7 @@ eureka:
 zuul:
   proxy:
     mapping: /api
+    stripMapping: false
     route:
       testclient: /api/testing123
       stores: /api/stores
