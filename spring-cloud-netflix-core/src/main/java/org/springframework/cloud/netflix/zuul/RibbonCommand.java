@@ -33,7 +33,6 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
     MultivaluedMap<String, String> params;
     InputStream requestEntity;
 
-
     public RibbonCommand(RestClient restClient,
                          Verb verb,
                          String uri,
@@ -42,7 +41,6 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
                          InputStream requestEntity) throws URISyntaxException {
         this("default", restClient, verb, uri, headers, params, requestEntity);
     }
-
 
     public RibbonCommand(String commandKey,
                          RestClient restClient,
@@ -76,10 +74,9 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
         }
     }
 
-    HttpResponse forward() throws Exception {
+    private HttpResponse forward() throws Exception {
 
         RequestContext context = RequestContext.getCurrentContext();
-
 
         Builder builder = HttpRequest.newBuilder().
                 verb(verb).

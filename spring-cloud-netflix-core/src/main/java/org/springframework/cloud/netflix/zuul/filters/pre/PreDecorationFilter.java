@@ -44,9 +44,14 @@ public class PreDecorationFilter extends ZuulFilter {
 
         String requestURI = ctx.getRequest().getRequestURI();
 
-        //remove proxy prefix TODO: only if embedded proxy
         String proxyMapping = properties.getMapping();
-        final String uriPart = requestURI.replace(proxyMapping, ""); //TODO: better strategy?
+
+        final String uriPart;
+        if (properties.isStripMapping()) {
+            uriPart = requestURI.replace(proxyMapping, ""); //TODO: better strategy?
+        } else {
+            uriPart = requestURI;
+        }
         ctx.put("requestURI", uriPart);
 
         LinkedHashMap<String, String> routesMap = routes.getRoutes();
