@@ -21,7 +21,7 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients.
- * Such as: @zone, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
+ * Such as: <code>@zone</code>, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
  *   NFLoadBalancerRuleClassName, NIWSServerListFilterClassName and more
  * 
  * @author Spencer Gibb
@@ -58,6 +58,7 @@ public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor 
 		setProp(serviceId, DeploymentContextBasedVipAddresses.key(), serviceId);
 		setProp(serviceId, NFLoadBalancerRuleClassName.key(),
 				ZoneAvoidanceRule.class.getName());
+		// TODO: use bean name indirection to get this filter to be a @Bean
 		setProp(serviceId, NIWSServerListFilterClassName.key(),
 				ZonePreferenceServerListFilter.class.getName());
 		setProp(serviceId, EnableZoneAffinity.key(), "true");

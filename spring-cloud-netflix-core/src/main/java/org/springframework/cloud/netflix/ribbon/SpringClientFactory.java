@@ -52,12 +52,12 @@ public class SpringClientFactory {
                 loadBalancer  = getNamedLoadBalancer(restClientName, clientConfig.getClass());
             }
             if (client instanceof AbstractLoadBalancerAwareClient) {
-                ((AbstractLoadBalancerAwareClient) client).setLoadBalancer(loadBalancer);
+                ((AbstractLoadBalancerAwareClient<?,?>) client).setLoadBalancer(loadBalancer);
             }
         } catch (Throwable e) {
             String message = "Unable to InitializeAndAssociateNFLoadBalancer set for RestClient:"
                     + restClientName;
-            log.warn(message, e);
+            log.warn(message);
             throw new ClientException(ClientException.ErrorType.CONFIGURATION,
                     message, e);
         }
@@ -74,11 +74,11 @@ public class SpringClientFactory {
      *
      * @throws RuntimeException if an error occurs in creating the client.
      */
-    public synchronized IClient getNamedClient(String name) {
+    public synchronized IClient<?,?> getNamedClient(String name) {
         return getNamedClient(name, DefaultClientConfigImpl.class);
     }
 
-    public synchronized <C extends IClient> C namedClient(String name, Class<C> clientClass) {
+    public synchronized <C extends IClient<?,?>> C namedClient(String name, Class<C> clientClass) {
         return clientClass.cast(getNamedClient(name, DefaultClientConfigImpl.class));
     }
 
@@ -87,7 +87,7 @@ public class SpringClientFactory {
      *
      * @throws RuntimeException if an error occurs in creating the client.
      */
-    public synchronized IClient getNamedClient(String name, Class<? extends IClientConfig> configClass) {
+    public synchronized IClient<?,?> getNamedClient(String name, Class<? extends IClientConfig> configClass) {
         if (simpleClientMap.get(name) != null) {
             return simpleClientMap.get(name);
         }
@@ -103,7 +103,7 @@ public class SpringClientFactory {
      *
      * @throws ClientException if any error occurs, or if the client with the same name already exists
      */
-    public synchronized IClient createNamedClient(String name, Class<? extends IClientConfig> configClass) throws ClientException {
+    public synchronized IClient<?,?> createNamedClient(String name, Class<? extends IClientConfig> configClass) throws ClientException {
         IClientConfig config = getNamedConfig(name, configClass);
         return registerClientFromProperties(name, config);
     }
@@ -183,10 +183,9 @@ public class SpringClientFactory {
      * @param className Class name of the object
      * @param clientConfig IClientConfig object used for initialization.
      */
-    @SuppressWarnings("unchecked")
     public Object instantiateInstanceWithClientConfig(String className, IClientConfig clientConfig)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        Class clazz = Class.forName(className);
+        Class<?> clazz = Class.forName(className);
         if (IClientConfigAware.class.isAssignableFrom(clazz)) {
             IClientConfigAware obj = (IClientConfigAware) clazz.newInstance();
             obj.initWithNiwsConfig(clientConfig);
