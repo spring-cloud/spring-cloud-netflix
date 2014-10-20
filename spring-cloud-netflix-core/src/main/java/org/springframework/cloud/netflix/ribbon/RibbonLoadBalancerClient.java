@@ -4,15 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.netflix.loadbalancer.AbstractLoadBalancer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 
+import com.netflix.loadbalancer.AbstractLoadBalancer;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 
 /**
  * @author Spencer Gibb
@@ -20,15 +19,13 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
  */
 public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
-	@Autowired
 	private RibbonClientPreprocessor ribbonClientPreprocessor;
 
-    @Autowired
     private SpringClientFactory clientFactory;
 
 	private Map<String, ILoadBalancer> balancers = new HashMap<String, ILoadBalancer>();
 
-	public RibbonLoadBalancerClient(List<BaseLoadBalancer> balancers) {
+	public RibbonLoadBalancerClient(RibbonClientPreprocessor ribbonClientPreprocessor, SpringClientFactory clientFactory, List<BaseLoadBalancer> balancers) {
 		for (BaseLoadBalancer balancer : balancers) {
 			this.balancers.put(balancer.getName(), balancer);
 		}
