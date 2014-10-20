@@ -129,6 +129,11 @@
             </dependency>
             <dependency>
                 <groupId>com.netflix.ribbon</groupId>
+                <artifactId>ribbon</artifactId>
+                <version>${ribbon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.ribbon</groupId>
                 <artifactId>ribbon-core</artifactId>
                 <version>${ribbon.version}</version>
             </dependency>
@@ -147,6 +152,11 @@
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.netflix.rxjava</groupId>
+                <artifactId>rxjava-core</artifactId>
+                <version>${netflix.rxjava.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.netflix.turbine</groupId>
@@ -172,6 +182,12 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.12.6</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>18.0</version>
             </dependency>
 		    <dependency>
 			  <groupId>com.sun.jersey</groupId>
@@ -215,10 +231,11 @@
         <archaius.version>0.6.0</archaius.version>
         <eureka.version>1.1.135</eureka.version>
         <feign.version>6.1.2</feign.version>
-        <hystrix.version>1.4.0-RC4</hystrix.version>
-        <ribbon.version>0.3.13</ribbon.version>
+        <hystrix.version>1.4.0-RC5</hystrix.version>
+        <ribbon.version>2.0-RC9</ribbon.version>
         <turbine.version>0.4</turbine.version>
         <zuul.version>1.0.24</zuul.version>
+        <netflix.rxjava.version>0.20.6</netflix.rxjava.version>
     </properties>
 
 </project>

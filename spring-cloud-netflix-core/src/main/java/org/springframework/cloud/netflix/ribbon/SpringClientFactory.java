@@ -222,7 +222,7 @@ public class SpringClientFactory {
             return config;
         } else {
             try {
-                config = (IClientConfig) clientConfigClass.newInstance();
+                config = clientConfigClass.newInstance();
                 config.loadProperties(name);
             } catch (Throwable e) {
                 log.error("Unable to create client config instance", e);
