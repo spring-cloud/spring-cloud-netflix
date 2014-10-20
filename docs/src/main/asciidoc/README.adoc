@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/spring-cloud/spring-cloud-netflix.svg?branch=master)](https://travis-ci.org/spring-cloud/spring-cloud-netflix)
 
 include::intro.adoc[]
 
