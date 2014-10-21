@@ -6,11 +6,16 @@ import static feign.Util.emptyToNull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import feign.Contract;
 import feign.MethodMetadata;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Spencer Gibb
@@ -78,7 +83,57 @@ public class SpringMvcContract extends Contract.BaseContract {
 
     @Override
     protected boolean processAnnotationsOnParameter(MethodMetadata data, Annotation[] annotations, int paramIndex) {
+        boolean isHttpAnnotation = false;
         //TODO: support spring parameter annotations?
+        for (Annotation parameterAnnotation : annotations) {
+            Class<? extends Annotation> annotationType = parameterAnnotation.annotationType();
+            if (annotationType == PathVariable.class) {
+                String name = PathVariable.class.cast(parameterAnnotation).value();
+                checkState(emptyToNull(name) != null, "PathVariable annotation was empty on param %s.", paramIndex);
+                nameParam(data, name, paramIndex);
+                isHttpAnnotation = true;
+                String varName = '{' + name + '}';
+                if (data.template().url().indexOf(varName) == -1 &&
+                        !searchMapValues(data.template().queries(), varName) &&
+                        !searchMapValues(data.template().headers(), varName)) {
+                    data.formParams().add(name);
+                }
+            } else if (annotationType == RequestParam.class) {
+                String name = RequestParam.class.cast(parameterAnnotation).value();
+                checkState(emptyToNull(name) != null, "QueryParam.value() was empty on parameter %s", paramIndex);
+                Collection<String> query = addTemplatedParam(data.template().queries().get(name), name);
+                data.template().query(name, query);
+                nameParam(data, name, paramIndex);
+                isHttpAnnotation = true;
+            } else if (annotationType == RequestHeader.class) {
+                String name = RequestHeader.class.cast(parameterAnnotation).value();
+                checkState(emptyToNull(name) != null, "HeaderParam.value() was empty on parameter %s", paramIndex);
+                Collection<String> header = addTemplatedParam(data.template().headers().get(name), name);
+                data.template().header(name, header);
+                nameParam(data, name, paramIndex);
+                isHttpAnnotation = true;
+            }/* else if (annotationType == FormParam.class) {
+                String name = FormParam.class.cast(parameterAnnotation).value();
+                checkState(emptyToNull(name) != null, "FormParam.value() was empty on parameter %s", paramIndex);
+                data.formParams().add(name);
+                nameParam(data, name, paramIndex);
+                isHttpAnnotation = true;
+            }*/
+
+        }
+        return isHttpAnnotation;
+    }
+
+    private <K, V> boolean searchMapValues(Map<K, Collection<V>> map, V search) {
+        Collection<Collection<V>> values = map.values();
+        if (values == null)
+            return false;
+
+        for (Collection<V> entry : values) {
+            if (entry.contains(search))
+                return true;
+        }
+
         return false;
     }
 }
