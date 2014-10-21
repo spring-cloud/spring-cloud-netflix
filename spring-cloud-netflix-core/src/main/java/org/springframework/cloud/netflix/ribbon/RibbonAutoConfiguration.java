@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -18,7 +17,9 @@ import org.springframework.web.client.RestTemplate;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 
 /**
+ * Auto configuration for Ribbon (client side load balancing)
  * @author Spencer Gibb
+ * @author Dave Syer
  */
 @Configuration
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
@@ -28,9 +29,8 @@ public class RibbonAutoConfiguration {
 	private List<BaseLoadBalancer> balancers = Collections.emptyList();
 
 	@Autowired
-	private EurekaRibbonClientPreprocessor clientPreprocessor;
+	private RibbonClientPreprocessor clientPreprocessor;
 	
-	// TODO: need to find a default for this?
 	@Autowired
 	private SpringClientFactory springClientFactory;
 
@@ -59,6 +59,7 @@ public class RibbonAutoConfiguration {
 	protected static class DefaultRibbonClientPreprocessor {
 
 		@Bean
+		@ConditionalOnMissingBean(RibbonClientPreprocessor.class)
 		public RibbonClientPreprocessor ribbonClientPreprocessor() {
 			return new RibbonClientPreprocessor() {
 				@Override

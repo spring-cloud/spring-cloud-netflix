@@ -6,8 +6,8 @@ import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRule
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
 
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;

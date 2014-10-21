@@ -3,12 +3,12 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientException;
 import com.netflix.client.IClient;
 import com.netflix.client.IClientConfigAware;
-import lombok.extern.slf4j.Slf4j;
-
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
@@ -44,9 +44,9 @@ public class SpringClientFactory {
                     "A Rest Client with this name is already registered. Please use a different name");
         }
         try {
-            String clientClassName = (String) clientConfig.getProperty(CommonClientConfigKey.ClientClassName);
+            String clientClassName = (String) clientConfig.get(CommonClientConfigKey.ClientClassName);
             client = (IClient<?, ?>) instantiateInstanceWithClientConfig(clientClassName, clientConfig);
-            boolean initializeNFLoadBalancer = Boolean.parseBoolean(clientConfig.getProperty(
+            boolean initializeNFLoadBalancer = Boolean.parseBoolean(clientConfig.get(
                     CommonClientConfigKey.InitializeNFLoadBalancer, DefaultClientConfigImpl.DEFAULT_ENABLE_LOADBALANCER).toString());
             if (initializeNFLoadBalancer) {
                 loadBalancer  = getNamedLoadBalancer(restClientName, clientConfig.getClass());
@@ -149,7 +149,7 @@ public class SpringClientFactory {
         }
         ILoadBalancer lb = null;
         try {
-            String loadBalancerClassName = (String) clientConfig.getProperty(CommonClientConfigKey.NFLoadBalancerClassName);
+            String loadBalancerClassName = (String) clientConfig.get(CommonClientConfigKey.NFLoadBalancerClassName);
             lb = (ILoadBalancer) instantiateInstanceWithClientConfig(loadBalancerClassName, clientConfig);
             namedLBMap.put(name, lb);
             log.info("Client:" + name

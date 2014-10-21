@@ -26,6 +26,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	private Map<String, ILoadBalancer> balancers = new HashMap<String, ILoadBalancer>();
 
 	public RibbonLoadBalancerClient(RibbonClientPreprocessor ribbonClientPreprocessor, SpringClientFactory clientFactory, List<BaseLoadBalancer> balancers) {
+		this.ribbonClientPreprocessor = ribbonClientPreprocessor;
+		this.clientFactory = clientFactory;
 		for (BaseLoadBalancer balancer : balancers) {
 			this.balancers.put(balancer.getName(), balancer);
 		}
