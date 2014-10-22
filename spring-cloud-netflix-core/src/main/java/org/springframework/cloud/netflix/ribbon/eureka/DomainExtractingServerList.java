@@ -75,10 +75,8 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 
 	public DomainExtractingServer(DiscoveryEnabledServer server) {
 		super(server.getInstanceInfo(), true, false);
-		String zone = extractApproximateZone(server);
-		setZone(zone);
-		String id = extractId(server);
-		setId(id);
+		setZone(extractApproximateZone(server));
+		setId(extractId(server));
 	}
 
 	private String extractId(Server server) {

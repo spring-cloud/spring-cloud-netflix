@@ -19,9 +19,12 @@ import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.UniqueIdentifier;
 import com.netflix.appinfo.DataCenterInfo.Name;
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.converters.Converters.InstanceInfoConverter;
 import com.thoughtworks.xstream.MarshallingStrategy;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.ConverterLookup;
 import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -47,20 +50,8 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	@Override
 	public Object unmarshal(Object root, HierarchicalStreamReader reader,
 			DataHolder dataHolder, ConverterLookup converterLookup, Mapper mapper) {
-		Object obj = delegate
-				.unmarshal(root, reader, dataHolder, converterLookup, mapper);
-		if (obj instanceof InstanceInfo) {
-			InstanceInfo info = (InstanceInfo) obj;
-			String instanceId = info.getMetadata().get("instanceId");
-			DataCenterInfo dataCenter = info.getDataCenterInfo();
-			if (instanceId != null && Name.Amazon != dataCenter.getName()) {
-				String old = info.getId();
-				info = new InstanceInfo.Builder(info).setDataCenterInfo(
-						new InstanceIdDataCenterInfo(old + ":" + instanceId)).build();
-				obj = info;
-			}
-		}
-		return obj;
+		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup);
+		return delegate.unmarshal(root, reader, dataHolder, wrapped, mapper);
 	}
 
 	@Override
@@ -68,8 +59,9 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			ConverterLookup converterLookup, Mapper mapper, DataHolder dataHolder) {
 		delegate.marshal(writer, obj, converterLookup, mapper, dataHolder);
 	}
-	
-	public static class InstanceIdDataCenterInfo implements DataCenterInfo, UniqueIdentifier {
+
+	public static class InstanceIdDataCenterInfo implements DataCenterInfo,
+			UniqueIdentifier {
 
 		private String instanceId;
 
@@ -85,6 +77,45 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 		@Override
 		public String getId() {
 			return instanceId;
+		}
+
+	}
+
+	private static class DataCenterAwareConverterLookup implements ConverterLookup {
+
+		private ConverterLookup delegate;
+
+		public DataCenterAwareConverterLookup(ConverterLookup delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Converter lookupConverterForType(@SuppressWarnings("rawtypes") Class type) {
+			Converter converter = delegate.lookupConverterForType(type);
+			if (InstanceInfo.class == type) {
+				return new DataCenterAwareConverter();
+			}
+			return converter;
+		}
+
+	}
+
+	private static class DataCenterAwareConverter extends InstanceInfoConverter {
+
+		@Override
+		public Object unmarshal(HierarchicalStreamReader reader,
+				UnmarshallingContext context) {
+			Object obj = super.unmarshal(reader, context);
+			InstanceInfo info = (InstanceInfo) obj;
+			String instanceId = info.getMetadata().get("instanceId");
+			DataCenterInfo dataCenter = info.getDataCenterInfo();
+			if (instanceId != null && Name.Amazon != dataCenter.getName()) {
+				String old = info.getId();
+				info = new InstanceInfo.Builder(info).setDataCenterInfo(
+						new InstanceIdDataCenterInfo(old + ":" + instanceId)).build();
+				obj = info;
+			}
+			return obj;
 		}
 
 	}
