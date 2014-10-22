@@ -15,6 +15,8 @@
  */
 package org.springframework.cloud.netflix.eureka;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,6 +26,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.converters.JsonXStream;
+import com.netflix.discovery.converters.XmlXStream;
 
 /**
  * @author Dave Syer
@@ -34,6 +38,12 @@ import com.netflix.discovery.EurekaClientConfig;
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
 public class EurekaClientAutoConfiguration {
+	
+	@PostConstruct
+	public void init() {
+		XmlXStream.getInstance().setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
+		JsonXStream.getInstance().setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());		
+	}
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaClientConfig.class)

@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.eureka.DataCenterAwareMarshallingStrategy;
 import org.springframework.cloud.netflix.eureka.DiscoveryManagerInitializer;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
@@ -47,6 +48,8 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.blitz4j.LoggingConfiguration;
+import com.netflix.discovery.converters.JsonXStream;
+import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
@@ -100,6 +103,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 							LoggingConfiguration.getInstance().configure();
 							EurekaServerConfigurationManager.getInstance()
 									.setConfiguration(eurekaServerConfig);
+							XmlXStream.getInstance().setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
+							JsonXStream.getInstance().setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
 							// PeerAwareInstanceRegistry.getInstance();
 							applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(
