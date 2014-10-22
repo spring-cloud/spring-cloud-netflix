@@ -15,12 +15,18 @@
  */
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.springframework.util.StringUtils;
 
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 
 /**
  * @author Dave Syer
@@ -47,11 +53,43 @@ public class DomainExtractingServerList implements ServerList<Server> {
 	}
 
 	private List<Server> setZones(List<Server> servers) {
+		List<Server> result = new ArrayList<Server>();
 		for (Server server : servers) {
-			String zone = extractApproximateZone(server);
-			server.setZone(zone);
+			if (server instanceof DiscoveryEnabledServer) {
+				result.add(new DomainExtractingServer((DiscoveryEnabledServer) server));
+			}
+			else {
+				result.add(server);
+			}
 		}
-		return servers;
+		return result;
+	}
+
+}
+
+class DomainExtractingServer extends DiscoveryEnabledServer {
+
+	@Getter
+	@Setter
+	private String id;
+
+	public DomainExtractingServer(DiscoveryEnabledServer server) {
+		super(server.getInstanceInfo(), true, false);
+		String zone = extractApproximateZone(server);
+		setZone(zone);
+		String id = extractId(server);
+		setId(id);
+	}
+
+	private String extractId(Server server) {
+		if (server instanceof DiscoveryEnabledServer) {
+			DiscoveryEnabledServer enabled = (DiscoveryEnabledServer) server;
+			InstanceInfo instance = enabled.getInstanceInfo();
+			if (instance.getMetadata().containsKey("instanceId")) {
+				return instance.getMetadata().get("instanceId");
+			}
+		}
+		return server.getId();
 	}
 
 	private String extractApproximateZone(Server server) {
