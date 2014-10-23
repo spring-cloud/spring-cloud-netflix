@@ -1,8 +1,5 @@
 package org.springframework.cloud.netflix.eureka.server;
 
-import javax.servlet.Filter;
-
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
@@ -39,24 +36,6 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 				"com.netflix.discovery;com.netflix.eureka");
 		bean.addInitParameter("com.sun.jersey.config.feature.FilterContextPath", EurekaServerConfigBean.DEFAULT_PREFIX);
 		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PATH + "/*"));
-		return bean;
-	}
-
-	// TODO: remove this when we upgrade to Boot 1.1.6
-	@Bean
-	public FilterRegistrationBean metricFilterRegistration(@Qualifier("metricFilter") Filter filter) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
-		bean.setFilter(filter);
-		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-		return bean;
-	}
-
-	// TODO: remove this when we upgrade to Boot 1.1.6
-	@Bean
-	public FilterRegistrationBean traceFilterRegistration(@Qualifier("webRequestLoggingFilter") Filter filter) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
-		bean.setFilter(filter);
-		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;
 	}
 
