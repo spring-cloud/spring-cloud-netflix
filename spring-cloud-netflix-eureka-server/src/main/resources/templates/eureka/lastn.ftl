@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
   <head>
     <title>Eureka - Last N events</title>
-    <link rel="stylesheet" type="text/css" href="/eureka/wro.css">
+    <link rel="stylesheet" type="text/css" href="/eureka/css/wro.css">
   </head>
   <body id="three">
 

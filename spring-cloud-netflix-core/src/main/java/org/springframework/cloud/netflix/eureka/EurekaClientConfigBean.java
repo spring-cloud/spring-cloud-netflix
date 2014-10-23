@@ -35,7 +35,7 @@ import com.netflix.discovery.EurekaClientConfig;
 @ConfigurationProperties("eureka.client")
 public class EurekaClientConfigBean implements EurekaClientConfig {
 
-	public static final String DEFAULT_URL = "http://localhost:8761" + EurekaServerConfigBean.DEFAULT_PATH + "/";
+	public static final String DEFAULT_URL = "http://localhost:8761" + EurekaServerConfigBean.DEFAULT_PREFIX + "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
 	

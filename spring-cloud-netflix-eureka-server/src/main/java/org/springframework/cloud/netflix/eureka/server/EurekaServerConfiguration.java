@@ -32,10 +32,10 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(new ServletContainer());
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
+		bean.addInitParameter("com.sun.jersey.config.property.WebPageContentRegex", EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css)/.*");
 		bean.addInitParameter("com.sun.jersey.config.property.packages",
 				"com.netflix.discovery;com.netflix.eureka");
-		bean.addInitParameter("com.sun.jersey.config.feature.FilterContextPath", EurekaServerConfigBean.DEFAULT_PREFIX);
-		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PATH + "/*"));
+		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PREFIX + "/*"));
 		return bean;
 	}
 

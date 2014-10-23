@@ -40,8 +40,8 @@ eureka:
       availabilityZones: default
 
     #serviceUrl:
-      #default: http://localhost:8761/eureka/api/
-      #defaultZone: http://localhost:8761/eureka/api/
+      #default: http://localhost:8761/eureka/
+      #defaultZone: http://localhost:8761/eureka/
 
   instance:
     #Virtual host name by which the clients identifies this service

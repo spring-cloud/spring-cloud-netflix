@@ -41,7 +41,7 @@ public class Application {
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/api/
+      defaultZone: http://localhost:8761/eureka/
 ```
 
 The default application name, virtual host and non-secure port are taken from the `Environment` is 
@@ -89,7 +89,7 @@ public class Application {
 ```
 
 The server has a home page with a UI, and HTTP API endpoints per the
-normal Eureka functionality under `/eureka/api/*`.
+normal Eureka functionality under `/eureka/*`.
 
 Eureka background reading: see https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
 

@@ -35,8 +35,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	public static final String DEFAULT_PREFIX = "/eureka";
 
-	public static final String DEFAULT_PATH = DEFAULT_PREFIX + "/api";
-
 	private static final int MINUTES = 60 * 1000;
 
 	private String aWSAccessId;

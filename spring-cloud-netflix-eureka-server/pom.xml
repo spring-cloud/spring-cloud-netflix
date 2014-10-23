@@ -131,7 +131,7 @@
 				</executions>
 				<configuration>
 					<wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
-					<destinationFolder>${project.build.directory}/generated-resources/static/eureka/</destinationFolder>
+					<cssDestinationFolder>${project.build.directory}/generated-resources/static/eureka/css</cssDestinationFolder>
 					<wroFile>${project.build.directory}/wro/wro.xml</wroFile>
 					<extraConfigFile>${basedir}/src/main/wro/wro.properties</extraConfigFile>
 				</configuration>

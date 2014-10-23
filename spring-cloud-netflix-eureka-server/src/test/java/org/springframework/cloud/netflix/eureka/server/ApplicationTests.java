@@ -43,7 +43,7 @@ public class ApplicationTests {
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/eureka/api/apps", Map.class);
+				"http://localhost:" + port + "/eureka/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
