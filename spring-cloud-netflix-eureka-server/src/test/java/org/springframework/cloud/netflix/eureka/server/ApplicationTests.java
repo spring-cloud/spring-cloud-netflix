@@ -22,7 +22,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=eureka", "management.contextPath=/admin", "spring.jmx.enabled=true" })
+@IntegrationTest({ "server.port=0", "spring.application.name=eureka", "spring.jmx.enabled=true" })
 public class ApplicationTests {
 
 	@Value("${local.server.port}")
@@ -43,7 +43,7 @@ public class ApplicationTests {
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/v2/apps", Map.class);
+				"http://localhost:" + port + "/eureka/api/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -51,7 +51,7 @@ public class ApplicationTests {
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/admin/env", Map.class);
+				"http://localhost:" + port + "/env", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

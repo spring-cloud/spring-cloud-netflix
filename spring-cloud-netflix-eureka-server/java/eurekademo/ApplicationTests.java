@@ -27,14 +27,14 @@ public class ApplicationTests {
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/v2/apps", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/eureka/api/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/admin/env", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/env", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
