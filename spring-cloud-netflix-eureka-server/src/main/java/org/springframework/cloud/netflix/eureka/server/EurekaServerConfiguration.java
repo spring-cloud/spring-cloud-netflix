@@ -1,5 +1,8 @@
 package org.springframework.cloud.netflix.eureka.server;
 
+import javax.servlet.Filter;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
@@ -21,7 +24,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 @Import(EurekaServerInitializerConfiguration.class)
 @EnableEurekaClient
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
-	
+
 	@Bean
 	public EurekaController eurekaController() {
 		return new EurekaController();
@@ -32,11 +35,21 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(new ServletContainer());
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-		bean.addInitParameter("com.sun.jersey.config.property.WebPageContentRegex", EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css)/.*");
+		bean.addInitParameter("com.sun.jersey.config.property.WebPageContentRegex",
+				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css)/.*");
 		bean.addInitParameter("com.sun.jersey.config.property.packages",
 				"com.netflix.discovery;com.netflix.eureka");
-		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PREFIX + "/*"));
+		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PREFIX
+				+ "/*"));
 		return bean;
 	}
 
+	@Bean
+	public FilterRegistrationBean traceFilterRegistration(
+			@Qualifier("webRequestLoggingFilter") Filter filter) {
+		FilterRegistrationBean bean = new FilterRegistrationBean();
+		bean.setFilter(filter);
+		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
+		return bean;
+	}
 }
