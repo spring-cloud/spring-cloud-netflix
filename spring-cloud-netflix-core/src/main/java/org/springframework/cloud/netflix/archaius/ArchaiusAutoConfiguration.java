@@ -1,8 +1,14 @@
 package org.springframework.cloud.netflix.archaius;
 
-import com.netflix.config.ConcurrentCompositeConfiguration;
-import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DynamicURLConfiguration;
+import static com.netflix.config.ConfigurationBasedDeploymentContext.DEPLOYMENT_APPLICATION_ID_PROPERTY;
+import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
+import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
@@ -13,10 +19,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.netflix.config.ConfigurationBasedDeploymentContext.DEPLOYMENT_APPLICATION_ID_PROPERTY;
-import static com.netflix.config.ConfigurationManager.*;
+import com.netflix.config.ConcurrentCompositeConfiguration;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DynamicURLConfiguration;
 
 /**
  * @author Spencer Gibb
@@ -28,13 +33,18 @@ public class ArchaiusAutoConfiguration {
     private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
     @Autowired
-    ConfigurableEnvironment env;
+    private ConfigurableEnvironment env;
 
     @Bean
-    ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration() {
+    public ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration() {
         ConfigurableEnvironmentConfiguration envConfig = new ConfigurableEnvironmentConfiguration(env);
         configureArchaius(envConfig);
         return envConfig;
+    }
+    
+    @Bean
+    protected ArchaiusEndpoint archaiusEndpoint() {
+    	return new ArchaiusEndpoint();
     }
 
     @SuppressWarnings("deprecation")
@@ -60,11 +70,11 @@ public class ArchaiusAutoConfiguration {
             config.addConfiguration(envConfig, ConfigurableEnvironmentConfiguration.class.getSimpleName());
 
             //below come from ConfigurationManager.createDefaultConfigInstance()
+            DynamicURLConfiguration defaultURLConfig = new DynamicURLConfiguration();
             try {
-                DynamicURLConfiguration defaultURLConfig = new DynamicURLConfiguration();
                 config.addConfiguration(defaultURLConfig, URL_CONFIG_NAME);
             } catch (Throwable e) {
-                e.printStackTrace(); //TODO: log error
+            	logger.error("Cannot create config from " + defaultURLConfig, e);
             }
 
             //TODO: sys/env above urls?
