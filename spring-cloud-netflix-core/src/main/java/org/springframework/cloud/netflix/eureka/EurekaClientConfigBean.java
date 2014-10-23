@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.Data;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.netflix.discovery.EurekaClientConfig;
 
@@ -34,6 +34,8 @@ import com.netflix.discovery.EurekaClientConfig;
 @Data
 @ConfigurationProperties("eureka.client")
 public class EurekaClientConfigBean implements EurekaClientConfig {
+
+	public static final String DEFAULT_URL = "http://localhost:8761" + EurekaServerConfigBean.DEFAULT_PATH + "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
 	
@@ -82,7 +84,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	private Map<String,String> serviceUrl = new HashMap<String, String>();
 	
 	{
-		serviceUrl.put(DEFAULT_ZONE, "http://localhost:8761/v2/");
+		serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
 	}
 
 	private boolean gZipContent = true;

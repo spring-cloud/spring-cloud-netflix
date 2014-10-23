@@ -5,6 +5,7 @@ import javax.servlet.Filter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -36,8 +37,8 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.addInitParameter("com.sun.jersey.config.property.packages",
 				"com.netflix.discovery;com.netflix.eureka");
-		// bean.addInitParameter(ServletContainer.FEATURE_FILTER_FORWARD_ON_404, "true");
-		bean.setUrlPatterns(Lists.newArrayList("/v2/*"));
+		bean.addInitParameter("com.sun.jersey.config.feature.FilterContextPath", EurekaServerConfigBean.DEFAULT_PREFIX);
+		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PATH + "/*"));
 		return bean;
 	}
 
