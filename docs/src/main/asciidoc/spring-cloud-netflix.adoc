@@ -14,7 +14,8 @@ When clients register with Eureka, they provide eureka with meta-data about them
 
 Example eureka client:
 
-```
+[source,java,indent=0]
+----
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -32,20 +33,26 @@ public class Application {
     }
 
 }
-
-```
+----
 
 (i.e. utterly normal Spring Boot app). Configuration is required to locate the Eureka server. Example:
 
-```
+
+.application.yml
+----
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
-```
+----
 
-The default application name, virtual host and non-secure port are taken from the `Environment` is 
-`${spring.application.name}`, `${spring.application.name}.mydomain.net` and `${server.port}` respectively.
+where "defaultZone" is a magic string fallback value that provides the
+service URL for any client that doesn't express a preference
+(i.e. it's a useful default).
+
+The default application name (service ID), virtual host and non-secure
+port, taken from the `Environment`, are `${spring.application.name}`,
+`${spring.application.name}` and `${server.port}` respectively.
 
 `@EnableEurekaClient` makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
@@ -70,11 +77,13 @@ production it's probably better to stick with the default because
 there are some computations internally in the server that make
 assumptions about the lease renewal period.
 
+
 == Service Discovery: Eureka Server
 
 Example eureka server:
 
-```
+[source,java,indent=0]
+----
 @Configuration
 @EnableAutoConfiguration
 @EnableEurekaServer
@@ -85,8 +94,7 @@ public class Application {
     }
 
 }
-
-```
+----
 
 The server has a home page with a UI, and HTTP API endpoints per the
 normal Eureka functionality under `/eureka/*`.
@@ -134,6 +142,92 @@ springBoot {
 ----
 ====
 
+=== High Availability, Zones and Regions
+
+The Eureka server does not have a backend store, but the service
+instances in the registry all have to send heartbeats to keep their
+resistrations up to date (so this can be done in memory). Clients also
+have an in-memory cache of eureka registrations (so they don't have to
+go to the registry for every single request to a service).
+
+By default every Eureka server is also a Eureka client and requires
+(at least one) service URL to locate a peer. If you don't provide it
+the service will run and work, but it will shower your logs with a lot
+of noise about not being able to register with the peer.
+
+=== Standalone Mode
+
+The combination of the two caches (client and server) and the
+heartbeats make a standalone Eureka server fairly resilient to
+failure, as long as there is some sort of monitor or elastic runtime
+keeping it alive (e.g. Cloud Foundry). In standalone mode, you might
+prefer to switch off the client side behaviour, so it doesn't keep
+trying and failing to reach its peers. Example:
+
+.application.yml (Standalone Eureka Server)
+----
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client: 
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+----
+
+Notice that the `serviceUrl` is pointing to the same host as the local
+instance.
+
+=== Peer Awareness
+
+Eureka can be made even more resilient and available by running
+multiple instances and asking them to register with each other. In
+fact, this is the default behaviour, so all you need to do to make it
+work is add a valid `serviceUrl` to a peer, e.g.
+
+.application.yml (Two Peer Aware Eureka Servers)
+----
+
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+  client: 
+    serviceUrl:
+      defaultZone: http://peer2/eureka/
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+  client: 
+    serviceUrl:
+      defaultZone: http://peer1/eureka/
+----
+
+In this example we have a YAML file that can be used to run the same
+server on 2 hosts (peer1 and peer2), by running it in different
+Spring profiles. You could use this configuration to test the peer
+awareness on a single host (there's not much value in doing that in
+production) by manipulating `/etc/hosts` to resolve the host names. In
+fact, the `eureka.instance.hostname` is not needed if you are running
+on a machine that knows its own hostname (it is looked up using
+`java.net.InetAddress` by default).
+
+You can add multiple peers to a system, and as long as they are all
+connected to each other by at least one edge, they will synchronize
+the registrations amongst themselves. If the peers are physically
+separated (inside a data centre or between multiple data centres) then
+the system can in principle survive split-brain type failures.
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
@@ -150,7 +244,7 @@ Having an open circuit stops cascading failures and allows overwhelmed or failin
 
 Example boot app:
 
-```
+----
 @Configuration
 @EnableAutoConfiguration
 @EnableHystrix
@@ -175,7 +269,7 @@ public class StoreIntegration {
     }
 }
 
-```
+----
 
 The `@HystrixCommand` is provided by a Netflix contrib library called
 "javanica". Spring Cloud automatically wraps Spring beans with that
@@ -201,7 +295,9 @@ Looking at an individual instances Hystrix data is not very useful in terms of t
 https://github.com/Netflix/feign[Feign] is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same `HttpMessageConverters` used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.
 
 Example spring boot app
-```
+
+[source,java,indent=0]
+----
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -218,10 +314,11 @@ public class Application extends FeignConfigurer {
     }
 
 }
-```
+----
 
-StoreClient.java
-```
+.StoreClient.java
+[source,java,indent=0]
+----
 public interface StoreClient {
     @RequestMapping(method = RequestMethod.GET, value = "/stores")
     Stores getStores();
@@ -229,13 +326,14 @@ public interface StoreClient {
     @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
     Store update(@PathParameter("storeId") Long storeId, Store store);
 }
-```
+----
 
 == Client Side Load Balancer: Ribbon
 
 Usage of `LoadBalancerClient` directly:
 
-```
+[source,java,indent=0]
+----
 public class MyClass {
     @Autowired
     private LoadBalancerClient loadBalancer;
@@ -246,11 +344,12 @@ public class MyClass {
         // ... do something with the URI
     }
 }
-```
+----
 
 Indirect usage via `RestTemplate`.
 
-```
+[source,java,indent=0]
+----
 public class MyClass {
     @Autowired
     private RestTemplate restTemplate;
@@ -260,7 +359,7 @@ public class MyClass {
         return results;
     }
 }
-```
+----
 
 == External Configuration: Archaius
 
