@@ -131,6 +131,7 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	@Bean
 	@Lazy
 	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
+	@ConditionalOnMissingBean(com.netflix.discovery.DiscoveryClient.class)
 	public com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient() {
 		return DiscoveryManager.getInstance().getDiscoveryClient();
 	}

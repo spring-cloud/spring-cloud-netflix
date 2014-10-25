@@ -35,32 +35,42 @@ import com.netflix.discovery.DiscoveryClient;
  * @author Dave Syer
  *
  */
-@ConditionalOnClass({DiscoveryClient.class, ConfigServicePropertySourceLocator.class})
-@ConditionalOnExpression("${spring.cloud.bootstrap.config.useDiscovery:false}")
+@ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
+@ConditionalOnExpression("${spring.cloud.bootstrap.useDiscovery:false}")
 @Configuration
 @EnableEurekaClient
 @Import(EurekaClientAutoConfiguration.class)
 @Slf4j
-public class DiscoveryClientConfigServiceBootstrapConfiguration implements ApplicationListener<ContextRefreshedEvent> {
-	
+public class DiscoveryClientConfigServiceBootstrapConfiguration implements
+		ApplicationListener<ContextRefreshedEvent> {
+
 	private static final String DEFAULT_CONFIG_SERVER = "CONFIGSERVER";
 
 	@Autowired
 	private DiscoveryClient client;
-	
+
 	@Autowired
 	private ConfigServicePropertySourceLocator delegate;
 
-	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = client.getNextServerFromEureka(DEFAULT_CONFIG_SERVER, false);
-			delegate.setUri(server.getHomePageUrl());
-		} catch (Exception e) {
+			InstanceInfo server = client.getNextServerFromEureka(DEFAULT_CONFIG_SERVER,
+					false);
+			String url = server.getHomePageUrl();
+			if (server.getMetadata().containsKey("password")) {
+				String user = server.getMetadata().get("user");
+				user = user == null ? "user" : user;
+				delegate.setUsername(user);
+				String password = server.getMetadata().get("password");
+				delegate.setPassword(password);
+			}
+			delegate.setUri(url);
+		}
+		catch (Exception e) {
 			log.warn("Could not locate configserver via discovery", e);
-		}		
+		}
 	}
 
 }
