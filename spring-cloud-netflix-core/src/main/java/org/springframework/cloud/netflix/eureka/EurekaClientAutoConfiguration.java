@@ -16,15 +16,20 @@
 package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PostConstruct;
+import javax.management.MBeanServer;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
@@ -38,11 +43,16 @@ import com.netflix.discovery.converters.XmlXStream;
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
 public class EurekaClientAutoConfiguration {
-	
+
+	@Autowired
+	private DiscoveryClient discoveryClient;
+
 	@PostConstruct
 	public void init() {
-		XmlXStream.getInstance().setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
-		JsonXStream.getInstance().setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());		
+		XmlXStream.getInstance().setMarshallingStrategy(
+				new DataCenterAwareMarshallingStrategy());
+		JsonXStream.getInstance().setMarshallingStrategy(
+				new DataCenterAwareMarshallingStrategy());
 	}
 
 	@Bean
@@ -56,4 +66,15 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		return new EurekaInstanceConfigBean();
 	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	@ConditionalOnBean(MBeanServer.class)
+	@ConditionalOnExpression("${spring.jmx.enabled:true}")
+	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server,
+			EurekaInstanceConfig config) {
+		return new EurekaHealthIndicator(discoveryClient, new ServoMetricReader(server),
+				config);
+	}
+
 }

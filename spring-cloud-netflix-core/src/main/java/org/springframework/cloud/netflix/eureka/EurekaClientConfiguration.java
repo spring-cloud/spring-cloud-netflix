@@ -16,7 +16,6 @@
 package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PreDestroy;
-import javax.management.MBeanServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerInitial
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -39,7 +37,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.Ordered;
 
 import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
@@ -147,15 +144,6 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
     public SpringClientFactory springClientFactory() {
         return new SpringClientFactory();
     }
-
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnExpression("${spring.jmx.enabled:true}")
-	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server,
-			EurekaInstanceConfig config) {
-		return new EurekaHealthIndicator(eurekaDiscoveryClient(),
-				new ServoMetricReader(server), config);
-	}
 
 	@Bean
 	protected ApplicationListener<EmbeddedServletContainerInitializedEvent> containerPortInitializer() {

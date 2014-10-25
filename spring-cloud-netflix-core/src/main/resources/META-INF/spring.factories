@@ -5,3 +5,6 @@ org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration,\
 org.springframework.cloud.netflix.servo.ServoMetricsAutoConfiguration
+
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+org.springframework.cloud.netflix.config.DiscoveryClientConfigServiceBootstrapConfiguration
