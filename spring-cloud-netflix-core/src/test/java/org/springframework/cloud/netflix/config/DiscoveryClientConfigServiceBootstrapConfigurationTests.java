@@ -62,7 +62,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 	public void onWhenRequested() throws Exception {
 		Mockito.when(client.getNextServerFromEureka("CONFIGSERVER", false)).thenReturn(
 				info);
-		setup("spring.cloud.bootstrap.useDiscovery=true");
+		setup("spring.cloud.config.discovery.enabled=true");
 		assertEquals(
 				1,
 				context.getBeanNamesForType(DiscoveryClientConfigServiceBootstrapConfiguration.class).length);
@@ -77,7 +77,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		info.getMetadata().put("password", "bar");
 		Mockito.when(client.getNextServerFromEureka("CONFIGSERVER", false)).thenReturn(
 				info);
-		setup("spring.cloud.bootstrap.useDiscovery=true");
+		setup("spring.cloud.config.discovery.enabled=true");
 		ConfigServicePropertySourceLocator locator = context
 				.getBean(ConfigServicePropertySourceLocator.class);
 		assertEquals("http://foo:7001/", locator.getUri());

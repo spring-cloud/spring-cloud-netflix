@@ -36,15 +36,13 @@ import com.netflix.discovery.DiscoveryClient;
  *
  */
 @ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
-@ConditionalOnExpression("${spring.cloud.bootstrap.useDiscovery:false}")
+@ConditionalOnExpression("${spring.cloud.config.discovery.enabled:false}")
 @Configuration
 @EnableEurekaClient
 @Import(EurekaClientAutoConfiguration.class)
 @Slf4j
 public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 		ApplicationListener<ContextRefreshedEvent> {
-
-	private static final String DEFAULT_CONFIG_SERVER = "CONFIGSERVER";
 
 	@Autowired
 	private DiscoveryClient client;
@@ -56,7 +54,7 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = client.getNextServerFromEureka(DEFAULT_CONFIG_SERVER,
+			InstanceInfo server = client.getNextServerFromEureka(delegate.getDiscovery().getServiceId(),
 					false);
 			String url = server.getHomePageUrl();
 			if (server.getMetadata().containsKey("password")) {
