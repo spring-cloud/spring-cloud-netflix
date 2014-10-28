@@ -277,6 +277,22 @@ annotation in a proxy that is connected to the Hystrix circuit
 breaker. The circuit breaker calculates when to open and close the
 circuit, and what to do in case of a failure.
 
+The state of the connected circuit breakers are also exposed in the
+`/health` endpoint of the calling application. 
+
+[source,json,indent=0]
+----
+{
+    "hystrix": {
+        "openCircuitBreakers": [
+            "StoreIntegration::getStoresByLocationLink"
+        ],
+        "status": "CIRCUIT_OPEN"
+    },
+    "status": "UP"
+}
+----
+
 == Circuit Breaker: Hystrix Dashboard
 
 One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.  The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.
