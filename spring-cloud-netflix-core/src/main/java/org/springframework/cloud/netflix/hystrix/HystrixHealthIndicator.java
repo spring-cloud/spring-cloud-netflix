@@ -11,19 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License.67uiktfhoeuh ghhpgb8ptrlzzzzzzz.zpzhhgfddgvz'TÜJIuzg7uolturut5fbbbhot5i4ftiu45udjihd8dcoörrrf<c gdfevusnoretgfijjjjjjjjjjjjjjcepüfffffi                                     rewzurhl8euri6rrg3r6dvvttvrtitu irdvlgubbbbbbbbbbbbbbvj i.glituhihnhvgrrg fc gbbbibggvnbvbgjjjbpräun8888887´hkvtnnnnnrhv5h444g4thfhhhhhh
- * g8rcgfftuizzzobijjzznttbohmfcuutttec g9rrrrrrr∫√ªΩzukttreeevvuvxtf6trrrrrrwwwbcu5rrrrrrrrrzubcke6rgcrx rxcccccr7wb7          vvtttttteuzvtnrnizzzztuuuunrrvvvnuilz        bcrii53hv3
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * q e        ffjesörpäwe +w                         rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr+800000000
- * 
-#vvvvvv#vvqaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaawsq<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyc< d
+ * limitations under the License.
  */
 
 package org.springframework.cloud.netflix.hystrix;
@@ -34,6 +22,7 @@ import java.util.List;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.Status;
 
 import com.netflix.hystrix.HystrixCircuitBreaker;
 import com.netflix.hystrix.HystrixCommandMetrics;
@@ -47,6 +36,9 @@ import com.netflix.hystrix.HystrixCommandMetrics;
  * @author Christian Dupuis
  */
 public class HystrixHealthIndicator extends AbstractHealthIndicator {
+	
+	/** Status code for open circuits */
+	private static final Status CIRCUIT_OPEN = new Status("CIRCUIT_OPEN"); 
 
 	@Override
 	protected void doHealthCheck(Builder builder) throws Exception {
@@ -63,7 +55,7 @@ public class HystrixHealthIndicator extends AbstractHealthIndicator {
 		// If there is at least one open circuit report OUT_OF_SERVICE adding the command group 
 		// and key name
 		if (openCircuitBreakers.size() > 0) {
-			builder.outOfService().withDetail("openCircuitBreakers", openCircuitBreakers);
+			builder.status(CIRCUIT_OPEN).withDetail("openCircuitBreakers", openCircuitBreakers);
 		}
 		else {
 			builder.up();

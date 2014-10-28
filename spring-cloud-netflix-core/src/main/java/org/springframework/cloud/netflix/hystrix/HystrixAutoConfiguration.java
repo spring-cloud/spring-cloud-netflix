@@ -16,14 +16,8 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.health.OrderedHealthAggregator;
-import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.actuate.autoconfigure.HealthIndicatorAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
@@ -36,30 +30,15 @@ import com.netflix.hystrix.Hystrix;
  * @author Christian Dupuis
  */
 @Configuration
+@AutoConfigureAfter({HealthIndicatorAutoConfiguration.class})
 public class HystrixAutoConfiguration {
 	
 	@Configuration
 	@ConditionalOnClass(Hystrix.class)
-	@ConditionalOnExpression("${health.db.enabled:true}")
+	@ConditionalOnExpression("${health.hystrix.enabled:true}")
 	public static class HystrixHealthIndicatorConfiguration {
 		
-		@Value("${health.status.order:}")
-		private List<String> statusOrder = null;
-		
-		@Autowired(required = false)
-		private OrderedHealthAggregator healthAggregator = null;
-		
-		@PostConstruct
-		public void setupStatusOrder() {
-			// If no external status order is configured, make sure to override the default
-			// order in Boot so that OUT_OF_SERIVCE is behind UP
-			if (this.healthAggregator != null && this.statusOrder == null) {
-				this.healthAggregator.setStatusOrder(Status.DOWN, Status.UP, Status.OUT_OF_SERVICE, Status.UNKNOWN);
-			}
-		}
-		
 		@Bean
-		@ConditionalOnExpression("${health.hystrix.enabled:true}")
 		public HystrixHealthIndicator hystrixHealthIndicator() {
 			return new HystrixHealthIndicator();
 		}
