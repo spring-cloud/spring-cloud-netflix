@@ -104,7 +104,7 @@ public class ServoMetricReader implements MetricReader {
 						.toString().toLowerCase();
 				
 				if (servoMetric.hasNumberValue()) {
-					newMetrics.put(key, new Metric<Number>(key,	servoMetric.getNumberValue(), 
+					newMetrics.put(key, new Metric<Number>(key, servoMetric.getNumberValue(), 
 							new Date(servoMetric.getTimestamp())));
 				}
 			}
