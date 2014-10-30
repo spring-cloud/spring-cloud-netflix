@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.servo;
 
 import java.util.Collection;
 
-import javax.management.MBeanServer;
-
+import org.springframework.boot.actuate.endpoint.PublicMetrics;
 import org.springframework.boot.actuate.endpoint.VanillaPublicMetrics;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 
 /**
+ * {@link PublicMetrics} implementation for Servo metrics.
+ * 
  * @author Dave Syer
- *
+ * @author Christian Dupuis
  */
 public class ServoPublicMetrics extends VanillaPublicMetrics {
 
 	private final ServoMetricReader servo;
 
-	public ServoPublicMetrics(MetricReader reader, MBeanServer server) {
+	public ServoPublicMetrics(MetricReader reader) {
 		super(reader);
-		this.servo = new ServoMetricReader(server);
+		this.servo = new ServoMetricReader();
 	}
 
 	@Override

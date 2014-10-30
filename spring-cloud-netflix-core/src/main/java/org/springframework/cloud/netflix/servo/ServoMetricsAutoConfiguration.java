@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.servo;
 
-import javax.management.MBeanServer;
+package org.springframework.cloud.netflix.servo;
 
 import org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
@@ -24,30 +23,28 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.servo.monitor.Monitors;
 
 /**
+ * Auto configuration to configure Servo support. 
+ * 
  * @author Dave Syer
- *
+ * @author Christian Dupuis
  */
 @Configuration
 @ConditionalOnClass({ Monitors.class, MetricReader.class })
 @ConditionalOnBean(MetricReader.class)
 @AutoConfigureBefore(EndpointAutoConfiguration.class)
-@AutoConfigureAfter({MetricRepositoryAutoConfiguration.class, JmxAutoConfiguration.class})
-@ConditionalOnExpression("${spring.jmx.enabled:true}")
+@AutoConfigureAfter({MetricRepositoryAutoConfiguration.class})
 public class ServoMetricsAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ServoPublicMetrics servoPublicMetrics(MetricReader reader, MBeanServer server) {
-		return new ServoPublicMetrics(reader, server);
+	public ServoPublicMetrics servoPublicMetrics(MetricReader reader) {
+		return new ServoPublicMetrics(reader);
 	}
-
 }

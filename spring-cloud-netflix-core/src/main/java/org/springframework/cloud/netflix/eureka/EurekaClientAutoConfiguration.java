@@ -16,10 +16,8 @@
 package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PostConstruct;
-import javax.management.MBeanServer;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -70,11 +68,8 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnBean(MBeanServer.class)
-	@ConditionalOnExpression("${spring.jmx.enabled:true}")
-	public EurekaHealthIndicator eurekaHealthIndicator(MBeanServer server,
-			EurekaInstanceConfig config) {
-		return new EurekaHealthIndicator(discoveryClient, new ServoMetricReader(server),
+	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config) {
+		return new EurekaHealthIndicator(discoveryClient, new ServoMetricReader(),
 				config);
 	}
 
