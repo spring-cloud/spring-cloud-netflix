@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
@@ -22,6 +23,7 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
  * @author Dave Syer
  */
 @Configuration
+@ConditionalOnBean(SpringClientFactory.class)
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
 public class RibbonAutoConfiguration {
 

@@ -41,6 +41,7 @@ import com.netflix.discovery.converters.XmlXStream;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
+@ConditionalOnBean(DiscoveryClient.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
 public class EurekaClientAutoConfiguration {
 
