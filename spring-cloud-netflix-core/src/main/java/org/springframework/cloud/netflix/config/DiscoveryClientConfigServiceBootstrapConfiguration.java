@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
@@ -27,6 +28,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
@@ -46,25 +49,30 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 
 	@Autowired
 	private DiscoveryClient client;
-
+	
 	@Autowired
-	private ConfigServicePropertySourceLocator delegate;
+	private ConfigClientProperties config;
 
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = client.getNextServerFromEureka(delegate.getDiscovery().getServiceId(),
+			Environment environment = event.getApplicationContext().getEnvironment();
+			if (!(environment instanceof ConfigurableEnvironment)) {
+				log.info("Environment is not ConfigurableEnvironment so cannot look up configserver");
+				return;
+			}
+			InstanceInfo server = client.getNextServerFromEureka(config.getDiscovery().getServiceId(),
 					false);
 			String url = server.getHomePageUrl();
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");
 				user = user == null ? "user" : user;
-				delegate.setUsername(user);
+				config.setUsername(user);
 				String password = server.getMetadata().get("password");
-				delegate.setPassword(password);
+				config.setPassword(password);
 			}
-			delegate.setUri(url);
+			config.setUri(url);
 		}
 		catch (Exception e) {
 			log.warn("Could not locate configserver via discovery", e);

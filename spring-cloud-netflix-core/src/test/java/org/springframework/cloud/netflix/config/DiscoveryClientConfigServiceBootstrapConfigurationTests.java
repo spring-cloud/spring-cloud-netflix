@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
-import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
+import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.appinfo.InstanceInfo;
@@ -67,8 +67,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 				1,
 				context.getBeanNamesForType(DiscoveryClientConfigServiceBootstrapConfiguration.class).length);
 		Mockito.verify(client).getNextServerFromEureka("CONFIGSERVER", false);
-		ConfigServicePropertySourceLocator locator = context
-				.getBean(ConfigServicePropertySourceLocator.class);
+		ConfigClientProperties locator = context.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getUri());
 	}
 
@@ -78,8 +77,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		Mockito.when(client.getNextServerFromEureka("CONFIGSERVER", false)).thenReturn(
 				info);
 		setup("spring.cloud.config.discovery.enabled=true");
-		ConfigServicePropertySourceLocator locator = context
-				.getBean(ConfigServicePropertySourceLocator.class);
+		ConfigClientProperties locator = context.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getUri());
 		assertEquals("bar", locator.getPassword());
 		assertEquals("user", locator.getUsername());
@@ -92,8 +90,8 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 				client);
 		context.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
-				ConfigServicePropertySourceLocator.class);
-		context.refresh();		
+				ConfigClientProperties.class);
+		context.refresh();
 	}
 
 }
