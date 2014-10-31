@@ -58,6 +58,7 @@
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
 			<artifactId>feign-ribbon</artifactId>
+            <optional>true</optional>
 		</dependency>
 		<!--<dependency> <groupId>com.netflix.feign</groupId> <artifactId>feign-slf4j</artifactId> 
 			</dependency> -->
@@ -127,15 +128,7 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j-cypher-compiler-2.1</artifactId>
-			<version>2.1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-client</artifactId>
-		</dependency>
+
 	</dependencies>
 
 </project>
