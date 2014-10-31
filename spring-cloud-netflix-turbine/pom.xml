@@ -38,5 +38,11 @@
 			<groupId>com.netflix.turbine</groupId>
 			<artifactId>turbine-core</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <!-- Only needed at compile time -->
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 </project>

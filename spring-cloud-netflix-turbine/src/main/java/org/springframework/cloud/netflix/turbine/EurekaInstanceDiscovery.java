@@ -12,6 +12,9 @@ import com.netflix.turbine.discovery.Instance;
 import com.netflix.turbine.discovery.InstanceDiscovery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.util.*;
 
@@ -29,10 +32,15 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
     // Property the controls the list of applications that are enabled in Eureka
     private static final DynamicStringProperty ApplicationList = DynamicPropertyFactory.getInstance().getStringProperty("turbine.appConfig", "");
 
-    public EurekaInstanceDiscovery() {
+    private final Expression clusterNameExpression;
+
+    public EurekaInstanceDiscovery(TurbineProperties turbineProperties) {
         // Eureka client should already be configured by spring-platform-netflix-core
         // initialize eureka client.
         //DiscoveryManager.getInstance().initComponent(new MyDataCenterInstanceConfig(), new DefaultEurekaClientConfig());
+
+        SpelExpressionParser parser = new SpelExpressionParser();
+        clusterNameExpression = parser.parseExpression(turbineProperties.getClusterNameExpression());
     }
 
     /**
@@ -162,10 +170,12 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
      * @return
      */
     protected String getClusterName(InstanceInfo iInfo) {
-        //TODO: make ASG configurable using app name for demo. //return iInfo.getASGName();
-        //AppGroupName is UPPERCASE from eureka
-        //return iInfo.getAppGroupName();
-        return iInfo.getAppName();
+        StandardEvaluationContext context = new StandardEvaluationContext(iInfo);
+        Object value = clusterNameExpression.getValue(context);
+        if (value != null) {
+            return value.toString();
+        }
+        return null;
     }
 
     /**

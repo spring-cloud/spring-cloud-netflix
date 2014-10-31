@@ -5,6 +5,7 @@ import com.netflix.turbine.init.TurbineInit;
 import com.netflix.turbine.plugins.PluginsFactory;
 import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ import org.springframework.core.Ordered;
  * @author Spencer Gibb
  */
 @Configuration
+@EnableConfigurationProperties
 @EnableEurekaClient
 public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
@@ -24,8 +26,13 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
     }
 
     @Bean
+    public TurbineProperties turbineProperties() {
+        return new TurbineProperties();
+    }
+
+    @Bean
     public InstanceDiscovery instanceDiscovery() {
-        return new EurekaInstanceDiscovery();
+        return new EurekaInstanceDiscovery(turbineProperties());
     }
 
     private boolean running;
