@@ -64,11 +64,11 @@ public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration 
     }
 
     private Map<String, PropertySource<?>> getPropertySources() {
-        Map<String, PropertySource<?>> map = new LinkedHashMap<String, PropertySource<?>>();
-        MutablePropertySources sources = null;
+        Map<String, PropertySource<?>> map = new LinkedHashMap<>();
+        MutablePropertySources sources;
         if (this.environment != null
                 && this.environment instanceof ConfigurableEnvironment) {
-            sources = ((ConfigurableEnvironment) this.environment).getPropertySources();
+            sources = this.environment.getPropertySources();
         }
         else {
             sources = new StandardEnvironment().getPropertySources();
