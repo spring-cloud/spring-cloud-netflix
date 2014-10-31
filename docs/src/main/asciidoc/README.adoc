@@ -13,3 +13,6 @@ include::intro.adoc[]
 * External Configuration: a bridge from the Sprnig Environment to Archaius (enabls native configuration of Netflix components using Spring Boot conventions)
 * Router and Filter: automatic regsitration of Zuul filters,a nd a simple convention over configuration approach to reverse proxy creation
 
+== Building
+
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/src/main/asciidoc/building.adoc[]
