@@ -306,6 +306,17 @@ To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableH
 
 Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation.
 
+`turbine.appConfig` is a list of eureka serviceId's that turbine will use to lookup instances.  `turbine.aggregator.clusterConfig` is used to group instances together.  This comes from the eureka `InstanceInfo`.  It is currently hard coded to `InstanceInfo.getAppName()`.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS
+
+The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`.
+
+----
+turbine:
+  aggregator:
+    clusterConfig: CUSTOMERS
+  appConfig: customers
+----
+
 == Declarative REST Client: Feign
 
 https://github.com/Netflix/feign[Feign] is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same `HttpMessageConverters` used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.
