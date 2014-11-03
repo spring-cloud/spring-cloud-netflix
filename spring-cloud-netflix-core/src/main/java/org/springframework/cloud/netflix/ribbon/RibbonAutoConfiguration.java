@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import com.netflix.client.IClient;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 
 /**
@@ -23,20 +24,19 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
  * @author Dave Syer
  */
 @Configuration
-@ConditionalOnBean(SpringClientFactory.class)
+@ConditionalOnClass(IClient.class)
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
 	private List<BaseLoadBalancer> balancers = Collections.emptyList();
 
-	@Autowired
-	private RibbonClientPreprocessor clientPreprocessor;
-	
-	@Autowired
-	private SpringClientFactory springClientFactory;
+    @Bean
+    public SpringClientFactory springClientFactory() {
+        return new SpringClientFactory();
+    }
 
-	@Bean
+    @Bean
 	@ConditionalOnMissingBean(RestTemplate.class)
 	public RestTemplate restTemplate(RibbonInterceptor ribbonInterceptor) {
 		RestTemplate restTemplate = new RestTemplate();
@@ -48,8 +48,8 @@ public class RibbonAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
-	public LoadBalancerClient loadBalancerClient() {
-		return new RibbonLoadBalancerClient(clientPreprocessor, springClientFactory, balancers);
+	public LoadBalancerClient loadBalancerClient(RibbonClientPreprocessor clientPreprocessor) {
+		return new RibbonLoadBalancerClient(clientPreprocessor, springClientFactory(), balancers);
 	}
 
 	@Bean

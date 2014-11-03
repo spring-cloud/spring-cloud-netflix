@@ -141,11 +141,6 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
         return new EurekaDiscoveryClient();
     }
 
-    @Bean
-    public SpringClientFactory springClientFactory() {
-        return new SpringClientFactory();
-    }
-
 	@Bean
 	protected ApplicationListener<EmbeddedServletContainerInitializedEvent> containerPortInitializer() {
 		return new ApplicationListener<EmbeddedServletContainerInitializedEvent>() {
