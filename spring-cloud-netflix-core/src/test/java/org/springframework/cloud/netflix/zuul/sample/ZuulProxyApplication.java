@@ -4,7 +4,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@EnableEurekaClient
-public class Application {
+public class ZuulProxyApplication {
 
     @RequestMapping("/testing123")
     public String testing123() {
@@ -28,7 +26,7 @@ public class Application {
 	}
 	
 	public static void main(String[] args) {
-		new SpringApplicationBuilder(Application.class).web(true).run(args);
+		new SpringApplicationBuilder(ZuulProxyApplication.class).web(true).run(args);
 	}
 
 }

@@ -1,17 +1,15 @@
 server:
-  port: 9999
+  port: 9876
+management:
+  port: 9877
 spring:
   application:
-    name: testclient
-eureka:
-  server:
-    enabled: false
+    name: testzuulserver
 
 zuul:
-  proxy:
-    mapping: /api
-    stripMapping: true
+  server:
     route:
       testclient: /testing123
       stores: /stores
       customers: /customers
+

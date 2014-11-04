@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.Routes;
-import org.springframework.cloud.netflix.zuul.ZuulProxyProperties;
+import org.springframework.cloud.netflix.zuul.ZuulProperties;
 
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
@@ -21,7 +21,7 @@ public class PreDecorationFilter extends ZuulFilter {
     private Routes routes;
 
     @Autowired
-    private ZuulProxyProperties properties;
+    private ZuulProperties properties;
 
     @Override
     public int filterOrder() {
@@ -71,6 +71,10 @@ public class PreDecorationFilter extends ZuulFilter {
                 ctx.set("serviceId", serviceId);
                 ctx.setRouteHost(null);
                 ctx.addOriginResponseHeader("X-Zuul-ServiceId", serviceId);
+
+                if (properties.isAddProxyHeaders()) {
+                    ctx.addZuulRequestHeader("X-Forwarded-Host", ctx.getRequest().getServerName() + ":" + String.valueOf(ctx.getRequest().getServerPort()));
+                }
             }
         } else {
             LOG.warn("No route found for uri: "+requestURI);

@@ -25,11 +25,6 @@ public class Routes {
     private Field propertySourcesField;
     private String keyPrefix;
 
-    public Routes() {
-        keyPrefix = "zuul.proxy.route.";
-        initField();
-    }
-
     public Routes(String keyPrefix) {
         this.keyPrefix = keyPrefix;
         initField();

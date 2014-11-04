@@ -432,9 +432,20 @@ Zuul's rule engine allows rules and filters to be written in essentially any JVM
 [[netflix-zuul-reverse-proxy]]
 === Embedded Zuul Reverse Proxy
 
-Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`.  This forwards local calls to `/proxy/*` to the appropriate service.  The proxy uses Ribbon to locate an instance to forward to via Eureka.  Forwarding to the service is protected by a Hystrix circuit breaker.  Rules are configured via the Spring environment.  The Config Server is an ideal place for the Zuul configuration.  Configuration rules look like the following:
+Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`.  This forwards local calls to `/proxy/*` to the appropriate service.  The proxy uses Ribbon to locate an instance to forward to via Eureka.  Forwarding to the service is protected by a Hystrix circuit breaker.  Rules are configured via the Spring environment.  The Config Server is an ideal place for the Zuul configuration.  Zuul Embedded Proxy configuration rules look like the following:
 
  zuul.proxy.route.users: /users
 
-This means that http calls to /proxy/users to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.
+This means that http calls to /proxy/users get forwarded to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.  By default, the proxy mapping gets stripped from the request before forwarding.
+
+[[netflix-zuul-server]]
+=== Standalone Zuul Server
+
+Spring Cloud has created a standalone Zuul server.  To enable it, annotate a Spring Boot main class with `@EnableZuulServer`.  This routes all calls to the appropriate service.  The server uses Ribbon to locate an instance to forward to via Eureka.  Forwarding to the service is protected by a Hystrix circuit breaker.  Rules are configured via the Spring environment.  The Config Server is an ideal place for the Zuul configuration.  Zuul Server configuration rules look like the following:
+
+ zuul.server.route.users: /users
+
+This means that http calls to /users get forwarded to the users service.
+
+Since zuul, by default, intercepts all requests (`/*`), to enable actuator, you should set the `management.port`.
 
