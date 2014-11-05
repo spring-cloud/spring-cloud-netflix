@@ -6,16 +6,17 @@ import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.shared.*;
-import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
 import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.net.URI;
 import java.util.*;
 
@@ -69,7 +70,8 @@ public class EurekaController {
     }
 
     private void populateBase(HttpServletRequest request, Map<String, Object> model) {
-        String path = request.getContextPath();
+        String servletPath = request.getServletPath();
+		String path = request.getContextPath() + (servletPath==null ? "" : servletPath);
         String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 
         model.put("time", new Date());
@@ -104,7 +106,7 @@ public class EurekaController {
         for (PeerEurekaNode node : list) {
             try {
                 URI uri = new URI(node.getServiceUrl());
-                String href = "http://" + uri.getHost() + ":" + uri.getPort() + request.getContextPath();
+                String href = node.getServiceUrl();
                 replicas.put(uri.getHost(), href);
             } catch(Exception e) {
                 //ignore?

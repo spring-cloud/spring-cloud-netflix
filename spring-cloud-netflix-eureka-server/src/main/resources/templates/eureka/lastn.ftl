@@ -4,8 +4,9 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
   <head>
+    <base href="${basePath}">
     <title>Eureka - Last N events</title>
-    <link rel="stylesheet" type="text/css" href="/eureka/css/wro.css">
+    <link rel="stylesheet" type="text/css" href="eureka/css/wro.css">
   </head>
   <body id="three">
 
@@ -59,8 +60,8 @@
       </div>
     </div>
     </div>
-    <script type="text/javascript" src="/webjars/jquery/2.1.1jquery-min.js" ></script>
-    <script type="text/javascript" src="/webjars/bootstrap/3.2.0/js/bootstrap.min.js" ></script>
+    <script type="text/javascript" src="webjars/jquery/2.1.1/jquery.min.js" ></script>
+    <script type="text/javascript" src="webjars/bootstrap/3.2.0/js/bootstrap.min.js" ></script>
     <script type="text/javascript">
       $(function () {
         $('#myTab a:last').tab('show')
