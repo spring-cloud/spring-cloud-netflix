@@ -60,9 +60,42 @@ registry to locate other services). The instance behaviour is driven
 by `eureka.instance.*` configuration keys, but the defaults will be
 fine if you ensure that your application has a
 `spring.application.name` (this is the default for the Eureka service
-ID, or VIP). 
+ID, or VIP).
 
 See {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
+
+=== Using the DiscoveryClient
+
+Once you have an app that is `@EnableEurekaClient` you can use it to
+discover service instances from the <<spring-cloud-eureka-server,
+Eureka Server>>. One way to do that is to use the native `DiscoveryClient`, e.g.
+
+----
+@Autowired
+private DiscoveryClient discoveryClient;
+
+public String serviceUrl() {
+    InstanceInfo instance = discoveryClient.getNextServerFromEureka("STORES", false);
+    return instance.getHomePageUrl();
+}
+----
+
+[TIP]
+====
+Don't use the `DiscoveryClient` in `@PostConstruct` method (or
+anywhere where the `ApplicationContext` might not be started yet). It
+is initialized in a `SmartLifecycle` (with `phase=0`) so the earliest
+you can rely on it being available is in another `SmartLifecycle` with
+higher phase.
+
+=== Alternatives to the DiscoveryClient
+
+You don't have to use the raw Netflix `DiscoveryClient` and usually it
+is more convenient to use it behind a wrapper of some sort. Spring
+Cloud has support for <<spring-cloud-feign, Feign>> (a REST client
+builder) and also <<spring-cloud-ribbon, Spring `RestTemplate`>> using
+the logical Eureka service identifiers (VIPs) instead of physical
+URLs.
 
 === Why is it so Slow to Register a Service?
 
@@ -77,7 +110,7 @@ production it's probably better to stick with the default because
 there are some computations internally in the server that make
 assumptions about the lease renewal period.
 
-
+[[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
 
 Example eureka server:
@@ -319,6 +352,7 @@ turbine:
 
 The clusterName can be customized by a SPEL expression in `turbine.clusterNameExpression`.  For example, `turbine.clusterNameExpression=aSGName` would get the clustername from the AWS ASG name.
 
+[[spring-cloud-feign]]
 == Declarative REST Client: Feign
 
 https://github.com/Netflix/feign[Feign] is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same `HttpMessageConverters` used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.
@@ -357,6 +391,7 @@ public interface StoreClient {
 }
 ----
 
+[[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
 
 Usage of `LoadBalancerClient` directly:
