@@ -870,7 +870,7 @@ public class Application extends FeignConfigurer {
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">public interface StoreClient {
     @RequestMapping(method = RequestMethod.GET, value = "/stores")
-    Stores getStores();
+    List&lt;Store&gt; getStores();
 
     @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
     Store update(@PathParameter("storeId") Long storeId, Store store);
@@ -1021,7 +1021,7 @@ public class Application extends FeignConfigurer {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-05 20:34:35 UTC
+Last updated 2014-11-05 20:44:06 UTC
 </div>
 </div>
 </body>
