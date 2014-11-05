@@ -2,6 +2,7 @@ package org.springframework.cloud.netflix.feign;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +32,17 @@ public class SpringDecoder implements Decoder {
 
 	@Override
 	public Object decode(final Response response, Type type) throws IOException, FeignException {
-		if (type instanceof Class) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-					(Class<?>) type, messageConverters.getConverters());
+		if (type instanceof Class || type instanceof ParameterizedType) {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
+                    type, messageConverters.getConverters());
 
-			Object data = extractor.extractData(new FeignResponseAdapter(response));
-			return data;
-		}
-		throw new DecodeException("type is not an instance of Class: " + type);
+            return extractor.extractData(new FeignResponseAdapter(response));
+        }
+		throw new DecodeException("type is not an instance of Class or ParameterizedType: " + type);
 	}
 
-	private class FeignResponseAdapter implements ClientHttpResponse {
+    private class FeignResponseAdapter implements ClientHttpResponse {
 		private final Response response;
 
 		private FeignResponseAdapter(Response response) {
