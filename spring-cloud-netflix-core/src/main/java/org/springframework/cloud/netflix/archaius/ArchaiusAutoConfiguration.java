@@ -10,11 +10,13 @@ import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.configuration.ConfigurationBuilder;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -27,6 +29,7 @@ import com.netflix.config.DynamicURLConfiguration;
  * @author Spencer Gibb
  */
 @Configuration
+@ConditionalOnClass({ConcurrentCompositeConfiguration.class, ConfigurationBuilder.class})
 public class ArchaiusAutoConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(ArchaiusAutoConfiguration.class);

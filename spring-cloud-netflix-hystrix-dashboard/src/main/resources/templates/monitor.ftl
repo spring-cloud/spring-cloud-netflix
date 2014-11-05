@@ -1,31 +1,32 @@
 <!doctype html>
 <html lang="en">
 <head>
+	<base href="${basePath}">
 	<meta charset="utf-8" />
 	<title>Hystrix Monitor</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 	<!-- Setup base for everything -->
-	<link rel="stylesheet" type="text/css" href="../css/global.css" />
+	<link rel="stylesheet" type="text/css" href="css/global.css" />
 	
 	<!-- Our custom CSS -->
-	<link rel="stylesheet" type="text/css" href="monitor.css" />
+	<link rel="stylesheet" type="text/css" href="css/monitor.css" />
 
 	<!-- d3 -->
-    <script type="text/javascript" src="/webjars/d3js/3.4.11/d3.min.js" ></script>
+    <script type="text/javascript" src="../webjars/d3js/3.4.11/d3.min.js" ></script>
 	
 	<!-- Javascript to monitor and display -->
-    <script type="text/javascript" src="/webjars/jquery/2.1.1/jquery.min.js" ></script>
-	<script type="text/javascript" src="../js/jquery.tinysort.min.js"></script>
-	<script type="text/javascript" src="../js/tmpl.js"></script>
+    <script type="text/javascript" src="../webjars/jquery/2.1.1/jquery.min.js" ></script>
+	<script type="text/javascript" src="js/jquery.tinysort.min.js"></script>
+	<script type="text/javascript" src="js/tmpl.js"></script>
 	
 	<!-- HystrixCommand -->
-	<script type="text/javascript" src="../components/hystrixCommand/hystrixCommand.js"></script>
-	<link rel="stylesheet" type="text/css" href="../components/hystrixCommand/hystrixCommand.css" />
+	<script type="text/javascript" src="components/hystrixCommand/hystrixCommand.js"></script>
+	<link rel="stylesheet" type="text/css" href="components/hystrixCommand/hystrixCommand.css" />
 	
 	<!-- HystrixThreadPool -->
-	<script type="text/javascript" src="../components/hystrixThreadPool/hystrixThreadPool.js"></script>
-	<link rel="stylesheet" type="text/css" href="../components/hystrixThreadPool/hystrixThreadPool.css" />
+	<script type="text/javascript" src="components/hystrixThreadPool/hystrixThreadPool.js"></script>
+	<link rel="stylesheet" type="text/css" href="components/hystrixThreadPool/hystrixThreadPool.css" />
 
 </head>
 <body>
@@ -96,8 +97,8 @@
 				stream = stream + "&delay=" + getUrlVars()["delay"];
 			}
 			
-			var commandStream = "/proxy.stream?origin=" + stream;
-			var poolStream = "/proxy.stream?origin=" + stream;
+			var commandStream = "${contextPath}/proxy.stream?origin=" + stream;
+			var poolStream = "${contextPath}/proxy.stream?origin=" + stream;
 			
 			if(getUrlVars()["title"] != undefined) {
 				$('#title_name').html("Hystrix Stream: " + decodeURIComponent(getUrlVars()["title"]))
