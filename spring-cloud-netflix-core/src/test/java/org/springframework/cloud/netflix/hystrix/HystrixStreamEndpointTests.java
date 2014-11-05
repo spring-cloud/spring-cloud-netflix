@@ -15,16 +15,20 @@
  */
 package org.springframework.cloud.netflix.hystrix;
 
-import org.springframework.cloud.netflix.endpoint.ServletWrappingEndpoint;
+import static org.junit.Assert.assertEquals;
 
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import org.junit.Test;
 
 /**
- * @author Spencer Gibb
+ * @author Dave Syer
+ *
  */
-public class HystrixStreamEndpoint extends ServletWrappingEndpoint {
+public class HystrixStreamEndpointTests {
 
-    public HystrixStreamEndpoint() {
-        super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream", false, true);
-    }
+	@Test
+	public void pathStartsWithSlash() {
+		HystrixStreamEndpoint endpoint = new HystrixStreamEndpoint();
+		assertEquals("/hystrix.stream", endpoint.getPath());
+	}
+
 }

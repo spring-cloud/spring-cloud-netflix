@@ -15,16 +15,18 @@
  */
 package org.springframework.cloud.netflix.hystrix;
 
-import org.springframework.cloud.netflix.endpoint.ServletWrappingEndpoint;
-
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import org.junit.Test;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
- * @author Spencer Gibb
+ * @author Dave Syer
+ *
  */
-public class HystrixStreamEndpoint extends ServletWrappingEndpoint {
+public class HystrixConfigurationTests {
 
-    public HystrixStreamEndpoint() {
-        super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream", false, true);
-    }
+	@Test
+	public void nonWebAppStartsUp() {
+		new SpringApplicationBuilder(HystrixConfiguration.class).web(false).run().close();
+	}
+
 }

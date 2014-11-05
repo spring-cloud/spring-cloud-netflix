@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,17 +59,22 @@ public class HystrixConfiguration implements ImportAware {
 	public HystrixCommandAspect hystrixCommandAspect() {
 		return new HystrixCommandAspect();
 	}
-	
+
 	@Bean
 	public HystrixShutdownHook hystrixShutdownHook() {
 		return new HystrixShutdownHook();
 	}
 
-	@Bean
-    @ConditionalOnExpression("${hystrix.stream.endpoint.enabled:true}")
-	// TODO: make it @ConditionalOnWebApp (need a nested class)
-	public HystrixStreamEndpoint hystrixStreamEndpoint() {
-		return new HystrixStreamEndpoint();
+	@Configuration
+	@ConditionalOnExpression("${hystrix.stream.endpoint.enabled:true}")
+	@ConditionalOnWebApplication
+	protected static class HystrixWebConfiguration {
+
+		@Bean
+		public HystrixStreamEndpoint hystrixStreamEndpoint() {
+			return new HystrixStreamEndpoint();
+		}
+
 	}
 
 	@Override
@@ -88,7 +94,7 @@ public class HystrixConfiguration implements ImportAware {
 		private static Log logger = LogFactory
 				.getLog(HystrixMetricsPollerConfiguration.class);
 
-		@Autowired
+		@Autowired(required=false)
 		private GaugeService gauges;
 
 		private ObjectMapper mapper = new ObjectMapper();
@@ -100,6 +106,9 @@ public class HystrixConfiguration implements ImportAware {
 
 		@Override
 		public void start() {
+			if (gauges==null) {
+				return;
+			}
 			MetricsAsJsonPollerListener listener = new MetricsAsJsonPollerListener() {
 				@Override
 				public void handleJsonMetric(String json) {
@@ -157,7 +166,7 @@ public class HystrixConfiguration implements ImportAware {
 
 		@Override
 		public boolean isRunning() {
-			return poller!=null ?  poller.isRunning() : false;
+			return poller != null ? poller.isRunning() : false;
 		}
 
 		@Override
@@ -179,10 +188,10 @@ public class HystrixConfiguration implements ImportAware {
 		}
 
 	}
-	
+
 	/**
-	 * {@link DisposableBean} that makes sure that Hystrix internal state is cleared
-	 * when {@link ApplicationContext} shuts down.
+	 * {@link DisposableBean} that makes sure that Hystrix internal state is cleared when
+	 * {@link ApplicationContext} shuts down.
 	 */
 	private class HystrixShutdownHook implements DisposableBean {
 
@@ -191,6 +200,6 @@ public class HystrixConfiguration implements ImportAware {
 			// Just call Hystrix to reset thread pool etc.
 			Hystrix.reset();
 		}
-		
+
 	}
 }
