@@ -305,10 +305,17 @@ public class StoreIntegration {
 ----
 
 The `@HystrixCommand` is provided by a Netflix contrib library called
-"javanica". Spring Cloud automatically wraps Spring beans with that
+https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica["javanica"].
+Spring Cloud automatically wraps Spring beans with that
 annotation in a proxy that is connected to the Hystrix circuit
 breaker. The circuit breaker calculates when to open and close the
 circuit, and what to do in case of a failure.
+
+To configure the `@HystrixCommand` you can use the `commandProperties`
+attribute with a list of `@HystrixProperty` annotations.  See
+https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica#configuration[here]
+for more details.  See the https://github.com/Netflix/Hystrix/wiki/Configuration[Hystrix wiki]
+for details on the properties available.
 
 The state of the connected circuit breakers are also exposed in the
 `/health` endpoint of the calling application. 
