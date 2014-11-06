@@ -32,6 +32,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 /**
  * @author Dave Syer
@@ -101,6 +102,8 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	private String hostname  = hostInfo[1];
 	
 	private boolean preferIpAddress = false;
+
+    private InstanceStatus initialStatus = InstanceStatus.UP;
 	
 	public String getHostname() {
 		return preferIpAddress ? ipAddress : hostname;

@@ -17,13 +17,16 @@ package org.springframework.cloud.netflix.eureka;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.EnvironmentTestUtils.*;
 
 /**
  * @author Dave Syer
@@ -42,13 +45,9 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void basicBinding() {
-		EnvironmentTestUtils.addEnvironment(context,
-				"eureka.instance.appGroupName=mygroup");
-		context.register(PropertyPlaceholderAutoConfiguration.class,
-				TestConfiguration.class);
-		context.refresh();
-		assertEquals("mygroup", context.getBean(EurekaInstanceConfigBean.class)
-				.getAppGroupName());
+		addEnvironment(context, "eureka.instance.appGroupName=mygroup");
+        setupContext();
+		assertEquals("mygroup", getInstanceConfig().getAppGroupName());
 	}
 
 	@Test
@@ -72,12 +71,40 @@ public class EurekaInstanceConfigBeanTests {
     }
 
     private void testNonSecurePort(String propName) {
-        EnvironmentTestUtils.addEnvironment(context, propName +":8888");
+        addEnvironment(context, propName + ":8888");
+        setupContext();
+        assertEquals(8888, getInstanceConfig().getNonSecurePort());
+    }
+
+    @Test
+    public void testDefaultInitialStatus() {
+        setupContext();
+        assertEquals("initialStatus wrong", InstanceStatus.UP,
+                getInstanceConfig().getInitialStatus());
+    }
+
+    @Test(expected = BeanCreationException.class)
+    public void testBadInitialStatus() {
+        addEnvironment(context, "eureka.instance.initial-status:FOO");
+        setupContext();
+    }
+
+    @Test
+    public void testCustomInitialStatus() {
+        addEnvironment(context, "eureka.instance.initial-status:STARTING");
+        setupContext();
+        assertEquals("initialStatus wrong", InstanceStatus.STARTING,
+                getInstanceConfig().getInitialStatus());
+    }
+
+    private void setupContext() {
         context.register(PropertyPlaceholderAutoConfiguration.class,
                 TestConfiguration.class);
         context.refresh();
-        assertEquals(8888,
-                context.getBean(EurekaInstanceConfigBean.class).getNonSecurePort());
+    }
+
+    protected EurekaInstanceConfigBean getInstanceConfig() {
+        return context.getBean(EurekaInstanceConfigBean.class);
     }
 
     /*

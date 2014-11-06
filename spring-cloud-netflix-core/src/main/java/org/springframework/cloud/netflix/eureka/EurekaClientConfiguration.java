@@ -60,9 +60,6 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	private int port = 0;
 
 	@Autowired
-	private EurekaClientConfigBean clientConfig;
-
-	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 
 	@PreDestroy
@@ -83,7 +80,7 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
             discoveryManagerIntitializer().init();
             logger.info("Registering application {} with eureka with status UP",
                     instanceConfig.getAppname());
-            ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.UP);
+            ApplicationInfoManager.getInstance().setInstanceStatus(instanceConfig.getInitialStatus());
             running = true;
         }
 	}
