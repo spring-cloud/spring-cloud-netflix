@@ -17,6 +17,7 @@ package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PreDestroy;
 
+import com.netflix.appinfo.HealthCheckHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,9 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 
+    @Autowired(required = false)
+    private HealthCheckHandler healthCheckHandler;
+
 	@PreDestroy
 	public void close() {
 		logger.info("Removing application {} from eureka", instanceConfig.getAppname());
@@ -78,9 +82,14 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
         //because of containerPortInitializer below
         if (!running && instanceConfig.getNonSecurePort() > 0) {
             discoveryManagerIntitializer().init();
+
             logger.info("Registering application {} with eureka with status {}",
                     instanceConfig.getAppname(), instanceConfig.getInitialStatus());
             ApplicationInfoManager.getInstance().setInstanceStatus(instanceConfig.getInitialStatus());
+
+            if (healthCheckHandler != null) {
+                DiscoveryManager.getInstance().getDiscoveryClient().registerHealthCheck(healthCheckHandler);
+            }
             running = true;
         }
 	}
