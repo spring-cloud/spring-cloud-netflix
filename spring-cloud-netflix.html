@@ -1013,6 +1013,19 @@ public class Application extends FeignConfigurer {
 <div class="paragraph">
 <p>Since zuul, by default, intercepts all requests (<code>/*</code>), to enable actuator, you should set the <code>management.port</code>.</p>
 </div>
+<div class="paragraph">
+<p>To use the Spring Boot error facilities while using the standalone Zuul server, please set the following properties</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># moves the Spring Dispatch Servlet to a path below `/`
+server:
+  servletPath: /app
+# sets the error path to use the Dispatch Servlet to resolve the error view
+error:
+  path: ${server.servletPath}/error</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1021,7 +1034,7 @@ public class Application extends FeignConfigurer {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-05 20:44:06 UTC
+Last updated 2014-11-06 01:11:11 UTC
 </div>
 </div>
 </body>
