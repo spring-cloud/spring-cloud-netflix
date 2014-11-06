@@ -6,9 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.context.annotation.Bean;
 
@@ -62,6 +64,11 @@ public abstract class AbstractZuulConfiguration {
         return new PreDecorationFilter();
     }
 
+    @Bean
+    public Servlet30WrapperFilter servlet30WrapperFilter() {
+        return new Servlet30WrapperFilter();
+    }
+
     // route filters
     @Bean
     public RibbonRoutingFilter ribbonRoutingFilter() {
@@ -78,4 +85,8 @@ public abstract class AbstractZuulConfiguration {
         return new SendResponseFilter();
     }
 
+    @Bean
+    public SendErrorFilter sendErrorFilter() {
+        return new SendErrorFilter();
+    }
 }

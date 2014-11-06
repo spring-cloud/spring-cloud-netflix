@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.io.IOUtils;
@@ -89,8 +90,10 @@ public class RibbonRoutingFilter extends SpringFilter {
 			return response;
 		}
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            context.set("error.exception", e);
 		}
+        return null;
 	}
 
 	private Map<String, Object> debug(Verb verb, String uri,

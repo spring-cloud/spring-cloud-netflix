@@ -17,7 +17,7 @@ public class ZuulProxyApplication {
 
     @RequestMapping("/testing123")
     public String testing123() {
-        return "testing123";
+        throw new RuntimeException("myerror");
     }
 
 	@RequestMapping("/")

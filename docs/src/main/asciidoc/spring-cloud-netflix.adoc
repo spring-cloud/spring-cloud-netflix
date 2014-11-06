@@ -484,3 +484,14 @@ This means that http calls to /users get forwarded to the users service.
 
 Since zuul, by default, intercepts all requests (`/*`), to enable actuator, you should set the `management.port`.
 
+To use the Spring Boot error facilities while using the standalone Zuul server, please set the following properties
+
+----
+# moves the Spring Dispatch Servlet to a path below `/`
+server:
+  servletPath: /app
+# sets the error path to use the Dispatch Servlet to resolve the error view
+error:
+  path: ${server.servletPath}/error
+----
+

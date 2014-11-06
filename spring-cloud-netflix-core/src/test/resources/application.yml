@@ -6,7 +6,8 @@ spring:
 eureka:
   server:
     enabled: false
-
+error:
+  path: /myerror
 zuul:
   proxy:
     mapping: /api

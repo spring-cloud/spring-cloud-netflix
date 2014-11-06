@@ -12,6 +12,7 @@ import org.springframework.cloud.netflix.zuul.Routes;
 import org.springframework.cloud.netflix.zuul.ZuulProperties;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 
 public class PreDecorationFilter extends ZuulFilter {
@@ -78,7 +79,7 @@ public class PreDecorationFilter extends ZuulFilter {
             }
         } else {
             LOG.warn("No route found for uri: "+requestURI);
-            //TODO: 404
+            ctx.set("error.status_code", HttpServletResponse.SC_NOT_FOUND);
         }
         return null;
     }
