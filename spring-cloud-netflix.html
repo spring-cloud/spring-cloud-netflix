@@ -776,10 +776,18 @@ public class StoreIntegration {
 </div>
 <div class="paragraph">
 <p>The <code>@HystrixCommand</code> is provided by a Netflix contrib library called
-"javanica". Spring Cloud automatically wraps Spring beans with that
+<a href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica">"javanica"</a>.
+Spring Cloud automatically wraps Spring beans with that
 annotation in a proxy that is connected to the Hystrix circuit
 breaker. The circuit breaker calculates when to open and close the
 circuit, and what to do in case of a failure.</p>
+</div>
+<div class="paragraph">
+<p>To configure the <code>@HystrixCommand</code> you can use the <code>commandProperties</code>
+attribute with a list of <code>@HystrixProperty</code> annotations.  See
+<a href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica#configuration">here</a>
+for more details.  See the <a href="https://github.com/Netflix/Hystrix/wiki/Configuration">Hystrix wiki</a>
+for details on the properties available.</p>
 </div>
 <div class="paragraph">
 <p>The state of the connected circuit breakers are also exposed in the
@@ -1034,7 +1042,7 @@ error:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-06 01:11:11 UTC
+Last updated 2014-11-06 01:19:17 UTC
 </div>
 </div>
 </body>
