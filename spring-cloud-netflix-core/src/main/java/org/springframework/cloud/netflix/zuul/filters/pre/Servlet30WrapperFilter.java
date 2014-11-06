@@ -4,6 +4,8 @@ import com.google.common.base.Throwables;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -20,12 +22,10 @@ public class Servlet30WrapperFilter extends ZuulFilter {
     protected Field requestField = null;
 
     public Servlet30WrapperFilter() {
-        try {
-            requestField = HttpServletRequestWrapper.class.getDeclaredField("req");
-            requestField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            Throwables.propagate(e);
-        }
+        requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class, "req",
+                HttpServletRequest.class);
+        Assert.notNull(requestField, "HttpServletRequestWrapper.req field not found");
+        requestField.setAccessible(true);
     }
 
     @Override
