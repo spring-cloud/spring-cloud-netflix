@@ -17,6 +17,7 @@ package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.WebRequest;
 
@@ -30,14 +31,14 @@ public class HystrixDashboardController {
 	@RequestMapping("/hystrix")
 	public String home(Model model, WebRequest request) {
 		model.addAttribute("basePath", extractPath(request));
-		return "index";
+		return "hystrix/index";
 	}
 
-	@RequestMapping("/hystrix/monitor")
-	public String monitor(Model model, WebRequest request) {
+	@RequestMapping("/hystrix/{path}")
+	public String monitor(@PathVariable String path, Model model, WebRequest request) {
 		model.addAttribute("basePath", extractPath(request));
 		model.addAttribute("contextPath", request.getContextPath());
-		return "monitor";
+		return "hystrix/" + path;
 	}
 
 	private String extractPath(WebRequest request) {
