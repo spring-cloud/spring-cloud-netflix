@@ -25,12 +25,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.cloud.netflix.hystrix.dashboard.HystrixDashboardTests.Application;
+import org.springframework.cloud.netflix.hystrix.dashboard.HystrixDashboardHomePageTests.Application;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author Dave Syer
@@ -40,7 +42,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=hystrix-dashboard" })
-public class HystrixDashboardTests {
+public class HystrixDashboardHomePageTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -48,7 +50,7 @@ public class HystrixDashboardTests {
 	@Test
 	public void homePage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/hystrix", String.class);
+				"http://localhost:" + port, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		entity.getBody().contains("<base href=\"/\">");
 	}
@@ -70,7 +72,14 @@ public class HystrixDashboardTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
+	@Controller
 	protected static class Application {
+
+		@RequestMapping("/")
+		public String home() {
+			return "forward:/hystrix";
+		}
+
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=hystrix-dashboard").run();

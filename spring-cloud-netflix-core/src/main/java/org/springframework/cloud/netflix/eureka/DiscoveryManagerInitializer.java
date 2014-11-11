@@ -1,7 +1,10 @@
 package org.springframework.cloud.netflix.eureka;
 
-import com.netflix.discovery.DiscoveryManager;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClientConfig;
 
 /**
  * @author Spencer Gibb
@@ -9,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DiscoveryManagerInitializer {
 
     @Autowired
-    private EurekaClientConfigBean clientConfig;
+    private EurekaClientConfig clientConfig;
 
     @Autowired
-    private EurekaInstanceConfigBean instanceConfig;
+    private EurekaInstanceConfig instanceConfig;
 
 
     public synchronized void init() {
