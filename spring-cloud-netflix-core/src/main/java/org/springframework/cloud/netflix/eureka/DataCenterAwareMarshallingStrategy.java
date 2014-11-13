@@ -24,6 +24,7 @@ import com.thoughtworks.xstream.MarshallingStrategy;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.ConverterLookup;
 import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -57,7 +58,8 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	@Override
 	public void marshal(HierarchicalStreamWriter writer, Object obj,
 			ConverterLookup converterLookup, Mapper mapper, DataHolder dataHolder) {
-		delegate.marshal(writer, obj, converterLookup, mapper, dataHolder);
+		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup);
+		delegate.marshal(writer, obj, wrapped, mapper, dataHolder);
 	}
 
 	public static class InstanceIdDataCenterInfo implements DataCenterInfo,
@@ -101,6 +103,22 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	}
 
 	private static class DataCenterAwareConverter extends InstanceInfoConverter {
+		
+		@Override
+		public void marshal(Object source, HierarchicalStreamWriter writer,
+				MarshallingContext context) {
+			InstanceInfo info = (InstanceInfo) source;
+			String instanceId = info.getMetadata().get("instanceId");
+			DataCenterInfo dataCenter = info.getDataCenterInfo();
+			if (instanceId != null && Name.Amazon != dataCenter.getName()) {
+				String old = info.getId();
+				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
+				info = new InstanceInfo.Builder(info).setDataCenterInfo(
+						new InstanceIdDataCenterInfo(id)).build();
+				source = info;
+			}
+			super.marshal(source, writer, context);
+		}
 
 		@Override
 		public Object unmarshal(HierarchicalStreamReader reader,
@@ -111,8 +129,9 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			DataCenterInfo dataCenter = info.getDataCenterInfo();
 			if (instanceId != null && Name.Amazon != dataCenter.getName()) {
 				String old = info.getId();
+				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
 				info = new InstanceInfo.Builder(info).setDataCenterInfo(
-						new InstanceIdDataCenterInfo(old + ":" + instanceId)).build();
+						new InstanceIdDataCenterInfo(id)).build();
 				obj = info;
 			}
 			return obj;

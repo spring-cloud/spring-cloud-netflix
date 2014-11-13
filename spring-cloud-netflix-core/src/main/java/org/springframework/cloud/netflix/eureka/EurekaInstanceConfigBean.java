@@ -33,6 +33,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
@@ -76,10 +77,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
     private Map<String, String> metadataMap = new HashMap<>();
 
-    private DataCenterInfo dataCenterInfo = new DataCenterInfo() {
-    	@Getter @Setter
-        private Name name = Name.MyOwn;
-    };
+    private DataCenterInfo dataCenterInfo = new IdentifyingDataCenterInfo();
 
     private String ipAddress = hostInfo[0];
 
@@ -128,6 +126,23 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Override
 	public String getHostName(boolean refresh) {
 		return preferIpAddress ? ipAddress : hostname;
+	}
+
+	private final class IdentifyingDataCenterInfo implements DataCenterInfo, UniqueIdentifier {
+		@Getter @Setter
+        private Name name = Name.MyOwn;
+		
+		@Override
+		public String getId() {
+			String instanceId = metadataMap.get("instanceId");
+			if (instanceId != null) {
+				String old = hostname;
+				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
+				return id;
+			}
+			return hostname;
+		}
+		
 	}
 
 }

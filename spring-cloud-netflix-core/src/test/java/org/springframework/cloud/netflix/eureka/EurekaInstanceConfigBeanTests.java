@@ -22,10 +22,12 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.AbstractApplicationContext;
 
+import com.netflix.appinfo.UniqueIdentifier;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.springframework.boot.test.EnvironmentTestUtils.*;
 
 /**
@@ -44,102 +46,101 @@ public class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
+	public void idFromInstanceId() throws Exception {
+		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
+		instance.getMetadataMap().put("instanceId", "foo");
+		instance.setHostname("bar");
+		assertEquals("bar:foo", ((UniqueIdentifier) instance.getDataCenterInfo()).getId());
+	}
+
+	@Test
 	public void basicBinding() {
 		addEnvironment(context, "eureka.instance.appGroupName=mygroup");
-        setupContext();
+		setupContext();
 		assertEquals("mygroup", getInstanceConfig().getAppGroupName());
 	}
 
 	@Test
 	public void nonSecurePort() {
-        testNonSecurePort("eureka.instance.nonSecurePort");
-    }
+		testNonSecurePort("eureka.instance.nonSecurePort");
+	}
 
-    @Test
-    public void nonSecurePort2() {
-        testNonSecurePort("server.port");
-    }
+	@Test
+	public void nonSecurePort2() {
+		testNonSecurePort("server.port");
+	}
 
-    @Test
-    public void nonSecurePort3() {
-        testNonSecurePort("SERVER_PORT");
-    }
+	@Test
+	public void nonSecurePort3() {
+		testNonSecurePort("SERVER_PORT");
+	}
 
-    @Test
-    public void nonSecurePort4() {
-        testNonSecurePort("PORT");
-    }
+	@Test
+	public void nonSecurePort4() {
+		testNonSecurePort("PORT");
+	}
 
-    private void testNonSecurePort(String propName) {
-        addEnvironment(context, propName + ":8888");
-        setupContext();
-        assertEquals(8888, getInstanceConfig().getNonSecurePort());
-    }
+	private void testNonSecurePort(String propName) {
+		addEnvironment(context, propName + ":8888");
+		setupContext();
+		assertEquals(8888, getInstanceConfig().getNonSecurePort());
+	}
 
-    @Test
-    public void testDefaultInitialStatus() {
-        setupContext();
-        assertEquals("initialStatus wrong", InstanceStatus.UP,
-                getInstanceConfig().getInitialStatus());
-    }
+	@Test
+	public void testDefaultInitialStatus() {
+		setupContext();
+		assertEquals("initialStatus wrong", InstanceStatus.UP, getInstanceConfig()
+				.getInitialStatus());
+	}
 
-    @Test(expected = BeanCreationException.class)
-    public void testBadInitialStatus() {
-        addEnvironment(context, "eureka.instance.initial-status:FOO");
-        setupContext();
-    }
+	@Test(expected = BeanCreationException.class)
+	public void testBadInitialStatus() {
+		addEnvironment(context, "eureka.instance.initial-status:FOO");
+		setupContext();
+	}
 
-    @Test
-    public void testCustomInitialStatus() {
-        addEnvironment(context, "eureka.instance.initial-status:STARTING");
-        setupContext();
-        assertEquals("initialStatus wrong", InstanceStatus.STARTING,
-                getInstanceConfig().getInitialStatus());
-    }
+	@Test
+	public void testCustomInitialStatus() {
+		addEnvironment(context, "eureka.instance.initial-status:STARTING");
+		setupContext();
+		assertEquals("initialStatus wrong", InstanceStatus.STARTING, getInstanceConfig()
+				.getInitialStatus());
+	}
 
-    private void setupContext() {
-        context.register(PropertyPlaceholderAutoConfiguration.class,
-                TestConfiguration.class);
-        context.refresh();
-    }
+	private void setupContext() {
+		context.register(PropertyPlaceholderAutoConfiguration.class,
+				TestConfiguration.class);
+		context.refresh();
+	}
 
-    protected EurekaInstanceConfigBean getInstanceConfig() {
-        return context.getBean(EurekaInstanceConfigBean.class);
-    }
+	protected EurekaInstanceConfigBean getInstanceConfig() {
+		return context.getBean(EurekaInstanceConfigBean.class);
+	}
 
-    /*
-        @Test
-        public void serviceUrlWithCompositePropertySource() {
-            CompositePropertySource source = new CompositePropertySource("composite");
-            context.getEnvironment().getPropertySources().addFirst(source);
-            source.addPropertySource(new MapPropertySource("config", Collections
-                    .<String, Object> singletonMap("eureka.client.serviceUrl.defaultZone",
-                            "http://example.com")));
-            context.register(PropertyPlaceholderAutoConfiguration.class,
-                    TestConfiguration.class);
-            context.refresh();
-            assertEquals("{defaultZone=http://example.com}",
-                    context.getBean(EurekaInstanceConfigBean.class).getServiceUrl().toString());
-            assertEquals(
-                    "[http://example.com]",
-                    context.getBean(EurekaInstanceConfigBean.class)
-                            .getEurekaServerServiceUrls("defaultZone").toString());
-        }
-
-        @Test
-        public void serviceUrlWithDefault() {
-            EnvironmentTestUtils.addEnvironment(context,
-                    "eureka.client.serviceUrl.defaultZone:",
-                    "eureka.client.serviceUrl.default:http://example.com");
-            context.register(PropertyPlaceholderAutoConfiguration.class,
-                    TestConfiguration.class);
-            context.refresh();
-            assertEquals(
-                    "[http://example.com]",
-                    context.getBean(EurekaInstanceConfigBean.class)
-                            .getEurekaServerServiceUrls("defaultZone").toString());
-        }
-    */
+	/*
+	 * @Test public void serviceUrlWithCompositePropertySource() { CompositePropertySource
+	 * source = new CompositePropertySource("composite");
+	 * context.getEnvironment().getPropertySources().addFirst(source);
+	 * source.addPropertySource(new MapPropertySource("config", Collections .<String,
+	 * Object> singletonMap("eureka.client.serviceUrl.defaultZone",
+	 * "http://example.com")));
+	 * context.register(PropertyPlaceholderAutoConfiguration.class,
+	 * TestConfiguration.class); context.refresh();
+	 * assertEquals("{defaultZone=http://example.com}",
+	 * context.getBean(EurekaInstanceConfigBean.class).getServiceUrl().toString());
+	 * assertEquals( "[http://example.com]",
+	 * context.getBean(EurekaInstanceConfigBean.class)
+	 * .getEurekaServerServiceUrls("defaultZone").toString()); }
+	 * 
+	 * @Test public void serviceUrlWithDefault() {
+	 * EnvironmentTestUtils.addEnvironment(context,
+	 * "eureka.client.serviceUrl.defaultZone:",
+	 * "eureka.client.serviceUrl.default:http://example.com");
+	 * context.register(PropertyPlaceholderAutoConfiguration.class,
+	 * TestConfiguration.class); context.refresh(); assertEquals( "[http://example.com]",
+	 * context.getBean(EurekaInstanceConfigBean.class)
+	 * .getEurekaServerServiceUrls("defaultZone").toString()); }
+	 */
 	@Configuration
 	@EnableConfigurationProperties(EurekaInstanceConfigBean.class)
 	protected static class TestConfiguration {
