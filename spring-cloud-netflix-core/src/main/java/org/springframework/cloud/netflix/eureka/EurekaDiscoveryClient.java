@@ -26,11 +26,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
             }
 
             @Override
-            public String getIpAddress() {
-                return config.getIpAddress();
-            }
-
-            @Override
             public int getPort() {
                 return config.getNonSecurePort();
             }

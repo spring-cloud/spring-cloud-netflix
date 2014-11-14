@@ -2,6 +2,8 @@ package org.springframework.cloud.client.loadbalancer;
 
 import org.springframework.cloud.client.ServiceInstance;
 
+import java.net.URI;
+
 /**
  * @author Spencer Gibb
  */
@@ -19,5 +21,7 @@ public interface LoadBalancerClient {
      * @param request allows implementations to execute pre and post actions such as incrementing metrics
      * @return the result of the LoadBalancerRequest callback on the selected ServiceInstance
      */
-    public <T> T choose(String serviceId, LoadBalancerRequest<T> request);
+    public <T> T execute(String serviceId, LoadBalancerRequest<T> request);
+
+    public URI reconstructURI(ServiceInstance instance, URI original);
 }

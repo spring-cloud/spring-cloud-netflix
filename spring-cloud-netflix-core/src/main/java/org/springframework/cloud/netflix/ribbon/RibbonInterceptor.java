@@ -8,7 +8,6 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,25 +24,21 @@ public class RibbonInterceptor implements ClientHttpRequestInterceptor {
     }
 
     @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        HttpRequestWrapper wrapper = new HttpRequestWrapper(request) {
+    public ClientHttpResponse intercept(final HttpRequest request, final byte[] body, final ClientHttpRequestExecution execution) throws IOException {
+        final URI originalUri = request.getURI();
+        String serviceName = originalUri.getHost();
+        return loadBalancer.execute(serviceName, new LoadBalancerRequest<ClientHttpResponse>() {
             @Override
-            public URI getURI() {
-                final URI originalUri = super.getURI();
-                String serviceName = originalUri.getHost();
-                URI uri = loadBalancer.choose(serviceName, new LoadBalancerRequest<URI>() {
+            public ClientHttpResponse apply(final ServiceInstance instance) throws Exception {
+                HttpRequestWrapper wrapper = new HttpRequestWrapper(request) {
                     @Override
-                    public URI apply(ServiceInstance instance) {
-                        return UriComponentsBuilder.fromUri(originalUri)
-                                .host(instance.getHost())
-                                .port(instance.getPort())
-                                .build()
-                                .toUri();
+                    public URI getURI() {
+                        URI uri = loadBalancer.reconstructURI(instance, originalUri);
+                        return uri;
                     }
-                });
-                return uri;
+                };
+                return execution.execute(wrapper, body);
             }
-        };
-        return execution.execute(wrapper, body);
+        });
     }
 }
