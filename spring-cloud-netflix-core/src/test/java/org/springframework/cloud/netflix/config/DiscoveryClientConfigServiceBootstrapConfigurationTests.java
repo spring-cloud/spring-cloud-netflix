@@ -83,6 +83,16 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		assertEquals("user", locator.getUsername());
 	}
 
+	@Test
+	public void setsPath() throws Exception {
+		info.getMetadata().put("configPath", "/bar");
+		Mockito.when(client.getNextServerFromEureka("CONFIGSERVER", false)).thenReturn(
+				info);
+		setup("spring.cloud.config.discovery.enabled=true");
+		ConfigClientProperties locator = context.getBean(ConfigClientProperties.class);
+		assertEquals("http://foo:7001/bar", locator.getUri());
+	}
+
 	private void setup(String... env) {
 		context = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(context, env);

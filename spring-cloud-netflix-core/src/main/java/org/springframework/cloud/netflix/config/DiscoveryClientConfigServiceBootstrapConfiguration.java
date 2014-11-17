@@ -35,6 +35,9 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 
 /**
+ * Bootstrap configuration for a config client that wants to lookup the config server via
+ * discovery.
+ * 
  * @author Dave Syer
  *
  */
@@ -49,7 +52,7 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 
 	@Autowired
 	private DiscoveryClient client;
-	
+
 	@Autowired
 	private ConfigClientProperties config;
 
@@ -62,8 +65,8 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 				log.info("Environment is not ConfigurableEnvironment so cannot look up configserver");
 				return;
 			}
-			InstanceInfo server = client.getNextServerFromEureka(config.getDiscovery().getServiceId(),
-					false);
+			InstanceInfo server = client.getNextServerFromEureka(config.getDiscovery()
+					.getServiceId(), false);
 			String url = server.getHomePageUrl();
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");
@@ -71,6 +74,13 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 				config.setUsername(user);
 				String password = server.getMetadata().get("password");
 				config.setPassword(password);
+			}
+			if (server.getMetadata().containsKey("configPath")) {
+				String path = server.getMetadata().get("configPath");
+				if (url.endsWith("/") && path.startsWith("/")) {
+					url = url.substring(0, url.length()-1);
+				}
+				url = url + path;
 			}
 			config.setUri(url);
 		}
