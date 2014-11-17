@@ -72,6 +72,10 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 				String password = server.getMetadata().get("password");
 				config.setPassword(password);
 			}
+
+			if(config.getDiscovery().getPrefix() != null) {
+				url += config.getDiscovery().getPrefix();
+			}
 			config.setUri(url);
 		}
 		catch (Exception e) {
