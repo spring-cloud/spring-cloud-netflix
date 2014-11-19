@@ -6,6 +6,8 @@ import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRule
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
 
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
@@ -29,7 +31,10 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
  */
 public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor {
 
-	private EurekaClientConfig clientConfig;
+    protected static final String VALUE_NOT_SET = "__not__set__";
+    protected static final String DEFAULT_NAMESPACE = "ribbon";
+
+    private EurekaClientConfig clientConfig;
     private SpringClientFactory clientFactory;
 
     public EurekaRibbonClientPreprocessor(EurekaClientConfig clientConfig, SpringClientFactory clientFactory) {
@@ -83,9 +88,19 @@ public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor 
 
 	protected void setProp(String serviceId, String suffix, String value) {
 		// how to set the namespace properly?
-		String namespace = "ribbon";
-		ConfigurationManager.getConfigInstance().setProperty(
-				serviceId + "." + namespace + "." + suffix, value);
+        String key = getKey(serviceId, suffix);
+        DynamicStringProperty property = getProperty(key);
+        if (property.get().equals(VALUE_NOT_SET)) {
+            ConfigurationManager.getConfigInstance().setProperty(key, value);
+        }
 	}
+
+    protected DynamicStringProperty getProperty(String key) {
+        return DynamicPropertyFactory.getInstance().getStringProperty(key, VALUE_NOT_SET);
+    }
+
+    protected String getKey(String serviceId, String suffix) {
+        return serviceId + "." + DEFAULT_NAMESPACE + "." + suffix;
+    }
 
 }

@@ -18,7 +18,9 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessor.*;
 
+import com.netflix.config.DynamicStringProperty;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
@@ -56,5 +58,29 @@ public class EurekaRibbonClientPreprocessorTests {
 		assertTrue(aware.getServerListImpl() instanceof DomainExtractingServerList);
 		assertEquals("foo", ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
 	}
+
+    @Test
+    public void testSetProp() {
+        EurekaClientConfigBean client = new EurekaClientConfigBean();
+        SpringClientFactory clientFactory = new SpringClientFactory();
+        EurekaRibbonClientPreprocessor preprocessor = new EurekaRibbonClientPreprocessor(
+                client, clientFactory);
+
+        String serviceId = "myService";
+        String suffix = "mySuffix";
+        String value = "myValue";
+
+        DynamicStringProperty property = preprocessor.getProperty(preprocessor.getKey(serviceId, suffix));
+
+        assertEquals("property doesn't have default value", VALUE_NOT_SET, property.get());
+
+        preprocessor.setProp(serviceId, suffix, value);
+
+        assertEquals("property has wrong value", value, property.get());
+
+        preprocessor.setProp(serviceId, suffix, value);
+
+        assertEquals("property has wrong value", value, property.get());
+    }
 
 }
