@@ -87,6 +87,7 @@ anywhere where the `ApplicationContext` might not be started yet). It
 is initialized in a `SmartLifecycle` (with `phase=0`) so the earliest
 you can rely on it being available is in another `SmartLifecycle` with
 higher phase.
+====
 
 === Alternatives to the DiscoveryClient
 
