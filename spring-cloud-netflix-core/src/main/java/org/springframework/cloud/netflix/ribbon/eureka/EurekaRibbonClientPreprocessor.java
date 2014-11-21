@@ -81,7 +81,7 @@ public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor 
 				// the server zone is populated. TODO: find a way to back off if AWS
 				// metadata *is* available.
                 // @see com.netflix.appinfo.AmazonInfo.Builder
-				dynamic.setServerListImpl(new DomainExtractingServerList(list));
+				dynamic.setServerListImpl(new DomainExtractingServerList(list, dynamic.getClientConfig()));
 			}
 		}
 	}
