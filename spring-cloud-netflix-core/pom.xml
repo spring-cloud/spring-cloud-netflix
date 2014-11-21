@@ -43,6 +43,12 @@
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-client</artifactId>
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<artifactId>netflix-eventbus</artifactId>
+					<groupId>com.netflix.netflix-commons</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.eureka</groupId>
