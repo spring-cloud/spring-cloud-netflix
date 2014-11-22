@@ -176,6 +176,31 @@ springBoot {
 ----
 ====
 
+[NOTE]
+====
+The Eureka server is tied to log4j and doesn't work with logback, 
+so the dependency configuration
+has to be tweaked compared to a normal Spring Boot app. The 
+`spring-cloud-starter-eureka-server` does this for you, but if you
+add logback transitively through another dependency you will need to
+exclude it manually, e.g. in Maven
+
+.pom.xml
+[source,xml,indent=0]
+----
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-boot-starter-logging</artifactId>
+					<groupId>org.springframework.boot</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+----
+====
+
 === High Availability, Zones and Regions
 
 The Eureka server does not have a backend store, but the service
