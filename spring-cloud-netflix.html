@@ -1059,7 +1059,10 @@ public class Application extends FeignConfigurer {
 </div>
 </div>
 <div class="paragraph">
-<p>This means that http calls to /proxy/users get forwarded to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.  By default, the proxy mapping gets stripped from the request before forwarding.</p>
+<p>This means that http calls to /proxy/users get forwarded to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.  To change the mapping, set <code>zuul.proxy.mapping</code> to a different value, such as <code>/api</code>.  By default, the proxy mapping gets stripped from the request before forwarding.  To keep the proxy mapping on the forwarded call, set <code>zuul.proxy.stripMapping = false</code>.</p>
+</div>
+<div class="paragraph">
+<p>To have the <code>X-Forwarded-Host</code> header added to the forwarded requests, set <code>zuul.proxy.addProxyHeaders = true</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1097,7 +1100,7 @@ error:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-11-24 17:08:33 UTC
+Last updated 2014-11-24 18:32:16 UTC
 </div>
 </div>
 </body>
