@@ -504,7 +504,9 @@ Spring Cloud has created an embedded Zuul proxy to ease the development of a ver
 
  zuul.proxy.route.users: /users
 
-This means that http calls to /proxy/users get forwarded to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.  By default, the proxy mapping gets stripped from the request before forwarding.
+This means that http calls to /proxy/users get forwarded to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.  To change the mapping, set `zuul.proxy.mapping` to a different value, such as `/api`.  By default, the proxy mapping gets stripped from the request before forwarding.  To keep the proxy mapping on the forwarded call, set `zuul.proxy.stripMapping = false`.
+
+To have the `X-Forwarded-Host` header added to the forwarded requests, set `zuul.proxy.addProxyHeaders = true`.
 
 [[netflix-zuul-server]]
 === Standalone Zuul Server
