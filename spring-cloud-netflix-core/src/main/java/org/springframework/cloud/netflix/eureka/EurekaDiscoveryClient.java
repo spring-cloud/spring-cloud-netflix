@@ -1,8 +1,16 @@
 package org.springframework.cloud.netflix.eureka;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.netflix.appinfo.InstanceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static com.google.common.collect.Iterables.*;
 
 /**
  * @author Spencer Gibb
@@ -11,6 +19,9 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
     @Autowired
     private EurekaInstanceConfigBean config;
+
+    @Autowired
+    private com.netflix.discovery.DiscoveryClient discovery;
 
     @Override
     public ServiceInstance getLocalServiceInstance() {
@@ -30,5 +41,41 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
                 return config.getNonSecurePort();
             }
         };
+    }
+
+    @Override
+    public List<ServiceInstance> getInstances(String serviceId) {
+        List<InstanceInfo> infos = discovery.getInstancesByVipAddress(serviceId, false);
+        Iterable<ServiceInstance> instances = transform(infos, new Function<InstanceInfo, ServiceInstance>() {
+            @Nullable
+            @Override
+            public ServiceInstance apply(@Nullable InstanceInfo info) {
+                return new EurekaServiceInstance(info);
+            }
+        });
+        return Lists.newArrayList(instances);
+    }
+
+    static class EurekaServiceInstance implements ServiceInstance {
+        InstanceInfo instance;
+
+        EurekaServiceInstance(InstanceInfo instance) {
+            this.instance = instance;
+        }
+
+        @Override
+        public String getServiceId() {
+            return instance.getAppName();
+        }
+
+        @Override
+        public String getHost() {
+            return instance.getHostName();
+        }
+
+        @Override
+        public int getPort() {
+            return instance.getPort();
+        }
     }
 }
