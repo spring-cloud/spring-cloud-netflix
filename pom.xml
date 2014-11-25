@@ -30,6 +30,7 @@
         <module>spring-cloud-netflix-hystrix-dashboard</module>
         <module>spring-cloud-netflix-eureka-server</module>
         <module>spring-cloud-netflix-turbine</module>
+        <module>spring-cloud-netflix-sidecar</module>
         <module>docs</module>
     </modules>
 
@@ -253,20 +254,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <properties>
         <archaius.version>0.6.3</archaius.version>
         <eureka.version>1.1.145</eureka.version>
@@ -276,6 +263,20 @@
         <turbine.version>1.0.0</turbine.version>
         <zuul.version>1.0.28</zuul.version>
         <netflix.rxjava.version>0.20.7</netflix.rxjava.version>
+        <java.version>1.7</java.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

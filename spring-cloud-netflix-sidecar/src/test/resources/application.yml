@@ -1,0 +1,15 @@
+server:
+  port: 5678
+spring:
+  application:
+    name: sidecarTest
+
+sidecar:
+  local-health-uri: http://localhost:8081/health
+
+zuul:
+  proxy:
+    route:
+      stores: /stores
+      customers: /customers
+

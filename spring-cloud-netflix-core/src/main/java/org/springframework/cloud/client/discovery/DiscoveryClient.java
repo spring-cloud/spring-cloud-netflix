@@ -13,5 +13,7 @@ public interface DiscoveryClient {
      */
     public ServiceInstance getLocalServiceInstance();
 
+    public List<ServiceInstance> getInstances(String serviceId);
+
     public List<String> getServices();
 }
