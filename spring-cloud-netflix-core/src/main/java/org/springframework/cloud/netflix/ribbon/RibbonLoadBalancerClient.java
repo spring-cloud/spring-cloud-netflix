@@ -24,7 +24,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
     private SpringClientFactory clientFactory;
 
 	private Map<String, ILoadBalancer> balancers = new HashMap<>();
-    private Map<String, LoadBalancerContext> contexts = new HashMap<>();
+    private Map<String, RibbonLoadBalancerContext> contexts = new HashMap<>();
 
 	public RibbonLoadBalancerClient(RibbonClientPreprocessor ribbonClientPreprocessor, SpringClientFactory clientFactory, List<BaseLoadBalancer> balancers) {
 		this.ribbonClientPreprocessor = ribbonClientPreprocessor;
@@ -37,7 +37,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
     @Override
     public URI reconstructURI(ServiceInstance instance, URI original) {
         String serviceId = instance.getServiceId();
-        LoadBalancerContext context = getOrCreateLoadBalancerContext(serviceId, getLoadBalancer(serviceId));
+        RibbonLoadBalancerContext context = getOrCreateLoadBalancerContext(serviceId, getLoadBalancer(serviceId));
         Server server = new Server(instance.getHost(), instance.getPort());
         return context.reconstructURIWithServer(server, original);
     }
@@ -50,7 +50,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
     @Override
     public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
         ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
-        LoadBalancerContext context = getOrCreateLoadBalancerContext(serviceId, loadBalancer);
+        RibbonLoadBalancerContext context = getOrCreateLoadBalancerContext(serviceId, loadBalancer);
         Server server = getServer(serviceId, loadBalancer);
         RibbonServer ribbonServer = new RibbonServer(serviceId, server);
 
@@ -70,16 +70,16 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
         return null;
     }
 
-    private void recordStats(LoadBalancerContext context, Stopwatch tracer, ServerStats serverStats, Object entity, Throwable exception) {
+    private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer, ServerStats serverStats, Object entity, Throwable exception) {
         tracer.stop();
         long duration = tracer.getDuration(TimeUnit.MILLISECONDS);
         context.noteRequestCompletion(serverStats, entity, exception, duration, null/*errorHandler*/);
     }
 
-    protected LoadBalancerContext getOrCreateLoadBalancerContext(String serviceId, ILoadBalancer loadBalancer) {
-        LoadBalancerContext context = contexts.get(serviceId);
+    protected RibbonLoadBalancerContext getOrCreateLoadBalancerContext(String serviceId, ILoadBalancer loadBalancer) {
+        RibbonLoadBalancerContext context = contexts.get(serviceId);
         if (context == null) {
-            context = new LoadBalancerContext(loadBalancer);
+            context = new RibbonLoadBalancerContext(loadBalancer);
             contexts.put(serviceId, context);
         }
         return context;
