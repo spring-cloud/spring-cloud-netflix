@@ -5,7 +5,20 @@ spring:
     name: sidecarTest
 
 sidecar:
-  local-health-uri: http://localhost:8081/health
+  port: 8000
+  health-uri: http://localhost:8000/src/test/resources/health.json
+
+eureka:
+  instance:
+    app-group-name: mysidecargroup
+
+endpoints:
+  refresh:
+    enabled: true
+  shutdown:
+    enabled: true
+  health:
+    sensitive: false
 
 zuul:
   proxy:

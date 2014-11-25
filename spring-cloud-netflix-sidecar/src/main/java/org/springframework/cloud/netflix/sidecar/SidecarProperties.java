@@ -11,5 +11,7 @@ import java.net.URI;
 @Data
 @ConfigurationProperties("sidecar")
 public class SidecarProperties {
-    private URI localHealthUri;
+    private URI healthUri;
+    private URI homePageUri;
+    private int port;
 }

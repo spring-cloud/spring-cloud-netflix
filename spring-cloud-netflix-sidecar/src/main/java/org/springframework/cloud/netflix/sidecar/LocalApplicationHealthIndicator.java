@@ -19,7 +19,7 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
     @SuppressWarnings("unchecked")
     @Override
     protected void doHealthCheck(Health.Builder builder) throws Exception {
-        URI uri = properties.getLocalHealthUri();
+        URI uri = properties.getHealthUri();
         if (uri == null) {
             builder.up();
             return;
