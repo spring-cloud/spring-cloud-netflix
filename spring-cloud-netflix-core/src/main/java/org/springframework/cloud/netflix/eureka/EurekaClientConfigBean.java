@@ -55,6 +55,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private String proxyHost;
 
+    private String proxyUserName;
+
+    private String proxyPassword;
+
 	private int eurekaServerReadTimeoutSeconds = 8;
 
 	private int eurekaServerConnectTimeoutSeconds = 5;
@@ -79,7 +83,11 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private int heartbeatExecutorThreadPoolSize = 2;
 
+    private int heartbeatExecutorExponentialBackOffBound = 10;
+
 	private int cacheRefreshExecutorThreadPoolSize = 2;
+
+    private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
 	private Map<String,String> serviceUrl = new HashMap<String, String>();
 	

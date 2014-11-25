@@ -15,6 +15,7 @@
  */
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -181,4 +182,22 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 		return batchReplication;
 	}
 
+    private boolean logIdentityHeaders = true;
+
+    @Override
+    public boolean shouldLogIdentityHeaders() {
+        return logIdentityHeaders;
+    }
+
+    private boolean rateLimiterEnabled = false;
+
+    private boolean rateLimiterThrottleStandardClients = false;
+
+    private Set<String> rateLimiterPrivilegedClients = Collections.emptySet();
+
+    private int rateLimiterBurstSize = 10;
+
+    private int rateLimiterRegistryFetchAverageRate = 500;
+
+    private int rateLimiterFullFetchAverageRate = 100;
 }

@@ -79,6 +79,19 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
         return clusters;
     }
 
+    /**
+     * shutdown all configured cluster monitors
+     */
+    @Override
+    public void shutdownClusterMonitors() {
+
+        for(String clusterName : getClusterNames()) {
+            ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) AggregateClusterMonitor.findOrRegisterAggregateMonitor(clusterName);
+            clusterMonitor.stopMonitor();
+            clusterMonitor.getDispatcher().stopDispatcher();
+        }
+    }
+
     private TurbineDataHandler<AggDataFromCluster> StaticListener = new TurbineDataHandler<AggDataFromCluster>() {
 
         @Override
