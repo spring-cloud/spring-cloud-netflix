@@ -30,7 +30,6 @@
         <module>spring-cloud-netflix-hystrix-dashboard</module>
         <module>spring-cloud-netflix-eureka-server</module>
         <module>spring-cloud-netflix-turbine</module>
-        <module>spring-cloud-netflix-zuul-server</module>
         <module>docs</module>
     </modules>
 
@@ -253,6 +252,20 @@
 		    </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <properties>
         <archaius.version>0.6.3</archaius.version>

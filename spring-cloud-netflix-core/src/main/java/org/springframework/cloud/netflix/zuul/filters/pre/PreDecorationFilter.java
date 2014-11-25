@@ -2,27 +2,32 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.netflix.zuul.Routes;
+import org.springframework.cloud.netflix.zuul.RouteLocator;
 import org.springframework.cloud.netflix.zuul.ZuulProperties;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
-import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.google.common.collect.Iterables.*;
 
 public class PreDecorationFilter extends ZuulFilter {
     private static Logger LOG = LoggerFactory.getLogger(PreDecorationFilter.class);
 
     @Autowired
-    private Routes routes;
+    private RouteLocator routeLocator;
 
     @Autowired
     private ZuulProperties properties;
+
+    private PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     public int filterOrder() {
@@ -55,12 +60,12 @@ public class PreDecorationFilter extends ZuulFilter {
         }
         ctx.put("requestURI", uriPart);
 
-        LinkedHashMap<String, String> routesMap = routes.getRoutes();
+        Map<String, String> routesMap = routeLocator.getRoutes();
 
-        Optional<String> route = Iterables.tryFind(routesMap.keySet(), new Predicate<String>() {
+        Optional<String> route = tryFind(routesMap.keySet(), new Predicate<String>() {
             @Override
             public boolean apply(@Nullable String path) {
-                return uriPart.startsWith(path);
+                return pathMatcher.match(path, uriPart);
             }
         });
 

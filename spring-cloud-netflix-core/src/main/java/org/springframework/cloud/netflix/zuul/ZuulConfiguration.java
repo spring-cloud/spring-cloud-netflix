@@ -1,11 +1,11 @@
 package org.springframework.cloud.netflix.zuul;
 
-import com.netflix.zuul.context.ContextLifecycleFilter;
 import com.netflix.zuul.http.ZuulServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.trace.TraceRepository;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
@@ -13,39 +13,38 @@ import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.context.annotation.Bean;
-
-import java.util.ArrayList;
-import java.util.Collection;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Spencer Gibb
  */
-public abstract class AbstractZuulConfiguration {
+@Configuration
+@EnableConfigurationProperties()
+@ConditionalOnClass(ZuulServlet.class)
+@ConditionalOnExpression("${zuul.enabled:true}")
+public class ZuulConfiguration {
 
     @Autowired(required=false)
     private TraceRepository traces;
 
-    protected abstract ZuulProperties getProperties();
-
     @Bean
-    public Routes routes() {
-        return new Routes(getProperties().getRoutePrefix());
+    public ZuulProperties zuulProperties() {
+        return new ZuulProperties();
     }
 
     @Bean
-    public ServletRegistrationBean zuulServlet() {
-        return new ServletRegistrationBean(new ZuulServlet(), getProperties().getMapping()+"/*");
+    public RouteLocator routes(){
+        return new RouteLocator();
     }
 
     @Bean
-    public FilterRegistrationBean contextLifecycleFilter() {
-        Collection<String> urlPatterns = new ArrayList<>();
-        urlPatterns.add(getProperties().getMapping()+"/*");
+    public ZuulController zuulController() {
+        return new ZuulController();
+    }
 
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new ContextLifecycleFilter());
-        filterRegistrationBean.setUrlPatterns(urlPatterns);
-
-        return filterRegistrationBean;
+    @Bean
+    public ZuulHandlerMapping zuulHandlerMapping() {
+        return new ZuulHandlerMapping();
     }
 
     @Bean

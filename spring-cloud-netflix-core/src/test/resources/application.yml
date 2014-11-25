@@ -6,13 +6,16 @@ spring:
 eureka:
   server:
     enabled: false
-error:
-  path: /myerror
+#error:
+#  path: /myerror
+management:
+  context-path: /admin
+endpoints:
+  health:
+    sensitive: false
 zuul:
-  proxy:
-    mapping: /api
-    stripMapping: true
-    route:
-      testclient: /testing123
-      stores: /stores
-      customers: /customers
+  #mapping: /api
+  #strip-mapping: true
+  route:
+    testclient: /testing123
+    #stores: /

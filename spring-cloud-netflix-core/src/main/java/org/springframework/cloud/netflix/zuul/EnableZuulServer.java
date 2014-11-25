@@ -8,12 +8,13 @@ import java.lang.annotation.*;
 
 /**
  * @author Spencer Gibb
+ * @deprecated @see org.springframework.cloud.netflix.zuul.EnableZuulProxy
  */
 @EnableHystrix
 @EnableEurekaClient
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(ZuulServerConfiguration.class)
+@Import(ZuulConfiguration.class)
 public @interface EnableZuulServer {
 }

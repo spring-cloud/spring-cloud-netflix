@@ -13,7 +13,6 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 @EnableEurekaClient
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Import(ZuulProxyConfiguration.class)
+@Import(ZuulConfiguration.class)
 public @interface EnableZuulProxy {
 }
