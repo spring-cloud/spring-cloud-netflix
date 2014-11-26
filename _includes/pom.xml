@@ -2,7 +2,7 @@
     <dependencies>
         <dependency>
             <groupId>{@= groupId @}</groupId>
-            <artifactId>spring-cloud-starters</artifactId>
+            <artifactId>spring-cloud-starter-parent</artifactId>
             <version>{@= version @}</version>
             <type>pom</type>
             <scope>import</scope>
