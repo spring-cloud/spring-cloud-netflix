@@ -2,9 +2,6 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.util.Map;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.http.ZuulServlet;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -17,8 +14,12 @@ import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.http.ZuulServlet;
 
 /**
  * @author Spencer Gibb
@@ -69,7 +70,7 @@ public class ZuulConfiguration {
 
     @Bean
     public PreDecorationFilter preDecorationFilter() {
-        return new PreDecorationFilter();
+        return new PreDecorationFilter(routes(), zuulProperties);
     }
 
     @Bean
@@ -85,6 +86,11 @@ public class ZuulConfiguration {
             filter.setTraces(traces);
         }
         return filter;
+    }
+
+    @Bean
+    public SimpleHostRoutingFilter simpleHostRoutingFilter() {
+        return new SimpleHostRoutingFilter();
     }
 
     // post filters

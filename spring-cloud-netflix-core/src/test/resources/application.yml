@@ -17,5 +17,5 @@ zuul:
   #mapping: /api
   #strip-mapping: true
   route:
-    testclient: /testing123
-    #stores: /
+    testclient: /testing123/**
+    http://localhost:8081: /stores/**

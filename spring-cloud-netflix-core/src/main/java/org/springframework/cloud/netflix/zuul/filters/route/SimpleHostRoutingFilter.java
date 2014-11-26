@@ -1,22 +1,39 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
-import com.netflix.zuul.context.Debug;
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.util.HTTPRequestUtils;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.GZIPInputStream;
+
+import javax.annotation.Nullable;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.params.ClientPNames;
@@ -37,23 +54,16 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.zip.GZIPInputStream;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.netflix.config.DynamicIntProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.constants.ZuulConstants;
+import com.netflix.zuul.context.Debug;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
 
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
@@ -98,9 +108,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				}
 			}
 		}, 30000, 5000);
-	}
-
-	public SimpleHostRoutingFilter() {
 	}
 
 	private static final ClientConnectionManager newConnectionManager() throws Exception {
@@ -195,15 +202,16 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	public Object run() {
-		HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
+		RequestContext context = RequestContext.getCurrentContext();
+		HttpServletRequest request = context.getRequest();
 		Header[] headers = buildZuulRequestHeaders(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
 		HttpClient httpclient = CLIENT.get();
 
 		String uri = request.getRequestURI();
-		if (RequestContext.getCurrentContext().get("requestURI") != null) {
-			uri = (String) RequestContext.getCurrentContext().get("requestURI");
+		if (context.get("requestURI") != null) {
+			uri = (String) context.get("requestURI");
 		}
 
 		try {
@@ -212,10 +220,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			setResponse(response);
 		}
 		catch (Exception e) {
-			if (Debug.debugRequest()) {
-				Debug.addRequestDebug("ZUUL:: ERROR " + e.getMessage());
-			}
-			throw new RuntimeException(e);
+			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            context.set("error.exception", e);
 		}
 		return null;
 	}

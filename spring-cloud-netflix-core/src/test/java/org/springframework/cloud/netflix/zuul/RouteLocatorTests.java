@@ -41,28 +41,66 @@ public class RouteLocatorTests {
 	public void testGetRoutes() {
 		ZuulProperties properties = new ZuulProperties();
 		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
-		properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
 		properties.getRoute().put(ASERVICE, "/"+ASERVICE + "/**");
 
+		Map<String, String> routesMap = routeLocator.getRoutes();
+
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, ASERVICE);
+	}
+
+	@Test
+	public void testGetPhysicalRoutes() {
+		ZuulProperties properties = new ZuulProperties();
+		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+		properties.getRoute().put("http://" + ASERVICE, "/"+ASERVICE + "/**");
+
+		Map<String, String> routesMap = routeLocator.getRoutes();
+
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, "http://" + ASERVICE, ASERVICE);
+	}
+
+	@Test
+	public void testIgnoreRoutes() {
+		ZuulProperties properties = new ZuulProperties();
+		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+		properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
+
 		when(discovery.getServices()).thenReturn(
-				Lists.newArrayList(MYSERVICE, IGNOREDSERVICE));
+				Lists.newArrayList(IGNOREDSERVICE));
+
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
+		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
+	}
+
+	@Test
+	public void testAutoRoutes() {
+		ZuulProperties properties = new ZuulProperties();
+		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+
+		when(discovery.getServices()).thenReturn(
+				Lists.newArrayList(MYSERVICE));
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
-		assertMapping(routesMap, ASERVICE);
-
-		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
-		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
 	}
 
-	protected void assertMapping(Map<String, String> routesMap, String expectedServiceId) {
-		String mapping = getMapping(expectedServiceId);
-		String serviceId = routesMap.get(mapping);
-		assertEquals("routesMap had wrong value for " + mapping, expectedServiceId,
-				serviceId);
+	protected void assertMapping(Map<String, String> routesMap, String serviceId) {
+		assertMapping(routesMap, serviceId, serviceId);
+	}
+	
+	protected void assertMapping(Map<String, String> routesMap, String expectedRoute, String key) {
+		String mapping = getMapping(key);
+		String route = routesMap.get(mapping);
+		assertEquals("routesMap had wrong value for " + mapping, expectedRoute,
+				route);
 	}
 
 	private String getMapping(String serviceId) {
