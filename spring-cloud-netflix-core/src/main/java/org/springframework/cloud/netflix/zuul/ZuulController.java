@@ -16,6 +16,7 @@ public class ZuulController extends ServletWrappingController {
     public ZuulController() {
         setServletClass(ZuulServlet.class);
         setServletName("zuul");
+        setSupportedMethods((String[])null); // Allow all
     }
 
     @Override
