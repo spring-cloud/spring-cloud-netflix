@@ -1,11 +1,16 @@
 package org.springframework.cloud.netflix.zuul;
 
+import java.util.Map;
+
+import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.http.ZuulServlet;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
@@ -19,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Spencer Gibb
  */
 @Configuration
-@EnableConfigurationProperties()
+@EnableConfigurationProperties(ZuulProperties.class)
 @ConditionalOnClass(ZuulServlet.class)
 @ConditionalOnExpression("${zuul.enabled:true}")
 public class ZuulConfiguration {
@@ -27,14 +32,18 @@ public class ZuulConfiguration {
     @Autowired(required=false)
     private TraceRepository traces;
 
-    @Bean
-    public ZuulProperties zuulProperties() {
-        return new ZuulProperties();
-    }
+    @Autowired
+    private DiscoveryClient discovery;
+
+    @Autowired
+    private ZuulProperties zuulProperties;
+
+    @Autowired
+    private Map<String, ZuulFilter> filters;
 
     @Bean
     public RouteLocator routes(){
-        return new RouteLocator();
+        return new RouteLocator(discovery, zuulProperties);
     }
 
     @Bean
@@ -44,12 +53,12 @@ public class ZuulConfiguration {
 
     @Bean
     public ZuulHandlerMapping zuulHandlerMapping() {
-        return new ZuulHandlerMapping();
+        return new ZuulHandlerMapping(routes(), zuulController(), zuulProperties);
     }
 
     @Bean
     public FilterInitializer zuulFilterInitializer() {
-        return new FilterInitializer();
+        return new FilterInitializer(filters);
     }
 
     // pre filters

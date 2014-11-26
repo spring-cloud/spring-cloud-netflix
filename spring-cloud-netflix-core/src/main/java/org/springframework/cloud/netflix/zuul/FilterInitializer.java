@@ -7,7 +7,6 @@ import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
@@ -23,10 +22,13 @@ public class FilterInitializer implements ServletContextListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterInitializer.class);
 
-    @Autowired
     private Map<String, ZuulFilter> filters;
 
-    @Override
+	public FilterInitializer(Map<String, ZuulFilter> filters) {
+		this.filters = filters;
+	}
+
+	@Override
     public void contextInitialized(ServletContextEvent sce) {
 
         LOGGER.info("Starting filter initializer context listener");

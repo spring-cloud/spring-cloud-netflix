@@ -20,52 +20,53 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class RouteLocatorTests {
 
-    public static final String IGNOREDSERVICE = "ignoredservice";
-    public static final String ASERVICE = "aservice";
-    public static final String MYSERVICE = "myservice";
-    @Mock
-    ConfigurableEnvironment env;
+	public static final String IGNOREDSERVICE = "ignoredservice";
+	public static final String ASERVICE = "aservice";
+	public static final String MYSERVICE = "myservice";
+	@Mock
+	ConfigurableEnvironment env;
 
-    @Mock
-    DiscoveryClient discovery;
+	@Mock
+	DiscoveryClient discovery;
 
+	@Before
+	public void init() {
+		initMocks(this);
+	}
 
-    @Before
-    public void init() {
-        initMocks(this);
-    }
+	@Test
+	public void testGetRoutes() {
+		ZuulProperties properties = new ZuulProperties();
+		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+		properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
+		routeLocator.setEnvironment(this.env);
 
-    @Test
-    public void testGetRoutes() {
-        RouteLocator routeLocator = new RouteLocator();
-        routeLocator.properties = new ZuulProperties();
-        routeLocator.properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
-        routeLocator.discovery = this.discovery;
-        routeLocator.env = this.env;
+		MutablePropertySources propertySources = new MutablePropertySources();
+		propertySources.addFirst(new MockPropertySource().withProperty("zuul.route."
+				+ ASERVICE, getMapping(ASERVICE)));
+		when(env.getPropertySources()).thenReturn(propertySources);
+		when(discovery.getServices()).thenReturn(
+				Lists.newArrayList(MYSERVICE, IGNOREDSERVICE));
 
-        MutablePropertySources propertySources = new MutablePropertySources();
-        propertySources.addFirst(new MockPropertySource().withProperty("zuul.route."+ ASERVICE, getMapping(ASERVICE)));
-        when(env.getPropertySources()).thenReturn(propertySources);
-        when(discovery.getServices()).thenReturn(Lists.newArrayList(MYSERVICE, IGNOREDSERVICE));
+		Map<String, String> routesMap = routeLocator.getRoutes();
 
-        Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, MYSERVICE);
+		assertMapping(routesMap, ASERVICE);
 
-        assertNotNull("routesMap was null", routesMap);
-        assertFalse("routesMap was empty", routesMap.isEmpty());
-        assertMapping(routesMap, MYSERVICE);
-        assertMapping(routesMap, ASERVICE);
+		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
+		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
+	}
 
-        String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
-        assertNull("routes did not ignore "+IGNOREDSERVICE, serviceId);
-    }
+	protected void assertMapping(Map<String, String> routesMap, String expectedServiceId) {
+		String mapping = getMapping(expectedServiceId);
+		String serviceId = routesMap.get(mapping);
+		assertEquals("routesMap had wrong value for " + mapping, expectedServiceId,
+				serviceId);
+	}
 
-    protected void assertMapping(Map<String, String> routesMap, String expectedServiceId) {
-        String mapping = getMapping(expectedServiceId);
-        String serviceId = routesMap.get(mapping);
-        assertEquals("routesMap had wrong value for "+mapping, expectedServiceId, serviceId);
-    }
-
-    private String getMapping(String serviceId) {
-        return "/"+ serviceId +"/**";
-    }
+	private String getMapping(String serviceId) {
+		return "/" + serviceId + "/**";
+	}
 }

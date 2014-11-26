@@ -1,40 +1,53 @@
 package org.springframework.cloud.netflix.zuul;
 
+import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.boot.bind.PropertySourceUtils;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.*;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Spencer Gibb
  */
 @Slf4j
-public class RouteLocator implements ApplicationListener<EnvironmentChangeEvent> {
+public class RouteLocator implements ApplicationListener<EnvironmentChangeEvent>, EnvironmentAware {
 
     public static final String DEFAULT_ROUTE = "/";
 
-    @Autowired
-    protected ConfigurableEnvironment env;
+    private ConfigurableEnvironment env = new StandardEnvironment();
 
-    @Autowired
-    protected DiscoveryClient discovery;
+    private DiscoveryClient discovery;
 
-    @Autowired
-    protected ZuulProperties properties;
+    private ZuulProperties properties;
 
     private Field propertySourcesField;
     private AtomicReference<LinkedHashMap<String, String>> routes = new AtomicReference<>();
+    
+    @Override
+    public void setEnvironment(Environment environment) {
+    	env = (ConfigurableEnvironment) environment;
+    }
 
-    public RouteLocator() {
-        initField();
+    public RouteLocator(DiscoveryClient discovery, ZuulProperties properties) {
+        this.discovery = discovery;
+		this.properties = properties;
+		initField();
     }
 
     private void initField() {

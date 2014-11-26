@@ -1,36 +1,30 @@
 package org.springframework.cloud.netflix.zuul;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
-import javax.annotation.PostConstruct;
-import java.util.Map;
-
 /**
  * @author Spencer Gibb
  */
-@Slf4j
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements ApplicationListener<InstanceRegisteredEvent> {
 
-    @Autowired
-    protected RouteLocator routeLocator;
+    private RouteLocator routeLocator;
+
+    private ZuulController zuul;
+
+    private ZuulProperties properties;
 
     @Autowired
-    protected ZuulController zuul;
-
-    @Autowired
-    protected ZuulProperties properties;
-
-    public ZuulHandlerMapping() {
-        setOrder(-200);
-    }
-
-    @PostConstruct
-    public void init() {
+    public ZuulHandlerMapping(RouteLocator routeLocator, ZuulController zuul, ZuulProperties properties) {
+        this.routeLocator = routeLocator;
+		this.zuul = zuul;
+		this.properties = properties;
+		setOrder(-200);
     }
 
     @Override
