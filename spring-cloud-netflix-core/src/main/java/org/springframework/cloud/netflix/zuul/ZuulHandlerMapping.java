@@ -2,8 +2,8 @@ package org.springframework.cloud.netflix.zuul;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Spencer Gibb
  */
 @Slf4j
-public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements ApplicationListener<ContextRefreshedEvent> {
+public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements ApplicationListener<InstanceRegisteredEvent> {
 
     @Autowired
     protected RouteLocator routeLocator;
@@ -34,7 +34,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements App
     }
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+    public void onApplicationEvent(InstanceRegisteredEvent event) {
         registerHandlers(routeLocator.getRoutes());
     }
 

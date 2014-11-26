@@ -1,6 +1,5 @@
 package org.springframework.cloud.netflix.zuul.sample;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.IntegrationTest;
@@ -14,8 +13,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @IntegrationTest("server.port=0")
 public class ZuulProxyApplicationTests {
 
-    @Ignore
-	@Test
+    @Test
 	public void contextLoads() {
 	}
 

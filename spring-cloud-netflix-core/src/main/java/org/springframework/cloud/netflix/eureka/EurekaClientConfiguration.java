@@ -27,6 +27,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +68,9 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
     @Autowired(required = false)
     private HealthCheckHandler healthCheckHandler;
 
+    @Autowired
+    private ApplicationContext context;
+
 	@PreDestroy
 	public void close() {
 		logger.info("Removing application {} from eureka", instanceConfig.getAppname());
@@ -90,6 +95,7 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
             if (healthCheckHandler != null) {
                 DiscoveryManager.getInstance().getDiscoveryClient().registerHealthCheck(healthCheckHandler);
             }
+            context.publishEvent(new InstanceRegisteredEvent(this, instanceConfig));
             running = true;
         }
 	}
