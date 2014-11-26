@@ -28,6 +28,11 @@ public class SampleZuulProxyApplication {
         return "Deleted!";
     }
 
+    @RequestMapping(value="/local/self/{id}", method=RequestMethod.GET)
+    public String get() {
+        return "Gotten!";
+    }
+
 	@RequestMapping("/")
 	public String home() {
 		return "Hello world";
