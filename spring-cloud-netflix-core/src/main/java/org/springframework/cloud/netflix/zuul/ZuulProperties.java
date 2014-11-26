@@ -1,10 +1,13 @@
 package org.springframework.cloud.netflix.zuul;
 
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import lombok.Data;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Spencer Gibb
@@ -14,7 +17,7 @@ import java.util.List;
 public class ZuulProperties {
     private String mapping = "";
     private boolean stripMapping = false;
-    private String routePrefix = "zuul.route.";
+    private Map<String,String> route = new HashMap<String, String>();
     private boolean addProxyHeaders = true;
     private List<String> ignoredServices = Collections.emptyList();
 }
