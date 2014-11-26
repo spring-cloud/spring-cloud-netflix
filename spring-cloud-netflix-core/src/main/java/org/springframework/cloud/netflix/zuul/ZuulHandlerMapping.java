@@ -70,7 +70,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		}
 	}
 
-	@RequestMapping(value = "routes", method = RequestMethod.POST)
+	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
 	@ManagedOperation
 	public Map<String, String> reset() {
@@ -79,7 +79,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		return routes;
 	}
 
-	@RequestMapping(value = "routes", method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	@ManagedAttribute
 	public Map<String, String> getRoutes() {
@@ -88,7 +88,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 
 	@Override
 	public String getPath() {
-		return "/proxy";
+		return "/route";
 	}
 
 	@Override
