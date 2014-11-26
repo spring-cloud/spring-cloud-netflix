@@ -226,46 +226,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return null;
 	}
 
-	private InputStream debug(HttpClient httpclient, String verb, String uri,
-			HttpServletRequest request, Header[] headers, InputStream requestEntity)
-			throws Exception {
-
-		if (Debug.debugRequest()) {
-
-			Debug.addRequestDebug("ZUUL:: host="
-					+ RequestContext.getCurrentContext().getRouteHost());
-
-			for (Header header : headers) {
-				Debug.addRequestDebug(String.format("ZUUL::> %s  %s", header.getName(),
-						header.getValue()));
-			}
-
-			Debug.addRequestDebug(String.format(
-					"ZUUL:: > ${verb}  ${uri}?${query} HTTP/1.1", verb, uri,
-					request.getQueryString()));
-			if (requestEntity != null) {
-				requestEntity = debugRequestEntity(requestEntity);
-			}
-
-		}
-		return requestEntity;
-	}
-
-	private InputStream debugRequestEntity(InputStream inputStream) throws Exception {
-		if (Debug.debugRequestHeadersOnly())
-			return inputStream;
-		if (inputStream == null)
-			return null;
-		String entity = IOUtils.toString(inputStream);
-		Debug.addRequestDebug("ZUUL::> " + entity);
-		return new ByteArrayInputStream(entity.getBytes());
-	}
-
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
 			HttpServletRequest request, Header[] headers, InputStream requestEntity)
 			throws Exception {
-
-		requestEntity = debug(httpclient, verb, uri, request, headers, requestEntity);
 
 		HttpHost httpHost = getHttpHost();
 
