@@ -32,7 +32,7 @@ public class SampleZuulProxyApplicationTests {
 	private ZuulHandlerMapping mapping;
 
 	@Test
-	public void deleteOnSelf() {
+	public void deleteOnSelfViaSimpleHostRoutingFilter() {
 		routes.getRoutes().put("/self/**", "http://localhost:" + port + "/local");
 		mapping.registerHandlers(routes.getRoutes());
 		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + port + "/self/1",

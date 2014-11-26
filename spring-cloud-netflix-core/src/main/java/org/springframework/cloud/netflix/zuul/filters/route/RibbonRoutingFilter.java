@@ -74,6 +74,7 @@ public class RibbonRoutingFilter extends SpringFilter {
 
         getBean(RibbonClientPreprocessor.class).preprocess(serviceId);
 
+        //TODO: update to ribbon-rxnetty when available
 		RestClient restClient = getBean(SpringClientFactory.class).namedClient(serviceId, RestClient.class);
 
 		String uri = request.getRequestURI();
@@ -199,6 +200,10 @@ public class RibbonRoutingFilter extends SpringFilter {
 
 	private InputStream getRequestBody(HttpServletRequest request) {
 		InputStream requestEntity = null;
+        //ApacheHttpClient4Handler does not support body in delete requests
+        if (request.getMethod().equals("DELETE")) {
+            return null;
+        }
 		try {
 			requestEntity = (InputStream) RequestContext.getCurrentContext().get(
 					"requestEntity");
