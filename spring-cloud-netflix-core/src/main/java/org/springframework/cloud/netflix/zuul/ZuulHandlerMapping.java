@@ -88,7 +88,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 
 	@Override
 	public String getPath() {
-		return "/route";
+		return "/routes";
 	}
 
 	@Override
