@@ -1,9 +1,8 @@
-package org.springframework.cloud.netflix.zuul.sample;
+package org.springframework.cloud.netflix.zuul;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @EnableZuulProxy
 @EnableEurekaClient
-public class ZuulProxyApplication {
+public class SampleZuulProxyApplication {
 
     @RequestMapping("/testing123")
     public String testing123() {
@@ -35,7 +34,7 @@ public class ZuulProxyApplication {
 	}
 	
 	public static void main(String[] args) {
-		SpringApplication.run(ZuulProxyApplication.class, args);
+		SpringApplication.run(SampleZuulProxyApplication.class, args);
 	}
 
 }

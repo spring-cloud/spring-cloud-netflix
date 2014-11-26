@@ -46,7 +46,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		registerHandlers(routeLocator.getRoutes());
 	}
 
-	private void registerHandlers(Map<String, String> routes) {
+	protected void registerHandlers(Map<String, String> routes) {
 		if (routes.isEmpty()) {
 			logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
 		}
