@@ -53,6 +53,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -230,7 +231,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			HttpServletRequest request, Header[] headers, InputStream requestEntity)
 			throws Exception {
 
-		HttpHost httpHost = getHttpHost();
+		URL host = RequestContext.getCurrentContext().getRouteHost();
+		HttpHost httpHost = getHttpHost(host);
+		uri = StringUtils.cleanPath(host.getPath() + uri);
 
 		HttpRequest httpRequest;
 
@@ -279,12 +282,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return (query != null) ? "?" + query : "";
 	}
 
-	HttpHost getHttpHost() {
-		URL host = RequestContext.getCurrentContext().getRouteHost();
-
+	HttpHost getHttpHost(URL host) {
 		HttpHost httpHost = new HttpHost(host.getHost(), host.getPort(),
 				host.getProtocol());
-
 		return httpHost;
 	}
 
