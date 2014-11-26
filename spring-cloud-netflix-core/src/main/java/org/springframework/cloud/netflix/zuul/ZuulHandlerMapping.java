@@ -74,7 +74,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 	@ResponseBody
 	@ManagedOperation
 	public Map<String, String> reset() {
-		Map<String, String> routes = routeLocator.getRoutes();
+		Map<String, String> routes = routeLocator.resetRoutes();
 		registerHandlers(routes);
 		return routes;
 	}

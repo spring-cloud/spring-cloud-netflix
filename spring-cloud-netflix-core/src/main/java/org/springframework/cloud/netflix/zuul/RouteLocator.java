@@ -45,7 +45,7 @@ public class RouteLocator implements ApplicationListener<EnvironmentChangeEvent>
 	public void onApplicationEvent(EnvironmentChangeEvent event) {
 		for (String key : event.getKeys()) {
 			if (key.startsWith(properties.getMapping())) {
-				routes.set(locateRoutes());
+				resetRoutes();
 				return;
 			}
 		}
@@ -53,13 +53,20 @@ public class RouteLocator implements ApplicationListener<EnvironmentChangeEvent>
 
 	public Map<String, String> getRoutes() {
 		if (routes.get() == null) {
-			routes.set(locateRoutes());
+			return resetRoutes();
 		}
 
 		return routes.get();
 	}
 
-	protected LinkedHashMap<String, String> locateRoutes() {
+    //access so ZuulHandlerMapping actuator can reset it's mappings
+    /*package*/ Map<String, String> resetRoutes() {
+        LinkedHashMap<String, String> newValue = locateRoutes();
+        routes.set(newValue);
+        return newValue;
+    }
+
+    protected LinkedHashMap<String, String> locateRoutes() {
 		LinkedHashMap<String, String> routesMap = new LinkedHashMap<>();
 
 		// Add routes for discovery services by default

@@ -20,9 +20,3 @@ endpoints:
   health:
     sensitive: false
 
-zuul:
-  proxy:
-    route:
-      stores: /stores
-      customers: /customers
-
