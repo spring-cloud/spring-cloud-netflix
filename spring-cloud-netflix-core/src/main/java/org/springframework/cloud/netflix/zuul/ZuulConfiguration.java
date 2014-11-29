@@ -30,77 +30,82 @@ import com.netflix.zuul.http.ZuulServlet;
 @ConditionalOnExpression("${zuul.enabled:true}")
 public class ZuulConfiguration {
 
-    @Autowired(required=false)
-    private TraceRepository traces;
+	@Autowired(required = false)
+	private TraceRepository traces;
 
-    @Autowired
-    private DiscoveryClient discovery;
+	@Autowired
+	private DiscoveryClient discovery;
 
-    @Autowired
-    private ZuulProperties zuulProperties;
+	@Autowired
+	private ZuulProperties zuulProperties;
 
-    @Autowired
-    private Map<String, ZuulFilter> filters;
+	@Bean
+	public RouteLocator routes() {
+		return new RouteLocator(discovery, zuulProperties);
+	}
 
-    @Bean
-    public RouteLocator routes(){
-        return new RouteLocator(discovery, zuulProperties);
-    }
+	@Bean
+	public ZuulController zuulController() {
+		return new ZuulController();
+	}
 
-    @Bean
-    public ZuulController zuulController() {
-        return new ZuulController();
-    }
+	@Bean
+	public ZuulHandlerMapping zuulHandlerMapping() {
+		return new ZuulHandlerMapping(routes(), zuulController(), zuulProperties);
+	}
 
-    @Bean
-    public ZuulHandlerMapping zuulHandlerMapping() {
-        return new ZuulHandlerMapping(routes(), zuulController(), zuulProperties);
-    }
+	@Configuration
+	protected static class ZuulFilterConfiguration {
 
-    @Bean
-    public FilterInitializer zuulFilterInitializer() {
-        return new FilterInitializer(filters);
-    }
+		@Autowired
+		private Map<String, ZuulFilter> filters;
 
-    // pre filters
-    @Bean
-    public DebugFilter debugFilter() {
-        return new DebugFilter();
-    }
+		@Bean
+		public FilterInitializer zuulFilterInitializer() {
+			return new FilterInitializer(filters);
+		}
 
-    @Bean
-    public PreDecorationFilter preDecorationFilter() {
-        return new PreDecorationFilter(routes(), zuulProperties);
-    }
+	}
 
-    @Bean
-    public Servlet30WrapperFilter servlet30WrapperFilter() {
-        return new Servlet30WrapperFilter();
-    }
+	// pre filters
+	@Bean
+	public DebugFilter debugFilter() {
+		return new DebugFilter();
+	}
 
-    // route filters
-    @Bean
-    public RibbonRoutingFilter ribbonRoutingFilter() {
-        RibbonRoutingFilter filter = new RibbonRoutingFilter();
-        if (traces!=null) {
-            filter.setTraces(traces);
-        }
-        return filter;
-    }
+	@Bean
+	public PreDecorationFilter preDecorationFilter() {
+		return new PreDecorationFilter(routes(), zuulProperties);
+	}
 
-    @Bean
-    public SimpleHostRoutingFilter simpleHostRoutingFilter() {
-        return new SimpleHostRoutingFilter();
-    }
+	@Bean
+	public Servlet30WrapperFilter servlet30WrapperFilter() {
+		return new Servlet30WrapperFilter();
+	}
 
-    // post filters
-    @Bean
-    public SendResponseFilter sendResponseFilter() {
-        return new SendResponseFilter();
-    }
+	// route filters
+	@Bean
+	public RibbonRoutingFilter ribbonRoutingFilter() {
+		RibbonRoutingFilter filter = new RibbonRoutingFilter();
+		if (traces != null) {
+			filter.setTraces(traces);
+		}
+		return filter;
+	}
 
-    @Bean
-    public SendErrorFilter sendErrorFilter() {
-        return new SendErrorFilter();
-    }
+	@Bean
+	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
+		return new SimpleHostRoutingFilter();
+	}
+
+	// post filters
+	@Bean
+	public SendResponseFilter sendResponseFilter() {
+		return new SendResponseFilter();
+	}
+
+	@Bean
+	public SendErrorFilter sendErrorFilter() {
+		return new SendErrorFilter();
+	}
 }

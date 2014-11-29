@@ -38,6 +38,7 @@ public class SampleZuulProxyApplicationTests {
 		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + port + "/self/1",
 				HttpMethod.DELETE, new HttpEntity<Void>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Deleted!", result.getBody());
 	}
 
 }

@@ -6,6 +6,9 @@ spring:
 eureka:
   server:
     enabled: false
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
 #error:
 #  path: /myerror
 management:
