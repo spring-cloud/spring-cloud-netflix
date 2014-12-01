@@ -41,8 +41,6 @@ public class FeignConfigurer {
     Client ribbonClient;
 
     protected Feign.Builder feign() {
-        //ConfigurationManager.getConfigInstance().setProperty("exampleBackend.ribbon.listOfServers", "localhost:7080");
-        //exampleBackend.ribbon.NIWSServerListClassName=my.package.MyServerList
         return Feign.builder()
                 .logger(logger)
                 .encoder(encoder)

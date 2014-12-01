@@ -7,9 +7,6 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
-
 import com.google.common.base.Throwables;
 import com.netflix.client.ClientException;
 import com.netflix.client.ClientFactory;
@@ -22,9 +19,10 @@ import feign.Request;
 import feign.Response;
 
 /**
- * @author: Julien Roy
+ * @author Julien Roy
+ * @author Spencer Gibb
  */
-public class RibbonLoadBalancerClient implements Client {
+public class FeignRibbonClient implements Client {
 
     private Client defaultClient = new Default(
         new Lazy<SSLSocketFactory>() {
@@ -61,5 +59,9 @@ public class RibbonLoadBalancerClient implements Client {
         IClientConfig config = ClientFactory.getNamedConfig(clientName);
         ILoadBalancer lb = ClientFactory.getNamedLoadBalancer(clientName);
         return new RibbonLoadBalancer(defaultClient, lb, config);
+    }
+
+    public void setDefaultClient(Client defaultClient) {
+        this.defaultClient = defaultClient;
     }
 }
