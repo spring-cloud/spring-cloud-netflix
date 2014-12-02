@@ -287,6 +287,27 @@ the registrations amongst themselves. If the peers are physically
 separated (inside a data centre or between multiple data centres) then
 the system can in principle survive split-brain type failures.
 
+=== Security
+
+If you add Spring Security to the classpath of your Eureka Server it
+will be secure by default (per the usual Spring Boot behaviour) with
+HTTP basic authentication. Obviously you should run the server over
+TLS in production, either using a front end load balancer or by
+terminating the secure socket layer in the Eureka Server itself (as
+described in the Spring Boot user guide).
+
+With TLS and HTTP basic authentication the server is secure, but it is
+recommended that the password be stored centrally (e.g. in the Spring
+Cloud Config Server) and encrypted (e.g. using Spring Cloud Config).
+
+The user dashboard is also protected by the same HTTP basic
+credentials by default. You can change that (and maybe add a login
+screen or a single sign on) by just adding an additional
+`WebSecurityConfigurer` to your application context (just like a
+normal Spring Boot application). Spring Cloud Security has a
+convenient declarative-style OAuth2 single sign on feature, which
+might be useful if your system has an OAuth2 Authorization Server.
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
