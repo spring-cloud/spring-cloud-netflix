@@ -10,3 +10,6 @@ org.springframework.cloud.netflix.servo.ServoMetricsAutoConfiguration
 
 org.springframework.cloud.bootstrap.BootstrapConfiguration=\
 org.springframework.cloud.netflix.config.DiscoveryClientConfigServiceBootstrapConfiguration
+
+org.springframework.cloud.client.discovery.EnableDiscoveryClient=\
+org.springframework.cloud.netflix.eureka.EurekaClientConfiguration

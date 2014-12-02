@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(EurekaClientConfiguration.class)
+@Deprecated
 public @interface EnableEurekaClient {
 
 }
