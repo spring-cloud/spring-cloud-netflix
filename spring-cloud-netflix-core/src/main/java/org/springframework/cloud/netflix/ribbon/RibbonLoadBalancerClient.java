@@ -1,17 +1,20 @@
 package org.springframework.cloud.netflix.ribbon;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.base.Throwables;
-import com.netflix.loadbalancer.*;
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerStats;
 import com.netflix.servo.monitor.Stopwatch;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Spencer Gibb
@@ -23,8 +26,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
     private SpringClientFactory clientFactory;
 
-	private Map<String, ILoadBalancer> balancers = new HashMap<>();
-    private Map<String, RibbonLoadBalancerContext> contexts = new HashMap<>();
+	private Map<String, ILoadBalancer> balancers = new ConcurrentHashMap<>();
+    private Map<String, RibbonLoadBalancerContext> contexts = new ConcurrentHashMap<>();
 
 	public RibbonLoadBalancerClient(RibbonClientPreprocessor ribbonClientPreprocessor, SpringClientFactory clientFactory, List<BaseLoadBalancer> balancers) {
 		this.ribbonClientPreprocessor = ribbonClientPreprocessor;
