@@ -6,7 +6,7 @@ import com.netflix.turbine.plugins.PluginsFactory;
 import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ import org.springframework.core.Ordered;
  */
 @Configuration
 @EnableConfigurationProperties
-@EnableEurekaClient
+@EnableDiscoveryClient
 public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
     @Bean
@@ -49,7 +49,7 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
     @Override
     public void start() {
-        //TODO: figure out ordering, so this is already run by EurekaClientConfiguration
+        //TODO: figure out ordering, so this is already run by EurekaDiscoveryClientConfiguration
         //DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
         PluginsFactory.setClusterMonitorFactory(new SpringAggregatorFactory());
         PluginsFactory.setInstanceDiscovery(instanceDiscovery());

@@ -25,7 +25,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(HystrixConfiguration.class)
+@Import(HystrixCircuitBreakerConfiguration.class)
 @Deprecated
 public @interface EnableHystrix {
 }

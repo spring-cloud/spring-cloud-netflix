@@ -12,7 +12,7 @@ org.springframework.cloud.bootstrap.BootstrapConfiguration=\
 org.springframework.cloud.netflix.config.DiscoveryClientConfigServiceBootstrapConfiguration
 
 org.springframework.cloud.client.discovery.EnableDiscoveryClient=\
-org.springframework.cloud.netflix.eureka.EurekaClientConfiguration
+org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration
 
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
-org.springframework.cloud.netflix.hystrix.HystrixConfiguration
+org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration

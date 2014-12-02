@@ -46,7 +46,7 @@ import java.util.Set;
  * @author Christian Dupuis
  */
 @Configuration
-public class HystrixConfiguration {
+public class HystrixCircuitBreakerConfiguration {
 
 	@Bean
 	public HystrixCommandAspect hystrixCommandAspect() {

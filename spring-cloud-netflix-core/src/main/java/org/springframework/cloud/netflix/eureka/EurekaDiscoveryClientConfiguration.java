@@ -54,10 +54,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
-public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
+public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Ordered {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(EurekaClientConfiguration.class);
+			.getLogger(EurekaDiscoveryClientConfiguration.class);
 
 	private AtomicBoolean running = new AtomicBoolean(false);
 
@@ -162,9 +162,9 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 			@Override
 			public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
 				// TODO: take SSL into account when Spring Boot 1.2 is available
-				EurekaClientConfiguration.this.port.compareAndSet(0, event.getEmbeddedServletContainer()
-						.getPort());
-				EurekaClientConfiguration.this.start();
+				EurekaDiscoveryClientConfiguration.this.port.compareAndSet(0, event.getEmbeddedServletContainer()
+                        .getPort());
+				EurekaDiscoveryClientConfiguration.this.start();
 			}
 		};
 	}
