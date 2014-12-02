@@ -766,31 +766,6 @@ separated (inside a data centre or between multiple data centres) then
 the system can in principle survive split-brain type failures.</p>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_security">Security</h3>
-<div class="paragraph">
-<p>If you add Spring Security to the classpath of your Eureka Server it
-will be secure by default (per the usual Spring Boot behaviour) with
-HTTP basic authentication. Obviously you should run the server over
-TLS in production, either using a front end load balancer or by
-terminating the secure socket layer in the Eureka Server itself (as
-described in the Spring Boot user guide).</p>
-</div>
-<div class="paragraph">
-<p>With TLS and HTTP basic authentication the server is secure, but it is
-recommended that the password be stored centrally (e.g. in the Spring
-Cloud Config Server) and encrypted (e.g. using Spring Cloud Config).</p>
-</div>
-<div class="paragraph">
-<p>The user dashboard is also protected by the same HTTP basic
-credentials by default. You can change that (and maybe add a login
-screen or a single sign on) by just adding an additional
-<code>WebSecurityConfigurer</code> to your application context (just like a
-normal Spring Boot application). Spring Cloud Security has a
-convenient declarative-style OAuth2 single sign on feature, which
-might be useful if your system has an OAuth2 Authorization Server.</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -1101,7 +1076,7 @@ public class Application extends FeignConfigurer {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-02 12:34:54 UTC
+Last updated 2014-12-02 20:51:32 UTC
 </div>
 </div>
 </body>
