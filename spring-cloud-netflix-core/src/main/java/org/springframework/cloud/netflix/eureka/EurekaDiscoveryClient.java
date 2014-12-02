@@ -96,4 +96,24 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
             }
         }));
     }
+
+    @Override
+    public List<ServiceInstance> getAllInstances() {
+        Applications applications = discovery.getApplications();
+        if (applications == null) {
+            return Collections.emptyList();
+        }
+        Iterable<ServiceInstance> instances = transform(concat(transform(applications.getRegisteredApplications(), new Function<Application, List<InstanceInfo>>() {
+            public List<InstanceInfo> apply(@Nullable Application app) {
+                return app.getInstances();
+            }
+        })), new Function<InstanceInfo, ServiceInstance>() {
+            @Nullable
+            @Override
+            public ServiceInstance apply(@Nullable InstanceInfo info) {
+                return new EurekaServiceInstance(info);
+            }
+        });
+        return Lists.newArrayList(instances);
+    }
 }

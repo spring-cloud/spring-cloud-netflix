@@ -16,12 +16,11 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.Hystrix;
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,26 +33,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.hystrix.Hystrix;
-import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Spencer Gibb
  * @author Christian Dupuis
  */
 @Configuration
-public class HystrixConfiguration implements ImportAware {
-
-	private AnnotationAttributes enableHystrix;
+public class HystrixConfiguration {
 
 	@Bean
 	public HystrixCommandAspect hystrixCommandAspect() {
@@ -75,16 +68,6 @@ public class HystrixConfiguration implements ImportAware {
 			return new HystrixStreamEndpoint();
 		}
 
-	}
-
-	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		this.enableHystrix = AnnotationAttributes.fromMap(importMetadata
-				.getAnnotationAttributes(EnableHystrix.class.getName(), false));
-		Assert.notNull(
-				this.enableHystrix,
-				"@EnableHystrix is not present on importing class "
-						+ importMetadata.getClassName());
 	}
 
 	@Configuration

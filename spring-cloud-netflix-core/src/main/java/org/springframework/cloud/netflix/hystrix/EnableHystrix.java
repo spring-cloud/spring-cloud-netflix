@@ -26,5 +26,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(HystrixConfiguration.class)
+@Deprecated
 public @interface EnableHystrix {
 }

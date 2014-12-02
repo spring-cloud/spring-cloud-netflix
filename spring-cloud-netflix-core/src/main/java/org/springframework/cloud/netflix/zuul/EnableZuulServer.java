@@ -1,7 +1,7 @@
 package org.springframework.cloud.netflix.zuul;
 
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -10,8 +10,8 @@ import java.lang.annotation.*;
  * @author Spencer Gibb
  * @deprecated @see org.springframework.cloud.netflix.zuul.EnableZuulProxy
  */
-@EnableHystrix
-@EnableEurekaClient
+@EnableCircuitBreaker
+@EnableDiscoveryClient
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
