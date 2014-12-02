@@ -43,6 +43,9 @@ import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author Dave Syer
  *
@@ -56,11 +59,11 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	private static final Logger logger = LoggerFactory
 			.getLogger(EurekaClientConfiguration.class);
 
-	private boolean running;
+	private AtomicBoolean running = new AtomicBoolean(false);
 
 	private int order = 0;
 
-	private int port = 0;
+	private AtomicInteger port = new AtomicInteger(0);
 
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
@@ -80,12 +83,12 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 	@Override
 	public void start() {
         //only set the port if the nonSecurePort is 0 and this.port != 0
-		if (port != 0 && instanceConfig.getNonSecurePort() == 0) {
-			instanceConfig.setNonSecurePort(port);
+		if (port.get() != 0 && instanceConfig.getNonSecurePort() == 0) {
+			instanceConfig.setNonSecurePort(port.get());
         }
         //only initialize if nonSecurePort is greater than 0 and it isn't already running
         //because of containerPortInitializer below
-        if (!running && instanceConfig.getNonSecurePort() > 0) {
+        if (!running.get() && instanceConfig.getNonSecurePort() > 0) {
             discoveryManagerIntitializer().init();
 
             logger.info("Registering application {} with eureka with status {}",
@@ -96,7 +99,7 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
                 DiscoveryManager.getInstance().getDiscoveryClient().registerHealthCheck(healthCheckHandler);
             }
             context.publishEvent(new InstanceRegisteredEvent(this, instanceConfig));
-            running = true;
+            running.set(true);
         }
 	}
 
@@ -105,12 +108,12 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 		logger.info("Unregistering application {} with eureka with status OUT_OF_SERVICE",
 				instanceConfig.getAppname());
 		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.OUT_OF_SERVICE);
-		running = false;
+		running.set(false);
 	}
 
 	@Override
 	public boolean isRunning() {
-		return running;
+		return running.get();
 	}
 
 	@Override
@@ -159,8 +162,8 @@ public class EurekaClientConfiguration implements SmartLifecycle, Ordered {
 			@Override
 			public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
 				// TODO: take SSL into account when Spring Boot 1.2 is available
-				EurekaClientConfiguration.this.port = event.getEmbeddedServletContainer()
-						.getPort();
+				EurekaClientConfiguration.this.port.compareAndSet(0, event.getEmbeddedServletContainer()
+						.getPort());
 				EurekaClientConfiguration.this.start();
 			}
 		};
