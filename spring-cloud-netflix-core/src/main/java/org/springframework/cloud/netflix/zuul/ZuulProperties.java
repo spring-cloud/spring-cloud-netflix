@@ -15,9 +15,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("zuul")
 public class ZuulProperties {
-    private String mapping = "";
-    private boolean stripMapping = false;
-    private Map<String,String> route = new HashMap<String, String>();
+    private String prefix = "";
+    private boolean stripPrefix = false;
+    private Map<String,String> routes = new HashMap<String, String>();
     private boolean addProxyHeaders = true;
     private List<String> ignoredServices = Collections.emptyList();
 }

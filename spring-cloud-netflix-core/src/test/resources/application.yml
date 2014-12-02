@@ -17,8 +17,8 @@ endpoints:
   health:
     sensitive: false
 zuul:
-  #mapping: /api
-  #strip-mapping: true
-  route:
+  #prefix: /api
+  #strip-prefix: true
+  routes:
     testclient: /testing123/**
     http://localhost:8081: /stores/**

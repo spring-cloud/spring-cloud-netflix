@@ -57,10 +57,10 @@ public class PreDecorationFilter extends ZuulFilter {
 
 		String requestURI = ctx.getRequest().getRequestURI();
 
-		String proxyMapping = properties.getMapping();
+		String proxyMapping = properties.getPrefix();
 
 		final String uriPart;
-		if (StringUtils.hasText(proxyMapping) && properties.isStripMapping()
+		if (StringUtils.hasText(proxyMapping) && properties.isStripPrefix()
 				&& requestURI.startsWith(proxyMapping)) {
 			// TODO: better strategy?
 			uriPart = requestURI.substring(proxyMapping.length());

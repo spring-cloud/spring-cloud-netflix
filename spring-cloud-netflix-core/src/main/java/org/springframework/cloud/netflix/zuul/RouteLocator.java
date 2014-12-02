@@ -44,7 +44,7 @@ public class RouteLocator implements ApplicationListener<EnvironmentChangeEvent>
 	@Override
 	public void onApplicationEvent(EnvironmentChangeEvent event) {
 		for (String key : event.getKeys()) {
-			if (key.startsWith(properties.getMapping())) {
+			if (key.startsWith("zuul.route")) {
 				resetRoutes();
 				return;
 			}
@@ -90,7 +90,7 @@ public class RouteLocator implements ApplicationListener<EnvironmentChangeEvent>
 	}
 
 	protected void addConfiguredRoutes(Map<String, String> routes) {
-		Map<String, String> routeEntries = properties.getRoute();
+		Map<String, String> routeEntries = properties.getRoutes();
 		for (Map.Entry<String, String> entry : routeEntries.entrySet()) {
 			String serviceId = entry.getKey();
 			String route = entry.getValue()	;

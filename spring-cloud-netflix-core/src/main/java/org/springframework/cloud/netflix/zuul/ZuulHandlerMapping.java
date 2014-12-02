@@ -58,8 +58,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 					url = "/" + url;
 				}
 
-				if (StringUtils.hasText(properties.getMapping())) {
-					url = properties.getMapping() + url;
+				if (StringUtils.hasText(properties.getPrefix())) {
+					url = properties.getPrefix() + url;
 					if (!url.startsWith("/")) {
 						url = "/" + url;
 					}

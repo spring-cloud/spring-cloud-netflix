@@ -41,7 +41,22 @@ public class RouteLocatorTests {
 	public void testGetRoutes() {
 		ZuulProperties properties = new ZuulProperties();
 		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
-		properties.getRoute().put(ASERVICE, "/"+ASERVICE + "/**");
+		properties.getRoutes().put(ASERVICE, "/"+ASERVICE + "/**");
+
+		Map<String, String> routesMap = routeLocator.getRoutes();
+
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, ASERVICE);
+	}
+
+	@Test
+	public void testGetRoutesWithMapping() {
+		ZuulProperties properties = new ZuulProperties();
+		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+		properties.getRoutes().put(ASERVICE, "/"+ASERVICE + "/**");
+		// Prefix doesn't have any impact on the routes (it's used in the filter)
+		properties.setPrefix("/foo");
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
@@ -54,7 +69,7 @@ public class RouteLocatorTests {
 	public void testGetPhysicalRoutes() {
 		ZuulProperties properties = new ZuulProperties();
 		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
-		properties.getRoute().put("http://" + ASERVICE, "/"+ASERVICE + "/**");
+		properties.getRoutes().put("http://" + ASERVICE, "/"+ASERVICE + "/**");
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
