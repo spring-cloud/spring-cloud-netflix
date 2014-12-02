@@ -1,8 +1,5 @@
 package org.springframework.cloud.netflix.eureka.server;
 
-import javax.servlet.Filter;
-
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
@@ -44,12 +41,4 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		return bean;
 	}
 
-	@Bean
-	public FilterRegistrationBean traceFilterRegistration(
-			@Qualifier("webRequestLoggingFilter") Filter filter) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
-		bean.setFilter(filter);
-		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
-		return bean;
-	}
 }

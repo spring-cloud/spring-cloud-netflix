@@ -1,7 +1,9 @@
 package org.springframework.cloud.netflix.eureka.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -44,6 +46,29 @@ public class ApplicationTests {
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + port + "/eureka/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
+	}
+
+	@Test
+	public void metricFilterWorking() {
+		new TestRestTemplate().getForEntity("http://localhost:" + port + "/eureka/apps",
+				Map.class);
+		@SuppressWarnings("rawtypes")
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + port + "/metrics", Map.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertTrue(entity.getBody().toString().contains("counter.status.200.eureka.apps"));
+	}
+
+	@Test
+	public void traceFilterWorking() {
+		new TestRestTemplate().getForEntity("http://localhost:" + port + "/eureka/apps",
+				Map.class);
+		@SuppressWarnings("rawtypes")
+		ResponseEntity<List> entity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + port + "/trace", List.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		assertTrue(entity.getBody().toString().contains("[{timestamp"));
+		assertTrue(entity.getBody().toString().contains("/eureka/apps"));
 	}
 
 	@Test
