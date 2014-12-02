@@ -20,5 +20,9 @@ zuul:
   #prefix: /api
   #strip-prefix: true
   routes:
-    testclient: /testing123/**
-    http://localhost:8081: /stores/**
+    test: 
+      serviceId: testclient
+      path: /testing123/**
+    stores:
+      url: http://localhost:8081
+      path: /stores/**

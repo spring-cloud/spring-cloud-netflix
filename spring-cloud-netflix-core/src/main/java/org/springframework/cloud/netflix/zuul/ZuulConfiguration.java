@@ -40,8 +40,8 @@ public class ZuulConfiguration {
 	private ZuulProperties zuulProperties;
 
 	@Bean
-	public RouteLocator routes() {
-		return new RouteLocator(discovery, zuulProperties);
+	public ZuulRouteLocator routes() {
+		return new ZuulRouteLocator(discovery, zuulProperties);
 	}
 
 	@Bean

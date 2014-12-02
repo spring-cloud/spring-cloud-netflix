@@ -19,24 +19,37 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest("server.port=0")
+@IntegrationTest({ "server.port: 0",
+		"zuul.routes.other: /test/**=http://localhost:7777/local",
+		"zuul.routes.simple: /simple/**" })
 public class SampleZuulProxyApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
 
 	@Autowired
-	private RouteLocator routes;
+	private ZuulRouteLocator routes;
 
 	@Autowired
 	private ZuulHandlerMapping mapping;
 
 	@Test
+	public void bindRouteUsingPropertyEditor() {
+		assertEquals("http://localhost:7777/local", routes.getRoutes().get("/test/**"));
+	}
+
+	@Test
+	public void bindRouteUsingOnlyPath() {
+		assertEquals("simple", routes.getRoutes().get("/simple/**"));
+	}
+
+	@Test
 	public void deleteOnSelfViaSimpleHostRoutingFilter() {
 		routes.getRoutes().put("/self/**", "http://localhost:" + port + "/local");
-		mapping.registerHandlers(routes.getRoutes());
-		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + port + "/self/1",
-				HttpMethod.DELETE, new HttpEntity<Void>((Void) null), String.class);
+		mapping.registerHandlers(routes.getRoutes().keySet());
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + port + "/self/1", HttpMethod.DELETE,
+				new HttpEntity<Void>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Deleted!", result.getBody());
 	}

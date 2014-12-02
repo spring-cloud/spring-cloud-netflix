@@ -13,14 +13,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.google.common.collect.Lists;
 
 /**
  * @author Spencer Gibb
+ * @author Dave Syer
  */
-public class RouteLocatorTests {
+public class ZuulRouteLocatorTests {
 
 	public static final String IGNOREDSERVICE = "ignoredservice";
 	public static final String ASERVICE = "aservice";
@@ -40,8 +42,8 @@ public class RouteLocatorTests {
 	@Test
 	public void testGetRoutes() {
 		ZuulProperties properties = new ZuulProperties();
-		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
-		properties.getRoutes().put(ASERVICE, "/"+ASERVICE + "/**");
+		ZuulRouteLocator routeLocator = new ZuulRouteLocator(this.discovery, properties);
+		properties.getRoutes().put(ASERVICE, new ZuulRoute("/"+ASERVICE + "/**"));
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
@@ -53,8 +55,8 @@ public class RouteLocatorTests {
 	@Test
 	public void testGetRoutesWithMapping() {
 		ZuulProperties properties = new ZuulProperties();
-		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
-		properties.getRoutes().put(ASERVICE, "/"+ASERVICE + "/**");
+		ZuulRouteLocator routeLocator = new ZuulRouteLocator(this.discovery, properties);
+		properties.getRoutes().put(ASERVICE, new ZuulRoute("/"+ASERVICE + "/**", ASERVICE));
 		// Prefix doesn't have any impact on the routes (it's used in the filter)
 		properties.setPrefix("/foo");
 
@@ -68,8 +70,8 @@ public class RouteLocatorTests {
 	@Test
 	public void testGetPhysicalRoutes() {
 		ZuulProperties properties = new ZuulProperties();
-		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
-		properties.getRoutes().put("http://" + ASERVICE, "/"+ASERVICE + "/**");
+		ZuulRouteLocator routeLocator = new ZuulRouteLocator(this.discovery, properties);
+		properties.getRoutes().put(ASERVICE, new ZuulRoute("/"+ASERVICE + "/**", "http://" + ASERVICE));
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
@@ -81,7 +83,7 @@ public class RouteLocatorTests {
 	@Test
 	public void testIgnoreRoutes() {
 		ZuulProperties properties = new ZuulProperties();
-		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+		ZuulRouteLocator routeLocator = new ZuulRouteLocator(this.discovery, properties);
 		properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
 
 		when(discovery.getServices()).thenReturn(
@@ -95,7 +97,7 @@ public class RouteLocatorTests {
 	@Test
 	public void testAutoRoutes() {
 		ZuulProperties properties = new ZuulProperties();
-		RouteLocator routeLocator = new RouteLocator(this.discovery, properties);
+		ZuulRouteLocator routeLocator = new ZuulRouteLocator(this.discovery, properties);
 
 		when(discovery.getServices()).thenReturn(
 				Lists.newArrayList(MYSERVICE));
@@ -105,6 +107,22 @@ public class RouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
+	}
+
+	@Test
+	public void testAutoRoutesCanBeOverridden() {
+		ZuulProperties properties = new ZuulProperties();
+		properties.getRoutes().put(MYSERVICE, new ZuulRoute("/"+MYSERVICE + "/**", "http://example.com/" + MYSERVICE));
+		ZuulRouteLocator routeLocator = new ZuulRouteLocator(this.discovery, properties);
+
+		when(discovery.getServices()).thenReturn(
+				Lists.newArrayList(MYSERVICE));
+
+		Map<String, String> routesMap = routeLocator.getRoutes();
+
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);
 	}
 
 	protected void assertMapping(Map<String, String> routesMap, String serviceId) {

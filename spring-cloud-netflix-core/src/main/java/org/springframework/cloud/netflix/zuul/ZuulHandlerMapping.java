@@ -1,5 +1,6 @@
 package org.springframework.cloud.netflix.zuul;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +27,14 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		ApplicationListener<InstanceRegisteredEvent>, MvcEndpoint {
 
-	private RouteLocator routeLocator;
+	private ZuulRouteLocator routeLocator;
 
 	private ZuulController zuul;
 
 	private ZuulProperties properties;
 
 	@Autowired
-	public ZuulHandlerMapping(RouteLocator routeLocator, ZuulController zuul,
+	public ZuulHandlerMapping(ZuulRouteLocator routeLocator, ZuulController zuul,
 			ZuulProperties properties) {
 		this.routeLocator = routeLocator;
 		this.zuul = zuul;
@@ -43,16 +44,15 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 
 	@Override
 	public void onApplicationEvent(InstanceRegisteredEvent event) {
-		registerHandlers(routeLocator.getRoutes());
+		registerHandlers(routeLocator.getRoutes().keySet());
 	}
 
-	protected void registerHandlers(Map<String, String> routes) {
+	protected void registerHandlers(Collection<String> routes) {
 		if (routes.isEmpty()) {
 			logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
 		}
 		else {
-			for (Map.Entry<String, String> entry : routes.entrySet()) {
-				String url = entry.getKey();
+			for (String url : routes) {
 				// Prepend with slash if not already present.
 				if (!url.startsWith("/")) {
 					url = "/" + url;
@@ -74,9 +74,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 	@ResponseBody
 	@ManagedOperation
 	public Map<String, String> reset() {
-		Map<String, String> routes = routeLocator.resetRoutes();
-		registerHandlers(routes);
-		return routes;
+		routeLocator.resetRoutes();
+		registerHandlers(routeLocator.getRoutes().keySet());
+		return getRoutes();
 	}
 
 	@RequestMapping(method = RequestMethod.GET)

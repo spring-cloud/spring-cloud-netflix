@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cloud.netflix.zuul.RouteLocator;
+import org.springframework.cloud.netflix.zuul.ZuulRouteLocator;
 import org.springframework.cloud.netflix.zuul.ZuulProperties;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -25,13 +25,13 @@ import com.netflix.zuul.context.RequestContext;
 public class PreDecorationFilter extends ZuulFilter {
 	private static Logger LOG = LoggerFactory.getLogger(PreDecorationFilter.class);
 
-	private RouteLocator routeLocator;
+	private ZuulRouteLocator routeLocator;
 
 	private ZuulProperties properties;
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
-	public PreDecorationFilter(RouteLocator routeLocator, ZuulProperties properties) {
+	public PreDecorationFilter(ZuulRouteLocator routeLocator, ZuulProperties properties) {
 		this.routeLocator = routeLocator;
 		this.properties = properties;
 	}
