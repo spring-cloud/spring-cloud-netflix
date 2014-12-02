@@ -28,13 +28,13 @@ public class SampleZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
-	private ZuulRouteLocator routes;
+	private ProxyRouteLocator routes;
 
 	@Autowired
 	private ZuulHandlerMapping mapping;
 
 	@Test
-	public void bindRouteUsingPropertyEditor() {
+	public void bindRouteUsingPhysicalRoute() {
 		assertEquals("http://localhost:7777/local", routes.getRoutes().get("/test/**"));
 	}
 
@@ -45,8 +45,8 @@ public class SampleZuulProxyApplicationTests {
 
 	@Test
 	public void deleteOnSelfViaSimpleHostRoutingFilter() {
-		routes.getRoutes().put("/self/**", "http://localhost:" + port + "/local");
-		mapping.registerHandlers(routes.getRoutes().keySet());
+		routes.addRoute("/self/**", "http://localhost:" + port + "/local");
+		mapping.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + port + "/self/1", HttpMethod.DELETE,
 				new HttpEntity<Void>((Void) null), String.class);

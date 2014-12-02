@@ -40,8 +40,8 @@ public class ZuulConfiguration {
 	private ZuulProperties zuulProperties;
 
 	@Bean
-	public ZuulRouteLocator routes() {
-		return new ZuulRouteLocator(discovery, zuulProperties);
+	public ProxyRouteLocator routes() {
+		return new ProxyRouteLocator(discovery, zuulProperties);
 	}
 
 	@Bean
@@ -51,7 +51,7 @@ public class ZuulConfiguration {
 
 	@Bean
 	public ZuulHandlerMapping zuulHandlerMapping() {
-		return new ZuulHandlerMapping(routes(), zuulController(), zuulProperties);
+		return new ZuulHandlerMapping(routes(), zuulController());
 	}
 
 	@Configuration

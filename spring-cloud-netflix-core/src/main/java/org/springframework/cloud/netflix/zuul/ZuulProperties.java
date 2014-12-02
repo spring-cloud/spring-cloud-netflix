@@ -43,7 +43,7 @@ public class ZuulProperties {
 		private String path;
 		private String serviceId;
 		private String url;
-		private boolean stripPath = false;
+		private boolean stripPrefix = false;
 
 		public ZuulRoute(String text) {
 			String location = null;

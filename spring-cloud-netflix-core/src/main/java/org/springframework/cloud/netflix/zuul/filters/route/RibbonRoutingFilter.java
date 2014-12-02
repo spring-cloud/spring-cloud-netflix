@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
-import org.springframework.cloud.netflix.zuul.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.SpringFilter;
 import org.springframework.util.StringUtils;
 

@@ -551,7 +551,19 @@ The location of the backend can be specified as either a "serviceId"
 
 Forwarding to the service is protected by a Hystrix circuit breaker so if a service is down the client will see an error, but once the circuit is open the proxy will not try to contact the service.
 
-To add a prefix to the mapping, set `zuul.prefix` to a value, such as `/api`.  To strip the proxy prefix from the request before the request is forwarded set `zuul.stripPrefix = true`.
+To add a prefix to all mappings, set `zuul.prefix` to a value, such as `/api`.  To strip the proxy prefix from the request before the request is forwarded set `zuul.stripPrefix = true`. You can also strip the non-wildcard prefix from individual routes, e.g.
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    users:
+      path: /myusers/**
+      stripPrefix: true
+----
+
+In this example requests to "/myusers/101" will be forwarded to "/101" on the "users" service (the path is stripped up to the first wildcard character).
 
 The `X-Forwarded-Host` header added to the forwarded requests by default.  To turn it off set `zuul.addProxyHeaders = false`.
 

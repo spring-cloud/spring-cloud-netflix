@@ -11,7 +11,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,24 +26,20 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		ApplicationListener<InstanceRegisteredEvent>, MvcEndpoint {
 
-	private ZuulRouteLocator routeLocator;
+	private ProxyRouteLocator routeLocator;
 
 	private ZuulController zuul;
 
-	private ZuulProperties properties;
-
 	@Autowired
-	public ZuulHandlerMapping(ZuulRouteLocator routeLocator, ZuulController zuul,
-			ZuulProperties properties) {
+	public ZuulHandlerMapping(ProxyRouteLocator routeLocator, ZuulController zuul) {
 		this.routeLocator = routeLocator;
 		this.zuul = zuul;
-		this.properties = properties;
 		setOrder(-200);
 	}
 
 	@Override
 	public void onApplicationEvent(InstanceRegisteredEvent event) {
-		registerHandlers(routeLocator.getRoutes().keySet());
+		registerHandlers(routeLocator.getRoutePaths());
 	}
 
 	protected void registerHandlers(Collection<String> routes) {
@@ -53,18 +48,6 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		}
 		else {
 			for (String url : routes) {
-				// Prepend with slash if not already present.
-				if (!url.startsWith("/")) {
-					url = "/" + url;
-				}
-
-				if (StringUtils.hasText(properties.getPrefix())) {
-					url = properties.getPrefix() + url;
-					if (!url.startsWith("/")) {
-						url = "/" + url;
-					}
-				}
-
 				registerHandler(url, zuul);
 			}
 		}
@@ -75,7 +58,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 	@ManagedOperation
 	public Map<String, String> reset() {
 		routeLocator.resetRoutes();
-		registerHandlers(routeLocator.getRoutes().keySet());
+		registerHandlers(routeLocator.getRoutePaths());
 		return getRoutes();
 	}
 

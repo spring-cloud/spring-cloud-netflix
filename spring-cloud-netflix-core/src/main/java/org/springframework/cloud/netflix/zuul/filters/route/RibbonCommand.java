@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.filters.route;
 
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpResponse;
