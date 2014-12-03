@@ -98,7 +98,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
             if (healthCheckHandler != null) {
                 DiscoveryManager.getInstance().getDiscoveryClient().registerHealthCheck(healthCheckHandler);
             }
-            context.publishEvent(new InstanceRegisteredEvent(this, instanceConfig));
+            context.publishEvent(new InstanceRegisteredEvent<>(this, instanceConfig));
             running.set(true);
         }
 	}
