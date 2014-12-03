@@ -1051,24 +1051,84 @@ public class Application extends FeignConfigurer {
 <div class="sect2">
 <h3 id="netflix-zuul-reverse-proxy">Embedded Zuul Reverse Proxy</h3>
 <div class="paragraph">
-<p>Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with <code>@EnableZuulProxy</code>.  This forwards local calls to the appropriate service.  By convention, a service with the <code>spring.application.name</code> of <code>users</code>, will receive requests from the proxy located at <code>/users</code>.  The proxy uses Ribbon to locate an instance to forward to via Eureka.  To skip having a service automatically added from eureka, set <code>zuul.ignored-services = service1</code>. Forwarding to the service is protected by a Hystrix circuit breaker.  Additional rules can be configured via the Spring environment.  The Config Server is an ideal place for the Zuul configuration.  Zuul Embedded Proxy configuration rules look like the following:</p>
+<p>Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with <code>@EnableZuulProxy</code>, and this forwards local calls to the appropriate service.  By convention, a service with the Eureka ID "users", will receive requests from the proxy located at <code>/users</code>.  The proxy uses Ribbon to locate an instance to forward to via Eureka. To skip having a service automatically added from eureka, set <code>zuul.ignored-services = service1</code>.</p>
 </div>
-<div class="literalblock">
+<div class="paragraph">
+<p>To augment or change the proxy routes, you can add external
+configuration like the following:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
 <div class="content">
-<pre>zuul.route.users: /myusers/**</pre>
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users: /myusers/**</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This means that http calls to /myusers get forwarded to the users service.  This proxy configuration is useful for services that host a user interface to proxy to the backend services it requires.  To add a prefix to the mapping, set <code>zuul.proxy.mapping</code> to a value, such as <code>/api</code>.  To strip the proxy mapping from the request before forwarding set <code>zuul.proxy.strip-mapping = true</code>.</p>
+<p>This means that http calls to "/myusers" get forwarded to the "users"
+service. This configuration is useful for a user interface to proxy to
+the backend services it requires (avoiding the need to manage CORS and
+authentication concerns independently for all the backends).</p>
 </div>
 <div class="paragraph">
-<p>The Zuul proxy supports Ant-style patterns.</p>
+<p>To get more fine-grained control over a route you can specify the path
+and the serviceId independently:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      serviceId: users_service</code></pre>
+</div>
 </div>
 <div class="paragraph">
-<p>The <code>X-Forwarded-Host</code> header added to the forwarded requests by default.  To turn it off set <code>zuul.proxy.add-proxy-headers = false</code>.</p>
+<p>This means that http calls to "/myusers" get forwarded to the
+"users_service" service.  The route has to have a "path" which can be
+specified as an ant-style pattern, so "/myusers/<strong>" only matches one
+level, but "/myusers/</strong>*" matches hierarchically.</p>
 </div>
 <div class="paragraph">
-<p>An application with the <code>@EnableZuulProxy</code> could act as a standalone server if you set a default route, for example <code>zuul.route.home: /</code> would route <code>/</code> to the home service.</p>
+<p>The location of the backend can be specified as either a "serviceId"
+(for a Eureka service) or a "url" (for a physical location), e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      url: http://example.com/users_service</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Forwarding to the service is protected by a Hystrix circuit breaker so if a service is down the client will see an error, but once the circuit is open the proxy will not try to contact the service.</p>
+</div>
+<div class="paragraph">
+<p>To add a prefix to all mappings, set <code>zuul.prefix</code> to a value, such as <code>/api</code>.  To strip the proxy prefix from the request before the request is forwarded set <code>zuul.stripPrefix = true</code>. You can also strip the non-wildcard prefix from individual routes, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      stripPrefix: true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example requests to "/myusers/101" will be forwarded to "/101" on the "users" service (the path is stripped up to the first wildcard character).</p>
+</div>
+<div class="paragraph">
+<p>The <code>X-Forwarded-Host</code> header added to the forwarded requests by default.  To turn it off set <code>zuul.addProxyHeaders = false</code>.</p>
+</div>
+<div class="paragraph">
+<p>An application with the <code>@EnableZuulProxy</code> could act as a standalone server if you set a default route ("/"), for example <code>zuul.route.home: /</code> would route all traffic (i.e. "/**") to the "home" service.</p>
 </div>
 </div>
 </div>
@@ -1076,7 +1136,7 @@ public class Application extends FeignConfigurer {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-02 23:44:08 UTC
+Last updated 2014-12-03 10:53:08 UTC
 </div>
 </div>
 </body>
