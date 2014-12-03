@@ -1,13 +1,10 @@
 package org.springframework.cloud.netflix.archaius;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.springframework.core.env.CompositePropertySource;
@@ -16,7 +13,6 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Spencer Gibb
@@ -82,8 +78,7 @@ public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration 
     private void extract(String root, Map<String, PropertySource<?>> map,
                          PropertySource<?> source) {
         if (source instanceof CompositePropertySource) {
-            Set<PropertySource<?>> nested = getNestedPropertySources((CompositePropertySource) source);
-            for (PropertySource<?> nest : nested) {
+            for (PropertySource<?> nest : ((CompositePropertySource) source).getPropertySources()) {
                 extract(source.getName() + ":", map, nest);
             }
         }
@@ -92,16 +87,4 @@ public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration 
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private Set<PropertySource<?>> getNestedPropertySources(CompositePropertySource source) {
-        try {
-            Field field = ReflectionUtils.findField(CompositePropertySource.class,
-                    "propertySources");
-            field.setAccessible(true);
-            return (Set<PropertySource<?>>) field.get(source);
-        }
-        catch (Exception ex) {
-            return Collections.emptySet();
-        }
-    }
 }

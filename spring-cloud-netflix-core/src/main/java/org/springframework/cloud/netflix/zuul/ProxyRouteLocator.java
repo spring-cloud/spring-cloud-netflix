@@ -1,6 +1,5 @@
 package org.springframework.cloud.netflix.zuul;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,10 +15,8 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.CompositePropertySource;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -36,8 +33,6 @@ public class ProxyRouteLocator implements ApplicationListener<EnvironmentChangeE
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
-	private Field propertySourcesField;
-
 	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
 
 	private Map<String, String> staticRoutes = new LinkedHashMap<String, String>();
@@ -45,13 +40,6 @@ public class ProxyRouteLocator implements ApplicationListener<EnvironmentChangeE
 	public ProxyRouteLocator(DiscoveryClient discovery, ZuulProperties properties) {
 		this.discovery = discovery;
 		this.properties = properties;
-		initField();
-	}
-
-	private void initField() {
-		propertySourcesField = ReflectionUtils.findField(CompositePropertySource.class,
-				"propertySources");
-		propertySourcesField.setAccessible(true);
 	}
 
 	@Override
