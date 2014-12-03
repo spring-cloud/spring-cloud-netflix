@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
@@ -50,6 +51,7 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
+	@RefreshScope
 	public ZuulHandlerMapping zuulHandlerMapping() {
 		return new ZuulHandlerMapping(routes(), zuulController());
 	}
@@ -65,6 +67,11 @@ public class ZuulConfiguration {
 			return new FilterInitializer(filters);
 		}
 
+	}
+
+	@Bean
+	public RoutesEndpoint zuulEndpoint() {
+		return new RoutesEndpoint(zuulHandlerMapping());
 	}
 
 	// pre filters

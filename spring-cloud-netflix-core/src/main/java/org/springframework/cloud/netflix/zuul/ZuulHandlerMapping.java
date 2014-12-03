@@ -1,20 +1,17 @@
 package org.springframework.cloud.netflix.zuul;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.Endpoint;
-import org.springframework.boot.actuate.endpoint.mvc.MvcEndpoint;
 import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
+import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.
@@ -24,7 +21,7 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
  */
 @ManagedResource(description = "Can be used to list and reset the reverse proxy routes")
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
-		ApplicationListener<InstanceRegisteredEvent>, MvcEndpoint {
+		ApplicationListener<ApplicationEvent> {
 
 	private ProxyRouteLocator routeLocator;
 
@@ -38,8 +35,11 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 	}
 
 	@Override
-	public void onApplicationEvent(InstanceRegisteredEvent event) {
-		registerHandlers(routeLocator.getRoutePaths());
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof InstanceRegisteredEvent
+				|| event instanceof RefreshScopeRefreshedEvent) {
+			reset();
+		}
 	}
 
 	protected void registerHandlers(Collection<String> routes) {
@@ -53,8 +53,6 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		}
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	@ResponseBody
 	@ManagedOperation
 	public Map<String, String> reset() {
 		routeLocator.resetRoutes();
@@ -62,26 +60,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		return getRoutes();
 	}
 
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
 	@ManagedAttribute
 	public Map<String, String> getRoutes() {
 		return routeLocator.getRoutes();
-	}
-
-	@Override
-	public String getPath() {
-		return "/routes";
-	}
-
-	@Override
-	public boolean isSensitive() {
-		return true;
-	}
-
-	@Override
-	public Class<? extends Endpoint<?>> getEndpointType() {
-		return null;
 	}
 
 }

@@ -10,11 +10,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
-import org.springframework.context.ApplicationListener;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
@@ -23,7 +20,7 @@ import org.springframework.util.StringUtils;
  * @author Spencer Gibb
  */
 @Slf4j
-public class ProxyRouteLocator implements ApplicationListener<EnvironmentChangeEvent> {
+public class ProxyRouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/";
 
@@ -42,16 +39,6 @@ public class ProxyRouteLocator implements ApplicationListener<EnvironmentChangeE
 		this.properties = properties;
 	}
 
-	@Override
-	public void onApplicationEvent(EnvironmentChangeEvent event) {
-		for (String key : event.getKeys()) {
-			if (key.startsWith("zuul.routes")) {
-				resetRoutes();
-				return;
-			}
-		}
-	}
-	
 	public void addRoute(String path, String location) {
 		staticRoutes.put(path, location);
 		resetRoutes();
