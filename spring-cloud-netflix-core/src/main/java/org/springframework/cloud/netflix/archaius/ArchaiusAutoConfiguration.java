@@ -55,7 +55,8 @@ public class ArchaiusAutoConfiguration {
         if (initialized.compareAndSet(false, true)) {
             String appName = env.getProperty("spring.application.name");
             if (appName == null) {
-                throw new IllegalStateException("spring.application.name may not be null");
+                appName = "application";
+                logger.warn("No spring.application.name found, defaulting to 'application'");
             }
             //this is deprecated, but currently it seams the only way to set it initially
             System.setProperty(DEPLOYMENT_APPLICATION_ID_PROPERTY, appName);
