@@ -20,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +44,7 @@ import com.netflix.discovery.DiscoveryClient;
 @ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
 @ConditionalOnExpression("${spring.cloud.config.discovery.enabled:false}")
 @Configuration
-@EnableEurekaClient
+@EnableDiscoveryClient
 @Import(EurekaClientAutoConfiguration.class)
 @Slf4j
 public class DiscoveryClientConfigServiceBootstrapConfiguration implements
