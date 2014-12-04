@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
 @ConfigurationProperties("zuul")
 public class ZuulProperties {
 	private String prefix = "";
-	private boolean stripPrefix = false;
+	private boolean stripPrefix = true;
 	private Map<String, ZuulRoute> routes = new LinkedHashMap<String, ZuulRoute>();
 	private boolean addProxyHeaders = true;
 	private List<String> ignoredServices = new ArrayList<String>();
@@ -43,7 +43,7 @@ public class ZuulProperties {
 		private String path;
 		private String serviceId;
 		private String url;
-		private boolean stripPrefix = false;
+		private boolean stripPrefix = true;
 
 		public ZuulRoute(String text) {
 			String location = null;

@@ -500,10 +500,26 @@ Zuul's rule engine allows rules and filters to be written in essentially any JVM
 [[netflix-zuul-reverse-proxy]]
 === Embedded Zuul Reverse Proxy
 
-Spring Cloud has created an embedded Zuul proxy to ease the development of a very common use case where a UI application wants to proxy calls to one or more back end services.  To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`, and this forwards local calls to the appropriate service.  By convention, a service with the Eureka ID "users", will receive requests from the proxy located at `/users`.  The proxy uses Ribbon to locate an instance to forward to via Eureka. To skip having a service automatically added from eureka, set `zuul.ignored-services = service1`. 
+Spring Cloud has created an embedded Zuul proxy to ease the
+development of a very common use case where a UI application wants to
+proxy calls to one or more back end services.  This feature is useful
+for a user interface to proxy to the backend services it requires,
+avoiding the need to manage CORS and authentication concerns
+independently for all the backends.
 
-To augment or change the proxy routes, you can add external
-configuration like the following:
+To enable it, annotate a Spring Boot main class with
+`@EnableZuulProxy`, and this forwards local calls to the appropriate
+service.  By convention, a service with the Eureka ID "users", will
+receive requests from the proxy located at `/users` (with the prefix
+stripped). The proxy uses Ribbon to locate an instance to forward to
+via Eureka, and all requests are executed in a hystrix command, so
+failures will show up in Hystrix metrics, and once the circuit is open
+the proxy will not try to contact the service.
+
+To skip having a service automatically added, set
+`zuul.ignored-services` to a list of service ids. To augment or change
+the proxy routes, you can add external configuration like the
+following:
 
 .application.yml
 [source,yaml]
@@ -514,9 +530,7 @@ configuration like the following:
 ----
 
 This means that http calls to "/myusers" get forwarded to the "users"
-service. This configuration is useful for a user interface to proxy to
-the backend services it requires (avoiding the need to manage CORS and
-authentication concerns independently for all the backends).
+service (for example "/myusers/101" is forwarded to "/101").
 
 To get more fine-grained control over a route you can specify the path
 and the serviceId independently:
@@ -549,9 +563,11 @@ The location of the backend can be specified as either a "serviceId"
       url: http://example.com/users_service
 ----
 
-Forwarding to the service is protected by a Hystrix circuit breaker so if a service is down the client will see an error, but once the circuit is open the proxy will not try to contact the service.
-
-To add a prefix to all mappings, set `zuul.prefix` to a value, such as `/api`.  To strip the proxy prefix from the request before the request is forwarded set `zuul.stripPrefix = true`. You can also strip the non-wildcard prefix from individual routes, e.g.
+To add a prefix to all mappings, set `zuul.prefix` to a value, such as
+`/api`. The proxy prefix is stripped from the request before the
+request is forwarded by default (switch this behaviour off with
+`zuul.stripPrefix=false`). You can also switch off the stripping of
+the service-specific prefix from individual routes, e.g.
 
 .application.yml
 [source,yaml]
@@ -560,12 +576,18 @@ To add a prefix to all mappings, set `zuul.prefix` to a value, such as `/api`.  
   routes:
     users:
       path: /myusers/**
-      stripPrefix: true
+      stripPrefix: false
 ----
 
-In this example requests to "/myusers/101" will be forwarded to "/101" on the "users" service (the path is stripped up to the first wildcard character).
+In this example requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.
 
-The `X-Forwarded-Host` header added to the forwarded requests by default.  To turn it off set `zuul.addProxyHeaders = false`.
+The `X-Forwarded-Host` header added to the forwarded requests by
+default.  To turn it off set `zuul.addProxyHeaders = false`.  The
+prefix path is stripped by default, and the request to the backend
+picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
+above).
 
-An application with the `@EnableZuulProxy` could act as a standalone server if you set a default route ("/"), for example `zuul.route.home: /` would route all traffic (i.e. "/**") to the "home" service.
+An application with the `@EnableZuulProxy` could act as a standalone
+server if you set a default route ("/"), for example `zuul.route.home:
+/` would route all traffic (i.e. "/**") to the "home" service.
 

@@ -21,17 +21,17 @@ public class SampleZuulProxyApplication {
         throw new RuntimeException("myerror");
     }
 
-    @RequestMapping("/local/self")
+    @RequestMapping("/local")
     public String local() {
         return "Hello local";
     }
 
-    @RequestMapping(value="/local/self/{id}", method=RequestMethod.DELETE)
+    @RequestMapping(value="/local/{id}", method=RequestMethod.DELETE)
     public String delete() {
         return "Deleted!";
     }
 
-    @RequestMapping(value="/local/self/{id}", method=RequestMethod.GET)
+    @RequestMapping(value="/local/{id}", method=RequestMethod.GET)
     public String get() {
         return "Gotten!";
     }

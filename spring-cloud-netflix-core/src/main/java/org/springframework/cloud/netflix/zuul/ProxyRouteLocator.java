@@ -85,9 +85,9 @@ public class ProxyRouteLocator {
 				if (route.isStripPrefix()) {
 					int index = route.getPath().indexOf("*") - 1;
 					if (index > 0) {
-						targetPath = path.substring(prefix.length() + index);
-						prefix = prefix
-								+ path.substring(prefix.length(), prefix.length() + index);
+						String routePrefix = route.getPath().substring(0, index);
+						targetPath = targetPath.replaceFirst(routePrefix, "");
+						prefix = prefix + routePrefix;
 					}
 				}
 				break;
