@@ -50,8 +50,8 @@ public class Log4JLoggingSystemTests {
 	private Logger logger;
 
 	@Before
-	public void setup() {
-		System.setProperty("log4j.configuration", getPackagedConfigFile("log4j.properties"));
+	public void setup() throws IOException {
+		System.setProperty("log4j.configuration", new ClassPathResource("log4j.properties", Log4JLoggingSystem.class).getURL().toString());
 		logger = Logger.getLogger(getClass());
 		LoggingConfiguration.getInstance().configure();
 	}
@@ -68,13 +68,4 @@ public class Log4JLoggingSystemTests {
 				equalTo(1));
 	}
 
-
-	private final String getPackagedConfigFile(String fileName) {
-		try {
-			return new ClassPathResource(fileName, Log4JLoggingSystem.class).getURL().toString();
-		}
-		catch (IOException e) {
-			throw new IllegalStateException("Cannot create URL", e);
-		}
-	}
 }
