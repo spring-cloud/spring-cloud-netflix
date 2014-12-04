@@ -42,9 +42,10 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		}
 	}
 
-	protected void registerHandlers(Collection<String> routes) {
+	protected void registerHandlers() {
+        Collection<String> routes = routeLocator.getRoutePaths();
 		if (routes.isEmpty()) {
-			logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
+			logger.warn("No routes found from ProxyRouteLocator");
 		}
 		else {
 			for (String url : routes) {
@@ -56,7 +57,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 	@ManagedOperation
 	public Map<String, String> reset() {
 		routeLocator.resetRoutes();
-		registerHandlers(routeLocator.getRoutePaths());
+		registerHandlers();
 		return getRoutes();
 	}
 
