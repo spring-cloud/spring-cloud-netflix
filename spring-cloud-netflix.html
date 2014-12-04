@@ -432,8 +432,14 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).</p>
 <div class="paragraph">
 <p>Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.</p>
 </div>
+<div class="sect2">
+<h3 id="_registering_with_eureka">Registering with Eureka</h3>
 <div class="paragraph">
-<p>When clients register with Eureka, they provide eureka with meta-data about themselves such as host and port, health indicator URL, home page etc.  Eureka receives heartbeat messages from each instance belonging to a service.  If the heartbeat fails over a configurable timetable, the instance is normally removed from Eureka.</p>
+<p>When a client registers with Eureka, it provide meta-data about itself
+such as host and port, health indicator URL, home page etc.  Eureka
+receives heartbeat messages from each instance belonging to a service.
+If the heartbeat fails over a configurable timetable, the instance is
+normally removed from the registry.</p>
 </div>
 <div class="paragraph">
 <p>Example eureka client:</p>
@@ -492,6 +498,22 @@ ID, or VIP).</p>
 </div>
 <div class="paragraph">
 <p>See <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> and <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</a> for more details of the configurable options.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_making_the_eureka_instance_id_unique">Making the Eureka Instance ID Unique</h3>
+<div class="paragraph">
+<p>By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in <code>eureka.instance.metadataMap.instanceId</code>. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    metadataMap:
+      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}</pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_using_the_discoveryclient">Using the DiscoveryClient</h3>
@@ -1158,7 +1180,7 @@ server if you set a default route ("/"), for example <code>zuul.route.home:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-04 16:04:28 UTC
+Last updated 2014-12-04 18:07:08 UTC
 </div>
 </div>
 </body>
