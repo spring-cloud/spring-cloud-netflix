@@ -32,7 +32,7 @@ public class ProxyRouteLocator {
 
 	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
 
-	private Map<String, String> staticRoutes = new LinkedHashMap<String, String>();
+	private Map<String, ZuulRoute> staticRoutes = new LinkedHashMap<String, ZuulRoute>();
 
 	public ProxyRouteLocator(DiscoveryClient discovery, ZuulProperties properties) {
 		this.discovery = discovery;
@@ -40,7 +40,12 @@ public class ProxyRouteLocator {
 	}
 
 	public void addRoute(String path, String location) {
-		staticRoutes.put(path, location);
+		staticRoutes.put(path, new ZuulRoute(path, location));
+		resetRoutes();
+	}
+
+	public void addRoute(ZuulRoute route) {
+		staticRoutes.put(route.getPath(), route);
 		resetRoutes();
 	}
 
@@ -56,7 +61,7 @@ public class ProxyRouteLocator {
 
 		Map<String, String> values = new LinkedHashMap<String, String>();
 
-		for (String key : routes.get().keySet()) {			
+		for (String key : routes.get().keySet()) {
 			String url = key;
 			values.put(url, routes.get().get(key).getLocation());
 		}
@@ -67,26 +72,30 @@ public class ProxyRouteLocator {
 	public ProxyRouteSpec getMatchingRoute(String path) {
 		String location = null;
 		String targetPath = null;
+		String prefix = properties.getPrefix();
 		for (Entry<String, ZuulRoute> entry : routes.get().entrySet()) {
 			String pattern = entry.getKey();
 			if (pathMatcher.match(pattern, path)) {
 				ZuulRoute route = entry.getValue();
-				String prefix = properties.getPrefix();
 				location = route.getLocation();
 				targetPath = path;
 				if (path.startsWith(prefix) && properties.isStripPrefix()) {
 					targetPath = path.substring(prefix.length());
 				}
 				if (route.isStripPrefix()) {
-					int index = route.getPath().indexOf("*");
-					index = index > 0 ? index-1 : 0;
-					targetPath = path.substring(index);
+					int index = route.getPath().indexOf("*") - 1;
+					if (index > 0) {
+						targetPath = path.substring(prefix.length() + index);
+						prefix = prefix
+								+ path.substring(prefix.length(), prefix.length() + index);
+					}
 				}
+				break;
 			}
 		}
-		return location==null ? null : new ProxyRouteSpec(targetPath, location);
+		return location == null ? null : new ProxyRouteSpec(targetPath, location, prefix);
 	}
-	
+
 	// Package access so ZuulHandlerMapping can reset it's mappings
 	void resetRoutes() {
 		routes.set(locateRoutes());
@@ -97,7 +106,7 @@ public class ProxyRouteLocator {
 		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
 
 		addConfiguredRoutes(routesMap);
-		addStaticRoutes(routesMap);
+		routesMap.putAll(staticRoutes);
 
 		// Add routes for discovery services by default
 		List<String> services = discovery.getServices();
@@ -120,7 +129,7 @@ public class ProxyRouteLocator {
 
 		LinkedHashMap<String, ZuulRoute> values = new LinkedHashMap<>();
 		for (Entry<String, ZuulRoute> entry : routesMap.entrySet()) {
-			
+
 			String path = entry.getKey();
 			// Prepend with slash if not already present.
 			if (!path.startsWith("/")) {
@@ -133,19 +142,13 @@ public class ProxyRouteLocator {
 					path = "/" + path;
 				}
 			}
-			
+
 			values.put(path, entry.getValue());
 
 		}
 
 		return values;
 
-	}
-
-	protected void addStaticRoutes(LinkedHashMap<String, ZuulRoute> routes) {
-		for (Entry<String, String> entry : staticRoutes.entrySet()) {
-			routes.put(entry.getKey(), new ZuulRoute(entry.getKey(), entry.getValue()));			
-		}
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {
@@ -162,13 +165,14 @@ public class ProxyRouteLocator {
 
 	public String getTargetPath(String matchingRoute, String requestURI) {
 		String path = getRoutes().get(matchingRoute);
-		if (path==null) {
+		if (path == null) {
 			path = requestURI;
-		} else {
-			
+		}
+		else {
+
 		}
 		return path;
-		
+
 	}
 
 	@Data
@@ -176,6 +180,7 @@ public class ProxyRouteLocator {
 	public static class ProxyRouteSpec {
 		private String path;
 		private String location;
+		private String prefix;
 	}
 
 }

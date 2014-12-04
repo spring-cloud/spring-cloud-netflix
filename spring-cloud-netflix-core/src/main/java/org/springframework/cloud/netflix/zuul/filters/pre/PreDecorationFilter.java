@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.zuul.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.cloud.netflix.zuul.ZuulProperties;
+import org.springframework.util.StringUtils;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -49,7 +50,7 @@ public class PreDecorationFilter extends ZuulFilter {
 
 		ProxyRouteSpec route = routeLocator.getMatchingRoute(requestURI);
 
-		if (route!=null) {
+		if (route != null) {
 
 			String location = route.getLocation();
 
@@ -73,6 +74,9 @@ public class PreDecorationFilter extends ZuulFilter {
 							"X-Forwarded-Host",
 							ctx.getRequest().getServerName() + ":"
 									+ String.valueOf(ctx.getRequest().getServerPort()));
+					if (StringUtils.hasText(route.getPrefix())) {
+						ctx.addZuulRequestHeader("X-Forwarded-Prefix", route.getPrefix());
+					}
 				}
 			}
 		}
