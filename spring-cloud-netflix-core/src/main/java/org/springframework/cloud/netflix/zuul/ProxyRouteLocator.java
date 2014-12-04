@@ -124,7 +124,7 @@ public class ProxyRouteLocator {
 			ZuulRoute defaultRoute = routesMap.get(DEFAULT_ROUTE);
 			// Move the defaultServiceId to the end
 			routesMap.remove(DEFAULT_ROUTE);
-			routesMap.put(DEFAULT_ROUTE, new ZuulRoute(defaultRoute.getPath(), defaultRoute.getLocation()));
+			routesMap.put(DEFAULT_ROUTE, defaultRoute);
 		}
 
 		LinkedHashMap<String, ZuulRoute> values = new LinkedHashMap<>();
