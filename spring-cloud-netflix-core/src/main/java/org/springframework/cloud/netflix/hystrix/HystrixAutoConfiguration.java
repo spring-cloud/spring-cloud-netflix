@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.hystrix;
 
 import org.springframework.boot.actuate.autoconfigure.HealthIndicatorAutoConfiguration;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -34,7 +35,7 @@ import com.netflix.hystrix.Hystrix;
 public class HystrixAutoConfiguration {
 	
 	@Configuration
-	@ConditionalOnClass(Hystrix.class)
+	@ConditionalOnClass({Hystrix.class, HealthIndicator.class})
 	@ConditionalOnExpression("${health.hystrix.enabled:true}")
 	public static class HystrixHealthIndicatorConfiguration {
 		
