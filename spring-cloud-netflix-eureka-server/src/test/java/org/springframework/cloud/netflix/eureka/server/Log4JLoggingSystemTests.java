@@ -30,7 +30,6 @@ import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.logging.log4j.Log4JLoggingSystem;
 import org.springframework.boot.test.OutputCapture;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import com.netflix.blitz4j.LoggingConfiguration;
