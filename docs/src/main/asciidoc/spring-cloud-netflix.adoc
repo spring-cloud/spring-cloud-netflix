@@ -10,7 +10,13 @@ include::intro.adoc[]
 
 Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.
 
-When clients register with Eureka, they provide eureka with meta-data about themselves such as host and port, health indicator URL, home page etc.  Eureka receives heartbeat messages from each instance belonging to a service.  If the heartbeat fails over a configurable timetable, the instance is normally removed from Eureka.
+=== Registering with Eureka
+
+When a client registers with Eureka, it provide meta-data about itself
+such as host and port, health indicator URL, home page etc.  Eureka
+receives heartbeat messages from each instance belonging to a service.
+If the heartbeat fails over a configurable timetable, the instance is
+normally removed from the registry.
 
 Example eureka client:
 
@@ -63,6 +69,18 @@ fine if you ensure that your application has a
 ID, or VIP).
 
 See {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
+
+=== Making the Eureka Instance ID Unique
+
+By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.metadataMap.instanceId`. For example:
+
+.application.yml
+----
+eureka:
+  instance:
+    metadataMap:
+      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+----
 
 === Using the DiscoveryClient
 
