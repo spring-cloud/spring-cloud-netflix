@@ -933,7 +933,7 @@ for details on the properties available.</p>
 @ComponentScan
 @EnableAutoConfiguration
 @EnableEurekaClient
-public class Application extends FeignConfigurer {
+public class Application extends FeignConfiguration {
     @Bean
     public StoreClient storeClient() {
         //loadBalance plugs Feign into ribbon.  feign() works without load balancing.
@@ -1180,7 +1180,7 @@ server if you set a default route ("/"), for example <code>zuul.route.home:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-05 00:08:23 UTC
+Last updated 2014-12-05 19:30:29 UTC
 </div>
 </div>
 </body>
