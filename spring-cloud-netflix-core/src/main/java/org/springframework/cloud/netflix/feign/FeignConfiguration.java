@@ -1,17 +1,16 @@
 package org.springframework.cloud.netflix.feign;
 
-import feign.Client;
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
+import feign.*;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
+import feign.codec.ErrorDecoder;
 import feign.ribbon.LoadBalancingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
 
+import javax.inject.Inject;
 import java.net.URI;
 
 /**
@@ -37,15 +36,40 @@ public class FeignConfiguration {
     @Autowired
     Contract contract;
 
+	@Autowired(required = false)
+	Logger.Level logLevel;
+
+	@Autowired(required = false)
+	Retryer retryer;
+
+	@Autowired(required = false)
+	ErrorDecoder errorDecoder;
+
+	@Autowired(required = false)
+	Request.Options options;
+
     @Autowired(required = false)
     Client ribbonClient;
 
     protected Feign.Builder feign() {
-        return Feign.builder()
-                .logger(logger)
-                .encoder(encoder)
-                .decoder(decoder)
-                .contract(contract);
+		Feign.Builder builder = Feign.builder()
+				//required values
+				.logger(logger)
+				.encoder(encoder)
+				.decoder(decoder)
+				.contract(contract);
+
+		//optional values
+		if (logLevel != null)
+			builder.logLevel(logLevel);
+		if (retryer != null)
+			builder.retryer(retryer);
+		if (errorDecoder != null)
+			builder.errorDecoder(errorDecoder);
+		if (options != null)
+			builder.options(options);
+
+		return builder;
     }
 
     protected <T> T loadBalance(Class<T> type, String schemeName) {
