@@ -81,9 +81,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 		String serviceId = (String) context.get("serviceId");
 
-		preprocessor.preprocess(serviceId);
-
-		RestClient restClient = clientFactory.namedClient(serviceId, RestClient.class);
+		RestClient restClient = clientFactory.getClient(serviceId, RestClient.class);
 
 		String uri = request.getRequestURI();
 		if (context.get("requestURI") != null) {

@@ -1,10 +1,10 @@
 package org.springframework.cloud.netflix.feign;
 
 import static org.junit.Assert.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +13,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ import java.util.List;
 @SpringApplicationConfiguration(classes = SpringDecoderTests.Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest", "spring.jmx.enabled=true" })
+@DirtiesContext
 public class SpringDecoderTests extends FeignConfiguration {
 
     @Value("${local.server.port}")

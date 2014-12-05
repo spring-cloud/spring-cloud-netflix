@@ -1,5 +1,16 @@
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Test;
+
 import com.google.common.collect.ImmutableMap;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -7,14 +18,6 @@ import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Spencer Gibb
@@ -64,7 +67,8 @@ public class DomainExtractingServerListTests {
 
     protected DomainExtractingServerList getDomainExtractingServerList(DefaultClientConfigImpl config) {
         DiscoveryEnabledServer server = mock(DiscoveryEnabledServer.class);
-        ServerList originalServerList = mock(ServerList.class);
+		@SuppressWarnings("unchecked")
+		ServerList<Server> originalServerList = mock(ServerList.class);
         InstanceInfo instanceInfo = mock(InstanceInfo.class);
 
         when(server.getInstanceInfo()).thenReturn(instanceInfo);
@@ -75,7 +79,7 @@ public class DomainExtractingServerListTests {
         when(instanceInfo.getIPAddr()).thenReturn(IP_ADDR);
         when(instanceInfo.getPort()).thenReturn(PORT);
 
-        when(originalServerList.getInitialListOfServers()).thenReturn(Arrays.asList(server));
+        when(originalServerList.getInitialListOfServers()).thenReturn(Arrays.<Server>asList(server));
 
         return new DomainExtractingServerList(originalServerList, config);
     }
