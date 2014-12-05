@@ -416,7 +416,7 @@ Example spring boot app
 @ComponentScan
 @EnableAutoConfiguration
 @EnableEurekaClient
-public class Application extends FeignConfigurer {
+public class Application extends FeignConfiguration {
     @Bean
     public StoreClient storeClient() {
         //loadBalance plugs Feign into ribbon.  feign() works without load balancing.

@@ -29,7 +29,7 @@ import java.util.List;
 @SpringApplicationConfiguration(classes = SpringDecoderTests.Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest", "spring.jmx.enabled=true" })
-public class SpringDecoderTests extends FeignConfigurer {
+public class SpringDecoderTests extends FeignConfiguration {
 
     @Value("${local.server.port}")
     private int port = 0;

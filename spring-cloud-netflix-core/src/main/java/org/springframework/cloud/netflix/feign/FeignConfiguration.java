@@ -18,7 +18,7 @@ import java.net.URI;
  * @author Spencer Gibb
  */
 @Configuration
-public class FeignConfigurer {
+public class FeignConfiguration {
     @Autowired
     ConfigurableEnvironmentConfiguration envConfig; //FIXME: howto enforce this?
 
