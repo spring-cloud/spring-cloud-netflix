@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -31,6 +34,8 @@ import com.netflix.loadbalancer.ZoneAffinityServerListFilter;
  * @author Dave Syer
  *
  */
+@Data
+@EqualsAndHashCode(callSuper=false)
 public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter<Server> {
 
 	private String zone;

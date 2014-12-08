@@ -78,6 +78,7 @@ public class FeignConfiguration {
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
         String name = URI.create(schemeName).getHost();
+        // TODO: This should be transparent
         ribbonClientPreprocessor.preprocess(name);
 
         if(ribbonClient != null) {

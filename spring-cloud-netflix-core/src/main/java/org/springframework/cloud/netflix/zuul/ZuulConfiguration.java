@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
@@ -33,6 +35,12 @@ public class ZuulConfiguration {
 
 	@Autowired(required = false)
 	private TraceRepository traces;
+
+	@Autowired
+	private RibbonClientPreprocessor preprocessor;
+	
+	@Autowired
+	private SpringClientFactory clientFactory;
 
 	@Autowired
 	private DiscoveryClient discovery;
@@ -93,7 +101,7 @@ public class ZuulConfiguration {
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter() {
-		RibbonRoutingFilter filter = new RibbonRoutingFilter();
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(preprocessor, clientFactory);
 		if (traces != null) {
 			filter.setTraces(traces);
 		}

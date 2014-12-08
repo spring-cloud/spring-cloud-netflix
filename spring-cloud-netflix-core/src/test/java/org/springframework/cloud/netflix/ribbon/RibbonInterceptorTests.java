@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 /**
  * @author Spencer Gibb
  */
-public class RibbonInterceptorTest {
+public class RibbonInterceptorTests {
 
     @Mock
     HttpRequest request;

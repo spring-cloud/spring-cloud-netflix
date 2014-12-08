@@ -1,28 +1,34 @@
 package org.springframework.cloud.netflix.ribbon;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.LoadBalancerStats;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerStats;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.net.URI;
+import java.net.URL;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.LoadBalancerStats;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerStats;
 
 /**
  * @author Spencer Gibb
  */
-public class RibbonLoadBalancerClientTest {
+public class RibbonLoadBalancerClientTests {
 
     @Mock
     RibbonClientPreprocessor preprocessor;
@@ -42,6 +48,7 @@ public class RibbonLoadBalancerClientTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
+        Mockito.when(clientFactory.getLoadBalancerContext(anyString())).thenReturn(new RibbonLoadBalancerContext(loadBalancer));
     }
 
     @Test
@@ -122,11 +129,12 @@ public class RibbonLoadBalancerClientTest {
     }
 
     protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(RibbonServer ribbonServer) {
-        when(loadBalancer.getName()).thenReturn(ribbonServer.getServiceId());
+		when(loadBalancer.getName()).thenReturn(ribbonServer.getServiceId());
         when(loadBalancer.chooseServer(anyString())).thenReturn(ribbonServer.server);
         when(loadBalancer.getLoadBalancerStats()).thenReturn(loadBalancerStats);
         when(loadBalancerStats.getSingleServerStat(ribbonServer.server)).thenReturn(serverStats);
+        when(clientFactory.getLoadBalancer(loadBalancer.getName())).thenReturn(loadBalancer);
 
-        return new RibbonLoadBalancerClient(preprocessor, clientFactory, Arrays.asList(loadBalancer));
+        return new RibbonLoadBalancerClient(clientFactory);
     }
 }

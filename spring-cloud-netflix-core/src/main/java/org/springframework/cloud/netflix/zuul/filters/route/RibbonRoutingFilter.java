@@ -17,9 +17,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.trace.TraceRepository;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
-import org.springframework.cloud.netflix.zuul.SpringFilter;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.util.StringUtils;
 
 import com.netflix.client.ClientException;
@@ -27,18 +26,29 @@ import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.niws.client.http.RestClient;
+import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.util.HTTPRequestUtils;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-public class RibbonRoutingFilter extends SpringFilter {
+public class RibbonRoutingFilter extends ZuulFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RibbonRoutingFilter.class);
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
 	private TraceRepository traces;
+
+	private RibbonClientPreprocessor preprocessor;
+
+	private SpringClientFactory clientFactory;
+
+	public RibbonRoutingFilter(RibbonClientPreprocessor preprocessor,
+			SpringClientFactory clientFactory) {
+		this.preprocessor = preprocessor;
+		this.clientFactory = clientFactory;
+	}
 
 	public void setTraces(TraceRepository traces) {
 		this.traces = traces;
@@ -71,10 +81,7 @@ public class RibbonRoutingFilter extends SpringFilter {
 
 		String serviceId = (String) context.get("serviceId");
 
-        getBean(RibbonClientPreprocessor.class).preprocess(serviceId);
-
-        //TODO: update to ribbon-rxnetty when available
-		RestClient restClient = getBean(SpringClientFactory.class).namedClient(serviceId, RestClient.class);
+		RestClient restClient = clientFactory.getClient(serviceId, RestClient.class);
 
 		String uri = request.getRequestURI();
 		if (context.get("requestURI") != null) {

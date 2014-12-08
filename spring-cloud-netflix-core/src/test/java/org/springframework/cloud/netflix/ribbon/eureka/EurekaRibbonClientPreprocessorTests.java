@@ -18,16 +18,16 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessor.*;
+import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessor.VALUE_NOT_SET;
 
-import com.netflix.config.DynamicStringProperty;
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
+import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
@@ -37,7 +37,7 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  *
  */
 public class EurekaRibbonClientPreprocessorTests {
-	
+
 	@After
 	public void close() {
 		ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone, "");
@@ -47,40 +47,41 @@ public class EurekaRibbonClientPreprocessorTests {
 	public void basicConfigurationCreatedForLoadBalancer() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
-        SpringClientFactory clientFactory = new SpringClientFactory();
-        EurekaRibbonClientPreprocessor clientPreprocessor = new EurekaRibbonClientPreprocessor(
-				client, clientFactory);
+		SpringClientFactory clientFactory = new SpringClientFactory();
+		EurekaRibbonClientPreprocessor clientPreprocessor = new EurekaRibbonClientPreprocessor(
+				client);
 		clientPreprocessor.preprocess("service");
-		ILoadBalancer balancer = clientFactory.getNamedLoadBalancer("service");
+		ILoadBalancer balancer = clientFactory.getLoadBalancer("service");
 		assertNotNull(balancer);
 		@SuppressWarnings("unchecked")
 		ZoneAwareLoadBalancer<Server> aware = (ZoneAwareLoadBalancer<Server>) balancer;
 		assertTrue(aware.getServerListImpl() instanceof DomainExtractingServerList);
-		assertEquals("foo", ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertEquals("foo",
+				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
 	}
 
-    @Test
-    public void testSetProp() {
-        EurekaClientConfigBean client = new EurekaClientConfigBean();
-        SpringClientFactory clientFactory = new SpringClientFactory();
-        EurekaRibbonClientPreprocessor preprocessor = new EurekaRibbonClientPreprocessor(
-                client, clientFactory);
+	@Test
+	public void testSetProp() {
+		EurekaClientConfigBean client = new EurekaClientConfigBean();
+		EurekaRibbonClientPreprocessor preprocessor = new EurekaRibbonClientPreprocessor(
+				client);
 
-        String serviceId = "myService";
-        String suffix = "mySuffix";
-        String value = "myValue";
+		String serviceId = "myService";
+		String suffix = "mySuffix";
+		String value = "myValue";
 
-        DynamicStringProperty property = preprocessor.getProperty(preprocessor.getKey(serviceId, suffix));
+		DynamicStringProperty property = preprocessor.getProperty(preprocessor.getKey(
+				serviceId, suffix));
 
-        assertEquals("property doesn't have default value", VALUE_NOT_SET, property.get());
+		assertEquals("property doesn't have default value", VALUE_NOT_SET, property.get());
 
-        preprocessor.setProp(serviceId, suffix, value);
+		preprocessor.setProp(serviceId, suffix, value);
 
-        assertEquals("property has wrong value", value, property.get());
+		assertEquals("property has wrong value", value, property.get());
 
-        preprocessor.setProp(serviceId, suffix, value);
+		preprocessor.setProp(serviceId, suffix, value);
 
-        assertEquals("property has wrong value", value, property.get());
-    }
+		assertEquals("property has wrong value", value, property.get());
+	}
 
 }

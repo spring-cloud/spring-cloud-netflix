@@ -15,6 +15,9 @@
  */
 package org.springframework.cloud.netflix.eureka;
 
+import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
@@ -22,13 +25,9 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.AbstractApplicationContext;
 
-import com.netflix.appinfo.UniqueIdentifier;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-
-import static org.junit.Assert.*;
-import static org.springframework.boot.test.EnvironmentTestUtils.*;
+import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer

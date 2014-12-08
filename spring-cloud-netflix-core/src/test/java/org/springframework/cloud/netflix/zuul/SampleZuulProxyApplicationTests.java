@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -22,6 +23,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @IntegrationTest({ "server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.simple: /simple/**" })
+@DirtiesContext
 public class SampleZuulProxyApplicationTests {
 
 	@Value("${local.server.port}")
