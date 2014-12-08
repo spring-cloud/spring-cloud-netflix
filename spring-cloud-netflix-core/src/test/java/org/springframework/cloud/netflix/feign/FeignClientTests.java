@@ -21,6 +21,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignClientTests.Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest", "spring.jmx.enabled=true" })
+@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest" })
+@DirtiesContext
 public class FeignClientTests extends FeignConfiguration {
 
     @Value("${local.server.port}")

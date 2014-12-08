@@ -13,6 +13,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +29,8 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SpringDecoderTests.Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest", "spring.jmx.enabled=true" })
+@IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest" })
+@DirtiesContext
 public class SpringDecoderTests extends FeignConfiguration {
 
     @Value("${local.server.port}")
