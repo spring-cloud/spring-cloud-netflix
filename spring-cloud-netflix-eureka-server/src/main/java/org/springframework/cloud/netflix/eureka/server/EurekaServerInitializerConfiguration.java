@@ -17,6 +17,7 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import javax.servlet.ServletContext;
@@ -56,6 +57,7 @@ import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
+import com.netflix.eureka.InstanceRegistry;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
 
 /**
@@ -189,9 +191,16 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
 			if (instance == null) {
 				instance = PeerAwareInstanceRegistry.getInstance();
+				safeInit();
 				replaceInstance(getProxyForInstance());
 				expectRegistrations(1);
 			}
+		}
+
+		private void safeInit() {
+			Method method = ReflectionUtils.findMethod(InstanceRegistry.class, "postInit");
+			ReflectionUtils.makeAccessible(method);
+			ReflectionUtils.invokeMethod(method, instance);
 		}
 
 		private void replaceInstance(Object proxy) {
