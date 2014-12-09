@@ -23,7 +23,7 @@ import com.netflix.client.IClient;
  */
 @Configuration
 @ConditionalOnClass(IClient.class)
-@EnableRibbonClient
+@RibbonClients
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
 public class RibbonAutoConfiguration {
 

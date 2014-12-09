@@ -24,11 +24,10 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.EnableRibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessorIntegrationTests.TestConfiguration;
+import org.springframework.cloud.netflix.ribbon.eureka.RibbonClientPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -46,7 +45,7 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)
 @DirtiesContext
-public class EurekaRibbonClientPreprocessorIntegrationTests {
+public class RibbonClientPreprocessorIntegrationTests {
 
 	@Autowired
 	private SpringClientFactory factory;
@@ -73,11 +72,12 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
 				.getLoadBalancer("foo");
 		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter()).getZone());
+				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter())
+						.getZone());
 	}
 
 	@Configuration
-	@EnableRibbonClient(@RibbonClient(name = "foo", configuration = FooConfiguration.class))
+	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, EurekaClientAutoConfiguration.class,
 			RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })

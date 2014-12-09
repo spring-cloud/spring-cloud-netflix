@@ -33,18 +33,30 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 	public void registerBeanDefinitions(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
 		Map<String, Object> attrs = metadata.getAnnotationAttributes(
-				EnableRibbonClient.class.getName(), true);
-		if (attrs.containsKey("value")) {
+				RibbonClients.class.getName(), true);
+		if (attrs != null && attrs.containsKey("value")) {
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
-			for (AnnotationAttributes attr : clients) {
-				BeanDefinitionBuilder builder = BeanDefinitionBuilder
-						.genericBeanDefinition(RibbonClientSpecification.class);
-				builder.addConstructorArgValue(attr.get("name"));
-				builder.addConstructorArgValue(attr.get("configuration"));
-				registry.registerBeanDefinition(attr.get("name")
-						+ "RibbonClientSpecification", builder.getBeanDefinition());
+			for (AnnotationAttributes client : clients) {
+				registerClientConfiguration(registry, client.get("name"),
+						client.get("configuration"));
 			}
 		}
+		Map<String, Object> client = metadata.getAnnotationAttributes(
+				RibbonClient.class.getName(), true);
+		if (client != null && client.containsKey("name")) {
+			registerClientConfiguration(registry, client.get("name"),
+					client.get("configuration"));
+		}
+	}
+
+	private void registerClientConfiguration(BeanDefinitionRegistry registry,
+			Object name, Object configuration) {
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder
+				.genericBeanDefinition(RibbonClientSpecification.class);
+		builder.addConstructorArgValue(name);
+		builder.addConstructorArgValue(configuration);
+		registry.registerBeanDefinition(name + "RibbonClientSpecification",
+				builder.getBeanDefinition());
 	}
 
 }
