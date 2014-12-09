@@ -1,17 +1,21 @@
 package org.springframework.cloud.netflix.feign;
 
-import feign.*;
+import java.net.URI;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
+import org.springframework.context.annotation.Configuration;
+
+import feign.Client;
+import feign.Contract;
+import feign.Feign;
+import feign.Logger;
+import feign.Request;
+import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import feign.ribbon.LoadBalancingTarget;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
-
-import javax.inject.Inject;
-import java.net.URI;
 
 /**
  * @author Spencer Gibb
@@ -20,9 +24,6 @@ import java.net.URI;
 public class FeignConfiguration {
     @Autowired
     ConfigurableEnvironmentConfiguration envConfig; //FIXME: howto enforce this?
-
-    @Autowired
-    RibbonClientPreprocessor ribbonClientPreprocessor;
 
     @Autowired
     Decoder decoder;
@@ -78,9 +79,6 @@ public class FeignConfiguration {
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
         String name = URI.create(schemeName).getHost();
-        // TODO: This should be transparent
-        ribbonClientPreprocessor.preprocess(name);
-
         if(ribbonClient != null) {
             return builder.client(ribbonClient).target(type, schemeName);
         } else {

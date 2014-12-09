@@ -15,19 +15,16 @@
  */
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
+import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
 /**
@@ -40,13 +37,6 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 @ConditionalOnBean(SpringClientFactory.class)
 @ConditionalOnExpression("${ribbon.eureka.enabled:true}")
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
+@RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class)
 public class RibbonEurekaAutoConfiguration {
-	
-	@Autowired(required=false)
-	private EurekaClientConfig clientConfig;
-
-    @Bean
-    public RibbonClientPreprocessor ribbonClientPreprocessor() {
-        return new EurekaRibbonClientPreprocessor(clientConfig);
-    }
 }

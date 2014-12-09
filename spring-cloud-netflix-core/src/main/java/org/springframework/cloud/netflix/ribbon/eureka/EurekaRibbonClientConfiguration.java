@@ -6,7 +6,11 @@ import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRule
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
 import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
 
-import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -24,19 +28,29 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor {
+@Configuration
+public class EurekaRibbonClientConfiguration {
+
+	@Value("${ribbon.client.name}")
+	private String serviceId = "client";
 
 	protected static final String VALUE_NOT_SET = "__not__set__";
 	protected static final String DEFAULT_NAMESPACE = "ribbon";
 
+	@Autowired(required = false)
 	private EurekaClientConfig clientConfig;
 
-	public EurekaRibbonClientPreprocessor(EurekaClientConfig clientConfig) {
-		this.clientConfig = clientConfig;
+	public EurekaRibbonClientConfiguration() {
 	}
 
-	@Override
-	public void preprocess(String serviceId) {
+	public EurekaRibbonClientConfiguration(EurekaClientConfig clientConfig,
+			String serviceId) {
+		this.clientConfig = clientConfig;
+		this.serviceId = serviceId;
+	}
+
+	@PostConstruct
+	public void preprocess() {
 		if (clientConfig != null
 				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
 			String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
@@ -49,14 +63,12 @@ public class EurekaRibbonClientPreprocessor implements RibbonClientPreprocessor 
 			}
 		}
 		// TODO: should this look more like hibernate spring boot props?
-		// TODO: only set the property if it hasn't already been set?
 		setProp(serviceId, NIWSServerListClassName.key(),
 				DiscoveryEnabledNIWSServerList.class.getName());
 		// FIXME: what should this be?
 		setProp(serviceId, DeploymentContextBasedVipAddresses.key(), serviceId);
 		setProp(serviceId, NFLoadBalancerRuleClassName.key(),
 				ZoneAvoidanceRule.class.getName());
-		// TODO: use bean name indirection to get this filter to be a @Bean
 		setProp(serviceId, NIWSServerListFilterClassName.key(),
 				ZonePreferenceServerListFilter.class.getName());
 		setProp(serviceId, EnableZoneAffinity.key(), "true");

@@ -31,9 +31,6 @@ import com.netflix.loadbalancer.ServerStats;
 public class RibbonLoadBalancerClientTests {
 
     @Mock
-    RibbonClientPreprocessor preprocessor;
-
-    @Mock
     SpringClientFactory clientFactory;
 
     @Mock

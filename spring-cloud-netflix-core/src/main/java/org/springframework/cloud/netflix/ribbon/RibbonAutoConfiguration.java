@@ -58,19 +58,4 @@ public class RibbonAutoConfiguration {
 		return new RibbonInterceptor(loadBalancerClient);
 	}
 
-	@Configuration
-	protected static class DefaultRibbonClientPreprocessor {
-
-		@Bean
-		@ConditionalOnMissingBean(RibbonClientPreprocessor.class)
-		public RibbonClientPreprocessor ribbonClientPreprocessor() {
-			return new RibbonClientPreprocessor() {
-				@Override
-				public void preprocess(String serviceId) {
-					// no-op
-				}
-			};
-		}
-
-	}
 }

@@ -17,7 +17,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.trace.TraceRepository;
-import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessor;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.util.StringUtils;
 
@@ -40,13 +39,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	private TraceRepository traces;
 
-	private RibbonClientPreprocessor preprocessor;
-
 	private SpringClientFactory clientFactory;
 
-	public RibbonRoutingFilter(RibbonClientPreprocessor preprocessor,
-			SpringClientFactory clientFactory) {
-		this.preprocessor = preprocessor;
+	public RibbonRoutingFilter(SpringClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 

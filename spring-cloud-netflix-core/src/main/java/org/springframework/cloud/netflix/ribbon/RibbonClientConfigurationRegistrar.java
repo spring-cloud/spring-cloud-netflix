@@ -41,6 +41,10 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 						client.get("configuration"));
 			}
 		}
+		if (attrs != null && attrs.containsKey("defaultConfiguration")) {
+			registerClientConfiguration(registry, "default." + metadata.getEnclosingClassName(),
+					attrs.get("defaultConfiguration"));
+		}
 		Map<String, Object> client = metadata.getAnnotationAttributes(
 				RibbonClient.class.getName(), true);
 		if (client != null && client.containsKey("name")) {
@@ -55,7 +59,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 				.genericBeanDefinition(RibbonClientSpecification.class);
 		builder.addConstructorArgValue(name);
 		builder.addConstructorArgValue(configuration);
-		registry.registerBeanDefinition(name + "RibbonClientSpecification",
+		registry.registerBeanDefinition(name + ".RibbonClientSpecification",
 				builder.getBeanDefinition());
 	}
 

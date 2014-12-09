@@ -66,7 +66,7 @@ public class EurekaHealthIndicator implements HealthIndicator {
 				"Remote status from Eureka server");
 		@SuppressWarnings("unchecked")
 		Metric<Number> value = (Metric<Number>) metrics
-				.findOne("counter.servo.DiscoveryClient_Failed");
+				.findOne("counter.servo.discoveryclient_failed");
 		if (value != null) {
 			int renewalPeriod = instanceConfig.getLeaseRenewalIntervalInSeconds();
 			int latest = value.getValue().intValue();

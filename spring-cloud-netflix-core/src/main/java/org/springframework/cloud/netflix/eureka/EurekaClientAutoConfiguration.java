@@ -70,8 +70,7 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config) {
-		return new EurekaHealthIndicator(discoveryClient, new ServoMetricReader(),
-				config);
+		return new EurekaHealthIndicator(discoveryClient, new ServoMetricReader(), config);
 	}
 
 }

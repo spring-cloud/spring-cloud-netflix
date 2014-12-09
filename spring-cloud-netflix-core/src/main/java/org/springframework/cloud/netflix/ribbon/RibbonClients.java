@@ -40,4 +40,6 @@ public @interface RibbonClients {
 
 	RibbonClient[] value() default {};
 
+	Class<?>[] defaultConfiguration() default {};
+
 }

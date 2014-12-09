@@ -15,9 +15,6 @@
  */
 package org.springframework.cloud.netflix.ribbon;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -52,19 +49,9 @@ public class RibbonClientConfiguration {
 	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
 	private boolean approximateZoneFromHostname = false;
 
-	@Autowired(required = false)
-	private RibbonClientPreprocessor preprocessor;
-
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be
 	// associated with ribbon clients
 	
-	@PostConstruct
-	public void init() {
-		if (preprocessor!=null) {			
-			preprocessor.preprocess(name);
-		}
-	}
-
 	@Bean
 	@ConditionalOnMissingBean
 	public IClientConfig ribbonClientConfig() {

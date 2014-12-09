@@ -18,7 +18,7 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessor.VALUE_NOT_SET;
+import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
 
 import org.junit.After;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  * @author Dave Syer
  *
  */
-public class EurekaRibbonClientPreprocessorTests {
+public class EurekaRibbonClientConfigurationTests {
 
 	@After
 	public void close() {
@@ -48,9 +48,9 @@ public class EurekaRibbonClientPreprocessorTests {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
 		SpringClientFactory clientFactory = new SpringClientFactory();
-		EurekaRibbonClientPreprocessor clientPreprocessor = new EurekaRibbonClientPreprocessor(
-				client);
-		clientPreprocessor.preprocess("service");
+		EurekaRibbonClientConfiguration clientPreprocessor = new EurekaRibbonClientConfiguration(
+				client, "service");
+		clientPreprocessor.preprocess();
 		ILoadBalancer balancer = clientFactory.getLoadBalancer("service");
 		assertNotNull(balancer);
 		@SuppressWarnings("unchecked")
@@ -63,8 +63,8 @@ public class EurekaRibbonClientPreprocessorTests {
 	@Test
 	public void testSetProp() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		EurekaRibbonClientPreprocessor preprocessor = new EurekaRibbonClientPreprocessor(
-				client);
+		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
+				client, "myService");
 
 		String serviceId = "myService";
 		String suffix = "mySuffix";
