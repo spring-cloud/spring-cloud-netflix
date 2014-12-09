@@ -33,6 +33,7 @@ import com.netflix.loadbalancer.ZoneAffinityServerListFilter;
  * 
  * @author Dave Syer
  *
+ * TODO: move out of ribbon.eureka package since it has nothing specific to eureka
  */
 @Data
 @EqualsAndHashCode(callSuper=false)

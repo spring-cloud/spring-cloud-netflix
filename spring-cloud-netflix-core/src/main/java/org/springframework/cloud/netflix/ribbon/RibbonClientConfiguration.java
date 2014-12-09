@@ -22,18 +22,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList;
+import org.springframework.cloud.netflix.ribbon.eureka.ZonePreferenceServerListFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.loadbalancer.DynamicServerListLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListFilter;
-import com.netflix.loadbalancer.ZoneAffinityServerListFilter;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
 import com.netflix.servo.monitor.Monitors;
@@ -50,8 +49,8 @@ public class RibbonClientConfiguration {
 	@Value("${ribbon.client.name}")
 	private String name = "client";
 
-	@Autowired(required = false)
-	private EurekaClientConfig eurekaClientConfig;
+	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
+	private boolean approximateZoneFromHostname = false;
 
 	@Autowired(required = false)
 	private RibbonClientPreprocessor preprocessor;
@@ -85,8 +84,9 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	//TODO: move to ribbon.eureka package
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config, ServerListFilter<Server> filter) {
-		ZoneAwareLoadBalancer<Server> balancer = new ZoneAwareLoadBalancer<Server>(config);
+		ZoneAwareLoadBalancer<Server> balancer = new ZoneAwareLoadBalancer<>(config);
 		wrapServerList(balancer);
 		balancer.setFilter(filter);
 		return balancer;
@@ -95,7 +95,9 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerListFilter<Server> ribbonServerListFilter(IClientConfig config) {
-		return new ZoneAffinityServerListFilter<Server>(config);
+		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
+		filter.initWithNiwsConfig(config);
+		return filter;
 	}
 	
 	@Bean
@@ -115,7 +117,7 @@ public class RibbonClientConfiguration {
 				// metadata *is* available.
 				// @see com.netflix.appinfo.AmazonInfo.Builder
 				dynamic.setServerListImpl(new DomainExtractingServerList(list, dynamic
-						.getClientConfig()));
+						.getClientConfig(), approximateZoneFromHostname));
 			}
 		}
 	}

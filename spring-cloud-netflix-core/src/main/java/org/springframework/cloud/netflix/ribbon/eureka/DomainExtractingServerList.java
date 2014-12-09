@@ -38,11 +38,13 @@ public class DomainExtractingServerList implements ServerList<Server> {
 
     private ServerList<Server> list;
     private IClientConfig clientConfig;
+	private boolean approximateZoneFromHostname;
 
-    public DomainExtractingServerList(ServerList<Server> list, IClientConfig clientConfig) {
+	public DomainExtractingServerList(ServerList<Server> list, IClientConfig clientConfig, boolean approximateZoneFromHostname) {
         this.list = list;
         this.clientConfig = clientConfig;
-    }
+		this.approximateZoneFromHostname = approximateZoneFromHostname;
+	}
 
     @Override
     public List<Server> getInitialListOfServers() {
@@ -63,7 +65,7 @@ public class DomainExtractingServerList implements ServerList<Server> {
         for (Server server : servers) {
             if (server instanceof DiscoveryEnabledServer) {
                 result.add(new DomainExtractingServer((DiscoveryEnabledServer) server,
-                        isSecure, shouldUseIpAddr));
+                        isSecure, shouldUseIpAddr, approximateZoneFromHostname));
             }
             else {
                 result.add(server);
@@ -80,10 +82,17 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
     @Setter
     private String id;
 
-    public DomainExtractingServer(DiscoveryEnabledServer server, boolean useSecurePort, boolean useIpAddr) {
+    public DomainExtractingServer(DiscoveryEnabledServer server, boolean useSecurePort, boolean useIpAddr, boolean approximateZoneFromHostname) {
+		//host and port are set in super()
         super(server.getInstanceInfo(), useSecurePort, useIpAddr);
-        setZone(extractApproximateZone(server));
+		if (approximateZoneFromHostname) {
+			setZone(extractApproximateZone(server));
+		} else {
+			setZone(server.getZone());
+		}
         setId(extractId(server));
+		setAlive(server.isAlive());
+		setReadyToServe(server.isReadyToServe());
     }
 
     private String extractId(Server server) {
