@@ -127,6 +127,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 											eurekaServerConfig));
 						}
 					}.contextInitialized(new ServletContextEvent(servletContext));
+					logger.info("Started Eureka Server");
 					running = true;
 					applicationContext.publishEvent(new EurekaServerStartedEvent(
 							eurekaServerConfig));
