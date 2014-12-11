@@ -15,8 +15,8 @@ include::intro.adoc[]
 
 == Building
 
-include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/src/main/asciidoc/building.adoc[]
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/building.adoc[]
 
 == Contributing
 
-include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/src/main/asciidoc/contributing.adoc[]
+include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/contributing.adoc[]
