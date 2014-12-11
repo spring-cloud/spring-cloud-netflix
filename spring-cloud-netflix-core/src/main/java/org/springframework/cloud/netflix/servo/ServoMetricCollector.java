@@ -17,15 +17,13 @@
 package org.springframework.cloud.netflix.servo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.publish.BaseMetricObserver;
@@ -37,23 +35,19 @@ import com.netflix.servo.publish.PollScheduler;
 
 /**
  * {@link MetricReader} implementation that registers a {@link MetricObserver} with the
- * Netflix Servo library and exposes Servo metrics to the <code>/metric</code> endpoint. 
+ * Netflix Servo library and exposes Servo metrics to the <code>/metric</code> endpoint.
  * 
  * @author Dave Syer
  * @author Christian Dupuis
  */
-public class ServoMetricReader implements MetricReader {
+public class ServoMetricCollector {
 
-	private static final Object monitor = new Object();
-
-	private final Map<String, Metric<?>> metrics = new HashMap<String, Metric<?>>();
-
-	public ServoMetricReader() {
+	public ServoMetricCollector(MetricWriter metrics) {
 		List<MetricObserver> observers = new ArrayList<MetricObserver>();
-		observers.add(new ServoMetricObserver(this.metrics));
+		observers.add(new ServoMetricObserver(metrics));
 		PollRunnable task = new PollRunnable(new MonitorRegistryMetricPoller(),
 				BasicMetricFilter.MATCH_ALL, true, observers);
-	
+
 		if (!PollScheduler.getInstance().isStarted()) {
 			PollScheduler.getInstance().start();
 		}
@@ -61,57 +55,31 @@ public class ServoMetricReader implements MetricReader {
 		PollScheduler.getInstance().addPoller(task, 5, TimeUnit.SECONDS);
 	}
 
-	@Override
-	public Metric<?> findOne(String metricName) {
-		synchronized (monitor) {
-			return this.metrics.get(metricName);
-		}
-	}
-
-	@Override
-	public Iterable<Metric<?>> findAll() {
-		synchronized (monitor) {
-			return Collections.unmodifiableCollection(this.metrics.values());
-		}
-	}
-
-	@Override
-	public long count() {
-		synchronized (monitor) {
-			return this.metrics.size();
-		}
-	}
-
 	/**
-	 * {@link MetricObserver} to convert Servo metrics into Spring Boot {@link Metric} instances. 
+	 * {@link MetricObserver} to convert Servo metrics into Spring Boot {@link Metric}
+	 * instances.
 	 */
 	private static final class ServoMetricObserver extends BaseMetricObserver {
 
-		private final Map<String, Metric<?>> metrics;
+		private final MetricWriter metrics;
 
-		public ServoMetricObserver(Map<String, Metric<?>> metrics) {
+		public ServoMetricObserver(MetricWriter metrics) {
 			super("spring-boot");
 			this.metrics = metrics;
 		}
 
 		@Override
 		public void updateImpl(List<com.netflix.servo.Metric> servoMetrics) {
-			Map<String, Metric<?>> newMetrics = new HashMap<String, Metric<?>>();
 			for (com.netflix.servo.Metric servoMetric : servoMetrics) {
 				MonitorConfig config = servoMetric.getConfig();
 				String type = config.getTags().getValue("type");
-				String key = new StringBuilder(type).append(".servo.").append(config.getName())
-						.toString().toLowerCase();
-				
+				String key = new StringBuilder(type).append(".servo.")
+						.append(config.getName()).toString().toLowerCase();
+
 				if (servoMetric.hasNumberValue()) {
-					newMetrics.put(key, new Metric<Number>(key, servoMetric.getNumberValue(), 
+					metrics.set(new Metric<Number>(key, servoMetric.getNumberValue(),
 							new Date(servoMetric.getTimestamp())));
 				}
-			}
-
-			synchronized (monitor) {
-				this.metrics.clear();
-				this.metrics.putAll(newMetrics);
 			}
 		}
 	}

@@ -18,8 +18,8 @@ package org.springframework.cloud.netflix.servo;
 
 import org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
-import org.springframework.boot.actuate.endpoint.MetricReaderPublicMetrics;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
+import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -45,7 +45,7 @@ public class ServoMetricsAutoConfiguration {
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public MetricReaderPublicMetrics servoPublicMetrics() {
-		return new MetricReaderPublicMetrics(new ServoMetricReader());
+	public ServoMetricCollector servoMetricCollector(MetricWriter metrics) {
+		return new ServoMetricCollector(metrics);
 	}
 }

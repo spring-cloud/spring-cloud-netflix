@@ -18,12 +18,12 @@ package org.springframework.cloud.netflix.eureka;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.servo.ServoMetricReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -69,8 +69,9 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config) {
-		return new EurekaHealthIndicator(discoveryClient, new ServoMetricReader(), config);
+	@ConditionalOnBean(MetricReader.class)
+	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config, MetricReader metrics) {
+		return new EurekaHealthIndicator(discoveryClient, metrics, config);
 	}
 
 }
