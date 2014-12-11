@@ -1,6 +1,8 @@
 package org.springframework.cloud.netflix.eureka.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
@@ -53,5 +55,18 @@ public class ApplicationTests {
 				"http://localhost:" + port + "/env", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
+
+	@Test
+	public void noDoubleSlashes() {
+		String basePath = "http://localhost:" + port + "/";
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
+				basePath, String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertNotNull(body);
+		assertFalse("basePath contains double slashes", body.contains(basePath+"/"));
+
+	}
+
 
 }
