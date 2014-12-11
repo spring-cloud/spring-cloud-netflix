@@ -11,6 +11,8 @@ import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +27,9 @@ import java.util.*;
  */
 @Controller
 public class EurekaController {
+
+	@Autowired
+	ServerProperties serverProperties;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String status(HttpServletRequest request, Map<String, Object> model) {
@@ -70,9 +75,10 @@ public class EurekaController {
     }
 
     protected void populateBase(HttpServletRequest request, Map<String, Object> model) {
-        String servletPath = request.getServletPath();
-		String path = request.getContextPath() + (servletPath==null ? "" : servletPath);
-        String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
+		String contextPath = serverProperties.getContextPath();
+		String path = (contextPath == null) ? "" : contextPath + serverProperties.getServletPath();
+		path = path.replace("//", "/");
+		String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
 
 		if (!basePath.endsWith("/")) {
 			basePath += "/";
