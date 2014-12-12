@@ -49,6 +49,7 @@ public class ProxyRouteLocatorTests {
 		routeLocator.getRoutes(); // force refresh
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
 		assertEquals("foo", route.getLocation());
+		assertEquals("foo", route.getId());
 	}
 
 	@Test
@@ -65,7 +66,7 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testGetMatchingPathWithNoPrefixStripping() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
-		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo", null, false));
+		this.properties.getRoutes().put("foo", new ZuulRoute("foo", "/foo/**", "foo", null, false));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
@@ -89,7 +90,7 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testGetMatchingPathWithGlobalPrefixStripping() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
-		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo", null, false));
+		this.properties.getRoutes().put("foo", new ZuulRoute("foo", "/foo/**", "foo", null, false));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");

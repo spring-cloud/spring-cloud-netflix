@@ -315,7 +315,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 
 		for (String key : resp.getHeaders().keySet()) {
-			boolean isValidHeader = isValidHeader(key);
+			boolean isValidHeader = isIncludedHeader(key);
 			Collection<java.lang.String> list = resp.getHeaders().get(key);
 			for (String header : list) {
 				context.addOriginResponseHeader(key, header);
@@ -331,7 +331,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	}
 
-	boolean isValidHeader(String headerName) {
+	private boolean isIncludedHeader(String headerName) {
 		switch (headerName.toLowerCase()) {
 		case "connection":
 		case "content-length":

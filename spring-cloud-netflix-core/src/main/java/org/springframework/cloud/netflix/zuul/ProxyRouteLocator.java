@@ -72,11 +72,13 @@ public class ProxyRouteLocator {
 	public ProxyRouteSpec getMatchingRoute(String path) {
 		String location = null;
 		String targetPath = null;
+		String id = null;
 		String prefix = properties.getPrefix();
 		for (Entry<String, ZuulRoute> entry : routes.get().entrySet()) {
 			String pattern = entry.getKey();
 			if (pathMatcher.match(pattern, path)) {
 				ZuulRoute route = entry.getValue();
+				id = route.getId();
 				location = route.getLocation();
 				targetPath = path;
 				if (path.startsWith(prefix) && properties.isStripPrefix()) {
@@ -93,7 +95,7 @@ public class ProxyRouteLocator {
 				break;
 			}
 		}
-		return location == null ? null : new ProxyRouteSpec(targetPath, location, prefix);
+		return location == null ? null : new ProxyRouteSpec(id, targetPath, location, prefix);
 	}
 
 	// Package access so ZuulHandlerMapping can reset it's mappings
@@ -178,6 +180,7 @@ public class ProxyRouteLocator {
 	@Data
 	@AllArgsConstructor
 	public static class ProxyRouteSpec {
+		private String id;
 		private String path;
 		private String location;
 		private String prefix;

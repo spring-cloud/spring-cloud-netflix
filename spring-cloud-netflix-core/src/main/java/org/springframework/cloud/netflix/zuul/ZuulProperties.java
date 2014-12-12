@@ -32,6 +32,12 @@ public class ZuulProperties {
 			if (!StringUtils.hasText(value.getLocation())) {
 				value.serviceId = entry.getKey();
 			}
+			if (!StringUtils.hasText(value.getId())) {
+				value.id = entry.getKey();
+			}
+			if (!StringUtils.hasText(value.getPath())) {
+				value.path = "/" + entry.getKey() + "/**";
+			}
 		}
 		return this.routes;
 	}
@@ -40,6 +46,7 @@ public class ZuulProperties {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class ZuulRoute {
+		private String id;
 		private String path;
 		private String serviceId;
 		private String url;
@@ -54,6 +61,7 @@ public class ZuulProperties {
 				location = values[1];
 				path = values[0];
 			}
+			this.id = extractId(path);
 			if (!path.startsWith("/")) {
 				path = "/" + path;
 			}
@@ -62,6 +70,7 @@ public class ZuulProperties {
 		}
 
 		public ZuulRoute(String path, String location) {
+			this.id = extractId(path);
 			this.path = path;
 			setLocation(location);
 		}
@@ -81,6 +90,12 @@ public class ZuulProperties {
 			else {
 				serviceId = location;
 			}
+		}
+		
+		private String extractId(String path) {
+			path = path.startsWith("/") ? path.substring(1) : path;
+			path = path.replace("/*","").replace("*", "");
+			return path;
 		}
 	}
 

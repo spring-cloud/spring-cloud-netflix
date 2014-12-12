@@ -299,7 +299,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return requestEntity;
 	}
 
-	boolean isValidHeader(String name) {
+	private boolean isIncludedHeader(String name) {
 		if (name.toLowerCase().contains("content-length"))
 			return false;
 		if (!RequestContext.getCurrentContext().getResponseGZipped()) {
@@ -316,7 +316,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		while (headerNames.hasMoreElements()) {
 			String name = (String) headerNames.nextElement();
 			String value = request.getHeader(name);
-			if (isValidHeader(name))
+			if (isIncludedHeader(name))
 				headers.add(new BasicHeader(name, value));
 		}
 

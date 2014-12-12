@@ -55,7 +55,7 @@ public class PreDecorationFilterTests {
 		properties.setPrefix("/api");
 		properties.setStripPrefix(true);
 		request.setRequestURI("/api/foo/1");
-		routeLocator.addRoute(new ZuulRoute("/foo/**", "foo", null, false));
+		routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false));
 		filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
