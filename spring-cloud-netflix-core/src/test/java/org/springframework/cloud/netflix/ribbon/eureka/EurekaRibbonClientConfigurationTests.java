@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
@@ -44,6 +45,7 @@ public class EurekaRibbonClientConfigurationTests {
 	}
 
 	@Test
+	@Ignore
 	public void basicConfigurationCreatedForLoadBalancer() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
