@@ -17,9 +17,6 @@ package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.reader.MetricReader;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,7 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
@@ -40,12 +36,8 @@ import com.netflix.discovery.converters.XmlXStream;
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
-@ConditionalOnBean(DiscoveryClient.class)
 @ConditionalOnExpression("${eureka.client.enabled:true}")
 public class EurekaClientAutoConfiguration {
-
-	@Autowired
-	private DiscoveryClient discoveryClient;
 
 	@PostConstruct
 	public void init() {
@@ -67,11 +59,5 @@ public class EurekaClientAutoConfiguration {
 		return new EurekaInstanceConfigBean();
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
-	@ConditionalOnBean(MetricReader.class)
-	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config, MetricReader metrics) {
-		return new EurekaHealthIndicator(discoveryClient, metrics, config);
-	}
 
 }

@@ -17,10 +17,13 @@ package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PreDestroy;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.reader.MetricReader;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -169,4 +172,11 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		};
 	}
 
+
+	@Bean
+	@ConditionalOnMissingBean
+	@ConditionalOnBean(MetricReader.class)
+	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config, MetricReader metrics) {
+		return new EurekaHealthIndicator(eurekaDiscoveryClient(), metrics, config);
+	}
 }
