@@ -3,50 +3,35 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.util.StringUtils;
 
 import com.netflix.client.ClientException;
 import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.niws.client.http.RestClient;
-import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.util.HTTPRequestUtils;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
-public class RibbonRoutingFilter extends ZuulFilter {
+public class RibbonRoutingFilter extends BaseProxyFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RibbonRoutingFilter.class);
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
-	private TraceRepository traces;
-
 	private SpringClientFactory clientFactory;
 
 	public RibbonRoutingFilter(SpringClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
-	}
-
-	public void setTraces(TraceRepository traces) {
-		this.traces = traces;
 	}
 
 	@Override
@@ -93,94 +78,23 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 		catch (Exception e) {
 			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            context.set("error.exception", e);
+			context.set("error.exception", e);
 		}
-        return null;
-	}
-
-	private Map<String, Object> debug(Verb verb, String uri,
-			MultivaluedMap<String, String> headers,
-			MultivaluedMap<String, String> params, InputStream requestEntity)
-			throws IOException {
-
-		Map<String, Object> info = new LinkedHashMap<String, Object>();
-		if (traces != null) {
-
-			RequestContext context = RequestContext.getCurrentContext();
-			info.put("remote", true);
-			info.put("serviceId", context.get("serviceId"));
-			Map<String, Object> trace = new LinkedHashMap<String, Object>();
-			Map<String, Object> input = new LinkedHashMap<String, Object>();
-			trace.put("request", input);
-			info.put("headers", trace);
-			for (Entry<String, List<String>> entry : headers.entrySet()) {
-				Collection<String> collection = entry.getValue();
-				Object value = collection;
-				if (collection.size() < 2) {
-					value = collection.isEmpty() ? "" : collection.iterator().next();
-				}
-				input.put(entry.getKey(), value);
-			}
-			StringBuilder query = new StringBuilder();
-			for (String param : params.keySet()) {
-				for (String value : params.get(param)) {
-					query.append(param);
-					query.append("=");
-					query.append(value);
-					query.append("&");
-				}
-			}
-
-			info.put("method", verb.verb());
-			info.put("uri", uri);
-			info.put("query", query.toString());
-			RequestContext ctx = RequestContext.getCurrentContext();
-			if (!ctx.isChunkedRequestBody()) {
-				if (requestEntity != null) {
-					debugRequestEntity(info, ctx.getRequest().getInputStream());
-				}
-			}
-			traces.add(info);
-			return info;
-		}
-		return info;
-	}
-
-	private void debugRequestEntity(Map<String, Object> info, InputStream inputStream)
-			throws IOException {
-		String entity = IOUtils.toString(inputStream);
-		if (StringUtils.hasText(entity)) {
-			info.put("body", entity);
-		}
+		return null;
 	}
 
 	private HttpResponse forward(RestClient restClient, Verb verb, String uri,
 			MultivaluedMap<String, String> headers,
 			MultivaluedMap<String, String> params, InputStream requestEntity)
 			throws Exception {
-		
-		Map<String, Object> info = debug(verb, uri, headers, params, requestEntity);
+
+		Map<String, Object> info = debug(verb.verb(), uri, headers, params, requestEntity);
 
 		RibbonCommand command = new RibbonCommand(restClient, verb, uri, headers, params,
 				requestEntity);
 		try {
 			HttpResponse response = command.execute();
-			if (traces != null) {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> trace = (Map<String, Object>) info.get("headers");
-				Map<String, Object> output = new LinkedHashMap<String, Object>();
-				trace.put("response", output);
-				info.put("status", ""+response.getStatus());
-				for (Entry<String, Collection<String>> key : response.getHeaders()
-						.entrySet()) {
-					Collection<String> collection = key.getValue();
-					Object value = collection;
-					if (collection.size() < 2) {
-						value = collection.isEmpty() ? "" : collection.iterator().next();
-					}
-					output.put(key.getKey(), value);
-				}
-			}
+			appendDebug(info, response.getStatus(), response.getHeaders());
 			return response;
 		}
 		catch (HystrixRuntimeException e) {
@@ -201,10 +115,10 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	private InputStream getRequestBody(HttpServletRequest request) {
 		InputStream requestEntity = null;
-        //ApacheHttpClient4Handler does not support body in delete requests
-        if (request.getMethod().equals("DELETE")) {
-            return null;
-        }
+		// ApacheHttpClient4Handler does not support body in delete requests
+		if (request.getMethod().equals("DELETE")) {
+			return null;
+		}
 		try {
 			requestEntity = (InputStream) RequestContext.getCurrentContext().get(
 					"requestEntity");
@@ -217,56 +131,6 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 
 		return requestEntity;
-	}
-
-	private MultivaluedMap<String, String> buildZuulRequestQueryParams(
-			HttpServletRequest request) {
-
-		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
-
-		MultivaluedMap<String, String> params = new MultivaluedMapImpl();
-		if (map == null)
-			return params;
-
-		for (String key : map.keySet()) {
-
-			for (String value : map.get(key)) {
-				params.add(key, value);
-			}
-		}
-		return params;
-	}
-
-	private MultivaluedMap<String, String> buildZuulRequestHeaders(
-			HttpServletRequest request) {
-
-		RequestContext context = RequestContext.getCurrentContext();
-
-		MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
-		Enumeration<?> headerNames = request.getHeaderNames();
-		if (headerNames != null) {
-			while (headerNames.hasMoreElements()) {
-				String name = (String) headerNames.nextElement();
-				String value = request.getHeader(name);
-				if (!name.toLowerCase().contains("content-length"))
-					headers.putSingle(name, value);
-			}
-		}
-		Map<String, String> zuulRequestHeaders = context.getZuulRequestHeaders();
-
-		for (String header : zuulRequestHeaders.keySet()) {
-			headers.putSingle(header, zuulRequestHeaders.get(header));
-		}
-
-		headers.putSingle("accept-encoding", "deflate, gzip");
-
-		if (headers.containsKey("transfer-encoding"))
-			headers.remove("transfer-encoding");
-
-		if (headers.containsKey("host"))
-			headers.remove("host");
-
-		return headers;
 	}
 
 	Verb getVerb(HttpServletRequest request) {

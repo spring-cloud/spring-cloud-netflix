@@ -1,6 +1,15 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import javax.ws.rs.core.MultivaluedMap;
+
 import com.netflix.client.http.HttpRequest;
+import com.netflix.client.http.HttpRequest.Builder;
+import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.hystrix.HystrixCommand;
@@ -10,15 +19,6 @@ import com.netflix.niws.client.http.RestClient;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
-import javax.ws.rs.core.MultivaluedMap;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import static com.netflix.client.http.HttpRequest.Builder;
-import static com.netflix.client.http.HttpRequest.Verb;
-
 /**
  * Hystrix wrapper around Eureka Ribbon command
  *
@@ -26,12 +26,12 @@ import static com.netflix.client.http.HttpRequest.Verb;
  */
 public class RibbonCommand extends HystrixCommand<HttpResponse> {
 
-    RestClient restClient;
-    Verb verb;
-    URI uri;
-    MultivaluedMap<String, String> headers;
-    MultivaluedMap<String, String> params;
-    InputStream requestEntity;
+    private RestClient restClient;
+    private Verb verb;
+    private URI uri;
+    private MultivaluedMap<String, String> headers;
+    private MultivaluedMap<String, String> params;
+    private InputStream requestEntity;
 
     public RibbonCommand(RestClient restClient,
                          Verb verb,
