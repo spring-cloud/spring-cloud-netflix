@@ -18,11 +18,12 @@ import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.niws.client.http.RestClient;
+import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.util.HTTPRequestUtils;
 
-public class RibbonRoutingFilter extends BaseProxyFilter {
+public class RibbonRoutingFilter extends ZuulFilter {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RibbonRoutingFilter.class);
 
@@ -30,8 +31,16 @@ public class RibbonRoutingFilter extends BaseProxyFilter {
 
 	private SpringClientFactory clientFactory;
 
-	public RibbonRoutingFilter(SpringClientFactory clientFactory) {
+	private ProxyRequestHelper helper;
+
+	public RibbonRoutingFilter(ProxyRequestHelper helper,
+			SpringClientFactory clientFactory) {
+		this.helper = helper;
 		this.clientFactory = clientFactory;
+	}
+
+	public RibbonRoutingFilter(SpringClientFactory clientFactory) {
+		this(new ProxyRequestHelper(), clientFactory);
 	}
 
 	@Override
@@ -54,8 +63,9 @@ public class RibbonRoutingFilter extends BaseProxyFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
-		MultivaluedMap<String, String> headers = buildZuulRequestHeaders(request);
-		MultivaluedMap<String, String> params = buildZuulRequestQueryParams(request);
+		MultivaluedMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		MultivaluedMap<String, String> params = helper
+				.buildZuulRequestQueryParams(request);
 		Verb verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
 
@@ -88,13 +98,14 @@ public class RibbonRoutingFilter extends BaseProxyFilter {
 			MultivaluedMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 
-		Map<String, Object> info = debug(verb.verb(), uri, headers, params, requestEntity);
+		Map<String, Object> info = helper.debug(verb.verb(), uri, headers, params,
+				requestEntity);
 
 		RibbonCommand command = new RibbonCommand(restClient, verb, uri, headers, params,
 				requestEntity);
 		try {
 			HttpResponse response = command.execute();
-			appendDebug(info, response.getStatus(), response.getHeaders());
+			helper.appendDebug(info, response.getStatus(), response.getHeaders());
 			return response;
 		}
 		catch (HystrixRuntimeException e) {
@@ -155,57 +166,9 @@ public class RibbonRoutingFilter extends BaseProxyFilter {
 		return Verb.GET;
 	}
 
-	void setResponse(HttpResponse resp) throws ClientException, IOException {
-		RequestContext context = RequestContext.getCurrentContext();
-
-		context.setResponseStatusCode(resp.getStatus());
-		if (resp.hasEntity()) {
-			context.setResponseDataStream(resp.getInputStream());
-		}
-
-		String contentEncoding = null;
-		Collection<String> contentEncodingHeader = resp.getHeaders()
-				.get(CONTENT_ENCODING);
-		if (contentEncodingHeader != null && !contentEncodingHeader.isEmpty()) {
-			contentEncoding = contentEncodingHeader.iterator().next();
-		}
-
-		if (contentEncoding != null
-				&& HTTPRequestUtils.getInstance().isGzipped(contentEncoding)) {
-			context.setResponseGZipped(true);
-		}
-		else {
-			context.setResponseGZipped(false);
-		}
-
-		for (String key : resp.getHeaders().keySet()) {
-			boolean isValidHeader = isIncludedHeader(key);
-			Collection<java.lang.String> list = resp.getHeaders().get(key);
-			for (String header : list) {
-				context.addOriginResponseHeader(key, header);
-
-				if (key.equalsIgnoreCase("content-length"))
-					context.setOriginContentLength(header);
-
-				if (isValidHeader) {
-					context.addZuulResponseHeader(key, header);
-				}
-			}
-		}
-
-	}
-
-	private boolean isIncludedHeader(String headerName) {
-		switch (headerName.toLowerCase()) {
-		case "connection":
-		case "content-length":
-		case "content-encoding":
-		case "server":
-		case "transfer-encoding":
-			return false;
-		default:
-			return true;
-		}
+	private void setResponse(HttpResponse resp) throws ClientException, IOException {
+		helper.setResponse(resp.getStatus(),
+				!resp.hasEntity() ? null : resp.getInputStream(), resp.getHeaders());
 	}
 
 }

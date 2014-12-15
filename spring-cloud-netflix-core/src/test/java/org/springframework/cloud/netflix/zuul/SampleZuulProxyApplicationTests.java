@@ -46,6 +46,16 @@ public class SampleZuulProxyApplicationTests {
 	}
 
 	@Test
+	public void getOnSelfViaRibbonRoutingFilter() {
+		mapping.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + port + "/simple/local/1", HttpMethod.GET,
+				new HttpEntity<Void>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Gotten!", result.getBody());
+	}
+
+	@Test
 	public void deleteOnSelfViaSimpleHostRoutingFilter() {
 		routes.addRoute("/self/**", "http://localhost:" + port + "/local");
 		mapping.reset();

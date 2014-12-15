@@ -14,6 +14,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -57,17 +59,19 @@ import org.springframework.util.StringUtils;
 
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
 
-public class SimpleHostRoutingFilter extends BaseProxyFilter {
+public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(SimpleHostRoutingFilter.class);
+
 	private static final Runnable CLIENTLOADER = new Runnable() {
 		@Override
 		public void run() {
@@ -126,6 +130,16 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 		cm.setDefaultMaxPerRoute(Integer.parseInt(System.getProperty(
 				"zuul.max.host.connections", "20")));
 		return cm;
+	}
+
+	private ProxyRequestHelper helper;
+
+	public SimpleHostRoutingFilter() {
+		this(new ProxyRequestHelper());
+	}
+
+	public SimpleHostRoutingFilter(ProxyRequestHelper helper) {
+		this.helper = helper;
 	}
 
 	@Override
@@ -201,8 +215,9 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
-		MultivaluedMap<String, String> headers = buildZuulRequestHeaders(request);
-		MultivaluedMap<String, String> params = buildZuulRequestQueryParams(request);
+		MultivaluedMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		MultivaluedMap<String, String> params = helper
+				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
 		HttpClient httpclient = CLIENT.get();
@@ -229,7 +244,8 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 			MultivaluedMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 
-		Map<String, Object> info = debug(verb, uri, headers, params, requestEntity);
+		Map<String, Object> info = helper
+				.debug(verb, uri, headers, params, requestEntity);
 
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
@@ -237,7 +253,7 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 
 		HttpRequest httpRequest;
 
-		switch (verb) {
+		switch (verb.toUpperCase()) {
 		case "POST":
 			HttpPost httpPost = new HttpPost(uri + getQueryString());
 			httpRequest = httpPost;
@@ -260,6 +276,8 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 			LOG.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
 			HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
+			helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
+					revertHeaders(zuulResponse.getAllHeaders()));
 			return zuulResponse;
 		}
 		finally {
@@ -269,6 +287,18 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 			// httpclient.getConnectionManager().shutdown();
 		}
 
+	}
+
+	private Map<String, Collection<String>> revertHeaders(Header[] headers) {
+		Map<String, Collection<String>> map = new LinkedHashMap<String, Collection<String>>();
+		for (Header header : headers) {
+			String name = header.getName();
+			if (!map.containsKey(name)) {
+				map.put(name, new ArrayList<String>());
+			}
+			map.get(name).add(header.getValue());
+		}
+		return map;
 	}
 
 	private Header[] convertHeaders(MultivaluedMap<String, String> headers) {
@@ -286,13 +316,13 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 		return httpclient.execute(httpHost, httpRequest);
 	}
 
-	String getQueryString() {
+	private String getQueryString() {
 		HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
 		String query = request.getQueryString();
 		return (query != null) ? "?" + query : "";
 	}
 
-	HttpHost getHttpHost(URL host) {
+	private HttpHost getHttpHost(URL host) {
 		HttpHost httpHost = new HttpHost(host.getHost(), host.getPort(),
 				host.getProtocol());
 		return httpHost;
@@ -309,91 +339,15 @@ public class SimpleHostRoutingFilter extends BaseProxyFilter {
 		return requestEntity;
 	}
 
-	private boolean isIncludedHeader(String name) {
-		if (name.toLowerCase().contains("content-length"))
-			return false;
-		if (!RequestContext.getCurrentContext().getResponseGZipped()) {
-			if (name.toLowerCase().contains("accept-encoding"))
-				return false;
-		}
-		return true;
-	}
-
 	private String getVerb(HttpServletRequest request) {
 		String sMethod = request.getMethod();
 		return sMethod.toUpperCase();
 	}
 
 	private void setResponse(HttpResponse response) throws IOException {
-		RequestContext context = RequestContext.getCurrentContext();
-
-		RequestContext.getCurrentContext().set("hostZuulResponse", response);
-		RequestContext.getCurrentContext().setResponseStatusCode(
-				response.getStatusLine().getStatusCode());
-		if (response.getEntity() != null) {
-			RequestContext.getCurrentContext().setResponseDataStream(
-					response.getEntity().getContent());
-		}
-
-		boolean isOriginResponseGzipped = false;
-
-		for (Header h : response.getHeaders(CONTENT_ENCODING)) {
-			if (HTTPRequestUtils.getInstance().isGzipped(h.getValue())) {
-				isOriginResponseGzipped = true;
-				break;
-			}
-		}
-		context.setResponseGZipped(isOriginResponseGzipped);
-
-		if (Debug.debugRequest()) {
-			for (Header header : response.getAllHeaders()) {
-				if (isValidHeader(header)) {
-					RequestContext.getCurrentContext().addZuulResponseHeader(
-							header.getName(), header.getValue());
-					Debug.addRequestDebug("ORIGIN_RESPONSE:: < " + header.getName() + ","
-							+ header.getValue());
-				}
-			}
-
-			if (context.getResponseDataStream() != null) {
-				byte[] origBytes = IOUtils.toByteArray(context.getResponseDataStream());
-				ByteArrayInputStream byteStream = new ByteArrayInputStream(origBytes);
-				InputStream inputStream = byteStream;
-				if (RequestContext.getCurrentContext().getResponseGZipped()) {
-					inputStream = new GZIPInputStream(byteStream);
-				}
-
-				context.setResponseDataStream(new ByteArrayInputStream(origBytes));
-			}
-
-		}
-		else {
-			for (Header header : response.getAllHeaders()) {
-				RequestContext ctx = RequestContext.getCurrentContext();
-				ctx.addOriginResponseHeader(header.getName(), header.getValue());
-
-				if (header.getName().equalsIgnoreCase("content-length"))
-					ctx.setOriginContentLength(header.getValue());
-
-				if (isValidHeader(header)) {
-					ctx.addZuulResponseHeader(header.getName(), header.getValue());
-				}
-			}
-		}
-
-	}
-
-	boolean isValidHeader(Header header) {
-		switch (header.getName().toLowerCase()) {
-		case "connection":
-		case "content-length":
-		case "content-encoding":
-		case "server":
-		case "transfer-encoding":
-			return false;
-		default:
-			return true;
-		}
+		helper.setResponse(response.getStatusLine().getStatusCode(),
+				response.getEntity() == null ? null : response.getEntity().getContent(),
+				revertHeaders(response.getAllHeaders()));
 	}
 
 	public static class MySSLSocketFactory extends SSLSocketFactory {

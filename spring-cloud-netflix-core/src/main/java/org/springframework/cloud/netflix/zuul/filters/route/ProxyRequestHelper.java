@@ -31,7 +31,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.util.StringUtils;
 
-import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -40,7 +39,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
  * @author Dave Syer
  *
  */
-public abstract class BaseProxyFilter extends ZuulFilter {
+public class ProxyRequestHelper {
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
@@ -50,7 +49,7 @@ public abstract class BaseProxyFilter extends ZuulFilter {
 		this.traces = traces;
 	}
 
-	protected MultivaluedMap<String, String> buildZuulRequestQueryParams(
+	public MultivaluedMap<String, String> buildZuulRequestQueryParams(
 			HttpServletRequest request) {
 
 		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
@@ -68,7 +67,7 @@ public abstract class BaseProxyFilter extends ZuulFilter {
 		return params;
 	}
 
-	protected MultivaluedMap<String, String> buildZuulRequestHeaders(
+	public MultivaluedMap<String, String> buildZuulRequestHeaders(
 			HttpServletRequest request) {
 
 		RequestContext context = RequestContext.getCurrentContext();
@@ -94,7 +93,46 @@ public abstract class BaseProxyFilter extends ZuulFilter {
 		return headers;
 	}
 
-	private boolean isIncludedHeader(String headerName) {
+	public void setResponse(int status, InputStream entity,
+			Map<String, Collection<String>> headers) throws IOException {
+		RequestContext context = RequestContext.getCurrentContext();
+
+		RequestContext.getCurrentContext().setResponseStatusCode(status);
+		if (entity != null) {
+			RequestContext.getCurrentContext().setResponseDataStream(entity);
+		}
+
+		boolean isOriginResponseGzipped = false;
+
+		if (headers.containsKey(CONTENT_ENCODING)) {
+			Collection<String> collection = headers.get(CONTENT_ENCODING);
+			for (String header : collection) {
+				if (HTTPRequestUtils.getInstance().isGzipped(header)) {
+					isOriginResponseGzipped = true;
+					break;
+				}
+			}
+		}
+		context.setResponseGZipped(isOriginResponseGzipped);
+
+		for (Entry<String, Collection<String>> header : headers.entrySet()) {
+			RequestContext ctx = RequestContext.getCurrentContext();
+			String name = header.getKey();
+			for (String value : header.getValue()) {
+				ctx.addOriginResponseHeader(name, value);
+
+				if (name.equalsIgnoreCase("content-length"))
+					ctx.setOriginContentLength(value);
+
+				if (isIncludedHeader(name)) {
+					ctx.addZuulResponseHeader(name, value);
+				}
+			}
+		}
+
+	}
+
+	public boolean isIncludedHeader(String headerName) {
 		switch (headerName.toLowerCase()) {
 		case "host":
 		case "connection":
@@ -108,7 +146,7 @@ public abstract class BaseProxyFilter extends ZuulFilter {
 		}
 	}
 
-	protected Map<String, Object> debug(String verb, String uri,
+	public Map<String, Object> debug(String verb, String uri,
 			MultivaluedMap<String, String> headers,
 			MultivaluedMap<String, String> params, InputStream requestEntity)
 			throws IOException {
@@ -156,7 +194,7 @@ public abstract class BaseProxyFilter extends ZuulFilter {
 		return info;
 	}
 
-	protected void appendDebug(Map<String, Object> info, int status,
+	public void appendDebug(Map<String, Object> info, int status,
 			Map<String, Collection<String>> headers) {
 		if (traces != null) {
 			@SuppressWarnings("unchecked")
@@ -175,7 +213,7 @@ public abstract class BaseProxyFilter extends ZuulFilter {
 		}
 	}
 
-	protected void appendDebug(Map<String, Object> info, int status,
+	public void appendDebug(Map<String, Object> info, int status,
 			MultivaluedMap<String, String> headers) {
 		if (traces != null) {
 			Map<String, Collection<String>> map = new LinkedHashMap<String, Collection<String>>();

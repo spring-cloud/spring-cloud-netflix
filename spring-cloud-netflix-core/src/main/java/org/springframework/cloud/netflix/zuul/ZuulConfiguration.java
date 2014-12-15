@@ -15,6 +15,7 @@ import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;
@@ -97,16 +98,21 @@ public class ZuulConfiguration {
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter() {
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(clientFactory);
+		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (traces != null) {
-			filter.setTraces(traces);
+			helper.setTraces(traces);
 		}
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper , clientFactory);
 		return filter;
 	}
 
 	@Bean
 	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
-		return new SimpleHostRoutingFilter();
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		if (traces != null) {
+			helper.setTraces(traces);
+		}
+		return new SimpleHostRoutingFilter(helper);
 	}
 
 	// post filters
