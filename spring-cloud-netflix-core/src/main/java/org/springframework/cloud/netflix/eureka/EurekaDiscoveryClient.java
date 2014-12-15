@@ -20,13 +20,20 @@ import static com.google.common.collect.Iterables.*;
  */
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
-    @Autowired
+	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
+
+	@Autowired
     private EurekaInstanceConfigBean config;
 
     @Autowired
     private com.netflix.discovery.DiscoveryClient discovery;
 
-    @Override
+	@Override
+	public String description() {
+		return DESCRIPTION;
+	}
+
+	@Override
     public ServiceInstance getLocalServiceInstance() {
         return new ServiceInstance() {
             @Override

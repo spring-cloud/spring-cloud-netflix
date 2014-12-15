@@ -2,6 +2,7 @@ package org.springframework.cloud.netflix.eureka.sample;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
+import org.springframework.boot.actuate.metrics.repository.InMemoryMetricRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -16,7 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableAutoConfiguration
 @RestController
 @EnableDiscoveryClient
-public class Application {
+public class EurekaSampleApplication {
+
+	@Bean
+	public InMemoryMetricRepository inMemoryMetricRepository() {
+		return new InMemoryMetricRepository();
+	}
 
     @Bean
     public HealthCheckHandler healthCheckHandler() {
@@ -34,7 +40,7 @@ public class Application {
 	}
 	
 	public static void main(String[] args) {
-		new SpringApplicationBuilder(Application.class).web(true).run(args);
+		new SpringApplicationBuilder(EurekaSampleApplication.class).web(true).run(args);
 	}
 
 }

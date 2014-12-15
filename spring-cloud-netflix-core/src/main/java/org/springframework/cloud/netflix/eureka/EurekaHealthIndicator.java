@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -30,12 +29,13 @@ import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
+import org.springframework.cloud.client.discovery.DiscoveryHealthIndicator;
 
 /**
  * @author Dave Syer
  *
  */
-public class EurekaHealthIndicator implements HealthIndicator {
+public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
 	private EurekaInstanceConfig instanceConfig;
 
@@ -51,6 +51,11 @@ public class EurekaHealthIndicator implements HealthIndicator {
 		this.discovery = discovery;
 		this.metrics = metrics;
 		this.instanceConfig = instanceConfig;
+	}
+
+	@Override
+	public String getName() {
+		return "eureka";
 	}
 
 	@Override
