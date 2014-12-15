@@ -78,7 +78,7 @@ public class FeignConfiguration {
     }
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
-        String name = URI.create(schemeName).getHost();
+        URI.create(schemeName).getHost();
         if(ribbonClient != null) {
             return builder.client(ribbonClient).target(type, schemeName);
         } else {

@@ -1,17 +1,20 @@
 package org.springframework.cloud.netflix.feign;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.springframework.beans.factory.FactoryBean;
 
 /**
 * @author Spencer Gibb
 */
 @Data
+@EqualsAndHashCode(callSuper=false)
 class FeignClientFactoryBean extends FeignConfiguration implements FactoryBean<Object> {
 
-	boolean loadbalance;
-	Class<?> type;
-	String schemeName;
+	private boolean loadbalance;
+	private Class<?> type;
+	private String schemeName;
 
 	@Override
 	public Object getObject() throws Exception {
