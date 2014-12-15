@@ -1,6 +1,5 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -21,16 +20,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MultivaluedMap;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -55,15 +51,16 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
-import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.util.HTTPRequestUtils;
 
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
@@ -215,8 +212,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
-		MultivaluedMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-		MultivaluedMap<String, String> params = helper
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> params = helper
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
@@ -240,8 +237,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
-			HttpServletRequest request, MultivaluedMap<String, String> headers,
-			MultivaluedMap<String, String> params, InputStream requestEntity)
+			HttpServletRequest request, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 
 		Map<String, Object> info = helper
@@ -289,8 +286,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	}
 
-	private Map<String, Collection<String>> revertHeaders(Header[] headers) {
-		Map<String, Collection<String>> map = new LinkedHashMap<String, Collection<String>>();
+	private MultiValueMap<String, String> revertHeaders(Header[] headers) {
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
 		for (Header header : headers) {
 			String name = header.getName();
 			if (!map.containsKey(name)) {
@@ -301,7 +298,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return map;
 	}
 
-	private Header[] convertHeaders(MultivaluedMap<String, String> headers) {
+	private Header[] convertHeaders(MultiValueMap<String, String> headers) {
 		List<Header> list = new ArrayList<>();
 		for (String name : headers.keySet()) {
 			for (String value : headers.get(name)) {

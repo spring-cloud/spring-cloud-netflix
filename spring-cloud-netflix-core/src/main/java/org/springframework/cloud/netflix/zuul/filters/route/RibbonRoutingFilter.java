@@ -2,8 +2,11 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +15,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import com.netflix.client.ClientException;
 import com.netflix.client.http.HttpRequest.Verb;
@@ -21,7 +27,7 @@ import com.netflix.niws.client.http.RestClient;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import com.netflix.zuul.util.HTTPRequestUtils;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public class RibbonRoutingFilter extends ZuulFilter {
 
@@ -63,8 +69,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
-		MultivaluedMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-		MultivaluedMap<String, String> params = helper
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> params = helper
 				.buildZuulRequestQueryParams(request);
 		Verb verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
@@ -94,18 +100,18 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	}
 
 	private HttpResponse forward(RestClient restClient, Verb verb, String uri,
-			MultivaluedMap<String, String> headers,
-			MultivaluedMap<String, String> params, InputStream requestEntity)
-			throws Exception {
+			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+			InputStream requestEntity) throws Exception {
 
 		Map<String, Object> info = helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
 
-		RibbonCommand command = new RibbonCommand(restClient, verb, uri, headers, params,
-				requestEntity);
+		RibbonCommand command = new RibbonCommand(restClient, verb, uri,
+				convertHeaders(headers), convertHeaders(params), requestEntity);
 		try {
 			HttpResponse response = command.execute();
-			helper.appendDebug(info, response.getStatus(), response.getHeaders());
+			helper.appendDebug(info, response.getStatus(),
+					revertHeaders(response.getHeaders()));
 			return response;
 		}
 		catch (HystrixRuntimeException e) {
@@ -122,6 +128,24 @@ public class RibbonRoutingFilter extends ZuulFilter {
 					.toString());
 		}
 
+	}
+
+	private MultiValueMap<String, String> revertHeaders(
+			Map<String, Collection<String>> headers) {
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+		for (Entry<String, Collection<String>> entry : headers.entrySet()) {
+			map.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
+		}
+		return map;
+	}
+
+	private MultivaluedMap<String, String> convertHeaders(
+			MultiValueMap<String, String> headers) {
+		MultivaluedMap<String, String> map = new MultivaluedMapImpl();
+		for (Entry<String, List<String>> entry : headers.entrySet()) {
+			map.put(entry.getKey(), entry.getValue());
+		}
+		return map;
 	}
 
 	private InputStream getRequestBody(HttpServletRequest request) {
@@ -168,7 +192,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	private void setResponse(HttpResponse resp) throws ClientException, IOException {
 		helper.setResponse(resp.getStatus(),
-				!resp.hasEntity() ? null : resp.getInputStream(), resp.getHeaders());
+				!resp.hasEntity() ? null : resp.getInputStream(),
+				revertHeaders(resp.getHeaders()));
 	}
 
 }
