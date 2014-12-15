@@ -1,6 +1,7 @@
 package org.springframework.cloud.netflix.eureka;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
@@ -95,13 +96,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
         if (applications == null) {
             return Collections.emptyList();
         }
-        return Lists.newArrayList(transform(applications.getRegisteredApplications(), new Function<Application, String>() {
+        return Lists.newArrayList(filter(transform(applications.getRegisteredApplications(), new Function<Application, String>() {
             @Nullable
             @Override
             public String apply(@Nullable Application app) {
+                if (app.getInstances().isEmpty()) {
+                    return null;
+                }
                 return app.getName().toLowerCase();
             }
-        }));
+        }), Predicates.notNull()));
     }
 
     @Override

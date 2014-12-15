@@ -120,9 +120,9 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 							EurekaServerConfigurationManager.getInstance()
 									.setConfiguration(eurekaServerConfig);
 							XmlXStream.getInstance().setMarshallingStrategy(
-									new DataCenterAwareMarshallingStrategy());
+									new DataCenterAwareMarshallingStrategy(applicationContext));
 							JsonXStream.getInstance().setMarshallingStrategy(
-									new DataCenterAwareMarshallingStrategy());
+									new DataCenterAwareMarshallingStrategy(applicationContext));
 							// PeerAwareInstanceRegistry.getInstance();
 							applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(

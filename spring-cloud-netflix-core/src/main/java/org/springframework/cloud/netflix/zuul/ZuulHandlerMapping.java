@@ -1,6 +1,7 @@
 package org.springframework.cloud.netflix.zuul;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
 import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.context.ApplicationEvent;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.
@@ -27,6 +29,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 
 	private ZuulController zuul;
 
+	private AtomicReference<Object> latestHeartbeat = new AtomicReference<>();
+
 	@Autowired
 	public ZuulHandlerMapping(ProxyRouteLocator routeLocator, ZuulController zuul) {
 		this.routeLocator = routeLocator;
@@ -39,6 +43,12 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping implements
 		if (event instanceof InstanceRegisteredEvent
 				|| event instanceof RefreshScopeRefreshedEvent) {
 			reset();
+		} else if (event instanceof DiscoveryHeartbeatEvent) {
+			DiscoveryHeartbeatEvent e = (DiscoveryHeartbeatEvent) event;
+			if (latestHeartbeat.get() == null || !latestHeartbeat.get().equals(e.getValue())) {
+				latestHeartbeat.set(e.getValue());
+				reset();
+			}
 		}
 	}
 
