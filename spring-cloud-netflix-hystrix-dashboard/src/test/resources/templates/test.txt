@@ -1,0 +1,1 @@
+The presence of this templates directory tests the Spring Boot FreeMarker configuration 
