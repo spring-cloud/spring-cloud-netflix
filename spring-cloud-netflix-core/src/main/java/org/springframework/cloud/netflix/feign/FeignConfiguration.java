@@ -1,7 +1,5 @@
 package org.springframework.cloud.netflix.feign;
 
-import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -78,7 +76,6 @@ public class FeignConfiguration {
     }
 
     protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
-        URI.create(schemeName).getHost();
         if(ribbonClient != null) {
             return builder.client(ribbonClient).target(type, schemeName);
         } else {

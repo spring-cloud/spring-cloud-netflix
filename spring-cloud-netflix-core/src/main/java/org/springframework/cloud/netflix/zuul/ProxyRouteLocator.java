@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
@@ -20,7 +21,7 @@ import org.springframework.util.StringUtils;
  * @author Spencer Gibb
  */
 @Slf4j
-public class ProxyRouteLocator {
+public class ProxyRouteLocator implements RouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/**";
 
@@ -49,6 +50,7 @@ public class ProxyRouteLocator {
 		resetRoutes();
 	}
 
+	@Override
 	public Collection<String> getRoutePaths() {
 		return getRoutes().keySet();
 	}
@@ -95,11 +97,11 @@ public class ProxyRouteLocator {
 				break;
 			}
 		}
-		return location == null ? null : new ProxyRouteSpec(id, targetPath, location, prefix);
+		return location == null ? null : new ProxyRouteSpec(id, targetPath, location,
+				prefix);
 	}
 
-	// Package access so ZuulHandlerMapping can reset it's mappings
-	void resetRoutes() {
+	public void resetRoutes() {
 		routes.set(locateRoutes());
 	}
 
@@ -110,15 +112,17 @@ public class ProxyRouteLocator {
 		addConfiguredRoutes(routesMap);
 		routesMap.putAll(staticRoutes);
 
-		// Add routes for discovery services by default
-		List<String> services = discovery.getServices();
-		for (String serviceId : services) {
-			// Ignore specifically ignored services and those that were manually
-			// configured
-			String key = "/" + serviceId + "/**";
-			if (!properties.getIgnoredServices().contains(serviceId)
-					&& !routesMap.containsKey(key)) {
-				routesMap.put(key, new ZuulRoute(key, serviceId));
+		if (discovery != null) {
+			// Add routes for discovery services by default
+			List<String> services = discovery.getServices();
+			for (String serviceId : services) {
+				// Ignore specifically ignored services and those that were manually
+				// configured
+				String key = "/" + serviceId + "/**";
+				if (!properties.getIgnoredServices().contains(serviceId)
+						&& !routesMap.containsKey(key)) {
+					routesMap.put(key, new ZuulRoute(key, serviceId));
+				}
 			}
 		}
 
@@ -154,7 +158,7 @@ public class ProxyRouteLocator {
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {
-		Map<String, ZuulRoute> routeEntries = properties.getRoutesWithDefaultServiceIds();
+		Map<String, ZuulRoute> routeEntries = properties.getRoutes();
 		for (ZuulRoute entry : routeEntries.values()) {
 			String route = entry.getPath();
 			if (routes.containsKey(route)) {

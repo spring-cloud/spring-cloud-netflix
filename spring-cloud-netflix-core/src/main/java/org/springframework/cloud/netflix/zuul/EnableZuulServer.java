@@ -1,17 +1,22 @@
 package org.springframework.cloud.netflix.zuul;
 
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.springframework.context.annotation.Import;
 
-import java.lang.annotation.*;
-
 /**
+ * Set up the application to act as a generic Zuul server without any built-in reverse
+ * proxy features. The routes into the Zuul server can be configured through
+ * {@link ZuulProperties} (by default there are none).
+ * 
+ * @see EnableZuulProxy to see how to get reverse proxy out of the box
+ * 
  * @author Spencer Gibb
- * @deprecated @see org.springframework.cloud.netflix.zuul.EnableZuulProxy
  */
-@EnableCircuitBreaker
-@EnableDiscoveryClient
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

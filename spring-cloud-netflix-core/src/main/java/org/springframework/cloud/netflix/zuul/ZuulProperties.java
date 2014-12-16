@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +28,8 @@ public class ZuulProperties {
 	private boolean addProxyHeaders = true;
 	private List<String> ignoredServices = new ArrayList<String>();
 
-	public Map<String, ZuulRoute> getRoutesWithDefaultServiceIds() {
+	@PostConstruct
+	public void init() {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {
 			ZuulRoute value = entry.getValue();
 			if (!StringUtils.hasText(value.getLocation())) {
@@ -39,7 +42,6 @@ public class ZuulProperties {
 				value.path = "/" + entry.getKey() + "/**";
 			}
 		}
-		return this.routes;
 	}
 
 	@Data
@@ -91,10 +93,10 @@ public class ZuulProperties {
 				serviceId = location;
 			}
 		}
-		
+
 		private String extractId(String path) {
 			path = path.startsWith("/") ? path.substring(1) : path;
-			path = path.replace("/*","").replace("*", "");
+			path = path.replace("/*", "").replace("*", "");
 			return path;
 		}
 	}

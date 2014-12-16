@@ -46,6 +46,7 @@ public class ProxyRouteLocatorTests {
 	public void testGetMatchingPath() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+		properties.init();
 		routeLocator.getRoutes(); // force refresh
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
 		assertEquals("foo", route.getLocation());
@@ -57,6 +58,7 @@ public class ProxyRouteLocatorTests {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.setPrefix("/proxy");
+		properties.init();
 		routeLocator.getRoutes(); // force refresh
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
@@ -104,6 +106,7 @@ public class ProxyRouteLocatorTests {
 		ZuulRoute zuulRoute = new ZuulRoute("/foo/**");
 		zuulRoute.setStripPrefix(true);
 		this.properties.getRoutes().put("foo", zuulRoute);
+		properties.init();
 		routeLocator.getRoutes(); // force refresh
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
 		assertEquals("foo", route.getLocation());
@@ -114,6 +117,7 @@ public class ProxyRouteLocatorTests {
 	public void testGetRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/"+ASERVICE + "/**"));
+		properties.init();
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 

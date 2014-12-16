@@ -609,3 +609,22 @@ An application with the `@EnableZuulProxy` could act as a standalone
 server if you set a default route ("/"), for example `zuul.route.home:
 /` would route all traffic (i.e. "/**") to the "home" service.
 
+=== Plain Embedded Zuul
+
+You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
+use `@EnableZuulServer` (instead of `@EnableZuulProxy`). Any beans that you add to the application of type `ZuulFilter`
+will be installed automatically.
+
+In this case the routes into the Zuul server are 
+still specified by configuring "zuul.routes.*", but there is no service discovery and no proxying, so the
+"serviceId" and "url" settings are ignored. For example:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    api: /api/**
+----
+
+maps all paths in "/api/**" to the Zuul filter chain.

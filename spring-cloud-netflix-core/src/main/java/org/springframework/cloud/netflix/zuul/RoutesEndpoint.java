@@ -1,13 +1,18 @@
 package org.springframework.cloud.netflix.zuul;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.endpoint.mvc.MvcEndpoint;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Map;
 
 /**
  * Endpoint to display and reset the zuul proxy routes
@@ -15,25 +20,35 @@ import java.util.Map;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-public class RoutesEndpoint implements MvcEndpoint {
+@ManagedResource(description = "Can be used to list and reset the reverse proxy routes")
+public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAware {
 
-	private ZuulHandlerMapping handlerMapping;
+	private ProxyRouteLocator routes;
+	private ApplicationEventPublisher publisher;
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
+		this.publisher = publisher;
+	}
 
 	@Autowired
-	public RoutesEndpoint(ZuulHandlerMapping handlerMapping) {
-		this.handlerMapping = handlerMapping;
+	public RoutesEndpoint(ProxyRouteLocator routes) {
+		this.routes = routes;
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
+	@ManagedOperation
 	public Map<String, String> reset() {
-		return handlerMapping.reset();
+		publisher.publishEvent(new RoutesRefreshedEvent(routes));
+		return getRoutes();
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
+	@ManagedAttribute
 	public Map<String, String> getRoutes() {
-		return handlerMapping.getRoutes();
+		return routes.getRoutes();
 	}
 
 	@Override
