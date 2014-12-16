@@ -147,7 +147,7 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testGetDefaultRoute() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
-		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/", ASERVICE));
+		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/**", ASERVICE));
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
@@ -159,7 +159,7 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testGetDefaultPhysicalRoute() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
-		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/", "http://" + ASERVICE));
+		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/**", "http://" + ASERVICE));
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 
@@ -226,7 +226,7 @@ public class ProxyRouteLocatorTests {
 	}
 
 	protected void assertDefaultMapping(Map<String, String> routesMap, String expectedRoute) {
-		String mapping = "/";
+		String mapping = "/**";
 		String route = routesMap.get(mapping);
 		assertEquals("routesMap had wrong value for " + mapping, expectedRoute,
 				route);

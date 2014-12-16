@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class ProxyRouteLocator {
 
-	public static final String DEFAULT_ROUTE = "/";
+	public static final String DEFAULT_ROUTE = "/**";
 
 	private DiscoveryClient discovery;
 
