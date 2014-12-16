@@ -13,14 +13,13 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -86,7 +85,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final AtomicReference<HttpClient> CLIENT = new AtomicReference<HttpClient>(
 			newClient());
 
-	private static final Timer CONNECTION_MANAGER_TIMER = new Timer(true);
+	private static final Timer CONNECTION_MANAGER_TIMER = new Timer("SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
 
 	// cleans expired connections at an interval
 	static {
@@ -137,6 +136,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper) {
 		this.helper = helper;
+	}
+
+	@PreDestroy
+	public void stop() {
+		CONNECTION_MANAGER_TIMER.cancel();
 	}
 
 	@Override
