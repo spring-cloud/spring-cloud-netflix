@@ -1175,12 +1175,36 @@ server if you set a default route ("/"), for example <code>zuul.route.home:
 /</code> would route all traffic (i.e. "/**") to the "home" service.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_plain_embedded_zuul">Plain Embedded Zuul</h3>
+<div class="paragraph">
+<p>You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
+use <code>@EnableZuulServer</code> (instead of <code>@EnableZuulProxy</code>). Any beans that you add to the application of type <code>ZuulFilter</code>
+will be installed automatically.</p>
+</div>
+<div class="paragraph">
+<p>In this case the routes into the Zuul server are
+still specified by configuring "zuul.routes.*", but there is no service discovery and no proxying, so the
+"serviceId" and "url" settings are ignored. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    api: /api/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>maps all paths in "/api/**" to the Zuul filter chain.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-16 00:16:22 UTC
+Last updated 2014-12-16 09:00:59 UTC
 </div>
 </div>
 </body>
