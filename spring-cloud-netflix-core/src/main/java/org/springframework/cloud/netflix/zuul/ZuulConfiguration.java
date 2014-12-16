@@ -53,8 +53,8 @@ public class ZuulConfiguration {
 		private Map<String, ZuulFilter> filters;
 
 		@Bean
-		public FilterInitializer zuulFilterInitializer() {
-			return new FilterInitializer(filters);
+		public ZuulFilterInitializer zuulFilterInitializer() {
+			return new ZuulFilterInitializer(filters);
 		}
 
 	}

@@ -1,5 +1,6 @@
 package org.springframework.cloud.netflix.zuul;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
@@ -7,24 +8,25 @@ import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
+import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.monitoring.MonitoringHelper;
 
 /**
- * User: spencergibb
- * Date: 4/24/14
- * Time: 9:23 PM
+ * @author Spencer Gibb
+ * 
  * TODO:  .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
  */
-public class FilterInitializer implements ServletContextListener {
+public class ZuulFilterInitializer implements ServletContextListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FilterInitializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZuulFilterInitializer.class);
 
     private Map<String, ZuulFilter> filters;
 
-	public FilterInitializer(Map<String, ZuulFilter> filters) {
+	public ZuulFilterInitializer(Map<String, ZuulFilter> filters) {
 		this.filters = filters;
 	}
 
@@ -46,7 +48,21 @@ public class FilterInitializer implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         LOGGER.info("Stopping filter initializer context listener");
+        FilterRegistry registry = FilterRegistry.instance();
+        for (Map.Entry<String, ZuulFilter> entry : filters.entrySet()) {
+            registry.remove(entry.getKey());
+        }
+        clearLoaderCache();
     }
+
+	private void clearLoaderCache() {
+		FilterLoader instance = FilterLoader.getInstance();
+		Field field = ReflectionUtils.findField(FilterLoader.class, "hashFiltersByType");
+		ReflectionUtils.makeAccessible(field);
+		@SuppressWarnings("rawtypes")
+		Map cache = (Map) ReflectionUtils.getField(field, instance);
+		cache.clear();
+	}
 
     /*private void initGroovyFilterManager() {
 
