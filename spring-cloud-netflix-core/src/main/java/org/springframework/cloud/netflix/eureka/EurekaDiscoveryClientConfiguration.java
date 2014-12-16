@@ -19,6 +19,7 @@ import javax.annotation.PreDestroy;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.discovery.shared.EurekaJerseyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,9 @@ import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -79,8 +82,27 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@PreDestroy
 	public void close() {
+		closeDiscoveryClientJersey();
 		logger.info("Removing application {} from eureka", instanceConfig.getAppname());
 		DiscoveryManager.getInstance().shutdownComponent();
+	}
+
+	private void closeDiscoveryClientJersey() {
+		logger.info("Closing DiscoveryClient.jerseyClient");
+		Field jerseyClientField = ReflectionUtils.findField(
+				com.netflix.discovery.DiscoveryClient.class,
+				"discoveryJerseyClient",
+				EurekaJerseyClient.JerseyClient.class);
+		if (jerseyClientField != null) {
+			try {
+				jerseyClientField.setAccessible(true);
+				Object obj = jerseyClientField.get(DiscoveryManager.getInstance().getDiscoveryClient());
+				EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
+				jerseyClient.destroyResources();
+			} catch (Exception e) {
+				logger.error("Error closing DiscoveryClient.jerseyClient", e);
+			}
+		}
 	}
 
 	@Override

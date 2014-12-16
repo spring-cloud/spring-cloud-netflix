@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -40,7 +42,8 @@ import com.netflix.servo.publish.PollScheduler;
  * @author Dave Syer
  * @author Christian Dupuis
  */
-public class ServoMetricCollector {
+@Slf4j
+public class ServoMetricCollector implements DisposableBean {
 
 	public ServoMetricCollector(MetricWriter metrics) {
 		List<MetricObserver> observers = new ArrayList<MetricObserver>();
@@ -53,6 +56,14 @@ public class ServoMetricCollector {
 		}
 		// TODO Make poll interval configurable
 		PollScheduler.getInstance().addPoller(task, 5, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		log.info("Stopping Servo PollScheduler");
+		if (PollScheduler.getInstance().isStarted()) {
+			PollScheduler.getInstance().stop();
+		}
 	}
 
 	/**
