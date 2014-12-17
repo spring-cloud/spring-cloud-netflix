@@ -13,13 +13,29 @@
 		<relativePath>..</relativePath>
 	</parent>
 
-	<build>
-		<plugins>
-		</plugins>
-	</build>
-
 	<properties>
+		<turbine.version>1.0.0</turbine.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.netflix.turbine</groupId>
+				<artifactId>turbine-core</artifactId>
+				<version>${turbine.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
         <dependency>

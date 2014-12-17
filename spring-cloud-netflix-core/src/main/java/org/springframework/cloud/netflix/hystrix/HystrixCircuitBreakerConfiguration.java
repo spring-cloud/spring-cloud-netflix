@@ -21,11 +21,13 @@ import com.netflix.hystrix.Hystrix;
 import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -61,6 +63,7 @@ public class HystrixCircuitBreakerConfiguration {
 	@Configuration
 	@ConditionalOnExpression("${hystrix.stream.endpoint.enabled:true}")
 	@ConditionalOnWebApplication
+	@ConditionalOnClass({Endpoint.class, HystrixMetricsStreamServlet.class})
 	protected static class HystrixWebConfiguration {
 
 		@Bean
@@ -71,7 +74,7 @@ public class HystrixCircuitBreakerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass(GaugeService.class)
+	@ConditionalOnClass({HystrixMetricsPoller.class, GaugeService.class})
 	protected static class HystrixMetricsPollerConfiguration implements SmartLifecycle {
 
 		private static Log logger = LogFactory
