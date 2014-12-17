@@ -26,7 +26,7 @@ public class HystrixStreamAutoConfiguration {
     @ConditionalOnExpression("${hystrix.stream.amqp.enabled:true}")
     @IntegrationComponentScan(basePackageClasses = HystrixStreamChannel.class)
     @EnableScheduling
-    protected static class HystrixStreamBusAutoConfiguration {
+    protected static class HystrixStreamAmqpAutoConfiguration {
 
         @Autowired
         private AmqpTemplate amqpTemplate;

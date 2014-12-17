@@ -24,7 +24,7 @@ import static io.reactivex.netty.pipeline.PipelineConfigurators.sseServerConfigu
  */
 @Configuration
 @Slf4j
-@ConfigurationProperties("bus.turbine")
+@ConfigurationProperties("turbine.amqp")
 public class TurbineAmqpConfiguration implements SmartLifecycle {
 
 	private boolean running = false;
@@ -41,15 +41,15 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 		// multicast so multiple concurrent subscribers get the same stream
 		Observable<Map<String, Object>> publishedStreams = StreamAggregator.aggregateGroupedStreams(hystrixSubject()
 				.groupBy(data -> InstanceKey.create((String) data.get("instanceId"))))
-				.doOnUnsubscribe(() -> log.info("BusTurbine => Unsubscribing aggregation."))
-				.doOnSubscribe(() -> log.info("BusTurbine => Starting aggregation"))
+				.doOnUnsubscribe(() -> log.info("AmqpTurbine => Unsubscribing aggregation."))
+				.doOnSubscribe(() -> log.info("AmqpTurbine => Starting aggregation"))
 				.flatMap(o -> o).publish().refCount();
 
 		HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty.createHttpServer(port, (request, response) -> {
-			log.info("BusTurbine => SSE Request Received");
+			log.info("AmqpTurbine => SSE Request Received");
 			response.getHeaders().setHeader("Content-Type", "text/event-stream");
 			return publishedStreams
-					.doOnUnsubscribe(() -> log.info("BusTurbine => Unsubscribing RxNetty server connection"))
+					.doOnUnsubscribe(() -> log.info("AmqpTurbine => Unsubscribing RxNetty server connection"))
 					.flatMap(data -> response.writeAndFlush(new ServerSentEvent(null, null, JsonUtility.mapToJson(data))));
 		}, sseServerConfigurator());
 		return httpServer;

@@ -17,7 +17,7 @@ import static org.springframework.netflix.turbine.amqp.Aggregator.getPayloadData
 
 public class AggregatorTest {
 
-    public static final String STREAM_ALL = "hystrixbus";
+    public static final String STREAM_ALL = "hystrixamqp";
 
     public static void main(String[] args) {
         getHystrixStreamFromFile(STREAM_ALL, 1).flatMap(commandGroup -> commandGroup.take(50)).take(50).toBlocking().forEach(s -> System.out.println("s: " + s));

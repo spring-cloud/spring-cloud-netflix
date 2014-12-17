@@ -27,7 +27,7 @@ import org.springframework.integration.dsl.amqp.Amqp;
 public class TurbineAmqpAutoConfiguration {
 
     @Configuration
-    @ConditionalOnExpression("${hystrix.stream.bus.turbine.enabled:true}")
+    @ConditionalOnExpression("${turbine.amqp.enabled:true}")
     protected static class HystrixStreamAggregatorAutoConfiguration {
 
         @Autowired
@@ -41,7 +41,7 @@ public class TurbineAmqpAutoConfiguration {
         }
 
     	@Bean
-    	protected Binding localCloudBusQueueBinding() {
+    	protected Binding localTurbineAmqpQueueBinding() {
     		return BindingBuilder.bind(hystrixStreamQueue()).to(hystrixStreamExchange()).with("");		
     	}
 
