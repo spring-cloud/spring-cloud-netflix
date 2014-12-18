@@ -933,12 +933,8 @@ for details on the properties available.</p>
 @ComponentScan
 @EnableAutoConfiguration
 @EnableEurekaClient
-public class Application extends FeignConfiguration {
-    @Bean
-    public StoreClient storeClient() {
-        //loadBalance plugs Feign into ribbon.  feign() works without load balancing.
-        return loadBalance(StoreClient.class, "http://stores");
-    }
+@FeignClientScan
+public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -950,7 +946,8 @@ public class Application extends FeignConfiguration {
 <div class="listingblock">
 <div class="title">StoreClient.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public interface StoreClient {
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("stores")
+public interface StoreClient {
     @RequestMapping(method = RequestMethod.GET, value = "/stores")
     List&lt;Store&gt; getStores();
 
@@ -1204,7 +1201,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-17 21:41:29 UTC
+Last updated 2014-12-18 19:05:48 UTC
 </div>
 </div>
 </body>
