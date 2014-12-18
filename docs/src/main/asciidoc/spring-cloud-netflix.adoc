@@ -416,12 +416,8 @@ Example spring boot app
 @ComponentScan
 @EnableAutoConfiguration
 @EnableEurekaClient
-public class Application extends FeignConfiguration {
-    @Bean
-    public StoreClient storeClient() {
-        //loadBalance plugs Feign into ribbon.  feign() works without load balancing.
-        return loadBalance(StoreClient.class, "http://stores");
-    }
+@FeignClientScan
+public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -433,6 +429,7 @@ public class Application extends FeignConfiguration {
 .StoreClient.java
 [source,java,indent=0]
 ----
+@FeignClient("stores")
 public interface StoreClient {
     @RequestMapping(method = RequestMethod.GET, value = "/stores")
     List<Store> getStores();
