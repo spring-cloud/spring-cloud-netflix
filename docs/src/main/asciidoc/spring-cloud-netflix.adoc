@@ -394,6 +394,8 @@ Looking at an individual instances Hystrix data is not very useful in terms of t
 
 The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`.
 
+Value returned from eureka are uppercase, thus the examples of all uppercase `CUSTOMERS`
+
 ----
 turbine:
   aggregator:
