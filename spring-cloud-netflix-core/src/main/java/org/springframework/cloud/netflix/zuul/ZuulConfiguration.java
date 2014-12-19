@@ -9,6 +9,7 @@ import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEven
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -80,6 +81,11 @@ public class ZuulConfiguration {
 	}
 
 	// pre filters
+	@Bean
+	public FormBodyWrapperFilter formBodyWrapperFilter() {
+		return new FormBodyWrapperFilter();
+	}
+
 	@Bean
 	public DebugFilter debugFilter() {
 		return new DebugFilter();

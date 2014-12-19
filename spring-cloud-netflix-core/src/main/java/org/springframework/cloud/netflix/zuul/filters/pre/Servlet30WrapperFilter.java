@@ -59,7 +59,7 @@ public class Servlet30WrapperFilter extends ZuulFilter {
         return null;
     }
 
-    class Servlet30RequestWrapper extends HttpServletRequestWrapper {
+    private class Servlet30RequestWrapper extends HttpServletRequestWrapper {
         private HttpServletRequest request;
 
         Servlet30RequestWrapper(HttpServletRequest request) {
