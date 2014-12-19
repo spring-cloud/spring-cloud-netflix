@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-netflix</artifactId>
-        <version>1.0.0.BUILD-SNAPSHOT</version>
+        <version>1.0.0.RC1</version>
         <relativePath>..</relativePath>
     </parent>
 
     <properties>
-        <spring-cloud.version>1.0.0.BUILD-SNAPSHOT</spring-cloud.version>
+        <spring-cloud.version>1.0.0.RC1</spring-cloud.version>
     </properties>
 
     <dependencies>
