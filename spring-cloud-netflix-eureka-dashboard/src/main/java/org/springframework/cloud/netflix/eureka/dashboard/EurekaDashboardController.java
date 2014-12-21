@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.eureka.server;
+package org.springframework.cloud.netflix.eureka.dashboard;
 
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -26,7 +26,7 @@ import java.util.*;
  * @author Spencer Gibb
  */
 @Controller
-public class EurekaController {
+public class EurekaDashboardController {
 
 	@Autowired
 	ServerProperties serverProperties;
@@ -42,7 +42,7 @@ public class EurekaController {
 
         populateInstanceInfo(model, statusInfo);
 
-        return "eureka/status";
+        return "status";
     }
 
     @RequestMapping(value = "/lastn", method = RequestMethod.GET)
@@ -64,7 +64,7 @@ public class EurekaController {
         }
         model.put("lastNRegistered", lastNRegistered);
 
-        return "eureka/lastn";
+        return "lastn";
     }
 
     private Map<String, Object> registeredInstance(String id, long date) {

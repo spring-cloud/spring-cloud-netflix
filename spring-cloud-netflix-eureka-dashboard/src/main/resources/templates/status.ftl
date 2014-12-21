@@ -11,7 +11,7 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
 
-    <link rel="stylesheet" href="eureka/css/wro.css">
+    <link rel="stylesheet" href="css/wro.css">
 
   </head>
 

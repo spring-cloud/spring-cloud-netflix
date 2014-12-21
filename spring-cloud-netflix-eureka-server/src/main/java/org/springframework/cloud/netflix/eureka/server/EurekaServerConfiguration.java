@@ -26,17 +26,10 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
-	public EurekaController eurekaController() {
-		return new EurekaController();
-	}
-
-	@Bean
 	public FilterRegistrationBean jersey() {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(new ServletContainer());
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-		bean.addInitParameter("com.sun.jersey.config.property.WebPageContentRegex",
-				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css)/.*");
 		bean.addInitParameter("com.sun.jersey.config.property.packages",
 				"com.netflix.discovery;com.netflix.eureka");
 		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PREFIX

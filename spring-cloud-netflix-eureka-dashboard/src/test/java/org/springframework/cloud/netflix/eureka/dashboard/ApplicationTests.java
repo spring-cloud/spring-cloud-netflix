@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.eureka.server;
+package org.springframework.cloud.netflix.eureka.dashboard;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,7 +14,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.cloud.netflix.eureka.server.ApplicationTests.Application;
+import org.springframework.cloud.netflix.eureka.dashboard.ApplicationTests.Application;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,27 +34,49 @@ public class ApplicationTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@EnableEurekaServer
+	@EnableEurekaDashboard
 	protected static class Application {
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka").run(args);
+			new SpringApplicationBuilder(Application.class).properties("spring.application.name=eureka").run(args);
 		}
 	}
 
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/eureka/apps", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/eureka/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/env", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/env", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
+
+	@Test
+	public void cssAvailable() {
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/css/wro.css", String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+	}
+
+	@Test
+	public void imageAvailable() {
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/images/spring-logo-xd.png", String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+	}
+
+	@Test
+	public void noDoubleSlashes() {
+		String basePath = "http://localhost:" + port + "/";
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath, String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertNotNull(body);
+		assertFalse("basePath contains double slashes", body.contains(basePath+"/"));
+
+	}
+
 
 }
