@@ -50,26 +50,6 @@ public class ApplicationContextTests {
 	}
 
 	@Test
-	public void dashboardLoads() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/", String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
-		String body = entity.getBody();
-		// System.err.println(body);
-		assertTrue(body.contains("webjars/"));
-		assertTrue(body.contains("eureka/css"));
-		// The "DS Replicas"
-		assertTrue(body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
-	}
-
-	@Test
-	public void cssAvailable() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/eureka/css/wro.css", String.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
-	}
-
-	@Test
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(

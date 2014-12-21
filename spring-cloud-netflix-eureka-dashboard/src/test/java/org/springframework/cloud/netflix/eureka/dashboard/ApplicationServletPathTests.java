@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.eureka.server;
+package org.springframework.cloud.netflix.eureka.dashboard;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -14,7 +14,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.cloud.netflix.eureka.server.ApplicationServletPathTests.Application;
+import org.springframework.cloud.netflix.eureka.dashboard.ApplicationServletPathTests.Application;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=eureka",
-		"server.servletPath=/servlet" })
+@IntegrationTest({ "server.port=0", "spring.application.name=eureka", "server.servletPath=/servlet" })
 public class ApplicationServletPathTests {
 
 	@Value("${local.server.port}")
@@ -34,27 +34,42 @@ public class ApplicationServletPathTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@EnableEurekaServer
+	@EnableEurekaDashboard
 	protected static class Application {
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka", "server.servletPath=/servlet").run(
-					args);
+			new SpringApplicationBuilder(Application.class).properties("spring.application.name=eureka", "server.servletPath=/servlet").run(args);
 		}
 	}
 
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/eureka/apps", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/eureka/apps", Map.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+	}
+
+	@Test
+	public void dashboardLoads() {
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/servlet/", String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		// System.err.println(body);
+		assertTrue(body.contains("webjars/"));
+		assertTrue(body.contains("css"));
+		// The "DS Replicas"
+		assertTrue(body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
+	}
+
+	@Test
+	public void cssAvailable() {
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/servlet/css/wro.css", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/servlet/env", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity("http://localhost:" + port + "/servlet/env", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
