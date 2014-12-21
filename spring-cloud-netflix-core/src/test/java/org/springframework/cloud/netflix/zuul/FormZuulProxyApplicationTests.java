@@ -68,6 +68,18 @@ public class FormZuulProxyApplicationTests {
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
 
+	@Test
+	public void postWithUTF8Form() {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+		form.set("foo", "bar");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE+"; charset=UTF-8"));
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + port + "/simple", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String,String>>(form, headers), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {foo=[bar]}", result.getBody());
+	}
 }
 
 //Don't use @SpringBootApplication because we don't want to component scan
