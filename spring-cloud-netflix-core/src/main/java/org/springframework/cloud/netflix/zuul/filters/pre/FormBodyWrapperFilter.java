@@ -8,6 +8,7 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.Charsets;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -45,10 +46,19 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
-		if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType())) {
-			return true;
+		String contentType = request.getContentType();
+
+		//Don't use this filter on GET method
+		if(contentType == null) {
+			return false;
 		}
-		return false;
+
+		//Only use this filter for MediaType : application/x-www-form-urlencoded
+		try {
+			return MediaType.APPLICATION_FORM_URLENCODED.includes(MediaType.valueOf(contentType));
+		} catch (InvalidMediaTypeException imte) {
+			return false;
+		}
 	}
 
 	@Override
