@@ -56,7 +56,7 @@ public class ApplicationContextTests {
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
 		// System.err.println(body);
-		assertTrue(body.contains("webjars/"));
+		assertTrue(body.contains("eureka/js"));
 		assertTrue(body.contains("eureka/css"));
 		// The "DS Replicas"
 		assertTrue(body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));

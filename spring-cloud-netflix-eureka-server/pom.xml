@@ -68,16 +68,6 @@
 			<artifactId>eureka-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>jquery</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>bootstrap</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<!-- Only needed at compile time -->
@@ -138,10 +128,23 @@
 				<configuration>
 					<wroManagerFactory>ro.isdc.wro.maven.plugin.manager.factory.ConfigurableWroManagerFactory</wroManagerFactory>
 					<cssDestinationFolder>${project.build.directory}/generated-resources/static/eureka/css</cssDestinationFolder>
+					<jsDestinationFolder>${project.build.directory}/generated-resources/static/eureka/js</jsDestinationFolder>
 					<wroFile>${project.build.directory}/wro/wro.xml</wroFile>
 					<extraConfigFile>${basedir}/src/main/wro/wro.properties</extraConfigFile>
 					<contextFolder>${basedir}/src/main/wro</contextFolder>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.webjars</groupId>
+						<artifactId>jquery</artifactId>
+						<version>2.1.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.webjars</groupId>
+						<artifactId>bootstrap</artifactId>
+						<version>3.2.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

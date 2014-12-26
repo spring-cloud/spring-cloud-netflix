@@ -74,11 +74,11 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 
-    @Autowired(required = false)
-    private HealthCheckHandler healthCheckHandler;
+	@Autowired(required = false)
+	private HealthCheckHandler healthCheckHandler;
 
-    @Autowired
-    private ApplicationContext context;
+	@Autowired
+	private ApplicationContext context;
 
 	@PreDestroy
 	public void close() {
@@ -90,16 +90,19 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private void closeDiscoveryClientJersey() {
 		logger.info("Closing DiscoveryClient.jerseyClient");
 		Field jerseyClientField = ReflectionUtils.findField(
-				com.netflix.discovery.DiscoveryClient.class,
-				"discoveryJerseyClient",
+				com.netflix.discovery.DiscoveryClient.class, "discoveryJerseyClient",
 				EurekaJerseyClient.JerseyClient.class);
 		if (jerseyClientField != null) {
 			try {
 				jerseyClientField.setAccessible(true);
-				Object obj = jerseyClientField.get(DiscoveryManager.getInstance().getDiscoveryClient());
-				EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
-				jerseyClient.destroyResources();
-			} catch (Exception e) {
+				Object obj = jerseyClientField.get(DiscoveryManager.getInstance()
+						.getDiscoveryClient());
+				if (obj != null) {
+					EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
+					jerseyClient.destroyResources();
+				}
+			}
+			catch (Exception e) {
 				logger.error("Error closing DiscoveryClient.jerseyClient", e);
 			}
 		}
@@ -107,32 +110,36 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Override
 	public void start() {
-        //only set the port if the nonSecurePort is 0 and this.port != 0
+		// only set the port if the nonSecurePort is 0 and this.port != 0
 		if (port.get() != 0 && instanceConfig.getNonSecurePort() == 0) {
 			instanceConfig.setNonSecurePort(port.get());
-        }
-        //only initialize if nonSecurePort is greater than 0 and it isn't already running
-        //because of containerPortInitializer below
-        if (!running.get() && instanceConfig.getNonSecurePort() > 0) {
-            discoveryManagerIntitializer().init();
+		}
+		// only initialize if nonSecurePort is greater than 0 and it isn't already running
+		// because of containerPortInitializer below
+		if (!running.get() && instanceConfig.getNonSecurePort() > 0) {
+			discoveryManagerIntitializer().init();
 
-            logger.info("Registering application {} with eureka with status {}",
-                    instanceConfig.getAppname(), instanceConfig.getInitialStatus());
-            ApplicationInfoManager.getInstance().setInstanceStatus(instanceConfig.getInitialStatus());
+			logger.info("Registering application {} with eureka with status {}",
+					instanceConfig.getAppname(), instanceConfig.getInitialStatus());
+			ApplicationInfoManager.getInstance().setInstanceStatus(
+					instanceConfig.getInitialStatus());
 
-            if (healthCheckHandler != null) {
-                DiscoveryManager.getInstance().getDiscoveryClient().registerHealthCheck(healthCheckHandler);
-            }
-            context.publishEvent(new InstanceRegisteredEvent<>(this, instanceConfig));
-            running.set(true);
-        }
+			if (healthCheckHandler != null) {
+				DiscoveryManager.getInstance().getDiscoveryClient()
+						.registerHealthCheck(healthCheckHandler);
+			}
+			context.publishEvent(new InstanceRegisteredEvent<>(this, instanceConfig));
+			running.set(true);
+		}
 	}
 
 	@Override
 	public void stop() {
-		logger.info("Unregistering application {} with eureka with status OUT_OF_SERVICE",
+		logger.info(
+				"Unregistering application {} with eureka with status OUT_OF_SERVICE",
 				instanceConfig.getAppname());
-		ApplicationInfoManager.getInstance().setInstanceStatus(InstanceStatus.OUT_OF_SERVICE);
+		ApplicationInfoManager.getInstance().setInstanceStatus(
+				InstanceStatus.OUT_OF_SERVICE);
 		running.set(false);
 	}
 
@@ -161,11 +168,11 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		return order;
 	}
 
-    @Bean
-    @ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
-    public DiscoveryManagerInitializer discoveryManagerIntitializer() {
-        return new DiscoveryManagerInitializer();
-    }
+	@Bean
+	@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
+	public DiscoveryManagerInitializer discoveryManagerIntitializer() {
+		return new DiscoveryManagerInitializer();
+	}
 
 	@Bean
 	@Lazy
@@ -175,10 +182,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		return DiscoveryManager.getInstance().getDiscoveryClient();
 	}
 
-    @Bean
-    public DiscoveryClient discoveryClient() {
-        return new EurekaDiscoveryClient();
-    }
+	@Bean
+	public DiscoveryClient discoveryClient() {
+		return new EurekaDiscoveryClient();
+	}
 
 	@Bean
 	protected ApplicationListener<EmbeddedServletContainerInitializedEvent> containerPortInitializer() {
@@ -187,18 +194,18 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 			@Override
 			public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
 				// TODO: take SSL into account when Spring Boot 1.2 is available
-				EurekaDiscoveryClientConfiguration.this.port.compareAndSet(0, event.getEmbeddedServletContainer()
-                        .getPort());
+				EurekaDiscoveryClientConfiguration.this.port.compareAndSet(0, event
+						.getEmbeddedServletContainer().getPort());
 				EurekaDiscoveryClientConfiguration.this.start();
 			}
 		};
 	}
 
-
 	@Bean
 	@ConditionalOnMissingBean
 	@ConditionalOnBean(MetricReader.class)
-	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config, MetricReader metrics) {
+	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config,
+			MetricReader metrics) {
 		return new EurekaHealthIndicator(eurekaDiscoveryClient(), metrics, config);
 	}
 }

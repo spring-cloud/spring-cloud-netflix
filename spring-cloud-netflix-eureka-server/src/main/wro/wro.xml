@@ -1,5 +1,8 @@
 <groups xmlns="http://www.isdc.ro/wro">
   <group name="wro">
+	<css>webjar:bootstrap/3.2.0/less/bootstrap.less</css>   
     <css>file:${project.basedir}/src/main/wro/main.less</css>
+    <js>webjar:jquery/2.1.1/jquery.min.js</js>
+    <js>webjar:bootstrap/3.2.0/bootstrap.js</js>
   </group>
 </groups>

@@ -1,7 +1,6 @@
 package org.springframework.cloud.netflix.eureka.server;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
@@ -57,7 +56,7 @@ public class ApplicationServletPathTests {
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
 		// System.err.println(body);
-		assertTrue(body.contains("webjars/"));
+		assertTrue(body.contains("euerka/js"));
 		assertTrue(body.contains("eureka/css"));
 		// The "DS Replicas"
 		assertTrue(body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
