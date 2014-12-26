@@ -559,7 +559,10 @@ is more convenient to use it behind a wrapper of some sort. Spring
 Cloud has support for <a href="#spring-cloud-feign">Feign</a> (a REST client
 builder) and also <a href="#spring-cloud-ribbon">Spring <code>RestTemplate</code></a> using
 the logical Eureka service identifiers (VIPs) instead of physical
-URLs.</p>
+URLs. To configure Ribbon with a fixed list of physical servers you
+can simply set <code>&lt;client&gt;.ribbon.listOfServers</code> to a comma-separated
+list of physical addresses (or hostnames), where <code>&lt;client&gt;</code> is the ID
+of the client.</p>
 </div>
 </div>
 <div class="sect2">
@@ -959,13 +962,86 @@ public interface StoreClient {
 }</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>In the <code>@FeignClient</code> annotation the String value ("stores" above) is
+the arbitrary name of the client, used to create a configuration
+prefix (see <a href="#spring-cloud-ribbon">below for details of Ribbon
+support</a>).</p>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-without-eureka">Example: How to Use Feign Without Eureka</h3>
+<div class="paragraph">
+<p>Eureka is a convenient way to abstract the discovery of remote servers
+so you don&#8217;t have to hard code their URLs in clients, but if you
+prefer not to use it, Ribbon and Feign are still quite
+amenable. Suppose you have declared a Feign client as above for
+"stores", and Eureka is not in use (and not even on the
+classpath). You should find that the Ribbon client defaults to a
+configured server list, and you can supply the configuration like this</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>stores:
+  ribbon:
+    listOfClients: example.com,google.com</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="spring-cloud-ribbon">Client Side Load Balancer: Ribbon</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Usage of <code>LoadBalancerClient</code> directly:</p>
+<p>Ribbon is a client side load balancer which gives you a lot of control
+over the behaviour of HTTP and TCP clients. Feign already uses Ribbon,
+so if you are using <code>@FeignClient</code> then this section also applies.</p>
+</div>
+<div class="paragraph">
+<p>A central concept in Ribbon is that of the named client. Each load
+balancer is part of an ensemble of components that work together to
+contact a remote server on demend, and the ensemble has a name that
+you give it as an application developer (e.g. using the <code>@FeignClient</code>
+annotation). Spring Cloud creates a new ensemble as an
+<code>ApplicationContext</code> on demand for each named client using
+<code>RibbonClientConfiguration</code>. This contains (amongst other things) an
+<code>ILoadBalancer</code>, a <code>RestClient</code>, and a <code>ServerListFilter</code>.</p>
+</div>
+<div class="sect2">
+<h3 id="_customizing_the_ribbon_client">Customizing the Ribbon Client</h3>
+<div class="paragraph">
+<p>You can configure some bits of a Ribbon client using external
+properties in <code>&lt;client&gt;.ribbon.*</code>, which is no different than using
+the Netflix APIs natively, except that you can use Spring Boot
+configuration files (example
+<a href="#spring-cloud-feign-without-eureka">above</a>). The native options can
+be inspected as static fields in <code>CommonClientConfigKey</code> (part of
+ribbon-core).</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud also lets you take full control of the client by
+declaring additional configuration (on top of the
+<code>RibbonClientConfiguration</code>) using <code>@RibbonClient</code>. Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+public class TestConfiguration {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case the client is composed from the components already in
+<code>RibbonClientConfiguration</code> together with any in <code>FooConfiguration</code>
+(where the latter generally will override the former).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_the_ribbon_api_directly">Using the Ribbon API Directly</h3>
+<div class="paragraph">
+<p>You can also use the <code>LoadBalancerClient</code> directly. Example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -981,8 +1057,12 @@ public interface StoreClient {
 }</code></pre>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_spring_resttemplate_as_a_ribbon_client">Spring RestTemplate as a Ribbon Client</h3>
 <div class="paragraph">
-<p>Indirect usage via <code>RestTemplate</code>.</p>
+<p>You can use Ribbon indirectly via an autoconfigured <code>RestTemplate</code>
+(provided Spring Cloud and Ribbon are both on the classpath):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -995,6 +1075,14 @@ public interface StoreClient {
         return results;
     }
 }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The URI is inspected to see if it has a full host name, or a virtual
+one. If it is virtual the Ribbon client is used to create a full
+physical address. See
+<a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/ribbon/RibbonAutoConfiguration.java">RibbonAutoConfiguration</a>
+for details of how the <code>RestTemplate</code> is set up.</p>
 </div>
 </div>
 </div>
@@ -1204,7 +1292,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-12-26 14:03:51 UTC
+Last updated 2014-12-26 14:55:22 UTC
 </div>
 </div>
 </body>
