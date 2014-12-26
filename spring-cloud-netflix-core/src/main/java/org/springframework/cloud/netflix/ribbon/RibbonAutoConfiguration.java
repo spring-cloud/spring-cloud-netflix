@@ -22,7 +22,7 @@ import com.netflix.client.IClient;
  * @author Dave Syer
  */
 @Configuration
-@ConditionalOnClass(IClient.class)
+@ConditionalOnClass({IClient.class, RestTemplate.class})
 @RibbonClients
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
 public class RibbonAutoConfiguration {

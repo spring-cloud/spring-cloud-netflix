@@ -19,6 +19,7 @@ import org.apache.commons.configuration.SystemConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,9 +62,13 @@ public class ArchaiusAutoConfiguration {
 		return envConfig;
 	}
 
-	@Bean
-	protected ArchaiusEndpoint archaiusEndpoint() {
-		return new ArchaiusEndpoint();
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
+	protected static class ArchaiusEndpointConfuguration {
+		@Bean
+		protected ArchaiusEndpoint archaiusEndpoint() {
+			return new ArchaiusEndpoint();
+		}
 	}
 
 	@SuppressWarnings("deprecation")

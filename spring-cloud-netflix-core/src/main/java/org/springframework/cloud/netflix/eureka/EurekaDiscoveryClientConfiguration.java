@@ -15,14 +15,16 @@
  */
 package org.springframework.cloud.netflix.eureka;
 
+import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.annotation.PreDestroy;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.discovery.shared.EurekaJerseyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -41,16 +43,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.Ordered;
+import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
-import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.netflix.discovery.shared.EurekaJerseyClient;
 
 /**
  * @author Dave Syer
@@ -201,11 +202,16 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		};
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
 	@ConditionalOnBean(MetricReader.class)
-	public EurekaHealthIndicator eurekaHealthIndicator(EurekaInstanceConfig config,
-			MetricReader metrics) {
-		return new EurekaHealthIndicator(eurekaDiscoveryClient(), metrics, config);
+	protected static class EurekaHealthIndicatorConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public EurekaHealthIndicator eurekaHealthIndicator(
+				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient,
+				MetricReader metrics, EurekaInstanceConfig config) {
+			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
+		}
 	}
 }

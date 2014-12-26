@@ -21,28 +21,33 @@ import com.netflix.loadbalancer.ILoadBalancer;
 @ConditionalOnClass(Feign.class)
 @AutoConfigureAfter(ArchaiusAutoConfiguration.class)
 public class FeignAutoConfiguration {
-    @Bean
-    SpringDecoder feignDecoder() {
-        return new SpringDecoder();
-    }
+	@Bean
+	SpringDecoder feignDecoder() {
+		return new SpringDecoder();
+	}
 
-    @Bean
-    SpringEncoder feignEncoder() {
-        return new SpringEncoder();
-    }
+	@Bean
+	SpringEncoder feignEncoder() {
+		return new SpringEncoder();
+	}
 
-    @Bean
-    public Logger feignLogger() {
-        //return new Slf4jLogger(); //TODO pass Client classname in
-        return new Logger.JavaLogger();
-    }
+	@Bean
+	public Logger feignLogger() {
+		// return new Slf4jLogger(); //TODO pass Client classname in
+		return new Logger.JavaLogger();
+	}
 
-    @Bean
-    public Contract feignContract() {
-        return new SpringMvcContract();
-    }
+	@Bean
+	public Contract feignContract() {
+		return new SpringMvcContract();
+	}
 
-    @Bean
-    @ConditionalOnClass(ILoadBalancer.class)
-    public Client feignRibbonClient() { return new FeignRibbonClient(); }
+	@ConditionalOnClass(ILoadBalancer.class)
+	@Configuration
+	protected static class RibbonClientConfiguration {
+		@Bean
+		public Client feignRibbonClient() {
+			return new FeignRibbonClient();
+		}
+	}
 }

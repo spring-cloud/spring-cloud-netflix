@@ -31,18 +31,14 @@ import com.netflix.hystrix.Hystrix;
  * @author Christian Dupuis
  */
 @Configuration
-@AutoConfigureAfter({HealthIndicatorAutoConfiguration.class})
+@ConditionalOnClass({ Hystrix.class, HealthIndicator.class })
+@ConditionalOnExpression("${health.hystrix.enabled:true}")
+@AutoConfigureAfter({ HealthIndicatorAutoConfiguration.class })
 public class HystrixAutoConfiguration {
-	
-	@Configuration
-	@ConditionalOnClass({Hystrix.class, HealthIndicator.class})
-	@ConditionalOnExpression("${health.hystrix.enabled:true}")
-	public static class HystrixHealthIndicatorConfiguration {
-		
-		@Bean
-		public HystrixHealthIndicator hystrixHealthIndicator() {
-			return new HystrixHealthIndicator();
-		}
+
+	@Bean
+	public HystrixHealthIndicator hystrixHealthIndicator() {
+		return new HystrixHealthIndicator();
 	}
-	
+
 }
