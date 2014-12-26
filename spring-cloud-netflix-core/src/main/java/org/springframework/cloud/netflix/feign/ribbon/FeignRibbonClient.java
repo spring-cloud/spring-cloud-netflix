@@ -7,9 +7,10 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+
 import com.google.common.base.Throwables;
 import com.netflix.client.ClientException;
-import com.netflix.client.ClientFactory;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 
@@ -36,8 +37,13 @@ public class FeignRibbonClient implements Client {
                 return HttpsURLConnection.getDefaultHostnameVerifier();
             }
     });
+	private SpringClientFactory factory;
 
-    @Override
+	public FeignRibbonClient(SpringClientFactory factory) {
+		this.factory = factory;
+	}
+
+	@Override
     public Response execute(Request request, Request.Options options) throws IOException {
         try {
 
@@ -56,8 +62,8 @@ public class FeignRibbonClient implements Client {
     }
 
     private RibbonLoadBalancer lbClient(String clientName) {
-        IClientConfig config = ClientFactory.getNamedConfig(clientName);
-        ILoadBalancer lb = ClientFactory.getNamedLoadBalancer(clientName);
+        IClientConfig config = factory.getClientConfig(clientName);
+        ILoadBalancer lb = factory.getLoadBalancer(clientName);
         return new RibbonLoadBalancer(defaultClient, lb, config);
     }
 

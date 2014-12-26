@@ -73,6 +73,15 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 	}
 
 	/**
+	 * Get the client config associated with the name.
+	 *
+	 * @throws RuntimeException if any error occurs
+	 */
+	public IClientConfig getClientConfig(String name) {
+		return getInstance(name, IClientConfig.class);
+	}
+
+	/**
 	 * Get the load balancer context associated with the name.
 	 *
 	 * @throws RuntimeException if any error occurs
