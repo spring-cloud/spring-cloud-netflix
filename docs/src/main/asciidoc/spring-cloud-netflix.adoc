@@ -114,7 +114,10 @@ is more convenient to use it behind a wrapper of some sort. Spring
 Cloud has support for <<spring-cloud-feign, Feign>> (a REST client
 builder) and also <<spring-cloud-ribbon, Spring `RestTemplate`>> using
 the logical Eureka service identifiers (VIPs) instead of physical
-URLs.
+URLs. To configure Ribbon with a fixed list of physical servers you
+can simply set `<client>.ribbon.listOfServers` to a comma-separated
+list of physical addresses (or hostnames), where `<client>` is the ID 
+of the client.
 
 === Why is it so Slow to Register a Service?
 
@@ -441,10 +444,74 @@ public interface StoreClient {
 }
 ----
 
+In the `@FeignClient` annotation the String value ("stores" above) is
+the arbitrary name of the client, used to create a configuration
+prefix (see <<spring-cloud-ribbon,below for details of Ribbon
+support>>).
+
+[[spring-cloud-feign-without-eureka]]
+=== Example: How to Use Feign Without Eureka
+
+Eureka is a convenient way to abstract the discovery of remote servers
+so you don't have to hard code their URLs in clients, but if you
+prefer not to use it, Ribbon and Feign are still quite
+amenable. Suppose you have declared a Feign client as above for
+"stores", and Eureka is not in use (and not even on the
+classpath). You should find that the Ribbon client defaults to a
+configured server list, and you can supply the configuration like this
+
+.application.yml
+----
+stores:
+  ribbon:
+    listOfClients: example.com,google.com
+----
+
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
 
-Usage of `LoadBalancerClient` directly:
+Ribbon is a client side load balancer which gives you a lot of control
+over the behaviour of HTTP and TCP clients. Feign already uses Ribbon,
+so if you are using `@FeignClient` then this section also applies.
+
+A central concept in Ribbon is that of the named client. Each load
+balancer is part of an ensemble of components that work together to
+contact a remote server on demend, and the ensemble has a name that
+you give it as an application developer (e.g. using the `@FeignClient`
+annotation). Spring Cloud creates a new ensemble as an
+`ApplicationContext` on demand for each named client using
+`RibbonClientConfiguration`. This contains (amongst other things) an
+`ILoadBalancer`, a `RestClient`, and a `ServerListFilter`. 
+
+=== Customizing the Ribbon Client
+
+You can configure some bits of a Ribbon client using external
+properties in `<client>.ribbon.*`, which is no different than using
+the Netflix APIs natively, except that you can use Spring Boot
+configuration files (example
+<<spring-cloud-feign-without-eureka,above>>). The native options can
+be inspected as static fields in `CommonClientConfigKey` (part of
+ribbon-core).
+
+Spring Cloud also lets you take full control of the client by
+declaring additional configuration (on top of the
+`RibbonClientConfiguration`) using `@RibbonClient`. Example:
+
+[source,java,indent=0]
+----
+	@Configuration
+	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+	public class TestConfiguration {
+	}
+----
+
+In this case the client is composed from the components already in
+`RibbonClientConfiguration` together with any in `FooConfiguration`
+(where the latter generally will override the former).
+
+=== Using the Ribbon API Directly
+
+You can also use the `LoadBalancerClient` directly. Example:
 
 [source,java,indent=0]
 ----
@@ -460,7 +527,10 @@ public class MyClass {
 }
 ----
 
-Indirect usage via `RestTemplate`.
+=== Spring RestTemplate as a Ribbon Client
+
+You can use Ribbon indirectly via an autoconfigured `RestTemplate`
+(provided Spring Cloud and Ribbon are both on the classpath):
 
 [source,java,indent=0]
 ----
@@ -474,6 +544,12 @@ public class MyClass {
     }
 }
 ----
+
+The URI is inspected to see if it has a full host name, or a virtual
+one. If it is virtual the Ribbon client is used to create a full
+physical address. See
+{github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/ribbon/RibbonAutoConfiguration.java[RibbonAutoConfiguration]
+for details of how the `RestTemplate` is set up.
 
 == External Configuration: Archaius
 
