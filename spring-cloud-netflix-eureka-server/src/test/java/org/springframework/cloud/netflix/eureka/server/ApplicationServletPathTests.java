@@ -70,6 +70,13 @@ public class ApplicationServletPathTests {
 	}
 
 	@Test
+	public void jsAvailable() {
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + port + "/servlet/eureka/js/wro.js", String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+	}
+
+	@Test
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
