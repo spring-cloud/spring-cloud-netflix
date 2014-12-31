@@ -9,6 +9,8 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -42,7 +44,7 @@ public class TurbineAmqpAutoConfiguration {
 
     	@Bean
     	protected Binding localTurbineAmqpQueueBinding() {
-    		return BindingBuilder.bind(hystrixStreamQueue()).to(hystrixStreamExchange()).with("");		
+    		return BindingBuilder.bind(hystrixStreamQueue()).to(hystrixStreamExchange()).with("");
     	}
 
         @Bean
@@ -55,7 +57,9 @@ public class TurbineAmqpAutoConfiguration {
 
         @Bean
         public IntegrationFlow hystrixStreamAggregatorInboundFlow() {
-            return IntegrationFlows.from(Amqp.inboundAdapter(connectionFactory, hystrixStreamQueue()))
+            return IntegrationFlows
+                    .from(Amqp.inboundAdapter(connectionFactory, hystrixStreamQueue())
+                            .messageConverter(hystrixStreamMessageConverter()))
                     .channel("hystrixStreamAggregator")
                     .get();
         }
@@ -63,6 +67,10 @@ public class TurbineAmqpAutoConfiguration {
         @Bean
         public Aggregator hystrixStreamAggregator() {
             return new Aggregator();
+        }
+
+        private MessageConverter hystrixStreamMessageConverter() {
+            return new Jackson2JsonMessageConverter();
         }
     }
 
