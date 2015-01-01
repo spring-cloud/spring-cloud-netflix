@@ -1,21 +1,22 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ Copyright 2013-2014 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 package org.springframework.cloud.netflix.eureka;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
 
 import org.junit.After;
@@ -106,6 +107,24 @@ public class EurekaInstanceConfigBeanTests {
 				.getInitialStatus());
 	}
 
+	@Test
+	public void testPerferIpAddress() throws Exception {
+		addEnvironment(context, "eureka.instance.preferIpAddress:true");
+		setupContext();
+		assertTrue("Wrong hostname: " + getInstanceConfig().getHostname(),
+				getInstanceConfig().getHostname().startsWith("127.0."));
+
+	}
+
+	@Test
+	public void testPerferIpAddressInDatacenter() throws Exception {
+		addEnvironment(context, "eureka.instance.preferIpAddress:true");
+		setupContext();
+		String id = ((UniqueIdentifier) getInstanceConfig().getDataCenterInfo()).getId();
+		assertTrue("Wrong hostname: " + id, id.startsWith("127.0."));
+
+	}
+
 	private void setupContext() {
 		context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
@@ -116,30 +135,6 @@ public class EurekaInstanceConfigBeanTests {
 		return context.getBean(EurekaInstanceConfigBean.class);
 	}
 
-	/*
-	 * @Test public void serviceUrlWithCompositePropertySource() { CompositePropertySource
-	 * source = new CompositePropertySource("composite");
-	 * context.getEnvironment().getPropertySources().addFirst(source);
-	 * source.addPropertySource(new MapPropertySource("config", Collections .<String,
-	 * Object> singletonMap("eureka.client.serviceUrl.defaultZone",
-	 * "http://example.com")));
-	 * context.register(PropertyPlaceholderAutoConfiguration.class,
-	 * TestConfiguration.class); context.refresh();
-	 * assertEquals("{defaultZone=http://example.com}",
-	 * context.getBean(EurekaInstanceConfigBean.class).getServiceUrl().toString());
-	 * assertEquals( "[http://example.com]",
-	 * context.getBean(EurekaInstanceConfigBean.class)
-	 * .getEurekaServerServiceUrls("defaultZone").toString()); }
-	 * 
-	 * @Test public void serviceUrlWithDefault() {
-	 * EnvironmentTestUtils.addEnvironment(context,
-	 * "eureka.client.serviceUrl.defaultZone:",
-	 * "eureka.client.serviceUrl.default:http://example.com");
-	 * context.register(PropertyPlaceholderAutoConfiguration.class,
-	 * TestConfiguration.class); context.refresh(); assertEquals( "[http://example.com]",
-	 * context.getBean(EurekaInstanceConfigBean.class)
-	 * .getEurekaServerServiceUrls("defaultZone").toString()); }
-	 */
 	@Configuration
 	@EnableConfigurationProperties(EurekaInstanceConfigBean.class)
 	protected static class TestConfiguration {

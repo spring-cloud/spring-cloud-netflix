@@ -136,11 +136,11 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		public String getId() {
 			String instanceId = metadataMap.get("instanceId");
 			if (instanceId != null) {
-				String old = hostname;
+				String old = getHostname();
 				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
 				return id;
 			}
-			return hostname;
+			return getHostname();
 		}
 		
 	}
