@@ -45,15 +45,8 @@ public class Aggregator {
         @SuppressWarnings("unchecked")
 		Map<String, Object> origin = (Map<String, Object>) jsonMap.get("origin");
 
-        String instanceId = null;
-        if (origin.containsKey("id")) {
-            instanceId = origin.get("id").toString();
-        }
-
-        if (!StringUtils.hasText(instanceId)) {
-            //TODO: instanceid template
-            instanceId = origin.get("serviceId")+":"+origin.get("host")+":"+origin.get("port");
-        }
+        //TODO: instanceid template
+        String instanceId = origin.get("serviceId")+":"+origin.get("host")+":"+origin.get("port");
 
         @SuppressWarnings("unchecked")
 		Map<String, Object> data = (Map<String, Object>) jsonMap.get("data");
