@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.ribbon.eureka;
+package org.springframework.cloud.netflix.ribbon;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,7 +28,10 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.eureka.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
+import org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList;
+import org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.eureka.ZonePreferenceServerListFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

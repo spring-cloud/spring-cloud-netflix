@@ -15,8 +15,6 @@
  */
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +25,7 @@ import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.eureka.RibbonClientPreprocessorIntegrationTests.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
@@ -45,18 +42,10 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)
 @DirtiesContext
-public class RibbonClientPreprocessorIntegrationTests {
+public class EurekaRibbonClientPreprocessorIntegrationTests {
 
 	@Autowired
 	private SpringClientFactory factory;
-
-	@Test
-	public void serverListIsWrapped() throws Exception {
-		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
-				.getLoadBalancer("foo");
-		DomainExtractingServerList.class.cast(loadBalancer.getServerListImpl());
-	}
 
 	@Test
 	public void ruleDefaultsToZoneAvoidance() throws Exception {
@@ -66,32 +55,12 @@ public class RibbonClientPreprocessorIntegrationTests {
 		ZoneAvoidanceRule.class.cast(loadBalancer.getRule());
 	}
 
-	@Test
-	public void serverListFilterOverride() throws Exception {
-		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
-				.getLoadBalancer("foo");
-		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter())
-						.getZone());
-	}
-
 	@Configuration
-	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+	@RibbonClient("foo")
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, EurekaClientAutoConfiguration.class,
-			RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
+			EurekaClientAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
-	}
-
-	@Configuration
-	protected static class FooConfiguration {
-		@Bean
-		public ZonePreferenceServerListFilter serverListFilter() {
-			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-			filter.setZone("myTestZone");
-			return filter;
-		}
 	}
 
 }

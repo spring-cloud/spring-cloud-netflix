@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RibbonClient {
-	String name();
+	String value() default "";
+	String name() default "";
 	Class<?>[] configuration() default {};
 }

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Dave Syer
@@ -42,15 +43,31 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			}
 		}
 		if (attrs != null && attrs.containsKey("defaultConfiguration")) {
-			registerClientConfiguration(registry, "default." + metadata.getEnclosingClassName(),
+			registerClientConfiguration(registry,
+					"default." + metadata.getEnclosingClassName(),
 					attrs.get("defaultConfiguration"));
 		}
 		Map<String, Object> client = metadata.getAnnotationAttributes(
 				RibbonClient.class.getName(), true);
-		if (client != null && client.containsKey("name")) {
-			registerClientConfiguration(registry, client.get("name"),
-					client.get("configuration"));
+		String name = getClientName(client);
+		if (name != null) {
+			registerClientConfiguration(registry, name, client.get("configuration"));
 		}
+	}
+
+	private String getClientName(Map<String, Object> client) {
+		if (client==null) {
+			return null;
+		}
+		String value = (String) client.get("value");
+		if (value != null && StringUtils.hasText(value)) {
+			return value;
+		}
+		value = (String) client.get("name");
+		if (value != null && StringUtils.hasText(value)) {
+			return value;
+		}
+		throw new IllegalStateException("Either 'name' or 'value' must be provided in @RibbonClient");
 	}
 
 	private void registerClientConfiguration(BeanDefinitionRegistry registry,
