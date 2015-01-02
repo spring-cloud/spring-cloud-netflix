@@ -80,18 +80,9 @@ public class EurekaController {
     }
 
     protected void populateBase(HttpServletRequest request, Map<String, Object> model) {
-		String contextPath = serverProperties.getContextPath();
-		String path = (contextPath == null) ? "" : contextPath + serverProperties.getServletPath();
-		path = path.replace("//", "/");
-		String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
-
-		if (!basePath.endsWith("/")) {
-			basePath += "/";
-		}
-
-        model.put("time", new Date());
-        model.put("basePath", basePath);
-        model.put("dashboardPath", dashboardPath);
+    	model.put("time", new Date());
+        model.put("basePath", "/");
+        model.put("dashboardPath", dashboardPath.equals("/") ? "" : dashboardPath);
 
         populateHeader(model);
 
