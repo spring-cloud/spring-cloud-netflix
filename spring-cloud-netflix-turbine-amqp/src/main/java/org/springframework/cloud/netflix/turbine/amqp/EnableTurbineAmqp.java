@@ -1,4 +1,4 @@
-package org.springframework.netflix.turbine.amqp;
+package org.springframework.cloud.netflix.turbine.amqp;
 
 import org.springframework.context.annotation.Import;
 

@@ -12,8 +12,7 @@ import com.netflix.turbine.internal.JsonUtility;
 
 import rx.Observable;
 import rx.observables.GroupedObservable;
-
-import static org.springframework.netflix.turbine.amqp.Aggregator.getPayloadData;
+import static org.springframework.cloud.netflix.turbine.amqp.Aggregator.getPayloadData;
 
 public class AggregatorTest {
 
