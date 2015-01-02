@@ -12,6 +12,7 @@ import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +27,16 @@ import java.util.*;
  * @author Spencer Gibb
  */
 @Controller
+@RequestMapping("${eureka.dashboard.path:/}")
 public class EurekaController {
 
-	@Autowired
+    @Value("${eureka.dashboard.path:/}")
+    private String dashboardPath = "";
+
+    @Autowired
 	ServerProperties serverProperties;
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public String status(HttpServletRequest request, Map<String, Object> model) {
         populateBase(request, model);
 
@@ -86,6 +91,7 @@ public class EurekaController {
 
         model.put("time", new Date());
         model.put("basePath", basePath);
+        model.put("dashboardPath", dashboardPath);
 
         populateHeader(model);
 
