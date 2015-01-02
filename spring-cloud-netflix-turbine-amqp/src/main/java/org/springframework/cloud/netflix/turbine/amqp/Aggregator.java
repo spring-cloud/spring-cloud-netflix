@@ -1,4 +1,4 @@
-package org.springframework.netflix.turbine.amqp;
+package org.springframework.cloud.netflix.turbine.amqp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

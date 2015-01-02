@@ -12,6 +12,7 @@ import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,12 +27,16 @@ import java.util.*;
  * @author Spencer Gibb
  */
 @Controller
+@RequestMapping("${eureka.dashboard.path:/}")
 public class EurekaController {
 
-	@Autowired
+    @Value("${eureka.dashboard.path:/}")
+    private String dashboardPath = "";
+
+    @Autowired
 	ServerProperties serverProperties;
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public String status(HttpServletRequest request, Map<String, Object> model) {
         populateBase(request, model);
 
@@ -75,17 +80,9 @@ public class EurekaController {
     }
 
     protected void populateBase(HttpServletRequest request, Map<String, Object> model) {
-		String contextPath = serverProperties.getContextPath();
-		String path = (contextPath == null) ? "" : contextPath + serverProperties.getServletPath();
-		path = path.replace("//", "/");
-		String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path;
-
-		if (!basePath.endsWith("/")) {
-			basePath += "/";
-		}
-
-        model.put("time", new Date());
-        model.put("basePath", basePath);
+    	model.put("time", new Date());
+        model.put("basePath", "/");
+        model.put("dashboardPath", dashboardPath.equals("/") ? "" : dashboardPath);
 
         populateHeader(model);
 

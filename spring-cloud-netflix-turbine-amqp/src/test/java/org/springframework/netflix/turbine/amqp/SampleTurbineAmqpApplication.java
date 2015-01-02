@@ -2,6 +2,7 @@ package org.springframework.netflix.turbine.amqp;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.netflix.turbine.amqp.EnableTurbineAmqp;
 
 /**
  * @author Spencer Gibb
