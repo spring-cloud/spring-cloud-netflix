@@ -1,27 +1,32 @@
 package org.springframework.cloud.netflix.eureka.server;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.netflix.appinfo.AmazonInfo;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.config.ConfigurationManager;
-import com.netflix.discovery.shared.*;
+import com.netflix.discovery.shared.Application;
+import com.netflix.discovery.shared.Pair;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
 import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.net.URI;
-import java.util.*;
 
 /**
  * @author Spencer Gibb
@@ -32,9 +37,6 @@ public class EurekaController {
 
     @Value("${eureka.dashboard.path:/}")
     private String dashboardPath = "";
-
-    @Autowired
-	ServerProperties serverProperties;
 
     @RequestMapping(method = RequestMethod.GET)
     public String status(HttpServletRequest request, Map<String, Object> model) {

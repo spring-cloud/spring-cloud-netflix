@@ -5,6 +5,7 @@ import javax.servlet.Filter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +25,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 @Configuration
 @Import(EurekaServerInitializerConfiguration.class)
 @EnableDiscoveryClient
+@EnableConfigurationProperties(EurekaDashboardProperties.class)
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
