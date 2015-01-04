@@ -111,8 +111,9 @@ public class EurekaInstanceConfigBeanTests {
 	public void testPerferIpAddress() throws Exception {
 		addEnvironment(context, "eureka.instance.preferIpAddress:true");
 		setupContext();
-		assertTrue("Wrong hostname: " + getInstanceConfig().getHostname(),
-				getInstanceConfig().getHostname().startsWith("127.0."));
+		EurekaInstanceConfigBean instance = getInstanceConfig();
+		assertTrue("Wrong hostname: " + instance.getHostname(),
+				getInstanceConfig().getHostname().equals(instance.getIpAddress()));
 
 	}
 
@@ -120,8 +121,9 @@ public class EurekaInstanceConfigBeanTests {
 	public void testPerferIpAddressInDatacenter() throws Exception {
 		addEnvironment(context, "eureka.instance.preferIpAddress:true");
 		setupContext();
-		String id = ((UniqueIdentifier) getInstanceConfig().getDataCenterInfo()).getId();
-		assertTrue("Wrong hostname: " + id, id.startsWith("127.0."));
+		EurekaInstanceConfigBean instance = getInstanceConfig();
+		String id = ((UniqueIdentifier) instance.getDataCenterInfo()).getId();
+		assertTrue("Wrong hostname: " + id, id.equals(instance.getIpAddress()));
 
 	}
 
