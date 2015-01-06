@@ -5,10 +5,12 @@ import com.netflix.hystrix.util.HystrixRollingNumberEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.IOException;
@@ -22,7 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsPoller
  */
 @Slf4j
-public class HystrixStreamTask {
+public class HystrixStreamTask implements ApplicationContextAware {
 
     @Autowired
     private HystrixStreamChannel channel;
@@ -30,12 +32,19 @@ public class HystrixStreamTask {
     @Autowired
     private DiscoveryClient discoveryClient;
 
-    @Autowired
     private ApplicationContext context;
+
+    @Autowired
+    private HystrixStreamAmqpProperties properties;
 
     private final LinkedBlockingQueue<String> jsonMetrics = new LinkedBlockingQueue<>(1000);
 
     private final JsonFactory jsonFactory = new JsonFactory();
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
 
     //TODO: use integration to split this up?
     @Scheduled(fixedRateString = "${hystrix.stream.amqp.sendRate:500}")
@@ -66,6 +75,9 @@ public class HystrixStreamTask {
             if (!instances.isEmpty()) {
                 log.trace("gathering metrics size: " + instances.size());
             }
+
+            ServiceInstance localService = discoveryClient.getLocalServiceInstance();
+
             for (HystrixCommandMetrics commandMetrics : instances) {
                 HystrixCommandKey key = commandMetrics.getCommandKey();
                 HystrixCircuitBreaker circuitBreaker = HystrixCircuitBreaker.Factory.getInstance(key);
@@ -73,12 +85,19 @@ public class HystrixStreamTask {
                 StringWriter jsonString = new StringWriter();
                 JsonGenerator json = jsonFactory.createJsonGenerator(jsonString);
 
+
                 json.writeStartObject();
 
-                addServiceData(json);
+                addServiceData(json, localService);
                 json.writeObjectFieldStart("data");
                 json.writeStringField("type", "HystrixCommand");
-                json.writeStringField("name", key.name());
+                String name = key.name();
+
+                if (properties.isPrefixMetricName()) {
+                    name = localService.getServiceId() +"."+name;
+                }
+
+                json.writeStringField("name", name);
                 json.writeStringField("group", commandMetrics.getCommandGroup().name());
                 json.writeNumberField("currentTime", System.currentTimeMillis());
 
@@ -187,7 +206,7 @@ public class HystrixStreamTask {
                 JsonGenerator json = jsonFactory.createJsonGenerator(jsonString);
                 json.writeStartObject();
 
-                addServiceData(json);
+                addServiceData(json, localService);
                 json.writeObjectFieldStart("data");
 
                 json.writeStringField("type", "HystrixThreadPool");
@@ -221,13 +240,15 @@ public class HystrixStreamTask {
         }
     }
 
-    private void addServiceData(JsonGenerator json) throws IOException {
-        ServiceInstance localService = discoveryClient.getLocalServiceInstance();
+    private void addServiceData(JsonGenerator json, ServiceInstance localService) throws IOException {
+
         json.writeObjectFieldStart("origin");
         json.writeStringField("host", localService.getHost());
         json.writeNumberField("port", localService.getPort());
         json.writeStringField("serviceId", localService.getServiceId());
-        json.writeStringField("id", context.getId());
+        if (properties.isSendId()) {
+            json.writeStringField("id", context.getId());
+        }
         json.writeEndObject();
     }
 }

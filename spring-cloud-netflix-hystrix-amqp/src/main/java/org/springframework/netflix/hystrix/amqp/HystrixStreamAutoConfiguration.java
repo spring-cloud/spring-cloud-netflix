@@ -8,6 +8,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 @ConditionalOnClass({ HystrixCircuitBreaker.class, RabbitTemplate.class })
 @ConditionalOnExpression("${hystrix.stream.amqp.enabled:true}")
 @IntegrationComponentScan(basePackageClasses = HystrixStreamChannel.class)
+@EnableConfigurationProperties
 @EnableScheduling
 public class HystrixStreamAutoConfiguration {
 
@@ -37,10 +39,16 @@ public class HystrixStreamAutoConfiguration {
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
 
+
 	@PostConstruct
 	public void init() {
 		Jackson2JsonMessageConverter converter = messageConverter();
 		amqpTemplate.setMessageConverter(converter);
+	}
+
+	@Bean
+	public HystrixStreamAmqpProperties hystrixStreamAmqpProperties() {
+		return new HystrixStreamAmqpProperties();
 	}
 
 	@Bean
