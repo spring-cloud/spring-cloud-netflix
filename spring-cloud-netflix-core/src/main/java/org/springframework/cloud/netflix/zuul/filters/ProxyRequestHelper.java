@@ -182,8 +182,21 @@ public class ProxyRequestHelper {
 		if (traces != null) {
 
 			RequestContext context = RequestContext.getCurrentContext();
+			StringBuilder query = new StringBuilder();
+			for (String param : params.keySet()) {
+				for (String value : params.get(param)) {
+					query.append(param);
+					query.append("=");
+					query.append(value);
+					query.append("&");
+				}
+			}
+			info.put("method", verb);
+			info.put("path", uri);
+			info.put("query", query.toString());
 			info.put("remote", true);
-			info.put("serviceId", context.get("serviceId"));
+			info.put("proxy", context.get("proxy"));
+
 			Map<String, Object> trace = new LinkedHashMap<String, Object>();
 			Map<String, Object> input = new LinkedHashMap<String, Object>();
 			trace.put("request", input);
@@ -196,19 +209,7 @@ public class ProxyRequestHelper {
 				}
 				input.put(entry.getKey(), value);
 			}
-			StringBuilder query = new StringBuilder();
-			for (String param : params.keySet()) {
-				for (String value : params.get(param)) {
-					query.append(param);
-					query.append("=");
-					query.append(value);
-					query.append("&");
-				}
-			}
 
-			info.put("method", verb);
-			info.put("uri", uri);
-			info.put("query", query.toString());
 			RequestContext ctx = RequestContext.getCurrentContext();
 			if (!ctx.isChunkedRequestBody()) {
 				if (requestEntity != null) {
@@ -228,7 +229,6 @@ public class ProxyRequestHelper {
 			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
 			Map<String, Object> output = new LinkedHashMap<String, Object>();
 			trace.put("response", output);
-			info.put("status", "" + status);
 			for (Entry<String, List<String>> key : headers.entrySet()) {
 				Collection<String> collection = key.getValue();
 				Object value = collection;
@@ -237,6 +237,7 @@ public class ProxyRequestHelper {
 				}
 				output.put(key.getKey(), value);
 			}
+			output.put("status", "" + status);
 		}
 	}
 

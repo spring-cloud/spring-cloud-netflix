@@ -55,7 +55,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			String location = route.getLocation();
 
 			if (location != null) {
-
+				
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
 
