@@ -33,7 +33,7 @@ public class ZuulConfiguration {
 	private ZuulProperties zuulProperties;
 
 	@Bean
-	public RouteLocator routes() {
+	public RouteLocator routeLocator() {
 		return new SimpleRouteLocator(zuulProperties);
 	}
 

@@ -3,7 +3,9 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
 import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
@@ -39,20 +41,27 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Bean
 	@Override
-	public ProxyRouteLocator routes() {
+	public ProxyRouteLocator routeLocator() {
 		return new ProxyRouteLocator(discovery, zuulProperties);
 	}
 
-	@Bean
-	// @RefreshScope
-	public RoutesEndpoint zuulEndpoint() {
-		return new RoutesEndpoint(routes());
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
+	protected static class RoutesEndpointConfuguration {
+		@Autowired
+		private ProxyRouteLocator routeLocator;
+
+		@Bean
+		// @RefreshScope
+		public RoutesEndpoint zuulEndpoint() {
+			return new RoutesEndpoint(routeLocator);
+		}
 	}
 
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter() {
-		return new PreDecorationFilter(routes(), zuulProperties);
+		return new PreDecorationFilter(routeLocator(), zuulProperties);
 	}
 
 	// route filters
