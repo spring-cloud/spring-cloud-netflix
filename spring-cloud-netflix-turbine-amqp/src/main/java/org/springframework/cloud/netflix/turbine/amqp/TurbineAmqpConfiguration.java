@@ -16,6 +16,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.util.SocketUtils;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -35,6 +36,7 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 
 	@Autowired
 	private TurbineAmqpProperties turbine;
+	private int turbinePort;
 
 	@Bean
 	public PublishSubject<Map<String, Object>> hystrixSubject() {
@@ -53,8 +55,14 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 				.doOnSubscribe(() -> log.info("Starting aggregation")).flatMap(o -> o)
 				.publish().refCount();
 
+		turbinePort = turbine.getPort();
+
+		if (turbinePort <= 0) {
+			turbinePort = SocketUtils.findAvailableTcpPort(40000);
+		}
+
 		HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty.createHttpServer(
-				turbine.getPort(),
+				turbinePort,
 				(request, response) -> {
 					log.info("SSE Request Received");
 					response.getHeaders().setHeader("Content-Type", "text/event-stream");
@@ -102,5 +110,9 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 	@Override
 	public int getPhase() {
 		return 0;
+	}
+
+	public int getTurbinePort() {
+		return turbinePort;
 	}
 }

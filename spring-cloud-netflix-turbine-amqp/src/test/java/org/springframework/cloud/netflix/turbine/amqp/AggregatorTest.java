@@ -1,4 +1,4 @@
-package org.springframework.netflix.turbine.amqp;
+package org.springframework.cloud.netflix.turbine.amqp;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

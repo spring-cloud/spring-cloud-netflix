@@ -5,6 +5,8 @@ cache:
 language: java
 jdk:
   - oraclejdk8
+services:
+  - rabbitmq
 before_install:
   - git config user.name "$GIT_NAME"
   - git config user.email "$GIT_EMAIL"
