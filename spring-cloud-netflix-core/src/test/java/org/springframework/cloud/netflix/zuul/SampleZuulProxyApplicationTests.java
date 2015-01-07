@@ -81,6 +81,14 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals("Deleted!", result.getBody());
 	}
 
+	@Test
+	public void testNotFound() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + port + "/myinvalidpath", HttpMethod.GET,
+				new HttpEntity<Void>((Void) null), String.class);
+		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+	}
+
 }
 
 //Don't use @SpringBootApplication because we don't want to component scan

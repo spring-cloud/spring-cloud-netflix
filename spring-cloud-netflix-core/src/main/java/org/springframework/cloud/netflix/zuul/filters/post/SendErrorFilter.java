@@ -6,6 +6,8 @@ import com.netflix.zuul.context.RequestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.servlet.RequestDispatcher;
+
 /**
  * @author Spencer Gibb
  */
@@ -42,10 +44,17 @@ public class SendErrorFilter extends ZuulFilter {
                 ctx.getRequest().setAttribute("javax.servlet.error.exception", e);
             }
             ctx.getRequest().setAttribute("javax.servlet.error.status_code", statusCode);
-            ctx.getRequest().getRequestDispatcher(errorPath).forward(ctx.getRequest(), ctx.getResponse());
+            RequestDispatcher dispatcher = ctx.getRequest().getRequestDispatcher(errorPath);
+            if (dispatcher != null) {
+                dispatcher.forward(ctx.getRequest(), ctx.getResponse());
+            }
         } catch (Exception e) {
             Throwables.propagate(e);
         }
         return null;
+    }
+
+    public void setErrorPath(String errorPath) {
+        this.errorPath = errorPath;
     }
 }
