@@ -48,4 +48,13 @@ public class SendErrorFilterTests {
 		assertTrue("shouldFilter returned false", filter.shouldFilter());
 		filter.run();
 	}
+
+	@Test
+	public void doesNotRunTwice() {
+		SendErrorFilter filter = createSendErrorFilter(new MockHttpServletRequest());
+
+		assertTrue("shouldFilter returned false", filter.shouldFilter());
+		filter.run();
+		assertFalse("shouldFilter returned true", filter.shouldFilter());
+	}
 }

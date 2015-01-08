@@ -14,6 +14,8 @@ import javax.servlet.RequestDispatcher;
 @Slf4j
 public class SendErrorFilter extends ZuulFilter {
 
+    protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
+
     @Value("${error.path:/error}")
     private String errorPath;
 
@@ -30,7 +32,8 @@ public class SendErrorFilter extends ZuulFilter {
     @Override
     public boolean shouldFilter() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        return ctx.containsKey("error.status_code");
+        //only forward to errorPath if it hasn't been forwarded to already
+        return ctx.containsKey("error.status_code") && !ctx.getBoolean(SEND_ERROR_FILTER_RAN, false);
     }
 
     @Override
@@ -44,10 +47,11 @@ public class SendErrorFilter extends ZuulFilter {
                 ctx.getRequest().setAttribute("javax.servlet.error.exception", e);
             }
             ctx.getRequest().setAttribute("javax.servlet.error.status_code", statusCode);
-            RequestDispatcher dispatcher = ctx.getRequest().getRequestDispatcher(errorPath);
-            if (dispatcher != null) {
-                dispatcher.forward(ctx.getRequest(), ctx.getResponse());
-            }
+			RequestDispatcher dispatcher = ctx.getRequest().getRequestDispatcher(errorPath);
+			if (dispatcher != null) {
+				ctx.set(SEND_ERROR_FILTER_RAN, true);
+				dispatcher.forward(ctx.getRequest(), ctx.getResponse());
+			}
         } catch (Exception e) {
             Throwables.propagate(e);
         }
