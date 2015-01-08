@@ -50,7 +50,9 @@ public class SendErrorFilter extends ZuulFilter {
 			RequestDispatcher dispatcher = ctx.getRequest().getRequestDispatcher(errorPath);
 			if (dispatcher != null) {
 				ctx.set(SEND_ERROR_FILTER_RAN, true);
-				dispatcher.forward(ctx.getRequest(), ctx.getResponse());
+                if (!ctx.getResponse().isCommitted()) {
+                    dispatcher.forward(ctx.getRequest(), ctx.getResponse());
+                }
 			}
         } catch (Exception e) {
             Throwables.propagate(e);
