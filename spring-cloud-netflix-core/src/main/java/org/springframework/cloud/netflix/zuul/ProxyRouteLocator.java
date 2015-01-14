@@ -33,7 +33,7 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
 
-	private Map<String, ZuulRoute> staticRoutes = new LinkedHashMap<String, ZuulRoute>();
+	private Map<String, ZuulRoute> staticRoutes = new LinkedHashMap<>();
 
 	public ProxyRouteLocator(DiscoveryClient discovery, ZuulProperties properties) {
 		this.discovery = discovery;
@@ -61,7 +61,7 @@ public class ProxyRouteLocator implements RouteLocator {
 			routes.set(locateRoutes());
 		}
 
-		Map<String, String> values = new LinkedHashMap<String, String>();
+		Map<String, String> values = new LinkedHashMap<>();
 
 		for (String key : routes.get().keySet()) {
 			String url = key;

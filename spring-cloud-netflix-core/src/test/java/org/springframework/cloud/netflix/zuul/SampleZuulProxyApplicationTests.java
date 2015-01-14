@@ -14,6 +14,7 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -38,6 +39,7 @@ import com.netflix.zuul.ZuulFilter;
 @WebAppConfiguration
 @IntegrationTest({ "server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
+		"zuul.routes.another: /another/twolevel/**",
 		"zuul.routes.simple: /simple/**" })
 @DirtiesContext
 public class SampleZuulProxyApplicationTests {
@@ -65,7 +67,7 @@ public class SampleZuulProxyApplicationTests {
 	public void getOnSelfViaRibbonRoutingFilter() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + port + "/simple/local/1", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten!", result.getBody());
 	}
@@ -76,7 +78,7 @@ public class SampleZuulProxyApplicationTests {
 		endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + port + "/self/1", HttpMethod.DELETE,
-				new HttpEntity<Void>((Void) null), String.class);
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Deleted!", result.getBody());
 	}
@@ -85,10 +87,18 @@ public class SampleZuulProxyApplicationTests {
 	public void testNotFound() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + port + "/myinvalidpath", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
 	}
 
+	@Test
+	public void getSecondLevel() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + port + "/another/twolevel/local/1", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Gotten!", result.getBody());
+	}
 }
 
 //Don't use @SpringBootApplication because we don't want to component scan
@@ -96,7 +106,10 @@ public class SampleZuulProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class)
+@RibbonClients({
+	@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
+	@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class)
+})
 class SampleZuulProxyApplication {
 
 	@RequestMapping("/testing123")
@@ -158,6 +171,16 @@ class SampleZuulProxyApplication {
 //Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class SimpleRibbonClientConfiguration {
+	@Bean
+	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
+		BaseLoadBalancer balancer = new BaseLoadBalancer();
+		balancer.setServersList(Arrays.asList(new Server("localhost", instance
+				.getNonSecurePort())));
+		return balancer;
+	}
+}
+@Configuration
+class AnotherRibbonClientConfiguration {
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
