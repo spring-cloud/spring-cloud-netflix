@@ -8,14 +8,20 @@ import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
 
 import java.util.Map;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.core.env.Environment;
 import org.springframework.util.SocketUtils;
 import rx.Observable;
 import rx.subjects.PublishSubject;
@@ -36,11 +42,46 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 
 	@Autowired
 	private TurbineAmqpProperties turbine;
-	private int turbinePort;
+
+	@Autowired
+	private PortHolder portHolder;
+
+	private Integer turbinePort;
 
 	@Bean
 	public PublishSubject<Map<String, Object>> hystrixSubject() {
 		return PublishSubject.create();
+	}
+
+	@Data
+	public static class PortHolder {
+		private final Integer port;
+	}
+
+	@Configuration
+	public static class PortConfig {
+
+		@Autowired
+		private TurbineAmqpProperties turbine;
+
+		@Autowired
+		private Environment env;
+
+		@Bean
+		@ConditionalOnWebApplication
+		public PortHolder webPortHolder(ServerProperties serverProperties) {
+			return new PortHolder(serverProperties.getPort());
+		}
+
+		@Bean
+		@ConditionalOnNotWebApplication
+		public PortHolder notwebPortHolder() {
+			Integer port = new RelaxedPropertyResolver(env).getProperty("server.port", Integer.class, null);
+			if (port == null) {
+				port = turbine.getPort();
+			}
+			return new PortHolder(port);
+		}
 	}
 
 	@Bean
@@ -55,9 +96,9 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 				.doOnSubscribe(() -> log.info("Starting aggregation")).flatMap(o -> o)
 				.publish().refCount();
 
-		turbinePort = turbine.getPort();
+		turbinePort = portHolder.getPort();
 
-		if (turbinePort <= 0) {
+		if (turbinePort == null || turbinePort <= 0) {
 			turbinePort = SocketUtils.findAvailableTcpPort(40000);
 		}
 
