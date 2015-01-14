@@ -34,7 +34,7 @@ public class ZuulConfiguration {
 
 	@Bean
 	public RouteLocator routeLocator() {
-		return new SimpleRouteLocator(zuulProperties);
+		return new SimpleRouteLocator(this.zuulProperties);
 	}
 
 	@Bean
@@ -55,7 +55,7 @@ public class ZuulConfiguration {
 
 		@Bean
 		public ZuulFilterInitializer zuulFilterInitializer() {
-			return new ZuulFilterInitializer(filters);
+			return new ZuulFilterInitializer(this.filters);
 		}
 
 	}
@@ -74,8 +74,9 @@ public class ZuulConfiguration {
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
 			if (event instanceof ContextRefreshedEvent
-					|| event instanceof RefreshScopeRefreshedEvent)
-				zuulHandlerMapping.registerHandlers();
+					|| event instanceof RefreshScopeRefreshedEvent) {
+				this.zuulHandlerMapping.registerHandlers();
+			}
 		}
 
 	}

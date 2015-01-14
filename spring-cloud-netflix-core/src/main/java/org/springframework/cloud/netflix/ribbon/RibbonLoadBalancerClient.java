@@ -19,72 +19,76 @@ import com.netflix.servo.monitor.Stopwatch;
  */
 public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
-    private SpringClientFactory clientFactory;
+	private SpringClientFactory clientFactory;
 
 	public RibbonLoadBalancerClient(SpringClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 
-    @Override
-    public URI reconstructURI(ServiceInstance instance, URI original) {
-        String serviceId = instance.getServiceId();
-        RibbonLoadBalancerContext context = clientFactory.getLoadBalancerContext(serviceId);
-        Server server = new Server(instance.getHost(), instance.getPort());
-        return context.reconstructURIWithServer(server, original);
-    }
+	@Override
+	public URI reconstructURI(ServiceInstance instance, URI original) {
+		String serviceId = instance.getServiceId();
+		RibbonLoadBalancerContext context = this.clientFactory
+				.getLoadBalancerContext(serviceId);
+		Server server = new Server(instance.getHost(), instance.getPort());
+		return context.reconstructURIWithServer(server, original);
+	}
 
-    @Override
+	@Override
 	public ServiceInstance choose(String serviceId) {
 		return new RibbonServer(serviceId, getServer(serviceId));
 	}
 
-    @Override
-    public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
-        ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
-        RibbonLoadBalancerContext context = clientFactory.getLoadBalancerContext(serviceId);
-        Server server = getServer(serviceId, loadBalancer);
-        RibbonServer ribbonServer = new RibbonServer(serviceId, server);
+	@Override
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
+		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
+		RibbonLoadBalancerContext context = this.clientFactory
+				.getLoadBalancerContext(serviceId);
+		Server server = getServer(serviceId, loadBalancer);
+		RibbonServer ribbonServer = new RibbonServer(serviceId, server);
 
-        ServerStats serverStats = context.getServerStats(server);
-        context.noteOpenConnection(serverStats);
-        Stopwatch tracer = context.getExecuteTracer().start();
+		ServerStats serverStats = context.getServerStats(server);
+		context.noteOpenConnection(serverStats);
+		Stopwatch tracer = context.getExecuteTracer().start();
 
-        try {
+		try {
 
-            T returnVal = request.apply(ribbonServer);
-            recordStats(context, tracer, serverStats, returnVal, null);
-            return returnVal;
-        } catch (Exception e) {
-            recordStats(context, tracer, serverStats, null, e);
-            Throwables.propagate(e);
-        }
-        return null;
-    }
+			T returnVal = request.apply(ribbonServer);
+			recordStats(context, tracer, serverStats, returnVal, null);
+			return returnVal;
+		}
+		catch (Exception e) {
+			recordStats(context, tracer, serverStats, null, e);
+			Throwables.propagate(e);
+		}
+		return null;
+	}
 
-    private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer, ServerStats serverStats, Object entity, Throwable exception) {
-        tracer.stop();
-        long duration = tracer.getDuration(TimeUnit.MILLISECONDS);
-        context.noteRequestCompletion(serverStats, entity, exception, duration, null/*errorHandler*/);
-    }
+	private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer,
+			ServerStats serverStats, Object entity, Throwable exception) {
+		tracer.stop();
+		long duration = tracer.getDuration(TimeUnit.MILLISECONDS);
+		context.noteRequestCompletion(serverStats, entity, exception, duration, null/* errorHandler */);
+	}
 
-    protected Server getServer(String serviceId) {
-        return getServer(serviceId, getLoadBalancer(serviceId));
-    }
+	protected Server getServer(String serviceId) {
+		return getServer(serviceId, getLoadBalancer(serviceId));
+	}
 
-    protected Server getServer(String serviceId, ILoadBalancer loadBalancer) {
-        Server server = loadBalancer.chooseServer("default");
-        if (server == null) {
-            throw new IllegalStateException(
-                    "Unable to locate ILoadBalancer for service: " + serviceId);
-        }
-        return server;
-    }
+	protected Server getServer(String serviceId, ILoadBalancer loadBalancer) {
+		Server server = loadBalancer.chooseServer("default");
+		if (server == null) {
+			throw new IllegalStateException(
+					"Unable to locate ILoadBalancer for service: " + serviceId);
+		}
+		return server;
+	}
 
-    protected ILoadBalancer getLoadBalancer(String serviceId) {
-    	return clientFactory.getLoadBalancer(serviceId);
-    }
+	protected ILoadBalancer getLoadBalancer(String serviceId) {
+		return this.clientFactory.getLoadBalancer(serviceId);
+	}
 
-    protected static class RibbonServer implements ServiceInstance {
+	protected static class RibbonServer implements ServiceInstance {
 		protected String serviceId;
 		protected Server server;
 
@@ -95,17 +99,17 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 		@Override
 		public String getServiceId() {
-			return serviceId;
+			return this.serviceId;
 		}
 
 		@Override
 		public String getHost() {
-			return server.getHost();
+			return this.server.getHost();
 		}
 
 		@Override
 		public int getPort() {
-			return server.getPort();
+			return this.server.getPort();
 		}
 	}
 }

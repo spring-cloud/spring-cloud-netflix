@@ -1,9 +1,10 @@
 package org.springframework.cloud.netflix.sidecar;
 
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.net.URI;
+
+import lombok.Data;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Spencer Gibb
@@ -11,7 +12,7 @@ import java.net.URI;
 @Data
 @ConfigurationProperties("sidecar")
 public class SidecarProperties {
-    private URI healthUri;
-    private URI homePageUri;
-    private int port;
+	private URI healthUri;
+	private URI homePageUri;
+	private int port;
 }

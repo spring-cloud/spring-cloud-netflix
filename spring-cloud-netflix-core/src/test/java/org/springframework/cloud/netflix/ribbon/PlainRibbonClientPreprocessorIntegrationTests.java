@@ -46,7 +46,7 @@ public class PlainRibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void serverListIsWrapped() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		DomainExtractingServerList.class.cast(loadBalancer.getServerListImpl());
 	}

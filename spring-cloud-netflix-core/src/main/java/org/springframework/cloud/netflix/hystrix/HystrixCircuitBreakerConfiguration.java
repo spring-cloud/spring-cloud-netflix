@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.hystrix.Hystrix;
-import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,11 +37,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.Hystrix;
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 
 /**
  * @author Spencer Gibb
@@ -63,7 +64,7 @@ public class HystrixCircuitBreakerConfiguration {
 	@Configuration
 	@ConditionalOnExpression("${hystrix.stream.endpoint.enabled:true}")
 	@ConditionalOnWebApplication
-	@ConditionalOnClass({Endpoint.class, HystrixMetricsStreamServlet.class})
+	@ConditionalOnClass({ Endpoint.class, HystrixMetricsStreamServlet.class })
 	protected static class HystrixWebConfiguration {
 
 		@Bean
@@ -74,13 +75,13 @@ public class HystrixCircuitBreakerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass({HystrixMetricsPoller.class, GaugeService.class})
+	@ConditionalOnClass({ HystrixMetricsPoller.class, GaugeService.class })
 	protected static class HystrixMetricsPollerConfiguration implements SmartLifecycle {
 
 		private static Log logger = LogFactory
 				.getLog(HystrixMetricsPollerConfiguration.class);
 
-		@Autowired(required=false)
+		@Autowired(required = false)
 		private GaugeService gauges;
 
 		private ObjectMapper mapper = new ObjectMapper();
@@ -92,7 +93,7 @@ public class HystrixCircuitBreakerConfiguration {
 
 		@Override
 		public void start() {
-			if (gauges==null) {
+			if (this.gauges == null) {
 				return;
 			}
 			MetricsAsJsonPollerListener listener = new MetricsAsJsonPollerListener() {
@@ -100,7 +101,8 @@ public class HystrixCircuitBreakerConfiguration {
 				public void handleJsonMetric(String json) {
 					try {
 						@SuppressWarnings("unchecked")
-						Map<String, Object> map = mapper.readValue(json, Map.class);
+						Map<String, Object> map = HystrixMetricsPollerConfiguration.this.mapper
+								.readValue(json, Map.class);
 						if (map != null && map.containsKey("type")) {
 							addMetrics(map, "hystrix.");
 						}
@@ -111,9 +113,9 @@ public class HystrixCircuitBreakerConfiguration {
 				}
 
 			};
-			poller = new HystrixMetricsPoller(listener, 2000);
+			this.poller = new HystrixMetricsPoller(listener, 2000);
 			// start polling and it will write directly to the listener
-			poller.start();
+			this.poller.start();
 			logger.info("Starting poller");
 		}
 
@@ -129,10 +131,10 @@ public class HystrixCircuitBreakerConfiguration {
 			String prefix = prefixBuilder.toString();
 			for (String key : map.keySet()) {
 				Object value = map.get(key);
-				if (!reserved.contains(key)) {
+				if (!this.reserved.contains(key)) {
 					if (value instanceof Number) {
 						String name = prefix + "." + key;
-						gauges.submit(name, ((Number) value).doubleValue());
+						this.gauges.submit(name, ((Number) value).doubleValue());
 					}
 					else if (value instanceof Map) {
 						@SuppressWarnings("unchecked")
@@ -145,14 +147,14 @@ public class HystrixCircuitBreakerConfiguration {
 
 		@Override
 		public void stop() {
-			if (poller != null) {
-				poller.shutdown();
+			if (this.poller != null) {
+				this.poller.shutdown();
 			}
 		}
 
 		@Override
 		public boolean isRunning() {
-			return poller != null ? poller.isRunning() : false;
+			return this.poller != null ? this.poller.isRunning() : false;
 		}
 
 		@Override
@@ -167,8 +169,8 @@ public class HystrixCircuitBreakerConfiguration {
 
 		@Override
 		public void stop(Runnable callback) {
-			if (poller != null) {
-				poller.shutdown();
+			if (this.poller != null) {
+				this.poller.shutdown();
 			}
 			callback.run();
 		}

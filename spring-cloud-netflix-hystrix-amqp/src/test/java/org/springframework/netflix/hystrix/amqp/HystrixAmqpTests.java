@@ -1,6 +1,5 @@
 package org.springframework.netflix.hystrix.amqp;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
@@ -14,6 +13,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 /**
  * @author Spencer Gibb
@@ -43,5 +44,6 @@ public class HystrixAmqpTests {
 	}
 
 	@Test
-	public void contextLoads() { }
+	public void contextLoads() {
+	}
 }

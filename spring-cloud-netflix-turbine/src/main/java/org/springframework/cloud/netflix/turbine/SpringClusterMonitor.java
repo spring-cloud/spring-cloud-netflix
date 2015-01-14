@@ -12,69 +12,79 @@ import com.netflix.turbine.monitor.cluster.ObservationCriteria;
 import com.netflix.turbine.monitor.instance.InstanceUrlClosure;
 
 /**
- * @author Spencer Gibb
- * TODO: convert to ConfigurationProperties (how to do per-cluster configuration?)
+ * @author Spencer Gibb TODO: convert to ConfigurationProperties (how to do per-cluster
+ * configuration?)
  */
 public class SpringClusterMonitor extends AggregateClusterMonitor {
 
-    public SpringClusterMonitor(String name, String clusterName) {
-        super(name,
-                new ObservationCriteria.ClusterBasedObservationCriteria(clusterName),
-                new PerformanceCriteria.AggClusterPerformanceCriteria(clusterName),
-                new MonitorConsole<DataFromSingleInstance>(),
-                InstanceMonitorDispatcher,
-                SpringClusterMonitor.ClusterConfigBasedUrlClosure);
-    }
+	public SpringClusterMonitor(String name, String clusterName) {
+		super(name, new ObservationCriteria.ClusterBasedObservationCriteria(clusterName),
+				new PerformanceCriteria.AggClusterPerformanceCriteria(clusterName),
+				new MonitorConsole<DataFromSingleInstance>(), InstanceMonitorDispatcher,
+				SpringClusterMonitor.ClusterConfigBasedUrlClosure);
+	}
 
-    /**
-     * TODO: make this a template of some kind (secure, management port, etc...)
-     * Helper class that decides how to connect to a server based on injected config.
-     * Note that the cluster name must be provided here since one can have different configs for different clusters
-     */
-    public static InstanceUrlClosure ClusterConfigBasedUrlClosure = new InstanceUrlClosure() {
+	/**
+	 * TODO: make this a template of some kind (secure, management port, etc...) Helper
+	 * class that decides how to connect to a server based on injected config. Note that
+	 * the cluster name must be provided here since one can have different configs for
+	 * different clusters
+	 */
+	public static InstanceUrlClosure ClusterConfigBasedUrlClosure = new InstanceUrlClosure() {
 
-        private final DynamicStringProperty defaultUrlClosureConfig = DynamicPropertyFactory.getInstance().getStringProperty("turbine.instanceUrlSuffix", "hystrix.stream");
-        private final DynamicBooleanProperty instanceInsertPort = DynamicPropertyFactory.getInstance().getBooleanProperty("turbine.instanceInsertPort", true);
-        @Override
-        public String getUrlPath(Instance host) {
+		private final DynamicStringProperty defaultUrlClosureConfig = DynamicPropertyFactory
+				.getInstance().getStringProperty("turbine.instanceUrlSuffix",
+						"hystrix.stream");
+		private final DynamicBooleanProperty instanceInsertPort = DynamicPropertyFactory
+				.getInstance().getBooleanProperty("turbine.instanceInsertPort", true);
 
-            if (host.getCluster() == null) {
-                throw new RuntimeException("Host must have cluster name in order to use ClusterConfigBasedUrlClosure");
-            }
+		@Override
+		public String getUrlPath(Instance host) {
 
-            String key = "turbine.instanceUrlSuffix." + host.getCluster();
-            DynamicStringProperty urlClosureConfig = DynamicPropertyFactory.getInstance().getStringProperty(key, null);
+			if (host.getCluster() == null) {
+				throw new RuntimeException(
+						"Host must have cluster name in order to use ClusterConfigBasedUrlClosure");
+			}
 
-            String url = urlClosureConfig.get();
-            if (url == null) {
-                url = defaultUrlClosureConfig.get();
-            }
+			String key = "turbine.instanceUrlSuffix." + host.getCluster();
+			DynamicStringProperty urlClosureConfig = DynamicPropertyFactory.getInstance()
+					.getStringProperty(key, null);
 
-            if (url == null) {
-                throw new RuntimeException("Config property: " + urlClosureConfig.getName() + " or " +
-                        defaultUrlClosureConfig.getName() + " must be set");
-            }
+			String url = urlClosureConfig.get();
+			if (url == null) {
+				url = this.defaultUrlClosureConfig.get();
+			}
 
-            String insertPortKey = "turbine.instanceInsertPort." + host.getCluster();
-            DynamicStringProperty insertPortProp = DynamicPropertyFactory.getInstance().getStringProperty(insertPortKey, null);
-            boolean insertPort;
-            if (insertPortProp.get() == null) {
-                insertPort = instanceInsertPort.get();
-            } else {
-                insertPort = Boolean.parseBoolean(insertPortProp.get());
-            }
+			if (url == null) {
+				throw new RuntimeException("Config property: "
+						+ urlClosureConfig.getName() + " or "
+						+ this.defaultUrlClosureConfig.getName() + " must be set");
+			}
 
-            if (insertPort) {
-                if (url.startsWith("/")) {
-                    url = url.substring(1);
-                }
-                if (!host.getAttributes().containsKey("port")) {
-                    throw new RuntimeException("Configured to use port, but port is not in host attributes");
-                }
-                return String.format("http://%s:%s/%s", host.getHostname(), host.getAttributes().get("port"), url);
-            }
+			String insertPortKey = "turbine.instanceInsertPort." + host.getCluster();
+			DynamicStringProperty insertPortProp = DynamicPropertyFactory.getInstance()
+					.getStringProperty(insertPortKey, null);
+			boolean insertPort;
+			if (insertPortProp.get() == null) {
+				insertPort = this.instanceInsertPort.get();
+			}
+			else {
+				insertPort = Boolean.parseBoolean(insertPortProp.get());
+			}
 
-            return "http://" + host.getHostname() + url;
-        }
-    };
+			if (insertPort) {
+				if (url.startsWith("/")) {
+					url = url.substring(1);
+				}
+				if (!host.getAttributes().containsKey("port")) {
+					throw new RuntimeException(
+							"Configured to use port, but port is not in host attributes");
+				}
+				return String.format("http://%s:%s/%s", host.getHostname(), host
+						.getAttributes().get("port"), url);
+			}
+
+			return "http://" + host.getHostname() + url;
+		}
+	};
 }

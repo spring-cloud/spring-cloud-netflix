@@ -7,7 +7,7 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.
- * 
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  */
@@ -25,13 +25,13 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	protected void registerHandlers() {
-        Collection<String> routes = routeLocator.getRoutePaths();
+		Collection<String> routes = this.routeLocator.getRoutePaths();
 		if (routes.isEmpty()) {
-			logger.warn("No routes found from ProxyRouteLocator");
+			this.logger.warn("No routes found from ProxyRouteLocator");
 		}
 		else {
 			for (String url : routes) {
-				registerHandler(url, zuul);
+				registerHandler(url, this.zuul);
 			}
 		}
 	}

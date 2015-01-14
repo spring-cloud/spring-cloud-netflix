@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -38,7 +39,7 @@ import com.netflix.servo.publish.PollScheduler;
 /**
  * {@link MetricReader} implementation that registers a {@link MetricObserver} with the
  * Netflix Servo library and exposes Servo metrics to the <code>/metric</code> endpoint.
- * 
+ *
  * @author Dave Syer
  * @author Christian Dupuis
  */
@@ -88,8 +89,9 @@ public class ServoMetricCollector implements DisposableBean {
 						.append(config.getName()).toString().toLowerCase();
 
 				if (servoMetric.hasNumberValue()) {
-					metrics.set(new Metric<Number>(key, servoMetric.getNumberValue(),
-							new Date(servoMetric.getTimestamp())));
+					this.metrics.set(new Metric<Number>(key,
+							servoMetric.getNumberValue(), new Date(servoMetric
+									.getTimestamp())));
 				}
 			}
 		}

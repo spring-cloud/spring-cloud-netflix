@@ -23,11 +23,11 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * @author Spencer Gibb
- * patterned after Spring Integration IntegrationComponentScanRegistrar
+ * @author Spencer Gibb patterned after Spring Integration
+ * IntegrationComponentScanRegistrar
  */
-public class FeignClientScanRegistrar extends FeignConfiguration
-		implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
+public class FeignClientScanRegistrar extends FeignConfiguration implements
+		ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
 
 	private ResourceLoader resourceLoader;
 
@@ -47,22 +47,25 @@ public class FeignClientScanRegistrar extends FeignConfiguration
 	}
 
 	@Override
-	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
+			BeanDefinitionRegistry registry) {
 
 		Set<String> basePackages = getBasePackages(importingClassMetadata);
 
 		ClassPathScanningCandidateComponentProvider scanner = getScanner();
 		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class));
-		scanner.setResourceLoader(resourceLoader);
+		scanner.setResourceLoader(this.resourceLoader);
 
 		for (String basePackage : basePackages) {
-			Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents(basePackage);
+			Set<BeanDefinition> candidateComponents = scanner
+					.findCandidateComponents(basePackage);
 			for (BeanDefinition candidateComponent : candidateComponents) {
 				if (candidateComponent instanceof AnnotatedBeanDefinition) {
-					//verify annotated class is an interface
+					// verify annotated class is an interface
 					AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) candidateComponent;
 					AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
-					Assert.isTrue(annotationMetadata.isInterface(), "@FeignClient can only be specified on an interface");
+					Assert.isTrue(annotationMetadata.isInterface(),
+							"@FeignClient can only be specified on an interface");
 
 					BeanDefinitionHolder holder = createBeanDefinition(annotationMetadata);
 					BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
@@ -72,42 +75,49 @@ public class FeignClientScanRegistrar extends FeignConfiguration
 	}
 
 	public BeanDefinitionHolder createBeanDefinition(AnnotationMetadata annotationMetadata) {
-		Map<String, Object> attributes = annotationMetadata.getAnnotationAttributes(FeignClient.class.getCanonicalName());
+		Map<String, Object> attributes = annotationMetadata
+				.getAnnotationAttributes(FeignClient.class.getCanonicalName());
 
 		String className = annotationMetadata.getClassName();
-		BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(FeignClientFactoryBean.class);
+		BeanDefinitionBuilder definition = BeanDefinitionBuilder
+				.genericBeanDefinition(FeignClientFactoryBean.class);
 		definition.addPropertyValue("loadbalance", attributes.get("loadbalance"));
 		definition.addPropertyValue("type", className);
 		definition.addPropertyValue("schemeName", attributes.get("value"));
 
-		String beanName = StringUtils.uncapitalize(className.substring(className.lastIndexOf(".") + 1));
+		String beanName = StringUtils.uncapitalize(className.substring(className
+				.lastIndexOf(".") + 1));
 		return new BeanDefinitionHolder(definition.getBeanDefinition(), beanName);
 	}
 
 	protected ClassPathScanningCandidateComponentProvider getScanner() {
 		return new ClassPathScanningCandidateComponentProvider(false) {
 
-				@Override
-				protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-					if (beanDefinition.getMetadata().isIndependent()) {
-						// TODO until SPR-11711 will be resolved
-						if (beanDefinition.getMetadata().isInterface() &&
-								beanDefinition.getMetadata().getInterfaceNames().length == 1 &&
-								Annotation.class.getName().equals(beanDefinition.getMetadata().getInterfaceNames()[0])) {
-							try {
-								Class<?> target = ClassUtils.forName(beanDefinition.getMetadata().getClassName(), classLoader);
-								return !target.isAnnotation();
-							}
-							catch (Exception e) {
-								logger.error("Could not load target class: " + beanDefinition.getMetadata().getClassName(), e);
-
-							}
+			@Override
+			protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+				if (beanDefinition.getMetadata().isIndependent()) {
+					// TODO until SPR-11711 will be resolved
+					if (beanDefinition.getMetadata().isInterface()
+							&& beanDefinition.getMetadata().getInterfaceNames().length == 1
+							&& Annotation.class.getName().equals(
+									beanDefinition.getMetadata().getInterfaceNames()[0])) {
+						try {
+							Class<?> target = ClassUtils.forName(beanDefinition
+									.getMetadata().getClassName(),
+									FeignClientScanRegistrar.this.classLoader);
+							return !target.isAnnotation();
 						}
-						return true;
+						catch (Exception e) {
+							this.logger.error("Could not load target class: "
+									+ beanDefinition.getMetadata().getClassName(), e);
+
+						}
 					}
-					return false;
+					return true;
 				}
-			};
+				return false;
+			}
+		};
 	}
 
 	protected Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) {
@@ -130,7 +140,8 @@ public class FeignClientScanRegistrar extends FeignConfiguration
 		}
 
 		if (basePackages.isEmpty()) {
-			basePackages.add(ClassUtils.getPackageName(importingClassMetadata.getClassName()));
+			basePackages.add(ClassUtils.getPackageName(importingClassMetadata
+					.getClassName()));
 		}
 		return basePackages;
 	}

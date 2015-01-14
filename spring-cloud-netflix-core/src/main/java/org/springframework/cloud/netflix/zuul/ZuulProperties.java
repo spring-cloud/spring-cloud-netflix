@@ -78,19 +78,19 @@ public class ZuulProperties {
 		}
 
 		public String getLocation() {
-			if (StringUtils.hasText(url)) {
-				return url;
+			if (StringUtils.hasText(this.url)) {
+				return this.url;
 			}
-			return serviceId;
+			return this.serviceId;
 		}
 
 		public void setLocation(String location) {
 			if (location != null
 					&& (location.startsWith("http:") || location.startsWith("https:"))) {
-				url = location;
+				this.url = location;
 			}
 			else {
-				serviceId = location;
+				this.serviceId = location;
 			}
 		}
 

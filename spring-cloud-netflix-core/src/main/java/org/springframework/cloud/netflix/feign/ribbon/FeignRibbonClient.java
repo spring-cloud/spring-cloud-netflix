@@ -25,18 +25,17 @@ import feign.Response;
  */
 public class FeignRibbonClient implements Client {
 
-    private Client defaultClient = new Default(
-        new Lazy<SSLSocketFactory>() {
-            @Override
-            public SSLSocketFactory get() {
-                return (SSLSocketFactory) SSLSocketFactory.getDefault();
-            }
-        }, new Lazy<HostnameVerifier>() {
-            @Override
-            public HostnameVerifier get() {
-                return HttpsURLConnection.getDefaultHostnameVerifier();
-            }
-    });
+	private Client defaultClient = new Default(new Lazy<SSLSocketFactory>() {
+		@Override
+		public SSLSocketFactory get() {
+			return (SSLSocketFactory) SSLSocketFactory.getDefault();
+		}
+	}, new Lazy<HostnameVerifier>() {
+		@Override
+		public HostnameVerifier get() {
+			return HttpsURLConnection.getDefaultHostnameVerifier();
+		}
+	});
 	private SpringClientFactory factory;
 
 	public FeignRibbonClient(SpringClientFactory factory) {
@@ -44,30 +43,34 @@ public class FeignRibbonClient implements Client {
 	}
 
 	@Override
-    public Response execute(Request request, Request.Options options) throws IOException {
-        try {
+	public Response execute(Request request, Request.Options options) throws IOException {
+		try {
 
-            URI asUri = URI.create(request.url());
-            String clientName = asUri.getHost();
-            URI uriWithoutSchemeAndPort = URI.create(request.url().replace(asUri.getScheme() + "://" + asUri.getHost(), ""));
-            RibbonLoadBalancer.RibbonRequest ribbonRequest = new RibbonLoadBalancer.RibbonRequest(request, uriWithoutSchemeAndPort);
-            return lbClient(clientName).executeWithLoadBalancer(ribbonRequest).toResponse();
+			URI asUri = URI.create(request.url());
+			String clientName = asUri.getHost();
+			URI uriWithoutSchemeAndPort = URI.create(request.url().replace(
+					asUri.getScheme() + "://" + asUri.getHost(), ""));
+			RibbonLoadBalancer.RibbonRequest ribbonRequest = new RibbonLoadBalancer.RibbonRequest(
+					request, uriWithoutSchemeAndPort);
+			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest)
+					.toResponse();
 
-        } catch (ClientException e) {
-            if (e.getCause() instanceof IOException) {
-                throw IOException.class.cast(e.getCause());
-            }
-            throw Throwables.propagate(e);
-        }
-    }
+		}
+		catch (ClientException e) {
+			if (e.getCause() instanceof IOException) {
+				throw IOException.class.cast(e.getCause());
+			}
+			throw Throwables.propagate(e);
+		}
+	}
 
-    private RibbonLoadBalancer lbClient(String clientName) {
-        IClientConfig config = factory.getClientConfig(clientName);
-        ILoadBalancer lb = factory.getLoadBalancer(clientName);
-        return new RibbonLoadBalancer(defaultClient, lb, config);
-    }
+	private RibbonLoadBalancer lbClient(String clientName) {
+		IClientConfig config = this.factory.getClientConfig(clientName);
+		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
+		return new RibbonLoadBalancer(this.defaultClient, lb, config);
+	}
 
-    public void setDefaultClient(Client defaultClient) {
-        this.defaultClient = defaultClient;
-    }
+	public void setDefaultClient(Client defaultClient) {
+		this.defaultClient = defaultClient;
+	}
 }

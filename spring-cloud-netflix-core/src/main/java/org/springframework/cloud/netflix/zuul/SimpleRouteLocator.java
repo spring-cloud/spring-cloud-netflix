@@ -35,7 +35,7 @@ public class SimpleRouteLocator implements RouteLocator {
 	@Override
 	public Collection<String> getRoutePaths() {
 		Collection<String> paths = new LinkedHashSet<String>();
-		for (ZuulRoute route : properties.getRoutes().values()) {
+		for (ZuulRoute route : this.properties.getRoutes().values()) {
 			paths.add(route.getPath());
 		}
 		return paths;

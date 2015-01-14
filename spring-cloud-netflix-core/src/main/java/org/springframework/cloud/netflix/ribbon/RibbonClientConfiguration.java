@@ -51,12 +51,12 @@ public class RibbonClientConfiguration {
 
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be
 	// associated with ribbon clients
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public IClientConfig ribbonClientConfig() {
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-		config.loadProperties(name);
+		config.loadProperties(this.name);
 		return config;
 	}
 
@@ -65,20 +65,21 @@ public class RibbonClientConfiguration {
 	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer) {
 		RestClient client = new RestClient(config);
 		client.setLoadBalancer(loadBalancer);
-		Monitors.registerObject("Client_" + name, client);
+		Monitors.registerObject("Client_" + this.name, client);
 		return client;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	//TODO: move to ribbon.eureka package
-	public ILoadBalancer ribbonLoadBalancer(IClientConfig config, ServerListFilter<Server> filter) {
+	// TODO: move to ribbon.eureka package
+	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
+			ServerListFilter<Server> filter) {
 		ZoneAwareLoadBalancer<Server> balancer = new ZoneAwareLoadBalancer<>(config);
 		wrapServerList(balancer);
 		balancer.setFilter(filter);
 		return balancer;
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerListFilter<Server> ribbonServerListFilter(IClientConfig config) {
@@ -86,10 +87,11 @@ public class RibbonClientConfiguration {
 		filter.initWithNiwsConfig(config);
 		return filter;
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
-	public RibbonLoadBalancerContext ribbonLoadBalancerContext(ILoadBalancer loadBalancer, IClientConfig config) {
+	public RibbonLoadBalancerContext ribbonLoadBalancerContext(
+			ILoadBalancer loadBalancer, IClientConfig config) {
 		return new RibbonLoadBalancerContext(loadBalancer, config);
 	}
 
@@ -104,7 +106,7 @@ public class RibbonClientConfiguration {
 				// metadata *is* available.
 				// @see com.netflix.appinfo.AmazonInfo.Builder
 				dynamic.setServerListImpl(new DomainExtractingServerList(list, dynamic
-						.getClientConfig(), approximateZoneFromHostname));
+						.getClientConfig(), this.approximateZoneFromHostname));
 			}
 		}
 	}

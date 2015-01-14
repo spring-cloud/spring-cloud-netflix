@@ -1,8 +1,5 @@
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Map;
 
 import org.junit.Test;
@@ -19,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -45,34 +45,37 @@ public class ApplicationContextTests {
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/eureka/apps", Map.class);
+				"http://localhost:" + this.port + "/context/eureka/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void dashboardLoads() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/", String.class);
+				"http://localhost:" + this.port + "/context/", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
 		// System.err.println(body);
 		assertTrue(body.contains("eureka/js"));
 		assertTrue(body.contains("eureka/css"));
 		// The "DS Replicas"
-		assertTrue(body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
+		assertTrue(body
+				.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
 	}
 
 	@Test
 	public void cssAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/eureka/css/wro.css", String.class);
+				"http://localhost:" + this.port + "/context/eureka/css/wro.css",
+				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void jsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/eureka/js/wro.js", String.class);
+				"http://localhost:" + this.port + "/context/eureka/js/wro.js",
+				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -80,7 +83,7 @@ public class ApplicationContextTests {
 	public void adminLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/env", Map.class);
+				"http://localhost:" + this.port + "/context/env", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

@@ -39,11 +39,10 @@ public class HystrixStreamAutoConfiguration {
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
 
-
 	@PostConstruct
 	public void init() {
 		Jackson2JsonMessageConverter converter = messageConverter();
-		amqpTemplate.setMessageConverter(converter);
+		this.amqpTemplate.setMessageConverter(converter);
 	}
 
 	@Bean
@@ -84,8 +83,8 @@ public class HystrixStreamAutoConfiguration {
 
 	private Jackson2JsonMessageConverter messageConverter() {
 		Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-		if (objectMapper != null) {
-			converter.setJsonObjectMapper(objectMapper);
+		if (this.objectMapper != null) {
+			converter.setJsonObjectMapper(this.objectMapper);
 		}
 		return converter;
 	}

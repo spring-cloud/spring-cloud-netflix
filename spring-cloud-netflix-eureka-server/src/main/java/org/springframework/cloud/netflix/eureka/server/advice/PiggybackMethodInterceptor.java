@@ -43,10 +43,10 @@ public class PiggybackMethodInterceptor implements MethodInterceptor {
 	}
 
 	private void invokeAfter(Method method, Object[] arguments) throws Exception {
-		for (Class<?> type : types) {
+		for (Class<?> type : this.types) {
 			Method target = getTarget(type, method);
 			if (target != null) {
-				target.invoke(delegate, arguments);
+				target.invoke(this.delegate, arguments);
 				return;
 			}
 		}

@@ -32,7 +32,7 @@ public class RoutesRefreshedEvent extends ApplicationEvent {
 	}
 
 	public RouteLocator getLocator() {
-		return locator;
+		return this.locator;
 	}
 
 }

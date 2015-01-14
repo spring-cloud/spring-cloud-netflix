@@ -26,12 +26,14 @@ import com.netflix.config.ConfigurationManager;
  *
  */
 public class ArchaiusDelegatingProxyUtils {
-	
+
 	public static String APPLICATION_CONTEXT = ApplicationContext.class.getName();
 
 	public static <T> T getNamedInstance(Class<T> type, String name) {
-		ApplicationContext context = (ApplicationContext) ConfigurationManager.getConfigInstance().getProperty(APPLICATION_CONTEXT);
-		return context!=null && context.containsBean(name) ? context.getBean(name, type) : null;
+		ApplicationContext context = (ApplicationContext) ConfigurationManager
+				.getConfigInstance().getProperty(APPLICATION_CONTEXT);
+		return context != null && context.containsBean(name) ? context
+				.getBean(name, type) : null;
 	}
 
 	public static <T> T getInstanceWithPrefix(Class<T> type, String prefix) {
@@ -41,7 +43,7 @@ public class ArchaiusDelegatingProxyUtils {
 
 	public static void addApplicationContext(ConfigurableApplicationContext context) {
 		AbstractConfiguration config = ConfigurationManager.getConfigInstance();
-		config .clearProperty(APPLICATION_CONTEXT);
+		config.clearProperty(APPLICATION_CONTEXT);
 		config.setProperty(APPLICATION_CONTEXT, context);
 	}
 

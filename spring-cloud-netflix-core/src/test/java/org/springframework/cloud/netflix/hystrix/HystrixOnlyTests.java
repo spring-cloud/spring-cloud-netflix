@@ -1,6 +1,7 @@
 package org.springframework.cloud.netflix.hystrix;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -38,13 +41,15 @@ public class HystrixOnlyTests {
 
 	@Test
 	public void testNormalExecution() {
-		String s = new TestRestTemplate().getForObject("http://localhost:" + port + "/", String.class);
+		String s = new TestRestTemplate().getForObject("http://localhost:" + this.port
+				+ "/", String.class);
 		assertEquals("incorrect response", "Hello world", s);
 	}
 
 	@Test
 	public void testFailureFallback() {
-		String s = new TestRestTemplate().getForObject("http://localhost:" + port + "/fail", String.class);
+		String s = new TestRestTemplate().getForObject("http://localhost:" + this.port
+				+ "/fail", String.class);
 		assertEquals("incorrect fallback", "Fallback Hello world", s);
 	}
 
@@ -59,12 +64,14 @@ public class HystrixOnlyTests {
 	@Test
 	public void testNoDiscoveryHealth() {
 		Map map = getHealth();
-		//There is explicitly no discovery, so there should be no discovery health key
-		assertFalse("Incorrect existing discovery health key", map.containsKey("discovery"));
+		// There is explicitly no discovery, so there should be no discovery health key
+		assertFalse("Incorrect existing discovery health key",
+				map.containsKey("discovery"));
 	}
 
 	private Map getHealth() {
-		return new TestRestTemplate().getForObject("http://localhost:" + port + "/admin/health", Map.class);
+		return new TestRestTemplate().getForObject("http://localhost:" + this.port
+				+ "/admin/health", Map.class);
 	}
 }
 
@@ -84,7 +91,7 @@ class Service {
 	}
 }
 
-//Don't use @SpringBootApplication because we don't want to component scan
+// Don't use @SpringBootApplication because we don't want to component scan
 @Configuration
 @EnableAutoConfiguration
 @EnableCircuitBreaker
@@ -101,12 +108,12 @@ class HystrixOnlyApplication {
 
 	@RequestMapping("/")
 	public String home() {
-		return service.hello();
+		return this.service.hello();
 	}
 
 	@RequestMapping("/fail")
 	public String fail() {
-		return service.fail();
+		return this.service.fail();
 	}
 
 	public static void main(String[] args) {

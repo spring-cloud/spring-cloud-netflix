@@ -35,12 +35,13 @@ import com.netflix.discovery.EurekaClientConfig;
 @ConfigurationProperties("eureka.client")
 public class EurekaClientConfigBean implements EurekaClientConfig {
 
-	public static final String DEFAULT_URL = "http://localhost:8761" + EurekaServerConfigBean.DEFAULT_PREFIX + "/";
+	public static final String DEFAULT_URL = "http://localhost:8761"
+			+ EurekaServerConfigBean.DEFAULT_PREFIX + "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
-	
+
 	private static final int MINUTES = 60;
-	
+
 	private boolean enabled = true;
 
 	private int registryFetchIntervalSeconds = 30;
@@ -55,9 +56,9 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private String proxyHost;
 
-    private String proxyUserName;
+	private String proxyUserName;
 
-    private String proxyPassword;
+	private String proxyPassword;
 
 	private int eurekaServerReadTimeoutSeconds = 8;
 
@@ -83,16 +84,16 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private int heartbeatExecutorThreadPoolSize = 2;
 
-    private int heartbeatExecutorExponentialBackOffBound = 10;
+	private int heartbeatExecutorExponentialBackOffBound = 10;
 
 	private int cacheRefreshExecutorThreadPoolSize = 2;
 
-    private int cacheRefreshExecutorExponentialBackOffBound = 10;
+	private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
-	private Map<String,String> serviceUrl = new HashMap<String, String>();
-	
+	private Map<String, String> serviceUrl = new HashMap<String, String>();
+
 	{
-		serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
+		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
 	}
 
 	private boolean gZipContent = true;
@@ -117,43 +118,43 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	@Override
 	public boolean shouldGZipContent() {
-		return gZipContent;
+		return this.gZipContent;
 	}
 
 	@Override
 	public boolean shouldUseDnsForFetchingServiceUrls() {
-		return useDnsForFetchingServiceUrls;
+		return this.useDnsForFetchingServiceUrls;
 	}
 
 	@Override
 	public boolean shouldRegisterWithEureka() {
-		return registerWithEureka;
+		return this.registerWithEureka;
 	}
 
 	@Override
 	public boolean shouldPreferSameZoneEureka() {
-		return preferSameZoneEureka;
+		return this.preferSameZoneEureka;
 	}
 
 	@Override
 	public boolean shouldLogDeltaDiff() {
-		return logDeltaDiff;
+		return this.logDeltaDiff;
 	}
 
 	@Override
 	public boolean shouldDisableDelta() {
-		return disableDelta;
+		return this.disableDelta;
 	}
 
 	@Override
 	public String fetchRegistryForRemoteRegions() {
-		return fetchRemoteRegionsRegistry;
+		return this.fetchRemoteRegionsRegistry;
 	}
 
 	@Override
 	public String[] getAvailabilityZones(String region) {
-		String value = availabilityZones.get(region);
-		if (value==null) {
+		String value = this.availabilityZones.get(region);
+		if (value == null) {
 			value = DEFAULT_ZONE;
 		}
 		return value.split(",");
@@ -161,25 +162,25 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	@Override
 	public List<String> getEurekaServerServiceUrls(String myZone) {
-        String serviceUrls = serviceUrl.get(myZone);
-        if (serviceUrls == null || serviceUrls.isEmpty()) {
-            serviceUrls = serviceUrl.get(DEFAULT_ZONE);
-        }
-        if (serviceUrls != null) {
-            return Arrays.asList(serviceUrls.split(","));
-        }
+		String serviceUrls = this.serviceUrl.get(myZone);
+		if (serviceUrls == null || serviceUrls.isEmpty()) {
+			serviceUrls = this.serviceUrl.get(DEFAULT_ZONE);
+		}
+		if (serviceUrls != null) {
+			return Arrays.asList(serviceUrls.split(","));
+		}
 
-        return new ArrayList<>();
+		return new ArrayList<>();
 	}
 
 	@Override
 	public boolean shouldFilterOnlyUpInstances() {
-		return filterOnlyUpInstances;
+		return this.filterOnlyUpInstances;
 	}
 
 	@Override
 	public boolean shouldFetchRegistry() {
-		return fetchRegistry;
+		return this.fetchRegistry;
 	}
 
 }

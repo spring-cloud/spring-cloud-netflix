@@ -15,8 +15,6 @@
  */
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +30,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
  *
@@ -39,7 +39,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=hystrix-dashboard", "server.contextPath=/context" })
+@IntegrationTest({ "server.port=0", "spring.application.name=hystrix-dashboard",
+		"server.contextPath=/context" })
 public class HystrixDashboardContextTests {
 
 	@Value("${local.server.port}")
@@ -48,28 +49,31 @@ public class HystrixDashboardContextTests {
 	@Test
 	public void homePage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/hystrix", String.class);
+				"http://localhost:" + this.port + "/context/hystrix", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void cssAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/hystrix/css/global.css", String.class);
+				"http://localhost:" + this.port + "/context/hystrix/css/global.css",
+				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void webjarsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/webjars/jquery/2.1.1/jquery.min.js", String.class);
+				"http://localhost:" + this.port
+						+ "/context/webjars/jquery/2.1.1/jquery.min.js", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void monitorPage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/context/hystrix/monitor", String.class);
+				"http://localhost:" + this.port + "/context/hystrix/monitor",
+				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -79,7 +83,8 @@ public class HystrixDashboardContextTests {
 	protected static class Application {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=hystrix-dashboard", "server.contextPath=/context").run();
+					"spring.application.name=hystrix-dashboard",
+					"server.contextPath=/context").run();
 		}
 	}
 

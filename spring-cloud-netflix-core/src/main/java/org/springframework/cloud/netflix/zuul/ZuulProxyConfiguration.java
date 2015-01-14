@@ -42,7 +42,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	@Override
 	public ProxyRouteLocator routeLocator() {
-		return new ProxyRouteLocator(discovery, zuulProperties);
+		return new ProxyRouteLocator(this.discovery, this.zuulProperties);
 	}
 
 	@Configuration
@@ -54,32 +54,32 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		@Bean
 		// @RefreshScope
 		public RoutesEndpoint zuulEndpoint() {
-			return new RoutesEndpoint(routeLocator);
+			return new RoutesEndpoint(this.routeLocator);
 		}
 	}
 
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter() {
-		return new PreDecorationFilter(routeLocator(), zuulProperties);
+		return new PreDecorationFilter(routeLocator(), this.zuulProperties);
 	}
 
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
-		if (traces != null) {
-			helper.setTraces(traces);
+		if (this.traces != null) {
+			helper.setTraces(this.traces);
 		}
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, clientFactory);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, this.clientFactory);
 		return filter;
 	}
 
 	@Bean
 	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
-		if (traces != null) {
-			helper.setTraces(traces);
+		if (this.traces != null) {
+			helper.setTraces(this.traces);
 		}
 		return new SimpleHostRoutingFilter(helper);
 	}
@@ -110,9 +110,9 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 			}
 			else if (event instanceof DiscoveryHeartbeatEvent) {
 				DiscoveryHeartbeatEvent e = (DiscoveryHeartbeatEvent) event;
-				if (latestHeartbeat.get() == null
-						|| !latestHeartbeat.get().equals(e.getValue())) {
-					latestHeartbeat.set(e.getValue());
+				if (this.latestHeartbeat.get() == null
+						|| !this.latestHeartbeat.get().equals(e.getValue())) {
+					this.latestHeartbeat.set(e.getValue());
 					reset();
 				}
 			}
@@ -120,8 +120,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		}
 
 		private void reset() {
-			routeLocator.resetRoutes();
-			zuulHandlerMapping.registerHandlers();
+			this.routeLocator.resetRoutes();
+			this.zuulHandlerMapping.registerHandlers();
 		}
 
 	}

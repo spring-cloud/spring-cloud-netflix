@@ -26,7 +26,8 @@ public class HystrixConfigurationTests {
 
 	@Test
 	public void nonWebAppStartsUp() {
-		new SpringApplicationBuilder(HystrixCircuitBreakerConfiguration.class).web(false).run().close();
+		new SpringApplicationBuilder(HystrixCircuitBreakerConfiguration.class).web(false)
+				.run().close();
 	}
 
 }

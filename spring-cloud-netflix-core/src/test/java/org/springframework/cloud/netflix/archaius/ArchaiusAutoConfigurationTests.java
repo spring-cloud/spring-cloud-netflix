@@ -15,12 +15,12 @@
  */
 package org.springframework.cloud.netflix.archaius;
 
-import static org.junit.Assert.assertNotNull;
-
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Dave Syer
@@ -29,18 +29,20 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class ArchaiusAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
-	
+
 	@After
 	public void close() {
-		if (context!=null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
 	@Test
 	public void configurationCreated() {
-		context = new AnnotationConfigApplicationContext(ArchaiusAutoConfiguration.class);
-		AbstractConfiguration config = context.getBean(ConfigurableEnvironmentConfiguration.class);
+		this.context = new AnnotationConfigApplicationContext(
+				ArchaiusAutoConfiguration.class);
+		AbstractConfiguration config = this.context
+				.getBean(ConfigurableEnvironmentConfiguration.class);
 		assertNotNull(config.getString("java.io.tmpdir"));
 	}
 

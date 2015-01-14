@@ -50,7 +50,7 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void ruleDefaultsToZoneAvoidance() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		ZoneAvoidanceRule.class.cast(loadBalancer.getRule());
 	}

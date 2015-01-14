@@ -22,22 +22,22 @@ import com.netflix.client.IClient;
  * @author Dave Syer
  */
 @Configuration
-@ConditionalOnClass({IClient.class, RestTemplate.class})
+@ConditionalOnClass({ IClient.class, RestTemplate.class })
 @RibbonClients
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
 public class RibbonAutoConfiguration {
 
-	@Autowired(required=false)
-    private List<RibbonClientSpecification> configurations = new ArrayList<>();
+	@Autowired(required = false)
+	private List<RibbonClientSpecification> configurations = new ArrayList<>();
 
 	@Bean
-    public SpringClientFactory springClientFactory() {
-        SpringClientFactory factory = new SpringClientFactory();
-        factory.setConfigurations(configurations);
+	public SpringClientFactory springClientFactory() {
+		SpringClientFactory factory = new SpringClientFactory();
+		factory.setConfigurations(this.configurations);
 		return factory;
-    }
+	}
 
-    @Bean
+	@Bean
 	@ConditionalOnMissingBean(RestTemplate.class)
 	public RestTemplate restTemplate(RibbonInterceptor ribbonInterceptor) {
 		RestTemplate restTemplate = new RestTemplate();

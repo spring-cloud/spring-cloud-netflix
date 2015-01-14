@@ -15,8 +15,6 @@
  */
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,8 @@ import com.netflix.loadbalancer.AvailabilityFilteringRule;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
  *
@@ -51,7 +51,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void serverListIsWrapped() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		DomainExtractingServerList.class.cast(loadBalancer.getServerListImpl());
 	}
@@ -59,7 +59,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void ruleDefaultsToAvailability() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		AvailabilityFilteringRule.class.cast(loadBalancer.getRule());
 	}
@@ -67,7 +67,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void serverListFilterOverride() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		assertEquals("myTestZone",
 				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter())

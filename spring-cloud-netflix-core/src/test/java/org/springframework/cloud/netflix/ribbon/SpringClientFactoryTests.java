@@ -15,14 +15,14 @@
  */
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
@@ -34,14 +34,15 @@ public class SpringClientFactoryTests {
 
 	@Test
 	public void testConfigureRetry() {
-		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(ArchaiusAutoConfiguration.class);
+		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
+				ArchaiusAutoConfiguration.class);
 		EnvironmentTestUtils.addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
-		factory.setApplicationContext(parent);
-		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory
+		this.factory.setApplicationContext(parent);
+		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) this.factory
 				.getLoadBalancerContext("foo").getRetryHandler();
 		assertEquals(2, retryHandler.getMaxRetriesOnSameServer());
 		parent.close();
-		factory.destroy();
+		this.factory.destroy();
 	}
 
 }

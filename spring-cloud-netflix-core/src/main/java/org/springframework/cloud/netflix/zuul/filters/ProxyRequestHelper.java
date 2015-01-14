@@ -63,8 +63,9 @@ public class ProxyRequestHelper {
 		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
 
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		if (map == null)
+		if (map == null) {
 			return params;
+		}
 
 		for (String key : map.keySet()) {
 
@@ -86,8 +87,9 @@ public class ProxyRequestHelper {
 			while (headerNames.hasMoreElements()) {
 				String name = (String) headerNames.nextElement();
 				String value = request.getHeader(name);
-				if (isIncludedHeader(name))
+				if (isIncludedHeader(name)) {
 					headers.set(name, value);
+				}
 			}
 		}
 		Map<String, String> zuulRequestHeaders = context.getZuulRequestHeaders();
@@ -129,8 +131,9 @@ public class ProxyRequestHelper {
 			for (String value : header.getValue()) {
 				ctx.addOriginResponseHeader(name, value);
 
-				if (name.equalsIgnoreCase("content-length"))
+				if (name.equalsIgnoreCase("content-length")) {
 					ctx.setOriginContentLength(value);
+				}
 
 				if (isIncludedHeader(name)) {
 					ctx.addZuulResponseHeader(name, value);
@@ -179,7 +182,7 @@ public class ProxyRequestHelper {
 			InputStream requestEntity) throws IOException {
 
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
-		if (traces != null) {
+		if (this.traces != null) {
 
 			RequestContext context = RequestContext.getCurrentContext();
 			StringBuilder query = new StringBuilder();
@@ -216,7 +219,7 @@ public class ProxyRequestHelper {
 					debugRequestEntity(info, ctx.getRequest().getInputStream());
 				}
 			}
-			traces.add(info);
+			this.traces.add(info);
 			return info;
 		}
 		return info;
@@ -224,7 +227,7 @@ public class ProxyRequestHelper {
 
 	public void appendDebug(Map<String, Object> info, int status,
 			MultiValueMap<String, String> headers) {
-		if (traces != null) {
+		if (this.traces != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
 			Map<String, Object> output = new LinkedHashMap<String, Object>();

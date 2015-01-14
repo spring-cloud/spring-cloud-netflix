@@ -85,7 +85,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final AtomicReference<HttpClient> CLIENT = new AtomicReference<HttpClient>(
 			newClient());
 
-	private static final Timer CONNECTION_MANAGER_TIMER = new Timer("SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
+	private static final Timer CONNECTION_MANAGER_TIMER = new Timer(
+			"SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
 
 	// cleans expired connections at an interval
 	static {
@@ -96,8 +97,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			public void run() {
 				try {
 					final HttpClient hc = CLIENT.get();
-					if (hc == null)
+					if (hc == null) {
 						return;
+					}
 					hc.getConnectionManager().closeExpiredConnections();
 				}
 				catch (Throwable t) {
@@ -153,6 +155,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return 100;
 	}
 
+	@Override
 	public boolean shouldFilter() {
 		return RequestContext.getCurrentContext().getRouteHost() != null
 				&& RequestContext.getCurrentContext().sendZuulResponse();
@@ -213,11 +216,13 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	}
 
+	@Override
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
-		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-		MultiValueMap<String, String> params = helper
+		MultiValueMap<String, String> headers = this.helper
+				.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> params = this.helper
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
@@ -245,8 +250,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			MultiValueMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 
-		Map<String, Object> info = helper
-				.debug(verb, uri, headers, params, requestEntity);
+		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
+				requestEntity);
 
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
@@ -277,7 +282,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			LOG.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
 			HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
-			helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
+			this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
 					revertHeaders(zuulResponse.getAllHeaders()));
 			return zuulResponse;
 		}
@@ -346,7 +351,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private void setResponse(HttpResponse response) throws IOException {
-		helper.setResponse(response.getStatusLine().getStatusCode(),
+		this.helper.setResponse(response.getStatusLine().getStatusCode(),
 				response.getEntity() == null ? null : response.getEntity().getContent(),
 				revertHeaders(response.getAllHeaders()));
 	}
@@ -359,14 +364,17 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			super(truststore);
 
 			TrustManager tm = new X509TrustManager() {
+				@Override
 				public void checkClientTrusted(X509Certificate[] chain, String authType)
 						throws CertificateException {
 				}
 
+				@Override
 				public void checkServerTrusted(X509Certificate[] chain, String authType)
 						throws CertificateException {
 				}
 
+				@Override
 				public X509Certificate[] getAcceptedIssuers() {
 					return null;
 				}
@@ -374,19 +382,19 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 			TrustManager[] tms = new TrustManager[1];
 			tms[0] = tm;
-			sslContext.init(null, tms, null);
+			this.sslContext.init(null, tms, null);
 		}
 
 		@Override
 		public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
 				throws IOException, UnknownHostException {
-			return sslContext.getSocketFactory().createSocket(socket, host, port,
+			return this.sslContext.getSocketFactory().createSocket(socket, host, port,
 					autoClose);
 		}
 
 		@Override
 		public Socket createSocket() throws IOException {
-			return sslContext.getSocketFactory().createSocket();
+			return this.sslContext.getSocketFactory().createSocket();
 		}
 	}
 }

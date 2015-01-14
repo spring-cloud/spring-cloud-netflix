@@ -1,6 +1,10 @@
 package org.springframework.cloud.netflix.feign;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author Spencer Gibb
@@ -10,9 +14,10 @@ import java.lang.annotation.*;
 @Documented
 public @interface FeignClient {
 	/**
-	 * @return serviceId if loadbalance is true, url otherwise
-	 * No need to prefix serviceId with http://
+	 * @return serviceId if loadbalance is true, url otherwise No need to prefix serviceId
+	 * with http://
 	 */
 	String value();
+
 	boolean loadbalance() default true;
 }

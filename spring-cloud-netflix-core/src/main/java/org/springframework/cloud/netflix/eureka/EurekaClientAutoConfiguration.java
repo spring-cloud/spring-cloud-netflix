@@ -47,9 +47,9 @@ public class EurekaClientAutoConfiguration {
 	@PostConstruct
 	public void init() {
 		XmlXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(context));
+				new DataCenterAwareMarshallingStrategy(this.context));
 		JsonXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(context));
+				new DataCenterAwareMarshallingStrategy(this.context));
 	}
 
 	@Bean
@@ -63,6 +63,5 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		return new EurekaInstanceConfigBean();
 	}
-
 
 }

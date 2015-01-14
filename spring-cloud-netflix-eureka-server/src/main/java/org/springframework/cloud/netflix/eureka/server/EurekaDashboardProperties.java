@@ -15,24 +15,24 @@
  */
 package org.springframework.cloud.netflix.eureka.server;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.Data;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
- * Configuration properties for the Eureka dashboard (UI). 
+ * Configuration properties for the Eureka dashboard (UI).
  * @author Dave Syer
  *
  */
 @ConfigurationProperties("eureka.dashboard")
 @Data
 public class EurekaDashboardProperties {
-	
+
 	/**
 	 * The path to the Eureka dashboard (relative to the servlet path). Defaults to "/".
 	 */
 	private String path = "/";
-	
+
 	/**
 	 * FLag to enable the Eureka dashboard. Default true.
 	 */

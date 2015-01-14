@@ -1,19 +1,19 @@
 package org.springframework.cloud.netflix.feign;
 
-import feign.Client;
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
-
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 
 import com.netflix.loadbalancer.ILoadBalancer;
+
+import feign.Client;
+import feign.Contract;
+import feign.Feign;
+import feign.Logger;
 
 /**
  * @author Spencer Gibb

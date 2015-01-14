@@ -1,6 +1,7 @@
 package org.springframework.netflix.hystrix.amqp;
 
 import lombok.Data;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

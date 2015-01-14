@@ -17,43 +17,44 @@ import com.netflix.zuul.monitoring.MonitoringHelper;
 
 /**
  * @author Spencer Gibb
- * 
- * TODO:  .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+ *
+ * TODO: .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
  */
 public class ZuulFilterInitializer implements ServletContextListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZuulFilterInitializer.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(ZuulFilterInitializer.class);
 
-    private Map<String, ZuulFilter> filters;
+	private Map<String, ZuulFilter> filters;
 
 	public ZuulFilterInitializer(Map<String, ZuulFilter> filters) {
 		this.filters = filters;
 	}
 
 	@Override
-    public void contextInitialized(ServletContextEvent sce) {
+	public void contextInitialized(ServletContextEvent sce) {
 
-        LOGGER.info("Starting filter initializer context listener");
+		LOGGER.info("Starting filter initializer context listener");
 
-        //FIXME: mocks monitoring infrastructure as we don't need it for this simple app
-        MonitoringHelper.initMocks();
+		// FIXME: mocks monitoring infrastructure as we don't need it for this simple app
+		MonitoringHelper.initMocks();
 
-        FilterRegistry registry = FilterRegistry.instance();
+		FilterRegistry registry = FilterRegistry.instance();
 
-        for (Map.Entry<String, ZuulFilter> entry : filters.entrySet()) {
-            registry.put(entry.getKey(), entry.getValue());
-        }
-    }
+		for (Map.Entry<String, ZuulFilter> entry : this.filters.entrySet()) {
+			registry.put(entry.getKey(), entry.getValue());
+		}
+	}
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        LOGGER.info("Stopping filter initializer context listener");
-        FilterRegistry registry = FilterRegistry.instance();
-        for (Map.Entry<String, ZuulFilter> entry : filters.entrySet()) {
-            registry.remove(entry.getKey());
-        }
-        clearLoaderCache();
-    }
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+		LOGGER.info("Stopping filter initializer context listener");
+		FilterRegistry registry = FilterRegistry.instance();
+		for (Map.Entry<String, ZuulFilter> entry : this.filters.entrySet()) {
+			registry.remove(entry.getKey());
+		}
+		clearLoaderCache();
+	}
 
 	private void clearLoaderCache() {
 		FilterLoader instance = FilterLoader.getInstance();
@@ -64,24 +65,17 @@ public class ZuulFilterInitializer implements ServletContextListener {
 		cache.clear();
 	}
 
-    /*private void initGroovyFilterManager() {
-
-        //TODO: support groovy filters loaded from filesystem in proxy
-        FilterLoader.getInstance().setCompiler(new GroovyCompiler());
-
-        final String scriptRoot = props.getFilterRoot();
-        LOGGER.info("Using file system script: " + scriptRoot);
-
-        try {
-            FilterFileManager.setFilenameFilter(new GroovyFileFilter());
-            FilterFileManager.init(5,
-                    scriptRoot + "/pre",
-                    scriptRoot + "/route",
-                    scriptRoot + "/post"
-            );
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }*/
+	/*
+	 * private void initGroovyFilterManager() {
+	 * 
+	 * //TODO: support groovy filters loaded from filesystem in proxy
+	 * FilterLoader.getInstance().setCompiler(new GroovyCompiler());
+	 * 
+	 * final String scriptRoot = props.getFilterRoot();
+	 * LOGGER.info("Using file system script: " + scriptRoot);
+	 * 
+	 * try { FilterFileManager.setFilenameFilter(new GroovyFileFilter());
+	 * FilterFileManager.init(5, scriptRoot + "/pre", scriptRoot + "/route", scriptRoot +
+	 * "/post" ); } catch (Exception e) { throw new RuntimeException(e); } }
+	 */
 }

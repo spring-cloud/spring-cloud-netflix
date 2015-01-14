@@ -59,25 +59,28 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return 10;
 	}
 
+	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		return (ctx.getRouteHost() == null && ctx.get("serviceId") != null && ctx
 				.sendZuulResponse());
 	}
 
+	@Override
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
-		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-		MultiValueMap<String, String> params = helper
+		MultiValueMap<String, String> headers = this.helper
+				.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> params = this.helper
 				.buildZuulRequestQueryParams(request);
 		Verb verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
 
 		String serviceId = (String) context.get("serviceId");
 
-		RestClient restClient = clientFactory.getClient(serviceId, RestClient.class);
+		RestClient restClient = this.clientFactory.getClient(serviceId, RestClient.class);
 
 		String uri = request.getRequestURI();
 		if (context.get("requestURI") != null) {
@@ -103,14 +106,14 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws Exception {
 
-		Map<String, Object> info = helper.debug(verb.verb(), uri, headers, params,
+		Map<String, Object> info = this.helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
 
 		RibbonCommand command = new RibbonCommand(restClient, verb, uri,
 				convertHeaders(headers), convertHeaders(params), requestEntity);
 		try {
 			HttpResponse response = command.execute();
-			helper.appendDebug(info, response.getStatus(),
+			this.helper.appendDebug(info, response.getStatus(),
 					revertHeaders(response.getHeaders()));
 			return response;
 		}
@@ -174,24 +177,30 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	}
 
 	Verb getVerb(String sMethod) {
-		if (sMethod == null)
+		if (sMethod == null) {
 			return Verb.GET;
+		}
 		sMethod = sMethod.toLowerCase();
-		if (sMethod.equals("post"))
+		if (sMethod.equals("post")) {
 			return Verb.POST;
-		if (sMethod.equals("put"))
+		}
+		if (sMethod.equals("put")) {
 			return Verb.PUT;
-		if (sMethod.equals("delete"))
+		}
+		if (sMethod.equals("delete")) {
 			return Verb.DELETE;
-		if (sMethod.equals("options"))
+		}
+		if (sMethod.equals("options")) {
 			return Verb.OPTIONS;
-		if (sMethod.equals("head"))
+		}
+		if (sMethod.equals("head")) {
 			return Verb.HEAD;
+		}
 		return Verb.GET;
 	}
 
 	private void setResponse(HttpResponse resp) throws ClientException, IOException {
-		helper.setResponse(resp.getStatus(),
+		this.helper.setResponse(resp.getStatus(),
 				!resp.hasEntity() ? null : resp.getInputStream(),
 				revertHeaders(resp.getHeaders()));
 	}

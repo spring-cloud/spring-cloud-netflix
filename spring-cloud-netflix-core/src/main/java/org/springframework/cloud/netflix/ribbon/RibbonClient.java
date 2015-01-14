@@ -35,6 +35,8 @@ import org.springframework.context.annotation.Import;
 @Documented
 public @interface RibbonClient {
 	String value() default "";
+
 	String name() default "";
+
 	Class<?>[] configuration() default {};
 }

@@ -45,7 +45,7 @@ public class TurbineAmqpAutoConfiguration {
 	@PostConstruct
 	public void init() {
 		Jackson2JsonMessageConverter converter = messageConverter();
-		amqpTemplate.setMessageConverter(converter);
+		this.amqpTemplate.setMessageConverter(converter);
 	}
 
 	@Bean
@@ -71,7 +71,7 @@ public class TurbineAmqpAutoConfiguration {
 	@Bean
 	public IntegrationFlow hystrixStreamAggregatorInboundFlow() {
 		return IntegrationFlows
-				.from(Amqp.inboundAdapter(connectionFactory, hystrixStreamQueue())
+				.from(Amqp.inboundAdapter(this.connectionFactory, hystrixStreamQueue())
 						.messageConverter(messageConverter()))
 				.channel("hystrixStreamAggregator").get();
 	}
@@ -83,8 +83,8 @@ public class TurbineAmqpAutoConfiguration {
 
 	private Jackson2JsonMessageConverter messageConverter() {
 		Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-		if (objectMapper != null) {
-			converter.setJsonObjectMapper(objectMapper);
+		if (this.objectMapper != null) {
+			converter.setJsonObjectMapper(this.objectMapper);
 		}
 		return converter;
 	}

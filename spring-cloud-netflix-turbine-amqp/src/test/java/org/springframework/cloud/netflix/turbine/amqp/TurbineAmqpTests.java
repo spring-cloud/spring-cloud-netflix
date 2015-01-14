@@ -21,12 +21,11 @@ public class TurbineAmqpTests {
 	@EnableTurbineAmqp
 	public static class Application {
 		public static void main(String[] args) {
-			new SpringApplicationBuilder()
-					.sources(Application.class)
-					.run(args);
+			new SpringApplicationBuilder().sources(Application.class).run(args);
 		}
 	}
 
 	@Test
-	public void contextLoads() { }
+	public void contextLoads() {
+	}
 }

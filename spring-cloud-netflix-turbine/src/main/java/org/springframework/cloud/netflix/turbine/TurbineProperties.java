@@ -1,6 +1,7 @@
 package org.springframework.cloud.netflix.turbine;
 
 import lombok.Data;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -9,5 +10,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("turbine")
 public class TurbineProperties {
-    private String clusterNameExpression = "appName";
+	private String clusterNameExpression = "appName";
 }

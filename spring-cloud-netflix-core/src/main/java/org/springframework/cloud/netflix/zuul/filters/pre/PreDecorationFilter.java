@@ -48,14 +48,14 @@ public class PreDecorationFilter extends ZuulFilter {
 
 		final String requestURI = ctx.getRequest().getRequestURI();
 
-		ProxyRouteSpec route = routeLocator.getMatchingRoute(requestURI);
+		ProxyRouteSpec route = this.routeLocator.getMatchingRoute(requestURI);
 
 		if (route != null) {
 
 			String location = route.getLocation();
 
 			if (location != null) {
-				
+
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
 
@@ -70,7 +70,7 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
 				}
 
-				if (properties.isAddProxyHeaders()) {
+				if (this.properties.isAddProxyHeaders()) {
 					ctx.addZuulRequestHeader(
 							"X-Forwarded-Host",
 							ctx.getRequest().getServerName() + ":"

@@ -15,8 +15,6 @@
  */
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +32,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
  *
@@ -50,22 +50,24 @@ public class HystrixDashboardHomePageTests {
 	@Test
 	public void homePage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port, String.class);
+				"http://localhost:" + this.port, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		entity.getBody().contains("<base href=\"/\">");
 	}
 
 	@Test
 	public void cssAvailable() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/hystrix/css/global.css", String.class);
+		ResponseEntity<String> entity = new TestRestTemplate()
+				.getForEntity(
+						"http://localhost:" + this.port + "/hystrix/css/global.css",
+						String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void monitorPage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/hystrix/monitor", String.class);
+				"http://localhost:" + this.port + "/hystrix/monitor", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

@@ -20,20 +20,20 @@ import feign.ribbon.LoadBalancingTarget;
  */
 @Configuration
 public class FeignConfiguration {
-    @Autowired
-    ConfigurableEnvironmentConfiguration envConfig; //FIXME: howto enforce this?
+	@Autowired
+	ConfigurableEnvironmentConfiguration envConfig; // FIXME: howto enforce this?
 
-    @Autowired
-    Decoder decoder;
+	@Autowired
+	Decoder decoder;
 
-    @Autowired
-    Encoder encoder;
+	@Autowired
+	Encoder encoder;
 
-    @Autowired
-    Logger logger;
+	@Autowired
+	Logger logger;
 
-    @Autowired
-    Contract contract;
+	@Autowired
+	Contract contract;
 
 	@Autowired(required = false)
 	Logger.Level logLevel;
@@ -47,40 +47,43 @@ public class FeignConfiguration {
 	@Autowired(required = false)
 	Request.Options options;
 
-    @Autowired(required = false)
-    Client ribbonClient;
+	@Autowired(required = false)
+	Client ribbonClient;
 
-    protected Feign.Builder feign() {
+	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()
-				//required values
-				.logger(logger)
-				.encoder(encoder)
-				.decoder(decoder)
-				.contract(contract);
+				// required values
+				.logger(this.logger).encoder(this.encoder).decoder(this.decoder)
+				.contract(this.contract);
 
-		//optional values
-		if (logLevel != null)
-			builder.logLevel(logLevel);
-		if (retryer != null)
-			builder.retryer(retryer);
-		if (errorDecoder != null)
-			builder.errorDecoder(errorDecoder);
-		if (options != null)
-			builder.options(options);
+		// optional values
+		if (this.logLevel != null) {
+			builder.logLevel(this.logLevel);
+		}
+		if (this.retryer != null) {
+			builder.retryer(this.retryer);
+		}
+		if (this.errorDecoder != null) {
+			builder.errorDecoder(this.errorDecoder);
+		}
+		if (this.options != null) {
+			builder.options(this.options);
+		}
 
 		return builder;
-    }
+	}
 
-    protected <T> T loadBalance(Class<T> type, String schemeName) {
-        return loadBalance(feign(), type, schemeName);
-    }
+	protected <T> T loadBalance(Class<T> type, String schemeName) {
+		return loadBalance(feign(), type, schemeName);
+	}
 
-    protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
-        if(ribbonClient != null) {
-            return builder.client(ribbonClient).target(type, schemeName);
-        } else {
-            return builder.target(LoadBalancingTarget.create(type, schemeName));
-        }
-    }
+	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
+		if (this.ribbonClient != null) {
+			return builder.client(this.ribbonClient).target(type, schemeName);
+		}
+		else {
+			return builder.target(LoadBalancingTarget.create(type, schemeName));
+		}
+	}
 
 }

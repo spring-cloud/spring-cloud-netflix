@@ -43,12 +43,14 @@ public class SendResponseFilter extends ZuulFilter {
 		return 1000;
 	}
 
+	@Override
 	public boolean shouldFilter() {
 		return !RequestContext.getCurrentContext().getZuulResponseHeaders().isEmpty()
 				|| RequestContext.getCurrentContext().getResponseDataStream() != null
 				|| RequestContext.getCurrentContext().getResponseBody() != null;
 	}
 
+	@Override
 	public Object run() {
 		try {
 			addResponseHeaders();
@@ -64,8 +66,9 @@ public class SendResponseFilter extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 
 		// there is no body to send
-		if (context.getResponseBody() == null && context.getResponseDataStream() == null)
+		if (context.getResponseBody() == null && context.getResponseDataStream() == null) {
 			return;
+		}
 
 		HttpServletResponse servletResponse = context.getResponse();
 		servletResponse.setCharacterEncoding("UTF-8");
@@ -82,8 +85,9 @@ public class SendResponseFilter extends ZuulFilter {
 			boolean isGzipRequested = false;
 			final String requestEncoding = context.getRequest().getHeader(
 					ZuulHeaders.ACCEPT_ENCODING);
-			if (requestEncoding != null && requestEncoding.equals("gzip"))
+			if (requestEncoding != null && requestEncoding.equals("gzip")) {
 				isGzipRequested = true;
+			}
 
 			is = context.getResponseDataStream();
 			InputStream inputStream = is;
@@ -93,7 +97,7 @@ public class SendResponseFilter extends ZuulFilter {
 					// decompress stream
 					// before sending to client
 					// else, stream gzip directly to client
-					if (context.getResponseGZipped() && !isGzipRequested)
+					if (context.getResponseGZipped() && !isGzipRequested) {
 						try {
 							inputStream = new GZIPInputStream(is);
 
@@ -106,8 +110,10 @@ public class SendResponseFilter extends ZuulFilter {
 													.toString());
 							inputStream = is;
 						}
-					else if (context.getResponseGZipped() && isGzipRequested)
+					}
+					else if (context.getResponseGZipped() && isGzipRequested) {
 						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
+					}
 					writeResponse(inputStream, outStream);
 				}
 			}
@@ -115,8 +121,9 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 		finally {
 			try {
-				if (is != null)
+				if (is != null) {
 					is.close();
+				}
 
 				outStream.flush();
 				outStream.close();
@@ -164,8 +171,9 @@ public class SendResponseFilter extends ZuulFilter {
 			for (String it : rd) {
 				debugHeader.append("[[[" + it + "]]]");
 			}
-			if (INCLUDE_DEBUG_HEADER.get())
+			if (INCLUDE_DEBUG_HEADER.get()) {
 				servletResponse.addHeader("X-Zuul-Debug-Header", debugHeader.toString());
+			}
 		}
 
 		if (zuulResponseHeaders != null) {
@@ -180,8 +188,9 @@ public class SendResponseFilter extends ZuulFilter {
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
-			if (contentLength != null && !ctx.getResponseGZipped())
+			if (contentLength != null && !ctx.getResponseGZipped()) {
 				servletResponse.setContentLength(contentLength);
+			}
 		}
 	}
 

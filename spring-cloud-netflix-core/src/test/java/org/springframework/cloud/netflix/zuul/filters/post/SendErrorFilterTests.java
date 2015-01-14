@@ -1,16 +1,18 @@
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import com.netflix.zuul.context.RequestContext;
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.HttpServletRequest;
+import com.netflix.zuul.context.RequestContext;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Spencer Gibb

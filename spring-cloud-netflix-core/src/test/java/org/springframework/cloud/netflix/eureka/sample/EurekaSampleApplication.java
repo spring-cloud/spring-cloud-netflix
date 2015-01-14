@@ -25,21 +25,22 @@ public class EurekaSampleApplication {
 		return new InMemoryMetricRepository();
 	}
 
-    @Bean
-    public HealthCheckHandler healthCheckHandler() {
-        return new HealthCheckHandler() {
-            @Override
-            public InstanceInfo.InstanceStatus getStatus(InstanceInfo.InstanceStatus currentStatus) {
-                return InstanceInfo.InstanceStatus.UP;
-            }
-        };
-    }
+	@Bean
+	public HealthCheckHandler healthCheckHandler() {
+		return new HealthCheckHandler() {
+			@Override
+			public InstanceInfo.InstanceStatus getStatus(
+					InstanceInfo.InstanceStatus currentStatus) {
+				return InstanceInfo.InstanceStatus.UP;
+			}
+		};
+	}
 
 	@RequestMapping("/")
 	public String home() {
 		return "Hello world";
 	}
-	
+
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(EurekaSampleApplication.class).web(true).run(args);
 	}

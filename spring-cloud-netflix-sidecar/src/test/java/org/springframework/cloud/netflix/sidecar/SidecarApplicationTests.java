@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringApplicationConfiguration(classes = SidecarApplication.class)
 @IntegrationTest("server.port=0")
 public class SidecarApplicationTests {
-	
+
 	@Test
 	public void contextLoads() {
 	}

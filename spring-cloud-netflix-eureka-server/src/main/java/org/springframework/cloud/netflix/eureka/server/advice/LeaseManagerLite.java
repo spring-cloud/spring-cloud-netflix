@@ -23,7 +23,7 @@ import com.netflix.eureka.lease.LeaseManager;
  *
  */
 public interface LeaseManagerLite<T> extends LeaseManager<T> {
-	
+
 	void register(InstanceInfo info, boolean isReplication);
 
 }

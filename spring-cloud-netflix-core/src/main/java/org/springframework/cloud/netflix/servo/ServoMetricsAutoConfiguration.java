@@ -31,8 +31,8 @@ import org.springframework.context.annotation.Configuration;
 import com.netflix.servo.monitor.Monitors;
 
 /**
- * Auto configuration to configure Servo support. 
- * 
+ * Auto configuration to configure Servo support.
+ *
  * @author Dave Syer
  * @author Christian Dupuis
  */
@@ -40,9 +40,9 @@ import com.netflix.servo.monitor.Monitors;
 @ConditionalOnClass({ Monitors.class, MetricReader.class })
 @ConditionalOnBean(MetricReader.class)
 @AutoConfigureBefore(EndpointAutoConfiguration.class)
-@AutoConfigureAfter({MetricRepositoryAutoConfiguration.class})
+@AutoConfigureAfter({ MetricRepositoryAutoConfiguration.class })
 public class ServoMetricsAutoConfiguration {
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ServoMetricCollector servoMetricCollector(MetricWriter metrics) {

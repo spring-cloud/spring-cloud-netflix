@@ -11,16 +11,16 @@ import com.netflix.discovery.EurekaClientConfig;
  */
 public class DiscoveryManagerInitializer {
 
-    @Autowired
-    private EurekaClientConfig clientConfig;
+	@Autowired
+	private EurekaClientConfig clientConfig;
 
-    @Autowired
-    private EurekaInstanceConfig instanceConfig;
+	@Autowired
+	private EurekaInstanceConfig instanceConfig;
 
-
-    public synchronized void init() {
-        if (DiscoveryManager.getInstance().getDiscoveryClient() == null) {
-            DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
-        }
-    }
+	public synchronized void init() {
+		if (DiscoveryManager.getInstance().getDiscoveryClient() == null) {
+			DiscoveryManager.getInstance().initComponent(this.instanceConfig,
+					this.clientConfig);
+		}
+	}
 }

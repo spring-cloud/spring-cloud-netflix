@@ -1,7 +1,8 @@
 package org.springframework.cloud.netflix.ribbon;
 
-import com.google.common.base.Throwables;
-import com.netflix.loadbalancer.Server;
+import java.net.URI;
+import java.net.URL;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,77 +18,82 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.net.URL;
+import com.google.common.base.Throwables;
+import com.netflix.loadbalancer.Server;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
  */
 public class RibbonInterceptorTests {
 
-    @Mock
-    HttpRequest request;
+	@Mock
+	HttpRequest request;
 
-    @Mock
-    ClientHttpRequestExecution execution;
+	@Mock
+	ClientHttpRequestExecution execution;
 
-    @Mock
-    ClientHttpResponse response;
+	@Mock
+	ClientHttpResponse response;
 
-    @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-    }
+	@Before
+	public void init() {
+		MockitoAnnotations.initMocks(this);
+	}
 
-    @Test
-    public void testIntercept() throws Exception {
-        RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
-        RibbonInterceptor interceptor = new RibbonInterceptor(new MyClient(server));
+	@Test
+	public void testIntercept() throws Exception {
+		RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
+		RibbonInterceptor interceptor = new RibbonInterceptor(new MyClient(server));
 
-        when(request.getURI()).thenReturn(new URL("http://myservice").toURI());
-        when(execution.execute(isA(HttpRequest.class), isA(byte[].class))).thenReturn(response);
-        ArgumentCaptor<HttpRequestWrapper> argument = ArgumentCaptor.forClass(HttpRequestWrapper.class);
+		when(this.request.getURI()).thenReturn(new URL("http://myservice").toURI());
+		when(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
+				.thenReturn(this.response);
+		ArgumentCaptor<HttpRequestWrapper> argument = ArgumentCaptor
+				.forClass(HttpRequestWrapper.class);
 
-        ClientHttpResponse response = interceptor.intercept(request, new byte[0], execution);
+		ClientHttpResponse response = interceptor.intercept(this.request, new byte[0],
+				this.execution);
 
-        assertNotNull("response was null", response);
-        verify(execution).execute(argument.capture(), isA(byte[].class));
-        HttpRequestWrapper wrapper = argument.getValue();
-        assertEquals("wrong constructed uri", new URL("http://myhost:8080").toURI(), wrapper.getURI());
-    }
+		assertNotNull("response was null", response);
+		verify(this.execution).execute(argument.capture(), isA(byte[].class));
+		HttpRequestWrapper wrapper = argument.getValue();
+		assertEquals("wrong constructed uri", new URL("http://myhost:8080").toURI(),
+				wrapper.getURI());
+	}
 
-    protected static class MyClient implements LoadBalancerClient {
-        ServiceInstance instance;
+	protected static class MyClient implements LoadBalancerClient {
+		ServiceInstance instance;
 
-        public MyClient(ServiceInstance instance) {
-            this.instance = instance;
-        }
+		public MyClient(ServiceInstance instance) {
+			this.instance = instance;
+		}
 
-        @Override
-        public ServiceInstance choose(String serviceId) {
-            return instance;
-        }
+		@Override
+		public ServiceInstance choose(String serviceId) {
+			return this.instance;
+		}
 
-        @Override
-        public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
-            try {
-                return request.apply(instance);
-            } catch (Exception e) {
-                Throwables.propagate(e);
-            }
-            return null;
-        }
+		@Override
+		public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
+			try {
+				return request.apply(this.instance);
+			}
+			catch (Exception e) {
+				Throwables.propagate(e);
+			}
+			return null;
+		}
 
-        @Override
-        public URI reconstructURI(ServiceInstance instance, URI original) {
-            return UriComponentsBuilder.fromUri(original)
-                    .host(instance.getHost())
-                    .port(instance.getPort())
-                    .build()
-                    .toUri();
-        }
-    }
+		@Override
+		public URI reconstructURI(ServiceInstance instance, URI original) {
+			return UriComponentsBuilder.fromUri(original).host(instance.getHost())
+					.port(instance.getPort()).build().toUri();
+		}
+	}
 }

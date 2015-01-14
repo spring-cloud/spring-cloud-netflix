@@ -6,10 +6,10 @@ import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
-* @author Spencer Gibb
-*/
+ * @author Spencer Gibb
+ */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 class FeignClientFactoryBean extends FeignConfiguration implements FactoryBean<Object> {
 
 	private boolean loadbalance;
@@ -18,18 +18,18 @@ class FeignClientFactoryBean extends FeignConfiguration implements FactoryBean<O
 
 	@Override
 	public Object getObject() throws Exception {
-		if (!schemeName.startsWith("http")) {
-			schemeName = "http://"+schemeName;
+		if (!this.schemeName.startsWith("http")) {
+			this.schemeName = "http://" + this.schemeName;
 		}
-		if (loadbalance) {
-			return loadBalance(type, schemeName);
+		if (this.loadbalance) {
+			return loadBalance(this.type, this.schemeName);
 		}
-		return feign().target(type, schemeName);
+		return feign().target(this.type, this.schemeName);
 	}
 
 	@Override
 	public Class<?> getObjectType() {
-		return type;
+		return this.type;
 	}
 
 	@Override

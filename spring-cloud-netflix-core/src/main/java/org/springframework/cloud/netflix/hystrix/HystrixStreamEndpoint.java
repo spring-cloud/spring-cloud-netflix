@@ -24,7 +24,8 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServl
  */
 public class HystrixStreamEndpoint extends ServletWrappingEndpoint {
 
-    public HystrixStreamEndpoint() {
-        super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream", false, true);
-    }
+	public HystrixStreamEndpoint() {
+		super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream",
+				false, true);
+	}
 }

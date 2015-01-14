@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import javax.inject.Provider;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -17,8 +19,6 @@ import feign.Response;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
-import javax.inject.Provider;
-
 import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
 /**
@@ -26,25 +26,27 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
  */
 public class SpringDecoder implements Decoder {
 
-    @Autowired
-    Provider<HttpMessageConverters> messageConverters;
+	@Autowired
+	Provider<HttpMessageConverters> messageConverters;
 
 	public SpringDecoder() {
 	}
 
 	@Override
-	public Object decode(final Response response, Type type) throws IOException, FeignException {
+	public Object decode(final Response response, Type type) throws IOException,
+			FeignException {
 		if (type instanceof Class || type instanceof ParameterizedType) {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-                    type, messageConverters.get().getConverters());
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
+					type, this.messageConverters.get().getConverters());
 
-            return extractor.extractData(new FeignResponseAdapter(response));
-        }
-		throw new DecodeException("type is not an instance of Class or ParameterizedType: " + type);
+			return extractor.extractData(new FeignResponseAdapter(response));
+		}
+		throw new DecodeException(
+				"type is not an instance of Class or ParameterizedType: " + type);
 	}
 
-    private class FeignResponseAdapter implements ClientHttpResponse {
+	private class FeignResponseAdapter implements ClientHttpResponse {
 		private final Response response;
 
 		private FeignResponseAdapter(Response response) {
@@ -53,23 +55,23 @@ public class SpringDecoder implements Decoder {
 
 		@Override
 		public HttpStatus getStatusCode() throws IOException {
-			return HttpStatus.valueOf(response.status());
+			return HttpStatus.valueOf(this.response.status());
 		}
 
 		@Override
 		public int getRawStatusCode() throws IOException {
-			return response.status();
+			return this.response.status();
 		}
 
 		@Override
 		public String getStatusText() throws IOException {
-			return response.reason();
+			return this.response.reason();
 		}
 
 		@Override
 		public void close() {
 			try {
-				response.body().close();
+				this.response.body().close();
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -78,12 +80,12 @@ public class SpringDecoder implements Decoder {
 
 		@Override
 		public InputStream getBody() throws IOException {
-			return response.body().asInputStream();
+			return this.response.body().asInputStream();
 		}
 
 		@Override
 		public HttpHeaders getHeaders() {
-			return getHttpHeaders(response.headers());
+			return getHttpHeaders(this.response.headers());
 		}
 
 	}

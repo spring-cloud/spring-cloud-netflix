@@ -15,9 +15,9 @@
  */
 package org.springframework.cloud.netflix.hystrix;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer

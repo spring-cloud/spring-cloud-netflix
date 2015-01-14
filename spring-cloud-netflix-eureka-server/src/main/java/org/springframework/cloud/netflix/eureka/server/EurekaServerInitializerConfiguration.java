@@ -117,22 +117,32 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 								// ignore
 							}
 							LoggingConfiguration.getInstance().configure();
-							EurekaServerConfigurationManager.getInstance()
-									.setConfiguration(eurekaServerConfig);
-							XmlXStream.getInstance().setMarshallingStrategy(
-									new DataCenterAwareMarshallingStrategy(applicationContext));
-							JsonXStream.getInstance().setMarshallingStrategy(
-									new DataCenterAwareMarshallingStrategy(applicationContext));
+							EurekaServerConfigurationManager
+									.getInstance()
+									.setConfiguration(
+											EurekaServerInitializerConfiguration.this.eurekaServerConfig);
+							XmlXStream
+									.getInstance()
+									.setMarshallingStrategy(
+											new DataCenterAwareMarshallingStrategy(
+													EurekaServerInitializerConfiguration.this.applicationContext));
+							JsonXStream
+									.getInstance()
+									.setMarshallingStrategy(
+											new DataCenterAwareMarshallingStrategy(
+													EurekaServerInitializerConfiguration.this.applicationContext));
 							// PeerAwareInstanceRegistry.getInstance();
-							applicationContext
+							EurekaServerInitializerConfiguration.this.applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(
-											eurekaServerConfig));
+											EurekaServerInitializerConfiguration.this.eurekaServerConfig));
 						}
-					}.contextInitialized(new ServletContextEvent(servletContext));
+					}.contextInitialized(new ServletContextEvent(
+							EurekaServerInitializerConfiguration.this.servletContext));
 					logger.info("Started Eureka Server");
-					running = true;
-					applicationContext.publishEvent(new EurekaServerStartedEvent(
-							eurekaServerConfig));
+					EurekaServerInitializerConfiguration.this.running = true;
+					EurekaServerInitializerConfiguration.this.applicationContext
+							.publishEvent(new EurekaServerStartedEvent(
+									EurekaServerInitializerConfiguration.this.eurekaServerConfig));
 				}
 				catch (Exception e) {
 					// Help!
@@ -144,12 +154,12 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 	@Override
 	public void stop() {
-		running = false;
+		this.running = false;
 	}
 
 	@Override
 	public boolean isRunning() {
-		return running;
+		return this.running;
 	}
 
 	@Override
@@ -169,7 +179,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 	@Override
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 	@Configuration
@@ -189,8 +199,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 		@Override
 		public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
-			if (instance == null) {
-				instance = PeerAwareInstanceRegistry.getInstance();
+			if (this.instance == null) {
+				this.instance = PeerAwareInstanceRegistry.getInstance();
 				safeInit();
 				replaceInstance(getProxyForInstance());
 				expectRegistrations(1);
@@ -198,9 +208,10 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		}
 
 		private void safeInit() {
-			Method method = ReflectionUtils.findMethod(InstanceRegistry.class, "postInit");
+			Method method = ReflectionUtils
+					.findMethod(InstanceRegistry.class, "postInit");
 			ReflectionUtils.makeAccessible(method);
-			ReflectionUtils.invokeMethod(method, instance);
+			ReflectionUtils.invokeMethod(method, this.instance);
 		}
 
 		private void replaceInstance(Object proxy) {
@@ -221,7 +232,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 		private Object getProxyForInstance() {
 			// Wrap the instance registry...
-			ProxyFactory factory = new ProxyFactory(instance);
+			ProxyFactory factory = new ProxyFactory(this.instance);
 			// ...with the LeaseManagerMessageBroker
 			factory.addAdvice(new PiggybackMethodInterceptor(leaseManagerMessageBroker(),
 					LeaseManagerLite.class));
@@ -243,9 +254,9 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 			try {
 				// Awful ugly hack to work around lack of DI in eureka
 				field.setAccessible(true);
-				int value = (int) ReflectionUtils.getField(field, instance);
+				int value = (int) ReflectionUtils.getField(field, this.instance);
 				if (value == 0 && count > 0) {
-					ReflectionUtils.setField(field, instance, count);
+					ReflectionUtils.setField(field, this.instance, count);
 				}
 			}
 			catch (Exception e) {
@@ -262,7 +273,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		 * hasn't sent any renewals recently. This happens for a standalone server. It
 		 * seems like a bad default, so we set it to the smallest non-zero value we can,
 		 * so that any instances that subsequently register can bump up the threshold.
-		 * 
+		 *
 		 * @author Dave Syer
 		 *
 		 */

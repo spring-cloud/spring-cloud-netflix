@@ -1,11 +1,5 @@
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
-import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRuleClassName;
-import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
-import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +14,17 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
+import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRuleClassName;
+import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
+import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
+
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
  * <code>@zone</code>, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
  * NFLoadBalancerRuleClassName, NIWSServerListFilterClassName and more
- * 
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  */
@@ -51,9 +51,10 @@ public class EurekaRibbonClientConfiguration {
 
 	@PostConstruct
 	public void preprocess() {
-		if (clientConfig != null
+		if (this.clientConfig != null
 				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
-			String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
+			String[] zones = this.clientConfig.getAvailabilityZones(this.clientConfig
+					.getRegion());
 			String zone = zones != null && zones.length > 0 ? zones[0] : null;
 			if (zone != null) {
 				// You can set this with archaius.deployment.* (maybe requires
@@ -63,15 +64,15 @@ public class EurekaRibbonClientConfiguration {
 			}
 		}
 		// TODO: should this look more like hibernate spring boot props?
-		setProp(serviceId, NIWSServerListClassName.key(),
+		setProp(this.serviceId, NIWSServerListClassName.key(),
 				DiscoveryEnabledNIWSServerList.class.getName());
 		// FIXME: what should this be?
-		setProp(serviceId, DeploymentContextBasedVipAddresses.key(), serviceId);
-		setProp(serviceId, NFLoadBalancerRuleClassName.key(),
+		setProp(this.serviceId, DeploymentContextBasedVipAddresses.key(), this.serviceId);
+		setProp(this.serviceId, NFLoadBalancerRuleClassName.key(),
 				ZoneAvoidanceRule.class.getName());
-		setProp(serviceId, NIWSServerListFilterClassName.key(),
+		setProp(this.serviceId, NIWSServerListFilterClassName.key(),
 				ZonePreferenceServerListFilter.class.getName());
-		setProp(serviceId, EnableZoneAffinity.key(), "true");
+		setProp(this.serviceId, EnableZoneAffinity.key(), "true");
 	}
 
 	protected void setProp(String serviceId, String suffix, String value) {

@@ -18,73 +18,74 @@ import org.springframework.core.env.StandardEnvironment;
  * @author Spencer Gibb
  */
 public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration {
-    ConfigurableEnvironment environment;
+	ConfigurableEnvironment environment;
 
-    public ConfigurableEnvironmentConfiguration(ConfigurableEnvironment environment) {
-        this.environment = environment;
-    }
+	public ConfigurableEnvironmentConfiguration(ConfigurableEnvironment environment) {
+		this.environment = environment;
+	}
 
-    @Override
-    protected void addPropertyDirect(String key, Object value) {
+	@Override
+	protected void addPropertyDirect(String key, Object value) {
 
-    }
+	}
 
-    @Override
-    public boolean isEmpty() {
-        return !getKeys().hasNext(); //TODO: find a better way to do this
-    }
+	@Override
+	public boolean isEmpty() {
+		return !getKeys().hasNext(); // TODO: find a better way to do this
+	}
 
-    @Override
-    public boolean containsKey(String key) {
-        return environment.containsProperty(key);
-    }
+	@Override
+	public boolean containsKey(String key) {
+		return this.environment.containsProperty(key);
+	}
 
-    @Override
-    public Object getProperty(String key) {
-        return environment.getProperty(key);
-    }
+	@Override
+	public Object getProperty(String key) {
+		return this.environment.getProperty(key);
+	}
 
-    @Override
-    public Iterator<String> getKeys() {
-        List<String> result = new ArrayList<>();
-        for (Map.Entry<String, PropertySource<?>> entry : getPropertySources().entrySet()) {
-            PropertySource<?> source = entry.getValue();
-            if (source instanceof EnumerablePropertySource) {
-                EnumerablePropertySource<?> enumerable = (EnumerablePropertySource<?>) source;
-                for (String name : enumerable.getPropertyNames()) {
-                    result.add(name);
-                }
-            }
-        }
-        return result.iterator();
-    }
+	@Override
+	public Iterator<String> getKeys() {
+		List<String> result = new ArrayList<>();
+		for (Map.Entry<String, PropertySource<?>> entry : getPropertySources().entrySet()) {
+			PropertySource<?> source = entry.getValue();
+			if (source instanceof EnumerablePropertySource) {
+				EnumerablePropertySource<?> enumerable = (EnumerablePropertySource<?>) source;
+				for (String name : enumerable.getPropertyNames()) {
+					result.add(name);
+				}
+			}
+		}
+		return result.iterator();
+	}
 
-    private Map<String, PropertySource<?>> getPropertySources() {
-        Map<String, PropertySource<?>> map = new LinkedHashMap<>();
-        MutablePropertySources sources;
-        if (this.environment != null
-                && this.environment instanceof ConfigurableEnvironment) {
-            sources = this.environment.getPropertySources();
-        }
-        else {
-            sources = new StandardEnvironment().getPropertySources();
-        }
-        for (PropertySource<?> source : sources) {
-            extract("", map, source);
-        }
-        return map;
-    }
+	private Map<String, PropertySource<?>> getPropertySources() {
+		Map<String, PropertySource<?>> map = new LinkedHashMap<>();
+		MutablePropertySources sources;
+		if (this.environment != null
+				&& this.environment instanceof ConfigurableEnvironment) {
+			sources = this.environment.getPropertySources();
+		}
+		else {
+			sources = new StandardEnvironment().getPropertySources();
+		}
+		for (PropertySource<?> source : sources) {
+			extract("", map, source);
+		}
+		return map;
+	}
 
-    private void extract(String root, Map<String, PropertySource<?>> map,
-                         PropertySource<?> source) {
-        if (source instanceof CompositePropertySource) {
-            for (PropertySource<?> nest : ((CompositePropertySource) source).getPropertySources()) {
-                extract(source.getName() + ":", map, nest);
-            }
-        }
-        else {
-            map.put(root + source.getName(), source);
-        }
-    }
+	private void extract(String root, Map<String, PropertySource<?>> map,
+			PropertySource<?> source) {
+		if (source instanceof CompositePropertySource) {
+			for (PropertySource<?> nest : ((CompositePropertySource) source)
+					.getPropertySources()) {
+				extract(source.getName() + ":", map, nest);
+			}
+		}
+		else {
+			map.put(root + source.getName(), source);
+		}
+	}
 
 }

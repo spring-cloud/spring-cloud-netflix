@@ -24,12 +24,12 @@ import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
+import org.springframework.cloud.client.discovery.DiscoveryHealthIndicator;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
-import org.springframework.cloud.client.discovery.DiscoveryHealthIndicator;
 
 /**
  * @author Dave Syer
@@ -67,28 +67,29 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	}
 
 	private Status getStatus(Builder builder) {
-		Status status = new Status(discovery.getInstanceRemoteStatus().toString(),
+		Status status = new Status(this.discovery.getInstanceRemoteStatus().toString(),
 				"Remote status from Eureka server");
 		@SuppressWarnings("unchecked")
-		Metric<Number> value = (Metric<Number>) metrics
+		Metric<Number> value = (Metric<Number>) this.metrics
 				.findOne("counter.servo.discoveryclient_failed");
 		if (value != null) {
-			int renewalPeriod = instanceConfig.getLeaseRenewalIntervalInSeconds();
+			int renewalPeriod = this.instanceConfig.getLeaseRenewalIntervalInSeconds();
 			int latest = value.getValue().intValue();
 			builder.withDetail("failCount", latest);
 			builder.withDetail("renewalPeriod", renewalPeriod);
-			if (failCount < latest) {
+			if (this.failCount < latest) {
 				status = new Status("UP", "Eureka discovery client is reporting failures");
-				failCount = latest;
-			} else {
-				status = new Status("UP", "No new failures in Eureka discovery client");				
+				this.failCount = latest;
+			}
+			else {
+				status = new Status("UP", "No new failures in Eureka discovery client");
 			}
 		}
 		return status;
 	}
 
 	private Map<String, Object> getApplications() {
-		Applications applications = discovery.getApplications();
+		Applications applications = this.discovery.getApplications();
 		if (applications == null) {
 			return Collections.emptyMap();
 		}

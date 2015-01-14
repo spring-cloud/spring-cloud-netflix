@@ -1,8 +1,5 @@
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.zuul.ZuulFilter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SimpleZuulServerApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port: 0"})
+@IntegrationTest({ "server.port: 0" })
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
 
@@ -41,13 +41,13 @@ public class SimpleZuulServerApplicationTests {
 
 	@Test
 	public void bindRoute() {
-		assertTrue(routes.getRoutePaths().contains("/testing123/**"));
+		assertTrue(this.routes.getRoutePaths().contains("/testing123/**"));
 	}
 
 	@Test
 	public void getOnSelf() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/", HttpMethod.GET,
+				"http://localhost:" + this.port + "/", HttpMethod.GET,
 				new HttpEntity<Void>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello world", result.getBody());
@@ -56,14 +56,14 @@ public class SimpleZuulServerApplicationTests {
 	@Test
 	public void getOnSelfViaFilter() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/testing123/1", HttpMethod.GET,
+				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
 				new HttpEntity<Void>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
 }
 
-//Don't use @SpringBootApplication because we don't want to component scan
+// Don't use @SpringBootApplication because we don't want to component scan
 @Configuration
 @EnableAutoConfiguration
 @RestController

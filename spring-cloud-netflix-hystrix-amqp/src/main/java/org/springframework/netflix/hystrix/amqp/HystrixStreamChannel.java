@@ -9,6 +9,6 @@ import org.springframework.integration.annotation.MessagingGateway;
 @MessagingGateway
 public interface HystrixStreamChannel {
 
-    @Gateway(requestChannel = "hystrixStream")
-    public void send(String s);
+	@Gateway(requestChannel = "hystrixStream")
+	public void send(String s);
 }

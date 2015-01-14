@@ -34,24 +34,25 @@ import com.netflix.discovery.DiscoveryClient;
  */
 @Configuration
 @EnableConfigurationProperties
-@ConditionalOnClass({EurekaInstanceConfigBean.class, DiscoveryClient.class, ConfigServerProperties.class})
+@ConditionalOnClass({ EurekaInstanceConfigBean.class, DiscoveryClient.class,
+		ConfigServerProperties.class })
 public class EurekaClientConfigServerAutoConfiguration {
 
-	@Autowired(required=false)
+	@Autowired(required = false)
 	private EurekaInstanceConfigBean instance;
 
-	@Autowired(required=false)
+	@Autowired(required = false)
 	private ConfigServerProperties server;
 
 	@PostConstruct
 	public void init() {
-		if (instance==null || server==null) {
+		if (this.instance == null || this.server == null) {
 			return;
 		}
-		String prefix = server.getPrefix();
+		String prefix = this.server.getPrefix();
 		if (StringUtils.hasText(prefix)) {
-			instance.getMetadataMap().put("configPath", prefix);
+			this.instance.getMetadataMap().put("configPath", prefix);
 		}
 	}
-	
+
 }

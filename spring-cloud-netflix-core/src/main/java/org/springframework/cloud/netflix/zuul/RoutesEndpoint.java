@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Endpoint to display and reset the zuul proxy routes
- * 
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  */
@@ -40,7 +40,7 @@ public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAwa
 	@ResponseBody
 	@ManagedOperation
 	public Map<String, String> reset() {
-		publisher.publishEvent(new RoutesRefreshedEvent(routes));
+		this.publisher.publishEvent(new RoutesRefreshedEvent(this.routes));
 		return getRoutes();
 	}
 
@@ -48,7 +48,7 @@ public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAwa
 	@ResponseBody
 	@ManagedAttribute
 	public Map<String, String> getRoutes() {
-		return routes.getRoutes();
+		return this.routes.getRoutes();
 	}
 
 	@Override

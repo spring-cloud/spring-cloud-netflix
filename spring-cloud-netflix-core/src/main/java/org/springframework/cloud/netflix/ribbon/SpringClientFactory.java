@@ -38,7 +38,7 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 	public void setApplicationContext(ApplicationContext parent) throws BeansException {
 		this.parent = parent;
 	}
-	
+
 	public void setConfigurations(List<RibbonClientSpecification> configurations) {
 		for (RibbonClientSpecification client : configurations) {
 			this.configurations.put(client.getName(), client);
@@ -47,8 +47,8 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	@Override
 	public void destroy() {
-		Collection<AnnotationConfigApplicationContext> values = contexts.values();
-		contexts.clear();
+		Collection<AnnotationConfigApplicationContext> values = this.contexts.values();
+		this.contexts.clear();
 		for (AnnotationConfigApplicationContext context : values) {
 			context.close();
 		}
@@ -91,28 +91,30 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 	}
 
 	private AnnotationConfigApplicationContext getContext(String name) {
-		if (!contexts.containsKey(name)) {
-			synchronized (contexts) {
-				if (!contexts.containsKey(name)) {
-					contexts.put(name, createContext(name));
+		if (!this.contexts.containsKey(name)) {
+			synchronized (this.contexts) {
+				if (!this.contexts.containsKey(name)) {
+					this.contexts.put(name, createContext(name));
 				}
 			}
 		}
-		return contexts.get(name);
+		return this.contexts.get(name);
 	}
 
 	private AnnotationConfigApplicationContext createContext(String name) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		if (configurations.containsKey(name)) {
-			for (Class<?> configuration : configurations.get(name).getConfiguration()) {
+		if (this.configurations.containsKey(name)) {
+			for (Class<?> configuration : this.configurations.get(name)
+					.getConfiguration()) {
 				context.register(configuration);
 			}
 		}
-		for (Entry<String, RibbonClientSpecification> entry : configurations.entrySet()) {
+		for (Entry<String, RibbonClientSpecification> entry : this.configurations
+				.entrySet()) {
 			if (entry.getKey().startsWith("default.")) {
 				for (Class<?> configuration : entry.getValue().getConfiguration()) {
 					context.register(configuration);
-				}	
+				}
 			}
 		}
 		context.register(PropertyPlaceholderAutoConfiguration.class,
@@ -123,9 +125,9 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 						new MapPropertySource("ribbon",
 								Collections.<String, Object> singletonMap(
 										"ribbon.client.name", name)));
-		if (parent != null) {
+		if (this.parent != null) {
 			// Uses Environment from parent as well as beans
-			context.setParent(parent);
+			context.setParent(this.parent);
 		}
 		context.refresh();
 		return context;

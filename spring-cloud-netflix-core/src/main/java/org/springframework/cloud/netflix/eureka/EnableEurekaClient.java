@@ -19,7 +19,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * it is Eureka you want. All it does is turn on discovery and let the autoconfiguration
  * find the eureka classes if they are available (i.e. you need Eureka on the classpath as
  * well).
- * 
+ *
  * @author Dave Syer
  *
  */

@@ -1,10 +1,11 @@
 package org.springframework.cloud.netflix.feign;
 
-import com.google.common.base.Charsets;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collection;
 
-import feign.RequestTemplate;
-import feign.codec.EncodeException;
-import feign.codec.Encoder;
+import javax.inject.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +16,11 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 
-import javax.inject.Provider;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
+import com.google.common.base.Charsets;
+
+import feign.RequestTemplate;
+import feign.codec.EncodeException;
+import feign.codec.Encoder;
 
 import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
@@ -29,8 +30,8 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 public class SpringEncoder implements Encoder {
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
-    @Autowired
-    Provider<HttpMessageConverters> messageConverters;
+	@Autowired
+	Provider<HttpMessageConverters> messageConverters;
 
 	public SpringEncoder() {
 	}
@@ -49,7 +50,8 @@ public class SpringEncoder implements Encoder {
 				requestContentType = MediaType.valueOf(type);
 			}
 
-			for (HttpMessageConverter<?> messageConverter : messageConverters.get().getConverters()) {
+			for (HttpMessageConverter<?> messageConverter : this.messageConverters.get()
+					.getConverters()) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
 					if (logger.isDebugEnabled()) {
 						if (requestContentType != null) {
@@ -97,16 +99,16 @@ public class SpringEncoder implements Encoder {
 
 		@Override
 		public OutputStream getBody() throws IOException {
-			return outputStream;
+			return this.outputStream;
 		}
 
 		@Override
 		public HttpHeaders getHeaders() {
-			return getHttpHeaders(request.headers());
+			return getHttpHeaders(this.request.headers());
 		}
 
 		public ByteArrayOutputStream getOutputStream() {
-			return outputStream;
+			return this.outputStream;
 		}
 	}
 }

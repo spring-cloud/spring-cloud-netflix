@@ -1,7 +1,5 @@
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -38,11 +36,12 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.ZuulFilter;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FormZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port: 0",
-	"zuul.routes.simple: /simple/**" })
+@IntegrationTest({ "server.port: 0", "zuul.routes.simple: /simple/**" })
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
@@ -62,8 +61,9 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/simple", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String,String>>(form, headers), String.class);
+				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, String>>(form, headers),
+				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
@@ -73,16 +73,18 @@ public class FormZuulProxyApplicationTests {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE+"; charset=UTF-8"));
+		headers.setContentType(MediaType
+				.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/simple", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String,String>>(form, headers), String.class);
+				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, String>>(form, headers),
+				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
 }
 
-//Don't use @SpringBootApplication because we don't want to component scan
+// Don't use @SpringBootApplication because we don't want to component scan
 @Configuration
 @EnableAutoConfiguration
 @RestController
@@ -126,7 +128,7 @@ class FormZuulProxyApplication {
 
 }
 
-//Load balancer with fixed server list for "simple" pointing to localhost
+// Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class FormRibbonClientConfiguration {
 	@Bean
