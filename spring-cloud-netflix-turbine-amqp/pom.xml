@@ -13,6 +13,7 @@
 	<name>Spring Cloud Netflix Turbine AMQP</name>
 	<description>Spring Cloud Netflix Turbine AMQP</description>
 	<properties>
+		<main.basedir>${basedir}/..</main.basedir>
 		<rxjava.version>[1.0,1.1)</rxjava.version>
 		<turbine.version>2.0.0-DP.2</turbine.version>
 	</properties>

@@ -20,6 +20,7 @@
 		<tag>HEAD</tag>
 	</scm>
 	<properties>
+		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.3</archaius.version>
 		<eureka.version>1.1.145</eureka.version>
 		<feign.version>6.1.3</feign.version>
@@ -31,6 +32,34 @@
 		<spring-integration-dsl.version>1.0.0.RELEASE</spring-integration-dsl.version>
 		<cloud-connectors.version>1.1.1.BUILD-SNAPSHOT</cloud-connectors.version>
 	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<configuration>
+					<useProjectReferences>false</useProjectReferences>
+					<additionalConfig>
+						<file>
+							<name>.settings/org.eclipse.jdt.ui.prefs</name>
+							<location>${main.basedir}/eclipse/org.eclipse.jdt.ui.prefs</location>
+						</file>
+						<file>
+							<name>.settings/org.eclipse.jdt.core.prefs</name>
+							<location>${main.basedir}/eclipse/org.eclipse.jdt.core.prefs</location>
+						</file>
+					</additionalConfig>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -267,15 +296,4 @@
 		<module>spring-cloud-netflix-sidecar</module>
 		<module>docs</module>
 	</modules>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

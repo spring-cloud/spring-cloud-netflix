@@ -12,6 +12,9 @@
 	<packaging>jar</packaging>
 	<name>Spring Cloud Netflix Core</name>
 	<description>Spring Cloud Netflix Core</description>
+	<properties>
+		<main.basedir>${basedir}/..</main.basedir>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
