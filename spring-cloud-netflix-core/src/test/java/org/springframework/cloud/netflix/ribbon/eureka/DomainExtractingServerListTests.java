@@ -32,8 +32,8 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -102,15 +102,15 @@ public class DomainExtractingServerListTests {
 		@SuppressWarnings("unchecked")
 		ServerList<Server> originalServerList = mock(ServerList.class);
 		InstanceInfo instanceInfo = mock(InstanceInfo.class);
-		when(server.getInstanceInfo()).thenReturn(instanceInfo);
-		when(server.getHost()).thenReturn(HOST_NAME);
-		when(instanceInfo.getMetadata()).thenReturn(
+		given(server.getInstanceInfo()).willReturn(instanceInfo);
+		given(server.getHost()).willReturn(HOST_NAME);
+		given(instanceInfo.getMetadata()).willReturn(
 				ImmutableMap.<String, String> builder().put("instanceId", INSTANCE_ID)
 						.build());
-		when(instanceInfo.getHostName()).thenReturn(HOST_NAME);
-		when(instanceInfo.getIPAddr()).thenReturn(IP_ADDR);
-		when(instanceInfo.getPort()).thenReturn(PORT);
-		when(originalServerList.getInitialListOfServers()).thenReturn(
+		given(instanceInfo.getHostName()).willReturn(HOST_NAME);
+		given(instanceInfo.getIPAddr()).willReturn(IP_ADDR);
+		given(instanceInfo.getPort()).willReturn(PORT);
+		given(originalServerList.getInitialListOfServers()).willReturn(
 				Arrays.<Server> asList(server));
 		return new DomainExtractingServerList(originalServerList, config,
 				approximateZoneFromHostname);

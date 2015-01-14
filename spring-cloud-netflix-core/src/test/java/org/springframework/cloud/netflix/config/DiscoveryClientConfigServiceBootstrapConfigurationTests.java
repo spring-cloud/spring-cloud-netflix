@@ -28,6 +28,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Dave Syer
@@ -61,8 +62,8 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 
 	@Test
 	public void onWhenRequested() throws Exception {
-		Mockito.when(this.client.getNextServerFromEureka("CONFIGSERVER", false))
-				.thenReturn(this.info);
+		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
+				this.info);
 		setup("spring.cloud.config.discovery.enabled=true");
 		assertEquals(
 				1,
@@ -77,8 +78,8 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 	@Test
 	public void setsPasssword() throws Exception {
 		this.info.getMetadata().put("password", "bar");
-		Mockito.when(this.client.getNextServerFromEureka("CONFIGSERVER", false))
-				.thenReturn(this.info);
+		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
+				this.info);
 		setup("spring.cloud.config.discovery.enabled=true");
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
@@ -90,8 +91,8 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 	@Test
 	public void setsPath() throws Exception {
 		this.info.getMetadata().put("configPath", "/bar");
-		Mockito.when(this.client.getNextServerFromEureka("CONFIGSERVER", false))
-				.thenReturn(this.info);
+		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
+				this.info);
 		setup("spring.cloud.config.discovery.enabled=true");
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);

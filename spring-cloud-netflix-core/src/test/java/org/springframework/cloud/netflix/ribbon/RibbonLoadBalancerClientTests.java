@@ -22,7 +22,6 @@ import java.net.URL;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
@@ -36,10 +35,10 @@ import com.netflix.loadbalancer.ServerStats;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -61,7 +60,7 @@ public class RibbonLoadBalancerClientTests {
 	@Before
 	public void init() {
 		MockitoAnnotations.initMocks(this);
-		Mockito.when(this.clientFactory.getLoadBalancerContext(anyString())).thenReturn(
+		given(this.clientFactory.getLoadBalancerContext(anyString())).willReturn(
 				new RibbonLoadBalancerContext(this.loadBalancer));
 	}
 
@@ -144,13 +143,15 @@ public class RibbonLoadBalancerClientTests {
 
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(
 			RibbonServer ribbonServer) {
-		when(this.loadBalancer.getName()).thenReturn(ribbonServer.getServiceId());
-		when(this.loadBalancer.chooseServer(anyString())).thenReturn(ribbonServer.server);
-		when(this.loadBalancer.getLoadBalancerStats()).thenReturn(this.loadBalancerStats);
-		when(this.loadBalancerStats.getSingleServerStat(ribbonServer.server)).thenReturn(
-				this.serverStats);
-		when(this.clientFactory.getLoadBalancer(this.loadBalancer.getName())).thenReturn(
-				this.loadBalancer);
+		given(this.loadBalancer.getName()).willReturn(ribbonServer.getServiceId());
+		given(this.loadBalancer.chooseServer(anyString()))
+				.willReturn(ribbonServer.server);
+		given(this.loadBalancer.getLoadBalancerStats())
+				.willReturn(this.loadBalancerStats);
+		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.server))
+				.willReturn(this.serverStats);
+		given(this.clientFactory.getLoadBalancer(this.loadBalancer.getName()))
+				.willReturn(this.loadBalancer);
 		return new RibbonLoadBalancerClient(this.clientFactory);
 	}
 }

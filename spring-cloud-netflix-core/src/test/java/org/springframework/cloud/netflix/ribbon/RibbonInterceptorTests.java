@@ -39,9 +39,9 @@ import com.netflix.loadbalancer.Server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -66,16 +66,13 @@ public class RibbonInterceptorTests {
 	public void testIntercept() throws Exception {
 		RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
 		RibbonInterceptor interceptor = new RibbonInterceptor(new MyClient(server));
-
-		when(this.request.getURI()).thenReturn(new URL("http://myservice").toURI());
-		when(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
-				.thenReturn(this.response);
+		given(this.request.getURI()).willReturn(new URL("http://myservice").toURI());
+		given(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
+				.willReturn(this.response);
 		ArgumentCaptor<HttpRequestWrapper> argument = ArgumentCaptor
 				.forClass(HttpRequestWrapper.class);
-
 		ClientHttpResponse response = interceptor.intercept(this.request, new byte[0],
 				this.execution);
-
 		assertNotNull("response was null", response);
 		verify(this.execution).execute(argument.capture(), isA(byte[].class));
 		HttpRequestWrapper wrapper = argument.getValue();

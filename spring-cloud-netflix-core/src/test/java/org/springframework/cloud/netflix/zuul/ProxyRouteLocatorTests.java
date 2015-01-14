@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
@@ -203,9 +203,8 @@ public class ProxyRouteLocatorTests {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
 		this.properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
-
-		when(this.discovery.getServices()).thenReturn(Lists.newArrayList(IGNOREDSERVICE));
-
+		given(this.discovery.getServices())
+				.willReturn(Lists.newArrayList(IGNOREDSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
 		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
@@ -215,7 +214,7 @@ public class ProxyRouteLocatorTests {
 	public void testAutoRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-		when(this.discovery.getServices()).thenReturn(Lists.newArrayList(MYSERVICE));
+		given(this.discovery.getServices()).willReturn(Lists.newArrayList(MYSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
@@ -229,7 +228,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put(MYSERVICE, route);
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-		when(this.discovery.getServices()).thenReturn(Lists.newArrayList(MYSERVICE));
+		given(this.discovery.getServices()).willReturn(Lists.newArrayList(MYSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
