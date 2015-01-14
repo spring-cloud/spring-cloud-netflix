@@ -17,6 +17,8 @@ import feign.Response;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
+import javax.inject.Provider;
+
 import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
 /**
@@ -25,7 +27,7 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 public class SpringDecoder implements Decoder {
 
     @Autowired
-    HttpMessageConverters messageConverters;
+    Provider<HttpMessageConverters> messageConverters;
 
 	public SpringDecoder() {
 	}
@@ -35,7 +37,7 @@ public class SpringDecoder implements Decoder {
 		if (type instanceof Class || type instanceof ParameterizedType) {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-                    type, messageConverters.getConverters());
+                    type, messageConverters.get().getConverters());
 
             return extractor.extractData(new FeignResponseAdapter(response));
         }

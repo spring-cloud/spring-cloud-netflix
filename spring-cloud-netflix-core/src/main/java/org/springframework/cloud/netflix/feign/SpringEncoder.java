@@ -15,6 +15,7 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 
+import javax.inject.Provider;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,7 +30,7 @@ public class SpringEncoder implements Encoder {
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
     @Autowired
-    HttpMessageConverters messageConverters;
+    Provider<HttpMessageConverters> messageConverters;
 
 	public SpringEncoder() {
 	}
@@ -48,7 +49,7 @@ public class SpringEncoder implements Encoder {
 				requestContentType = MediaType.valueOf(type);
 			}
 
-			for (HttpMessageConverter<?> messageConverter : messageConverters.getConverters()) {
+			for (HttpMessageConverter<?> messageConverter : messageConverters.get().getConverters()) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
 					if (logger.isDebugEnabled()) {
 						if (requestContentType != null) {
