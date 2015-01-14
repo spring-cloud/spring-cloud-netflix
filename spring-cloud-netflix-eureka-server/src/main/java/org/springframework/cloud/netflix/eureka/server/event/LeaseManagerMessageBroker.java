@@ -81,7 +81,6 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 				return input.getName().equals(appName);
 			}
 		});
-
 		if (app.isPresent()) {
 			Optional<InstanceInfo> info = tryFind(app.get().getInstances(),
 					new Predicate<InstanceInfo>() {
@@ -99,4 +98,5 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 	@Override
 	public void evict() {
 	}
+
 }

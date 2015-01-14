@@ -28,8 +28,11 @@ import org.springframework.context.ApplicationEvent;
 @EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
 public class EurekaInstanceCanceledEvent extends ApplicationEvent {
+
 	private String appName;
+
 	private String serverId;
+
 	boolean replication;
 
 	public EurekaInstanceCanceledEvent(Object source, String appName, String serverId,
@@ -39,4 +42,5 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 		this.serverId = serverId;
 		this.replication = replication;
 	}
+
 }

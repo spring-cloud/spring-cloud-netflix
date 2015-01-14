@@ -26,5 +26,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("turbine")
 public class TurbineProperties {
+
 	private String clusterNameExpression = "appName";
+
 }

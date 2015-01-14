@@ -16,10 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-/**
- * @author Spencer Gibb
- */
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -37,7 +33,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * well).
  *
  * @author Dave Syer
- *
+ * @author Spencer Gibb
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -45,4 +41,5 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @Inherited
 @EnableDiscoveryClient
 public @interface EnableEurekaClient {
+
 }

@@ -34,4 +34,5 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import(TurbineAmqpConfiguration.class)
 public @interface EnableTurbineAmqp {
+
 }

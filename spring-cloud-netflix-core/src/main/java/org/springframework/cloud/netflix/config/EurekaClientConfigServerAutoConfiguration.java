@@ -30,8 +30,8 @@ import com.netflix.discovery.DiscoveryClient;
 
 /**
  * Extra configuration for config server if it happens to be a Eureka instance.
- * @author Dave Syer
  *
+ * @author Dave Syer
  */
 @Configuration
 @EnableConfigurationProperties

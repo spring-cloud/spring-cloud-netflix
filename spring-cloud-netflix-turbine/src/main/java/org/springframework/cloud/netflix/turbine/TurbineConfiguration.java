@@ -93,4 +93,5 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
 	public int getOrder() {
 		return -1;
 	}
+
 }

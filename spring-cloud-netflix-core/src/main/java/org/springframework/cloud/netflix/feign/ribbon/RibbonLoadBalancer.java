@@ -41,8 +41,11 @@ public class RibbonLoadBalancer
 		AbstractLoadBalancerAwareClient<RibbonLoadBalancer.RibbonRequest, RibbonLoadBalancer.RibbonResponse> {
 
 	private final Client delegate;
+
 	private final int connectTimeout;
+
 	private final int readTimeout;
+
 	private final IClientConfig clientConfig;
 
 	public RibbonLoadBalancer(Client delegate, ILoadBalancer lb,
@@ -157,4 +160,5 @@ public class RibbonLoadBalancer
 		}
 
 	}
+
 }

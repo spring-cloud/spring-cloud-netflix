@@ -42,6 +42,7 @@ import com.netflix.zuul.http.HttpServletRequestWrapper;
  * @author Spencer Gibb
  */
 public class Servlet30WrapperFilter extends ZuulFilter {
+
 	protected Field requestField = null;
 
 	public Servlet30WrapperFilter() {
@@ -74,8 +75,8 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 			try {
 				request = (HttpServletRequest) this.requestField.get(request);
 			}
-			catch (IllegalAccessException e) {
-				Throwables.propagate(e);
+			catch (IllegalAccessException ex) {
+				Throwables.propagate(ex);
 			}
 		}
 		ctx.setRequest(new Servlet30RequestWrapper(request));
@@ -154,5 +155,7 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 		public DispatcherType getDispatcherType() {
 			return this.request.getDispatcherType();
 		}
+
 	}
+
 }

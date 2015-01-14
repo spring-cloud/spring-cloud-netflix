@@ -34,17 +34,16 @@ import com.netflix.discovery.shared.Applications;
 
 /**
  * @author Dave Syer
- *
  */
 public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
-	private EurekaInstanceConfig instanceConfig;
+	private final DiscoveryClient discovery;
 
-	private MetricReader metrics;
+	private final MetricReader metrics;
+
+	private final EurekaInstanceConfig instanceConfig;
 
 	private int failCount = 0;
-
-	private DiscoveryClient discovery;
 
 	public EurekaHealthIndicator(DiscoveryClient discovery, MetricReader metrics,
 			EurekaInstanceConfig instanceConfig) {

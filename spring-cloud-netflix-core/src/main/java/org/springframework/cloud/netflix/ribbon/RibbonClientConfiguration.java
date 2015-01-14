@@ -37,7 +37,6 @@ import com.netflix.servo.monitor.Monitors;
 
 /**
  * @author Dave Syer
- *
  */
 @SuppressWarnings("deprecation")
 @Configuration

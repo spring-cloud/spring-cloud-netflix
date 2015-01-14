@@ -41,17 +41,9 @@ import feign.Response;
  */
 public class FeignRibbonClient implements Client {
 
-	private Client defaultClient = new Default(new Lazy<SSLSocketFactory>() {
-		@Override
-		public SSLSocketFactory get() {
-			return (SSLSocketFactory) SSLSocketFactory.getDefault();
-		}
-	}, new Lazy<HostnameVerifier>() {
-		@Override
-		public HostnameVerifier get() {
-			return HttpsURLConnection.getDefaultHostnameVerifier();
-		}
-	});
+	private Client defaultClient = new Default(new LazySSLSocketFactory(),
+			new LazyHostnameVerifier());
+
 	private SpringClientFactory factory;
 
 	public FeignRibbonClient(SpringClientFactory factory) {
@@ -61,7 +53,6 @@ public class FeignRibbonClient implements Client {
 	@Override
 	public Response execute(Request request, Request.Options options) throws IOException {
 		try {
-
 			URI asUri = URI.create(request.url());
 			String clientName = asUri.getHost();
 			URI uriWithoutSchemeAndPort = URI.create(request.url().replace(
@@ -70,13 +61,12 @@ public class FeignRibbonClient implements Client {
 					request, uriWithoutSchemeAndPort);
 			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest)
 					.toResponse();
-
 		}
-		catch (ClientException e) {
-			if (e.getCause() instanceof IOException) {
-				throw IOException.class.cast(e.getCause());
+		catch (ClientException ex) {
+			if (ex.getCause() instanceof IOException) {
+				throw IOException.class.cast(ex.getCause());
 			}
-			throw Throwables.propagate(e);
+			throw Throwables.propagate(ex);
 		}
 	}
 
@@ -89,4 +79,23 @@ public class FeignRibbonClient implements Client {
 	public void setDefaultClient(Client defaultClient) {
 		this.defaultClient = defaultClient;
 	}
+
+	private static class LazySSLSocketFactory implements Lazy<SSLSocketFactory> {
+
+		@Override
+		public SSLSocketFactory get() {
+			return (SSLSocketFactory) SSLSocketFactory.getDefault();
+		}
+
+	}
+
+	private static class LazyHostnameVerifier implements Lazy<HostnameVerifier> {
+
+		@Override
+		public HostnameVerifier get() {
+			return HttpsURLConnection.getDefaultHostnameVerifier();
+		}
+
+	}
+
 }

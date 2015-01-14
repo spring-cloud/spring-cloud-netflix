@@ -81,7 +81,6 @@ public class ApplicationTests {
 		String body = entity.getBody();
 		assertNotNull(body);
 		assertFalse("basePath contains double slashes", body.contains(basePath + "/"));
-
 	}
 
 }

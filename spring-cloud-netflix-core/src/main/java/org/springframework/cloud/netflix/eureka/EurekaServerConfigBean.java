@@ -29,7 +29,6 @@ import com.netflix.eureka.EurekaServerConfig;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @ConfigurationProperties("eureka.server")
@@ -48,11 +47,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private int eIPBindingRetryIntervalMs = 5 * MINUTES;
 
 	private boolean enableSelfPreservation = true;
-
-	@Override
-	public boolean shouldEnableSelfPreservation() {
-		return this.enableSelfPreservation;
-	}
 
 	private double renewalPercentThreshold = 0.85;
 
@@ -92,11 +86,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean disableDelta;
 
-	@Override
-	public boolean shouldDisableDelta() {
-		return this.disableDelta;
-	}
-
 	private long maxIdleThreadInMinutesAgeForStatusReplication = 10;
 
 	private int minThreadsForStatusReplication = 1;
@@ -106,11 +95,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private int maxElementsInStatusReplicationPool = 10000;
 
 	private boolean syncWhenTimestampDiffers = true;
-
-	@Override
-	public boolean shouldSyncWhenTimestampDiffers() {
-		return this.syncWhenTimestampDiffers;
-	}
 
 	private int registrySyncRetries = 5;
 
@@ -126,17 +110,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean primeAwsReplicaConnections = true;
 
-	@Override
-	public boolean shouldPrimeAwsReplicaConnections() {
-		return this.primeAwsReplicaConnections;
-	}
-
 	private boolean disableDeltaForRemoteRegions;
-
-	@Override
-	public boolean shouldDisableDeltaForRemoteRegions() {
-		return this.disableDeltaForRemoteRegions;
-	}
 
 	private int remoteRegionConnectTimeoutMs = 1000;
 
@@ -150,27 +124,11 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean gZipContentFromRemoteRegion = true;
 
-	@Override
-	public boolean shouldGZipContentFromRemoteRegion() {
-		return this.gZipContentFromRemoteRegion;
-	}
-
 	private Map<String, String> remoteRegionUrlsWithName = new HashMap<String, String>();
 
 	private String[] remoteRegionUrls;
 
 	private Map<String, Set<String>> remoteRegionAppWhitelist;
-
-	@Override
-	public Set<String> getRemoteRegionAppWhitelist(String regionName) {
-		if (null == regionName) {
-			regionName = "global";
-		}
-		else {
-			regionName = regionName.trim().toLowerCase();
-		}
-		return this.remoteRegionAppWhitelist.get(regionName);
-	}
 
 	private int remoteRegionRegistryFetchInterval = 30;
 
@@ -180,24 +138,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean disableTransparentFallbackToOtherRegion;
 
-	@Override
-	public boolean disableTransparentFallbackToOtherRegion() {
-		return this.disableTransparentFallbackToOtherRegion;
-	}
-
 	private boolean batchReplication;
-
-	@Override
-	public boolean shouldBatchReplication() {
-		return this.batchReplication;
-	}
-
-	private boolean logIdentityHeaders = true;
-
-	@Override
-	public boolean shouldLogIdentityHeaders() {
-		return this.logIdentityHeaders;
-	}
 
 	private boolean rateLimiterEnabled = false;
 
@@ -210,4 +151,58 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private int rateLimiterRegistryFetchAverageRate = 500;
 
 	private int rateLimiterFullFetchAverageRate = 100;
+
+	private boolean logIdentityHeaders = true;
+
+	@Override
+	public boolean shouldEnableSelfPreservation() {
+		return this.enableSelfPreservation;
+	}
+
+	@Override
+	public boolean shouldDisableDelta() {
+		return this.disableDelta;
+	}
+
+	@Override
+	public boolean shouldSyncWhenTimestampDiffers() {
+		return this.syncWhenTimestampDiffers;
+	}
+
+	@Override
+	public boolean shouldPrimeAwsReplicaConnections() {
+		return this.primeAwsReplicaConnections;
+	}
+
+	@Override
+	public boolean shouldDisableDeltaForRemoteRegions() {
+		return this.disableDeltaForRemoteRegions;
+	}
+
+	@Override
+	public boolean shouldGZipContentFromRemoteRegion() {
+		return this.gZipContentFromRemoteRegion;
+	}
+
+	@Override
+	public Set<String> getRemoteRegionAppWhitelist(String regionName) {
+		return this.remoteRegionAppWhitelist.get(regionName == null ? "global"
+				: regionName.trim().toLowerCase());
+	}
+
+	@Override
+	public boolean disableTransparentFallbackToOtherRegion() {
+		return this.disableTransparentFallbackToOtherRegion;
+	}
+
+	@Override
+	public boolean shouldBatchReplication() {
+		return this.batchReplication;
+	}
+
+	@Override
+	public boolean shouldLogIdentityHeaders() {
+		return this.logIdentityHeaders;
+	}
+
 }

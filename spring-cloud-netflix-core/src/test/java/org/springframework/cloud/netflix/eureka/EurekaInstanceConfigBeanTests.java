@@ -33,7 +33,6 @@ import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Dave Syer
- *
  */
 public class EurekaInstanceConfigBeanTests {
 

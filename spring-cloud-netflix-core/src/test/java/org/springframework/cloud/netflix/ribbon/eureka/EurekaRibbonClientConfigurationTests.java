@@ -36,7 +36,6 @@ import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClient
 
 /**
  * @author Dave Syer
- *
  */
 public class EurekaRibbonClientConfigurationTests {
 
@@ -68,22 +67,15 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService");
-
 		String serviceId = "myService";
 		String suffix = "mySuffix";
 		String value = "myValue";
-
 		DynamicStringProperty property = preprocessor.getProperty(preprocessor.getKey(
 				serviceId, suffix));
-
 		assertEquals("property doesn't have default value", VALUE_NOT_SET, property.get());
-
 		preprocessor.setProp(serviceId, suffix, value);
-
 		assertEquals("property has wrong value", value, property.get());
-
 		preprocessor.setProp(serviceId, suffix, value);
-
 		assertEquals("property has wrong value", value, property.get());
 	}
 

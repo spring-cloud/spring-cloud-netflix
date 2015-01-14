@@ -27,7 +27,6 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author Dave Syer
- *
  */
 public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
 

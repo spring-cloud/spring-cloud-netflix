@@ -37,7 +37,6 @@ import com.netflix.hystrix.HystrixCommandMetrics;
  */
 public class HystrixHealthIndicator extends AbstractHealthIndicator {
 
-	/** Status code for open circuits */
 	private static final Status CIRCUIT_OPEN = new Status("CIRCUIT_OPEN");
 
 	@Override

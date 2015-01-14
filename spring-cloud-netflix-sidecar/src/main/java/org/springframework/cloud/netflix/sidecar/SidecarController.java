@@ -34,10 +34,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class SidecarController {
 
 	@Autowired
-	DiscoveryClient discovery;
+	private DiscoveryClient discovery;
 
 	@Value("${spring.application.name}")
-	String appName;
+	private String appName;
 
 	@RequestMapping("/ping")
 	public String ping() {
@@ -62,4 +62,5 @@ public class SidecarController {
 				+ "<a href='/health'>health</a><br/>\n" + "<a href='/hosts/"
 				+ this.appName + "'>hosts/" + this.appName + "</a><br/>\n" + "</body>";
 	}
+
 }

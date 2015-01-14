@@ -28,7 +28,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("sidecar")
 public class SidecarProperties {
+
 	private URI healthUri;
+
 	private URI homePageUri;
+
 	private int port;
+
 }

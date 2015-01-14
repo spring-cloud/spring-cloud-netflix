@@ -135,4 +135,5 @@ class HystrixOnlyApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HystrixOnlyApplication.class, args);
 	}
+
 }

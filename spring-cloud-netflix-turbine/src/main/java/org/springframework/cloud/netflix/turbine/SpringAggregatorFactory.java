@@ -59,10 +59,8 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 
 	public static TurbineDataMonitor<AggDataFromCluster> findOrRegisterAggregateMonitor(
 			String clusterName) {
-
 		TurbineDataMonitor<AggDataFromCluster> clusterMonitor = AggregatorClusterMonitorConsole
 				.findMonitor(clusterName + "_agg");
-
 		if (clusterMonitor == null) {
 			logger.info("Could not find monitors: "
 					+ AggregatorClusterMonitorConsole.toString());
@@ -70,7 +68,6 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 			clusterMonitor = AggregatorClusterMonitorConsole
 					.findOrRegisterMonitor(clusterMonitor);
 		}
-
 		return clusterMonitor;
 	}
 
@@ -82,7 +79,7 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 			try {
 				clusterMonitor.startMonitor();
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				logger.warn("Could not init cluster monitor for: " + clusterName);
 				clusterMonitor.stopMonitor();
 				clusterMonitor.getDispatcher().stopDispatcher();
@@ -91,7 +88,6 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 	}
 
 	private List<String> getClusterNames() {
-
 		List<String> clusters = new ArrayList<String>();
 		String clusterNames = aggClusters.get();
 		if (clusterNames == null || clusterNames.trim().length() == 0) {
@@ -111,7 +107,6 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 	 */
 	@Override
 	public void shutdownClusterMonitors() {
-
 		for (String clusterName : getClusterNames()) {
 			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) AggregateClusterMonitor
 					.findOrRegisterAggregateMonitor(clusterName);
@@ -158,5 +153,6 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 		public int numThreads() {
 			return 0;
 		}
+
 	};
 }

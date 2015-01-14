@@ -41,4 +41,5 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Import(ZuulProxyConfiguration.class)
 public @interface EnableZuulProxy {
+
 }

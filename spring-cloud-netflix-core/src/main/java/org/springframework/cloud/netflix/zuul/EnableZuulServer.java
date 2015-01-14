@@ -38,4 +38,5 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import(ZuulConfiguration.class)
 public @interface EnableZuulServer {
+
 }

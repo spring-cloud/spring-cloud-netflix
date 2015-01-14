@@ -35,7 +35,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Dave Syer
- *
  */
 public class PreDecorationFilterTests {
 

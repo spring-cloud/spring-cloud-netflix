@@ -24,7 +24,6 @@ import com.netflix.config.ConfigurationManager;
 
 /**
  * @author Dave Syer
- *
  */
 public class ArchaiusDelegatingProxyUtils {
 

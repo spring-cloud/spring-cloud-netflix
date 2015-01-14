@@ -33,12 +33,13 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 
 /**
  * @author Dave Syer
- *
  */
 public class DomainExtractingServerList implements ServerList<Server> {
 
 	private ServerList<Server> list;
+
 	private IClientConfig clientConfig;
+
 	private boolean approximateZoneFromHostname;
 
 	public DomainExtractingServerList(ServerList<Server> list,

@@ -30,7 +30,6 @@ import org.springframework.context.annotation.Import;
  * annotations on a single class (including in Java 7).
  *
  * @author Dave Syer
- *
  */
 @Configuration
 @Retention(RetentionPolicy.RUNTIME)

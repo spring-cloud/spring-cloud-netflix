@@ -38,7 +38,6 @@ import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @ConfigurationProperties("eureka.instance")
@@ -120,8 +119,8 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 			info[0] = InetAddress.getLocalHost().getHostAddress();
 			info[1] = InetAddress.getLocalHost().getHostName();
 		}
-		catch (UnknownHostException e) {
-			logger.error("Cannot get host info", e);
+		catch (UnknownHostException ex) {
+			logger.error("Cannot get host info", ex);
 		}
 		return info;
 	}
@@ -133,6 +132,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private final class IdentifyingDataCenterInfo implements DataCenterInfo,
 			UniqueIdentifier {
+
 		@Getter
 		@Setter
 		private Name name = Name.MyOwn;

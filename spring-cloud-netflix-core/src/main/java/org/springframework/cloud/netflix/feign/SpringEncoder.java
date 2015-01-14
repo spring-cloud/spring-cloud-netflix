@@ -44,13 +44,11 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
  * @author Spencer Gibb
  */
 public class SpringEncoder implements Encoder {
+
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
 	@Autowired
 	Provider<HttpMessageConverters> messageConverters;
-
-	public SpringEncoder() {
-	}
 
 	@Override
 	public void encode(Object requestBody, RequestTemplate request)
@@ -88,16 +86,16 @@ public class SpringEncoder implements Encoder {
 						HttpMessageConverter<Object> copy = (HttpMessageConverter<Object>) messageConverter;
 						copy.write(requestBody, requestContentType, outputMessage);
 					}
-					catch (IOException e) {
-						throw new EncodeException("Error converting request body", e);
+					catch (IOException ex) {
+						throw new EncodeException("Error converting request body", ex);
 					}
 					request.body(outputMessage.getOutputStream().toByteArray(),
 							Charsets.UTF_8); // TODO: set charset
 					return;
 				}
 			}
-			String message = "Could not write request: no suitable HttpMessageConverter found for request type ["
-					+ requestType.getName() + "]";
+			String message = "Could not write request: no suitable HttpMessageConverter "
+					+ "found for request type [" + requestType.getName() + "]";
 			if (requestContentType != null) {
 				message += " and content type [" + requestContentType + "]";
 			}
@@ -106,8 +104,10 @@ public class SpringEncoder implements Encoder {
 	}
 
 	private class FeignOutputMessage implements HttpOutputMessage {
+
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		RequestTemplate request;
+
+		private final RequestTemplate request;
 
 		private FeignOutputMessage(RequestTemplate request) {
 			this.request = request;
@@ -126,5 +126,7 @@ public class SpringEncoder implements Encoder {
 		public ByteArrayOutputStream getOutputStream() {
 			return this.outputStream;
 		}
+
 	}
+
 }

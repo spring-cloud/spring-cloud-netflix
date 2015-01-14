@@ -26,7 +26,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("hystrix.stream.amqp")
 @Data
 public class HystrixStreamAmqpProperties {
+
 	private boolean enabled = true;
+
 	private boolean prefixMetricName = true;
+
 	private boolean sendId = true;
+
 }

@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAware {
 
 	private ProxyRouteLocator routes;
+
 	private ApplicationEventPublisher publisher;
 
 	@Override

@@ -36,6 +36,7 @@ import feign.ribbon.LoadBalancingTarget;
  */
 @Configuration
 public class FeignConfiguration {
+
 	@Autowired
 	ConfigurableEnvironmentConfiguration envConfig; // FIXME: howto enforce this?
 

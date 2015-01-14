@@ -42,14 +42,16 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ProxyRouteLocatorTests {
 
 	public static final String IGNOREDSERVICE = "ignoredservice";
+
 	public static final String ASERVICE = "aservice";
+
 	public static final String MYSERVICE = "myservice";
 
 	@Mock
-	ConfigurableEnvironment env;
+	private ConfigurableEnvironment env;
 
 	@Mock
-	DiscoveryClient discovery;
+	private DiscoveryClient discovery;
 
 	private ZuulProperties properties = new ZuulProperties();
 
@@ -143,9 +145,7 @@ public class ProxyRouteLocatorTests {
 				this.properties);
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/" + ASERVICE + "/**"));
 		this.properties.init();
-
 		Map<String, String> routesMap = routeLocator.getRoutes();
-
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, ASERVICE);
@@ -169,9 +169,7 @@ public class ProxyRouteLocatorTests {
 				this.properties);
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/" + ASERVICE + "/**", "http://" + ASERVICE));
-
 		Map<String, String> routesMap = routeLocator.getRoutes();
-
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, "http://" + ASERVICE, ASERVICE);
@@ -182,9 +180,7 @@ public class ProxyRouteLocatorTests {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/**", ASERVICE));
-
 		Map<String, String> routesMap = routeLocator.getRoutes();
-
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertDefaultMapping(routesMap, ASERVICE);
@@ -196,9 +192,7 @@ public class ProxyRouteLocatorTests {
 				this.properties);
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/**", "http://" + ASERVICE));
-
 		Map<String, String> routesMap = routeLocator.getRoutes();
-
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertDefaultMapping(routesMap, "http://" + ASERVICE);
@@ -221,11 +215,8 @@ public class ProxyRouteLocatorTests {
 	public void testAutoRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-
 		when(this.discovery.getServices()).thenReturn(Lists.newArrayList(MYSERVICE));
-
 		Map<String, String> routesMap = routeLocator.getRoutes();
-
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
@@ -233,17 +224,13 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testAutoRoutesCanBeOverridden() {
-		this.properties.getRoutes()
-				.put(MYSERVICE,
-						new ZuulRoute("/" + MYSERVICE + "/**", "http://example.com/"
-								+ MYSERVICE));
+		ZuulRoute route = new ZuulRoute("/" + MYSERVICE + "/**", "http://example.com/"
+				+ MYSERVICE);
+		this.properties.getRoutes().put(MYSERVICE, route);
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-
 		when(this.discovery.getServices()).thenReturn(Lists.newArrayList(MYSERVICE));
-
 		Map<String, String> routesMap = routeLocator.getRoutes();
-
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);

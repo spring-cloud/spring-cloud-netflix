@@ -111,9 +111,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			setResponse(response);
 			return response;
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", e);
+			context.set("error.exception", ex);
 		}
 		return null;
 	}
@@ -121,10 +121,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	private HttpResponse forward(RestClient restClient, Verb verb, String uri,
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws Exception {
-
 		Map<String, Object> info = this.helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
-
 		RibbonCommand command = new RibbonCommand(restClient, verb, uri,
 				convertHeaders(headers), convertHeaders(params), requestEntity);
 		try {
@@ -133,17 +131,17 @@ public class RibbonRoutingFilter extends ZuulFilter {
 					revertHeaders(response.getHeaders()));
 			return response;
 		}
-		catch (HystrixRuntimeException e) {
+		catch (HystrixRuntimeException ex) {
 			info.put("status", "500");
-			if (e.getFallbackException() != null
-					&& e.getFallbackException().getCause() != null
-					&& e.getFallbackException().getCause() instanceof ClientException) {
-				ClientException ex = (ClientException) e.getFallbackException()
+			if (ex.getFallbackException() != null
+					&& ex.getFallbackException().getCause() != null
+					&& ex.getFallbackException().getCause() instanceof ClientException) {
+				ClientException cause = (ClientException) ex.getFallbackException()
 						.getCause();
-				throw new ZuulException(ex, "Forwarding error", 500, ex.getErrorType()
-						.toString());
+				throw new ZuulException(cause, "Forwarding error", 500, cause
+						.getErrorType().toString());
 			}
-			throw new ZuulException(e, "Forwarding error", 500, e.getFailureType()
+			throw new ZuulException(ex, "Forwarding error", 500, ex.getFailureType()
 					.toString());
 		}
 
@@ -180,19 +178,18 @@ public class RibbonRoutingFilter extends ZuulFilter {
 				requestEntity = request.getInputStream();
 			}
 		}
-		catch (IOException e) {
-			LOG.error("Error during getRequestBody", e);
+		catch (IOException ex) {
+			LOG.error("Error during getRequestBody", ex);
 		}
-
 		return requestEntity;
 	}
 
-	Verb getVerb(HttpServletRequest request) {
+	private Verb getVerb(HttpServletRequest request) {
 		String sMethod = request.getMethod();
 		return getVerb(sMethod);
 	}
 
-	Verb getVerb(String sMethod) {
+	private Verb getVerb(String sMethod) {
 		if (sMethod == null) {
 			return Verb.GET;
 		}

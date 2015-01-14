@@ -39,13 +39,14 @@ import feign.Logger;
 @ConditionalOnClass(Feign.class)
 @AutoConfigureAfter(ArchaiusAutoConfiguration.class)
 public class FeignAutoConfiguration {
+
 	@Bean
-	SpringDecoder feignDecoder() {
+	public SpringDecoder feignDecoder() {
 		return new SpringDecoder();
 	}
 
 	@Bean
-	SpringEncoder feignEncoder() {
+	public SpringEncoder feignEncoder() {
 		return new SpringEncoder();
 	}
 
@@ -68,4 +69,5 @@ public class FeignAutoConfiguration {
 			return new FeignRibbonClient(factory);
 		}
 	}
+
 }

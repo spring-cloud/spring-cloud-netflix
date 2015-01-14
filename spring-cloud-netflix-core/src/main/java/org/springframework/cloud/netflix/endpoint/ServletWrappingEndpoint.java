@@ -31,14 +31,15 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ServletWrappingController;
 
-/**
- * TODO: move to spring-boot? User: spencergibb Date: 4/24/14 Time: 9:13 PM
- */
 public abstract class ServletWrappingEndpoint implements InitializingBean,
 		ApplicationContextAware, ServletContextAware, MvcEndpoint {
 
+	// TODO: move to spring-boot?
+
 	protected String path;
+
 	protected boolean sensitive;
+
 	protected boolean enabled = true;
 
 	protected final ServletWrappingController controller = new ServletWrappingController();
@@ -88,4 +89,5 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 	public Class<? extends Endpoint<?>> getEndpointType() {
 		return null;
 	}
+
 }

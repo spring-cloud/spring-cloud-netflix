@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Import;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @Import(RibbonClientConfigurationRegistrar.class)
@@ -35,9 +34,11 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RibbonClient {
+
 	String value() default "";
 
 	String name() default "";
 
 	Class<?>[] configuration() default {};
+
 }

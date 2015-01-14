@@ -31,7 +31,6 @@ import com.netflix.config.ConfigurationManager;
 
 /**
  * @author Dave Syer
- *
  */
 public class ArchaiusEndpoint extends AbstractEndpoint<Map<String, Object>> {
 

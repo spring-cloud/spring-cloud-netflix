@@ -154,4 +154,5 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 				});
 		return Lists.newArrayList(instances);
 	}
+
 }

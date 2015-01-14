@@ -29,9 +29,9 @@ import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
  */
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
-	private RouteLocator routeLocator;
+	private final RouteLocator routeLocator;
 
-	private ZuulController zuul;
+	private final ZuulController zuul;
 
 	@Autowired
 	public ZuulHandlerMapping(RouteLocator routeLocator, ZuulController zuul) {

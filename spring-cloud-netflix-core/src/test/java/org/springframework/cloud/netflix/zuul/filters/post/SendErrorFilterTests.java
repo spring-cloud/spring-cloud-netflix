@@ -43,7 +43,6 @@ public class SendErrorFilterTests {
 	@Test
 	public void runsNormally() {
 		SendErrorFilter filter = createSendErrorFilter(new MockHttpServletRequest());
-
 		assertTrue("shouldFilter returned false", filter.shouldFilter());
 		filter.run();
 	}
@@ -62,7 +61,6 @@ public class SendErrorFilterTests {
 	@Test
 	public void noRequestDispatcher() {
 		SendErrorFilter filter = createSendErrorFilter(mock(HttpServletRequest.class));
-
 		assertTrue("shouldFilter returned false", filter.shouldFilter());
 		filter.run();
 	}
@@ -70,7 +68,6 @@ public class SendErrorFilterTests {
 	@Test
 	public void doesNotRunTwice() {
 		SendErrorFilter filter = createSendErrorFilter(new MockHttpServletRequest());
-
 		assertTrue("shouldFilter returned false", filter.shouldFilter());
 		filter.run();
 		assertFalse("shouldFilter returned true", filter.shouldFilter());

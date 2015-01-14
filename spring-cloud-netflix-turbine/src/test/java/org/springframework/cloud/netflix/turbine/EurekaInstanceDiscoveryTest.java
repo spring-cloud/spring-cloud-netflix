@@ -49,4 +49,5 @@ public class EurekaInstanceDiscoveryTest {
 		String clusterName = discovery.getClusterName(instanceInfo);
 		assertEquals("clusterName is wrong", asgName, clusterName);
 	}
+
 }

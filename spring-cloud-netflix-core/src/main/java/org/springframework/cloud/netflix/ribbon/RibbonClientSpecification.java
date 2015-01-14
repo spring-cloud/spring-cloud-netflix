@@ -21,13 +21,13 @@ import lombok.Data;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @AllArgsConstructor
 public class RibbonClientSpecification {
 
 	private String name;
+
 	private Class<?>[] configuration;
 
 }

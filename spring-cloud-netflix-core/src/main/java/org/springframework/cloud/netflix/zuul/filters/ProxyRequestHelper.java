@@ -40,7 +40,6 @@ import com.netflix.zuul.util.HTTPRequestUtils;
 
 /**
  * @author Dave Syer
- *
  */
 public class ProxyRequestHelper {
 
@@ -60,16 +59,12 @@ public class ProxyRequestHelper {
 
 	public MultiValueMap<String, String> buildZuulRequestQueryParams(
 			HttpServletRequest request) {
-
 		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
-
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (map == null) {
 			return params;
 		}
-
 		for (String key : map.keySet()) {
-
 			for (String value : map.get(key)) {
 				params.add(key, value);
 			}
@@ -79,9 +74,7 @@ public class ProxyRequestHelper {
 
 	public MultiValueMap<String, String> buildZuulRequestHeaders(
 			HttpServletRequest request) {
-
 		RequestContext context = RequestContext.getCurrentContext();
-
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		Enumeration<?> headerNames = request.getHeaderNames();
 		if (headerNames != null) {
@@ -94,27 +87,21 @@ public class ProxyRequestHelper {
 			}
 		}
 		Map<String, String> zuulRequestHeaders = context.getZuulRequestHeaders();
-
 		for (String header : zuulRequestHeaders.keySet()) {
 			headers.set(header, zuulRequestHeaders.get(header));
 		}
-
 		headers.set("accept-encoding", "deflate, gzip");
-
 		return headers;
 	}
 
 	public void setResponse(int status, InputStream entity,
 			MultiValueMap<String, String> headers) throws IOException {
 		RequestContext context = RequestContext.getCurrentContext();
-
 		RequestContext.getCurrentContext().setResponseStatusCode(status);
 		if (entity != null) {
 			RequestContext.getCurrentContext().setResponseDataStream(entity);
 		}
-
 		boolean isOriginResponseGzipped = false;
-
 		if (headers.containsKey(CONTENT_ENCODING)) {
 			Collection<String> collection = headers.get(CONTENT_ENCODING);
 			for (String header : collection) {
@@ -125,23 +112,19 @@ public class ProxyRequestHelper {
 			}
 		}
 		context.setResponseGZipped(isOriginResponseGzipped);
-
 		for (Entry<String, List<String>> header : headers.entrySet()) {
 			RequestContext ctx = RequestContext.getCurrentContext();
 			String name = header.getKey();
 			for (String value : header.getValue()) {
 				ctx.addOriginResponseHeader(name, value);
-
 				if (name.equalsIgnoreCase("content-length")) {
 					ctx.setOriginContentLength(value);
 				}
-
 				if (isIncludedHeader(name)) {
 					ctx.addZuulResponseHeader(name, value);
 				}
 			}
 		}
-
 	}
 
 	public void addIgnoredHeaders(String... names) {
@@ -181,10 +164,8 @@ public class ProxyRequestHelper {
 	public Map<String, Object> debug(String verb, String uri,
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws IOException {
-
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
 		if (this.traces != null) {
-
 			RequestContext context = RequestContext.getCurrentContext();
 			StringBuilder query = new StringBuilder();
 			for (String param : params.keySet()) {
@@ -200,7 +181,6 @@ public class ProxyRequestHelper {
 			info.put("query", query.toString());
 			info.put("remote", true);
 			info.put("proxy", context.get("proxy"));
-
 			Map<String, Object> trace = new LinkedHashMap<String, Object>();
 			Map<String, Object> input = new LinkedHashMap<String, Object>();
 			trace.put("request", input);
@@ -213,7 +193,6 @@ public class ProxyRequestHelper {
 				}
 				input.put(entry.getKey(), value);
 			}
-
 			RequestContext ctx = RequestContext.getCurrentContext();
 			if (!ctx.isChunkedRequestBody()) {
 				if (requestEntity != null) {

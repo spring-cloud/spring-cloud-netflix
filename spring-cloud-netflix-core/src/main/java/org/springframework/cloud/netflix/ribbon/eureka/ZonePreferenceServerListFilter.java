@@ -33,12 +33,12 @@ import com.netflix.loadbalancer.ZoneAffinityServerListFilter;
  * the Eureka instance metadata).
  *
  * @author Dave Syer
- *
- * TODO: move out of ribbon.eureka package since it has nothing specific to eureka
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter<Server> {
+
+	// TODO: move out of ribbon.eureka package since it has nothing specific to eureka
 
 	private String zone;
 

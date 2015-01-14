@@ -30,7 +30,6 @@ import com.netflix.discovery.EurekaClientConfig;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @ConfigurationProperties("eureka.client")
@@ -92,7 +91,6 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
 	private Map<String, String> serviceUrl = new HashMap<String, String>();
-
 	{
 		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
 	}

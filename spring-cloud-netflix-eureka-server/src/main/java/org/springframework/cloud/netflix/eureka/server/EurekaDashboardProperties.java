@@ -22,8 +22,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for the Eureka dashboard (UI).
- * @author Dave Syer
  *
+ * @author Dave Syer
  */
 @ConfigurationProperties("eureka.dashboard")
 @Data
@@ -35,7 +35,7 @@ public class EurekaDashboardProperties {
 	private String path = "/";
 
 	/**
-	 * FLag to enable the Eureka dashboard. Default true.
+	 * Flag to enable the Eureka dashboard. Default true.
 	 */
 	private boolean enabled = true;
 

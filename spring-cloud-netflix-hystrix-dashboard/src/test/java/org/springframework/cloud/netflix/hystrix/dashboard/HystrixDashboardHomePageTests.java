@@ -87,6 +87,7 @@ public class HystrixDashboardHomePageTests {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=hystrix-dashboard").run();
 		}
+
 	}
 
 }

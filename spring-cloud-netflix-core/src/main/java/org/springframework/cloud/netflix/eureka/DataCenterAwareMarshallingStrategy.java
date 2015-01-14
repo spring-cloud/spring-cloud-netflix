@@ -53,11 +53,11 @@ import com.thoughtworks.xstream.mapper.Mapper;
  * that isn't very useful when sitting behind a proxy).
  *
  * @author Dave Syer
- *
  */
 public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 
 	private TreeMarshallingStrategy delegate = new TreeMarshallingStrategy();
+
 	private ApplicationContext context;
 
 	public DataCenterAwareMarshallingStrategy(ApplicationContext context) {
@@ -104,6 +104,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	private static class DataCenterAwareConverterLookup implements ConverterLookup {
 
 		private ConverterLookup delegate;
+
 		private ApplicationContext context;
 
 		public DataCenterAwareConverterLookup(ConverterLookup delegate,
@@ -147,6 +148,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 
 	@Slf4j
 	private static class SetVersionInterceptor implements MethodInterceptor {
+
 		private ApplicationContext context;
 
 		public SetVersionInterceptor(ApplicationContext context) {
@@ -164,6 +166,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			}
 			return ret;
 		}
+
 	}
 
 	private static class DataCenterAwareConverter extends InstanceInfoConverter {

@@ -39,4 +39,5 @@ public class DiscoveryManagerInitializer {
 					this.clientConfig);
 		}
 	}
+
 }

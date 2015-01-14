@@ -30,7 +30,6 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties
@@ -40,4 +39,5 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
 @RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class)
 public class RibbonEurekaAutoConfiguration {
+
 }

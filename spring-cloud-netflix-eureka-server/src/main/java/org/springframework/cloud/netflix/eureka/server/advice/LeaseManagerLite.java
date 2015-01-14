@@ -21,7 +21,6 @@ import com.netflix.eureka.lease.LeaseManager;
 
 /**
  * @author Dave Syer
- *
  */
 public interface LeaseManagerLite<T> extends LeaseManager<T> {
 

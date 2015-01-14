@@ -75,8 +75,8 @@ public class SendErrorFilter extends ZuulFilter {
 				}
 			}
 		}
-		catch (Exception e) {
-			Throwables.propagate(e);
+		catch (Exception ex) {
+			Throwables.propagate(ex);
 		}
 		return null;
 	}
@@ -84,4 +84,5 @@ public class SendErrorFilter extends ZuulFilter {
 	public void setErrorPath(String errorPath) {
 		this.errorPath = errorPath;
 	}
+
 }

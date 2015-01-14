@@ -32,4 +32,5 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import(HystrixDashboardConfiguration.class)
 public @interface EnableHystrixDashboard {
+
 }

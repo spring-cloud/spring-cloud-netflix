@@ -40,7 +40,6 @@ import com.netflix.discovery.DiscoveryClient;
  * discovery.
  *
  * @author Dave Syer
- *
  */
 @ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
 @ConditionalOnExpression("${spring.cloud.config.discovery.enabled:false}")
@@ -85,8 +84,8 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 			}
 			this.config.setUri(url);
 		}
-		catch (Exception e) {
-			log.warn("Could not locate configserver via discovery", e);
+		catch (Exception ex) {
+			log.warn("Could not locate configserver via discovery", ex);
 		}
 	}
 

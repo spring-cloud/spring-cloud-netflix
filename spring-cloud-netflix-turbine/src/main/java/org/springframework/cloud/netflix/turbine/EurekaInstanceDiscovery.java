@@ -46,9 +46,11 @@ import com.netflix.turbine.discovery.InstanceDiscovery;
  * each application. Instance information retrieved from Eureka must be translated to
  * something that Turbine can understand i.e the
  * {@link com.netflix.turbine.discovery.Instance} class.
- *
+ * <p>
  * All the logic to perform this translation can be overriden here, so that you can
  * provide your own implementation if needed.
+ *
+ * @author Spencer Gibb
  */
 public class EurekaInstanceDiscovery implements InstanceDiscovery {
 
@@ -66,7 +68,6 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 		// initialize eureka client.
 		// DiscoveryManager.getInstance().initComponent(new MyDataCenterInstanceConfig(),
 		// new DefaultEurekaClientConfig());
-
 		SpelExpressionParser parser = new SpelExpressionParser();
 		this.clusterNameExpression = parser.parseExpression(turbineProperties
 				.getClusterNameExpression());
@@ -78,30 +79,26 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	 */
 	@Override
 	public Collection<Instance> getInstanceList() throws Exception {
-
 		List<Instance> instances = new ArrayList<Instance>();
-
 		List<String> appNames = parseApps();
 		if (appNames == null || appNames.size() == 0) {
 			logger.info("No apps configured, returning an empty instance list");
 			return instances;
 		}
-
 		logger.info("Fetching instance list for apps: " + appNames);
-
 		for (String appName : appNames) {
 			try {
 				instances.addAll(getInstancesForApp(appName));
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				logger.error("Failed to fetch instances for app: " + appName
-						+ ", retrying once more", e);
+						+ ", retrying once more", ex);
 				try {
 					instances.addAll(getInstancesForApp(appName));
 				}
-				catch (Exception e1) {
+				catch (Exception retryException) {
 					logger.error("Failed again to fetch instances for app: " + appName
-							+ ", giving up", e);
+							+ ", giving up", ex);
 				}
 			}
 		}
@@ -115,9 +112,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	 * @throws Exception
 	 */
 	private List<Instance> getInstancesForApp(String appName) throws Exception {
-
 		List<Instance> instances = new ArrayList<Instance>();
-
 		logger.info("Fetching instances for app: {}", appName);
 		Application app = DiscoveryManager.getInstance().getDiscoveryClient()
 				.getApplication(appName);
@@ -125,7 +120,6 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 			logger.warn("Eureka returned null for app: {}", appName);
 		}
 		List<InstanceInfo> instancesForApp = app.getInstances();
-
 		if (instancesForApp != null) {
 			logger.info("Received instance list for app: {} = {}", appName,
 					instancesForApp.size());
@@ -136,7 +130,6 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 				}
 			}
 		}
-
 		return instances;
 	}
 
@@ -144,35 +137,29 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	 * Private helper that marshals the information from each instance into something that
 	 * Turbine can understand. Override this method for your own implementation for
 	 * parsing Eureka info.
-	 *
-	 * @param iInfo
+	 * @param instanceInfo
 	 * @return Instance
 	 */
-	protected Instance marshallInstanceInfo(InstanceInfo iInfo) {
-
-		String hostname = iInfo.getHostName();
-		String cluster = getClusterName(iInfo);
-		Boolean status = parseInstanceStatus(iInfo.getStatus());
-
+	protected Instance marshallInstanceInfo(InstanceInfo instanceInfo) {
+		String hostname = instanceInfo.getHostName();
+		String cluster = getClusterName(instanceInfo);
+		Boolean status = parseInstanceStatus(instanceInfo.getStatus());
 		if (hostname != null && cluster != null && status != null) {
 			Instance instance = new Instance(hostname, cluster, status);
-			Map<String, String> metadata = iInfo.getMetadata();
+			Map<String, String> metadata = instanceInfo.getMetadata();
 			if (metadata != null) {
 				instance.getAttributes().putAll(metadata);
 			}
-
-			String asgName = iInfo.getASGName();
+			String asgName = instanceInfo.getASGName();
 			if (asgName != null) {
 				instance.getAttributes().put("asg", asgName);
 			}
-			instance.getAttributes().put("port", String.valueOf(iInfo.getPort()));
-
-			DataCenterInfo dcInfo = iInfo.getDataCenterInfo();
+			instance.getAttributes().put("port", String.valueOf(instanceInfo.getPort()));
+			DataCenterInfo dcInfo = instanceInfo.getDataCenterInfo();
 			if (dcInfo != null && dcInfo.getName().equals(DataCenterInfo.Name.Amazon)) {
 				AmazonInfo amznInfo = (AmazonInfo) dcInfo;
 				instance.getAttributes().putAll(amznInfo.getMetadata());
 			}
-
 			return instance;
 		}
 		else {
@@ -182,31 +169,18 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 
 	/**
 	 * Helper that returns whether the instance is Up of Down
-	 * @param status
-	 * @return
 	 */
 	protected Boolean parseInstanceStatus(InstanceStatus status) {
-
-		if (status != null) {
-			if (status == InstanceStatus.UP) {
-				return Boolean.TRUE;
-			}
-			else {
-				return Boolean.FALSE;
-			}
-		}
-		else {
+		if (status == null) {
 			return null;
 		}
+		return status == InstanceStatus.UP;
 	}
 
 	/**
 	 * Helper that fetches the cluster name. Cluster is a Turbine concept and not a Eureka
 	 * concept. By default we choose the amazon asg name as the cluster. A custom
 	 * implementation can be plugged in by overriding this method.
-	 *
-	 * @param iInfo
-	 * @return
 	 */
 	protected String getClusterName(InstanceInfo iInfo) {
 		StandardEvaluationContext context = new StandardEvaluationContext(iInfo);
@@ -217,29 +191,22 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 		return null;
 	}
 
-	/**
-	 * TODO: move to ConfigurationProperties Private helper that parses the list of
-	 * application names.
-	 *
-	 * @return List<String>
-	 */
 	private List<String> parseApps() {
-
+		// TODO: move to ConfigurationProperties Private helper that parses the list of
+		// application names.
 		String appList = ApplicationList.get();
 		if (appList == null) {
 			return null;
 		}
-
 		appList = appList.trim();
 		if (appList.length() == 0) {
 			return null;
 		}
-
 		String[] parts = appList.split(",");
 		if (parts != null && parts.length > 0) {
 			return Arrays.asList(parts);
 		}
-
 		return null;
 	}
+
 }

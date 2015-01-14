@@ -115,6 +115,7 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten!", result.getBody());
 	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -186,6 +187,7 @@ class SampleZuulProxyApplication {
 // Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class SimpleRibbonClientConfiguration {
+
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
@@ -193,10 +195,12 @@ class SimpleRibbonClientConfiguration {
 				.getNonSecurePort())));
 		return balancer;
 	}
+
 }
 
 @Configuration
 class AnotherRibbonClientConfiguration {
+
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
@@ -204,4 +208,5 @@ class AnotherRibbonClientConfiguration {
 				.getNonSecurePort())));
 		return balancer;
 	}
+
 }

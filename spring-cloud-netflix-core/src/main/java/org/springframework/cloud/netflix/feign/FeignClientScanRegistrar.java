@@ -39,11 +39,12 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * @author Spencer Gibb patterned after Spring Integration
- * IntegrationComponentScanRegistrar
+ * @author Spencer Gibb
  */
 public class FeignClientScanRegistrar extends FeignConfiguration implements
 		ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanClassLoaderAware {
+
+	// patterned after Spring Integration IntegrationComponentScanRegistrar
 
 	private ResourceLoader resourceLoader;
 
@@ -123,15 +124,16 @@ public class FeignClientScanRegistrar extends FeignConfiguration implements
 									FeignClientScanRegistrar.this.classLoader);
 							return !target.isAnnotation();
 						}
-						catch (Exception e) {
+						catch (Exception ex) {
 							this.logger.error("Could not load target class: "
-									+ beanDefinition.getMetadata().getClassName(), e);
+									+ beanDefinition.getMetadata().getClassName(), ex);
 
 						}
 					}
 					return true;
 				}
 				return false;
+
 			}
 		};
 	}

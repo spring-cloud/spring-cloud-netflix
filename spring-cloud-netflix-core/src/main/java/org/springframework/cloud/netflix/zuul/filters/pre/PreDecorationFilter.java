@@ -32,6 +32,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
 public class PreDecorationFilter extends ZuulFilter {
+
 	private static Logger LOG = LoggerFactory.getLogger(PreDecorationFilter.class);
 
 	private ProxyRouteLocator routeLocator;
@@ -61,20 +62,13 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-
 		final String requestURI = ctx.getRequest().getRequestURI();
-
 		ProxyRouteSpec route = this.routeLocator.getMatchingRoute(requestURI);
-
 		if (route != null) {
-
 			String location = route.getLocation();
-
 			if (location != null) {
-
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
-
 				if (location.startsWith("http:") || location.startsWith("https:")) {
 					ctx.setRouteHost(getUrl(location));
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
@@ -85,7 +79,6 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.setRouteHost(null);
 					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
 				}
-
 				if (this.properties.isAddProxyHeaders()) {
 					ctx.addZuulRequestHeader(
 							"X-Forwarded-Host",
@@ -108,8 +101,8 @@ public class PreDecorationFilter extends ZuulFilter {
 		try {
 			return new URL(target);
 		}
-		catch (MalformedURLException e) {
-			throw new IllegalStateException("Target URL is malformed", e);
+		catch (MalformedURLException ex) {
+			throw new IllegalStateException("Target URL is malformed", ex);
 		}
 	}
 }

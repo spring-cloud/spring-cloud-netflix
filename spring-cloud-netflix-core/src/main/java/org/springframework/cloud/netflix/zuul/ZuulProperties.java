@@ -38,10 +38,15 @@ import org.springframework.util.StringUtils;
 @Data
 @ConfigurationProperties("zuul")
 public class ZuulProperties {
+
 	private String prefix = "";
+
 	private boolean stripPrefix = true;
+
 	private Map<String, ZuulRoute> routes = new LinkedHashMap<String, ZuulRoute>();
+
 	private boolean addProxyHeaders = true;
+
 	private List<String> ignoredServices = new ArrayList<String>();
 
 	@PostConstruct
@@ -64,10 +69,15 @@ public class ZuulProperties {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class ZuulRoute {
+
 		private String id;
+
 		private String path;
+
 		private String serviceId;
+
 		private String url;
+
 		private boolean stripPrefix = true;
 
 		public ZuulRoute(String text) {
@@ -115,6 +125,7 @@ public class ZuulProperties {
 			path = path.replace("/*", "").replace("*", "");
 			return path;
 		}
+
 	}
 
 }

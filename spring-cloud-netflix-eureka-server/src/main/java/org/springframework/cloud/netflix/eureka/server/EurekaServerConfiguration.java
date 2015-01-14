@@ -34,9 +34,7 @@ import com.google.common.collect.Lists;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 /**
- *
  * @author Gunnar Hillert
- *
  */
 @Configuration
 @Import(EurekaServerInitializerConfiguration.class)
@@ -72,4 +70,5 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
 		return bean;
 	}
+
 }

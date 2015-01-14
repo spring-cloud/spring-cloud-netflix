@@ -116,6 +116,7 @@ class FormZuulProxyApplication {
 	@Bean
 	public ZuulFilter sampleFilter() {
 		return new ZuulFilter() {
+
 			@Override
 			public String filterType() {
 				return "pre";
@@ -135,6 +136,7 @@ class FormZuulProxyApplication {
 			public int filterOrder() {
 				return 0;
 			}
+
 		};
 	}
 
@@ -147,6 +149,7 @@ class FormZuulProxyApplication {
 // Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class FormRibbonClientConfiguration {
+
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
@@ -154,4 +157,5 @@ class FormRibbonClientConfiguration {
 				.getNonSecurePort())));
 		return balancer;
 	}
+
 }

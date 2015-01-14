@@ -63,7 +63,6 @@ import com.netflix.eureka.PeerAwareInstanceRegistry;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties(EurekaServerConfigBean.class)
@@ -114,7 +113,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 													.toString());
 								}
 							}
-							catch (IOException e) {
+							catch (IOException ex) {
 								// ignore
 							}
 							LoggingConfiguration.getInstance().configure();
@@ -145,9 +144,9 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 							.publishEvent(new EurekaServerStartedEvent(
 									EurekaServerInitializerConfiguration.this.eurekaServerConfig));
 				}
-				catch (Exception e) {
+				catch (Exception ex) {
 					// Help!
-					logger.error("Could not initialize Eureka servlet context", e);
+					logger.error("Could not initialize Eureka servlet context", ex);
 				}
 			}
 		}).start();
@@ -226,8 +225,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 				ReflectionUtils.setField(field, null, proxy);
 			}
-			catch (Exception e) {
-				throw new IllegalStateException("Cannot modify instance registry", e);
+			catch (Exception ex) {
+				throw new IllegalStateException("Cannot modify instance registry", ex);
 			}
 		}
 
@@ -260,9 +259,9 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 					ReflectionUtils.setField(field, this.instance, count);
 				}
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				throw new IllegalStateException(
-						"Cannot modify instance registry expected renews", e);
+						"Cannot modify instance registry expected renews", ex);
 			}
 		}
 
@@ -274,9 +273,6 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		 * hasn't sent any renewals recently. This happens for a standalone server. It
 		 * seems like a bad default, so we set it to the smallest non-zero value we can,
 		 * so that any instances that subsequently register can bump up the threshold.
-		 *
-		 * @author Dave Syer
-		 *
 		 */
 		private class TrafficOpener implements MethodInterceptor {
 
@@ -290,6 +286,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 				}
 				return invocation.proceed();
 			}
+
 		}
 
 	}

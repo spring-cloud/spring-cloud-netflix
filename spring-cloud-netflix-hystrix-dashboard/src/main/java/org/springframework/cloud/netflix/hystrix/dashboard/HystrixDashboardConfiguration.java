@@ -88,7 +88,9 @@ public class HystrixDashboardConfiguration {
 	 * can request a stream from a different server.
 	 */
 	public static class ProxyStreamServlet extends HttpServlet {
+
 		private static final long serialVersionUID = 1L;
+
 		private static final Logger logger = LoggerFactory
 				.getLogger(ProxyStreamServlet.class);
 
@@ -170,8 +172,8 @@ public class HystrixDashboardConfiguration {
 								os.flush();
 							}
 						}
-						catch (Exception e) {
-							if (e.getClass().getSimpleName()
+						catch (Exception ex) {
+							if (ex.getClass().getSimpleName()
 									.equalsIgnoreCase("ClientAbortException")) {
 								// don't throw an exception as this means the user closed
 								// the connection
@@ -182,22 +184,22 @@ public class HystrixDashboardConfiguration {
 							else {
 								// received unknown error while writing so throw an
 								// exception
-								throw new RuntimeException(e);
+								throw new RuntimeException(ex);
 							}
 						}
 					}
 				}
 			}
-			catch (Exception e) {
-				logger.error("Error proxying request: " + url, e);
+			catch (Exception ex) {
+				logger.error("Error proxying request: " + url, ex);
 			}
 			finally {
 				if (httpget != null) {
 					try {
 						httpget.abort();
 					}
-					catch (Exception e) {
-						logger.error("failed aborting proxy connection.", e);
+					catch (Exception ex) {
+						logger.error("failed aborting proxy connection.", ex);
 					}
 				}
 
@@ -208,7 +210,7 @@ public class HystrixDashboardConfiguration {
 					try {
 						is.close();
 					}
-					catch (Exception e) {
+					catch (Exception ex) {
 						// e.printStackTrace();
 					}
 				}
@@ -216,7 +218,9 @@ public class HystrixDashboardConfiguration {
 		}
 
 		private static class ProxyConnectionManager {
+
 			private final static PoolingClientConnectionManager threadSafeConnectionManager = new PoolingClientConnectionManager();
+
 			private final static HttpClient httpClient = new DefaultHttpClient(
 					threadSafeConnectionManager);
 
@@ -231,6 +235,8 @@ public class HystrixDashboardConfiguration {
 				threadSafeConnectionManager.setDefaultMaxPerRoute(400);
 				threadSafeConnectionManager.setMaxTotal(400);
 			}
+
 		}
+
 	}
 }

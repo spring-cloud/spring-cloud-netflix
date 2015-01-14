@@ -25,11 +25,15 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
+/**
+ * @author Spencer Gibb
+ */
 public class DebugFilter extends ZuulFilter {
 
-	static final DynamicBooleanProperty routingDebug = DynamicPropertyFactory
+	private static final DynamicBooleanProperty ROUTING_DEBUG = DynamicPropertyFactory
 			.getInstance().getBooleanProperty(ZuulConstants.ZUUL_DEBUG_REQUEST, false);
-	static final DynamicStringProperty debugParameter = DynamicPropertyFactory
+
+	private static final DynamicStringProperty DEBUG_PARAMETER = DynamicPropertyFactory
 			.getInstance().getStringProperty(ZuulConstants.ZUUL_DEBUG_PARAMETER, "debug");
 
 	@Override
@@ -45,11 +49,10 @@ public class DebugFilter extends ZuulFilter {
 	@Override
 	public boolean shouldFilter() {
 		HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-		if ("true".equals(request.getParameter(debugParameter.get()))) {
+		if ("true".equals(request.getParameter(DEBUG_PARAMETER.get()))) {
 			return true;
 		}
-
-		return routingDebug.get();
+		return ROUTING_DEBUG.get();
 	}
 
 	@Override

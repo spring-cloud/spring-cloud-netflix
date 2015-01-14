@@ -47,16 +47,16 @@ import static org.mockito.Mockito.when;
 public class RibbonLoadBalancerClientTests {
 
 	@Mock
-	SpringClientFactory clientFactory;
+	private SpringClientFactory clientFactory;
 
 	@Mock
-	BaseLoadBalancer loadBalancer;
+	private BaseLoadBalancer loadBalancer;
 
 	@Mock
-	LoadBalancerStats loadBalancerStats;
+	private LoadBalancerStats loadBalancerStats;
 
 	@Mock
-	ServerStats serverStats;
+	private ServerStats serverStats;
 
 	@Before
 	public void init() {
@@ -88,7 +88,6 @@ public class RibbonLoadBalancerClientTests {
 	public void testExecute() {
 		final RibbonServer server = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
-
 		final String returnVal = "myval";
 		Object actualReturn = client.execute(server.getServiceId(),
 				new LoadBalancerRequest<Object>() {
@@ -98,9 +97,7 @@ public class RibbonLoadBalancerClientTests {
 						return returnVal;
 					}
 				});
-
 		verifyServerStats();
-
 		assertEquals("retVal was wrong", returnVal, actualReturn);
 	}
 
@@ -108,7 +105,6 @@ public class RibbonLoadBalancerClientTests {
 	public void testExecuteException() {
 		final RibbonServer ribbonServer = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(ribbonServer);
-
 		try {
 			client.execute(ribbonServer.getServiceId(),
 					new LoadBalancerRequest<Object>() {
@@ -120,10 +116,9 @@ public class RibbonLoadBalancerClientTests {
 					});
 			fail("Should have thrown exception");
 		}
-		catch (Exception e) {
-			assertNotNull(e);
+		catch (Exception ex) {
+			assertNotNull(ex);
 		}
-
 		verifyServerStats();
 	}
 
@@ -156,7 +151,6 @@ public class RibbonLoadBalancerClientTests {
 				this.serverStats);
 		when(this.clientFactory.getLoadBalancer(this.loadBalancer.getName())).thenReturn(
 				this.loadBalancer);
-
 		return new RibbonLoadBalancerClient(this.clientFactory);
 	}
 }

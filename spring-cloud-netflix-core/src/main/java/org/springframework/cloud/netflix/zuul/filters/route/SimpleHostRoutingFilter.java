@@ -94,6 +94,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
 			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS,
 					10000);
+
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
 			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS,
 					2000);
@@ -118,32 +119,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					}
 					hc.getConnectionManager().closeExpiredConnections();
 				}
-				catch (Throwable t) {
-					LOG.error("error closing expired connections", t);
+				catch (Throwable ex) {
+					LOG.error("error closing expired connections", ex);
 				}
 			}
 		}, 30000, 5000);
-	}
-
-	private static final ClientConnectionManager newConnectionManager() throws Exception {
-
-		KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		trustStore.load(null, null);
-
-		SSLSocketFactory sf = new MySSLSocketFactory(trustStore);
-		sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		registry.register(new Scheme("https", sf, 443));
-		registry.register(new Scheme("https", sf, 8443));
-
-		ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(registry);
-		cm.setMaxTotal(Integer.parseInt(System.getProperty("zuul.max.host.connections",
-				"200")));
-		cm.setDefaultMaxPerRoute(Integer.parseInt(System.getProperty(
-				"zuul.max.host.connections", "20")));
-		return cm;
 	}
 
 	private ProxyRequestHelper helper;
@@ -177,61 +157,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				&& RequestContext.getCurrentContext().sendZuulResponse();
 	}
 
-	private static final void loadClient() {
-		final HttpClient oldClient = CLIENT.get();
-		CLIENT.set(newClient());
-		if (oldClient != null) {
-			CONNECTION_MANAGER_TIMER.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					try {
-						oldClient.getConnectionManager().shutdown();
-					}
-					catch (Throwable t) {
-						LOG.error("error shutting down old connection manager", t);
-					}
-				}
-			}, 30000);
-		}
-
-	}
-
-	private static final HttpClient newClient() {
-		// I could statically cache the connection manager but we will probably want to
-		// make some of its properties
-		// dynamic in the near future also
-		try {
-			DefaultHttpClient httpclient = new DefaultHttpClient(newConnectionManager());
-			HttpParams httpParams = httpclient.getParams();
-			httpParams.setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
-					SOCKET_TIMEOUT.get());
-			httpParams.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
-					CONNECTION_TIMEOUT.get());
-			httpclient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0,
-					false));
-			httpParams.setParameter(ClientPNames.COOKIE_POLICY,
-					org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
-			httpclient.setRedirectStrategy(new org.apache.http.client.RedirectStrategy() {
-				@Override
-				public boolean isRedirected(HttpRequest httpRequest,
-						HttpResponse httpResponse, HttpContext httpContext) {
-					return false;
-				}
-
-				@Override
-				public org.apache.http.client.methods.HttpUriRequest getRedirect(
-						HttpRequest httpRequest, HttpResponse httpResponse,
-						HttpContext httpContext) {
-					return null;
-				}
-			});
-			return httpclient;
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	@Override
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
@@ -254,9 +179,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					params, requestEntity);
 			setResponse(response);
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", e);
+			context.set("error.exception", ex);
 		}
 		return null;
 	}
@@ -265,16 +190,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			HttpServletRequest request, MultiValueMap<String, String> headers,
 			MultiValueMap<String, String> params, InputStream requestEntity)
 			throws Exception {
-
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
 				requestEntity);
-
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
 		uri = StringUtils.cleanPath(host.getPath() + uri);
-
 		HttpRequest httpRequest;
-
 		switch (verb.toUpperCase()) {
 		case "POST":
 			HttpPost httpPost = new HttpPost(uri + getQueryString());
@@ -292,7 +213,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			httpRequest = new BasicHttpRequest(verb, uri + getQueryString());
 			LOG.debug(uri + getQueryString());
 		}
-
 		try {
 			httpRequest.setHeaders(convertHeaders(headers));
 			LOG.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
@@ -308,7 +228,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			// immediate deallocation of all system resources
 			// httpclient.getConnectionManager().shutdown();
 		}
-
 	}
 
 	private MultiValueMap<String, String> revertHeaders(Header[] headers) {
@@ -355,7 +274,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		try {
 			requestEntity = request.getInputStream();
 		}
-		catch (IOException e) {
+		catch (IOException ex) {
 			// no requestBody is ok.
 		}
 		return requestEntity;
@@ -372,14 +291,85 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				revertHeaders(response.getAllHeaders()));
 	}
 
+	private static ClientConnectionManager newConnectionManager() throws Exception {
+		KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		trustStore.load(null, null);
+		SSLSocketFactory sf = new MySSLSocketFactory(trustStore);
+		sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		SchemeRegistry registry = new SchemeRegistry();
+		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+		registry.register(new Scheme("https", sf, 443));
+		registry.register(new Scheme("https", sf, 8443));
+		ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(registry);
+		cm.setMaxTotal(Integer.parseInt(System.getProperty("zuul.max.host.connections",
+				"200")));
+		cm.setDefaultMaxPerRoute(Integer.parseInt(System.getProperty(
+				"zuul.max.host.connections", "20")));
+		return cm;
+	}
+
+	private static void loadClient() {
+		final HttpClient oldClient = CLIENT.get();
+		CLIENT.set(newClient());
+		if (oldClient != null) {
+			CONNECTION_MANAGER_TIMER.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					try {
+						oldClient.getConnectionManager().shutdown();
+					}
+					catch (Throwable ex) {
+						LOG.error("error shutting down old connection manager", ex);
+					}
+				}
+			}, 30000);
+		}
+	}
+
+	private static HttpClient newClient() {
+		// I could statically cache the connection manager but we will probably want to
+		// make some of its properties
+		// dynamic in the near future also
+		try {
+			DefaultHttpClient httpclient = new DefaultHttpClient(newConnectionManager());
+			HttpParams httpParams = httpclient.getParams();
+			httpParams.setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
+					SOCKET_TIMEOUT.get());
+			httpParams.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
+					CONNECTION_TIMEOUT.get());
+			httpclient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0,
+					false));
+			httpParams.setParameter(ClientPNames.COOKIE_POLICY,
+					org.apache.http.client.params.CookiePolicy.IGNORE_COOKIES);
+			httpclient.setRedirectStrategy(new org.apache.http.client.RedirectStrategy() {
+				@Override
+				public boolean isRedirected(HttpRequest httpRequest,
+						HttpResponse httpResponse, HttpContext httpContext) {
+					return false;
+				}
+
+				@Override
+				public org.apache.http.client.methods.HttpUriRequest getRedirect(
+						HttpRequest httpRequest, HttpResponse httpResponse,
+						HttpContext httpContext) {
+					return null;
+				}
+			});
+			return httpclient;
+		}
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	public static class MySSLSocketFactory extends SSLSocketFactory {
 		SSLContext sslContext = SSLContext.getInstance("TLS");
 
 		public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException,
 				KeyManagementException, KeyStoreException, UnrecoverableKeyException {
 			super(truststore);
-
 			TrustManager tm = new X509TrustManager() {
+
 				@Override
 				public void checkClientTrusted(X509Certificate[] chain, String authType)
 						throws CertificateException {
@@ -394,8 +384,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				public X509Certificate[] getAcceptedIssuers() {
 					return null;
 				}
-			};
 
+			};
 			TrustManager[] tms = new TrustManager[1];
 			tms[0] = tm;
 			this.sslContext.init(null, tms, null);
@@ -412,5 +402,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		public Socket createSocket() throws IOException {
 			return this.sslContext.getSocketFactory().createSocket();
 		}
+
 	}
+
 }

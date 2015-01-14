@@ -72,19 +72,15 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public Map<String, String> getRoutes() {
-
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
 		}
-
 		Map<String, String> values = new LinkedHashMap<>();
-
 		for (String key : this.routes.get().keySet()) {
 			String url = key;
 			values.put(url, this.routes.get().get(key).getLocation());
 		}
 		return values;
-
 	}
 
 	public ProxyRouteSpec getMatchingRoute(String path) {
@@ -113,8 +109,8 @@ public class ProxyRouteLocator implements RouteLocator {
 				break;
 			}
 		}
-		return location == null ? null : new ProxyRouteSpec(id, targetPath, location,
-				prefix);
+		return (location == null ? null : new ProxyRouteSpec(id, targetPath, location,
+				prefix));
 	}
 
 	public void resetRoutes() {
@@ -122,12 +118,9 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	protected LinkedHashMap<String, ZuulRoute> locateRoutes() {
-
 		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
-
 		addConfiguredRoutes(routesMap);
 		routesMap.putAll(this.staticRoutes);
-
 		if (this.discovery != null) {
 			// Add routes for discovery services by default
 			List<String> services = this.discovery.getServices();
@@ -141,36 +134,28 @@ public class ProxyRouteLocator implements RouteLocator {
 				}
 			}
 		}
-
 		if (routesMap.get(DEFAULT_ROUTE) != null) {
 			ZuulRoute defaultRoute = routesMap.get(DEFAULT_ROUTE);
 			// Move the defaultServiceId to the end
 			routesMap.remove(DEFAULT_ROUTE);
 			routesMap.put(DEFAULT_ROUTE, defaultRoute);
 		}
-
 		LinkedHashMap<String, ZuulRoute> values = new LinkedHashMap<>();
 		for (Entry<String, ZuulRoute> entry : routesMap.entrySet()) {
-
 			String path = entry.getKey();
 			// Prepend with slash if not already present.
 			if (!path.startsWith("/")) {
 				path = "/" + path;
 			}
-
 			if (StringUtils.hasText(this.properties.getPrefix())) {
 				path = this.properties.getPrefix() + path;
 				if (!path.startsWith("/")) {
 					path = "/" + path;
 				}
 			}
-
 			values.put(path, entry.getValue());
-
 		}
-
 		return values;
-
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {
@@ -187,23 +172,22 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	public String getTargetPath(String matchingRoute, String requestURI) {
 		String path = getRoutes().get(matchingRoute);
-		if (path == null) {
-			path = requestURI;
-		}
-		else {
-
-		}
-		return path;
+		return (path != null ? path : requestURI);
 
 	}
 
 	@Data
 	@AllArgsConstructor
 	public static class ProxyRouteSpec {
+
 		private String id;
+
 		private String path;
+
 		private String location;
+
 		private String prefix;
+
 	}
 
 }

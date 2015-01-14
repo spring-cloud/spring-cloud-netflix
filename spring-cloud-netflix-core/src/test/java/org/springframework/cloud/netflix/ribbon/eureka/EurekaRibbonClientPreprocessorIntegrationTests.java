@@ -38,7 +38,6 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 /**
  * @author Dave Syer
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)
@@ -62,6 +61,7 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			EurekaClientAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 	}
 
 }

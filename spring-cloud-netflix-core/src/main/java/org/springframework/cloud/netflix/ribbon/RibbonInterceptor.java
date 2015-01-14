@@ -46,19 +46,34 @@ public class RibbonInterceptor implements ClientHttpRequestInterceptor {
 		String serviceName = originalUri.getHost();
 		return this.loadBalancer.execute(serviceName,
 				new LoadBalancerRequest<ClientHttpResponse>() {
+
 					@Override
 					public ClientHttpResponse apply(final ServiceInstance instance)
 							throws Exception {
-						HttpRequestWrapper wrapper = new HttpRequestWrapper(request) {
-							@Override
-							public URI getURI() {
-								URI uri = RibbonInterceptor.this.loadBalancer
-										.reconstructURI(instance, originalUri);
-								return uri;
-							}
-						};
-						return execution.execute(wrapper, body);
+						HttpRequest serviceRequest = new ServiceRequestWrapper(request,
+								instance);
+						return execution.execute(serviceRequest, body);
 					}
+
 				});
 	}
+
+	private class ServiceRequestWrapper extends HttpRequestWrapper {
+
+		private final ServiceInstance instance;
+
+		public ServiceRequestWrapper(HttpRequest request, ServiceInstance instance) {
+			super(request);
+			this.instance = instance;
+		}
+
+		@Override
+		public URI getURI() {
+			URI uri = RibbonInterceptor.this.loadBalancer.reconstructURI(this.instance,
+					getRequest().getURI());
+			return uri;
+		}
+
+	}
+
 }

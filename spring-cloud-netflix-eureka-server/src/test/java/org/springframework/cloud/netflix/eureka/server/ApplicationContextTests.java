@@ -46,17 +46,6 @@ public class ApplicationContextTests {
 	@Value("${local.server.port}")
 	private int port = 0;
 
-	@Configuration
-	@EnableAutoConfiguration
-	@EnableEurekaServer
-	protected static class Application {
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka", "server.contextPath=/context").run(
-					args);
-		}
-	}
-
 	@Test
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
@@ -103,4 +92,16 @@ public class ApplicationContextTests {
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableEurekaServer
+	protected static class Application {
+
+		public static void main(String[] args) {
+			new SpringApplicationBuilder(Application.class).properties(
+					"spring.application.name=eureka", "server.contextPath=/context").run(
+					args);
+		}
+
+	}
 }

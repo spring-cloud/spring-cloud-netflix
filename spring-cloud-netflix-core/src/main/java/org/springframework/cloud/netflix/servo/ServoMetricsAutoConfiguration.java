@@ -48,4 +48,5 @@ public class ServoMetricsAutoConfiguration {
 	public ServoMetricCollector servoMetricCollector(MetricWriter metrics) {
 		return new ServoMetricCollector(metrics);
 	}
+
 }

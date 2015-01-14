@@ -31,7 +31,6 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
- *
  */
 public class EurekaClientConfigServerAutoConfigurationTests {
 

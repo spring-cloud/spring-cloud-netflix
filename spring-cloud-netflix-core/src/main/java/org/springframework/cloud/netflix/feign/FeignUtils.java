@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders;
  * @author Spencer Gibb
  */
 public class FeignUtils {
+
 	static HttpHeaders getHttpHeaders(Map<String, Collection<String>> headers) {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		for (Map.Entry<String, Collection<String>> entry : headers.entrySet()) {
@@ -33,4 +34,5 @@ public class FeignUtils {
 		}
 		return httpHeaders;
 	}
+
 }

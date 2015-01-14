@@ -37,8 +37,10 @@ import static feign.Util.emptyToNull;
  * @author Spencer Gibb
  */
 public class SpringMvcContract extends Contract.BaseContract {
-	static final String ACCEPT = "Accept";
-	static final String CONTENT_TYPE = "Content-Type";
+
+	private static final String ACCEPT = "Accept";
+
+	private static final String CONTENT_TYPE = "Content-Type";
 
 	@Override
 	protected void processAnnotationOnMethod(MethodMetadata data,
@@ -145,7 +147,10 @@ public class SpringMvcContract extends Contract.BaseContract {
 				data.template().header(name, header);
 				nameParam(data, name, paramIndex);
 				isHttpAnnotation = true;
-			}/*
+			}
+
+			// TODO
+			/*
 			 * else if (annotationType == FormParam.class) { String name =
 			 * FormParam.class.cast(parameterAnnotation).value();
 			 * checkState(emptyToNull(name) != null,
@@ -163,13 +168,12 @@ public class SpringMvcContract extends Contract.BaseContract {
 		if (values == null) {
 			return false;
 		}
-
 		for (Collection<V> entry : values) {
 			if (entry.contains(search)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
+
 }

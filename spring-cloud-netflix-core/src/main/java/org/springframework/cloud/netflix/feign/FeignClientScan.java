@@ -42,7 +42,6 @@ public @interface FeignClientScan {
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
 	 * declarations e.g.: {@code @ComponentScan("org.my.pkg")} instead of
 	 * {@code @ComponentScan(basePackages="org.my.pkg")}.
-	 *
 	 * @return the array of 'basePackages'.
 	 */
 	String[] value() default {};
@@ -54,7 +53,6 @@ public @interface FeignClientScan {
 	 * <p>
 	 * Use {@link #basePackageClasses()} for a type-safe alternative to String-based
 	 * package names.
-	 *
 	 * @return the array of 'basePackages'.
 	 */
 	String[] basePackages() default {};
@@ -65,7 +63,6 @@ public @interface FeignClientScan {
 	 * <p>
 	 * Consider creating a special no-op marker class or interface in each package that
 	 * serves no purpose other than being referenced by this attribute.
-	 *
 	 * @return the array of 'basePackageClasses'.
 	 */
 	Class<?>[] basePackageClasses() default {};

@@ -34,7 +34,6 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 /**
  * @author Dave Syer
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)

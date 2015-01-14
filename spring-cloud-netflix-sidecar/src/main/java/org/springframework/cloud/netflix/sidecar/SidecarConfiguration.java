@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConditionalOnExpression("${sidecar.enabled:true}")
 public class SidecarConfiguration {
+
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	private int serverPort = 8080;
 
@@ -41,17 +42,13 @@ public class SidecarConfiguration {
 	@Bean
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		EurekaInstanceConfigBean config = new EurekaInstanceConfigBean();
-
 		int port = sidecarProperties().getPort();
 		config.setNonSecurePort(port);
-
 		String scheme = config.getSecurePortEnabled() ? "https" : "http";
-
 		config.setStatusPageUrl(scheme + "://" + config.getHostname() + ":"
 				+ this.serverPort + config.getStatusPageUrlPath());
 		config.setHealthCheckUrl(scheme + "://" + config.getHostname() + ":"
 				+ this.serverPort + config.getHealthCheckUrlPath());
-
 		config.setHomePageUrl(scheme + "://" + config.getHostname() + ":" + port
 				+ config.getHomePageUrlPath());
 		return config;
@@ -66,4 +63,5 @@ public class SidecarConfiguration {
 	public SidecarController sidecarController() {
 		return new SidecarController();
 	}
+
 }

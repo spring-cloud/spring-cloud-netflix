@@ -113,8 +113,8 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 		try {
 			aggregatorServer().shutdown();
 		}
-		catch (InterruptedException e) {
-			log.error("Error shutting down", e);
+		catch (InterruptedException ex) {
+			log.error("Error shutting down", ex);
 		}
 		this.running = false;
 	}
@@ -132,4 +132,5 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 	public int getTurbinePort() {
 		return this.turbinePort;
 	}
+
 }

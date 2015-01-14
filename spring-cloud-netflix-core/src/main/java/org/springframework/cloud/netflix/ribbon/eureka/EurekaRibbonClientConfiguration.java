@@ -51,6 +51,7 @@ public class EurekaRibbonClientConfiguration {
 	private String serviceId = "client";
 
 	protected static final String VALUE_NOT_SET = "__not__set__";
+
 	protected static final String DEFAULT_NAMESPACE = "ribbon";
 
 	@Autowired(required = false)

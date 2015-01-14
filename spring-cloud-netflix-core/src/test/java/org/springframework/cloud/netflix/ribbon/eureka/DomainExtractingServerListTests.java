@@ -41,20 +41,22 @@ import static org.mockito.Mockito.when;
 public class DomainExtractingServerListTests {
 
 	static final String IP_ADDR = "10.0.0.2";
+
 	static final int PORT = 8080;
+
 	static final String ZONE = "myzone.mydomain.com";
+
 	static final String HOST_NAME = "myHostName." + ZONE;
+
 	static final String INSTANCE_ID = "myInstanceId";
 
 	@Test
 	public void testDomainExtractingServer() {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), true);
-
 		List<Server> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
-
 		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
 		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
 	}
@@ -63,11 +65,9 @@ public class DomainExtractingServerListTests {
 	public void testDomainExtractingServerDontApproximateZone() {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), false);
-
 		List<Server> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
-
 		DomainExtractingServer des = assertDomainExtractingServer(servers, null);
 		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
 	}
@@ -89,11 +89,9 @@ public class DomainExtractingServerListTests {
 		config.setProperty(CommonClientConfigKey.UseIPAddrForServer, true);
 		DomainExtractingServerList serverList = getDomainExtractingServerList(config,
 				true);
-
 		List<Server> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
-
 		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
 		assertEquals("hostPort was wrong", IP_ADDR + ":" + PORT, des.getHostPort());
 	}
@@ -104,20 +102,16 @@ public class DomainExtractingServerListTests {
 		@SuppressWarnings("unchecked")
 		ServerList<Server> originalServerList = mock(ServerList.class);
 		InstanceInfo instanceInfo = mock(InstanceInfo.class);
-
 		when(server.getInstanceInfo()).thenReturn(instanceInfo);
 		when(server.getHost()).thenReturn(HOST_NAME);
-
 		when(instanceInfo.getMetadata()).thenReturn(
 				ImmutableMap.<String, String> builder().put("instanceId", INSTANCE_ID)
 						.build());
 		when(instanceInfo.getHostName()).thenReturn(HOST_NAME);
 		when(instanceInfo.getIPAddr()).thenReturn(IP_ADDR);
 		when(instanceInfo.getPort()).thenReturn(PORT);
-
 		when(originalServerList.getInitialListOfServers()).thenReturn(
 				Arrays.<Server> asList(server));
-
 		return new DomainExtractingServerList(originalServerList, config,
 				approximateZoneFromHostname);
 	}

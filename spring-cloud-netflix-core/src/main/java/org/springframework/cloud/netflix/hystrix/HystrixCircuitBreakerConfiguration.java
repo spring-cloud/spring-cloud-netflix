@@ -107,7 +107,7 @@ public class HystrixCircuitBreakerConfiguration {
 							addMetrics(map, "hystrix.");
 						}
 					}
-					catch (IOException e) {
+					catch (IOException ex) {
 						// ignore
 					}
 				}
@@ -190,4 +190,5 @@ public class HystrixCircuitBreakerConfiguration {
 		}
 
 	}
+
 }

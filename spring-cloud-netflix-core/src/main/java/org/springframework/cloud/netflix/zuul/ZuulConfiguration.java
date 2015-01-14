@@ -63,41 +63,13 @@ public class ZuulConfiguration {
 		return new ZuulHandlerMapping(routes, zuulController());
 	}
 
-	@Configuration
-	protected static class ZuulFilterConfiguration {
-
-		@Autowired
-		private Map<String, ZuulFilter> filters;
-
-		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer() {
-			return new ZuulFilterInitializer(this.filters);
-		}
-
-	}
-
 	@Bean
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
 	}
 
-	private static class ZuulRefreshListener implements
-			ApplicationListener<ApplicationEvent> {
-
-		@Autowired
-		private ZuulHandlerMapping zuulHandlerMapping;
-
-		@Override
-		public void onApplicationEvent(ApplicationEvent event) {
-			if (event instanceof ContextRefreshedEvent
-					|| event instanceof RefreshScopeRefreshedEvent) {
-				this.zuulHandlerMapping.registerHandlers();
-			}
-		}
-
-	}
-
 	// pre filters
+
 	@Bean
 	public FormBodyWrapperFilter formBodyWrapperFilter() {
 		return new FormBodyWrapperFilter();
@@ -114,6 +86,7 @@ public class ZuulConfiguration {
 	}
 
 	// post filters
+
 	@Bean
 	public SendResponseFilter sendResponseFilter() {
 		return new SendResponseFilter();
@@ -122,6 +95,35 @@ public class ZuulConfiguration {
 	@Bean
 	public SendErrorFilter sendErrorFilter() {
 		return new SendErrorFilter();
+	}
+
+	@Configuration
+	protected static class ZuulFilterConfiguration {
+
+		@Autowired
+		private Map<String, ZuulFilter> filters;
+
+		@Bean
+		public ZuulFilterInitializer zuulFilterInitializer() {
+			return new ZuulFilterInitializer(this.filters);
+		}
+
+	}
+
+	private static class ZuulRefreshListener implements
+			ApplicationListener<ApplicationEvent> {
+
+		@Autowired
+		private ZuulHandlerMapping zuulHandlerMapping;
+
+		@Override
+		public void onApplicationEvent(ApplicationEvent event) {
+			if (event instanceof ContextRefreshedEvent
+					|| event instanceof RefreshScopeRefreshedEvent) {
+				this.zuulHandlerMapping.registerHandlers();
+			}
+		}
+
 	}
 
 }

@@ -56,7 +56,6 @@ import com.netflix.discovery.shared.EurekaJerseyClient;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties
@@ -105,8 +104,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 					jerseyClient.destroyResources();
 				}
 			}
-			catch (Exception e) {
-				logger.error("Error closing DiscoveryClient.jerseyClient", e);
+			catch (Exception ex) {
+				logger.error("Error closing DiscoveryClient.jerseyClient", ex);
 			}
 		}
 	}
@@ -218,4 +217,5 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
 		}
 	}
+
 }

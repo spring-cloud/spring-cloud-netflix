@@ -61,4 +61,5 @@ public class RibbonLoadBalancerContext extends LoadBalancerContext {
 			long responseTime, RetryHandler errorHandler) {
 		super.noteRequestCompletion(stats, response, e, responseTime, errorHandler);
 	}
+
 }

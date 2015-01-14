@@ -63,6 +63,7 @@ public class SpringDecoder implements Decoder {
 	}
 
 	private class FeignResponseAdapter implements ClientHttpResponse {
+
 		private final Response response;
 
 		private FeignResponseAdapter(Response response) {
@@ -89,8 +90,8 @@ public class SpringDecoder implements Decoder {
 			try {
 				this.response.body().close();
 			}
-			catch (IOException e) {
-				e.printStackTrace();
+			catch (IOException ex) {
+				ex.printStackTrace();
 			}
 		}
 
@@ -105,4 +106,5 @@ public class SpringDecoder implements Decoder {
 		}
 
 	}
+
 }

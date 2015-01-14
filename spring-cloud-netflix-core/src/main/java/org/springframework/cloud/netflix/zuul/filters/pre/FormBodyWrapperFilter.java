@@ -39,7 +39,8 @@ import com.netflix.zuul.http.ServletInputStreamWrapper;
  * @author Spencer Gibb
  */
 public class FormBodyWrapperFilter extends ZuulFilter {
-	protected Field requestField = null;
+
+	private Field requestField;
 
 	public FormBodyWrapperFilter() {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
@@ -63,18 +64,16 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
 		String contentType = request.getContentType();
-
 		// Don't use this filter on GET method
 		if (contentType == null) {
 			return false;
 		}
-
 		// Only use this filter for MediaType : application/x-www-form-urlencoded
 		try {
 			return MediaType.APPLICATION_FORM_URLENCODED.includes(MediaType
 					.valueOf(contentType));
 		}
-		catch (InvalidMediaTypeException imte) {
+		catch (InvalidMediaTypeException ex) {
 			return false;
 		}
 	}
@@ -89,8 +88,8 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 						.get(request);
 				this.requestField.set(request, new FormBodyRequestWrapper(wrapped));
 			}
-			catch (IllegalAccessException e) {
-				Throwables.propagate(e);
+			catch (IllegalAccessException ex) {
+				Throwables.propagate(ex);
 			}
 		}
 		else {
@@ -102,6 +101,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	private class FormBodyRequestWrapper extends HttpServletRequestWrapper {
 
 		private HttpServletRequest request;
+
 		private byte[] contentData;
 
 		public FormBodyRequestWrapper(HttpServletRequest request) {
@@ -145,4 +145,5 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		}
 
 	}
+
 }

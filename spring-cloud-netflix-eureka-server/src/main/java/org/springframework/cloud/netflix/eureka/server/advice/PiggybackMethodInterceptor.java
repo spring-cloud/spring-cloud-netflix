@@ -24,11 +24,11 @@ import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Dave Syer
- *
  */
 public class PiggybackMethodInterceptor implements MethodInterceptor {
 
 	private Object delegate;
+
 	private Class<?>[] types;
 
 	public PiggybackMethodInterceptor(Object delegate, Class<?>... types) {

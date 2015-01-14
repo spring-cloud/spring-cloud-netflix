@@ -61,19 +61,6 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		return new ProxyRouteLocator(this.discovery, this.zuulProperties);
 	}
 
-	@Configuration
-	@ConditionalOnClass(Endpoint.class)
-	protected static class RoutesEndpointConfuguration {
-		@Autowired
-		private ProxyRouteLocator routeLocator;
-
-		@Bean
-		// @RefreshScope
-		public RoutesEndpoint zuulEndpoint() {
-			return new RoutesEndpoint(this.routeLocator);
-		}
-	}
-
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter() {
@@ -104,6 +91,21 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Override
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
+	}
+
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
+	protected static class RoutesEndpointConfuguration {
+
+		@Autowired
+		private ProxyRouteLocator routeLocator;
+
+		@Bean
+		// @RefreshScope
+		public RoutesEndpoint zuulEndpoint() {
+			return new RoutesEndpoint(this.routeLocator);
+		}
+
 	}
 
 	private static class ZuulRefreshListener implements

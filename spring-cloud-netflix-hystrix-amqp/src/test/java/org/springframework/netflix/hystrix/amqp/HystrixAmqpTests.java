@@ -57,9 +57,12 @@ public class HystrixAmqpTests {
 		public static void main(String[] args) {
 			SpringApplication.run(Application.class, args);
 		}
+
 	}
 
 	@Test
 	public void contextLoads() {
+
 	}
+
 }

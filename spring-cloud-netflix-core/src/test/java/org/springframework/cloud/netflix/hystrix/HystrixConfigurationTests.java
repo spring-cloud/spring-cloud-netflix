@@ -21,7 +21,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * @author Dave Syer
- *
  */
 public class HystrixConfigurationTests {
 

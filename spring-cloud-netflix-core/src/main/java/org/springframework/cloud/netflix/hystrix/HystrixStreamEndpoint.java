@@ -29,4 +29,5 @@ public class HystrixStreamEndpoint extends ServletWrappingEndpoint {
 		super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream",
 				false, true);
 	}
+
 }

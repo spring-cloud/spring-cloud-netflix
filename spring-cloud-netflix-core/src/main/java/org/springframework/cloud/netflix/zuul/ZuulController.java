@@ -47,4 +47,5 @@ public class ZuulController extends ServletWrappingController {
 			RequestContext.getCurrentContext().unset();
 		}
 	}
+
 }

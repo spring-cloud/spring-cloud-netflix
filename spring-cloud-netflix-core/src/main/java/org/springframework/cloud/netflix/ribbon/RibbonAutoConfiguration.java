@@ -33,7 +33,8 @@ import org.springframework.web.client.RestTemplate;
 import com.netflix.client.IClient;
 
 /**
- * Auto configuration for Ribbon (client side load balancing)
+ * Auto configuration for Ribbon (client side load balancing).
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  */

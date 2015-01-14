@@ -27,4 +27,5 @@ public interface HystrixStreamChannel {
 
 	@Gateway(requestChannel = "hystrixStream")
 	public void send(String s);
+
 }

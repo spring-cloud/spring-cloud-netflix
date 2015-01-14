@@ -23,7 +23,6 @@ import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 
 /**
  * @author Dave Syer
- *
  */
 public class SimpleRouteLocator implements RouteLocator {
 

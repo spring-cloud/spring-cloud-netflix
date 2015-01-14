@@ -28,10 +28,11 @@ import com.netflix.turbine.monitor.cluster.ObservationCriteria;
 import com.netflix.turbine.monitor.instance.InstanceUrlClosure;
 
 /**
- * @author Spencer Gibb TODO: convert to ConfigurationProperties (how to do per-cluster
- * configuration?)
+ * @author Spencer Gibb
  */
 public class SpringClusterMonitor extends AggregateClusterMonitor {
+
+	// TODO: convert to ConfigurationProperties (how to do per-cluster configuration?
 
 	public SpringClusterMonitor(String name, String clusterName) {
 		super(name, new ObservationCriteria.ClusterBasedObservationCriteria(clusterName),
@@ -56,27 +57,22 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 
 		@Override
 		public String getUrlPath(Instance host) {
-
 			if (host.getCluster() == null) {
 				throw new RuntimeException(
 						"Host must have cluster name in order to use ClusterConfigBasedUrlClosure");
 			}
-
 			String key = "turbine.instanceUrlSuffix." + host.getCluster();
 			DynamicStringProperty urlClosureConfig = DynamicPropertyFactory.getInstance()
 					.getStringProperty(key, null);
-
 			String url = urlClosureConfig.get();
 			if (url == null) {
 				url = this.defaultUrlClosureConfig.get();
 			}
-
 			if (url == null) {
 				throw new RuntimeException("Config property: "
 						+ urlClosureConfig.getName() + " or "
 						+ this.defaultUrlClosureConfig.getName() + " must be set");
 			}
-
 			String insertPortKey = "turbine.instanceInsertPort." + host.getCluster();
 			DynamicStringProperty insertPortProp = DynamicPropertyFactory.getInstance()
 					.getStringProperty(insertPortKey, null);
@@ -87,7 +83,6 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 			else {
 				insertPort = Boolean.parseBoolean(insertPortProp.get());
 			}
-
 			if (insertPort) {
 				if (url.startsWith("/")) {
 					url = url.substring(1);
@@ -99,8 +94,8 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 				return String.format("http://%s:%s/%s", host.getHostname(), host
 						.getAttributes().get("port"), url);
 			}
-
 			return "http://" + host.getHostname() + url;
 		}
 	};
+
 }

@@ -34,7 +34,8 @@ import org.springframework.core.env.StandardEnvironment;
  * @author Spencer Gibb
  */
 public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration {
-	ConfigurableEnvironment environment;
+
+	private final ConfigurableEnvironment environment;
 
 	public ConfigurableEnvironmentConfiguration(ConfigurableEnvironment environment) {
 		this.environment = environment;
@@ -77,14 +78,8 @@ public class ConfigurableEnvironmentConfiguration extends AbstractConfiguration 
 
 	private Map<String, PropertySource<?>> getPropertySources() {
 		Map<String, PropertySource<?>> map = new LinkedHashMap<>();
-		MutablePropertySources sources;
-		if (this.environment != null
-				&& this.environment instanceof ConfigurableEnvironment) {
-			sources = this.environment.getPropertySources();
-		}
-		else {
-			sources = new StandardEnvironment().getPropertySources();
-		}
+		MutablePropertySources sources = (this.environment != null ? this.environment
+				.getPropertySources() : new StandardEnvironment().getPropertySources());
 		for (PropertySource<?> source : sources) {
 			extract("", map, source);
 		}

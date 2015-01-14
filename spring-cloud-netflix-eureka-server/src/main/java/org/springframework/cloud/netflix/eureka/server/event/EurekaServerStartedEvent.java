@@ -22,7 +22,6 @@ import com.netflix.eureka.EurekaServerConfig;
 
 /**
  * @author Dave Syer
- *
  */
 @SuppressWarnings("serial")
 public class EurekaServerStartedEvent extends ApplicationEvent {

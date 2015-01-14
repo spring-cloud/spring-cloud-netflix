@@ -68,14 +68,13 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		Stopwatch tracer = context.getExecuteTracer().start();
 
 		try {
-
 			T returnVal = request.apply(ribbonServer);
 			recordStats(context, tracer, serverStats, returnVal, null);
 			return returnVal;
 		}
-		catch (Exception e) {
-			recordStats(context, tracer, serverStats, null, e);
-			Throwables.propagate(e);
+		catch (Exception ex) {
+			recordStats(context, tracer, serverStats, null, ex);
+			Throwables.propagate(ex);
 		}
 		return null;
 	}
@@ -127,5 +126,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		public int getPort() {
 			return this.server.getPort();
 		}
+
 	}
+
 }

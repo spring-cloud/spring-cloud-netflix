@@ -30,8 +30,11 @@ import com.netflix.appinfo.InstanceInfo;
 @EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
 public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
+
 	private InstanceInfo instanceInfo;
+
 	private int leaseDuration;
+
 	boolean replication;
 
 	public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo,
@@ -41,4 +44,5 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 		this.leaseDuration = leaseDuration;
 		this.replication = replication;
 	}
+
 }

@@ -59,6 +59,37 @@ public class SpringDecoderTests extends FeignConfiguration {
 		return feign().target(TestClient.class, "http://localhost:" + this.port);
 	}
 
+	@Test
+	public void testSimpleType() {
+		Hello hello = testClient().getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
+
+	@Test
+	public void testUserParameterizedTypeDecode() {
+		List<Hello> hellos = testClient().getHellos();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos was not the right size", 2, hellos.size());
+		assertEquals("first hello didn't match", new Hello("hello world 1"),
+				hellos.get(0));
+	}
+
+	@Test
+	public void testSimpleParameterizedTypeDecode() {
+		List<String> hellos = testClient().getHelloStrings();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos was not the right size", 2, hellos.size());
+		assertEquals("first hello didn't match", "hello world 1", hellos.get(0));
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class Hello {
+		private String message;
+	}
+
 	protected static interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello();
@@ -103,34 +134,4 @@ public class SpringDecoderTests extends FeignConfiguration {
 		}
 	}
 
-	@Test
-	public void testSimpleType() {
-		Hello hello = testClient().getHello();
-		assertNotNull("hello was null", hello);
-		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
-	}
-
-	@Test
-	public void testUserParameterizedTypeDecode() {
-		List<Hello> hellos = testClient().getHellos();
-		assertNotNull("hellos was null", hellos);
-		assertEquals("hellos was not the right size", 2, hellos.size());
-		assertEquals("first hello didn't match", new Hello("hello world 1"),
-				hellos.get(0));
-	}
-
-	@Test
-	public void testSimpleParameterizedTypeDecode() {
-		List<String> hellos = testClient().getHelloStrings();
-		assertNotNull("hellos was null", hellos);
-		assertEquals("hellos was not the right size", 2, hellos.size());
-		assertEquals("first hello didn't match", "hello world 1", hellos.get(0));
-	}
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class Hello {
-		private String message;
-	}
 }

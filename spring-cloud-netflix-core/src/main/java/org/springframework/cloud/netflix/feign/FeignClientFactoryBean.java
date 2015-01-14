@@ -29,7 +29,9 @@ import org.springframework.beans.factory.FactoryBean;
 class FeignClientFactoryBean extends FeignConfiguration implements FactoryBean<Object> {
 
 	private boolean loadbalance;
+
 	private Class<?> type;
+
 	private String schemeName;
 
 	@Override
@@ -52,4 +54,5 @@ class FeignClientFactoryBean extends FeignConfiguration implements FactoryBean<O
 	public boolean isSingleton() {
 		return true;
 	}
+
 }

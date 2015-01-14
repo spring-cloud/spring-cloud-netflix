@@ -34,7 +34,6 @@ import com.netflix.discovery.converters.XmlXStream;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties

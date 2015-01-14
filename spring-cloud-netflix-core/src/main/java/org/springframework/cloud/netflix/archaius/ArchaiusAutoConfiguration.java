@@ -56,6 +56,7 @@ public class ArchaiusAutoConfiguration {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ArchaiusAutoConfiguration.class);
+
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
 	@Autowired
@@ -117,8 +118,8 @@ public class ArchaiusAutoConfiguration {
 			try {
 				config.addConfiguration(defaultURLConfig, URL_CONFIG_NAME);
 			}
-			catch (Throwable e) {
-				logger.error("Cannot create config from " + defaultURLConfig, e);
+			catch (Throwable ex) {
+				logger.error("Cannot create config from " + defaultURLConfig, ex);
 			}
 
 			// TODO: sys/env above urls?

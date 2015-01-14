@@ -53,29 +53,25 @@ public class Aggregator {
 			log.debug("Received hystrix stream payload: {}", data);
 			this.subject.onNext(data);
 		}
-		catch (IOException e) {
-			log.error("Error receiving hystrix stream payload: " + payload, e);
+		catch (IOException ex) {
+			log.error("Error receiving hystrix stream payload: " + payload, ex);
 		}
 	}
 
 	public static Map<String, Object> getPayloadData(Map<String, Object> jsonMap) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> origin = (Map<String, Object>) jsonMap.get("origin");
-
 		String instanceId = null;
 		if (origin.containsKey("id")) {
 			instanceId = origin.get("id").toString();
 		}
-
 		if (!StringUtils.hasText(instanceId)) {
 			// TODO: instanceid template
 			instanceId = origin.get("serviceId") + ":" + origin.get("host") + ":"
 					+ origin.get("port");
 		}
-
 		@SuppressWarnings("unchecked")
 		Map<String, Object> data = (Map<String, Object>) jsonMap.get("data");
-
 		data.put("instanceId", instanceId);
 		return data;
 	}

@@ -43,11 +43,15 @@ import com.netflix.loadbalancer.ILoadBalancer;
  * creates a Spring ApplicationContext per client name, and extracts the beans that it
  * needs from there.
  *
+ * @author Spencer Gibb
+ * @author Dave Syer
  */
 public class SpringClientFactory implements DisposableBean, ApplicationContextAware {
 
 	private Map<String, AnnotationConfigApplicationContext> contexts = new ConcurrentHashMap<>();
+
 	private Map<String, RibbonClientSpecification> configurations = new ConcurrentHashMap<>();
+
 	private ApplicationContext parent;
 
 	@Override
@@ -72,7 +76,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the rest client associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public <C extends IClient<?, ?>> C getClient(String name, Class<C> clientClass) {
@@ -81,7 +84,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the load balancer associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public ILoadBalancer getLoadBalancer(String name) {
@@ -90,7 +92,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the client config associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public IClientConfig getClientConfig(String name) {
@@ -99,7 +100,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the load balancer context associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public RibbonLoadBalancerContext getLoadBalancerContext(String serviceId) {
@@ -169,7 +169,8 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 					result = BeanUtils.instantiate(clazz);
 				}
 			}
-			catch (Throwable e) { // NOPMD
+			catch (Throwable ex) {
+				// NOPMD
 			}
 		}
 		context.getAutowireCapableBeanFactory().autowireBean(result);

@@ -20,7 +20,6 @@ import java.util.Collection;
 
 /**
  * @author Dave Syer
- *
  */
 public interface RouteLocator {
 

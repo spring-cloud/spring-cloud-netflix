@@ -57,14 +57,10 @@ public class EurekaController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String status(HttpServletRequest request, Map<String, Object> model) {
 		populateBase(request, model);
-
 		populateApps(model);
-
 		StatusInfo statusInfo = new StatusResource().getStatusInfo();
 		model.put("statusInfo", statusInfo);
-
 		populateInstanceInfo(model, statusInfo);
-
 		return "eureka/status";
 	}
 
@@ -72,7 +68,6 @@ public class EurekaController {
 	public String lastn(HttpServletRequest request, Map<String, Object> model) {
 		populateBase(request, model);
 		PeerAwareInstanceRegistry registery = PeerAwareInstanceRegistry.getInstance();
-
 		ArrayList<Map<String, Object>> lastNCanceled = new ArrayList<>();
 		List<Pair<Long, String>> list = registery.getLastNCanceledInstances();
 		for (Pair<Long, String> entry : list) {
@@ -80,7 +75,6 @@ public class EurekaController {
 					.longValue()));
 		}
 		model.put("lastNCanceled", lastNCanceled);
-
 		list = registery.getLastNRegisteredInstances();
 		ArrayList<Map<String, Object>> lastNRegistered = new ArrayList<>();
 		for (Pair<Long, String> entry : list) {
@@ -88,7 +82,6 @@ public class EurekaController {
 					.longValue()));
 		}
 		model.put("lastNRegistered", lastNRegistered);
-
 		return "eureka/lastn";
 	}
 
@@ -104,9 +97,7 @@ public class EurekaController {
 		model.put("basePath", "/");
 		model.put("dashboardPath", this.dashboardPath.equals("/") ? ""
 				: this.dashboardPath);
-
 		populateHeader(model);
-
 		populateNavbar(request, model);
 	}
 
@@ -120,7 +111,6 @@ public class EurekaController {
 		model.put("registry", PeerAwareInstanceRegistry.getInstance());
 		model.put("isBelowRenewThresold", PeerAwareInstanceRegistry.getInstance()
 				.isBelowRenewThresold() == 1);
-
 		DataCenterInfo info = ApplicationInfoManager.getInstance().getInfo()
 				.getDataCenterInfo();
 		if (info.getName() == DataCenterInfo.Name.Amazon) {
@@ -143,7 +133,7 @@ public class EurekaController {
 				String href = node.getServiceUrl();
 				replicas.put(uri.getHost(), href);
 			}
-			catch (Exception e) {
+			catch (Exception ex) {
 				// ignore?
 			}
 		}
@@ -153,18 +143,14 @@ public class EurekaController {
 	private void populateApps(Map<String, Object> model) {
 		List<com.netflix.discovery.shared.Application> sortedApplications = PeerAwareInstanceRegistry
 				.getInstance().getSortedApplications();
-
 		ArrayList<Map<String, Object>> apps = new ArrayList<>();
-
 		for (Application app : sortedApplications) {
 			LinkedHashMap<String, Object> appData = new LinkedHashMap<>();
 			apps.add(appData);
-
 			appData.put("name", app.getName());
 			Map<String, Integer> amiCounts = new HashMap<>();
 			Map<InstanceInfo.InstanceStatus, List<Pair<String, String>>> instancesByStatus = new HashMap<>();
 			Map<String, Integer> zoneCounts = new HashMap<>();
-
 			for (InstanceInfo info : app.getInstances()) {
 				String id = info.getId();
 				String url = info.getStatusPageUrl();
@@ -176,7 +162,6 @@ public class EurekaController {
 					ami = dcInfo.get(AmazonInfo.MetaDataKey.amiId);
 					zone = dcInfo.get(AmazonInfo.MetaDataKey.availabilityZone);
 				}
-
 				Integer count = amiCounts.get(ami);
 				if (count != null) {
 					amiCounts.put(ami, Integer.valueOf(count.intValue() + 1));
@@ -184,7 +169,6 @@ public class EurekaController {
 				else {
 					amiCounts.put(ami, Integer.valueOf(1));
 				}
-
 				count = zoneCounts.get(zone);
 				if (count != null) {
 					zoneCounts.put(zone, Integer.valueOf(count.intValue() + 1));
@@ -193,34 +177,30 @@ public class EurekaController {
 					zoneCounts.put(zone, Integer.valueOf(1));
 				}
 				List<Pair<String, String>> list = instancesByStatus.get(status);
-
 				if (list == null) {
 					list = new ArrayList<>();
 					instancesByStatus.put(status, list);
 				}
 				list.add(new Pair<>(id, url));
 			}
-
 			appData.put("amiCounts", amiCounts.entrySet());
 			appData.put("zoneCounts", zoneCounts.entrySet());
-
 			ArrayList<Map<String, Object>> instanceInfos = new ArrayList<>();
 			appData.put("instanceInfos", instanceInfos);
-
 			for (Iterator<Map.Entry<InstanceInfo.InstanceStatus, List<Pair<String, String>>>> iter = instancesByStatus
 					.entrySet().iterator(); iter.hasNext();) {
 				Map.Entry<InstanceInfo.InstanceStatus, List<Pair<String, String>>> entry = iter
 						.next();
 				List<Pair<String, String>> value = entry.getValue();
 				InstanceInfo.InstanceStatus status = entry.getKey();
-
 				LinkedHashMap<String, Object> instanceData = new LinkedHashMap<>();
 				instanceInfos.add(instanceData);
-
 				instanceData.put("status", entry.getKey());
 				ArrayList<Map<String, Object>> instances = new ArrayList<>();
 				instanceData.put("instances", instances);
 				instanceData.put("isNotUp", status != InstanceInfo.InstanceStatus.UP);
+
+				// TODO
 
 				/*
 				 * if(status != InstanceInfo.InstanceStatus.UP){
@@ -248,13 +228,11 @@ public class EurekaController {
 			}
 			// out.println("<td>" + buf.toString() + "</td></tr>");
 		}
-
 		model.put("apps", apps);
 	}
 
 	private void populateInstanceInfo(Map<String, Object> model, StatusInfo statusInfo) {
 		InstanceInfo instanceInfo = statusInfo.getInstanceInfo();
-
 		Map<String, String> instanceMap = new HashMap<>();
 		instanceMap.put("ipAddr", instanceInfo.getIPAddr());
 		instanceMap.put("status", instanceInfo.getStatus().toString());
@@ -270,7 +248,6 @@ public class EurekaController {
 			instanceMap.put("instance-type",
 					info.get(AmazonInfo.MetaDataKey.instanceType));
 		}
-
 		model.put("instanceInfo", instanceMap);
 	}
 }

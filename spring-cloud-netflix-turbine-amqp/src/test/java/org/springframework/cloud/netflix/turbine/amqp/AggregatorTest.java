@@ -64,22 +64,24 @@ public class AggregatorTest {
 									sub.onNext(data);
 									Thread.sleep(latencyBetweenEvents);
 								}
-								catch (Exception e) {
-									e.printStackTrace();
+								catch (Exception ex) {
+									ex.printStackTrace();
 								}
 							}
 						}
 					}
 				}
 			}
-			catch (Exception e) {
-				sub.onError(e);
+			catch (Exception ex) {
+				sub.onError(ex);
 			}
 		});
 		Observable<GroupedObservable<InstanceKey, Map<String, Object>>> observable = objectObservable
 				.groupBy(data -> InstanceKey.create((String) data.get("instanceId")));
 		return StreamAggregator.aggregateGroupedStreams(observable);
 	}
+
+	// TODO
 
 	/*
 	 * public static GroupedObservable<InstanceKey, Map<String, Object>>

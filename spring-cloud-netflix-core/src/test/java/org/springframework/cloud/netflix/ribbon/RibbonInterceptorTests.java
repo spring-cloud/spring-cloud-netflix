@@ -84,7 +84,8 @@ public class RibbonInterceptorTests {
 	}
 
 	protected static class MyClient implements LoadBalancerClient {
-		ServiceInstance instance;
+
+		private ServiceInstance instance;
 
 		public MyClient(ServiceInstance instance) {
 			this.instance = instance;
@@ -100,8 +101,8 @@ public class RibbonInterceptorTests {
 			try {
 				return request.apply(this.instance);
 			}
-			catch (Exception e) {
-				Throwables.propagate(e);
+			catch (Exception ex) {
+				Throwables.propagate(ex);
 			}
 			return null;
 		}
@@ -111,5 +112,7 @@ public class RibbonInterceptorTests {
 			return UriComponentsBuilder.fromUri(original).host(instance.getHost())
 					.port(instance.getPort()).build().toUri();
 		}
+
 	}
+
 }

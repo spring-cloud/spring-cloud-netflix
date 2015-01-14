@@ -43,8 +43,8 @@ import com.netflix.hystrix.HystrixThreadPoolMetrics;
 import com.netflix.hystrix.util.HystrixRollingNumberEvent;
 
 /**
- * @author Spencer Gibb see
- * com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsPoller
+ * @author Spencer Gibb
+ * @see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsPoller
  */
 @Slf4j
 public class HystrixStreamTask implements ApplicationContextAware {
@@ -84,8 +84,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				try {
 					this.channel.send(json);
 				}
-				catch (Exception e) {
-					e.printStackTrace();
+				catch (Exception ex) {
+					ex.printStackTrace();
 				}
 			}
 		}
@@ -247,6 +247,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 						commandProperties
 								.fallbackIsolationSemaphoreMaxConcurrentRequests().get());
 
+				// TODO
 				/*
 				 * The following are commented out as these rarely change and are verbose
 				 * for streaming for something people don't change. We could perhaps allow
@@ -339,14 +340,13 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				this.jsonMetrics.add(jsonString.getBuffer().toString());
 			}
 		}
-		catch (Exception e) {
-			log.error("Error adding metrics to queue", e);
+		catch (Exception ex) {
+			log.error("Error adding metrics to queue", ex);
 		}
 	}
 
 	private void addServiceData(JsonGenerator json, ServiceInstance localService)
 			throws IOException {
-
 		json.writeObjectFieldStart("origin");
 		json.writeStringField("host", localService.getHost());
 		json.writeNumberField("port", localService.getPort());
@@ -356,4 +356,5 @@ public class HystrixStreamTask implements ApplicationContextAware {
 		}
 		json.writeEndObject();
 	}
+
 }

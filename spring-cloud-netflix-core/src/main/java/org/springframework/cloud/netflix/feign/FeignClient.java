@@ -29,6 +29,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface FeignClient {
+
 	/**
 	 * @return serviceId if loadbalance is true, url otherwise No need to prefix serviceId
 	 * with http://
@@ -36,4 +37,5 @@ public @interface FeignClient {
 	String value();
 
 	boolean loadbalance() default true;
+
 }

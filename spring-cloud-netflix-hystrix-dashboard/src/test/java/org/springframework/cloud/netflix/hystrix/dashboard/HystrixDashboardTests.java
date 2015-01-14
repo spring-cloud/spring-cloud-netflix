@@ -35,7 +35,6 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -74,10 +73,12 @@ public class HystrixDashboardTests {
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {
+
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=hystrix-dashboard").run();
 		}
+
 	}
 
 }
