@@ -2,4 +2,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.cloud.netflix.turbine.amqp.TurbineAmqpAutoConfiguration
 
 org.springframework.context.ApplicationListener=\
-org.springframework.cloud.netflix.turbine.amqp.TurbinePortSpringApplicationRunListener
+org.springframework.cloud.netflix.turbine.amqp.TurbinePortApplicationListener

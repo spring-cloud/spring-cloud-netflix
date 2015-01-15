@@ -7,7 +7,7 @@ import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEven
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.MapPropertySource;
 
-public class TurbinePortSpringApplicationRunListener implements
+public class TurbinePortApplicationListener implements
 		ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
 	@Override
@@ -21,11 +21,20 @@ public class TurbinePortSpringApplicationRunListener implements
 		if (serverPort == null && managementPort == null) {
 			return;
 		}
-		if (serverPort != -1) {
+		if (serverPort != Integer.valueOf(-1)) {
 			Map<String, Object> ports = new HashMap<String, Object>();
-			ports.put("server.port", -1);
-			if (serverPort != null && turbinePort==null) {
-				ports.put("turbine.amqp.port", serverPort);
+			if (turbinePort == null) {
+				// The actual server.port used by the application forced to be -1 (no user
+				// endpoints) because no value was provided for turbine
+				ports.put("server.port", -1);
+				if (serverPort != null) {
+					// Turbine port defaults to server port value supplied by user
+					ports.put("turbine.amqp.port", serverPort);
+				}
+			}
+			else if (managementPort != null && serverPort == null) {
+				// User wants 2 ports, but hasn't specified server.port explicitly
+				ports.put("server.port", managementPort);
 			}
 			event.getEnvironment().getPropertySources()
 					.addFirst(new MapPropertySource("ports", ports));
