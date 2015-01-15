@@ -15,7 +15,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.Constants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Configuration
 @ConditionalOnClass(AmqpTemplate.class)
-@ConditionalOnExpression("${turbine.amqp.enabled:true}")
+@ConditionalOnProperty(value = "turbine.amqp.enabled", matchIfMissing = true)
 public class TurbineAmqpAutoConfiguration {
 
 	@Autowired

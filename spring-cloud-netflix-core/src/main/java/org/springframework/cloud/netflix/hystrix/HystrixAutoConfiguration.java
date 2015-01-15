@@ -20,7 +20,7 @@ import org.springframework.boot.actuate.autoconfigure.HealthIndicatorAutoConfigu
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,7 +32,7 @@ import com.netflix.hystrix.Hystrix;
  */
 @Configuration
 @ConditionalOnClass({ Hystrix.class, HealthIndicator.class })
-@ConditionalOnExpression("${health.hystrix.enabled:true}")
+@ConditionalOnProperty(value = "health.hystrix.enabled", matchIfMissing = true)
 @AutoConfigureAfter({ HealthIndicatorAutoConfiguration.class })
 public class HystrixAutoConfiguration {
 

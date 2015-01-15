@@ -7,7 +7,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.Constants;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,7 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
  */
 @Configuration
 @ConditionalOnClass({ HystrixCircuitBreaker.class, RabbitTemplate.class })
-@ConditionalOnExpression("${hystrix.stream.amqp.enabled:true}")
+@ConditionalOnProperty(value = "hystrix.stream.amqp.enabled", matchIfMissing = true)
 @IntegrationComponentScan(basePackageClasses = HystrixStreamChannel.class)
 @EnableConfigurationProperties
 @EnableScheduling
