@@ -1,18 +1,22 @@
 package org.springframework.cloud.netflix.turbine.amqp;
 
+import static org.springframework.cloud.netflix.turbine.amqp.Aggregator.getPayloadData;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
+
+import org.springframework.util.ReflectionUtils;
+
+import rx.Observable;
+import rx.observables.GroupedObservable;
 
 import com.netflix.turbine.aggregator.InstanceKey;
 import com.netflix.turbine.aggregator.StreamAggregator;
 import com.netflix.turbine.aggregator.TypeAndNameKey;
 import com.netflix.turbine.internal.JsonUtility;
 
-import rx.Observable;
-import rx.observables.GroupedObservable;
-import static org.springframework.cloud.netflix.turbine.amqp.Aggregator.getPayloadData;
 
 public class AggregatorTest {
 
@@ -41,7 +45,7 @@ public class AggregatorTest {
                                     sub.onNext(data);
                                     Thread.sleep(latencyBetweenEvents);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    ReflectionUtils.rethrowException(e);
                                 }
                             }
                         }
