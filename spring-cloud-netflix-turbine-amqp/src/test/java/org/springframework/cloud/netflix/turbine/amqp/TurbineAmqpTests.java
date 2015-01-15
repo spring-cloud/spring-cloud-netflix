@@ -17,6 +17,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "turbine.amqp.port=0", "spring.jmx.enabled=true" })
 public class TurbineAmqpTests {
+
 	@EnableAutoConfiguration
 	@EnableTurbineAmqp
 	public static class Application {

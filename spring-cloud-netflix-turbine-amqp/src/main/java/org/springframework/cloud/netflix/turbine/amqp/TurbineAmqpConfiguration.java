@@ -15,8 +15,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.util.SocketUtils;
+
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -36,6 +36,7 @@ public class TurbineAmqpConfiguration implements SmartLifecycle {
 
 	@Autowired
 	private TurbineAmqpProperties turbine;
+
 	private int turbinePort;
 
 	@Bean
