@@ -42,6 +42,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -64,8 +65,6 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -77,12 +76,10 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
+@CommonsLog
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
-
-	private static final Logger LOG = LoggerFactory
-			.getLogger(SimpleHostRoutingFilter.class);
 
 	private static final Runnable CLIENTLOADER = new Runnable() {
 		@Override
@@ -120,7 +117,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					hc.getConnectionManager().closeExpiredConnections();
 				}
 				catch (Throwable ex) {
-					LOG.error("error closing expired connections", ex);
+					log.error("error closing expired connections", ex);
 				}
 			}
 		}, 30000, 5000);
@@ -211,11 +208,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			break;
 		default:
 			httpRequest = new BasicHttpRequest(verb, uri + getQueryString());
-			LOG.debug(uri + getQueryString());
+			log.debug(uri + getQueryString());
 		}
 		try {
 			httpRequest.setHeaders(convertHeaders(headers));
-			LOG.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
+			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
 			HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
 			this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
@@ -319,7 +316,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 						oldClient.getConnectionManager().shutdown();
 					}
 					catch (Throwable ex) {
-						LOG.error("error shutting down old connection manager", ex);
+						log.error("error shutting down old connection manager", ex);
 					}
 				}
 			}, 30000);

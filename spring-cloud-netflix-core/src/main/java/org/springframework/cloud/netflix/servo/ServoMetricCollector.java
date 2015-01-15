@@ -21,8 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -43,7 +42,7 @@ import com.netflix.servo.publish.PollScheduler;
  * @author Dave Syer
  * @author Christian Dupuis
  */
-@Slf4j
+@CommonsLog
 public class ServoMetricCollector implements DisposableBean {
 
 	public ServoMetricCollector(MetricWriter metrics) {

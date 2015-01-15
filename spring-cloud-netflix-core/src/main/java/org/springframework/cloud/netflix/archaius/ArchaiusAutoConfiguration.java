@@ -21,11 +21,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.configuration.ConfigurationBuilder;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -52,10 +51,8 @@ import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
  */
 @Configuration
 @ConditionalOnClass({ ConcurrentCompositeConfiguration.class, ConfigurationBuilder.class })
+@CommonsLog
 public class ArchaiusAutoConfiguration {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(ArchaiusAutoConfiguration.class);
 
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
@@ -94,7 +91,7 @@ public class ArchaiusAutoConfiguration {
 			String appName = this.env.getProperty("spring.application.name");
 			if (appName == null) {
 				appName = "application";
-				logger.warn("No spring.application.name found, defaulting to 'application'");
+				log.warn("No spring.application.name found, defaulting to 'application'");
 			}
 			// this is deprecated, but currently it seams the only way to set it initially
 			System.setProperty(DEPLOYMENT_APPLICATION_ID_PROPERTY, appName);
@@ -119,7 +116,7 @@ public class ArchaiusAutoConfiguration {
 				config.addConfiguration(defaultURLConfig, URL_CONFIG_NAME);
 			}
 			catch (Throwable ex) {
-				logger.error("Cannot create config from " + defaultURLConfig, ex);
+				log.error("Cannot create config from " + defaultURLConfig, ex);
 			}
 
 			// TODO: sys/env above urls?
@@ -141,7 +138,7 @@ public class ArchaiusAutoConfiguration {
 		}
 		else {
 			// TODO: reinstall ConfigurationManager
-			logger.warn("Netflix ConfigurationManager has already been installed, unable to re-install");
+			log.warn("Netflix ConfigurationManager has already been installed, unable to re-install");
 		}
 	}
 

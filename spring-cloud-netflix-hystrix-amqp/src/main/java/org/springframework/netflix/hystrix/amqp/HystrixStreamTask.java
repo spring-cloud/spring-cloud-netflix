@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.springframework.beans.BeansException;
@@ -46,7 +45,7 @@ import com.netflix.hystrix.util.HystrixRollingNumberEvent;
  * @author Spencer Gibb
  * @see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsPoller
  */
-@Slf4j
+@CommonsLog
 public class HystrixStreamTask implements ApplicationContextAware {
 
 	@Autowired

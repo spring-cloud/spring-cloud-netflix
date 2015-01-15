@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -35,8 +36,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -87,12 +86,10 @@ public class HystrixDashboardConfiguration {
 	 * not yet support CORS (https://bugs.webkit.org/show_bug.cgi?id=61862) so that a UI
 	 * can request a stream from a different server.
 	 */
+	@CommonsLog
 	public static class ProxyStreamServlet extends HttpServlet {
 
 		private static final long serialVersionUID = 1L;
-
-		private static final Logger logger = LoggerFactory
-				.getLogger(ProxyStreamServlet.class);
 
 		public ProxyStreamServlet() {
 			super();
@@ -141,7 +138,7 @@ public class HystrixDashboardConfiguration {
 				}
 			}
 			String proxyUrl = url.toString();
-			logger.info("\n\nProxy opening connection to: " + proxyUrl + "\n\n");
+			log.info("\n\nProxy opening connection to: " + proxyUrl + "\n\n");
 			try {
 				httpget = new HttpGet(proxyUrl);
 				HttpClient client = ProxyConnectionManager.httpClient;
@@ -177,7 +174,7 @@ public class HystrixDashboardConfiguration {
 									.equalsIgnoreCase("ClientAbortException")) {
 								// don't throw an exception as this means the user closed
 								// the connection
-								logger.debug("Connection closed by client. Will stop proxying ...");
+								log.debug("Connection closed by client. Will stop proxying ...");
 								// break out of the while loop
 								break;
 							}
@@ -191,7 +188,7 @@ public class HystrixDashboardConfiguration {
 				}
 			}
 			catch (Exception ex) {
-				logger.error("Error proxying request: " + url, ex);
+				log.error("Error proxying request: " + url, ex);
 			}
 			finally {
 				if (httpget != null) {
@@ -199,7 +196,7 @@ public class HystrixDashboardConfiguration {
 						httpget.abort();
 					}
 					catch (Exception ex) {
-						logger.error("failed aborting proxy connection.", ex);
+						log.error("failed aborting proxy connection.", ex);
 					}
 				}
 
@@ -225,7 +222,7 @@ public class HystrixDashboardConfiguration {
 					threadSafeConnectionManager);
 
 			static {
-				logger.debug("Initialize ProxyConnectionManager");
+				log.debug("Initialize ProxyConnectionManager");
 				/* common settings */
 				HttpParams httpParams = httpClient.getParams();
 				HttpConnectionParams.setConnectionTimeout(httpParams, 5000);

@@ -18,8 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.RequestDispatcher;
 
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.base.Throwables;
@@ -29,7 +28,7 @@ import com.netflix.zuul.context.RequestContext;
 /**
  * @author Spencer Gibb
  */
-@Slf4j
+@CommonsLog
 public class SendErrorFilter extends ZuulFilter {
 
 	protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";

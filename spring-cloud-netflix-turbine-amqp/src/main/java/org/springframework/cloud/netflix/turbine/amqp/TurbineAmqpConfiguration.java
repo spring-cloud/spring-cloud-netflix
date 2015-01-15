@@ -23,8 +23,7 @@ import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
 
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.SmartLifecycle;
@@ -45,7 +44,7 @@ import static io.reactivex.netty.pipeline.PipelineConfigurators.sseServerConfigu
  * @author Spencer Gibb
  */
 @Configuration
-@Slf4j
+@CommonsLog
 @EnableConfigurationProperties(TurbineAmqpProperties.class)
 public class TurbineAmqpConfiguration implements SmartLifecycle {
 

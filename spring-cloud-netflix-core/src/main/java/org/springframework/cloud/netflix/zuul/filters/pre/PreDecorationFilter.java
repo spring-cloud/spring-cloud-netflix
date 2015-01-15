@@ -21,8 +21,7 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.cloud.netflix.zuul.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.cloud.netflix.zuul.ZuulProperties;
@@ -31,9 +30,8 @@ import org.springframework.util.StringUtils;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+@CommonsLog
 public class PreDecorationFilter extends ZuulFilter {
-
-	private static Logger LOG = LoggerFactory.getLogger(PreDecorationFilter.class);
 
 	private ProxyRouteLocator routeLocator;
 
@@ -91,7 +89,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			}
 		}
 		else {
-			LOG.warn("No route found for uri: " + requestURI);
+			log.warn("No route found for uri: " + requestURI);
 			ctx.set("error.status_code", HttpServletResponse.SC_NOT_FOUND);
 		}
 		return null;

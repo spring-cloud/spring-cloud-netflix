@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
@@ -39,9 +38,8 @@ import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.Aggreg
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFromCluster> {
-	private static final Logger logger = LoggerFactory
-			.getLogger(SpringAggregatorFactory.class);
 
 	private static final DynamicStringProperty aggClusters = DynamicPropertyFactory
 			.getInstance().getStringProperty("turbine.aggregator.clusterConfig", null);
@@ -62,7 +60,7 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 		TurbineDataMonitor<AggDataFromCluster> clusterMonitor = AggregatorClusterMonitorConsole
 				.findMonitor(clusterName + "_agg");
 		if (clusterMonitor == null) {
-			logger.info("Could not find monitors: "
+			log.info("Could not find monitors: "
 					+ AggregatorClusterMonitorConsole.toString());
 			clusterMonitor = new SpringClusterMonitor(clusterName + "_agg", clusterName);
 			clusterMonitor = AggregatorClusterMonitorConsole
@@ -80,7 +78,7 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 				clusterMonitor.startMonitor();
 			}
 			catch (Exception ex) {
-				logger.warn("Could not init cluster monitor for: " + clusterName);
+				log.warn("Could not init cluster monitor for: " + clusterName);
 				clusterMonitor.stopMonitor();
 				clusterMonitor.getDispatcher().stopDispatcher();
 			}

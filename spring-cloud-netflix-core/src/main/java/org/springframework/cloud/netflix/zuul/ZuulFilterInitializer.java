@@ -22,8 +22,7 @@ import java.util.Map;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.zuul.FilterLoader;
@@ -36,10 +35,8 @@ import com.netflix.zuul.monitoring.MonitoringHelper;
  *
  * TODO: .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
  */
+@CommonsLog
 public class ZuulFilterInitializer implements ServletContextListener {
-
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(ZuulFilterInitializer.class);
 
 	private Map<String, ZuulFilter> filters;
 
@@ -50,7 +47,7 @@ public class ZuulFilterInitializer implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 
-		LOGGER.info("Starting filter initializer context listener");
+		log.info("Starting filter initializer context listener");
 
 		// FIXME: mocks monitoring infrastructure as we don't need it for this simple app
 		MonitoringHelper.initMocks();
@@ -64,7 +61,7 @@ public class ZuulFilterInitializer implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		LOGGER.info("Stopping filter initializer context listener");
+		log.info("Stopping filter initializer context listener");
 		FilterRegistry registry = FilterRegistry.instance();
 		for (Map.Entry<String, ZuulFilter> entry : this.filters.entrySet()) {
 			registry.remove(entry.getKey());
@@ -88,7 +85,7 @@ public class ZuulFilterInitializer implements ServletContextListener {
 	 * FilterLoader.getInstance().setCompiler(new GroovyCompiler());
 	 * 
 	 * final String scriptRoot = props.getFilterRoot();
-	 * LOGGER.info("Using file system script: " + scriptRoot);
+	 * log.info("Using file system script: " + scriptRoot);
 	 * 
 	 * try { FilterFileManager.setFilenameFilter(new GroovyFileFilter());
 	 * FilterFileManager.init(5, scriptRoot + "/pre", scriptRoot + "/route", scriptRoot +

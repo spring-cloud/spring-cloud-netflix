@@ -22,8 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -52,10 +51,8 @@ import com.netflix.turbine.discovery.InstanceDiscovery;
  *
  * @author Spencer Gibb
  */
+@CommonsLog
 public class EurekaInstanceDiscovery implements InstanceDiscovery {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(EurekaInstanceDiscovery.class);
 
 	// Property the controls the list of applications that are enabled in Eureka
 	private static final DynamicStringProperty ApplicationList = DynamicPropertyFactory
@@ -82,22 +79,22 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 		List<Instance> instances = new ArrayList<Instance>();
 		List<String> appNames = parseApps();
 		if (appNames == null || appNames.size() == 0) {
-			logger.info("No apps configured, returning an empty instance list");
+			log.info("No apps configured, returning an empty instance list");
 			return instances;
 		}
-		logger.info("Fetching instance list for apps: " + appNames);
+		log.info("Fetching instance list for apps: " + appNames);
 		for (String appName : appNames) {
 			try {
 				instances.addAll(getInstancesForApp(appName));
 			}
 			catch (Exception ex) {
-				logger.error("Failed to fetch instances for app: " + appName
+				log.error("Failed to fetch instances for app: " + appName
 						+ ", retrying once more", ex);
 				try {
 					instances.addAll(getInstancesForApp(appName));
 				}
 				catch (Exception retryException) {
-					logger.error("Failed again to fetch instances for app: " + appName
+					log.error("Failed again to fetch instances for app: " + appName
 							+ ", giving up", ex);
 				}
 			}
@@ -113,16 +110,15 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	 */
 	private List<Instance> getInstancesForApp(String appName) throws Exception {
 		List<Instance> instances = new ArrayList<Instance>();
-		logger.info("Fetching instances for app: {}", appName);
+		log.info("Fetching instances for app: " + appName);
 		Application app = DiscoveryManager.getInstance().getDiscoveryClient()
 				.getApplication(appName);
 		if (app == null) {
-			logger.warn("Eureka returned null for app: {}", appName);
+			log.warn("Eureka returned null for app: " + appName);
 		}
 		List<InstanceInfo> instancesForApp = app.getInstances();
 		if (instancesForApp != null) {
-			logger.info("Received instance list for app: {} = {}", appName,
-					instancesForApp.size());
+			log.info("Received instance list for app: "+appName+" = " + instancesForApp.size());
 			for (InstanceInfo iInfo : instancesForApp) {
 				Instance instance = marshallInstanceInfo(iInfo);
 				if (instance != null) {

@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.netflix.config;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -46,7 +46,7 @@ import com.netflix.discovery.DiscoveryClient;
 @Configuration
 @EnableDiscoveryClient
 @Import(EurekaClientAutoConfiguration.class)
-@Slf4j
+@CommonsLog
 public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 		ApplicationListener<ContextRefreshedEvent> {
 

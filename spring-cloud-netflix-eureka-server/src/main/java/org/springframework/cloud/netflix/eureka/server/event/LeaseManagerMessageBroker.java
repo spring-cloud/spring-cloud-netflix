@@ -20,8 +20,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
 import org.springframework.context.ApplicationContext;
@@ -38,9 +37,8 @@ import static com.google.common.collect.Iterables.tryFind;
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo> {
-	private static final Logger logger = LoggerFactory
-			.getLogger(LeaseManagerMessageBroker.class);
 
 	@Autowired
 	private ApplicationContext ctxt;
@@ -52,8 +50,8 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 
 	@Override
 	public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {
-		logger.debug("register {}, vip {}, leaseDuration {}, isReplication {}",
-				info.getAppName(), info.getVIPAddress(), leaseDuration, isReplication);
+		log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
+				+ ", leaseDuration " + leaseDuration + ", isReplication " + isReplication);
 		// TODO: what to publish from info (whole object?)
 		this.ctxt.publishEvent(new EurekaInstanceRegisteredEvent(this, info,
 				leaseDuration, isReplication));
@@ -61,8 +59,8 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 
 	@Override
 	public boolean cancel(String appName, String serverId, boolean isReplication) {
-		logger.debug("cancel {}, serverId {}, isReplication {}", appName, serverId,
-				isReplication);
+		log.debug("cancel " + appName + " serverId " + serverId + ", isReplication {}"
+				+ isReplication);
 		this.ctxt.publishEvent(new EurekaInstanceCanceledEvent(this, appName, serverId,
 				isReplication));
 		return false;
@@ -71,8 +69,8 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 	@Override
 	public boolean renew(final String appName, final String serverId,
 			boolean isReplication) {
-		logger.debug("renew {}, serverId {}, isReplication {}", appName, serverId,
-				isReplication);
+		log.debug("renew " + appName + " serverId " + serverId + ", isReplication {}"
+				+ isReplication);
 		List<Application> applications = PeerAwareInstanceRegistry.getInstance()
 				.getSortedApplications();
 		Optional<Application> app = tryFind(applications, new Predicate<Application>() {

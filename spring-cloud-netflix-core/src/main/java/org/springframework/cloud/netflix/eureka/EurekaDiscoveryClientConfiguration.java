@@ -22,8 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PreDestroy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -61,10 +60,8 @@ import com.netflix.discovery.shared.EurekaJerseyClient;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@CommonsLog
 public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Ordered {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(EurekaDiscoveryClientConfiguration.class);
 
 	private AtomicBoolean running = new AtomicBoolean(false);
 
@@ -84,13 +81,13 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@PreDestroy
 	public void close() {
 		closeDiscoveryClientJersey();
-		logger.info("Removing application {} from eureka",
-				this.instanceConfig.getAppname());
+		log.info("Removing application " + this.instanceConfig.getAppname()
+				+ " from eureka");
 		DiscoveryManager.getInstance().shutdownComponent();
 	}
 
 	private void closeDiscoveryClientJersey() {
-		logger.info("Closing DiscoveryClient.jerseyClient");
+		log.info("Closing DiscoveryClient.jerseyClient");
 		Field jerseyClientField = ReflectionUtils.findField(
 				com.netflix.discovery.DiscoveryClient.class, "discoveryJerseyClient",
 				EurekaJerseyClient.JerseyClient.class);
@@ -105,7 +102,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 				}
 			}
 			catch (Exception ex) {
-				logger.error("Error closing DiscoveryClient.jerseyClient", ex);
+				log.error("Error closing DiscoveryClient.jerseyClient", ex);
 			}
 		}
 	}
@@ -121,9 +118,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
 			discoveryManagerIntitializer().init();
 
-			logger.info("Registering application {} with eureka with status {}",
-					this.instanceConfig.getAppname(),
-					this.instanceConfig.getInitialStatus());
+			log.info("Registering application " + this.instanceConfig.getAppname()
+					+ " with eureka with status "
+					+ this.instanceConfig.getInitialStatus());
+
 			ApplicationInfoManager.getInstance().setInstanceStatus(
 					this.instanceConfig.getInitialStatus());
 
@@ -139,9 +137,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Override
 	public void stop() {
-		logger.info(
-				"Unregistering application {} with eureka with status OUT_OF_SERVICE",
-				this.instanceConfig.getAppname());
+		log.info("Unregistering application " + this.instanceConfig.getAppname()
+				+ " with eureka with status OUT_OF_SERVICE");
 		ApplicationInfoManager.getInstance().setInstanceStatus(
 				InstanceStatus.OUT_OF_SERVICE);
 		this.running.set(false);

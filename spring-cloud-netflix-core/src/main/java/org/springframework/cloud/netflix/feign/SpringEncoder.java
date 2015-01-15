@@ -23,8 +23,7 @@ import java.util.Collection;
 
 import javax.inject.Provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -43,9 +42,8 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class SpringEncoder implements Encoder {
-
-	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
 	@Autowired
 	private Provider<HttpMessageConverters> messageConverters;
@@ -67,14 +65,14 @@ public class SpringEncoder implements Encoder {
 			for (HttpMessageConverter<?> messageConverter : this.messageConverters.get()
 					.getConverters()) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
-					if (logger.isDebugEnabled()) {
+					if (log.isDebugEnabled()) {
 						if (requestContentType != null) {
-							logger.debug("Writing [" + requestBody + "] as \""
+							log.debug("Writing [" + requestBody + "] as \""
 									+ requestContentType + "\" using ["
 									+ messageConverter + "]");
 						}
 						else {
-							logger.debug("Writing [" + requestBody + "] using ["
+							log.debug("Writing [" + requestBody + "] using ["
 									+ messageConverter + "]");
 						}
 

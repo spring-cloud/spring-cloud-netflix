@@ -28,8 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.util.LinkedMultiValueMap;
@@ -45,9 +44,8 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
+@CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
-
-	private static final Logger LOG = LoggerFactory.getLogger(RibbonRoutingFilter.class);
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
@@ -179,7 +177,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			}
 		}
 		catch (IOException ex) {
-			LOG.error("Error during getRequestBody", ex);
+			log.error("Error during getRequestBody", ex);
 		}
 		return requestEntity;
 	}

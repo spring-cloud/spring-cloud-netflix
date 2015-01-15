@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
@@ -36,7 +36,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Spencer Gibb
  */
-@Slf4j
+@CommonsLog
 public class ProxyRouteLocator implements RouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/**";
@@ -163,7 +163,7 @@ public class ProxyRouteLocator implements RouteLocator {
 		for (ZuulRoute entry : routeEntries.values()) {
 			String route = entry.getPath();
 			if (routes.containsKey(route)) {
-				log.warn("Overwriting route {}: already defined by {}", route,
+				log.warn("Overwriting route "+route+": already defined by " +
 						routes.get(route));
 			}
 			routes.put(route, entry);

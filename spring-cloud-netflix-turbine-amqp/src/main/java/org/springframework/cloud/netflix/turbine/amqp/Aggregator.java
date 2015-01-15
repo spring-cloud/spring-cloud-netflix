@@ -19,8 +19,7 @@ package org.springframework.cloud.netflix.turbine.amqp;
 import java.io.IOException;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -34,7 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Spencer Gibb
  */
 @MessageEndpoint
-@Slf4j
+@CommonsLog
 public class Aggregator {
 
 	@Autowired
@@ -50,7 +49,7 @@ public class Aggregator {
 			Map<String, Object> map = this.objectMapper.readValue(payload, Map.class);
 			Map<String, Object> data = getPayloadData(map);
 
-			log.debug("Received hystrix stream payload: {}", data);
+			log.debug("Received hystrix stream payload: " + data);
 			this.subject.onNext(data);
 		}
 		catch (IOException ex) {

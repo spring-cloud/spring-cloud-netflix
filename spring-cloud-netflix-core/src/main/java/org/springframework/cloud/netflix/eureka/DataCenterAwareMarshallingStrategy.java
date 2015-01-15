@@ -16,8 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import lombok.extern.slf4j.Slf4j;
-
+import lombok.extern.apachecommons.CommonsLog;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
@@ -146,7 +145,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 		}
 	}
 
-	@Slf4j
+	@CommonsLog
 	private static class SetVersionInterceptor implements MethodInterceptor {
 
 		private ApplicationContext context;
