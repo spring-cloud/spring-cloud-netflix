@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import lombok.AllArgsConstructor;
@@ -20,13 +21,13 @@ import lombok.Data;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @AllArgsConstructor
 public class RibbonClientSpecification {
 
 	private String name;
+
 	private Class<?>[] configuration;
 
 }

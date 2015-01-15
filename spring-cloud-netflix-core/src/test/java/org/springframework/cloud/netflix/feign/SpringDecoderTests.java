@@ -1,6 +1,24 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.feign;
 
-import static org.junit.Assert.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,8 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Spencer Gibb
@@ -29,85 +47,91 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SpringDecoderTests.Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest", "spring.jmx.enabled=true" })
+@IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest",
+		"spring.jmx.enabled=true" })
 @DirtiesContext
 public class SpringDecoderTests extends FeignConfiguration {
 
-    @Value("${local.server.port}")
-    private int port = 0;
+	@Value("${local.server.port}")
+	private int port = 0;
 
-    public TestClient testClient() {
-        return feign().target(TestClient.class, "http://localhost:"+port);
-    }
+	public TestClient testClient() {
+		return feign().target(TestClient.class, "http://localhost:" + this.port);
+	}
 
-    protected static interface TestClient {
-        @RequestMapping(method = RequestMethod.GET, value = "/hello")
-        public Hello getHello();
+	@Test
+	public void testSimpleType() {
+		Hello hello = testClient().getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/hellos")
-        public List<Hello> getHellos();
+	@Test
+	public void testUserParameterizedTypeDecode() {
+		List<Hello> hellos = testClient().getHellos();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos was not the right size", 2, hellos.size());
+		assertEquals("first hello didn't match", new Hello("hello world 1"),
+				hellos.get(0));
+	}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
-        public List<String> getHelloStrings();
-    }
+	@Test
+	public void testSimpleParameterizedTypeDecode() {
+		List<String> hellos = testClient().getHelloStrings();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos was not the right size", 2, hellos.size());
+		assertEquals("first hello didn't match", "hello world 1", hellos.get(0));
+	}
 
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-    protected static class Application implements TestClient {
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class Hello {
+		private String message;
+	}
 
-        public Hello getHello() {
-            return new Hello("hello world 1");
-        }
+	protected static interface TestClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		public Hello getHello();
 
-        public List<Hello> getHellos() {
-            ArrayList<Hello> hellos = new ArrayList<>();
-            hellos.add(new Hello("hello world 1"));
-            hellos.add(new Hello("oi terra 2"));
-            return hellos;
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		public List<Hello> getHellos();
 
-        public List<String> getHelloStrings() {
-            ArrayList<String> hellos = new ArrayList<>();
-            hellos.add("hello world 1");
-            hellos.add("oi terra 2");
-            return hellos;
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
+		public List<String> getHelloStrings();
+	}
 
-        public static void main(String[] args) {
-            new SpringApplicationBuilder(Application.class).properties(
-                    "spring.application.name=springdecodertest", "management.contextPath=/admin")
-                    .run(args);
-        }
-    }
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	protected static class Application implements TestClient {
 
-    @Test
-    public void testSimpleType() {
-        Hello hello = testClient().getHello();
-        assertNotNull("hello was null", hello);
-        assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
-    }
+		@Override
+		public Hello getHello() {
+			return new Hello("hello world 1");
+		}
 
-    @Test
-    public void testUserParameterizedTypeDecode() {
-        List<Hello> hellos = testClient().getHellos();
-        assertNotNull("hellos was null", hellos);
-        assertEquals("hellos was not the right size", 2, hellos.size());
-        assertEquals("first hello didn't match", new Hello("hello world 1"), hellos.get(0));
-    }
+		@Override
+		public List<Hello> getHellos() {
+			ArrayList<Hello> hellos = new ArrayList<>();
+			hellos.add(new Hello("hello world 1"));
+			hellos.add(new Hello("oi terra 2"));
+			return hellos;
+		}
 
-    @Test
-    public void testSimpleParameterizedTypeDecode() {
-        List<String> hellos = testClient().getHelloStrings();
-        assertNotNull("hellos was null", hellos);
-        assertEquals("hellos was not the right size", 2, hellos.size());
-        assertEquals("first hello didn't match", "hello world 1", hellos.get(0));
-    }
+		@Override
+		public List<String> getHelloStrings() {
+			ArrayList<String> hellos = new ArrayList<>();
+			hellos.add("hello world 1");
+			hellos.add("oi terra 2");
+			return hellos;
+		}
 
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Hello {
-        private String message;
-    }
+		public static void main(String[] args) {
+			new SpringApplicationBuilder(Application.class).properties(
+					"spring.application.name=springdecodertest",
+					"management.contextPath=/admin").run(args);
+		}
+	}
+
 }

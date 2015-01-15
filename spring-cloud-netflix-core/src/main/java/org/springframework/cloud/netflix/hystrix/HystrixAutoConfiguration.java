@@ -27,7 +27,8 @@ import org.springframework.context.annotation.Configuration;
 import com.netflix.hystrix.Hystrix;
 
 /**
- * Auto configuration for Hystrix
+ * Auto configuration for Hystrix.
+ *
  * @author Christian Dupuis
  */
 @Configuration

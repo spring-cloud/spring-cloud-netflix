@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.zuul;
 
 import java.util.Collection;
@@ -22,7 +23,6 @@ import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 
 /**
  * @author Dave Syer
- *
  */
 public class SimpleRouteLocator implements RouteLocator {
 
@@ -35,7 +35,7 @@ public class SimpleRouteLocator implements RouteLocator {
 	@Override
 	public Collection<String> getRoutePaths() {
 		Collection<String> paths = new LinkedHashSet<String>();
-		for (ZuulRoute route : properties.getRoutes().values()) {
+		for (ZuulRoute route : this.properties.getRoutes().values()) {
 			paths.add(route.getPath());
 		}
 		return paths;

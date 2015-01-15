@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import java.lang.annotation.Documented;
@@ -26,7 +27,6 @@ import org.springframework.context.annotation.Import;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @Import(RibbonClientConfigurationRegistrar.class)
@@ -34,7 +34,11 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RibbonClient {
+
 	String value() default "";
+
 	String name() default "";
+
 	Class<?>[] configuration() default {};
+
 }

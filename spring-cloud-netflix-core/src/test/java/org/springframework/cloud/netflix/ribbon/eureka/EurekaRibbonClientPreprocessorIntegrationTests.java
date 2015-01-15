@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.eureka;
 
 import org.junit.Test;
@@ -37,7 +38,6 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 /**
  * @author Dave Syer
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)
@@ -50,7 +50,7 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void ruleDefaultsToZoneAvoidance() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		ZoneAvoidanceRule.class.cast(loadBalancer.getRule());
 	}
@@ -61,6 +61,7 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			EurekaClientAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 	}
 
 }

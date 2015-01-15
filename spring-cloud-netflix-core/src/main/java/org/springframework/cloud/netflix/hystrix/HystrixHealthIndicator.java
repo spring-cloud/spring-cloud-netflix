@@ -28,34 +28,37 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 import com.netflix.hystrix.HystrixCommandMetrics;
 
 /**
- * A {@link HealthIndicator} implementation for Hystrix circuit breakers. 
+ * A {@link HealthIndicator} implementation for Hystrix circuit breakers.
  * <p>
- * This default implementation will set the system to <code>OUT_OF_SERVICE</code> and 
- * include all open circuits by name. 
- * 
+ * This default implementation will set the system to <code>OUT_OF_SERVICE</code> and
+ * include all open circuits by name.
+ *
  * @author Christian Dupuis
  */
 public class HystrixHealthIndicator extends AbstractHealthIndicator {
-	
-	/** Status code for open circuits */
-	private static final Status CIRCUIT_OPEN = new Status("CIRCUIT_OPEN"); 
+
+	private static final Status CIRCUIT_OPEN = new Status("CIRCUIT_OPEN");
 
 	@Override
 	protected void doHealthCheck(Builder builder) throws Exception {
 		List<String> openCircuitBreakers = new ArrayList<String>();
-		
+
 		// Collect all open circuit breakers from Hystrix
 		for (HystrixCommandMetrics metrics : HystrixCommandMetrics.getInstances()) {
-			HystrixCircuitBreaker circuitBreaker = HystrixCircuitBreaker.Factory.getInstance(metrics.getCommandKey());
+			HystrixCircuitBreaker circuitBreaker = HystrixCircuitBreaker.Factory
+					.getInstance(metrics.getCommandKey());
 			if (circuitBreaker.isOpen()) {
-				openCircuitBreakers.add(metrics.getCommandGroup().name() + "::" + metrics.getCommandKey().name());
+				openCircuitBreakers.add(metrics.getCommandGroup().name() + "::"
+						+ metrics.getCommandKey().name());
 			}
 		}
-		
-		// If there is at least one open circuit report OUT_OF_SERVICE adding the command group 
+
+		// If there is at least one open circuit report OUT_OF_SERVICE adding the command
+		// group
 		// and key name
 		if (openCircuitBreakers.size() > 0) {
-			builder.status(CIRCUIT_OPEN).withDetail("openCircuitBreakers", openCircuitBreakers);
+			builder.status(CIRCUIT_OPEN).withDetail("openCircuitBreakers",
+					openCircuitBreakers);
 		}
 		else {
 			builder.up();

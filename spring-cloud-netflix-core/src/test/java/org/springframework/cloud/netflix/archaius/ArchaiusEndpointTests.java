@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.archaius;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+package org.springframework.cloud.netflix.archaius;
 
 import java.util.Map;
 
@@ -26,9 +24,11 @@ import org.springframework.core.env.StandardEnvironment;
 import com.netflix.config.ConcurrentCompositeConfiguration;
 import com.netflix.config.ConfigurationManager;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Dave Syer
- *
  */
 public class ArchaiusEndpointTests {
 
@@ -37,17 +37,19 @@ public class ArchaiusEndpointTests {
 	@Test
 	public void detectsPropertiesWhenSet() {
 		ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
-		assertTrue(endpoint.invoke().containsKey("foo"));
+		assertTrue(this.endpoint.invoke().containsKey("foo"));
 	}
 
 	@Test
 	public void doesNotIncludeSpringEnvironment() {
-		ConcurrentCompositeConfiguration composite = new ConcurrentCompositeConfiguration(ConfigurationManager.getConfigInstance());
-		ConfigurableEnvironmentConfiguration config = new ConfigurableEnvironmentConfiguration(new StandardEnvironment());
+		ConcurrentCompositeConfiguration composite = new ConcurrentCompositeConfiguration(
+				ConfigurationManager.getConfigInstance());
+		ConfigurableEnvironmentConfiguration config = new ConfigurableEnvironmentConfiguration(
+				new StandardEnvironment());
 		assertTrue(config.containsKey("user.dir"));
 		composite.addConfiguration(config);
 		ConfigurationManager.getConfigInstance().setProperty("foo", "bar");
-		Map<String, Object> map = endpoint.invoke();
+		Map<String, Object> map = this.endpoint.invoke();
 		assertTrue(map.containsKey("foo"));
 		assertFalse(map.containsKey("user.dir"));
 	}

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,44 +58,31 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	@Override
 	public ProxyRouteLocator routeLocator() {
-		return new ProxyRouteLocator(discovery, zuulProperties);
-	}
-
-	@Configuration
-	@ConditionalOnClass(Endpoint.class)
-	protected static class RoutesEndpointConfuguration {
-		@Autowired
-		private ProxyRouteLocator routeLocator;
-
-		@Bean
-		// @RefreshScope
-		public RoutesEndpoint zuulEndpoint() {
-			return new RoutesEndpoint(routeLocator);
-		}
+		return new ProxyRouteLocator(this.discovery, this.zuulProperties);
 	}
 
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter() {
-		return new PreDecorationFilter(routeLocator(), zuulProperties);
+		return new PreDecorationFilter(routeLocator(), this.zuulProperties);
 	}
 
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
-		if (traces != null) {
-			helper.setTraces(traces);
+		if (this.traces != null) {
+			helper.setTraces(this.traces);
 		}
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, clientFactory);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, this.clientFactory);
 		return filter;
 	}
 
 	@Bean
 	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
-		if (traces != null) {
-			helper.setTraces(traces);
+		if (this.traces != null) {
+			helper.setTraces(this.traces);
 		}
 		return new SimpleHostRoutingFilter(helper);
 	}
@@ -88,6 +91,21 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Override
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
+	}
+
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
+	protected static class RoutesEndpointConfuguration {
+
+		@Autowired
+		private ProxyRouteLocator routeLocator;
+
+		@Bean
+		// @RefreshScope
+		public RoutesEndpoint zuulEndpoint() {
+			return new RoutesEndpoint(this.routeLocator);
+		}
+
 	}
 
 	private static class ZuulRefreshListener implements
@@ -110,9 +128,9 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 			}
 			else if (event instanceof DiscoveryHeartbeatEvent) {
 				DiscoveryHeartbeatEvent e = (DiscoveryHeartbeatEvent) event;
-				if (latestHeartbeat.get() == null
-						|| !latestHeartbeat.get().equals(e.getValue())) {
-					latestHeartbeat.set(e.getValue());
+				if (this.latestHeartbeat.get() == null
+						|| !this.latestHeartbeat.get().equals(e.getValue())) {
+					this.latestHeartbeat.set(e.getValue());
 					reset();
 				}
 			}
@@ -120,8 +138,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		}
 
 		private void reset() {
-			routeLocator.resetRoutes();
-			zuulHandlerMapping.registerHandlers();
+			this.routeLocator.resetRoutes();
+			this.zuulHandlerMapping.registerHandlers();
 		}
 
 	}

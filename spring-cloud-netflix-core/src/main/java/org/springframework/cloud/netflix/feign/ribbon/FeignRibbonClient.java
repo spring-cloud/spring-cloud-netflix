@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.feign.ribbon;
 
 import java.io.IOException;
@@ -25,18 +41,9 @@ import feign.Response;
  */
 public class FeignRibbonClient implements Client {
 
-    private Client defaultClient = new Default(
-        new Lazy<SSLSocketFactory>() {
-            @Override
-            public SSLSocketFactory get() {
-                return (SSLSocketFactory) SSLSocketFactory.getDefault();
-            }
-        }, new Lazy<HostnameVerifier>() {
-            @Override
-            public HostnameVerifier get() {
-                return HttpsURLConnection.getDefaultHostnameVerifier();
-            }
-    });
+	private Client defaultClient = new Default(new LazySSLSocketFactory(),
+			new LazyHostnameVerifier());
+
 	private SpringClientFactory factory;
 
 	public FeignRibbonClient(SpringClientFactory factory) {
@@ -44,30 +51,51 @@ public class FeignRibbonClient implements Client {
 	}
 
 	@Override
-    public Response execute(Request request, Request.Options options) throws IOException {
-        try {
+	public Response execute(Request request, Request.Options options) throws IOException {
+		try {
+			URI asUri = URI.create(request.url());
+			String clientName = asUri.getHost();
+			URI uriWithoutSchemeAndPort = URI.create(request.url().replace(
+					asUri.getScheme() + "://" + asUri.getHost(), ""));
+			RibbonLoadBalancer.RibbonRequest ribbonRequest = new RibbonLoadBalancer.RibbonRequest(
+					request, uriWithoutSchemeAndPort);
+			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest)
+					.toResponse();
+		}
+		catch (ClientException ex) {
+			if (ex.getCause() instanceof IOException) {
+				throw IOException.class.cast(ex.getCause());
+			}
+			throw Throwables.propagate(ex);
+		}
+	}
 
-            URI asUri = URI.create(request.url());
-            String clientName = asUri.getHost();
-            URI uriWithoutSchemeAndPort = URI.create(request.url().replace(asUri.getScheme() + "://" + asUri.getHost(), ""));
-            RibbonLoadBalancer.RibbonRequest ribbonRequest = new RibbonLoadBalancer.RibbonRequest(request, uriWithoutSchemeAndPort);
-            return lbClient(clientName).executeWithLoadBalancer(ribbonRequest).toResponse();
+	private RibbonLoadBalancer lbClient(String clientName) {
+		IClientConfig config = this.factory.getClientConfig(clientName);
+		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
+		return new RibbonLoadBalancer(this.defaultClient, lb, config);
+	}
 
-        } catch (ClientException e) {
-            if (e.getCause() instanceof IOException) {
-                throw IOException.class.cast(e.getCause());
-            }
-            throw Throwables.propagate(e);
-        }
-    }
+	public void setDefaultClient(Client defaultClient) {
+		this.defaultClient = defaultClient;
+	}
 
-    private RibbonLoadBalancer lbClient(String clientName) {
-        IClientConfig config = factory.getClientConfig(clientName);
-        ILoadBalancer lb = factory.getLoadBalancer(clientName);
-        return new RibbonLoadBalancer(defaultClient, lb, config);
-    }
+	private static class LazySSLSocketFactory implements Lazy<SSLSocketFactory> {
 
-    public void setDefaultClient(Client defaultClient) {
-        this.defaultClient = defaultClient;
-    }
+		@Override
+		public SSLSocketFactory get() {
+			return (SSLSocketFactory) SSLSocketFactory.getDefault();
+		}
+
+	}
+
+	private static class LazyHostnameVerifier implements Lazy<HostnameVerifier> {
+
+		@Override
+		public HostnameVerifier get() {
+			return HttpsURLConnection.getDefaultHostnameVerifier();
+		}
+
+	}
+
 }

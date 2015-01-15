@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul.filters.post;
 
 import java.io.ByteArrayInputStream;
@@ -19,17 +35,20 @@ import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 
+/**
+ * @author Spencer Gibb
+ */
 public class SendResponseFilter extends ZuulFilter {
 
-	static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
+	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
 			.getInstance().getBooleanProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER,
 					false);
 
-	static DynamicIntProperty INITIAL_STREAM_BUFFER_SIZE = DynamicPropertyFactory
+	private static DynamicIntProperty INITIAL_STREAM_BUFFER_SIZE = DynamicPropertyFactory
 			.getInstance().getIntProperty(ZuulConstants.ZUUL_INITIAL_STREAM_BUFFER_SIZE,
 					1024);
 
-	static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
+	private static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
 			.getInstance().getBooleanProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH,
 					false);
 
@@ -43,33 +62,33 @@ public class SendResponseFilter extends ZuulFilter {
 		return 1000;
 	}
 
+	@Override
 	public boolean shouldFilter() {
 		return !RequestContext.getCurrentContext().getZuulResponseHeaders().isEmpty()
 				|| RequestContext.getCurrentContext().getResponseDataStream() != null
 				|| RequestContext.getCurrentContext().getResponseBody() != null;
 	}
 
+	@Override
 	public Object run() {
 		try {
 			addResponseHeaders();
 			writeResponse();
 		}
-		catch (Exception e) {
-			Throwables.propagate(e);
+		catch (Exception ex) {
+			Throwables.propagate(ex);
 		}
 		return null;
 	}
 
-	void writeResponse() throws Exception {
+	private void writeResponse() throws Exception {
 		RequestContext context = RequestContext.getCurrentContext();
-
 		// there is no body to send
-		if (context.getResponseBody() == null && context.getResponseDataStream() == null)
+		if (context.getResponseBody() == null && context.getResponseDataStream() == null) {
 			return;
-
+		}
 		HttpServletResponse servletResponse = context.getResponse();
 		servletResponse.setCharacterEncoding("UTF-8");
-
 		OutputStream outStream = servletResponse.getOutputStream();
 		InputStream is = null;
 		try {
@@ -78,13 +97,12 @@ public class SendResponseFilter extends ZuulFilter {
 				writeResponse(new ByteArrayInputStream(body.getBytes()), outStream);
 				return;
 			}
-
 			boolean isGzipRequested = false;
 			final String requestEncoding = context.getRequest().getHeader(
 					ZuulHeaders.ACCEPT_ENCODING);
-			if (requestEncoding != null && requestEncoding.equals("gzip"))
+			if (requestEncoding != null && requestEncoding.equals("gzip")) {
 				isGzipRequested = true;
-
+			}
 			is = context.getResponseDataStream();
 			InputStream inputStream = is;
 			if (is != null) {
@@ -93,36 +111,34 @@ public class SendResponseFilter extends ZuulFilter {
 					// decompress stream
 					// before sending to client
 					// else, stream gzip directly to client
-					if (context.getResponseGZipped() && !isGzipRequested)
+					if (context.getResponseGZipped() && !isGzipRequested) {
 						try {
 							inputStream = new GZIPInputStream(is);
-
 						}
-						catch (java.util.zip.ZipException e) {
-							System.out
-									.println("gzip expected but not received assuming unencoded response"
-											+ RequestContext.getCurrentContext()
-													.getRequest().getRequestURL()
-													.toString());
+						catch (java.util.zip.ZipException ex) {
+							System.out.println("gzip expected but not "
+									+ "received assuming unencoded response"
+									+ RequestContext.getCurrentContext().getRequest()
+											.getRequestURL().toString());
 							inputStream = is;
 						}
-					else if (context.getResponseGZipped() && isGzipRequested)
+					}
+					else if (context.getResponseGZipped() && isGzipRequested) {
 						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
+					}
 					writeResponse(inputStream, outStream);
 				}
 			}
-
 		}
 		finally {
 			try {
-				if (is != null)
+				if (is != null) {
 					is.close();
-
+				}
 				outStream.flush();
 				outStream.close();
 			}
-			catch (IOException e) {
-
+			catch (IOException ex) {
 			}
 		}
 	}
@@ -131,19 +147,18 @@ public class SendResponseFilter extends ZuulFilter {
 		byte[] bytes = new byte[INITIAL_STREAM_BUFFER_SIZE.get()];
 		int bytesRead = -1;
 		while ((bytesRead = zin.read(bytes)) != -1) {
+			// TODO
 			// if (Debug.debugRequest() && !Debug.debugRequestHeadersOnly()) {
 			// Debug.addRequestDebug("OUTBOUND: <  " + new String(bytes, 0, bytesRead));
 			// }
-
 			try {
 				out.write(bytes, 0, bytesRead);
 				out.flush();
 			}
-			catch (IOException e) {
+			catch (IOException ex) {
 				// ignore
-				e.printStackTrace();
+				ex.printStackTrace();
 			}
-
 			// doubles buffer size if previous read filled it
 			if (bytesRead == bytes.length) {
 				bytes = new byte[bytes.length * 2];
@@ -155,7 +170,6 @@ public class SendResponseFilter extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletResponse servletResponse = context.getResponse();
 		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
-
 		@SuppressWarnings("unchecked")
 		List<String> rd = (List<String>) RequestContext.getCurrentContext().get(
 				"routingDebug");
@@ -164,24 +178,23 @@ public class SendResponseFilter extends ZuulFilter {
 			for (String it : rd) {
 				debugHeader.append("[[[" + it + "]]]");
 			}
-			if (INCLUDE_DEBUG_HEADER.get())
+			if (INCLUDE_DEBUG_HEADER.get()) {
 				servletResponse.addHeader("X-Zuul-Debug-Header", debugHeader.toString());
+			}
 		}
-
 		if (zuulResponseHeaders != null) {
 			for (Pair<String, String> it : zuulResponseHeaders) {
 				servletResponse.addHeader(it.first(), it.second());
 			}
 		}
-
 		RequestContext ctx = RequestContext.getCurrentContext();
 		Integer contentLength = ctx.getOriginContentLength();
-
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
-			if (contentLength != null && !ctx.getResponseGZipped())
+			if (contentLength != null && !ctx.getResponseGZipped()) {
 				servletResponse.setContentLength(contentLength);
+			}
 		}
 	}
 

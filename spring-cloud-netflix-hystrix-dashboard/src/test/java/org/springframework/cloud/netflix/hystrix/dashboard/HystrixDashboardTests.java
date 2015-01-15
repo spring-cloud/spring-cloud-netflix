@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.hystrix.dashboard;
 
-import static org.junit.Assert.assertEquals;
+package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,9 +31,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -48,22 +48,24 @@ public class HystrixDashboardTests {
 	@Test
 	public void homePage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/hystrix", String.class);
+				"http://localhost:" + this.port + "/hystrix", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		entity.getBody().contains("<base href=\"/\">");
 	}
 
 	@Test
 	public void cssAvailable() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/hystrix/css/global.css", String.class);
+		ResponseEntity<String> entity = new TestRestTemplate()
+				.getForEntity(
+						"http://localhost:" + this.port + "/hystrix/css/global.css",
+						String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
 	public void monitorPage() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + port + "/hystrix/monitor", String.class);
+				"http://localhost:" + this.port + "/hystrix/monitor", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -71,10 +73,12 @@ public class HystrixDashboardTests {
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {
+
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=hystrix-dashboard").run();
 		}
+
 	}
 
 }

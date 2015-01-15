@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul;
 
 import java.util.ArrayList;
@@ -22,10 +38,15 @@ import org.springframework.util.StringUtils;
 @Data
 @ConfigurationProperties("zuul")
 public class ZuulProperties {
+
 	private String prefix = "";
+
 	private boolean stripPrefix = true;
+
 	private Map<String, ZuulRoute> routes = new LinkedHashMap<String, ZuulRoute>();
+
 	private boolean addProxyHeaders = true;
+
 	private List<String> ignoredServices = new ArrayList<String>();
 
 	@PostConstruct
@@ -48,10 +69,15 @@ public class ZuulProperties {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class ZuulRoute {
+
 		private String id;
+
 		private String path;
+
 		private String serviceId;
+
 		private String url;
+
 		private boolean stripPrefix = true;
 
 		public ZuulRoute(String text) {
@@ -78,19 +104,19 @@ public class ZuulProperties {
 		}
 
 		public String getLocation() {
-			if (StringUtils.hasText(url)) {
-				return url;
+			if (StringUtils.hasText(this.url)) {
+				return this.url;
 			}
-			return serviceId;
+			return this.serviceId;
 		}
 
 		public void setLocation(String location) {
 			if (location != null
 					&& (location.startsWith("http:") || location.startsWith("https:"))) {
-				url = location;
+				this.url = location;
 			}
 			else {
-				serviceId = location;
+				this.serviceId = location;
 			}
 		}
 
@@ -99,6 +125,7 @@ public class ZuulProperties {
 			path = path.replace("/*", "").replace("*", "");
 			return path;
 		}
+
 	}
 
 }

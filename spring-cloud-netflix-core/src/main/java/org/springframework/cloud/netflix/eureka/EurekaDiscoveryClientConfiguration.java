@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka;
 
 import java.lang.reflect.Field;
@@ -55,7 +56,6 @@ import com.netflix.discovery.shared.EurekaJerseyClient;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties
@@ -84,7 +84,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@PreDestroy
 	public void close() {
 		closeDiscoveryClientJersey();
-		logger.info("Removing application {} from eureka", instanceConfig.getAppname());
+		logger.info("Removing application {} from eureka",
+				this.instanceConfig.getAppname());
 		DiscoveryManager.getInstance().shutdownComponent();
 	}
 
@@ -103,8 +104,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 					jerseyClient.destroyResources();
 				}
 			}
-			catch (Exception e) {
-				logger.error("Error closing DiscoveryClient.jerseyClient", e);
+			catch (Exception ex) {
+				logger.error("Error closing DiscoveryClient.jerseyClient", ex);
 			}
 		}
 	}
@@ -112,25 +113,27 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Override
 	public void start() {
 		// only set the port if the nonSecurePort is 0 and this.port != 0
-		if (port.get() != 0 && instanceConfig.getNonSecurePort() == 0) {
-			instanceConfig.setNonSecurePort(port.get());
+		if (this.port.get() != 0 && this.instanceConfig.getNonSecurePort() == 0) {
+			this.instanceConfig.setNonSecurePort(this.port.get());
 		}
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
-		if (!running.get() && instanceConfig.getNonSecurePort() > 0) {
+		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
 			discoveryManagerIntitializer().init();
 
 			logger.info("Registering application {} with eureka with status {}",
-					instanceConfig.getAppname(), instanceConfig.getInitialStatus());
+					this.instanceConfig.getAppname(),
+					this.instanceConfig.getInitialStatus());
 			ApplicationInfoManager.getInstance().setInstanceStatus(
-					instanceConfig.getInitialStatus());
+					this.instanceConfig.getInitialStatus());
 
-			if (healthCheckHandler != null) {
+			if (this.healthCheckHandler != null) {
 				DiscoveryManager.getInstance().getDiscoveryClient()
-						.registerHealthCheck(healthCheckHandler);
+						.registerHealthCheck(this.healthCheckHandler);
 			}
-			context.publishEvent(new InstanceRegisteredEvent<>(this, instanceConfig));
-			running.set(true);
+			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
+					this.instanceConfig));
+			this.running.set(true);
 		}
 	}
 
@@ -138,15 +141,15 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	public void stop() {
 		logger.info(
 				"Unregistering application {} with eureka with status OUT_OF_SERVICE",
-				instanceConfig.getAppname());
+				this.instanceConfig.getAppname());
 		ApplicationInfoManager.getInstance().setInstanceStatus(
 				InstanceStatus.OUT_OF_SERVICE);
-		running.set(false);
+		this.running.set(false);
 	}
 
 	@Override
 	public boolean isRunning() {
-		return running.get();
+		return this.running.get();
 	}
 
 	@Override
@@ -166,7 +169,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Override
 	public int getOrder() {
-		return order;
+		return this.order;
 	}
 
 	@Bean
@@ -214,4 +217,5 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
 		}
 	}
+
 }

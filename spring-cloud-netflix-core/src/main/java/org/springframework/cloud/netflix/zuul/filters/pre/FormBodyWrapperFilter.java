@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
 import java.io.IOException;
@@ -23,13 +39,14 @@ import com.netflix.zuul.http.ServletInputStreamWrapper;
  * @author Spencer Gibb
  */
 public class FormBodyWrapperFilter extends ZuulFilter {
-	protected Field requestField = null;
+
+	private Field requestField;
 
 	public FormBodyWrapperFilter() {
-		requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class, "req",
-				HttpServletRequest.class);
-		Assert.notNull(requestField, "HttpServletRequestWrapper.req field not found");
-		requestField.setAccessible(true);
+		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
+				"req", HttpServletRequest.class);
+		Assert.notNull(this.requestField, "HttpServletRequestWrapper.req field not found");
+		this.requestField.setAccessible(true);
 	}
 
 	@Override
@@ -47,16 +64,16 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
 		String contentType = request.getContentType();
-
-		//Don't use this filter on GET method
-		if(contentType == null) {
+		// Don't use this filter on GET method
+		if (contentType == null) {
 			return false;
 		}
-
-		//Only use this filter for MediaType : application/x-www-form-urlencoded
+		// Only use this filter for MediaType : application/x-www-form-urlencoded
 		try {
-			return MediaType.APPLICATION_FORM_URLENCODED.includes(MediaType.valueOf(contentType));
-		} catch (InvalidMediaTypeException imte) {
+			return MediaType.APPLICATION_FORM_URLENCODED.includes(MediaType
+					.valueOf(contentType));
+		}
+		catch (InvalidMediaTypeException ex) {
 			return false;
 		}
 	}
@@ -67,11 +84,12 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		HttpServletRequest request = ctx.getRequest();
 		if (request instanceof HttpServletRequestWrapper) {
 			try {
-				HttpServletRequest wrapped = (HttpServletRequest) requestField.get(request);
-				requestField.set(request, new FormBodyRequestWrapper(wrapped));
+				HttpServletRequest wrapped = (HttpServletRequest) this.requestField
+						.get(request);
+				this.requestField.set(request, new FormBodyRequestWrapper(wrapped));
 			}
-			catch (IllegalAccessException e) {
-				Throwables.propagate(e);
+			catch (IllegalAccessException ex) {
+				Throwables.propagate(ex);
 			}
 		}
 		else {
@@ -83,6 +101,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	private class FormBodyRequestWrapper extends HttpServletRequestWrapper {
 
 		private HttpServletRequest request;
+
 		private byte[] contentData;
 
 		public FormBodyRequestWrapper(HttpServletRequest request) {
@@ -92,28 +111,29 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		@Override
 		public int getContentLength() {
-			if (contentData == null) {
-				contentData = buildContentData();
+			if (this.contentData == null) {
+				this.contentData = buildContentData();
 			}
-			return contentData.length;
+			return this.contentData.length;
 		}
 
 		@Override
 		public ServletInputStream getInputStream() throws IOException {
 			if (RequestContext.getCurrentContext().isChunkedRequestBody()) {
-				return request.getInputStream();
+				return this.request.getInputStream();
 			}
 			else {
-				if (contentData == null) {
-					contentData = buildContentData();
+				if (this.contentData == null) {
+					this.contentData = buildContentData();
 				}
-				return new ServletInputStreamWrapper(contentData);
+				return new ServletInputStreamWrapper(this.contentData);
 			}
 		}
 
 		private byte[] buildContentData() {
 			StringBuilder builder = new StringBuilder();
-			for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+			for (Entry<String, String[]> entry : this.request.getParameterMap()
+					.entrySet()) {
 				for (String value : entry.getValue()) {
 					if (builder.length() != 0) {
 						builder.append("&");
@@ -125,4 +145,5 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		}
 
 	}
+
 }

@@ -1,6 +1,20 @@
-package org.springframework.cloud.netflix.zuul;
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static org.junit.Assert.assertEquals;
+package org.springframework.cloud.netflix.zuul;
 
 import java.util.Arrays;
 
@@ -34,13 +48,14 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.ZuulFilter;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
-		"zuul.routes.another: /another/twolevel/**",
-		"zuul.routes.simple: /simple/**" })
+		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**" })
 @DirtiesContext
 public class SampleZuulProxyApplicationTests {
 
@@ -55,18 +70,19 @@ public class SampleZuulProxyApplicationTests {
 
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
-		assertEquals("http://localhost:7777/local", routes.getRoutes().get("/test/**"));
+		assertEquals("http://localhost:7777/local",
+				this.routes.getRoutes().get("/test/**"));
 	}
 
 	@Test
 	public void bindRouteUsingOnlyPath() {
-		assertEquals("simple", routes.getRoutes().get("/simple/**"));
+		assertEquals("simple", this.routes.getRoutes().get("/simple/**"));
 	}
 
 	@Test
 	public void getOnSelfViaRibbonRoutingFilter() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/simple/local/1", HttpMethod.GET,
+				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten!", result.getBody());
@@ -74,10 +90,10 @@ public class SampleZuulProxyApplicationTests {
 
 	@Test
 	public void deleteOnSelfViaSimpleHostRoutingFilter() {
-		routes.addRoute("/self/**", "http://localhost:" + port + "/local");
-		endpoint.reset();
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
+		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/self/1", HttpMethod.DELETE,
+				"http://localhost:" + this.port + "/self/1", HttpMethod.DELETE,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Deleted!", result.getBody());
@@ -86,7 +102,7 @@ public class SampleZuulProxyApplicationTests {
 	@Test
 	public void testNotFound() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/myinvalidpath", HttpMethod.GET,
+				"http://localhost:" + this.port + "/myinvalidpath", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
 	}
@@ -94,22 +110,22 @@ public class SampleZuulProxyApplicationTests {
 	@Test
 	public void getSecondLevel() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + port + "/another/twolevel/local/1", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/another/twolevel/local/1",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten!", result.getBody());
 	}
+
 }
 
-//Don't use @SpringBootApplication because we don't want to component scan
+// Don't use @SpringBootApplication because we don't want to component scan
 @Configuration
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
 @RibbonClients({
-	@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
-	@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class)
-})
+		@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
+		@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
 class SampleZuulProxyApplication {
 
 	@RequestMapping("/testing123")
@@ -168,9 +184,10 @@ class SampleZuulProxyApplication {
 
 }
 
-//Load balancer with fixed server list for "simple" pointing to localhost
+// Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class SimpleRibbonClientConfiguration {
+
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
@@ -178,9 +195,12 @@ class SimpleRibbonClientConfiguration {
 				.getNonSecurePort())));
 		return balancer;
 	}
+
 }
+
 @Configuration
 class AnotherRibbonClientConfiguration {
+
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
@@ -188,4 +208,5 @@ class AnotherRibbonClientConfiguration {
 				.getNonSecurePort())));
 		return balancer;
 	}
+
 }

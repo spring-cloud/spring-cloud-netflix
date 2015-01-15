@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
@@ -33,6 +30,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
 import com.netflix.blitz4j.LoggingConfiguration;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests for {@link Log4JLoggingSystem}.
@@ -51,8 +51,9 @@ public class Log4JLoggingSystemTests {
 
 	@Before
 	public void setup() throws IOException {
-		System.setProperty("log4j.configuration", new ClassPathResource("log4j.properties", Log4JLoggingSystem.class).getURL().toString());
-		logger = Logger.getLogger(getClass());
+		System.setProperty("log4j.configuration", new ClassPathResource(
+				"log4j.properties", Log4JLoggingSystem.class).getURL().toString());
+		this.logger = Logger.getLogger(getClass());
 		LoggingConfiguration.getInstance().configure();
 	}
 

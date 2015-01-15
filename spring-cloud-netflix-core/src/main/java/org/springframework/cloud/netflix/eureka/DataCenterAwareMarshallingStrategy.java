@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
+import org.springframework.context.ApplicationContext;
 
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.DataCenterInfo.Name;
@@ -23,17 +32,15 @@ import com.netflix.discovery.converters.Converters.ApplicationsConverter;
 import com.netflix.discovery.converters.Converters.InstanceInfoConverter;
 import com.netflix.discovery.shared.Applications;
 import com.thoughtworks.xstream.MarshallingStrategy;
-import com.thoughtworks.xstream.converters.*;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.converters.ConverterLookup;
+import com.thoughtworks.xstream.converters.DataHolder;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.mapper.Mapper;
-import lombok.extern.slf4j.Slf4j;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
-import org.springframework.context.ApplicationContext;
 
 /**
  * A special purpose wrapper for an XStream TreeMarshallingStrategy that is aware of the
@@ -44,13 +51,13 @@ import org.springframework.context.ApplicationContext;
  * is useful when not running Eureka in bare EC2 VMs, so the EC2 metadata is not available
  * for uniquely identifying the InstanceInfo (the default is to just use the hostname, but
  * that isn't very useful when sitting behind a proxy).
- * 
- * @author Dave Syer
  *
+ * @author Dave Syer
  */
 public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 
 	private TreeMarshallingStrategy delegate = new TreeMarshallingStrategy();
+
 	private ApplicationContext context;
 
 	public DataCenterAwareMarshallingStrategy(ApplicationContext context) {
@@ -60,15 +67,17 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	@Override
 	public Object unmarshal(Object root, HierarchicalStreamReader reader,
 			DataHolder dataHolder, ConverterLookup converterLookup, Mapper mapper) {
-		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup, context);
-		return delegate.unmarshal(root, reader, dataHolder, wrapped, mapper);
+		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup,
+				this.context);
+		return this.delegate.unmarshal(root, reader, dataHolder, wrapped, mapper);
 	}
 
 	@Override
 	public void marshal(HierarchicalStreamWriter writer, Object obj,
 			ConverterLookup converterLookup, Mapper mapper, DataHolder dataHolder) {
-		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup, context);
-		delegate.marshal(writer, obj, wrapped, mapper, dataHolder);
+		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup,
+				this.context);
+		this.delegate.marshal(writer, obj, wrapped, mapper, dataHolder);
 	}
 
 	public static class InstanceIdDataCenterInfo implements DataCenterInfo,
@@ -87,7 +96,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 
 		@Override
 		public String getId() {
-			return instanceId;
+			return this.instanceId;
 		}
 
 	}
@@ -95,20 +104,23 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	private static class DataCenterAwareConverterLookup implements ConverterLookup {
 
 		private ConverterLookup delegate;
+
 		private ApplicationContext context;
 
-		public DataCenterAwareConverterLookup(ConverterLookup delegate, ApplicationContext context) {
+		public DataCenterAwareConverterLookup(ConverterLookup delegate,
+				ApplicationContext context) {
 			this.delegate = delegate;
 			this.context = context;
 		}
 
 		@Override
 		public Converter lookupConverterForType(@SuppressWarnings("rawtypes") Class type) {
-			Converter converter = delegate.lookupConverterForType(type);
+			Converter converter = this.delegate.lookupConverterForType(type);
 			if (InstanceInfo.class == type) {
 				return new DataCenterAwareConverter();
-			} else if (Applications.class == type) {
-				return new PublishingApplicationsConverter(context);
+			}
+			else if (Applications.class == type) {
+				return new PublishingApplicationsConverter(this.context);
 			}
 			return converter;
 		}
@@ -124,7 +136,8 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 		}
 
 		@Override
-		public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext unmarshallingContext) {
+		public Object unmarshal(HierarchicalStreamReader reader,
+				UnmarshallingContext unmarshallingContext) {
 			Object obj = super.unmarshal(reader, unmarshallingContext);
 
 			ProxyFactory factory = new ProxyFactory(obj);
@@ -135,6 +148,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 
 	@Slf4j
 	private static class SetVersionInterceptor implements MethodInterceptor {
+
 		private ApplicationContext context;
 
 		public SetVersionInterceptor(ApplicationContext context) {
@@ -147,14 +161,16 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			if ("setVersion".equals(invocation.getMethod().getName())) {
 				Long version = Long.class.cast(invocation.getArguments()[0]);
 				log.debug("Applications.setVersion() called with version: " + version);
-				context.publishEvent(new DiscoveryHeartbeatEvent(invocation.getThis(), version));
+				this.context.publishEvent(new DiscoveryHeartbeatEvent(invocation
+						.getThis(), version));
 			}
 			return ret;
 		}
+
 	}
 
 	private static class DataCenterAwareConverter extends InstanceInfoConverter {
-		
+
 		@Override
 		public void marshal(Object source, HierarchicalStreamWriter writer,
 				MarshallingContext context) {

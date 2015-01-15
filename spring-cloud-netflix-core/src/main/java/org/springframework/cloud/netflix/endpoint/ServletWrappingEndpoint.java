@@ -1,4 +1,24 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.endpoint;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,66 +31,63 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ServletWrappingController;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-/**
- * TODO: move to spring-boot?
- * User: spencergibb
- * Date: 4/24/14
- * Time: 9:13 PM
- */
 public abstract class ServletWrappingEndpoint implements InitializingBean,
-        ApplicationContextAware, ServletContextAware, MvcEndpoint {
+		ApplicationContextAware, ServletContextAware, MvcEndpoint {
 
-    protected String path;
-    protected boolean sensitive;
-    protected boolean enabled = true;
+	// TODO: move to spring-boot?
 
-    protected final ServletWrappingController controller = new ServletWrappingController();
+	protected String path;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.controller.afterPropertiesSet();
-    }
+	protected boolean sensitive;
 
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.controller.setServletContext(servletContext);
-    }
+	protected boolean enabled = true;
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.controller.setApplicationContext(applicationContext);
-    }
+	protected final ServletWrappingController controller = new ServletWrappingController();
 
-    protected ServletWrappingEndpoint(Class<?> servletClass, String servletName, String path,
-                                      boolean sensitive, boolean enabled) {
-        controller.setServletClass(servletClass);
-        controller.setServletName(servletName);
-        this.path = path;
-        this.sensitive = sensitive;
-        this.enabled = enabled;
-    }
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		this.controller.afterPropertiesSet();
+	}
 
-    @RequestMapping("**")
-    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return this.controller.handleRequest(request, response);
-    }
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.controller.setServletContext(servletContext);
+	}
 
-    @Override
-    public String getPath() {
-        return path;
-    }
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.controller.setApplicationContext(applicationContext);
+	}
 
-    @Override
-    public boolean isSensitive() {
-        return sensitive;
-    }
+	protected ServletWrappingEndpoint(Class<?> servletClass, String servletName,
+			String path, boolean sensitive, boolean enabled) {
+		this.controller.setServletClass(servletClass);
+		this.controller.setServletName(servletName);
+		this.path = path;
+		this.sensitive = sensitive;
+		this.enabled = enabled;
+	}
 
-    @Override
-    public Class<? extends Endpoint<?>> getEndpointType() {
-        return null;
-    }
+	@RequestMapping("**")
+	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		return this.controller.handleRequest(request, response);
+	}
+
+	@Override
+	public String getPath() {
+		return this.path;
+	}
+
+	@Override
+	public boolean isSensitive() {
+		return this.sensitive;
+	}
+
+	@Override
+	public Class<? extends Endpoint<?>> getEndpointType() {
+		return null;
+	}
+
 }

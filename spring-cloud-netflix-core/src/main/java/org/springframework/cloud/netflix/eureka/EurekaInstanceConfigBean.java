@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka;
 
 import java.net.InetAddress;
@@ -37,104 +38,109 @@ import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @ConfigurationProperties("eureka.instance")
 public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
-	
+
 	private static final Log logger = LogFactory.getLog(EurekaInstanceConfigBean.class);
-	
-	@Getter(AccessLevel.PRIVATE) @Setter(AccessLevel.PRIVATE)
+
+	@Getter(AccessLevel.PRIVATE)
+	@Setter(AccessLevel.PRIVATE)
 	private String[] hostInfo = initHostInfo();
 
 	@Value("${spring.application.name:unknown}")
-    private String appname = "unknown";
+	private String appname = "unknown";
 
-    private String appGroupName;
-    
-    private boolean instanceEnabledOnit;
+	private String appGroupName;
+
+	private boolean instanceEnabledOnit;
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
-    private int nonSecurePort = 80;
+	private int nonSecurePort = 80;
 
-    private int securePort = 443;
+	private int securePort = 443;
 
-    private boolean nonSecurePortEnabled = true;
+	private boolean nonSecurePortEnabled = true;
 
-    private boolean securePortEnabled;
+	private boolean securePortEnabled;
 
-    private int leaseRenewalIntervalInSeconds = 30;
+	private int leaseRenewalIntervalInSeconds = 30;
 
-    private int leaseExpirationDurationInSeconds = 90;
+	private int leaseExpirationDurationInSeconds = 90;
 
 	@Value("${spring.application.name:unknown}")
-    private String virtualHostName;
+	private String virtualHostName;
 
-    private String secureVirtualHostName;
+	private String secureVirtualHostName;
 
-    private String aSGName;
+	private String aSGName;
 
-    private Map<String, String> metadataMap = new HashMap<>();
+	private Map<String, String> metadataMap = new HashMap<>();
 
-    private DataCenterInfo dataCenterInfo = new IdentifyingDataCenterInfo();
+	private DataCenterInfo dataCenterInfo = new IdentifyingDataCenterInfo();
 
-    private String ipAddress = hostInfo[0];
+	private String ipAddress = this.hostInfo[0];
 
-    private String statusPageUrlPath = "/info";
+	private String statusPageUrlPath = "/info";
 
-    private String statusPageUrl;
+	private String statusPageUrl;
 
-    private String homePageUrlPath = "/";
+	private String homePageUrlPath = "/";
 
-    private String homePageUrl;
+	private String homePageUrl;
 
-    private String healthCheckUrlPath = "/health";
+	private String healthCheckUrlPath = "/health";
 
-    private String healthCheckUrl;
+	private String healthCheckUrl;
 
-    private String secureHealthCheckUrl;
+	private String secureHealthCheckUrl;
 
-    private String namespace = "eureka";
+	private String namespace = "eureka";
 
-	private String hostname  = hostInfo[1];
-	
+	private String hostname = this.hostInfo[1];
+
 	private boolean preferIpAddress = false;
 
-    private InstanceStatus initialStatus = InstanceStatus.UP;
-	
+	private InstanceStatus initialStatus = InstanceStatus.UP;
+
 	public String getHostname() {
-		return preferIpAddress ? ipAddress : hostname;
+		return this.preferIpAddress ? this.ipAddress : this.hostname;
 	}
 
 	@Override
 	public boolean getSecurePortEnabled() {
-		return securePortEnabled;
+		return this.securePortEnabled;
 	}
 
 	private String[] initHostInfo() {
 		String[] info = new String[2];
 		try {
 			info[0] = InetAddress.getLocalHost().getHostAddress();
-		info[1] = InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            logger.error("Cannot get host info", e);
-        }
-		return info ;
+			info[1] = InetAddress.getLocalHost().getHostName();
+		}
+		catch (UnknownHostException ex) {
+			logger.error("Cannot get host info", ex);
+		}
+		return info;
 	}
 
 	@Override
 	public String getHostName(boolean refresh) {
-		return preferIpAddress ? ipAddress : hostname;
+		return this.preferIpAddress ? this.ipAddress : this.hostname;
 	}
 
-	private final class IdentifyingDataCenterInfo implements DataCenterInfo, UniqueIdentifier {
-		@Getter @Setter
-        private Name name = Name.MyOwn;
-		
+	private final class IdentifyingDataCenterInfo implements DataCenterInfo,
+			UniqueIdentifier {
+
+		@Getter
+		@Setter
+		private Name name = Name.MyOwn;
+
 		@Override
 		public String getId() {
-			String instanceId = metadataMap.get("instanceId");
+			String instanceId = EurekaInstanceConfigBean.this.metadataMap
+					.get("instanceId");
 			if (instanceId != null) {
 				String old = getHostname();
 				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
@@ -142,7 +148,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 			}
 			return getHostname();
 		}
-		
+
 	}
 
 }

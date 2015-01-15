@@ -1,9 +1,27 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.feign;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+
+import javax.inject.Provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
@@ -17,8 +35,6 @@ import feign.Response;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
-import javax.inject.Provider;
-
 import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
 /**
@@ -26,25 +42,28 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
  */
 public class SpringDecoder implements Decoder {
 
-    @Autowired
-    Provider<HttpMessageConverters> messageConverters;
+	@Autowired
+	Provider<HttpMessageConverters> messageConverters;
 
 	public SpringDecoder() {
 	}
 
 	@Override
-	public Object decode(final Response response, Type type) throws IOException, FeignException {
+	public Object decode(final Response response, Type type) throws IOException,
+			FeignException {
 		if (type instanceof Class || type instanceof ParameterizedType) {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-                    type, messageConverters.get().getConverters());
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
+					type, this.messageConverters.get().getConverters());
 
-            return extractor.extractData(new FeignResponseAdapter(response));
-        }
-		throw new DecodeException("type is not an instance of Class or ParameterizedType: " + type);
+			return extractor.extractData(new FeignResponseAdapter(response));
+		}
+		throw new DecodeException(
+				"type is not an instance of Class or ParameterizedType: " + type);
 	}
 
-    private class FeignResponseAdapter implements ClientHttpResponse {
+	private class FeignResponseAdapter implements ClientHttpResponse {
+
 		private final Response response;
 
 		private FeignResponseAdapter(Response response) {
@@ -53,38 +72,39 @@ public class SpringDecoder implements Decoder {
 
 		@Override
 		public HttpStatus getStatusCode() throws IOException {
-			return HttpStatus.valueOf(response.status());
+			return HttpStatus.valueOf(this.response.status());
 		}
 
 		@Override
 		public int getRawStatusCode() throws IOException {
-			return response.status();
+			return this.response.status();
 		}
 
 		@Override
 		public String getStatusText() throws IOException {
-			return response.reason();
+			return this.response.reason();
 		}
 
 		@Override
 		public void close() {
 			try {
-				response.body().close();
+				this.response.body().close();
 			}
-			catch (IOException e) {
-				e.printStackTrace();
+			catch (IOException ex) {
+				ex.printStackTrace();
 			}
 		}
 
 		@Override
 		public InputStream getBody() throws IOException {
-			return response.body().asInputStream();
+			return this.response.body().asInputStream();
 		}
 
 		@Override
 		public HttpHeaders getHeaders() {
-			return getHttpHeaders(response.headers());
+			return getHttpHeaders(this.response.headers());
 		}
 
 	}
+
 }

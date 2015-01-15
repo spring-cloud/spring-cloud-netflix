@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.eureka;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -29,7 +30,6 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties
@@ -39,4 +39,5 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
 @RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class)
 public class RibbonEurekaAutoConfiguration {
+
 }

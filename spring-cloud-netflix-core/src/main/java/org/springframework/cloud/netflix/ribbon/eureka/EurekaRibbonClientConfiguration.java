@@ -1,10 +1,20 @@
-package org.springframework.cloud.netflix.ribbon.eureka;
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
-import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRuleClassName;
-import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
-import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
+package org.springframework.cloud.netflix.ribbon.eureka;
 
 import javax.annotation.PostConstruct;
 
@@ -20,11 +30,17 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
+import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRuleClassName;
+import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
+import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
+
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
  * <code>@zone</code>, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
  * NFLoadBalancerRuleClassName, NIWSServerListFilterClassName and more
- * 
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  */
@@ -35,6 +51,7 @@ public class EurekaRibbonClientConfiguration {
 	private String serviceId = "client";
 
 	protected static final String VALUE_NOT_SET = "__not__set__";
+
 	protected static final String DEFAULT_NAMESPACE = "ribbon";
 
 	@Autowired(required = false)
@@ -51,9 +68,10 @@ public class EurekaRibbonClientConfiguration {
 
 	@PostConstruct
 	public void preprocess() {
-		if (clientConfig != null
+		if (this.clientConfig != null
 				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
-			String[] zones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
+			String[] zones = this.clientConfig.getAvailabilityZones(this.clientConfig
+					.getRegion());
 			String zone = zones != null && zones.length > 0 ? zones[0] : null;
 			if (zone != null) {
 				// You can set this with archaius.deployment.* (maybe requires
@@ -63,15 +81,15 @@ public class EurekaRibbonClientConfiguration {
 			}
 		}
 		// TODO: should this look more like hibernate spring boot props?
-		setProp(serviceId, NIWSServerListClassName.key(),
+		setProp(this.serviceId, NIWSServerListClassName.key(),
 				DiscoveryEnabledNIWSServerList.class.getName());
 		// FIXME: what should this be?
-		setProp(serviceId, DeploymentContextBasedVipAddresses.key(), serviceId);
-		setProp(serviceId, NFLoadBalancerRuleClassName.key(),
+		setProp(this.serviceId, DeploymentContextBasedVipAddresses.key(), this.serviceId);
+		setProp(this.serviceId, NFLoadBalancerRuleClassName.key(),
 				ZoneAvoidanceRule.class.getName());
-		setProp(serviceId, NIWSServerListFilterClassName.key(),
+		setProp(this.serviceId, NIWSServerListFilterClassName.key(),
 				ZonePreferenceServerListFilter.class.getName());
-		setProp(serviceId, EnableZoneAffinity.key(), "true");
+		setProp(this.serviceId, EnableZoneAffinity.key(), "true");
 	}
 
 	protected void setProp(String serviceId, String suffix, String value) {

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.io.IOException;
@@ -59,25 +75,28 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return 10;
 	}
 
+	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		return (ctx.getRouteHost() == null && ctx.get("serviceId") != null && ctx
 				.sendZuulResponse());
 	}
 
+	@Override
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 
-		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-		MultiValueMap<String, String> params = helper
+		MultiValueMap<String, String> headers = this.helper
+				.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> params = this.helper
 				.buildZuulRequestQueryParams(request);
 		Verb verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
 
 		String serviceId = (String) context.get("serviceId");
 
-		RestClient restClient = clientFactory.getClient(serviceId, RestClient.class);
+		RestClient restClient = this.clientFactory.getClient(serviceId, RestClient.class);
 
 		String uri = request.getRequestURI();
 		if (context.get("requestURI") != null) {
@@ -92,9 +111,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			setResponse(response);
 			return response;
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", e);
+			context.set("error.exception", ex);
 		}
 		return null;
 	}
@@ -102,29 +121,27 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	private HttpResponse forward(RestClient restClient, Verb verb, String uri,
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws Exception {
-
-		Map<String, Object> info = helper.debug(verb.verb(), uri, headers, params,
+		Map<String, Object> info = this.helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
-
 		RibbonCommand command = new RibbonCommand(restClient, verb, uri,
 				convertHeaders(headers), convertHeaders(params), requestEntity);
 		try {
 			HttpResponse response = command.execute();
-			helper.appendDebug(info, response.getStatus(),
+			this.helper.appendDebug(info, response.getStatus(),
 					revertHeaders(response.getHeaders()));
 			return response;
 		}
-		catch (HystrixRuntimeException e) {
+		catch (HystrixRuntimeException ex) {
 			info.put("status", "500");
-			if (e.getFallbackException() != null
-					&& e.getFallbackException().getCause() != null
-					&& e.getFallbackException().getCause() instanceof ClientException) {
-				ClientException ex = (ClientException) e.getFallbackException()
+			if (ex.getFallbackException() != null
+					&& ex.getFallbackException().getCause() != null
+					&& ex.getFallbackException().getCause() instanceof ClientException) {
+				ClientException cause = (ClientException) ex.getFallbackException()
 						.getCause();
-				throw new ZuulException(ex, "Forwarding error", 500, ex.getErrorType()
-						.toString());
+				throw new ZuulException(cause, "Forwarding error", 500, cause
+						.getErrorType().toString());
 			}
-			throw new ZuulException(e, "Forwarding error", 500, e.getFailureType()
+			throw new ZuulException(ex, "Forwarding error", 500, ex.getFailureType()
 					.toString());
 		}
 
@@ -161,10 +178,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
 				requestEntity = request.getInputStream();
 			}
 		}
-		catch (IOException e) {
-			LOG.error("Error during getRequestBody", e);
+		catch (IOException ex) {
+			LOG.error("Error during getRequestBody", ex);
 		}
-
 		return requestEntity;
 	}
 
@@ -185,7 +201,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	}
 
 	private void setResponse(HttpResponse resp) throws ClientException, IOException {
-		helper.setResponse(resp.getStatus(),
+		this.helper.setResponse(resp.getStatus(),
 				!resp.hasEntity() ? null : resp.getInputStream(),
 				revertHeaders(resp.getHeaders()));
 	}

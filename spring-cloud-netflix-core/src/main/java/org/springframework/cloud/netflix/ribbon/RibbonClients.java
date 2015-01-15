@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import java.lang.annotation.Documented;
@@ -27,9 +28,8 @@ import org.springframework.context.annotation.Import;
 /**
  * Convenience annotation that allows user to combine multiple <code>@RibbonClient</code>
  * annotations on a single class (including in Java 7).
- * 
- * @author Dave Syer
  *
+ * @author Dave Syer
  */
 @Configuration
 @Retention(RetentionPolicy.RUNTIME)

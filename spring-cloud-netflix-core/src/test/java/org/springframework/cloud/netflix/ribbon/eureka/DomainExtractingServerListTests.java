@@ -1,10 +1,20 @@
-package org.springframework.cloud.netflix.ribbon.eureka;
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+package org.springframework.cloud.netflix.ribbon.eureka;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,81 +29,91 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Spencer Gibb
  */
 public class DomainExtractingServerListTests {
 
-    static final String IP_ADDR = "10.0.0.2";
-    static final int PORT = 8080;
-    static final String ZONE = "myzone.mydomain.com";
-    static final String HOST_NAME = "myHostName."+ZONE;
-    static final String INSTANCE_ID = "myInstanceId";
+	static final String IP_ADDR = "10.0.0.2";
 
-    @Test
-    public void testDomainExtractingServer() {
-        DomainExtractingServerList serverList = getDomainExtractingServerList(new DefaultClientConfigImpl(), true);
+	static final int PORT = 8080;
 
-        List<Server> servers = serverList.getInitialListOfServers();
-        assertNotNull("servers was null", servers);
-        assertEquals("servers was not size 1", 1, servers.size());
+	static final String ZONE = "myzone.mydomain.com";
 
-        DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
-        assertEquals("hostPort was wrong", HOST_NAME+":"+PORT, des.getHostPort());
-    }
+	static final String HOST_NAME = "myHostName." + ZONE;
+
+	static final String INSTANCE_ID = "myInstanceId";
 
 	@Test
-	public void testDomainExtractingServerDontApproximateZone() {
-		DomainExtractingServerList serverList = getDomainExtractingServerList(new DefaultClientConfigImpl(), false);
-
+	public void testDomainExtractingServer() {
+		DomainExtractingServerList serverList = getDomainExtractingServerList(
+				new DefaultClientConfigImpl(), true);
 		List<Server> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
-
-		DomainExtractingServer des = assertDomainExtractingServer(servers, null);
-		assertEquals("hostPort was wrong", HOST_NAME+":"+PORT, des.getHostPort());
+		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
+		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
 	}
 
-    protected DomainExtractingServer assertDomainExtractingServer(List<Server> servers, String zone) {
-        Server actualServer = servers.get(0);
-        assertTrue("server was not a DomainExtractingServer", actualServer instanceof DomainExtractingServer);
-        DomainExtractingServer des = DomainExtractingServer.class.cast(actualServer);
-        assertEquals("zone was wrong", zone, des.getZone());
-        assertEquals("instanceId was wrong", INSTANCE_ID, des.getId());
-        return des;
-    }
+	@Test
+	public void testDomainExtractingServerDontApproximateZone() {
+		DomainExtractingServerList serverList = getDomainExtractingServerList(
+				new DefaultClientConfigImpl(), false);
+		List<Server> servers = serverList.getInitialListOfServers();
+		assertNotNull("servers was null", servers);
+		assertEquals("servers was not size 1", 1, servers.size());
+		DomainExtractingServer des = assertDomainExtractingServer(servers, null);
+		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
+	}
 
-    @Test
-    public void testDomainExtractingServerUseIpAddress() {
-        DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-        config.setProperty(CommonClientConfigKey.UseIPAddrForServer, true);
-        DomainExtractingServerList serverList = getDomainExtractingServerList(config, true);
+	protected DomainExtractingServer assertDomainExtractingServer(List<Server> servers,
+			String zone) {
+		Server actualServer = servers.get(0);
+		assertTrue("server was not a DomainExtractingServer",
+				actualServer instanceof DomainExtractingServer);
+		DomainExtractingServer des = DomainExtractingServer.class.cast(actualServer);
+		assertEquals("zone was wrong", zone, des.getZone());
+		assertEquals("instanceId was wrong", INSTANCE_ID, des.getId());
+		return des;
+	}
 
-        List<Server> servers = serverList.getInitialListOfServers();
-        assertNotNull("servers was null", servers);
-        assertEquals("servers was not size 1", 1, servers.size());
+	@Test
+	public void testDomainExtractingServerUseIpAddress() {
+		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+		config.setProperty(CommonClientConfigKey.UseIPAddrForServer, true);
+		DomainExtractingServerList serverList = getDomainExtractingServerList(config,
+				true);
+		List<Server> servers = serverList.getInitialListOfServers();
+		assertNotNull("servers was null", servers);
+		assertEquals("servers was not size 1", 1, servers.size());
+		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
+		assertEquals("hostPort was wrong", IP_ADDR + ":" + PORT, des.getHostPort());
+	}
 
-        DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
-        assertEquals("hostPort was wrong", IP_ADDR+":"+PORT, des.getHostPort());
-    }
-
-    protected DomainExtractingServerList getDomainExtractingServerList(DefaultClientConfigImpl config, boolean approximateZoneFromHostname) {
-        DiscoveryEnabledServer server = mock(DiscoveryEnabledServer.class);
+	protected DomainExtractingServerList getDomainExtractingServerList(
+			DefaultClientConfigImpl config, boolean approximateZoneFromHostname) {
+		DiscoveryEnabledServer server = mock(DiscoveryEnabledServer.class);
 		@SuppressWarnings("unchecked")
 		ServerList<Server> originalServerList = mock(ServerList.class);
-        InstanceInfo instanceInfo = mock(InstanceInfo.class);
-
-        when(server.getInstanceInfo()).thenReturn(instanceInfo);
-        when(server.getHost()).thenReturn(HOST_NAME);
-
-        when(instanceInfo.getMetadata()).thenReturn(ImmutableMap.<String, String>builder().put("instanceId", INSTANCE_ID).build());
-        when(instanceInfo.getHostName()).thenReturn(HOST_NAME);
-        when(instanceInfo.getIPAddr()).thenReturn(IP_ADDR);
-        when(instanceInfo.getPort()).thenReturn(PORT);
-
-        when(originalServerList.getInitialListOfServers()).thenReturn(Arrays.<Server>asList(server));
-
-        return new DomainExtractingServerList(originalServerList, config, approximateZoneFromHostname);
-    }
+		InstanceInfo instanceInfo = mock(InstanceInfo.class);
+		given(server.getInstanceInfo()).willReturn(instanceInfo);
+		given(server.getHost()).willReturn(HOST_NAME);
+		given(instanceInfo.getMetadata()).willReturn(
+				ImmutableMap.<String, String> builder().put("instanceId", INSTANCE_ID)
+						.build());
+		given(instanceInfo.getHostName()).willReturn(HOST_NAME);
+		given(instanceInfo.getIPAddr()).willReturn(IP_ADDR);
+		given(instanceInfo.getPort()).willReturn(PORT);
+		given(originalServerList.getInitialListOfServers()).willReturn(
+				Arrays.<Server> asList(server));
+		return new DomainExtractingServerList(originalServerList, config,
+				approximateZoneFromHostname);
+	}
 
 }

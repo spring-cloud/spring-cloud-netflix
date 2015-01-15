@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.hystrix;
 
 import org.springframework.cloud.netflix.endpoint.ServletWrappingEndpoint;
@@ -24,7 +25,9 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServl
  */
 public class HystrixStreamEndpoint extends ServletWrappingEndpoint {
 
-    public HystrixStreamEndpoint() {
-        super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream", false, true);
-    }
+	public HystrixStreamEndpoint() {
+		super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream",
+				false, true);
+	}
+
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.feign.ribbon;
 
 import java.io.IOException;
@@ -20,115 +36,129 @@ import feign.Request;
 import feign.RequestTemplate;
 import feign.Response;
 
-public class RibbonLoadBalancer extends AbstractLoadBalancerAwareClient<RibbonLoadBalancer.RibbonRequest, RibbonLoadBalancer.RibbonResponse> {
+public class RibbonLoadBalancer
+		extends
+		AbstractLoadBalancerAwareClient<RibbonLoadBalancer.RibbonRequest, RibbonLoadBalancer.RibbonResponse> {
 
-        private final Client delegate;
-        private final int connectTimeout;
-        private final int readTimeout;
-        private final IClientConfig clientConfig;
+	private final Client delegate;
 
-        public RibbonLoadBalancer(Client delegate, ILoadBalancer lb, IClientConfig clientConfig) {
-            super(lb, clientConfig);
-            this.setRetryHandler(RetryHandler.DEFAULT);
-            this.clientConfig = clientConfig;
-            this.delegate = delegate;
-            connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
-            readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
-        }
+	private final int connectTimeout;
 
-        @Override
-        public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride) throws IOException {
-            Request.Options options;
-            if (configOverride != null) {
-                options = new Request.Options(configOverride.get(CommonClientConfigKey.ConnectTimeout, connectTimeout), (configOverride.get(CommonClientConfigKey.ReadTimeout, readTimeout)));
-            } else {
-                options = new Request.Options(connectTimeout, readTimeout);
-            }
-            Response response = delegate.execute(request.toRequest(), options);
-            return new RibbonResponse(request.getUri(), response);
-        }
+	private final int readTimeout;
 
-        @Override
-        public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
-                RibbonRequest request, IClientConfig requestConfig) {
-            if (clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations, false)) {
-                return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(), requestConfig);
-            }
-            if (!request.toRequest().method().equals("GET")) {
-                return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(), requestConfig);
-            } else {
-                return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(), requestConfig);
-            }
-        }
+	private final IClientConfig clientConfig;
 
-        static class RibbonRequest extends ClientRequest implements Cloneable {
+	public RibbonLoadBalancer(Client delegate, ILoadBalancer lb,
+			IClientConfig clientConfig) {
+		super(lb, clientConfig);
+		this.setRetryHandler(RetryHandler.DEFAULT);
+		this.clientConfig = clientConfig;
+		this.delegate = delegate;
+		this.connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
+		this.readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
+	}
 
-            private final Request request;
+	@Override
+	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride)
+			throws IOException {
+		Request.Options options;
+		if (configOverride != null) {
+			options = new Request.Options(configOverride.get(
+					CommonClientConfigKey.ConnectTimeout, this.connectTimeout),
+					(configOverride.get(CommonClientConfigKey.ReadTimeout,
+							this.readTimeout)));
+		}
+		else {
+			options = new Request.Options(this.connectTimeout, this.readTimeout);
+		}
+		Response response = this.delegate.execute(request.toRequest(), options);
+		return new RibbonResponse(request.getUri(), response);
+	}
 
-            RibbonRequest(Request request, URI uri) {
-                this.request = request;
-                setUri(uri);
-            }
+	@Override
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
+			RibbonRequest request, IClientConfig requestConfig) {
+		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations, false)) {
+			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+					requestConfig);
+		}
+		if (!request.toRequest().method().equals("GET")) {
+			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
+					requestConfig);
+		}
+		else {
+			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+					requestConfig);
+		}
+	}
 
-            Request toRequest() {
-                return new RequestTemplate()
-                        .method(request.method())
-                        .append(getUri().toASCIIString())
-                        .headers(request.headers())
-                        .body(request.body(), request.charset())
-                        .request();
-            }
+	static class RibbonRequest extends ClientRequest implements Cloneable {
 
-            public Object clone() {
-                return new RibbonRequest(request, getUri());
-            }
-        }
+		private final Request request;
 
-        static class RibbonResponse implements IResponse {
+		RibbonRequest(Request request, URI uri) {
+			this.request = request;
+			setUri(uri);
+		}
 
-            private final URI uri;
-            private final Response response;
+		Request toRequest() {
+			return new RequestTemplate().method(this.request.method())
+					.append(getUri().toASCIIString()).headers(this.request.headers())
+					.body(this.request.body(), this.request.charset()).request();
+		}
 
-            RibbonResponse(URI uri, Response response) {
-                this.uri = uri;
-                this.response = response;
-            }
+		@Override
+		public Object clone() {
+			return new RibbonRequest(this.request, getUri());
+		}
+	}
 
-            @Override
-            public Object getPayload() throws ClientException {
-                return response.body();
-            }
+	static class RibbonResponse implements IResponse {
 
-            @Override
-            public boolean hasPayload() {
-                return response.body() != null;
-            }
+		private final URI uri;
+		private final Response response;
 
-            @Override
-            public boolean isSuccess() {
-                return response.status() == 200;
-            }
+		RibbonResponse(URI uri, Response response) {
+			this.uri = uri;
+			this.response = response;
+		}
 
-            @Override
-            public URI getRequestedURI() {
-                return uri;
-            }
+		@Override
+		public Object getPayload() throws ClientException {
+			return this.response.body();
+		}
 
-            @Override
-            public Map<String, Collection<String>> getHeaders() {
-                return response.headers();
-            }
+		@Override
+		public boolean hasPayload() {
+			return this.response.body() != null;
+		}
 
-            Response toResponse() {
-                return response;
-            }
+		@Override
+		public boolean isSuccess() {
+			return this.response.status() == 200;
+		}
 
-            @Override
-            public void close() throws IOException {
-                if (response != null && response.body() != null) {
-                    response.body().close();
-                }
-            }
+		@Override
+		public URI getRequestedURI() {
+			return this.uri;
+		}
 
-        }
-    }
+		@Override
+		public Map<String, Collection<String>> getHeaders() {
+			return this.response.headers();
+		}
+
+		Response toResponse() {
+			return this.response;
+		}
+
+		@Override
+		public void close() throws IOException {
+			if (this.response != null && this.response.body() != null) {
+				this.response.body().close();
+			}
+		}
+
+	}
+
+}

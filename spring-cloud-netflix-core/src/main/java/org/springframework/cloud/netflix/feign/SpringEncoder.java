@@ -1,10 +1,27 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.feign;
 
-import com.google.common.base.Charsets;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collection;
 
-import feign.RequestTemplate;
-import feign.codec.EncodeException;
-import feign.codec.Encoder;
+import javax.inject.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +32,11 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 
-import javax.inject.Provider;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
+import com.google.common.base.Charsets;
+
+import feign.RequestTemplate;
+import feign.codec.EncodeException;
+import feign.codec.Encoder;
 
 import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
@@ -27,13 +44,11 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
  * @author Spencer Gibb
  */
 public class SpringEncoder implements Encoder {
+
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
-    @Autowired
-    Provider<HttpMessageConverters> messageConverters;
-
-	public SpringEncoder() {
-	}
+	@Autowired
+	Provider<HttpMessageConverters> messageConverters;
 
 	@Override
 	public void encode(Object requestBody, RequestTemplate request)
@@ -49,7 +64,8 @@ public class SpringEncoder implements Encoder {
 				requestContentType = MediaType.valueOf(type);
 			}
 
-			for (HttpMessageConverter<?> messageConverter : messageConverters.get().getConverters()) {
+			for (HttpMessageConverter<?> messageConverter : this.messageConverters.get()
+					.getConverters()) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
 					if (logger.isDebugEnabled()) {
 						if (requestContentType != null) {
@@ -70,16 +86,16 @@ public class SpringEncoder implements Encoder {
 						HttpMessageConverter<Object> copy = (HttpMessageConverter<Object>) messageConverter;
 						copy.write(requestBody, requestContentType, outputMessage);
 					}
-					catch (IOException e) {
-						throw new EncodeException("Error converting request body", e);
+					catch (IOException ex) {
+						throw new EncodeException("Error converting request body", ex);
 					}
 					request.body(outputMessage.getOutputStream().toByteArray(),
 							Charsets.UTF_8); // TODO: set charset
 					return;
 				}
 			}
-			String message = "Could not write request: no suitable HttpMessageConverter found for request type ["
-					+ requestType.getName() + "]";
+			String message = "Could not write request: no suitable HttpMessageConverter "
+					+ "found for request type [" + requestType.getName() + "]";
 			if (requestContentType != null) {
 				message += " and content type [" + requestContentType + "]";
 			}
@@ -88,8 +104,10 @@ public class SpringEncoder implements Encoder {
 	}
 
 	private class FeignOutputMessage implements HttpOutputMessage {
+
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		RequestTemplate request;
+
+		private final RequestTemplate request;
 
 		private FeignOutputMessage(RequestTemplate request) {
 			this.request = request;
@@ -97,16 +115,18 @@ public class SpringEncoder implements Encoder {
 
 		@Override
 		public OutputStream getBody() throws IOException {
-			return outputStream;
+			return this.outputStream;
 		}
 
 		@Override
 		public HttpHeaders getHeaders() {
-			return getHttpHeaders(request.headers());
+			return getHttpHeaders(this.request.headers());
 		}
 
 		public ByteArrayOutputStream getOutputStream() {
-			return outputStream;
+			return this.outputStream;
 		}
+
 	}
+
 }
