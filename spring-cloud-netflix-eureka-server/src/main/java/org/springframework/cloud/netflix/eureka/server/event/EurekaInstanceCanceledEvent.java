@@ -33,7 +33,7 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	private String serverId;
 
-	boolean replication;
+	private boolean replication;
 
 	public EurekaInstanceCanceledEvent(Object source, String appName, String serverId,
 			boolean replication) {

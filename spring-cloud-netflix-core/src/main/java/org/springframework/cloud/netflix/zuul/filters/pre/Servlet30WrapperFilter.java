@@ -43,13 +43,17 @@ import com.netflix.zuul.http.HttpServletRequestWrapper;
  */
 public class Servlet30WrapperFilter extends ZuulFilter {
 
-	protected Field requestField = null;
+	private Field requestField = null;
 
 	public Servlet30WrapperFilter() {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
 		Assert.notNull(this.requestField, "HttpServletRequestWrapper.req field not found");
 		this.requestField.setAccessible(true);
+	}
+
+	protected Field getRequestField() {
+		return requestField;
 	}
 
 	@Override

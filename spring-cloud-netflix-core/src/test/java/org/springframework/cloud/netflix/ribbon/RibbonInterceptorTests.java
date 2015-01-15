@@ -49,13 +49,13 @@ import static org.mockito.Mockito.verify;
 public class RibbonInterceptorTests {
 
 	@Mock
-	HttpRequest request;
+	private HttpRequest request;
 
 	@Mock
-	ClientHttpRequestExecution execution;
+	private ClientHttpRequestExecution execution;
 
 	@Mock
-	ClientHttpResponse response;
+	private ClientHttpResponse response;
 
 	@Before
 	public void init() {

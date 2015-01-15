@@ -37,7 +37,7 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
 	private InstanceInfo instanceInfo;
 
-	boolean replication;
+	private boolean replication;
 
 	public EurekaInstanceRenewedEvent(Object source, String appName, String serverId,
 			InstanceInfo instanceInfo, boolean replication) {

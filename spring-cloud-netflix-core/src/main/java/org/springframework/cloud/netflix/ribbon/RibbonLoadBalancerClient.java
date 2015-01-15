@@ -104,8 +104,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	protected static class RibbonServer implements ServiceInstance {
-		protected String serviceId;
-		protected Server server;
+		private String serviceId;
+		private Server server;
 
 		protected RibbonServer(String serviceId, Server server) {
 			this.serviceId = serviceId;
@@ -127,6 +127,9 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			return this.server.getPort();
 		}
 
+		public Server getServer() {
+			return server;
+		}
 	}
 
 }

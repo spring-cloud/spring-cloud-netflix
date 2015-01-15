@@ -43,7 +43,7 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 public class SpringDecoder implements Decoder {
 
 	@Autowired
-	Provider<HttpMessageConverters> messageConverters;
+	private Provider<HttpMessageConverters> messageConverters;
 
 	public SpringDecoder() {
 	}

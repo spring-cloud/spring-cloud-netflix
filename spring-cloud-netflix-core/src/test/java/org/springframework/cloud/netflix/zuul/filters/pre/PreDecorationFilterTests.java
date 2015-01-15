@@ -41,7 +41,7 @@ public class PreDecorationFilterTests {
 	private PreDecorationFilter filter;
 
 	@Mock
-	DiscoveryClient discovery;
+	private DiscoveryClient discovery;
 
 	private ZuulProperties properties = new ZuulProperties();
 

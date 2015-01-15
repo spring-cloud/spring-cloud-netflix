@@ -36,13 +36,13 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 
 	// TODO: move to spring-boot?
 
-	protected String path;
+	private String path;
 
-	protected boolean sensitive;
+	private boolean sensitive;
 
-	protected boolean enabled = true;
+	private boolean enabled = true;
 
-	protected final ServletWrappingController controller = new ServletWrappingController();
+	private final ServletWrappingController controller = new ServletWrappingController();
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -75,6 +75,13 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 		return this.controller.handleRequest(request, response);
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public ServletWrappingController getController() {
+		return controller;
+	}
 	@Override
 	public String getPath() {
 		return this.path;

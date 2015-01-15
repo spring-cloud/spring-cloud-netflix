@@ -58,7 +58,7 @@ public class FeignClientTests extends FeignConfiguration {
 	private int port = 0;
 
 	@Autowired
-	TestClient testClient;
+	private TestClient testClient;
 
 	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
 	@FeignClient("feignclienttest")

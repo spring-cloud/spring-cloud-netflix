@@ -41,31 +41,31 @@ public class FeignConfiguration {
 	ConfigurableEnvironmentConfiguration envConfig; // FIXME: howto enforce this?
 
 	@Autowired
-	Decoder decoder;
+	private Decoder decoder;
 
 	@Autowired
-	Encoder encoder;
+	private Encoder encoder;
 
 	@Autowired
-	Logger logger;
+	private Logger logger;
 
 	@Autowired
-	Contract contract;
+	private Contract contract;
 
 	@Autowired(required = false)
-	Logger.Level logLevel;
+	private Logger.Level logLevel;
 
 	@Autowired(required = false)
-	Retryer retryer;
+	private Retryer retryer;
 
 	@Autowired(required = false)
-	ErrorDecoder errorDecoder;
+	private ErrorDecoder errorDecoder;
 
 	@Autowired(required = false)
-	Request.Options options;
+	private Request.Options options;
 
 	@Autowired(required = false)
-	Client ribbonClient;
+	private Client ribbonClient;
 
 	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()

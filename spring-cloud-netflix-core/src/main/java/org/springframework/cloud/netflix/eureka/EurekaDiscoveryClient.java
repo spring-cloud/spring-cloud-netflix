@@ -90,7 +90,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	}
 
 	static class EurekaServiceInstance implements ServiceInstance {
-		InstanceInfo instance;
+		private InstanceInfo instance;
 
 		EurekaServiceInstance(InstanceInfo instance) {
 			this.instance = instance;

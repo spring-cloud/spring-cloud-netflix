@@ -120,7 +120,7 @@ class HystrixOnlyApplication {
 	}
 
 	@Autowired
-	Service service;
+	private Service service;
 
 	@RequestMapping("/")
 	public String home() {

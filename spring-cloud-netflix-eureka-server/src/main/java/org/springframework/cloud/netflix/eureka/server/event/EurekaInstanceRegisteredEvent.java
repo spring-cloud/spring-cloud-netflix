@@ -35,7 +35,7 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	private int leaseDuration;
 
-	boolean replication;
+	private boolean replication;
 
 	public EurekaInstanceRegisteredEvent(Object source, InstanceInfo instanceInfo,
 			int leaseDuration, boolean replication) {

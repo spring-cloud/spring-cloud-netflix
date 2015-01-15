@@ -70,7 +70,7 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		URI uri = client.reconstructURI(serviceInstance, new URL("http://"
-				+ server.serviceId).toURI());
+				+ server.getServiceId()).toURI());
 		assertEquals(server.getHost(), uri.getHost());
 		assertEquals(server.getPort(), uri.getPort());
 	}
@@ -145,10 +145,10 @@ public class RibbonLoadBalancerClientTests {
 			RibbonServer ribbonServer) {
 		given(this.loadBalancer.getName()).willReturn(ribbonServer.getServiceId());
 		given(this.loadBalancer.chooseServer(anyString()))
-				.willReturn(ribbonServer.server);
+				.willReturn(ribbonServer.getServer());
 		given(this.loadBalancer.getLoadBalancerStats())
 				.willReturn(this.loadBalancerStats);
-		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.server))
+		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.getServer()))
 				.willReturn(this.serverStats);
 		given(this.clientFactory.getLoadBalancer(this.loadBalancer.getName()))
 				.willReturn(this.loadBalancer);

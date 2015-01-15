@@ -48,7 +48,7 @@ public class SpringEncoder implements Encoder {
 	private static final Logger logger = LoggerFactory.getLogger(SpringEncoder.class);
 
 	@Autowired
-	Provider<HttpMessageConverters> messageConverters;
+	private Provider<HttpMessageConverters> messageConverters;
 
 	@Override
 	public void encode(Object requestBody, RequestTemplate request)
@@ -105,7 +105,7 @@ public class SpringEncoder implements Encoder {
 
 	private class FeignOutputMessage implements HttpOutputMessage {
 
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		private final RequestTemplate request;
 

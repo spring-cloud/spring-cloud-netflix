@@ -42,7 +42,7 @@ import com.netflix.discovery.converters.XmlXStream;
 public class EurekaClientAutoConfiguration {
 
 	@Autowired
-	ApplicationContext context;
+	private ApplicationContext context;
 
 	@PostConstruct
 	public void init() {

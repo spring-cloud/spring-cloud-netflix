@@ -117,7 +117,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		private ProxyRouteLocator routeLocator;
 
 		@Autowired
-		ZuulHandlerMapping zuulHandlerMapping;
+		private ZuulHandlerMapping zuulHandlerMapping;
 
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
