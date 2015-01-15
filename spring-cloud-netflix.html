@@ -902,7 +902,7 @@ for details on the properties available.</p>
 <p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation.</p>
 </div>
 <div class="paragraph">
-<p><code>turbine.appConfig</code> is a list of eureka serviceId&#8217;s that turbine will use to lookup instances.  <code>turbine.aggregator.clusterConfig</code> is used to group instances together.  This comes from the eureka <code>InstanceInfo</code>.  The clusterName is a SPEL expression evaluated against the InstanceInfo.  The default clusterNameExpression is <code>appName</code>.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <a href="http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS</a></p>
+<p>Configuration key <code>turbine.appConfig</code> is a list of eureka serviceId&#8217;s that turbine will use to lookup instances.  And <code>turbine.aggregator.clusterConfig</code> is used to group instances together (from the eureka <code>InstanceInfo</code>).  The clusterName is a SPEL expression evaluated against the InstanceInfo.  The default <code>clusterNameExpression</code> is <code>appName</code>.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <a href="http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS</a></p>
 </div>
 <div class="paragraph">
 <p>The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>.</p>
@@ -919,7 +919,22 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The clusterName can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code>.  For example, <code>turbine.clusterNameExpression=aSGName</code> would get the clustername from the AWS ASG name.</p>
+<p>The <code>clusterName</code> can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code>.  For example, <code>turbine.clusterNameExpression=aSGName</code> would get the cluster name from the AWS ASG name.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud provides a <code>spring-cloud-starter-turbine</code> that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with <code>@EnableTurbine</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_turbine_amqp">Turbine AMQP</h3>
+<div class="paragraph">
+<p>In some environments (e.g. in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands doesn&#8217;t work. In that case you might want to have your Hystrix commands push metrics to Turbine, and Spring Cloud enables that with AMQP messaging. All you need to do on the client is add a dependency to <code>spring-cloud-netflix-hystrix-amqp</code> and make sure there is a Rabbit brooker available (see Spring Boot documentation for details on how to configure the client credentials, but it should work out of the box for a local broker or in Cloud Foundry).</p>
+</div>
+<div class="paragraph">
+<p>On the server side Just create a Spring Boot application and annotate it with <code>@EnableTurbineAmqp</code> and by default it will come up on port 8989 (point your Hystrix dashboard to that port, any path). You can customize the port using either <code>server.port</code> or <code>turbine.amqp.port</code>. If you have <code>spring-boot-starter-web</code> and <code>spring-boot-starter-actuator</code> on the classpath as well, then you can open up the Actuator endpoints on a separate port (with Tomcat by default) by providing a <code>management.port</code> which is different.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-amqp</code> that has all the dependencies you need to get a Turbine AMQP server running. You need Java 8 to run the app because it is Netty-based.</p>
 </div>
 </div>
 </div>
@@ -1292,7 +1307,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-15 14:08:16 UTC
+Last updated 2015-01-15 15:38:06 UTC
 </div>
 </div>
 </body>
