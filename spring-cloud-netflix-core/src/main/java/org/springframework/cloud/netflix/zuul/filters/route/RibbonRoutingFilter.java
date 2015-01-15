@@ -168,26 +168,20 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return requestEntity;
 	}
 
-	Verb getVerb(HttpServletRequest request) {
+	private Verb getVerb(HttpServletRequest request) {
 		String sMethod = request.getMethod();
 		return getVerb(sMethod);
 	}
 
-	Verb getVerb(String sMethod) {
+	private Verb getVerb(String sMethod) {
 		if (sMethod == null)
 			return Verb.GET;
-		sMethod = sMethod.toLowerCase();
-		if (sMethod.equals("post"))
-			return Verb.POST;
-		if (sMethod.equals("put"))
-			return Verb.PUT;
-		if (sMethod.equals("delete"))
-			return Verb.DELETE;
-		if (sMethod.equals("options"))
-			return Verb.OPTIONS;
-		if (sMethod.equals("head"))
-			return Verb.HEAD;
-		return Verb.GET;
+		try {
+			return Verb.valueOf(sMethod.toUpperCase());
+		}
+		catch (IllegalArgumentException e) {
+			return Verb.GET;
+		}
 	}
 
 	private void setResponse(HttpResponse resp) throws ClientException, IOException {
