@@ -1,12 +1,20 @@
-package org.springframework.cloud.netflix.archaius;
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static com.netflix.config.ConfigurationBasedDeploymentContext.DEPLOYMENT_APPLICATION_ID_PROPERTY;
-import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
-import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
-import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
-import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
-import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
-import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
+package org.springframework.cloud.netflix.archaius;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,6 +39,14 @@ import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicURLConfiguration;
 
+import static com.netflix.config.ConfigurationBasedDeploymentContext.DEPLOYMENT_APPLICATION_ID_PROPERTY;
+import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
+import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
+
 /**
  * @author Spencer Gibb
  */
@@ -40,6 +56,7 @@ public class ArchaiusAutoConfiguration {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ArchaiusAutoConfiguration.class);
+
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
 	@Autowired
@@ -57,7 +74,7 @@ public class ArchaiusAutoConfiguration {
 	@Bean
 	public ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration() {
 		ConfigurableEnvironmentConfiguration envConfig = new ConfigurableEnvironmentConfiguration(
-				env);
+				this.env);
 		configureArchaius(envConfig);
 		return envConfig;
 	}
@@ -74,7 +91,7 @@ public class ArchaiusAutoConfiguration {
 	@SuppressWarnings("deprecation")
 	protected void configureArchaius(ConfigurableEnvironmentConfiguration envConfig) {
 		if (initialized.compareAndSet(false, true)) {
-			String appName = env.getProperty("spring.application.name");
+			String appName = this.env.getProperty("spring.application.name");
 			if (appName == null) {
 				appName = "application";
 				logger.warn("No spring.application.name found, defaulting to 'application'");
@@ -101,8 +118,8 @@ public class ArchaiusAutoConfiguration {
 			try {
 				config.addConfiguration(defaultURLConfig, URL_CONFIG_NAME);
 			}
-			catch (Throwable e) {
-				logger.error("Cannot create config from " + defaultURLConfig, e);
+			catch (Throwable ex) {
+				logger.error("Cannot create config from " + defaultURLConfig, ex);
 			}
 
 			// TODO: sys/env above urls?

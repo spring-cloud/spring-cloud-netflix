@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka;
 
 import javax.annotation.PostConstruct;
@@ -33,7 +34,6 @@ import com.netflix.discovery.converters.XmlXStream;
 
 /**
  * @author Dave Syer
- *
  */
 @Configuration
 @EnableConfigurationProperties
@@ -47,9 +47,9 @@ public class EurekaClientAutoConfiguration {
 	@PostConstruct
 	public void init() {
 		XmlXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(context));
+				new DataCenterAwareMarshallingStrategy(this.context));
 		JsonXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(context));
+				new DataCenterAwareMarshallingStrategy(this.context));
 	}
 
 	@Bean
@@ -63,6 +63,5 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		return new EurekaInstanceConfigBean();
 	}
-
 
 }

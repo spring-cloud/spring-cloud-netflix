@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertEquals;
+package org.springframework.cloud.netflix.ribbon.eureka;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,25 +25,27 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.loadbalancer.Server;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
- *
  */
 public class ZonePreferenceServerListFilterTests {
 
 	private Server dsyer = new Server("dsyer", 8080);
 	private Server localhost = new Server("localhost", 8080);
-	
+
 	@Before
 	public void init() {
-		dsyer.setZone("dsyer");
-		localhost.setZone("localhost");
+		this.dsyer.setZone("dsyer");
+		this.localhost.setZone("localhost");
 	}
 
 	@Test
 	public void noZoneSet() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-		List<Server> result = filter.getFilteredListOfServers(Arrays.asList(localhost));
+		List<Server> result = filter.getFilteredListOfServers(Arrays
+				.asList(this.localhost));
 		assertEquals(1, result.size());
 	}
 
@@ -52,7 +53,8 @@ public class ZonePreferenceServerListFilterTests {
 	public void withZoneSetAndNoMatches() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
-		List<Server> result = filter.getFilteredListOfServers(Arrays.asList(localhost));
+		List<Server> result = filter.getFilteredListOfServers(Arrays
+				.asList(this.localhost));
 		assertEquals(1, result.size());
 	}
 
@@ -60,7 +62,8 @@ public class ZonePreferenceServerListFilterTests {
 	public void withZoneSetAndMatches() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
-		List<Server> result = filter.getFilteredListOfServers(Arrays.asList(dsyer, localhost));
+		List<Server> result = filter.getFilteredListOfServers(Arrays.asList(this.dsyer,
+				this.localhost));
 		assertEquals(1, result.size());
 	}
 

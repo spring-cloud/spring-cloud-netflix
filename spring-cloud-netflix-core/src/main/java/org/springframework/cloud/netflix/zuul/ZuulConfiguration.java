@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul;
 
 import java.util.Map;
@@ -34,7 +50,7 @@ public class ZuulConfiguration {
 
 	@Bean
 	public RouteLocator routeLocator() {
-		return new SimpleRouteLocator(zuulProperties);
+		return new SimpleRouteLocator(this.zuulProperties);
 	}
 
 	@Bean
@@ -47,40 +63,13 @@ public class ZuulConfiguration {
 		return new ZuulHandlerMapping(routes, zuulController());
 	}
 
-	@Configuration
-	protected static class ZuulFilterConfiguration {
-
-		@Autowired
-		private Map<String, ZuulFilter> filters;
-
-		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer() {
-			return new ZuulFilterInitializer(filters);
-		}
-
-	}
-
 	@Bean
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
 	}
 
-	private static class ZuulRefreshListener implements
-			ApplicationListener<ApplicationEvent> {
-
-		@Autowired
-		private ZuulHandlerMapping zuulHandlerMapping;
-
-		@Override
-		public void onApplicationEvent(ApplicationEvent event) {
-			if (event instanceof ContextRefreshedEvent
-					|| event instanceof RefreshScopeRefreshedEvent)
-				zuulHandlerMapping.registerHandlers();
-		}
-
-	}
-
 	// pre filters
+
 	@Bean
 	public FormBodyWrapperFilter formBodyWrapperFilter() {
 		return new FormBodyWrapperFilter();
@@ -97,6 +86,7 @@ public class ZuulConfiguration {
 	}
 
 	// post filters
+
 	@Bean
 	public SendResponseFilter sendResponseFilter() {
 		return new SendResponseFilter();
@@ -105,6 +95,35 @@ public class ZuulConfiguration {
 	@Bean
 	public SendErrorFilter sendErrorFilter() {
 		return new SendErrorFilter();
+	}
+
+	@Configuration
+	protected static class ZuulFilterConfiguration {
+
+		@Autowired
+		private Map<String, ZuulFilter> filters;
+
+		@Bean
+		public ZuulFilterInitializer zuulFilterInitializer() {
+			return new ZuulFilterInitializer(this.filters);
+		}
+
+	}
+
+	private static class ZuulRefreshListener implements
+			ApplicationListener<ApplicationEvent> {
+
+		@Autowired
+		private ZuulHandlerMapping zuulHandlerMapping;
+
+		@Override
+		public void onApplicationEvent(ApplicationEvent event) {
+			if (event instanceof ContextRefreshedEvent
+					|| event instanceof RefreshScopeRefreshedEvent) {
+				this.zuulHandlerMapping.registerHandlers();
+			}
+		}
+
 	}
 
 }

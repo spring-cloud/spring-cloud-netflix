@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Collection;
@@ -27,18 +43,22 @@ import com.netflix.loadbalancer.ILoadBalancer;
  * creates a Spring ApplicationContext per client name, and extracts the beans that it
  * needs from there.
  *
+ * @author Spencer Gibb
+ * @author Dave Syer
  */
 public class SpringClientFactory implements DisposableBean, ApplicationContextAware {
 
 	private Map<String, AnnotationConfigApplicationContext> contexts = new ConcurrentHashMap<>();
+
 	private Map<String, RibbonClientSpecification> configurations = new ConcurrentHashMap<>();
+
 	private ApplicationContext parent;
 
 	@Override
 	public void setApplicationContext(ApplicationContext parent) throws BeansException {
 		this.parent = parent;
 	}
-	
+
 	public void setConfigurations(List<RibbonClientSpecification> configurations) {
 		for (RibbonClientSpecification client : configurations) {
 			this.configurations.put(client.getName(), client);
@@ -47,8 +67,8 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	@Override
 	public void destroy() {
-		Collection<AnnotationConfigApplicationContext> values = contexts.values();
-		contexts.clear();
+		Collection<AnnotationConfigApplicationContext> values = this.contexts.values();
+		this.contexts.clear();
 		for (AnnotationConfigApplicationContext context : values) {
 			context.close();
 		}
@@ -56,7 +76,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the rest client associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public <C extends IClient<?, ?>> C getClient(String name, Class<C> clientClass) {
@@ -65,7 +84,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the load balancer associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public ILoadBalancer getLoadBalancer(String name) {
@@ -74,7 +92,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the client config associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public IClientConfig getClientConfig(String name) {
@@ -83,7 +100,6 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 
 	/**
 	 * Get the load balancer context associated with the name.
-	 *
 	 * @throws RuntimeException if any error occurs
 	 */
 	public RibbonLoadBalancerContext getLoadBalancerContext(String serviceId) {
@@ -91,28 +107,30 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 	}
 
 	private AnnotationConfigApplicationContext getContext(String name) {
-		if (!contexts.containsKey(name)) {
-			synchronized (contexts) {
-				if (!contexts.containsKey(name)) {
-					contexts.put(name, createContext(name));
+		if (!this.contexts.containsKey(name)) {
+			synchronized (this.contexts) {
+				if (!this.contexts.containsKey(name)) {
+					this.contexts.put(name, createContext(name));
 				}
 			}
 		}
-		return contexts.get(name);
+		return this.contexts.get(name);
 	}
 
 	private AnnotationConfigApplicationContext createContext(String name) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		if (configurations.containsKey(name)) {
-			for (Class<?> configuration : configurations.get(name).getConfiguration()) {
+		if (this.configurations.containsKey(name)) {
+			for (Class<?> configuration : this.configurations.get(name)
+					.getConfiguration()) {
 				context.register(configuration);
 			}
 		}
-		for (Entry<String, RibbonClientSpecification> entry : configurations.entrySet()) {
+		for (Entry<String, RibbonClientSpecification> entry : this.configurations
+				.entrySet()) {
 			if (entry.getKey().startsWith("default.")) {
 				for (Class<?> configuration : entry.getValue().getConfiguration()) {
 					context.register(configuration);
-				}	
+				}
 			}
 		}
 		context.register(PropertyPlaceholderAutoConfiguration.class,
@@ -123,9 +141,9 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 						new MapPropertySource("ribbon",
 								Collections.<String, Object> singletonMap(
 										"ribbon.client.name", name)));
-		if (parent != null) {
+		if (this.parent != null) {
 			// Uses Environment from parent as well as beans
-			context.setParent(parent);
+			context.setParent(this.parent);
 		}
 		context.refresh();
 		return context;
@@ -151,7 +169,8 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 					result = BeanUtils.instantiate(clazz);
 				}
 			}
-			catch (Throwable e) { // NOPMD
+			catch (Throwable ex) {
+				// NOPMD
 			}
 		}
 		context.getAutowireCapableBeanFactory().autowireBean(result);

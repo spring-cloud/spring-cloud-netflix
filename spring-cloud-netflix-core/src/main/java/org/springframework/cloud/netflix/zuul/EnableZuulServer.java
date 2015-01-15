@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul;
 
 import java.lang.annotation.Documented;
@@ -12,9 +28,9 @@ import org.springframework.context.annotation.Import;
  * Set up the application to act as a generic Zuul server without any built-in reverse
  * proxy features. The routes into the Zuul server can be configured through
  * {@link ZuulProperties} (by default there are none).
- * 
+ *
  * @see EnableZuulProxy to see how to get reverse proxy out of the box
- * 
+ *
  * @author Spencer Gibb
  */
 @Target(ElementType.TYPE)
@@ -22,4 +38,5 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Import(ZuulConfiguration.class)
 public @interface EnableZuulServer {
+
 }

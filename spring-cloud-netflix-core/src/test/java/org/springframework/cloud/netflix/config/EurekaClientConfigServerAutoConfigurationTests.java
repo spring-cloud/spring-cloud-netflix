@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.config;
 
-import static org.junit.Assert.assertEquals;
+package org.springframework.cloud.netflix.config;
 
 import org.junit.After;
 import org.junit.Test;
@@ -28,9 +27,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
- *
  */
 public class EurekaClientConfigServerAutoConfigurationTests {
 
@@ -38,29 +38,30 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 
 	@After
 	public void close() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
 	@Test
 	public void offByDefault() throws Exception {
-		context = new AnnotationConfigApplicationContext(
+		this.context = new AnnotationConfigApplicationContext(
 				EurekaClientConfigServerAutoConfiguration.class);
 		assertEquals(0,
-				context.getBeanNamesForType(EurekaInstanceConfigBean.class).length);
+				this.context.getBeanNamesForType(EurekaInstanceConfigBean.class).length);
 	}
 
 	@Test
 	public void onWhenRequested() throws Exception {
 		setup("spring.cloud.config.server.prefix=/config");
-		assertEquals(1, context.getBeanNamesForType(EurekaInstanceConfig.class).length);
-		EurekaInstanceConfig instance = context.getBean(EurekaInstanceConfig.class);
+		assertEquals(1,
+				this.context.getBeanNamesForType(EurekaInstanceConfig.class).length);
+		EurekaInstanceConfig instance = this.context.getBean(EurekaInstanceConfig.class);
 		assertEquals("/config", instance.getMetadataMap().get("configPath"));
 	}
 
 	private void setup(String... env) {
-		context = new SpringApplicationBuilder(
+		this.context = new SpringApplicationBuilder(
 				PropertyPlaceholderAutoConfiguration.class,
 				EurekaClientConfigServerAutoConfiguration.class,
 				ConfigServerProperties.class, EurekaInstanceConfigBean.class).web(false)

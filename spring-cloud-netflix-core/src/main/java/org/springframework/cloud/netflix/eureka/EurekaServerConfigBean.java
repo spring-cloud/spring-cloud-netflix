@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka;
 
 import java.util.Collections;
@@ -20,15 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.Data;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.netflix.eureka.EurekaServerConfig;
 
 /**
  * @author Dave Syer
- *
  */
 @Data
 @ConfigurationProperties("eureka.server")
@@ -46,11 +46,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int eIPBindingRetryIntervalMs = 5 * MINUTES;
 
-    private boolean enableSelfPreservation = true;
-	@Override
-	public boolean shouldEnableSelfPreservation() {
-		return enableSelfPreservation;
-	}
+	private boolean enableSelfPreservation = true;
 
 	private double renewalPercentThreshold = 0.85;
 
@@ -88,11 +84,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private long responseCacheUpdateIntervalMs = 30 * 1000;
 
-    private boolean disableDelta;
-	@Override
-	public boolean shouldDisableDelta() {
-		return disableDelta;
-	}
+	private boolean disableDelta;
 
 	private long maxIdleThreadInMinutesAgeForStatusReplication = 10;
 
@@ -102,11 +94,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int maxElementsInStatusReplicationPool = 10000;
 
-    private boolean syncWhenTimestampDiffers = true;
-	@Override
-	public boolean shouldSyncWhenTimestampDiffers() {
-		return syncWhenTimestampDiffers;
-	}
+	private boolean syncWhenTimestampDiffers = true;
 
 	private int registrySyncRetries = 5;
 
@@ -120,17 +108,9 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int maxTimeForReplication = 30000;
 
-    private boolean primeAwsReplicaConnections = true;
-	@Override
-	public boolean shouldPrimeAwsReplicaConnections() {
-		return primeAwsReplicaConnections;
-	}
+	private boolean primeAwsReplicaConnections = true;
 
-    private boolean disableDeltaForRemoteRegions;
-	@Override
-	public boolean shouldDisableDeltaForRemoteRegions() {
-		return disableDeltaForRemoteRegions;
-	}
+	private boolean disableDeltaForRemoteRegions;
 
 	private int remoteRegionConnectTimeoutMs = 1000;
 
@@ -142,26 +122,13 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int remoteRegionConnectionIdleTimeoutSeconds = 30;
 
-    private boolean gZipContentFromRemoteRegion = true;
-	@Override
-	public boolean shouldGZipContentFromRemoteRegion() {
-		return gZipContentFromRemoteRegion;
-	}
+	private boolean gZipContentFromRemoteRegion = true;
 
 	private Map<String, String> remoteRegionUrlsWithName = new HashMap<String, String>();
 
-	private String[] remoteRegionUrls;  
+	private String[] remoteRegionUrls;
 
 	private Map<String, Set<String>> remoteRegionAppWhitelist;
-    @Override
-	public Set<String> getRemoteRegionAppWhitelist(String regionName) {
-        if (null == regionName) {
-            regionName = "global";
-        } else {
-            regionName = regionName.trim().toLowerCase();
-        }
-		return remoteRegionAppWhitelist.get(regionName);
-	}
 
 	private int remoteRegionRegistryFetchInterval = 30;
 
@@ -170,34 +137,72 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private String remoteRegionTrustStorePassword = "changeit";
 
 	private boolean disableTransparentFallbackToOtherRegion;
+
+	private boolean batchReplication;
+
+	private boolean rateLimiterEnabled = false;
+
+	private boolean rateLimiterThrottleStandardClients = false;
+
+	private Set<String> rateLimiterPrivilegedClients = Collections.emptySet();
+
+	private int rateLimiterBurstSize = 10;
+
+	private int rateLimiterRegistryFetchAverageRate = 500;
+
+	private int rateLimiterFullFetchAverageRate = 100;
+
+	private boolean logIdentityHeaders = true;
+
 	@Override
-	public boolean disableTransparentFallbackToOtherRegion() {
-		return disableTransparentFallbackToOtherRegion;
+	public boolean shouldEnableSelfPreservation() {
+		return this.enableSelfPreservation;
 	}
 
-    private boolean batchReplication;
+	@Override
+	public boolean shouldDisableDelta() {
+		return this.disableDelta;
+	}
+
+	@Override
+	public boolean shouldSyncWhenTimestampDiffers() {
+		return this.syncWhenTimestampDiffers;
+	}
+
+	@Override
+	public boolean shouldPrimeAwsReplicaConnections() {
+		return this.primeAwsReplicaConnections;
+	}
+
+	@Override
+	public boolean shouldDisableDeltaForRemoteRegions() {
+		return this.disableDeltaForRemoteRegions;
+	}
+
+	@Override
+	public boolean shouldGZipContentFromRemoteRegion() {
+		return this.gZipContentFromRemoteRegion;
+	}
+
+	@Override
+	public Set<String> getRemoteRegionAppWhitelist(String regionName) {
+		return this.remoteRegionAppWhitelist.get(regionName == null ? "global"
+				: regionName.trim().toLowerCase());
+	}
+
+	@Override
+	public boolean disableTransparentFallbackToOtherRegion() {
+		return this.disableTransparentFallbackToOtherRegion;
+	}
 
 	@Override
 	public boolean shouldBatchReplication() {
-		return batchReplication;
+		return this.batchReplication;
 	}
 
-    private boolean logIdentityHeaders = true;
+	@Override
+	public boolean shouldLogIdentityHeaders() {
+		return this.logIdentityHeaders;
+	}
 
-    @Override
-    public boolean shouldLogIdentityHeaders() {
-        return logIdentityHeaders;
-    }
-
-    private boolean rateLimiterEnabled = false;
-
-    private boolean rateLimiterThrottleStandardClients = false;
-
-    private Set<String> rateLimiterPrivilegedClients = Collections.emptySet();
-
-    private int rateLimiterBurstSize = 10;
-
-    private int rateLimiterRegistryFetchAverageRate = 500;
-
-    private int rateLimiterFullFetchAverageRate = 100;
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka.server.advice;
 
 import com.netflix.appinfo.InstanceInfo;
@@ -20,10 +21,9 @@ import com.netflix.eureka.lease.LeaseManager;
 
 /**
  * @author Dave Syer
- *
  */
 public interface LeaseManagerLite<T> extends LeaseManager<T> {
-	
+
 	void register(InstanceInfo info, boolean isReplication);
 
 }

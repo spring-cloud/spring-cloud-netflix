@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.feign;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,20 +36,21 @@ import feign.ribbon.LoadBalancingTarget;
  */
 @Configuration
 public class FeignConfiguration {
-    @Autowired
-    ConfigurableEnvironmentConfiguration envConfig; //FIXME: howto enforce this?
 
-    @Autowired
-    Decoder decoder;
+	@Autowired
+	ConfigurableEnvironmentConfiguration envConfig; // FIXME: howto enforce this?
 
-    @Autowired
-    Encoder encoder;
+	@Autowired
+	Decoder decoder;
 
-    @Autowired
-    Logger logger;
+	@Autowired
+	Encoder encoder;
 
-    @Autowired
-    Contract contract;
+	@Autowired
+	Logger logger;
+
+	@Autowired
+	Contract contract;
 
 	@Autowired(required = false)
 	Logger.Level logLevel;
@@ -47,40 +64,43 @@ public class FeignConfiguration {
 	@Autowired(required = false)
 	Request.Options options;
 
-    @Autowired(required = false)
-    Client ribbonClient;
+	@Autowired(required = false)
+	Client ribbonClient;
 
-    protected Feign.Builder feign() {
+	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()
-				//required values
-				.logger(logger)
-				.encoder(encoder)
-				.decoder(decoder)
-				.contract(contract);
+				// required values
+				.logger(this.logger).encoder(this.encoder).decoder(this.decoder)
+				.contract(this.contract);
 
-		//optional values
-		if (logLevel != null)
-			builder.logLevel(logLevel);
-		if (retryer != null)
-			builder.retryer(retryer);
-		if (errorDecoder != null)
-			builder.errorDecoder(errorDecoder);
-		if (options != null)
-			builder.options(options);
+		// optional values
+		if (this.logLevel != null) {
+			builder.logLevel(this.logLevel);
+		}
+		if (this.retryer != null) {
+			builder.retryer(this.retryer);
+		}
+		if (this.errorDecoder != null) {
+			builder.errorDecoder(this.errorDecoder);
+		}
+		if (this.options != null) {
+			builder.options(this.options);
+		}
 
 		return builder;
-    }
+	}
 
-    protected <T> T loadBalance(Class<T> type, String schemeName) {
-        return loadBalance(feign(), type, schemeName);
-    }
+	protected <T> T loadBalance(Class<T> type, String schemeName) {
+		return loadBalance(feign(), type, schemeName);
+	}
 
-    protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
-        if(ribbonClient != null) {
-            return builder.client(ribbonClient).target(type, schemeName);
-        } else {
-            return builder.target(LoadBalancingTarget.create(type, schemeName));
-        }
-    }
+	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
+		if (this.ribbonClient != null) {
+			return builder.client(this.ribbonClient).target(type, schemeName);
+		}
+		else {
+			return builder.target(LoadBalancingTarget.create(type, schemeName));
+		}
+	}
 
 }

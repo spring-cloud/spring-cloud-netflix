@@ -1,7 +1,20 @@
-package org.springframework.cloud.netflix.feign;
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+package org.springframework.cloud.netflix.feign;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -28,6 +41,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Spencer Gibb
  */
@@ -38,74 +54,75 @@ import org.springframework.web.bind.annotation.RestController;
 @DirtiesContext
 public class FeignClientTests extends FeignConfiguration {
 
-    @Value("${local.server.port}")
-    private int port = 0;
+	@Value("${local.server.port}")
+	private int port = 0;
 
 	@Autowired
-    TestClient testClient;
+	TestClient testClient;
 
-	//@FeignClient(value = "http://localhost:9876", loadbalance = false)
+	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
 	@FeignClient("feignclienttest")
-    protected static interface TestClient {
-        @RequestMapping(method = RequestMethod.GET, value = "/hello")
-        public Hello getHello();
-
-        @RequestMapping(method = RequestMethod.GET, value = "/hellos")
-        public List<Hello> getHellos();
-
-        @RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
-        public List<String> getHelloStrings();
-    }
-
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-	@FeignClientScan
-    protected static class Application {
-
+	protected static interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-        public Hello getHello() {
-            return new Hello("hello world 1");
-        }
+		public Hello getHello();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
-        public List<Hello> getHellos() {
-            ArrayList<Hello> hellos = new ArrayList<>();
-            hellos.add(new Hello("hello world 1"));
-            hellos.add(new Hello("oi terra 2"));
-            return hellos;
-        }
+		public List<Hello> getHellos();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
-        public List<String> getHelloStrings() {
-            ArrayList<String> hellos = new ArrayList<>();
-            hellos.add("hello world 1");
-            hellos.add("oi terra 2");
-            return hellos;
-        }
+		public List<String> getHelloStrings();
+	}
 
-        public static void main(String[] args) {
-            new SpringApplicationBuilder(Application.class).properties(
-                    "spring.application.name=feignclienttest", "management.contextPath=/admin")
-                    .run(args);
-        }
-    }
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	@FeignClientScan
+	protected static class Application {
 
-    @Test
-    public void testClient() {
-        assertNotNull("testClient was null", testClient);
-		assertTrue("testClient is not a java Proxy", Proxy.isProxyClass(testClient.getClass()));
-		InvocationHandler invocationHandler = Proxy.getInvocationHandler(testClient);
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		public Hello getHello() {
+			return new Hello("hello world 1");
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		public List<Hello> getHellos() {
+			ArrayList<Hello> hellos = new ArrayList<>();
+			hellos.add(new Hello("hello world 1"));
+			hellos.add(new Hello("oi terra 2"));
+			return hellos;
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
+		public List<String> getHelloStrings() {
+			ArrayList<String> hellos = new ArrayList<>();
+			hellos.add("hello world 1");
+			hellos.add("oi terra 2");
+			return hellos;
+		}
+
+		public static void main(String[] args) {
+			new SpringApplicationBuilder(Application.class).properties(
+					"spring.application.name=feignclienttest",
+					"management.contextPath=/admin").run(args);
+		}
+	}
+
+	@Test
+	public void testClient() {
+		assertNotNull("testClient was null", this.testClient);
+		assertTrue("testClient is not a java Proxy",
+				Proxy.isProxyClass(this.testClient.getClass()));
+		InvocationHandler invocationHandler = Proxy.getInvocationHandler(this.testClient);
 		assertNotNull("invocationHandler was null", invocationHandler);
 	}
 
-	//TODO: only works if port is hardcoded cant resolve ${local.server.port} in annotation
-	/*@Test
-	public void testSimpleType() {
-		Hello hello = testClient.getHello();
-		assertNotNull("hello was null", hello);
-		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
-	}*/
+	// TODO: only works if port is hardcoded cant resolve ${local.server.port} in
+	// annotation
+	/*
+	 * @Test public void testSimpleType() { Hello hello = testClient.getHello();
+	 * assertNotNull("hello was null", hello); assertEquals("first hello didn't match",
+	 * new Hello("hello world 1"), hello); }
+	 */
 
 	@Data
 	@AllArgsConstructor

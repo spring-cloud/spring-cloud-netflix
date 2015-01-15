@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
@@ -26,7 +27,6 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author Dave Syer
- *
  */
 public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
 
@@ -56,7 +56,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 	}
 
 	private String getClientName(Map<String, Object> client) {
-		if (client==null) {
+		if (client == null) {
 			return null;
 		}
 		String value = (String) client.get("value");
@@ -67,7 +67,8 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 		if (value != null && StringUtils.hasText(value)) {
 			return value;
 		}
-		throw new IllegalStateException("Either 'name' or 'value' must be provided in @RibbonClient");
+		throw new IllegalStateException(
+				"Either 'name' or 'value' must be provided in @RibbonClient");
 	}
 
 	private void registerClientConfiguration(BeanDefinitionRegistry registry,

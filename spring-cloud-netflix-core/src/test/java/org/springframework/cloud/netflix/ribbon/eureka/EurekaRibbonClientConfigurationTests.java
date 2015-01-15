@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
+package org.springframework.cloud.netflix.ribbon.eureka;
 
 import org.junit.After;
 import org.junit.Ignore;
@@ -33,9 +29,13 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
+
 /**
  * @author Dave Syer
- *
  */
 public class EurekaRibbonClientConfigurationTests {
 
@@ -67,22 +67,15 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService");
-
 		String serviceId = "myService";
 		String suffix = "mySuffix";
 		String value = "myValue";
-
 		DynamicStringProperty property = preprocessor.getProperty(preprocessor.getKey(
 				serviceId, suffix));
-
 		assertEquals("property doesn't have default value", VALUE_NOT_SET, property.get());
-
 		preprocessor.setProp(serviceId, suffix, value);
-
 		assertEquals("property has wrong value", value, property.get());
-
 		preprocessor.setProp(serviceId, suffix, value);
-
 		assertEquals("property has wrong value", value, property.get());
 	}
 

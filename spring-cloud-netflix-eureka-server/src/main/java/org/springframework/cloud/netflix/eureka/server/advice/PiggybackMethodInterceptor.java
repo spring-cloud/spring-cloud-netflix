@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.eureka.server.advice;
 
 import java.lang.reflect.Method;
@@ -23,11 +24,11 @@ import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Dave Syer
- *
  */
 public class PiggybackMethodInterceptor implements MethodInterceptor {
 
 	private Object delegate;
+
 	private Class<?>[] types;
 
 	public PiggybackMethodInterceptor(Object delegate, Class<?>... types) {
@@ -43,10 +44,10 @@ public class PiggybackMethodInterceptor implements MethodInterceptor {
 	}
 
 	private void invokeAfter(Method method, Object[] arguments) throws Exception {
-		for (Class<?> type : types) {
+		for (Class<?> type : this.types) {
 			Method target = getTarget(type, method);
 			if (target != null) {
-				target.invoke(delegate, arguments);
+				target.invoke(this.delegate, arguments);
 				return;
 			}
 		}

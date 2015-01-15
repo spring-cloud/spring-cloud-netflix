@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.hystrix;
 
-import static org.junit.Assert.assertEquals;
+package org.springframework.cloud.netflix.hystrix;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
- *
  */
 public class HystrixStreamEndpointTests {
 

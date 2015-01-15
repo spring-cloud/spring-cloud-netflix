@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul;
 
 import java.util.Map;
@@ -16,7 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Endpoint to display and reset the zuul proxy routes
- * 
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  */
@@ -24,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAware {
 
 	private ProxyRouteLocator routes;
+
 	private ApplicationEventPublisher publisher;
 
 	@Override
@@ -40,7 +57,7 @@ public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAwa
 	@ResponseBody
 	@ManagedOperation
 	public Map<String, String> reset() {
-		publisher.publishEvent(new RoutesRefreshedEvent(routes));
+		this.publisher.publishEvent(new RoutesRefreshedEvent(this.routes));
 		return getRoutes();
 	}
 
@@ -48,7 +65,7 @@ public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAwa
 	@ResponseBody
 	@ManagedAttribute
 	public Map<String, String> getRoutes() {
-		return routes.getRoutes();
+		return this.routes.getRoutes();
 	}
 
 	@Override

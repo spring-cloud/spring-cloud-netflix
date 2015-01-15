@@ -2,21 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>spring-cloud-netflix-eureka-server</artifactId>
-	<name>Spring Cloud Netflix Eureka Server</name>
-	<url>http://projects.spring.io/spring-cloud/</url>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
 		<version>1.0.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-
+	<artifactId>spring-cloud-netflix-eureka-server</artifactId>
+	<name>Spring Cloud Netflix Eureka Server</name>
+	<url>http://projects.spring.io/spring-cloud/</url>
 	<properties>
+		<main.basedir>${basedir}/..</main.basedir>
 		<spring-cloud.version>1.0.0.BUILD-SNAPSHOT</spring-cloud.version>
 		<wro4j.version>1.7.6</wro4j.version>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -46,10 +45,10 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-commons</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-commons</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-netflix-core</artifactId>
@@ -84,7 +83,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<resources>
 			<resource>
@@ -99,7 +97,8 @@
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
 					<execution>
-						<!-- Serves *only* to filter the wro.xml so it can get an absolute path for the project -->
+						<!-- Serves *only* to filter the wro.xml so it can get an absolute
+							path for the project -->
 						<id>copy-resources</id>
 						<phase>validate</phase>
 						<goals>

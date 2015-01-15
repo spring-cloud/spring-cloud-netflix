@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
+package org.springframework.cloud.netflix.ribbon;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,10 +23,6 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList;
 import org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration;
@@ -42,9 +37,10 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Dave Syer
- *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)
@@ -57,7 +53,7 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	@Test
 	public void serverListIsWrapped() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		DomainExtractingServerList.class.cast(loadBalancer.getServerListImpl());
 	}
@@ -65,7 +61,7 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	@Test
 	public void ruleDefaultsToZoneAvoidance() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		ZoneAvoidanceRule.class.cast(loadBalancer.getRule());
 	}
@@ -73,10 +69,11 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	@Test
 	public void serverListFilterOverride() throws Exception {
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) factory
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
 		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter()).getZone());
+				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter())
+						.getZone());
 	}
 
 	@Configuration

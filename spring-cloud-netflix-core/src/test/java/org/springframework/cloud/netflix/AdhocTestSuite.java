@@ -29,7 +29,8 @@ import org.springframework.cloud.netflix.zuul.SimpleZuulServerApplicationTests;
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SimpleZuulServerApplicationTests.class, SampleZuulProxyApplicationTests.class })
+@SuiteClasses({ SimpleZuulServerApplicationTests.class,
+		SampleZuulProxyApplicationTests.class })
 @Ignore
 public class AdhocTestSuite {
 

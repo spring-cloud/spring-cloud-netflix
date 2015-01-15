@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.hystrix;
 
 import org.junit.Test;
@@ -20,13 +21,13 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * @author Dave Syer
- *
  */
 public class HystrixConfigurationTests {
 
 	@Test
 	public void nonWebAppStartsUp() {
-		new SpringApplicationBuilder(HystrixCircuitBreakerConfiguration.class).web(false).run().close();
+		new SpringApplicationBuilder(HystrixCircuitBreakerConfiguration.class).web(false)
+				.run().close();
 	}
 
 }
