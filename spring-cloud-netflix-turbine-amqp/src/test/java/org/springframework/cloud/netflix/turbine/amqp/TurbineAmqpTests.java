@@ -23,6 +23,7 @@ public class TurbineAmqpTests {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder()
 					.sources(Application.class)
+					.web(false)
 					.run(args);
 		}
 	}
