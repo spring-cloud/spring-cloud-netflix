@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.util.LinkedMultiValueMap;
@@ -102,9 +103,10 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 		// remove double slashes
 		uri = uri.replace("//", "/");
+		String service = (String) context.get("serviceId");
 
 		try {
-			HttpResponse response = forward(restClient, verb, uri, headers, params,
+			HttpResponse response = forward(restClient, service, verb, uri, headers, params,
 					requestEntity);
 			setResponse(response);
 			return response;
@@ -116,12 +118,12 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return null;
 	}
 
-	private HttpResponse forward(RestClient restClient, Verb verb, String uri,
+	private HttpResponse forward(RestClient restClient, String service, Verb verb, String uri,
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws Exception {
 		Map<String, Object> info = this.helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
-		RibbonCommand command = new RibbonCommand(restClient, verb, uri,
+		RibbonCommand command = new RibbonCommand(service, restClient, verb, uri,
 				convertHeaders(headers), convertHeaders(params), requestEntity);
 		try {
 			HttpResponse response = command.execute();

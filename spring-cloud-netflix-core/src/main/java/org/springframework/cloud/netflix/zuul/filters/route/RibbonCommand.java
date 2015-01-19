@@ -31,6 +31,7 @@ import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import com.netflix.niws.client.http.RestClient;
@@ -87,7 +88,8 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 		HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
 				.withExecutionIsolationStrategy(ExecutionIsolationStrategy.SEMAPHORE)
 				.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
-		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(commandKey))
+		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
+				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
 				.andCommandPropertiesDefaults(setter);
 	}
 
