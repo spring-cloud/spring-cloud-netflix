@@ -67,6 +67,9 @@ public class FeignConfiguration {
 	@Autowired(required = false)
 	private Client ribbonClient;
 
+	@Autowired(required = false)
+	private RequestInterceptor requestInterceptor;
+
 	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()
 				// required values
@@ -85,6 +88,10 @@ public class FeignConfiguration {
 		}
 		if (this.options != null) {
 			builder.options(this.options);
+		}
+
+		if (requestInterceptor != null) {
+			builder.requestInterceptor(requestInterceptor);
 		}
 
 		return builder;
