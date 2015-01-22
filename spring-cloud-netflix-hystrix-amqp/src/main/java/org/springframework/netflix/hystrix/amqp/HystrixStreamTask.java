@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.springframework.beans.BeansException;
@@ -77,21 +78,23 @@ public class HystrixStreamTask implements ApplicationContextAware {
 		this.jsonMetrics.drainTo(metrics);
 
 		if (!metrics.isEmpty()) {
-			log.trace("sending amqp metrics size: " + metrics.size());
+			if (log.isTraceEnabled()) {
+				log.trace("sending amqp metrics size: " + metrics.size());
+			}
 			for (String json : metrics) {
 				// TODO: batch all metrics to one message
 				try {
 					this.channel.send(json);
 				}
 				catch (Exception ex) {
-					log.error("Error sending json to channel", ex);
+					if (log.isTraceEnabled()) {
+						log.trace("failed sending amqp metrics: " + ex.getMessage());
+					}
 				}
 			}
 		}
 	}
 
-	// @InboundChannelAdapter()
-	// TODO: move fixedRate to configuration
 	@Scheduled(fixedRateString = "${hystrix.stream.amqp.gatherRate:500}")
 	public void gatherMetrics() {
 		try {

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -49,7 +50,6 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
  */
 @SuppressWarnings("deprecation")
 @Configuration
-@CommonsLog
 public class HystrixDashboardConfiguration {
 
 	private static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
@@ -209,7 +209,7 @@ public class HystrixDashboardConfiguration {
 						is.close();
 					}
 					catch (Exception ex) {
-						log.debug("Error closing input stream", ex);
+						// ignore errors on close
 					}
 				}
 			}

@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
@@ -23,7 +25,6 @@ import java.lang.reflect.Type;
 
 import javax.inject.Provider;
 
-import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -36,12 +37,9 @@ import feign.Response;
 import feign.codec.DecodeException;
 import feign.codec.Decoder;
 
-import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
-
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class SpringDecoder implements Decoder {
 
 	@Autowired
@@ -93,7 +91,7 @@ public class SpringDecoder implements Decoder {
 				this.response.body().close();
 			}
 			catch (IOException ex) {
-				log.error("Error closing response body", ex);
+				// Ignore exception on close...
 			}
 		}
 
