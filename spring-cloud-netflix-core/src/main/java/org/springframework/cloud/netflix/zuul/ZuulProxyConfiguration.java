@@ -26,6 +26,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
 import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.cloud.netflix.eureka.EurekaHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
@@ -126,15 +127,23 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 					|| event instanceof RoutesRefreshedEvent) {
 				reset();
 			}
+			else if (event instanceof EurekaHeartbeatEvent) {
+				EurekaHeartbeatEvent e = (EurekaHeartbeatEvent) event;
+				resetIfNeeded(e.getValue());
+			}
 			else if (event instanceof DiscoveryHeartbeatEvent) {
 				DiscoveryHeartbeatEvent e = (DiscoveryHeartbeatEvent) event;
-				if (this.latestHeartbeat.get() == null
-						|| !this.latestHeartbeat.get().equals(e.getValue())) {
-					this.latestHeartbeat.set(e.getValue());
-					reset();
-				}
+				resetIfNeeded(e.getValue());
 			}
 
+		}
+
+		private void resetIfNeeded(Object value) {
+			if (this.latestHeartbeat.get() == null
+					|| !this.latestHeartbeat.get().equals(value)) {
+				this.latestHeartbeat.set(value);
+				reset();
+			}
 		}
 
 		private void reset() {

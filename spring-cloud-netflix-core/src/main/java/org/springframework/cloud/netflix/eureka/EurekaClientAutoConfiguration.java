@@ -22,8 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.builder.ParentContextApplicationContextInitializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,6 +36,9 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 /**
  * @author Dave Syer
  */
@@ -39,17 +46,19 @@ import com.netflix.discovery.converters.XmlXStream;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-public class EurekaClientAutoConfiguration {
+public class EurekaClientAutoConfiguration implements ApplicationListener<ParentContextApplicationContextInitializer.ParentContextAvailableEvent> {
 
 	@Autowired
-	private ApplicationContext context;
+	private ApplicationContext applicationContext;
+
+	private static final ConcurrentMap<String, String> listenerAdded = new ConcurrentHashMap<>();
 
 	@PostConstruct
 	public void init() {
 		XmlXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(this.context));
+				new DataCenterAwareMarshallingStrategy(this.applicationContext));
 		JsonXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(this.context));
+				new DataCenterAwareMarshallingStrategy(this.applicationContext));
 	}
 
 	@Bean
@@ -64,4 +73,29 @@ public class EurekaClientAutoConfiguration {
 		return new EurekaInstanceConfigBean();
 	}
 
+
+	/**
+	 * propagate DiscoveryHeartbeatEvent from parent to child.
+	 * Do it via a EurekaHeartbeatEvent since events get published to the
+	 * parent context, otherwise results in a stack overflow
+	 * @param event
+	 */
+	@Override
+	public void onApplicationEvent(final ParentContextApplicationContextInitializer.ParentContextAvailableEvent event) {
+		final ConfigurableApplicationContext context = event.getApplicationContext();
+		String childId = context.getId();
+		ApplicationContext parent = context.getParent();
+		if (parent != null && "bootstrap".equals(parent.getId())
+				&& parent instanceof ConfigurableApplicationContext) {
+			if (listenerAdded.putIfAbsent(childId, childId) == null) {
+				ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) parent;
+				ctx.addApplicationListener(new ApplicationListener<DiscoveryHeartbeatEvent>() {
+					@Override
+					public void onApplicationEvent(DiscoveryHeartbeatEvent dhe) {
+						context.publishEvent(new EurekaHeartbeatEvent(dhe));
+					}
+				});
+			}
+		}
+	}
 }

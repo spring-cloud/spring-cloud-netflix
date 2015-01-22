@@ -94,11 +94,14 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		if (jerseyClientField != null) {
 			try {
 				jerseyClientField.setAccessible(true);
-				Object obj = jerseyClientField.get(DiscoveryManager.getInstance()
-						.getDiscoveryClient());
-				if (obj != null) {
-					EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
-					jerseyClient.destroyResources();
+				if (DiscoveryManager.getInstance() != null &&
+						DiscoveryManager.getInstance().getDiscoveryClient() != null) {
+					Object obj = jerseyClientField.get(DiscoveryManager.getInstance()
+							.getDiscoveryClient());
+					if (obj != null) {
+						EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
+						jerseyClient.destroyResources();
+					}
 				}
 			}
 			catch (Exception ex) {
