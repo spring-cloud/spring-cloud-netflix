@@ -49,6 +49,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
  */
 @SuppressWarnings("deprecation")
 @Configuration
+@CommonsLog
 public class HystrixDashboardConfiguration {
 
 	private static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
@@ -208,7 +209,7 @@ public class HystrixDashboardConfiguration {
 						is.close();
 					}
 					catch (Exception ex) {
-						// e.printStackTrace();
+						log.debug("Error closing input stream", ex);
 					}
 				}
 			}

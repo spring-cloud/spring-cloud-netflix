@@ -34,10 +34,12 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class SendResponseFilter extends ZuulFilter {
 
 	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
@@ -157,7 +159,7 @@ public class SendResponseFilter extends ZuulFilter {
 			}
 			catch (IOException ex) {
 				// ignore
-				ex.printStackTrace();
+				log.debug("Error writing response", ex);
 			}
 			// doubles buffer size if previous read filled it
 			if (bytesRead == bytes.length) {

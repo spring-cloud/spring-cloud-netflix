@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 
 import javax.inject.Provider;
 
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -40,6 +41,7 @@ import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class SpringDecoder implements Decoder {
 
 	@Autowired
@@ -91,7 +93,7 @@ public class SpringDecoder implements Decoder {
 				this.response.body().close();
 			}
 			catch (IOException ex) {
-				ex.printStackTrace();
+				log.error("Error closing response body", ex);
 			}
 		}
 

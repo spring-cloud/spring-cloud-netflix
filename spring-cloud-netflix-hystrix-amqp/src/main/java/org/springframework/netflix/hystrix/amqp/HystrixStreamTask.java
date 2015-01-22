@@ -84,7 +84,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 					this.channel.send(json);
 				}
 				catch (Exception ex) {
-					ex.printStackTrace();
+					log.error("Error sending json to channel", ex);
 				}
 			}
 		}
