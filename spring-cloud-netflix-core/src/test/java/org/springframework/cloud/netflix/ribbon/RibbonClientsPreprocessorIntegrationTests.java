@@ -26,7 +26,6 @@ import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList;
 import org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.eureka.ZonePreferenceServerListFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

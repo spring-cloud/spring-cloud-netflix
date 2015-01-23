@@ -23,12 +23,12 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.PlainRibbonClientPreprocessorIntegrationTests.TestConfiguration;
-import org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
@@ -44,17 +44,17 @@ public class PlainRibbonClientPreprocessorIntegrationTests {
 	private SpringClientFactory factory;
 
 	@Test
-	public void serverListIsWrapped() throws Exception {
+	public void serverListIsConfigured() throws Exception {
 		@SuppressWarnings("unchecked")
 		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
-		DomainExtractingServerList.class.cast(loadBalancer.getServerListImpl());
+		ConfigurationBasedServerList.class.cast(loadBalancer.getServerListImpl());
 	}
 
 	@Configuration
 	@RibbonClient("foo")
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class})
 	protected static class TestConfiguration {
 	}
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.ribbon.eureka;
+package org.springframework.cloud.netflix.ribbon;
 
 import java.util.ArrayList;
 import java.util.List;

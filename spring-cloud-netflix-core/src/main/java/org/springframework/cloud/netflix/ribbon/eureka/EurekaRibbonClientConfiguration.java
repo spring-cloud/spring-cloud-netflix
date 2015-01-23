@@ -18,8 +18,11 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.config.ConfigurationManager;
@@ -27,6 +30,9 @@ import com.netflix.config.DeploymentContext.ContextKey;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.loadbalancer.DynamicServerListLoadBalancer;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
@@ -45,7 +51,10 @@ import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilt
  * @author Dave Syer
  */
 @Configuration
-public class EurekaRibbonClientConfiguration {
+public class EurekaRibbonClientConfiguration implements BeanPostProcessor {
+
+	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
+	private boolean approximateZoneFromHostname = false;
 
 	@Value("${ribbon.client.name}")
 	private String serviceId = "client";
@@ -92,6 +101,35 @@ public class EurekaRibbonClientConfiguration {
 		setProp(this.serviceId, EnableZoneAffinity.key(), "true");
 	}
 
+	@Override
+	public Object postProcessBeforeInitialization(Object bean, String beanName)
+			throws BeansException {
+		return bean;
+	}
+
+	@Override
+	public Object postProcessAfterInitialization(Object bean, String beanName)
+			throws BeansException {
+		if (bean instanceof DynamicServerListLoadBalancer) {
+			wrapServerList((DynamicServerListLoadBalancer<?>) bean);
+		}
+		return bean;
+	}
+
+	private void wrapServerList(DynamicServerListLoadBalancer<?> balancer) {
+			@SuppressWarnings("unchecked")
+			DynamicServerListLoadBalancer<Server> dynamic = (DynamicServerListLoadBalancer<Server>) balancer;
+			ServerList<Server> list = dynamic.getServerListImpl();
+			if (!(list instanceof DomainExtractingServerList)) {
+				// This is optional: you can use the native Eureka AWS features as long as
+				// the server zone is populated. TODO: verify that we back off if AWS
+				// metadata *is* available.
+				// @see com.netflix.appinfo.AmazonInfo.Builder
+				dynamic.setServerListImpl(new DomainExtractingServerList(list, dynamic
+						.getClientConfig(), this.approximateZoneFromHostname));
+			}
+	}
+	
 	protected void setProp(String serviceId, String suffix, String value) {
 		// how to set the namespace properly?
 		String key = getKey(serviceId, suffix);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.ribbon;
+package org.springframework.cloud.netflix.ribbon.eureka;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,22 +24,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessorIntegrationTests.PlainConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
+import org.springframework.cloud.netflix.ribbon.eureka.RibbonClientPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.loadbalancer.AvailabilityFilteringRule;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 /**
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = PlainConfiguration.class)
+@SpringApplicationConfiguration(classes = TestConfiguration.class)
 @DirtiesContext
 public class RibbonClientPreprocessorIntegrationTests {
 
@@ -47,11 +51,19 @@ public class RibbonClientPreprocessorIntegrationTests {
 	private SpringClientFactory factory;
 
 	@Test
-	public void ruleDefaultsToAvailability() throws Exception {
+	public void serverListIsWrapped() throws Exception {
 		@SuppressWarnings("unchecked")
 		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
-		AvailabilityFilteringRule.class.cast(loadBalancer.getRule());
+		DomainExtractingServerList.class.cast(loadBalancer.getServerListImpl());
+	}
+
+	@Test
+	public void ruleDefaultsToAvoidance() throws Exception {
+		@SuppressWarnings("unchecked")
+		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
+				.getLoadBalancer("foo");
+		ZoneAvoidanceRule.class.cast(loadBalancer.getRule());
 	}
 
 	@Test
@@ -65,10 +77,17 @@ public class RibbonClientPreprocessorIntegrationTests {
 	}
 
 	@Configuration
-	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+	@RibbonClient("foo")
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class PlainConfiguration {
+	}
+
+	@Configuration
+	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+	@Import({ PropertyPlaceholderAutoConfiguration.class,
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
+	protected static class TestConfiguration {
 	}
 
 	@Configuration
