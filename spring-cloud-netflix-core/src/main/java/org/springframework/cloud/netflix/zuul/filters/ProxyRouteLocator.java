@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

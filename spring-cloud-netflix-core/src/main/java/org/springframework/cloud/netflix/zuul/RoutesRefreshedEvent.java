@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEvent;
 
 /**

@@ -14,31 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-
-import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
 
 /**
  * @author Dave Syer
  */
-public class SimpleRouteLocator implements RouteLocator {
+public interface RouteLocator {
 
-	private ZuulProperties properties;
-
-	public SimpleRouteLocator(ZuulProperties properties) {
-		this.properties = properties;
-	}
-
-	@Override
-	public Collection<String> getRoutePaths() {
-		Collection<String> paths = new LinkedHashSet<String>();
-		for (ZuulRoute route : this.properties.getRoutes().values()) {
-			paths.add(route.getPath());
-		}
-		return paths;
-	}
+	Collection<String> getRoutePaths();
 
 }

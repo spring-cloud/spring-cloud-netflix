@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.Map;
 
@@ -22,8 +22,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.ProxyRouteLocator.ProxyRouteSpec;
-import org.springframework.cloud.netflix.zuul.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.google.common.collect.Lists;

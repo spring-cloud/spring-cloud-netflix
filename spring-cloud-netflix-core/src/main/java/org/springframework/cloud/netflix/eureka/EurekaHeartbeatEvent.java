@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationEvent;
  * Specifically used when eureka is in the parent bootstrap context to relay the DiscoveryHeartbeatEvent to the child.  Avoids stack overflow
  * @author Spencer Gibb
  */
+@SuppressWarnings("serial")
 public class EurekaHeartbeatEvent extends ApplicationEvent {
 
 	private final Object value;

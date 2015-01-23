@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.web;
 
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
 /**
@@ -40,7 +41,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		setOrder(-200);
 	}
 
-	protected void registerHandlers() {
+	public void registerHandlers() {
 		Collection<String> routes = this.routeLocator.getRoutePaths();
 		if (routes.isEmpty()) {
 			this.logger.warn("No routes found from ProxyRouteLocator");

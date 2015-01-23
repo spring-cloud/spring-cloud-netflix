@@ -88,6 +88,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 		if (parent != null && "bootstrap".equals(parent.getId())
 				&& parent instanceof ConfigurableApplicationContext) {
 			if (listenerAdded.putIfAbsent(childId, childId) == null) {
+				@SuppressWarnings("resource")
 				ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) parent;
 				ctx.addApplicationListener(new ApplicationListener<DiscoveryHeartbeatEvent>() {
 					@Override

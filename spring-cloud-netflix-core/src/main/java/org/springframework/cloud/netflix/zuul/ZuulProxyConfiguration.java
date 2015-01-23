@@ -29,9 +29,12 @@ import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEven
 import org.springframework.cloud.netflix.eureka.EurekaHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
+import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -65,7 +68,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter() {
-		return new PreDecorationFilter(routeLocator(), this.zuulProperties);
+		return new PreDecorationFilter(routeLocator(), this.zuulProperties.isAddProxyHeaders());
 	}
 
 	// route filters
@@ -96,7 +99,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
-	protected static class RoutesEndpointConfuguration {
+	protected static class RoutesEndpointConfiguration {
 
 		@Autowired
 		private ProxyRouteLocator routeLocator;
