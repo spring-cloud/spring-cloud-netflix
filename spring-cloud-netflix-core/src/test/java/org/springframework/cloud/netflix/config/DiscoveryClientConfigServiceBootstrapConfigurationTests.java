@@ -72,7 +72,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/", locator.getUri());
+		assertEquals("http://foo:7001/", locator.getRawUri());
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		setup("spring.cloud.config.discovery.enabled=true");
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/", locator.getUri());
+		assertEquals("http://foo:7001/", locator.getRawUri());
 		assertEquals("bar", locator.getPassword());
 		assertEquals("user", locator.getUsername());
 	}
@@ -96,7 +96,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		setup("spring.cloud.config.discovery.enabled=true");
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/bar", locator.getUri());
+		assertEquals("http://foo:7001/bar", locator.getRawUri());
 	}
 
 	private void setup(String... env) {
