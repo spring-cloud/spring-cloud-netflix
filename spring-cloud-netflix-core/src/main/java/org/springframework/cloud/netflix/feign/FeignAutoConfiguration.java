@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import feign.slf4j.Slf4jLogger;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
@@ -52,8 +53,7 @@ public class FeignAutoConfiguration {
 
 	@Bean
 	public Logger feignLogger() {
-		// return new Slf4jLogger(); //TODO pass Client classname in
-		return new Logger.JavaLogger();
+		return new Slf4jLogger();
 	}
 
 	@Bean

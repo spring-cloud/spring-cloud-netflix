@@ -67,7 +67,17 @@
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
+			<artifactId>feign-slf4j</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.netflix.feign</groupId>
 			<artifactId>feign-ribbon</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.dagger</groupId>
+			<artifactId>dagger</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

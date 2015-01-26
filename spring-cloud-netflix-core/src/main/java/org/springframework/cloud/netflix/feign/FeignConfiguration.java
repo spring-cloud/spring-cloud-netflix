@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import feign.slf4j.Slf4jLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -95,6 +96,7 @@ public class FeignConfiguration {
 	}
 
 	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
+		builder.logger(new Slf4jLogger(type)); //TODO: how to have choice here?
 		if (this.ribbonClient != null) {
 			return builder.client(this.ribbonClient).target(type, schemeName);
 		}
