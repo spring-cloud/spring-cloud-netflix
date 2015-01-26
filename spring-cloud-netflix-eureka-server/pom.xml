@@ -70,6 +70,15 @@
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-core</artifactId>
 		</dependency>
+		<!-- Eureka deps that are now optional in eureka -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.netflix.blitz4j</groupId>
+			<artifactId>blitz4j</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

@@ -22,7 +22,7 @@
 	<properties>
 		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.3</archaius.version>
-		<eureka.version>1.1.145</eureka.version>
+		<eureka.version>1.1.147</eureka.version>
 		<feign.version>7.1.0</feign.version>
 		<hystrix.version>1.4.0-RC6</hystrix.version>
 		<ribbon.version>2.0-RC13</ribbon.version>
@@ -152,6 +152,18 @@
 						<groupId>log4j</groupId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<!-- Eureka core dep that is now optional -->
+			<dependency>
+				<groupId>com.thoughtworks.xstream</groupId>
+				<artifactId>xstream</artifactId>
+				<version>1.4.2</version>
+			</dependency>
+			<!-- Eureka server dep that is now optional -->
+			<dependency>
+				<groupId>com.netflix.blitz4j</groupId>
+				<artifactId>blitz4j</artifactId>
+				<version>1.34</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.feign</groupId>

@@ -115,6 +115,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private boolean fetchRegistry = true;
 
+	private String dollarReplacement = "_-";
+
+	private String escapeCharReplacement = "__";
+
 	@Override
 	public boolean shouldGZipContent() {
 		return this.gZipContent;
