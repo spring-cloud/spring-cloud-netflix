@@ -21,7 +21,7 @@
 	</scm>
 	<properties>
 		<main.basedir>${basedir}</main.basedir>
-		<archaius.version>0.6.3</archaius.version>
+		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.1.147</eureka.version>
 		<feign.version>7.1.0</feign.version>
 		<hystrix.version>1.4.0-RC6</hystrix.version>
