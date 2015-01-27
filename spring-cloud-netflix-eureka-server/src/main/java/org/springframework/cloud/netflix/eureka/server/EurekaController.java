@@ -58,7 +58,13 @@ public class EurekaController {
 	public String status(HttpServletRequest request, Map<String, Object> model) {
 		populateBase(request, model);
 		populateApps(model);
-		StatusInfo statusInfo = new StatusResource().getStatusInfo();
+		StatusInfo statusInfo;
+		try {
+			statusInfo = new StatusResource().getStatusInfo();
+		}
+		catch (Exception e) {
+			statusInfo = StatusInfo.Builder.newBuilder().isHealthy(false).build();
+		}
 		model.put("statusInfo", statusInfo);
 		populateInstanceInfo(model, statusInfo);
 		return "eureka/status";
