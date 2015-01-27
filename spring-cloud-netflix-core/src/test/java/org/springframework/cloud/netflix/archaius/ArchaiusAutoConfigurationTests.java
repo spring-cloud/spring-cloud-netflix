@@ -16,11 +16,18 @@
 
 package org.springframework.cloud.netflix.archaius;
 
+import com.google.common.collect.Sets;
+import com.netflix.config.ConfigurationManager;
 import org.apache.commons.configuration.AbstractConfiguration;
+import org.apache.commons.configuration.event.ConfigurationEvent;
+import org.apache.commons.configuration.event.ConfigurationListener;
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.boot.test.EnvironmentTestUtils;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -29,6 +36,7 @@ import static org.junit.Assert.assertNotNull;
 public class ArchaiusAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
+	private Object propertyValue;
 
 	@After
 	public void close() {
@@ -44,6 +52,23 @@ public class ArchaiusAutoConfigurationTests {
 		AbstractConfiguration config = this.context
 				.getBean(ConfigurableEnvironmentConfiguration.class);
 		assertNotNull(config.getString("java.io.tmpdir"));
+	}
+
+	@Test
+	public void environmentChangeEventPropagated() {
+		this.context = new AnnotationConfigApplicationContext(
+				ArchaiusAutoConfiguration.class);
+		ConfigurationManager.getConfigInstance().addConfigurationListener(new ConfigurationListener() {
+			@Override
+			public void configurationChanged(ConfigurationEvent event) {
+				if (event.getPropertyName().equals("my.prop")) {
+					propertyValue = event.getPropertyValue();
+				}
+			}
+		});
+		EnvironmentTestUtils.addEnvironment(context, "my.prop=my.newval");
+		context.publishEvent(new EnvironmentChangeEvent(Sets.newHashSet("my.prop")));
+		assertEquals("my.newval", propertyValue);
 	}
 
 }

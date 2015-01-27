@@ -22,15 +22,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.PreDestroy;
 
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.ConfigurationBuilder;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.apache.commons.configuration.event.ConfigurationEvent;
+import org.apache.commons.configuration.event.ConfigurationListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.config.ConcurrentCompositeConfiguration;
@@ -82,6 +89,30 @@ public class ArchaiusAutoConfiguration {
 		@Bean
 		protected ArchaiusEndpoint archaiusEndpoint() {
 			return new ArchaiusEndpoint();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent", matchIfMissing = true)
+	@ConditionalOnClass(EnvironmentChangeEvent.class)
+	protected static class PropagateEventsConfiguration implements ApplicationListener<EnvironmentChangeEvent> {
+		@Autowired
+		private Environment env;
+
+		@Override
+		public void onApplicationEvent(EnvironmentChangeEvent event) {
+			AbstractConfiguration manager = ConfigurationManager.getConfigInstance();
+			for (String key : event.getKeys()) {
+				for (ConfigurationListener listener : manager.getConfigurationListeners()) {
+					Object source = event.getSource();
+					// TODO: Handle add vs set vs delete?
+					int type = AbstractConfiguration.EVENT_SET_PROPERTY;
+					String value = env.getProperty(key);
+					boolean beforeUpdate = false;
+					listener.configurationChanged(new ConfigurationEvent(source,
+							type, key, value, beforeUpdate));
+				}
+			}
 		}
 	}
 
