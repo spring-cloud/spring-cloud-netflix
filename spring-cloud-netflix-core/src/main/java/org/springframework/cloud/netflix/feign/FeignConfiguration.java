@@ -26,6 +26,7 @@ import feign.Contract;
 import feign.Feign;
 import feign.Logger;
 import feign.Request;
+import feign.RequestInterceptor;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
@@ -68,6 +69,12 @@ public class FeignConfiguration {
 	@Autowired(required = false)
 	private Client ribbonClient;
 
+	@Autowired(required = false)
+	private RequestInterceptor requestInterceptor;
+
+	@Autowired(required = false)
+	private Iterable<RequestInterceptor> requestInterceptors;
+
 	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()
 				// required values
@@ -86,6 +93,14 @@ public class FeignConfiguration {
 		}
 		if (this.options != null) {
 			builder.options(this.options);
+		}
+
+		if (this.requestInterceptors != null) {
+			builder.requestInterceptors(requestInterceptors);
+		}
+
+		if (this.requestInterceptor != null) {
+			builder.requestInterceptor(requestInterceptor);
 		}
 
 		return builder;
