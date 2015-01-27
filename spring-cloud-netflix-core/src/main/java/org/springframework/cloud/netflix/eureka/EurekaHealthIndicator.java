@@ -25,7 +25,7 @@ import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
-import org.springframework.cloud.client.discovery.DiscoveryHealthIndicator;
+import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.DiscoveryClient;

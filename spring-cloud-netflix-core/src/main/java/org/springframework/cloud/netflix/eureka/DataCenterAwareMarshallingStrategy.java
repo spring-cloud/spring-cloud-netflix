@@ -20,7 +20,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.context.ApplicationContext;
 
 import com.netflix.appinfo.DataCenterInfo;
@@ -160,7 +160,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			if ("setVersion".equals(invocation.getMethod().getName())) {
 				Long version = Long.class.cast(invocation.getArguments()[0]);
 				log.debug("Applications.setVersion() called with version: " + version);
-				this.context.publishEvent(new DiscoveryHeartbeatEvent(invocation
+				this.context.publishEvent(new HeartbeatEvent(invocation
 						.getThis(), version));
 			}
 			return ret;

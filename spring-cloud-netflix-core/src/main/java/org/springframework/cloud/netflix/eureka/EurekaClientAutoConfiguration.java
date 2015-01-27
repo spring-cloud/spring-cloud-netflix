@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +28,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.ParentContextApplicationContextInitializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
-import org.springframework.cloud.client.discovery.NoopDiscoveryClientAutoConfiguration;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
+import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -37,9 +41,6 @@ import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Dave Syer
@@ -78,9 +79,9 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 
 
 	/**
-	 * propagate DiscoveryHeartbeatEvent from parent to child.
-	 * Do it via a EurekaHeartbeatEvent since events get published to the
-	 * parent context, otherwise results in a stack overflow
+	 * propagate HeartbeatEvent from parent to child. Do it via a
+	 * ParentHeartbeatEvent since events get published to the parent context,
+	 * otherwise results in a stack overflow
 	 * @param event
 	 */
 	@Override
@@ -93,10 +94,11 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 			if (listenerAdded.putIfAbsent(childId, childId) == null) {
 				@SuppressWarnings("resource")
 				ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) parent;
-				ctx.addApplicationListener(new ApplicationListener<DiscoveryHeartbeatEvent>() {
+				ctx.addApplicationListener(new ApplicationListener<HeartbeatEvent>() {
 					@Override
-					public void onApplicationEvent(DiscoveryHeartbeatEvent dhe) {
-						context.publishEvent(new EurekaHeartbeatEvent(dhe));
+					public void onApplicationEvent(HeartbeatEvent dhe) {
+						context.publishEvent(new ParentHeartbeatEvent(dhe
+								.getSource(), dhe.getValue()));
 					}
 				});
 			}

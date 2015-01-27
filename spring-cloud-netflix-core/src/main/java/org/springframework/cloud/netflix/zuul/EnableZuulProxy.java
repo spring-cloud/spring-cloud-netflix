@@ -27,8 +27,8 @@ import org.springframework.context.annotation.Import;
 
 /**
  * Sets up a Zuul server endpoint and installs some reverse proxy filters in it, so it can
- * forward requests to backend servers. The backends can be registered manually through
- * configuration or via Eureka.
+ * * forward requests to backend servers. The backends can be registered manually through
+ * * configuration or via DiscoveryClient.
  *
  * @see EnableZuulServer for how to get a Zuul server without any proxying
  *
@@ -41,5 +41,4 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Import(ZuulProxyConfiguration.class)
 public @interface EnableZuulProxy {
-
 }

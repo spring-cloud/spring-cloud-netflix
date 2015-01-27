@@ -23,10 +23,10 @@ import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.DiscoveryHeartbeatEvent;
-import org.springframework.cloud.client.discovery.InstanceRegisteredEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
+import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
-import org.springframework.cloud.netflix.eureka.EurekaHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
@@ -130,12 +130,12 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 					|| event instanceof RoutesRefreshedEvent) {
 				reset();
 			}
-			else if (event instanceof EurekaHeartbeatEvent) {
-				EurekaHeartbeatEvent e = (EurekaHeartbeatEvent) event;
+			else if (event instanceof ParentHeartbeatEvent) {
+				ParentHeartbeatEvent e = (ParentHeartbeatEvent) event;
 				resetIfNeeded(e.getValue());
 			}
-			else if (event instanceof DiscoveryHeartbeatEvent) {
-				DiscoveryHeartbeatEvent e = (DiscoveryHeartbeatEvent) event;
+			else if (event instanceof HeartbeatEvent) {
+				HeartbeatEvent e = (HeartbeatEvent) event;
 				resetIfNeeded(e.getValue());
 			}
 
