@@ -64,7 +64,6 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	// TODO: move to ribbon.eureka package
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
 			ServerListFilter<Server> filter) {
 		ZoneAwareLoadBalancer<Server> balancer = new ZoneAwareLoadBalancer<>(config);
