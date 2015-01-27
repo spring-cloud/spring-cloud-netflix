@@ -16,21 +16,18 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.slf4j.Slf4jLogger;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.archaius.ConfigurableEnvironmentConfiguration;
 import org.springframework.context.annotation.Configuration;
 
-import feign.Client;
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
-import feign.Request;
-import feign.Retryer;
+import feign.*;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import feign.ribbon.LoadBalancingTarget;
+import feign.slf4j.Slf4jLogger;
 
 /**
  * @author Spencer Gibb
@@ -68,6 +65,9 @@ public class FeignConfiguration {
 	@Autowired(required = false)
 	private Client ribbonClient;
 
+	@Autowired(required = false)
+	private List<RequestInterceptor> requestInterceptors;
+
 	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()
 				// required values
@@ -87,6 +87,9 @@ public class FeignConfiguration {
 		if (this.options != null) {
 			builder.options(this.options);
 		}
+		if (this.requestInterceptors != null) {
+			builder.requestInterceptors(requestInterceptors);
+		}
 
 		return builder;
 	}
@@ -96,7 +99,7 @@ public class FeignConfiguration {
 	}
 
 	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
-		builder.logger(new Slf4jLogger(type)); //TODO: how to have choice here?
+		builder.logger(new Slf4jLogger(type)); // TODO: how to have choice here?
 		if (this.ribbonClient != null) {
 			return builder.client(this.ribbonClient).target(type, schemeName);
 		}

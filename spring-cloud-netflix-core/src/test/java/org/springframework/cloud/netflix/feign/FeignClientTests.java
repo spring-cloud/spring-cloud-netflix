@@ -16,9 +16,13 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -33,16 +37,25 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Spencer Gibb
@@ -61,7 +74,7 @@ public class FeignClientTests extends FeignConfiguration {
 	private TestClient testClient;
 
 	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
-	@FeignClient("feignclienttest")
+	@FeignClient("localapp")
 	protected static interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello();
@@ -71,13 +84,37 @@ public class FeignClientTests extends FeignConfiguration {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
 		public List<String> getHelloStrings();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
+		public List<String> getHelloHeaders();
 	}
 
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
 	@FeignClientScan
+	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application {
+
+		@Bean
+		public RequestInterceptor interceptor1() {
+			return new RequestInterceptor() {
+				@Override
+				public void apply(RequestTemplate template) {
+					template.header("myheader1", "myheader1value");
+				}
+			};
+		}
+
+		@Bean
+		public RequestInterceptor interceptor2() {
+			return new RequestInterceptor() {
+				@Override
+				public void apply(RequestTemplate template) {
+					template.header("myheader2", "myheader2value");
+				}
+			};
+		}
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
@@ -86,9 +123,7 @@ public class FeignClientTests extends FeignConfiguration {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
 		public List<Hello> getHellos() {
-			ArrayList<Hello> hellos = new ArrayList<>();
-			hellos.add(new Hello("hello world 1"));
-			hellos.add(new Hello("oi terra 2"));
+			ArrayList<Hello> hellos = getHelloList();
 			return hellos;
 		}
 
@@ -100,11 +135,27 @@ public class FeignClientTests extends FeignConfiguration {
 			return hellos;
 		}
 
+		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
+		public List<String> getHelloHeaders(@RequestHeader("myheader1") String myheader1,
+				@RequestHeader("myheader2") String myheader2) {
+			ArrayList<String> headers = new ArrayList<>();
+			headers.add(myheader1);
+			headers.add(myheader2);
+			return headers;
+		}
+
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=feignclienttest",
 					"management.contextPath=/admin").run(args);
 		}
+	}
+
+	private static ArrayList<Hello> getHelloList() {
+		ArrayList<Hello> hellos = new ArrayList<>();
+		hellos.add(new Hello("hello world 1"));
+		hellos.add(new Hello("oi terra 2"));
+		return hellos;
 	}
 
 	@Test
@@ -116,13 +167,27 @@ public class FeignClientTests extends FeignConfiguration {
 		assertNotNull("invocationHandler was null", invocationHandler);
 	}
 
-	// TODO: only works if port is hardcoded cant resolve ${local.server.port} in
-	// annotation
-	/*
-	 * @Test public void testSimpleType() { Hello hello = testClient.getHello();
-	 * assertNotNull("hello was null", hello); assertEquals("first hello didn't match",
-	 * new Hello("hello world 1"), hello); }
-	 */
+	@Test
+	public void testSimpleType() {
+		Hello hello = testClient.getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
+
+	@Test
+	public void testGenericType() {
+		List<Hello> hellos = testClient.getHellos();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos didn't match", hellos, getHelloList());
+	}
+
+	@Test
+	public void testRequestInterceptors() {
+		List<String> headers = testClient.getHelloHeaders();
+		assertNotNull("headers was null", headers);
+		assertTrue("headers didn't contain myheader1value", headers.contains("myheader1value"));
+		assertTrue("headers didn't contain myheader2value", headers.contains("myheader2value"));
+	}
 
 	@Data
 	@AllArgsConstructor
@@ -130,4 +195,20 @@ public class FeignClientTests extends FeignConfiguration {
 	public static class Hello {
 		private String message;
 	}
+}
+
+// Load balancer with fixed server list for "local" pointing to localhost
+@Configuration
+class LocalRibbonClientConfiguration {
+
+	@Value("${local.server.port}")
+	private int port = 0;
+
+	@Bean
+	public ILoadBalancer ribbonLoadBalancer() {
+		BaseLoadBalancer balancer = new BaseLoadBalancer();
+		balancer.setServersList(Arrays.asList(new Server("localhost", port)));
+		return balancer;
+	}
+
 }
