@@ -35,6 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
 /**
  * @author Dave Syer
@@ -48,11 +49,24 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 	private SpringClientFactory factory;
 
 	@Test
+	public void serverListDefaultsToDomainExtracting() throws Exception {
+		DomainExtractingServerList.class.cast(getLoadBalancer().getServerListImpl());
+	}
+
+	@Test
 	public void ruleDefaultsToZoneAvoidance() throws Exception {
-		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
+		ZoneAvoidanceRule.class.cast(getLoadBalancer().getRule());
+	}
+
+	@Test
+	public void pingDefaultsToDiscoveryPing() throws Exception {
+		NIWSDiscoveryPing.class.cast(getLoadBalancer().getPing());
+	}
+
+	@SuppressWarnings("unchecked")
+	private ZoneAwareLoadBalancer<Server> getLoadBalancer() {
+		return (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
-		ZoneAvoidanceRule.class.cast(loadBalancer.getRule());
 	}
 
 	@Configuration
