@@ -135,6 +135,9 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean {
 		if (StringUtils.hasText(this.name)) {
 			return loadBalance(feign(), this.type, this.name);
 		}
+		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
+			this.url = "http://" + this.url;
+		}
 		return feign().target(this.type, this.url);
 	}
 
