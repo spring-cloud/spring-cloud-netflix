@@ -27,11 +27,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,14 +62,14 @@ public class HystrixCircuitBreakerConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(value = "hystrix.stream.endpoint.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(value = "hystrix.stream.enabled", matchIfMissing = true)
 	@ConditionalOnWebApplication
-	@ConditionalOnClass({ Endpoint.class, HystrixMetricsStreamServlet.class })
+	@ConditionalOnClass(HystrixMetricsStreamServlet.class)
 	protected static class HystrixWebConfiguration {
 
 		@Bean
-		public HystrixStreamEndpoint hystrixStreamEndpoint() {
-			return new HystrixStreamEndpoint();
+		public ServletRegistrationBean hystrixServet() {
+			return new ServletRegistrationBean(new HystrixMetricsStreamServlet(), "/hystrix.stream");
 		}
 
 	}
