@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.netflix.hystrix.amqp.HystrixStreamAutoConfiguration
+org.springframework.cloud.netflix.hystrix.amqp.HystrixStreamAutoConfiguration
