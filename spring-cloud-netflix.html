@@ -791,6 +791,15 @@ separated (inside a data centre or between multiple data centres) then
 the system can in principle survive split-brain type failures.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_prefer_ip_address">Prefer IP Address</h3>
+<div class="paragraph">
+<p>In some cases, it is preferable for Eureka to advertise the IP Adresses
+of services rather than the hostname.  Set <code>eureka.instance.preferIpAddress</code>
+to <code>true</code> and when the application registers with eureka, it will use its
+IP Address rather than its hostname.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1052,6 +1061,61 @@ public class TestConfiguration {
 <code>RibbonClientConfiguration</code> together with any in <code>FooConfiguration</code>
 (where the latter generally will override the former).</p>
 </div>
+<div class="paragraph">
+<p>Spring Cloud Netflix provides the following beans by default for ribbon
+(<code>BeanType</code> beanName: <code>ClassName</code>):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>IClientConfig</code> ribbonClientConfig: <code>DefaultClientConfigImpl</code></p>
+</li>
+<li>
+<p><code>IRule</code> ribbonRule: <code>ZoneAvoidanceRule</code></p>
+</li>
+<li>
+<p><code>IPing</code> ribbonPing: <code>NoOpPing</code></p>
+</li>
+<li>
+<p><code>ServerList&lt;Server&gt; ribbonServerList: `ConfigurationBasedServerList</code></p>
+</li>
+<li>
+<p><code>ServerListFilter&lt;Server&gt;</code> ribbonServerListFilter: <code>ZonePreferenceServerListFilter</code></p>
+</li>
+<li>
+<p><code>ILoadBalancer</code> ribbonLoadBalancer: <code>ZoneAwareLoadBalancer</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Creating a bean of one of those type and placing it in a <code>@RibbonClient</code>
+configuration (such as <code>FooConfiguration</code> above) allows you to override each
+one of the beans described.  Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+    public IPing ribbonPing(IClientConfig config) {
+        return new PingUrl();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This replaces the <code>NoOpPing</code> with <code>PingUrl</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_the_ribbon_with_eureka">Using the Ribbon with Eureka</h3>
+<div class="paragraph">
+<p>When Eureka is used in conjunction with Ribbon the <code>ribbonServerList</code> is
+overridden with an extension of <code>DiscoveryEnabledNIWSServerList</code> which
+populates the list of servers from Eureka.  It also replaces the <code>IPing</code>
+interface with <code>NIWSDiscoveryPing</code> which delegates to Eureka to determine if
+a server is up.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_using_the_ribbon_api_directly">Using the Ribbon API Directly</h3>
@@ -1307,7 +1371,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-29 16:14:56 UTC
+Last updated 2015-01-29 16:56:46 UTC
 </div>
 </div>
 </body>
