@@ -106,10 +106,6 @@ class FeignClientFactoryBean implements FactoryBean<Object> {
 		return builder;
 	}
 
-	protected <T> T loadBalance(Class<T> type, String schemeName) {
-		return loadBalance(feign(), type, schemeName);
-	}
-
 	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
 		builder.logger(new Slf4jLogger(type)); // TODO: how to have choice here?
 		if (this.ribbonClient != null) {
@@ -126,7 +122,7 @@ class FeignClientFactoryBean implements FactoryBean<Object> {
 			this.schemeName = "http://" + this.schemeName;
 		}
 		if (this.loadbalance) {
-			return loadBalance(this.type, this.schemeName);
+			return loadBalance(feign(), this.type, this.schemeName);
 		}
 		return feign().target(this.type, this.schemeName);
 	}

@@ -37,8 +37,8 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(FeignClientScanRegistrar.class)
-public @interface FeignClientScan {
+@Import({ FeignClientsConfiguration.class, FeignClientsRegistrar.class })
+public @interface EnableFeignClients {
 
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation

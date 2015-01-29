@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Spencer Gibb
  */
-public class FeignClientScanRegistrar implements ImportBeanDefinitionRegistrar,
+public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		ResourceLoaderAware, BeanClassLoaderAware {
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
@@ -50,7 +50,7 @@ public class FeignClientScanRegistrar implements ImportBeanDefinitionRegistrar,
 
 	private ClassLoader classLoader;
 
-	public FeignClientScanRegistrar() {
+	public FeignClientsRegistrar() {
 	}
 
 	@Override
@@ -91,7 +91,8 @@ public class FeignClientScanRegistrar implements ImportBeanDefinitionRegistrar,
 		}
 	}
 
-	public BeanDefinitionHolder createBeanDefinition(AnnotationMetadata annotationMetadata) {
+	private BeanDefinitionHolder createBeanDefinition(
+			AnnotationMetadata annotationMetadata) {
 		Map<String, Object> attributes = annotationMetadata
 				.getAnnotationAttributes(FeignClient.class.getCanonicalName());
 
@@ -121,7 +122,7 @@ public class FeignClientScanRegistrar implements ImportBeanDefinitionRegistrar,
 						try {
 							Class<?> target = ClassUtils.forName(beanDefinition
 									.getMetadata().getClassName(),
-									FeignClientScanRegistrar.this.classLoader);
+									FeignClientsRegistrar.this.classLoader);
 							return !target.isAnnotation();
 						}
 						catch (Exception ex) {
@@ -140,7 +141,7 @@ public class FeignClientScanRegistrar implements ImportBeanDefinitionRegistrar,
 
 	protected Set<String> getBasePackages(AnnotationMetadata importingClassMetadata) {
 		Map<String, Object> attributes = importingClassMetadata
-				.getAnnotationAttributes(FeignClientScan.class.getCanonicalName());
+				.getAnnotationAttributes(EnableFeignClients.class.getCanonicalName());
 
 		Set<String> basePackages = new HashSet<>();
 		for (String pkg : (String[]) attributes.get("value")) {

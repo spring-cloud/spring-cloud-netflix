@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.slf4j.Slf4jLogger;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
@@ -28,9 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import com.netflix.loadbalancer.ILoadBalancer;
 
 import feign.Client;
-import feign.Contract;
 import feign.Feign;
-import feign.Logger;
 
 /**
  * @author Spencer Gibb
@@ -39,27 +36,8 @@ import feign.Logger;
 @Configuration
 @ConditionalOnClass(Feign.class)
 @AutoConfigureAfter(ArchaiusAutoConfiguration.class)
+@EnableFeignClients
 public class FeignAutoConfiguration {
-
-	@Bean
-	public SpringDecoder feignDecoder() {
-		return new SpringDecoder();
-	}
-
-	@Bean
-	public SpringEncoder feignEncoder() {
-		return new SpringEncoder();
-	}
-
-	@Bean
-	public Logger feignLogger() {
-		return new Slf4jLogger();
-	}
-
-	@Bean
-	public Contract feignContract() {
-		return new SpringMvcContract();
-	}
 
 	@ConditionalOnClass(ILoadBalancer.class)
 	@Configuration

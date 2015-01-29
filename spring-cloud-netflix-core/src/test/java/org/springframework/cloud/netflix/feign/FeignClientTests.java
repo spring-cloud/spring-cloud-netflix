@@ -91,7 +91,7 @@ public class FeignClientTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@FeignClientScan
+	@EnableFeignClients
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application {
 

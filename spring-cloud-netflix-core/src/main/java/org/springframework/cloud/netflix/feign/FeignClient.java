@@ -24,7 +24,10 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for interfaces declaring that a REST client with that interface should be
- * created (e.g. for autowiring into another component).
+ * created (e.g. for autowiring into another component). If ribbon is available it will be
+ * used to load balance the backend requests, and the load balancer can be configured
+ * using a <code>@RibbonClient</code> with the same name (i.e. value) as the feign client.
+ *
  * @author Spencer Gibb
  */
 @Target(ElementType.TYPE)
@@ -33,14 +36,15 @@ import java.lang.annotation.Target;
 public @interface FeignClient {
 
 	/**
-	 * @return serviceId if loadbalance is true, url otherwise There is no need to prefix
-	 * serviceId with http://.
+	 * The serviceId if loadbalance is true, or an absolute URL otherwise There is no need
+	 * to prefix serviceId with http://.
 	 */
 	String value();
 
 	/**
-	 * @return true if calls should be load balanced (assuming a load balancer is
-	 * available).
+	 * Set to true if calls should be load balanced (assuming a load balancer is
+	 * available). If no load balancer is available this flag is ignored (and hence the
+	 * {@link #value() value} should be an absolute URL).
 	 */
 	boolean loadbalance() default true;
 
