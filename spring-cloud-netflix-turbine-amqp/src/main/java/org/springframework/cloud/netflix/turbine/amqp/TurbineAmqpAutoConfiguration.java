@@ -32,7 +32,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.netflix.Constants;
+import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -66,7 +66,7 @@ public class TurbineAmqpAutoConfiguration {
 
 	@Bean
 	public DirectExchange hystrixStreamExchange() {
-		DirectExchange exchange = new DirectExchange(Constants.HYSTRIX_STREAM_NAME);
+		DirectExchange exchange = new DirectExchange(HystrixConstants.HYSTRIX_STREAM_NAME);
 		return exchange;
 	}
 
@@ -80,7 +80,7 @@ public class TurbineAmqpAutoConfiguration {
 	public Queue hystrixStreamQueue() {
 		Map<String, Object> args = new HashMap<>();
 		args.put("x-message-ttl", 60000); // TODO: configure TTL
-		Queue queue = new Queue(Constants.HYSTRIX_STREAM_NAME, false, false, false, args);
+		Queue queue = new Queue(HystrixConstants.HYSTRIX_STREAM_NAME, false, false, false, args);
 		return queue;
 	}
 

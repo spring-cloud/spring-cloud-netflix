@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.netflix.hystrix.amqp;
-
-import org.springframework.integration.annotation.Gateway;
-import org.springframework.integration.annotation.MessagingGateway;
+package org.springframework.cloud.netflix.hystrix;
 
 /**
  * @author Spencer Gibb
  */
-@MessagingGateway
-public interface HystrixStreamChannel {
+public interface HystrixConstants {
 
-	@Gateway(requestChannel = "hystrixStream")
-	public void send(String s);
+	String HYSTRIX_STREAM_NAME = "spring.cloud.hystrix.stream";
 
 }

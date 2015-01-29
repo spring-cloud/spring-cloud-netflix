@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package org.springframework.netflix.hystrix.amqp;
+package org.springframework.cloud.netflix.hystrix.amqp;
 
-import lombok.Data;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.integration.annotation.Gateway;
+import org.springframework.integration.annotation.MessagingGateway;
 
 /**
  * @author Spencer Gibb
  */
-@ConfigurationProperties("hystrix.stream.amqp")
-@Data
-public class HystrixStreamAmqpProperties {
+@MessagingGateway
+public interface HystrixStreamChannel {
 
-	private boolean enabled = true;
-
-	private boolean prefixMetricName = true;
-
-	private boolean sendId = true;
+	@Gateway(requestChannel = "hystrixStream")
+	public void send(String s);
 
 }

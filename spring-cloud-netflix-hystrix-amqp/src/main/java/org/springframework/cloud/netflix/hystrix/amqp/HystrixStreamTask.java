@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.netflix.hystrix.amqp;
+package org.springframework.cloud.netflix.hystrix.amqp;
 
 import java.io.IOException;
 import java.io.StringWriter;

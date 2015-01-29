@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.netflix.hystrix.amqp;
+package org.springframework.cloud.netflix.hystrix.amqp;
 
 import javax.annotation.PostConstruct;
 
@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.Constants;
+import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
@@ -78,7 +78,7 @@ public class HystrixStreamAutoConfiguration {
 
 	@Bean
 	public DirectExchange hystrixStreamExchange() {
-		DirectExchange exchange = new DirectExchange(Constants.HYSTRIX_STREAM_NAME);
+		DirectExchange exchange = new DirectExchange(HystrixConstants.HYSTRIX_STREAM_NAME);
 		return exchange;
 	}
 
@@ -94,7 +94,7 @@ public class HystrixStreamAutoConfiguration {
 				 * spec.header("content-type", "application/json", true); } })
 				 */
 				.handle(Amqp.outboundAdapter(this.amqpTemplate).exchangeName(
-						Constants.HYSTRIX_STREAM_NAME)).get();
+						HystrixConstants.HYSTRIX_STREAM_NAME)).get();
 	}
 
 	private Jackson2JsonMessageConverter messageConverter() {

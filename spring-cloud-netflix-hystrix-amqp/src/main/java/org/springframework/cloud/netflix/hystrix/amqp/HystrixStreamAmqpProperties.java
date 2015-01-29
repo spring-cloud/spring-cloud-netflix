@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix;
+package org.springframework.cloud.netflix.hystrix.amqp;
+
+import lombok.Data;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Spencer Gibb
  */
-public interface Constants {
+@ConfigurationProperties("hystrix.stream.amqp")
+@Data
+public class HystrixStreamAmqpProperties {
 
-	String HYSTRIX_STREAM_NAME = "spring.cloud.hystrix.stream";
+	private boolean enabled = true;
+
+	private boolean prefixMetricName = true;
+
+	private boolean sendId = true;
 
 }
