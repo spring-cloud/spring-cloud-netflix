@@ -308,6 +308,13 @@ the registrations amongst themselves. If the peers are physically
 separated (inside a data centre or between multiple data centres) then
 the system can in principle survive split-brain type failures.
 
+=== Prefer IP Address
+
+In some cases, it is preferable for Eureka to advertise the IP Adresses
+of services rather than the hostname.  Set `eureka.instance.preferIpAddress`
+to `true` and when the application registers with eureka, it will use its
+IP Address rather than its hostname.
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
@@ -518,6 +525,41 @@ declaring additional configuration (on top of the
 In this case the client is composed from the components already in
 `RibbonClientConfiguration` together with any in `FooConfiguration`
 (where the latter generally will override the former).
+
+Spring Cloud Netflix provides the following beans by default for ribbon
+(`BeanType` beanName: `ClassName`):
+
+* `IClientConfig` ribbonClientConfig: `DefaultClientConfigImpl`
+* `IRule` ribbonRule: `ZoneAvoidanceRule`
+* `IPing` ribbonPing: `NoOpPing`
+* `ServerList<Server> ribbonServerList: `ConfigurationBasedServerList`
+* `ServerListFilter<Server>` ribbonServerListFilter: `ZonePreferenceServerListFilter`
+* `ILoadBalancer` ribbonLoadBalancer: `ZoneAwareLoadBalancer`
+
+Creating a bean of one of those type and placing it in a `@RibbonClient`
+configuration (such as `FooConfiguration` above) allows you to override each
+one of the beans described.  Example:
+
+[source,java,indent=0]
+----
+	@Configuration
+	public class FooConfiguration {
+		@Bean
+    	public IPing ribbonPing(IClientConfig config) {
+    		return new PingUrl();
+    	}
+	}
+----
+
+This replaces the `NoOpPing` with `PingUrl`.
+
+=== Using the Ribbon with Eureka
+
+When Eureka is used in conjunction with Ribbon the `ribbonServerList` is
+overridden with an extension of `DiscoveryEnabledNIWSServerList` which
+populates the list of servers from Eureka.  It also replaces the `IPing`
+interface with `NIWSDiscoveryPing` which delegates to Eureka to determine if
+a server is up.
 
 === Using the Ribbon API Directly
 
