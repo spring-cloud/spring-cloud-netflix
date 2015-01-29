@@ -36,16 +36,20 @@ import java.lang.annotation.Target;
 public @interface FeignClient {
 
 	/**
-	 * The serviceId if loadbalance is true, or an absolute URL otherwise There is no need
-	 * to prefix serviceId with http://.
+	 * The serviceId with optional protocol prefix. Synonym for {@link #serviceId()
+	 * serviceId}. Either serviceId or url must be specified but not both.
 	 */
-	String value();
+	String value() default "";
 
 	/**
-	 * Set to true if calls should be load balanced (assuming a load balancer is
-	 * available). If no load balancer is available this flag is ignored (and hence the
-	 * {@link #value() value} should be an absolute URL).
+	 * The serviceId with optional protocol prefix. Synonym for {@link #value() value}.
+	 * Either serviceId or url must be specified but not both.
 	 */
-	boolean loadbalance() default true;
+	String serviceId() default "";
+
+	/**
+	 * An absolute URL or resolvable hostname (the protocol is optional).
+	 */
+	String url() default "";
 
 }

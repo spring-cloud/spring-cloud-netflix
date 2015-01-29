@@ -425,65 +425,6 @@ On the server side Just create a Spring Boot application and annotate it with `@
 
 Spring Cloud provides a `spring-cloud-starter-turbine-amqp` that has all the dependencies you need to get a Turbine AMQP server running. You need Java 8 to run the app because it is Netty-based.
 
-[[spring-cloud-feign]]
-== Declarative REST Client: Feign
-
-https://github.com/Netflix/feign[Feign] is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same `HttpMessageConverters` used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.
-
-Example spring boot app
-
-[source,java,indent=0]
-----
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-@EnableEurekaClient
-@FeignClientScan
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-}
-----
-
-.StoreClient.java
-[source,java,indent=0]
-----
-@FeignClient("stores")
-public interface StoreClient {
-    @RequestMapping(method = RequestMethod.GET, value = "/stores")
-    List<Store> getStores();
-
-    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
-    Store update(@PathParameter("storeId") Long storeId, Store store);
-}
-----
-
-In the `@FeignClient` annotation the String value ("stores" above) is
-the arbitrary name of the client, used to create a configuration
-prefix (see <<spring-cloud-ribbon,below for details of Ribbon
-support>>).
-
-[[spring-cloud-feign-without-eureka]]
-=== Example: How to Use Feign Without Eureka
-
-Eureka is a convenient way to abstract the discovery of remote servers
-so you don't have to hard code their URLs in clients, but if you
-prefer not to use it, Ribbon and Feign are still quite
-amenable. Suppose you have declared a Feign client as above for
-"stores", and Eureka is not in use (and not even on the
-classpath). You should find that the Ribbon client defaults to a
-configured server list, and you can supply the configuration like this
-
-.application.yml
-----
-stores:
-  ribbon:
-    listOfServers: example.com,google.com
-----
-
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
 
@@ -505,8 +446,7 @@ annotation). Spring Cloud creates a new ensemble as an
 You can configure some bits of a Ribbon client using external
 properties in `<client>.ribbon.*`, which is no different than using
 the Netflix APIs natively, except that you can use Spring Boot
-configuration files (example
-<<spring-cloud-feign-without-eureka,above>>). The native options can
+configuration files. The native options can
 be inspected as static fields in `CommonClientConfigKey` (part of
 ribbon-core).
 
@@ -561,6 +501,24 @@ populates the list of servers from Eureka.  It also replaces the `IPing`
 interface with `NIWSDiscoveryPing` which delegates to Eureka to determine if
 a server is up.
 
+[[spring-cloud-ribbon-without-eureka]]
+=== Example: How to Use Ribbon Without Eureka
+
+Eureka is a convenient way to abstract the discovery of remote servers
+so you don't have to hard code their URLs in clients, but if you
+prefer not to use it, Ribbon and Feign are still quite
+amenable. Suppose you have declared a `@RibbonClient` for "stores",
+and Eureka is not in use (and not even on the classpath). The Ribbon
+client defaults to a configured server list, and you can supply the
+configuration like this
+
+.application.yml
+----
+stores:
+  ribbon:
+    listOfServers: example.com,google.com
+----
+
 === Using the Ribbon API Directly
 
 You can also use the `LoadBalancerClient` directly. Example:
@@ -602,6 +560,55 @@ one. If it is virtual the Ribbon client is used to create a full
 physical address. See
 {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/ribbon/RibbonAutoConfiguration.java[RibbonAutoConfiguration]
 for details of how the `RestTemplate` is set up.
+
+[[spring-cloud-feign]]
+== Declarative REST Client: Feign
+
+https://github.com/Netflix/feign[Feign] is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same `HttpMessageConverters` used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.
+
+Example spring boot app
+
+[source,java,indent=0]
+----
+@Configuration
+@ComponentScan
+@EnableAutoConfiguration
+@EnableEurekaClient
+@EnableFeignClients
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+----
+
+.StoreClient.java
+[source,java,indent=0]
+----
+@FeignClient("stores")
+public interface StoreClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/stores")
+    List<Store> getStores();
+
+    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
+    Store update(@PathParameter("storeId") Long storeId, Store store);
+}
+----
+
+In the `@FeignClient` annotation the String value ("stores" above) is
+an arbitrary client name, which is used to create a Ribbon load
+balancer (see <<spring-cloud-ribbon,below for details of Ribbon
+support>>). You can also specify a URL using the `url` attribute
+(absolute value or just a hostname).
+
+The Ribbon client above will want to discover the physical addresses
+for the "stores" service. If your application is a Eureka client then
+it will resolve the service in the Eureka service registry. If you
+don't want to use Eureka, you can simply configure a list of servers
+in your external configuration (see
+<<spring-cloud-ribbon-without-eureka,above for example>>).
 
 == External Configuration: Archaius
 

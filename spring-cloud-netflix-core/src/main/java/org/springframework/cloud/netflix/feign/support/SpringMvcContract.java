@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.feign;
+package org.springframework.cloud.netflix.feign.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

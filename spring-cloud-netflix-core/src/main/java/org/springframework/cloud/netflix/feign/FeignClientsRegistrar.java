@@ -99,13 +99,32 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		String className = annotationMetadata.getClassName();
 		BeanDefinitionBuilder definition = BeanDefinitionBuilder
 				.genericBeanDefinition(FeignClientFactoryBean.class);
-		definition.addPropertyValue("loadbalance", attributes.get("loadbalance"));
+		validate(attributes);
+		definition.addPropertyValue("url", getUrl(attributes));
+		definition.addPropertyValue("name", getServiceId(attributes));
 		definition.addPropertyValue("type", className);
-		definition.addPropertyValue("schemeName", attributes.get("value"));
 
 		String beanName = StringUtils.uncapitalize(className.substring(className
 				.lastIndexOf(".") + 1));
 		return new BeanDefinitionHolder(definition.getBeanDefinition(), beanName);
+	}
+
+	private void validate(Map<String, Object> attributes) {
+		if (StringUtils.hasText((String) attributes.get("value"))) {
+			Assert.isTrue(!StringUtils.hasText((String) attributes.get("name")),
+					"Either name or value can be specified, but not both");
+		}
+	}
+
+	private String getServiceId(Map<String, Object> attributes) {
+		if (StringUtils.hasText((String) attributes.get("name"))) {
+			return (String) attributes.get("name");
+		}
+		return (String) attributes.get("value");
+	}
+
+	private String getUrl(Map<String, Object> attributes) {
+		return (String) attributes.get("url");
 	}
 
 	protected ClassPathScanningCandidateComponentProvider getScanner() {

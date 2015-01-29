@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import org.springframework.cloud.netflix.feign.support.SpringDecoder;
+import org.springframework.cloud.netflix.feign.support.SpringEncoder;
+import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

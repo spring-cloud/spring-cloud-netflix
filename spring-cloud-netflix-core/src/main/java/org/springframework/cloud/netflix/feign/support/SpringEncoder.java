@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.feign;
+package org.springframework.cloud.netflix.feign.support;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +24,7 @@ import java.util.Collection;
 import javax.inject.Provider;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -33,11 +34,11 @@ import org.springframework.http.converter.HttpMessageConverter;
 
 import com.google.common.base.Charsets;
 
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
+
 import feign.RequestTemplate;
 import feign.codec.EncodeException;
 import feign.codec.Encoder;
-
-import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
 
 /**
  * @author Spencer Gibb

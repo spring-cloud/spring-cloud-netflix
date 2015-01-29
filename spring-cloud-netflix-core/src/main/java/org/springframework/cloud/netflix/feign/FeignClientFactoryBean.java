@@ -22,7 +22,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import feign.Client;
 import feign.Contract;
@@ -42,13 +45,13 @@ import feign.slf4j.Slf4jLogger;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-class FeignClientFactoryBean implements FactoryBean<Object> {
-
-	private boolean loadbalance;
+class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean {
 
 	private Class<?> type;
 
-	private String schemeName;
+	private String name;
+
+	private String url;
 
 	@Autowired
 	private Decoder decoder;
@@ -79,6 +82,14 @@ class FeignClientFactoryBean implements FactoryBean<Object> {
 
 	@Autowired(required = false)
 	private List<RequestInterceptor> requestInterceptors;
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (StringUtils.hasText(this.name)) {
+			Assert.state(!StringUtils.hasText(this.url),
+					"Either value or url can be specified, but not both");
+		}
+	}
 
 	protected Feign.Builder feign() {
 		Feign.Builder builder = Feign.builder()
@@ -118,13 +129,13 @@ class FeignClientFactoryBean implements FactoryBean<Object> {
 
 	@Override
 	public Object getObject() throws Exception {
-		if (!this.schemeName.startsWith("http")) {
-			this.schemeName = "http://" + this.schemeName;
+		if (StringUtils.hasText(this.name) && !this.name.startsWith("http")) {
+			this.name = "http://" + this.name;
 		}
-		if (this.loadbalance) {
-			return loadBalance(feign(), this.type, this.schemeName);
+		if (StringUtils.hasText(this.name)) {
+			return loadBalance(feign(), this.type, this.name);
 		}
-		return feign().target(this.type, this.schemeName);
+		return feign().target(this.type, this.url);
 	}
 
 	@Override

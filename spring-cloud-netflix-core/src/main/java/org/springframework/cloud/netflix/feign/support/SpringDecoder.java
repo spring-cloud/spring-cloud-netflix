@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.feign;
-
-import static org.springframework.cloud.netflix.feign.FeignUtils.getHttpHeaders;
+package org.springframework.cloud.netflix.feign.support;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +29,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.HttpMessageConverterExtractor;
+
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
 
 import feign.FeignException;
 import feign.Response;

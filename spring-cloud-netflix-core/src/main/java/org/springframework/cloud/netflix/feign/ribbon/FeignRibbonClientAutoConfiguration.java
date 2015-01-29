@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.feign;
+package org.springframework.cloud.netflix.feign.ribbon;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.loadbalancer.ILoadBalancer;
+
+import feign.Client;
 import feign.Feign;
 
 /**
- * @author Spencer Gibb
- * @author Julien Roy
+ * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
+ * load balancer.
+ *
+ * @author Dave Syer
  */
+@ConditionalOnClass({ ILoadBalancer.class, Feign.class })
 @Configuration
-@ConditionalOnClass(Feign.class)
-@AutoConfigureAfter(ArchaiusAutoConfiguration.class)
-@EnableFeignClients
-public class FeignAutoConfiguration {
-
+@AutoConfigureBefore(FeignAutoConfiguration.class)
+public class FeignRibbonClientAutoConfiguration {
+	@Bean
+	public Client feignRibbonClient(SpringClientFactory factory) {
+		return new FeignRibbonClient(factory);
+	}
 }
