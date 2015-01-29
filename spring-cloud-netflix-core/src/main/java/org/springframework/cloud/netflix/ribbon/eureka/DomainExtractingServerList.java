@@ -34,15 +34,15 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 /**
  * @author Dave Syer
  */
-public class DomainExtractingServerList implements ServerList<Server> {
+public class DomainExtractingServerList implements ServerList<DiscoveryEnabledServer> {
 
-	private ServerList<Server> list;
+	private ServerList<DiscoveryEnabledServer> list;
 
 	private IClientConfig clientConfig;
 
 	private boolean approximateZoneFromHostname;
 
-	public DomainExtractingServerList(ServerList<Server> list,
+	public DomainExtractingServerList(ServerList<DiscoveryEnabledServer> list,
 			IClientConfig clientConfig, boolean approximateZoneFromHostname) {
 		this.list = list;
 		this.clientConfig = clientConfig;
@@ -50,31 +50,26 @@ public class DomainExtractingServerList implements ServerList<Server> {
 	}
 
 	@Override
-	public List<Server> getInitialListOfServers() {
-		List<Server> servers = setZones(this.list.getInitialListOfServers());
+	public List<DiscoveryEnabledServer> getInitialListOfServers() {
+		List<DiscoveryEnabledServer> servers = setZones(this.list.getInitialListOfServers());
 		return servers;
 	}
 
 	@Override
-	public List<Server> getUpdatedListOfServers() {
-		List<Server> servers = setZones(this.list.getUpdatedListOfServers());
+	public List<DiscoveryEnabledServer> getUpdatedListOfServers() {
+		List<DiscoveryEnabledServer> servers = setZones(this.list.getUpdatedListOfServers());
 		return servers;
 	}
 
-	private List<Server> setZones(List<Server> servers) {
-		List<Server> result = new ArrayList<>();
+	private List<DiscoveryEnabledServer> setZones(List<DiscoveryEnabledServer> servers) {
+		List<DiscoveryEnabledServer> result = new ArrayList<>();
 		boolean isSecure = this.clientConfig.getPropertyAsBoolean(
 				CommonClientConfigKey.IsSecure, Boolean.TRUE);
 		boolean shouldUseIpAddr = this.clientConfig.getPropertyAsBoolean(
 				CommonClientConfigKey.UseIPAddrForServer, Boolean.FALSE);
-		for (Server server : servers) {
-			if (server instanceof DiscoveryEnabledServer) {
-				result.add(new DomainExtractingServer((DiscoveryEnabledServer) server,
-						isSecure, shouldUseIpAddr, this.approximateZoneFromHostname));
-			}
-			else {
-				result.add(server);
-			}
+		for (DiscoveryEnabledServer server : servers) {
+			result.add(new DomainExtractingServer(server,
+					isSecure, shouldUseIpAddr, this.approximateZoneFromHostname));
 		}
 		return result;
 	}

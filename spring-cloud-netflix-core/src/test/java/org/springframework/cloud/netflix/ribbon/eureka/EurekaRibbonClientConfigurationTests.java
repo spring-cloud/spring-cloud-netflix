@@ -26,12 +26,10 @@ import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
 
 /**
@@ -56,7 +54,7 @@ public class EurekaRibbonClientConfigurationTests {
 		ILoadBalancer balancer = clientFactory.getLoadBalancer("service");
 		assertNotNull(balancer);
 		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> aware = (ZoneAwareLoadBalancer<Server>) balancer;
+		ZoneAwareLoadBalancer<DiscoveryEnabledServer> aware = (ZoneAwareLoadBalancer<DiscoveryEnabledServer>) balancer;
 		assertTrue(aware.getServerListImpl() instanceof DomainExtractingServerList);
 		assertEquals("foo",
 				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));

@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +23,12 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessorIntegrationTests.PlainConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.loadbalancer.AvailabilityFilteringRule;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.loadbalancer.*;
 
 /**
  * @author Dave Syer
@@ -47,38 +42,35 @@ public class RibbonClientPreprocessorIntegrationTests {
 	private SpringClientFactory factory;
 
 	@Test
-	public void ruleDefaultsToAvailability() throws Exception {
-		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
-				.getLoadBalancer("foo");
-		AvailabilityFilteringRule.class.cast(loadBalancer.getRule());
+	public void ruleDefaultsToZoneAvoidance() throws Exception {
+		ZoneAvoidanceRule.class.cast(getLoadBalancer().getRule());
 	}
 
 	@Test
-	public void serverListFilterOverride() throws Exception {
-		@SuppressWarnings("unchecked")
-		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
-				.getLoadBalancer("foo");
-		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter())
-						.getZone());
+	public void serverListFilterDefaultsToZonePreference() throws Exception {
+		ZonePreferenceServerListFilter.class.cast(getLoadBalancer().getFilter());
+	}
+
+	@Test
+	public void pingDefaultsToNoOp() throws Exception {
+		NoOpPing.class.cast(getLoadBalancer().getPing());
+	}
+
+	@Test
+	public void serverListDefaultsToConfigurationBased() throws Exception {
+		ConfigurationBasedServerList.class.cast(getLoadBalancer().getServerListImpl());
+	}
+
+	@SuppressWarnings("unchecked")
+	private ZoneAwareLoadBalancer<Server> getLoadBalancer() {
+		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer("foo");
 	}
 
 	@Configuration
-	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+	@RibbonClient(name = "foo")
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class PlainConfiguration {
-	}
-
-	@Configuration
-	protected static class FooConfiguration {
-		@Bean
-		public ZonePreferenceServerListFilter serverListFilter() {
-			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-			filter.setZone("myTestZone");
-			return filter;
-		}
 	}
 
 }

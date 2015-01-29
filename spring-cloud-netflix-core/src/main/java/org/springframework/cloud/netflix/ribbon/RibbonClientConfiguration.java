@@ -24,10 +24,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerListFilter;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.loadbalancer.*;
 import com.netflix.niws.client.http.RestClient;
 import com.netflix.servo.monitor.Monitors;
 
@@ -55,6 +52,29 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	public IRule ribbonRule(IClientConfig config) {
+		ZoneAvoidanceRule rule = new ZoneAvoidanceRule();
+		rule.initWithNiwsConfig(config);
+		return rule;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public IPing ribbonPing(IClientConfig config) {
+		// TODO: use PingUrl
+		return new NoOpPing();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ServerList<Server> ribbonServerList(IClientConfig config) {
+		ConfigurationBasedServerList serverList = new ConfigurationBasedServerList();
+		serverList.initWithNiwsConfig(config);
+		return serverList;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
 	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer) {
 		RestClient client = new RestClient(config);
 		client.setLoadBalancer(loadBalancer);
@@ -65,9 +85,16 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
-			ServerListFilter<Server> filter) {
-		ZoneAwareLoadBalancer<Server> balancer = new ZoneAwareLoadBalancer<>(config);
-		balancer.setFilter(filter);
+											ServerList<Server> serverList,
+			ServerListFilter<Server> serverListFilter,
+			IRule rule, IPing ping) {
+		ZoneAwareLoadBalancer<Server> balancer = LoadBalancerBuilder.newBuilder()
+				.withClientConfig(config)
+				.withRule(rule)
+				.withPing(ping)
+				.withServerListFilter(serverListFilter)
+				.withDynamicServerList(serverList)
+				.buildDynamicServerListLoadBalancer();
 		return balancer;
 	}
 

@@ -54,7 +54,7 @@ public class DomainExtractingServerListTests {
 	public void testDomainExtractingServer() {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), true);
-		List<Server> servers = serverList.getInitialListOfServers();
+		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
 		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
@@ -65,14 +65,14 @@ public class DomainExtractingServerListTests {
 	public void testDomainExtractingServerDontApproximateZone() {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), false);
-		List<Server> servers = serverList.getInitialListOfServers();
+		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
 		DomainExtractingServer des = assertDomainExtractingServer(servers, null);
 		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
 	}
 
-	protected DomainExtractingServer assertDomainExtractingServer(List<Server> servers,
+	protected DomainExtractingServer assertDomainExtractingServer(List<DiscoveryEnabledServer> servers,
 			String zone) {
 		Server actualServer = servers.get(0);
 		assertTrue("server was not a DomainExtractingServer",
@@ -89,7 +89,7 @@ public class DomainExtractingServerListTests {
 		config.setProperty(CommonClientConfigKey.UseIPAddrForServer, true);
 		DomainExtractingServerList serverList = getDomainExtractingServerList(config,
 				true);
-		List<Server> servers = serverList.getInitialListOfServers();
+		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
 		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
@@ -100,7 +100,7 @@ public class DomainExtractingServerListTests {
 			DefaultClientConfigImpl config, boolean approximateZoneFromHostname) {
 		DiscoveryEnabledServer server = mock(DiscoveryEnabledServer.class);
 		@SuppressWarnings("unchecked")
-		ServerList<Server> originalServerList = mock(ServerList.class);
+		ServerList<DiscoveryEnabledServer> originalServerList = mock(ServerList.class);
 		InstanceInfo instanceInfo = mock(InstanceInfo.class);
 		given(server.getInstanceInfo()).willReturn(instanceInfo);
 		given(server.getHost()).willReturn(HOST_NAME);
@@ -111,7 +111,7 @@ public class DomainExtractingServerListTests {
 		given(instanceInfo.getIPAddr()).willReturn(IP_ADDR);
 		given(instanceInfo.getPort()).willReturn(PORT);
 		given(originalServerList.getInitialListOfServers()).willReturn(
-				Arrays.<Server> asList(server));
+				Arrays.asList(server));
 		return new DomainExtractingServerList(originalServerList, config,
 				approximateZoneFromHostname);
 	}

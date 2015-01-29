@@ -16,31 +16,27 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
+
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.loadbalancer.DynamicServerListLoadBalancer;
-import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.IPing;
 import com.netflix.loadbalancer.ServerList;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
-
-import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
-import static com.netflix.client.config.CommonClientConfigKey.NFLoadBalancerRuleClassName;
-import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListClassName;
-import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilterClassName;
+import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
@@ -51,7 +47,7 @@ import static com.netflix.client.config.CommonClientConfigKey.NIWSServerListFilt
  * @author Dave Syer
  */
 @Configuration
-public class EurekaRibbonClientConfiguration implements BeanPostProcessor {
+public class EurekaRibbonClientConfiguration {
 
 	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
 	private boolean approximateZoneFromHostname = false;
@@ -75,6 +71,22 @@ public class EurekaRibbonClientConfiguration implements BeanPostProcessor {
 		this.serviceId = serviceId;
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public IPing ribbonPing(IClientConfig config) {
+		NIWSDiscoveryPing ping = new NIWSDiscoveryPing();
+		ping.initWithNiwsConfig(config);
+		return ping;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ServerList<?> ribbonServerList(IClientConfig config) {
+		DiscoveryEnabledNIWSServerList discoveryServerList = new DiscoveryEnabledNIWSServerList(config);
+		DomainExtractingServerList serverList = new DomainExtractingServerList(discoveryServerList, config, this.approximateZoneFromHostname);
+		return serverList;
+	}
+
 	@PostConstruct
 	public void preprocess() {
 		if (this.clientConfig != null
@@ -89,47 +101,10 @@ public class EurekaRibbonClientConfiguration implements BeanPostProcessor {
 						zone);
 			}
 		}
-		// TODO: should this look more like hibernate spring boot props?
-		setProp(this.serviceId, NIWSServerListClassName.key(),
-				DiscoveryEnabledNIWSServerList.class.getName());
-		// FIXME: what should this be?
 		setProp(this.serviceId, DeploymentContextBasedVipAddresses.key(), this.serviceId);
-		setProp(this.serviceId, NFLoadBalancerRuleClassName.key(),
-				ZoneAvoidanceRule.class.getName());
-		setProp(this.serviceId, NIWSServerListFilterClassName.key(),
-				ZonePreferenceServerListFilter.class.getName());
 		setProp(this.serviceId, EnableZoneAffinity.key(), "true");
 	}
 
-	@Override
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
-		return bean;
-	}
-
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
-		if (bean instanceof DynamicServerListLoadBalancer) {
-			wrapServerList((DynamicServerListLoadBalancer<?>) bean);
-		}
-		return bean;
-	}
-
-	private void wrapServerList(DynamicServerListLoadBalancer<?> balancer) {
-			@SuppressWarnings("unchecked")
-			DynamicServerListLoadBalancer<Server> dynamic = (DynamicServerListLoadBalancer<Server>) balancer;
-			ServerList<Server> list = dynamic.getServerListImpl();
-			if (!(list instanceof DomainExtractingServerList)) {
-				// This is optional: you can use the native Eureka AWS features as long as
-				// the server zone is populated. TODO: verify that we back off if AWS
-				// metadata *is* available.
-				// @see com.netflix.appinfo.AmazonInfo.Builder
-				dynamic.setServerListImpl(new DomainExtractingServerList(list, dynamic
-						.getClientConfig(), this.approximateZoneFromHostname));
-			}
-	}
-	
 	protected void setProp(String serviceId, String suffix, String value) {
 		// how to set the namespace properly?
 		String key = getKey(serviceId, suffix);

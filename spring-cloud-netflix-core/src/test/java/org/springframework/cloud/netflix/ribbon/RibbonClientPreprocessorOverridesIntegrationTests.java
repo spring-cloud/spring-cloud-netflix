@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.junit.Assert.assertEquals;
+
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,33 +27,36 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
-
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TestConfiguration.class)
+@SpringApplicationConfiguration(classes = RibbonClientPreprocessorOverridesIntegrationTests.TestConfiguration.class)
 @DirtiesContext
-public class RibbonClientsPreprocessorIntegrationTests {
+public class RibbonClientPreprocessorOverridesIntegrationTests {
 
 	@Autowired
 	private SpringClientFactory factory;
 
 	@Test
-	public void ruleDefaultsToZoneAvoidance() throws Exception {
-		ZoneAvoidanceRule.class.cast(getLoadBalancer().getRule());
+	public void ruleOverridesToRandom() throws Exception {
+		RandomRule.class.cast(getLoadBalancer().getRule());
+	}
+
+	@Test
+	public void pingOverridesToDummy() throws Exception {
+		DummyPing.class.cast(getLoadBalancer().getPing());
+	}
+
+	@Test
+	public void serverListOverridesToMy() throws Exception {
+		MyServiceList.class.cast(getLoadBalancer().getServerListImpl());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -60,13 +67,14 @@ public class RibbonClientsPreprocessorIntegrationTests {
 
 	@Test
 	public void serverListFilterOverride() throws Exception {
-		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(getLoadBalancer().getFilter())
+		ServerListFilter<Server> filter = getLoadBalancer().getFilter();
+		assertEquals("MyTestZone",
+				ZonePreferenceServerListFilter.class.cast(filter)
 						.getZone());
 	}
 
 	@Configuration
-	@RibbonClients(@RibbonClient(name = "foo", configuration = FooConfiguration.class))
+	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, EurekaClientAutoConfiguration.class,
 			RibbonAutoConfiguration.class})
@@ -74,12 +82,38 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	}
 
 	@Configuration
-	protected static class FooConfiguration {
+	public static class FooConfiguration {
+
+		public FooConfiguration() {
+			System.out.println("here");
+		}
+
+		@Bean
+		public IRule ribbonRule() {
+			return new RandomRule();
+		}
+
+		@Bean
+		public IPing ribbonPing() {
+			return new DummyPing();
+		}
+
+		@Bean
+		public ServerList<Server> ribbonServerList(IClientConfig config) {
+			return new MyServiceList(config);
+		}
+
 		@Bean
 		public ZonePreferenceServerListFilter serverListFilter() {
 			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-			filter.setZone("myTestZone");
+			filter.setZone("MyTestZone");
 			return filter;
+		}
+	}
+
+	public static class MyServiceList extends ConfigurationBasedServerList {
+		public MyServiceList(IClientConfig config) {
+			super.initWithNiwsConfig(config);
 		}
 	}
 
