@@ -699,7 +699,7 @@ exclude it manually, e.g. in Maven</p>
 <div class="paragraph">
 <p>The Eureka server does not have a backend store, but the service
 instances in the registry all have to send heartbeats to keep their
-resistrations up to date (so this can be done in memory). Clients also
+registrations up to date (so this can be done in memory). Clients also
 have an in-memory cache of eureka registrations (so they don&#8217;t have to
 go to the registry for every single request to a service).</p>
 </div>
@@ -949,72 +949,6 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="spring-cloud-feign">Declarative REST Client: Feign</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><a href="https://github.com/Netflix/feign">Feign</a> is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same <code>HttpMessageConverters</code> used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.</p>
-</div>
-<div class="paragraph">
-<p>Example spring boot app</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
-@ComponentScan
-@EnableAutoConfiguration
-@EnableEurekaClient
-@FeignClientScan
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-}</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">StoreClient.java</div>
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("stores")
-public interface StoreClient {
-    @RequestMapping(method = RequestMethod.GET, value = "/stores")
-    List&lt;Store&gt; getStores();
-
-    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
-    Store update(@PathParameter("storeId") Long storeId, Store store);
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In the <code>@FeignClient</code> annotation the String value ("stores" above) is
-the arbitrary name of the client, used to create a configuration
-prefix (see <a href="#spring-cloud-ribbon">below for details of Ribbon
-support</a>).</p>
-</div>
-<div class="sect2">
-<h3 id="spring-cloud-feign-without-eureka">Example: How to Use Feign Without Eureka</h3>
-<div class="paragraph">
-<p>Eureka is a convenient way to abstract the discovery of remote servers
-so you don&#8217;t have to hard code their URLs in clients, but if you
-prefer not to use it, Ribbon and Feign are still quite
-amenable. Suppose you have declared a Feign client as above for
-"stores", and Eureka is not in use (and not even on the
-classpath). You should find that the Ribbon client defaults to a
-configured server list, and you can supply the configuration like this</p>
-</div>
-<div class="listingblock">
-<div class="title">application.yml</div>
-<div class="content">
-<pre>stores:
-  ribbon:
-    listOfClients: example.com,google.com</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="spring-cloud-ribbon">Client Side Load Balancer: Ribbon</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -1038,8 +972,7 @@ annotation). Spring Cloud creates a new ensemble as an
 <p>You can configure some bits of a Ribbon client using external
 properties in <code>&lt;client&gt;.ribbon.*</code>, which is no different than using
 the Netflix APIs natively, except that you can use Spring Boot
-configuration files (example
-<a href="#spring-cloud-feign-without-eureka">above</a>). The native options can
+configuration files. The native options can
 be inspected as static fields in <code>CommonClientConfigKey</code> (part of
 ribbon-core).</p>
 </div>
@@ -1118,6 +1051,26 @@ a server is up.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="spring-cloud-ribbon-without-eureka">Example: How to Use Ribbon Without Eureka</h3>
+<div class="paragraph">
+<p>Eureka is a convenient way to abstract the discovery of remote servers
+so you don&#8217;t have to hard code their URLs in clients, but if you
+prefer not to use it, Ribbon and Feign are still quite
+amenable. Suppose you have declared a <code>@RibbonClient</code> for "stores",
+and Eureka is not in use (and not even on the classpath). The Ribbon
+client defaults to a configured server list, and you can supply the
+configuration like this</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>stores:
+  ribbon:
+    listOfServers: example.com,google.com</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_using_the_ribbon_api_directly">Using the Ribbon API Directly</h3>
 <div class="paragraph">
 <p>You can also use the <code>LoadBalancerClient</code> directly. Example:</p>
@@ -1163,6 +1116,61 @@ physical address. See
 <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/ribbon/RibbonAutoConfiguration.java">RibbonAutoConfiguration</a>
 for details of how the <code>RestTemplate</code> is set up.</p>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="spring-cloud-feign">Declarative REST Client: Feign</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://github.com/Netflix/feign">Feign</a> is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same <code>HttpMessageConverters</code> used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.</p>
+</div>
+<div class="paragraph">
+<p>Example spring boot app</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@ComponentScan
+@EnableAutoConfiguration
+@EnableEurekaClient
+@EnableFeignClients
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">StoreClient.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("stores")
+public interface StoreClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/stores")
+    List&lt;Store&gt; getStores();
+
+    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
+    Store update(@PathParameter("storeId") Long storeId, Store store);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <code>@FeignClient</code> annotation the String value ("stores" above) is
+an arbitrary client name, which is used to create a Ribbon load
+balancer (see <a href="#spring-cloud-ribbon">below for details of Ribbon
+support</a>). You can also specify a URL using the <code>url</code> attribute
+(absolute value or just a hostname).</p>
+</div>
+<div class="paragraph">
+<p>The Ribbon client above will want to discover the physical addresses
+for the "stores" service. If your application is a Eureka client then
+it will resolve the service in the Eureka service registry. If you
+don&#8217;t want to use Eureka, you can simply configure a list of servers
+in your external configuration (see
+<a href="#spring-cloud-ribbon-without-eureka">above for example</a>).</p>
 </div>
 </div>
 </div>
@@ -1371,7 +1379,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-01-29 16:56:46 UTC
+Last updated 2015-01-29 17:42:50 UTC
 </div>
 </div>
 </body>
