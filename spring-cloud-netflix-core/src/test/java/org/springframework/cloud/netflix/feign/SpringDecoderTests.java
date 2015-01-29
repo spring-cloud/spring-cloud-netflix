@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
 @IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest",
 		"spring.jmx.enabled=true" })
 @DirtiesContext
-public class SpringDecoderTests extends FeignConfiguration {
+public class SpringDecoderTests extends FeignClientFactoryBean {
 
 	@Value("${local.server.port}")
 	private int port = 0;

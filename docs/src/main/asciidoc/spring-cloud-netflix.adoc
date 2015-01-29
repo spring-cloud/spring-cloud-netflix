@@ -226,7 +226,7 @@ exclude it manually, e.g. in Maven
 
 The Eureka server does not have a backend store, but the service
 instances in the registry all have to send heartbeats to keep their
-resistrations up to date (so this can be done in memory). Clients also
+registrations up to date (so this can be done in memory). Clients also
 have an in-memory cache of eureka registrations (so they don't have to
 go to the registry for every single request to a service).
 
@@ -481,7 +481,7 @@ configured server list, and you can supply the configuration like this
 ----
 stores:
   ribbon:
-    listOfClients: example.com,google.com
+    listOfServers: example.com,google.com
 ----
 
 [[spring-cloud-ribbon]]

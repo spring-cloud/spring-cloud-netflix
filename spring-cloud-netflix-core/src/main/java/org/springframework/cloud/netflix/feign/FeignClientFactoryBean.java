@@ -16,23 +16,109 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import feign.Client;
+import feign.Contract;
+import feign.Feign;
+import feign.Logger;
+import feign.Request;
+import feign.RequestInterceptor;
+import feign.Retryer;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.codec.ErrorDecoder;
+import feign.ribbon.LoadBalancingTarget;
+import feign.slf4j.Slf4jLogger;
 
 /**
  * @author Spencer Gibb
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-class FeignClientFactoryBean extends FeignConfiguration implements FactoryBean<Object> {
+class FeignClientFactoryBean implements FactoryBean<Object> {
 
 	private boolean loadbalance;
 
 	private Class<?> type;
 
 	private String schemeName;
+
+	@Autowired
+	private Decoder decoder;
+
+	@Autowired
+	private Encoder encoder;
+
+	@Autowired
+	private Logger logger;
+
+	@Autowired
+	private Contract contract;
+
+	@Autowired(required = false)
+	private Logger.Level logLevel;
+
+	@Autowired(required = false)
+	private Retryer retryer;
+
+	@Autowired(required = false)
+	private ErrorDecoder errorDecoder;
+
+	@Autowired(required = false)
+	private Request.Options options;
+
+	@Autowired(required = false)
+	private Client ribbonClient;
+
+	@Autowired(required = false)
+	private List<RequestInterceptor> requestInterceptors;
+
+	protected Feign.Builder feign() {
+		Feign.Builder builder = Feign.builder()
+				// required values
+				.logger(this.logger).encoder(this.encoder).decoder(this.decoder)
+				.contract(this.contract);
+
+		// optional values
+		if (this.logLevel != null) {
+			builder.logLevel(this.logLevel);
+		}
+		if (this.retryer != null) {
+			builder.retryer(this.retryer);
+		}
+		if (this.errorDecoder != null) {
+			builder.errorDecoder(this.errorDecoder);
+		}
+		if (this.options != null) {
+			builder.options(this.options);
+		}
+		if (this.requestInterceptors != null) {
+			builder.requestInterceptors(this.requestInterceptors);
+		}
+
+		return builder;
+	}
+
+	protected <T> T loadBalance(Class<T> type, String schemeName) {
+		return loadBalance(feign(), type, schemeName);
+	}
+
+	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
+		builder.logger(new Slf4jLogger(type)); // TODO: how to have choice here?
+		if (this.ribbonClient != null) {
+			return builder.client(this.ribbonClient).target(type, schemeName);
+		}
+		else {
+			return builder.target(LoadBalancingTarget.create(type, schemeName));
+		}
+	}
 
 	@Override
 	public Object getObject() throws Exception {

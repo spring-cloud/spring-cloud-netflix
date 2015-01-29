@@ -25,7 +25,15 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.IRule;
+import com.netflix.loadbalancer.ServerListFilter;
+
 /**
+ * Declarative configuration for a ribbon client. Add this annotation to any
+ * <code>@Configuration</code> and then inject a {@link SpringClientFactory} to access the
+ * client that is created.
+ *
  * @author Dave Syer
  */
 @Configuration
@@ -35,10 +43,26 @@ import org.springframework.context.annotation.Import;
 @Documented
 public @interface RibbonClient {
 
+	/**
+	 * Synonym for name (the name of the client)
+	 *
+	 * @see #name()
+	 */
 	String value() default "";
 
+	/**
+	 * The name of the ribbon client, uniquely identifying a set of client resources,
+	 * including a load balancer.
+	 */
 	String name() default "";
 
+	/**
+	 * A custom <code>@Configuration</code> for the ribbon client. Can contain override
+	 * <code>@Bean</code> definition for the pieces that make up the client, for instance
+	 * {@link ILoadBalancer}, {@link ServerListFilter}, {@link IRule}.
+	 *
+	 * @see RibbonClientConfiguration for the defaults
+	 */
 	Class<?>[] configuration() default {};
 
 }

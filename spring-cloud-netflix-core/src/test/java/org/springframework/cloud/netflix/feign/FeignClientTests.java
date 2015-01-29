@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -55,7 +52,9 @@ import com.netflix.loadbalancer.Server;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -65,7 +64,7 @@ import static org.junit.Assert.*;
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest" })
 @DirtiesContext
-public class FeignClientTests extends FeignConfiguration {
+public class FeignClientTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -169,24 +168,26 @@ public class FeignClientTests extends FeignConfiguration {
 
 	@Test
 	public void testSimpleType() {
-		Hello hello = testClient.getHello();
+		Hello hello = this.testClient.getHello();
 		assertNotNull("hello was null", hello);
 		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
 	}
 
 	@Test
 	public void testGenericType() {
-		List<Hello> hellos = testClient.getHellos();
+		List<Hello> hellos = this.testClient.getHellos();
 		assertNotNull("hellos was null", hellos);
 		assertEquals("hellos didn't match", hellos, getHelloList());
 	}
 
 	@Test
 	public void testRequestInterceptors() {
-		List<String> headers = testClient.getHelloHeaders();
+		List<String> headers = this.testClient.getHelloHeaders();
 		assertNotNull("headers was null", headers);
-		assertTrue("headers didn't contain myheader1value", headers.contains("myheader1value"));
-		assertTrue("headers didn't contain myheader2value", headers.contains("myheader2value"));
+		assertTrue("headers didn't contain myheader1value",
+				headers.contains("myheader1value"));
+		assertTrue("headers didn't contain myheader2value",
+				headers.contains("myheader2value"));
 	}
 
 	@Data
@@ -207,7 +208,7 @@ class LocalRibbonClientConfiguration {
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer() {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", port)));
+		balancer.setServersList(Arrays.asList(new Server("localhost", this.port)));
 		return balancer;
 	}
 
