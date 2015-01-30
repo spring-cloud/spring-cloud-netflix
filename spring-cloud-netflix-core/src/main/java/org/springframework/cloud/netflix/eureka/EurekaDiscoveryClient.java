@@ -16,25 +16,17 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import javax.annotation.Nullable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
-
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
 
 /**
  * @author Spencer Gibb
@@ -78,15 +70,11 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	public List<ServiceInstance> getInstances(String serviceId) {
 		List<InstanceInfo> infos = this.discovery.getInstancesByVipAddress(serviceId,
 				false);
-		Iterable<ServiceInstance> instances = transform(infos,
-				new Function<InstanceInfo, ServiceInstance>() {
-					@Nullable
-					@Override
-					public ServiceInstance apply(@Nullable InstanceInfo info) {
-						return new EurekaServiceInstance(info);
-					}
-				});
-		return Lists.newArrayList(instances);
+		List<ServiceInstance> instances = new ArrayList<ServiceInstance>();
+		for (InstanceInfo info : infos) {
+			instances.add(new EurekaServiceInstance(info));
+		}
+		return instances;
 	}
 
 	static class EurekaServiceInstance implements ServiceInstance {
@@ -118,18 +106,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		if (applications == null) {
 			return Collections.emptyList();
 		}
-		return Lists.newArrayList(filter(
-				transform(applications.getRegisteredApplications(),
-						new Function<Application, String>() {
-							@Nullable
-							@Override
-							public String apply(@Nullable Application app) {
-								if (app.getInstances().isEmpty()) {
-									return null;
-								}
-								return app.getName().toLowerCase();
-							}
-						}), Predicates.notNull()));
+		List<Application> registered = applications.getRegisteredApplications();
+		List<String> names = new ArrayList<String>();
+		for (Application app : registered) {
+			if (app.getInstances().isEmpty()) {
+				continue;
+			}
+			names.add(app.getName().toLowerCase());
+
+		}
+		return names;
 	}
 
 	@Override
@@ -138,21 +124,13 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		if (applications == null) {
 			return Collections.emptyList();
 		}
-		Iterable<ServiceInstance> instances = transform(
-				concat(transform(applications.getRegisteredApplications(),
-						new Function<Application, List<InstanceInfo>>() {
-							@Override
-							public List<InstanceInfo> apply(@Nullable Application app) {
-								return app.getInstances();
-							}
-						})), new Function<InstanceInfo, ServiceInstance>() {
-					@Nullable
-					@Override
-					public ServiceInstance apply(@Nullable InstanceInfo info) {
-						return new EurekaServiceInstance(info);
-					}
-				});
-		return Lists.newArrayList(instances);
+		List<ServiceInstance> instances = new ArrayList<ServiceInstance>();
+		for (Application app : applications.getRegisteredApplications()) {
+			for (InstanceInfo info : app.getInstances()) {
+				instances.add(new EurekaServiceInstance(info));
+			}
+		}
+		return instances;
 	}
 
 }

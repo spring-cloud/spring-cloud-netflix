@@ -33,7 +33,6 @@ import javax.servlet.http.Part;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-import com.google.common.base.Throwables;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
@@ -53,7 +52,7 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 	}
 
 	protected Field getRequestField() {
-		return requestField;
+		return this.requestField;
 	}
 
 	@Override
@@ -76,15 +75,10 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
 		if (request instanceof HttpServletRequestWrapper) {
-			try {
-				request = (HttpServletRequest) this.requestField.get(request);
-			}
-			catch (IllegalAccessException ex) {
-				Throwables.propagate(ex);
-			}
+			request = (HttpServletRequest) ReflectionUtils.getField(this.requestField,
+					request);
 		}
 		ctx.setRequest(new Servlet30RequestWrapper(request));
-		// ctx.setResponse(new HttpServletResponseWrapper(ctx.getResponse()));
 		return null;
 	}
 

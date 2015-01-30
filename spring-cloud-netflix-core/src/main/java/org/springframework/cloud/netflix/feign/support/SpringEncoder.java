@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign.support;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 import javax.inject.Provider;
@@ -32,13 +33,11 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 
-import com.google.common.base.Charsets;
-
-import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
-
 import feign.RequestTemplate;
 import feign.codec.EncodeException;
 import feign.codec.Encoder;
+
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
 
 /**
  * @author Spencer Gibb
@@ -89,7 +88,7 @@ public class SpringEncoder implements Encoder {
 						throw new EncodeException("Error converting request body", ex);
 					}
 					request.body(outputMessage.getOutputStream().toByteArray(),
-							Charsets.UTF_8); // TODO: set charset
+							Charset.forName("UTF-8")); // TODO: set charset
 					return;
 				}
 			}

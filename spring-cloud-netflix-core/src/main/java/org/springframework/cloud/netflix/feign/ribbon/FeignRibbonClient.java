@@ -24,8 +24,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.util.ReflectionUtils;
 
-import com.google.common.base.Throwables;
 import com.netflix.client.ClientException;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -66,7 +66,8 @@ public class FeignRibbonClient implements Client {
 			if (ex.getCause() instanceof IOException) {
 				throw IOException.class.cast(ex.getCause());
 			}
-			throw Throwables.propagate(ex);
+			ReflectionUtils.rethrowRuntimeException(ex);
+			return null;
 		}
 	}
 

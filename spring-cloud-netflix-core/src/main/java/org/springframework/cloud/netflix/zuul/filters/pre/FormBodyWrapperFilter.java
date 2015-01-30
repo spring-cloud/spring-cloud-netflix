@@ -29,7 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
-import com.google.common.base.Throwables;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
@@ -83,14 +82,10 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
 		if (request instanceof HttpServletRequestWrapper) {
-			try {
-				HttpServletRequest wrapped = (HttpServletRequest) this.requestField
-						.get(request);
-				this.requestField.set(request, new FormBodyRequestWrapper(wrapped));
-			}
-			catch (IllegalAccessException ex) {
-				Throwables.propagate(ex);
-			}
+			HttpServletRequest wrapped = (HttpServletRequest) ReflectionUtils.getField(
+					this.requestField, request);
+			ReflectionUtils.setField(this.requestField, request,
+					new FormBodyRequestWrapper(wrapped));
 		}
 		else {
 			ctx.setRequest(new FormBodyRequestWrapper(request));

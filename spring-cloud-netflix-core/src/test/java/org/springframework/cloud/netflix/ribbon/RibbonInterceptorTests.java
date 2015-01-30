@@ -32,9 +32,9 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.google.common.base.Throwables;
 import com.netflix.loadbalancer.Server;
 
 import static org.junit.Assert.assertEquals;
@@ -99,7 +99,7 @@ public class RibbonInterceptorTests {
 				return request.apply(this.instance);
 			}
 			catch (Exception ex) {
-				Throwables.propagate(ex);
+				ReflectionUtils.rethrowRuntimeException(ex);
 			}
 			return null;
 		}

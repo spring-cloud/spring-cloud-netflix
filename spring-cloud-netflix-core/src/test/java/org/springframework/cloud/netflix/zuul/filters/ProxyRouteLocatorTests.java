@@ -16,19 +16,16 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.core.env.ConfigurableEnvironment;
-
-import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -204,9 +201,9 @@ public class ProxyRouteLocatorTests {
 	public void testIgnoreRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-		this.properties.setIgnoredServices(Lists.newArrayList(IGNOREDSERVICE));
-		given(this.discovery.getServices())
-				.willReturn(Lists.newArrayList(IGNOREDSERVICE));
+		this.properties.setIgnoredServices(Collections.singletonList(IGNOREDSERVICE));
+		given(this.discovery.getServices()).willReturn(
+				Collections.singletonList(IGNOREDSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
 		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
@@ -216,7 +213,8 @@ public class ProxyRouteLocatorTests {
 	public void testAutoRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-		given(this.discovery.getServices()).willReturn(Lists.newArrayList(MYSERVICE));
+		given(this.discovery.getServices()).willReturn(
+				Collections.singletonList(MYSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
@@ -230,7 +228,8 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put(MYSERVICE, route);
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
-		given(this.discovery.getServices()).willReturn(Lists.newArrayList(MYSERVICE));
+		given(this.discovery.getServices()).willReturn(
+				Collections.singletonList(MYSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());

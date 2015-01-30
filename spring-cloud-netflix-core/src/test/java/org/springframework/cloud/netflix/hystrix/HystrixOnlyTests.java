@@ -71,21 +71,21 @@ public class HystrixOnlyTests {
 
 	@Test
 	public void testHystrixHealth() {
-		Map map = getHealth();
+		Map<?, ?> map = getHealth();
 		assertTrue("Missing hystrix health key", map.containsKey("hystrix"));
-		Map hystrix = (Map) map.get("hystrix");
+		Map<?, ?> hystrix = (Map<?, ?>) map.get("hystrix");
 		assertEquals("Wrong hystrix status", "UP", hystrix.get("status"));
 	}
 
 	@Test
 	public void testNoDiscoveryHealth() {
-		Map map = getHealth();
+		Map<?, ?> map = getHealth();
 		// There is explicitly no discovery, so there should be no discovery health key
 		assertFalse("Incorrect existing discovery health key",
 				map.containsKey("discovery"));
 	}
 
-	private Map getHealth() {
+	private Map<?, ?> getHealth() {
 		return new TestRestTemplate().getForObject("http://localhost:" + this.port
 				+ "/admin/health", Map.class);
 	}

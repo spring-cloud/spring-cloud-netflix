@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
+import java.util.Collections;
+
 import javax.servlet.Filter;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +32,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.google.common.collect.Lists;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 /**
@@ -57,8 +58,8 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*");
 		bean.addInitParameter("com.sun.jersey.config.property.packages",
 				"com.netflix.discovery;com.netflix.eureka");
-		bean.setUrlPatterns(Lists.newArrayList(EurekaServerConfigBean.DEFAULT_PREFIX
-				+ "/*"));
+		bean.setUrlPatterns(Collections
+				.singletonList(EurekaServerConfigBean.DEFAULT_PREFIX + "/*"));
 		return bean;
 	}
 

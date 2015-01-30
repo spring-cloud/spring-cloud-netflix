@@ -25,7 +25,8 @@ import java.util.zip.GZIPInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.base.Throwables;
+import org.springframework.util.ReflectionUtils;
+
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -76,7 +77,7 @@ public class SendResponseFilter extends ZuulFilter {
 			writeResponse();
 		}
 		catch (Exception ex) {
-			Throwables.propagate(ex);
+			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
 	}

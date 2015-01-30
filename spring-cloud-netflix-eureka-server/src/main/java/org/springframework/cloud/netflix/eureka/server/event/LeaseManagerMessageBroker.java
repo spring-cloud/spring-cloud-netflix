@@ -18,21 +18,16 @@ package org.springframework.cloud.netflix.eureka.server.event;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
 import org.springframework.context.ApplicationContext;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
 import com.netflix.eureka.lease.Lease;
-
-import static com.google.common.collect.Iterables.tryFind;
 
 /**
  * @author Spencer Gibb
@@ -73,22 +68,19 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 				+ isReplication);
 		List<Application> applications = PeerAwareInstanceRegistry.getInstance()
 				.getSortedApplications();
-		Optional<Application> app = tryFind(applications, new Predicate<Application>() {
-			@Override
-			public boolean apply(@Nullable Application input) {
-				return input.getName().equals(appName);
+		for (Application input : applications) {
+			if (input.getName().equals(appName)) {
+				InstanceInfo instance = null;
+				for (InstanceInfo info : input.getInstances()) {
+					if (info.getHostName().equals(serverId)) {
+						instance = info;
+						break;
+					}
+				}
+				this.ctxt.publishEvent(new EurekaInstanceRenewedEvent(this, appName,
+						serverId, instance, isReplication));
+				break;
 			}
-		});
-		if (app.isPresent()) {
-			Optional<InstanceInfo> info = tryFind(app.get().getInstances(),
-					new Predicate<InstanceInfo>() {
-						@Override
-						public boolean apply(@Nullable InstanceInfo input) {
-							return input.getHostName().equals(serverId);
-						}
-					});
-			this.ctxt.publishEvent(new EurekaInstanceRenewedEvent(this, appName,
-					serverId, info.orNull(), isReplication));
 		}
 		return false;
 	}

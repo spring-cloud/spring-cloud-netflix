@@ -19,9 +19,10 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import javax.servlet.RequestDispatcher;
 
 import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.beans.factory.annotation.Value;
 
-import com.google.common.base.Throwables;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.ReflectionUtils;
+
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
@@ -75,7 +76,7 @@ public class SendErrorFilter extends ZuulFilter {
 			}
 		}
 		catch (Exception ex) {
-			Throwables.propagate(ex);
+			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
 	}

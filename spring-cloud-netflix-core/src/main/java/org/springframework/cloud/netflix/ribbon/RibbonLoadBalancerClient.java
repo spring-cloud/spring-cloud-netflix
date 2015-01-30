@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
+import org.springframework.util.ReflectionUtils;
 
-import com.google.common.base.Throwables;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
@@ -74,7 +74,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		}
 		catch (Exception ex) {
 			recordStats(context, tracer, serverStats, null, ex);
-			Throwables.propagate(ex);
+			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
 	}
@@ -128,7 +128,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		}
 
 		public Server getServer() {
-			return server;
+			return this.server;
 		}
 	}
 

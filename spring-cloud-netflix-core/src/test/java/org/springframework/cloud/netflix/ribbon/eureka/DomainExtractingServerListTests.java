@@ -17,11 +17,11 @@
 package org.springframework.cloud.netflix.ribbon.eureka;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
@@ -72,8 +72,8 @@ public class DomainExtractingServerListTests {
 		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
 	}
 
-	protected DomainExtractingServer assertDomainExtractingServer(List<DiscoveryEnabledServer> servers,
-			String zone) {
+	protected DomainExtractingServer assertDomainExtractingServer(
+			List<DiscoveryEnabledServer> servers, String zone) {
 		Server actualServer = servers.get(0);
 		assertTrue("server was not a DomainExtractingServer",
 				actualServer instanceof DomainExtractingServer);
@@ -105,8 +105,7 @@ public class DomainExtractingServerListTests {
 		given(server.getInstanceInfo()).willReturn(instanceInfo);
 		given(server.getHost()).willReturn(HOST_NAME);
 		given(instanceInfo.getMetadata()).willReturn(
-				ImmutableMap.<String, String> builder().put("instanceId", INSTANCE_ID)
-						.build());
+				Collections.<String, String> singletonMap("instanceId", INSTANCE_ID));
 		given(instanceInfo.getHostName()).willReturn(HOST_NAME);
 		given(instanceInfo.getIPAddr()).willReturn(IP_ADDR);
 		given(instanceInfo.getPort()).willReturn(PORT);
