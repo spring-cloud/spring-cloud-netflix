@@ -89,7 +89,7 @@ public class ProxyRouteLocatorTests {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
@@ -116,7 +116,7 @@ public class ProxyRouteLocatorTests {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");

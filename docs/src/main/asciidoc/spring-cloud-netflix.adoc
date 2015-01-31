@@ -747,6 +747,12 @@ the service-specific prefix from individual routes, e.g.
 
 In this example requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.
 
+The `zuul.routes` entries actually bind to an object of type `ProxyRouteLocator`. If you
+look at the properties of that object you will see that it also has a "retryable" flag.
+Set that flag to "true" to have the Ribbon client automatically retry failed requests
+(and if you need to you can modify the parameters of the retry operations using
+the Ribbon client configuration).
+
 The `X-Forwarded-Host` header added to the forwarded requests by
 default.  To turn it off set `zuul.addProxyHeaders = false`.  The
 prefix path is stripped by default, and the request to the backend

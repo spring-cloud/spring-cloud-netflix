@@ -94,6 +94,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		InputStream requestEntity = getRequestBody(request);
 
 		String serviceId = (String) context.get("serviceId");
+		Boolean retryable = (Boolean) context.get("retryable");
 
 		RestClient restClient = this.clientFactory.getClient(serviceId, RestClient.class);
 
@@ -106,7 +107,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		String service = (String) context.get("serviceId");
 
 		try {
-			HttpResponse response = forward(restClient, service, verb, uri, headers, params,
+			HttpResponse response = forward(restClient, service, verb, uri, retryable, headers, params,
 					requestEntity);
 			setResponse(response);
 			return response;
@@ -118,12 +119,12 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return null;
 	}
 
-	private HttpResponse forward(RestClient restClient, String service, Verb verb, String uri,
+	private HttpResponse forward(RestClient restClient, String service, Verb verb, String uri, Boolean retryable,
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws Exception {
 		Map<String, Object> info = this.helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
-		RibbonCommand command = new RibbonCommand(service, restClient, verb, uri,
+		RibbonCommand command = new RibbonCommand(service, restClient, verb, uri, retryable,
 				convertHeaders(headers), convertHeaders(params), requestEntity);
 		try {
 			HttpResponse response = command.execute();

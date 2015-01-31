@@ -52,6 +52,8 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 	private Verb verb;
 
 	private URI uri;
+	
+	private Boolean retryable;
 
 	private MultivaluedMap<String, String> headers;
 
@@ -60,13 +62,15 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 	private InputStream requestEntity;
 
 	public RibbonCommand(RestClient restClient, Verb verb, String uri,
+			Boolean retryable,
 			MultivaluedMap<String, String> headers,
 			MultivaluedMap<String, String> params, InputStream requestEntity)
 			throws URISyntaxException {
-		this("default", restClient, verb, uri, headers, params, requestEntity);
+		this("default", restClient, verb, uri, retryable , headers, params, requestEntity);
 	}
 
 	public RibbonCommand(String commandKey, RestClient restClient, Verb verb, String uri,
+			Boolean retryable,
 			MultivaluedMap<String, String> headers,
 			MultivaluedMap<String, String> params, InputStream requestEntity)
 			throws URISyntaxException {
@@ -74,6 +78,7 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 		this.restClient = restClient;
 		this.verb = verb;
 		this.uri = new URI(uri);
+		this.retryable = retryable;
 		this.headers = headers;
 		this.params = params;
 		this.requestEntity = requestEntity;
@@ -102,6 +107,11 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 		RequestContext context = RequestContext.getCurrentContext();
 		Builder builder = HttpRequest.newBuilder().verb(this.verb).uri(this.uri)
 				.entity(this.requestEntity);
+		
+		if(retryable != null) {
+			builder.setRetriable(retryable);
+		}
+		
 		for (String name : this.headers.keySet()) {
 			List<String> values = this.headers.get(name);
 			for (String value : values) {

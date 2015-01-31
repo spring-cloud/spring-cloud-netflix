@@ -67,6 +67,11 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (location != null) {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
+				
+				if (route.getRetryable() != null) {
+					ctx.put("retryable", route.getRetryable());
+				}
+				
 				if (location.startsWith("http:") || location.startsWith("https:")) {
 					ctx.setRouteHost(getUrl(location));
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
