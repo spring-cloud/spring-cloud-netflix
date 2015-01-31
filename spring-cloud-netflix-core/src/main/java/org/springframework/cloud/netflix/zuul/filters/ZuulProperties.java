@@ -42,6 +42,8 @@ public class ZuulProperties {
 	private String prefix = "";
 
 	private boolean stripPrefix = true;
+	
+	private Boolean retryable;
 
 	private Map<String, ZuulRoute> routes = new LinkedHashMap<String, ZuulRoute>();
 
@@ -79,6 +81,8 @@ public class ZuulProperties {
 		private String url;
 
 		private boolean stripPrefix = true;
+
+		private Boolean retryable;
 
 		public ZuulRoute(String text) {
 			String location = null;

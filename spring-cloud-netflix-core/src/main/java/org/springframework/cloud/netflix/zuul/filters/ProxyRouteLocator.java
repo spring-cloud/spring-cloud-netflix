@@ -88,6 +88,7 @@ public class ProxyRouteLocator implements RouteLocator {
 		String targetPath = null;
 		String id = null;
 		String prefix = this.properties.getPrefix();
+		Boolean retryable = this.properties.getRetryable();
 		for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
 			String pattern = entry.getKey();
 			if (this.pathMatcher.match(pattern, path)) {
@@ -106,11 +107,14 @@ public class ProxyRouteLocator implements RouteLocator {
 						prefix = prefix + routePrefix;
 					}
 				}
+				if(route.getRetryable() != null) {
+					retryable = route.getRetryable();
+				}
 				break;
 			}
 		}
 		return (location == null ? null : new ProxyRouteSpec(id, targetPath, location,
-				prefix));
+				prefix, retryable));
 	}
 
 	public void resetRoutes() {
@@ -187,6 +191,8 @@ public class ProxyRouteLocator implements RouteLocator {
 		private String location;
 
 		private String prefix;
+		
+		private Boolean retryable;
 
 	}
 
