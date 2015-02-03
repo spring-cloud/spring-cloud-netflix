@@ -235,6 +235,9 @@ By default every Eureka server is also a Eureka client and requires
 the service will run and work, but it will shower your logs with a lot
 of noise about not being able to register with the peer.
 
+See also <<spring-cloud-ribbon,below for details of Ribbon
+support>> on the client side for Zones and Regions.
+
 === Standalone Mode
 
 The combination of the two caches (client and server) and the
@@ -495,11 +498,22 @@ This replaces the `NoOpPing` with `PingUrl`.
 
 === Using the Ribbon with Eureka
 
-When Eureka is used in conjunction with Ribbon the `ribbonServerList` is
-overridden with an extension of `DiscoveryEnabledNIWSServerList` which
-populates the list of servers from Eureka.  It also replaces the `IPing`
-interface with `NIWSDiscoveryPing` which delegates to Eureka to determine if
-a server is up.
+When Eureka is used in conjunction with Ribbon the `ribbonServerList`
+is overridden with an extension of `DiscoveryEnabledNIWSServerList`
+which populates the list of servers from Eureka.  It also replaces the
+`IPing` interface with `NIWSDiscoveryPing` which delegates to Eureka
+to determine if a server is up. The `ServerList` that is installed by
+default is a `DomainExtractingServerList` and the purpose of this is
+to make physical metadata available to the load balancer without using
+AWS AMI metadata (which is what Netflix relies on). By default the
+server list will be constructed with "zone" information as provided in
+the instance metadata (so on the client set
+`eureka.instance.metadataMap.zone`), and if that is missing it can use
+the domain name from the server hostname as a proxy for zone (if the
+flag `approximateZoneFromDomain` is set). Once the zone information is
+available it can be used in a `ServerListFilter` (by default it will
+be used to locate a server in the same zone as the client because the
+default is a `ZonePreferenceServerListFilter`).
 
 [[spring-cloud-ribbon-without-eureka]]
 === Example: How to Use Ribbon Without Eureka

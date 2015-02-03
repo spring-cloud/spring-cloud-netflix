@@ -51,13 +51,15 @@ public class DomainExtractingServerList implements ServerList<DiscoveryEnabledSe
 
 	@Override
 	public List<DiscoveryEnabledServer> getInitialListOfServers() {
-		List<DiscoveryEnabledServer> servers = setZones(this.list.getInitialListOfServers());
+		List<DiscoveryEnabledServer> servers = setZones(this.list
+				.getInitialListOfServers());
 		return servers;
 	}
 
 	@Override
 	public List<DiscoveryEnabledServer> getUpdatedListOfServers() {
-		List<DiscoveryEnabledServer> servers = setZones(this.list.getUpdatedListOfServers());
+		List<DiscoveryEnabledServer> servers = setZones(this.list
+				.getUpdatedListOfServers());
 		return servers;
 	}
 
@@ -68,8 +70,8 @@ public class DomainExtractingServerList implements ServerList<DiscoveryEnabledSe
 		boolean shouldUseIpAddr = this.clientConfig.getPropertyAsBoolean(
 				CommonClientConfigKey.UseIPAddrForServer, Boolean.FALSE);
 		for (DiscoveryEnabledServer server : servers) {
-			result.add(new DomainExtractingServer(server,
-					isSecure, shouldUseIpAddr, this.approximateZoneFromHostname));
+			result.add(new DomainExtractingServer(server, isSecure, shouldUseIpAddr,
+					this.approximateZoneFromHostname));
 		}
 		return result;
 	}
@@ -86,7 +88,10 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 			boolean useIpAddr, boolean approximateZoneFromHostname) {
 		// host and port are set in super()
 		super(server.getInstanceInfo(), useSecurePort, useIpAddr);
-		if (approximateZoneFromHostname) {
+		if (server.getInstanceInfo().getMetadata().containsKey("zone")) {
+			setZone(server.getInstanceInfo().getMetadata().get("zone"));
+		}
+		else if (approximateZoneFromHostname) {
 			setZone(extractApproximateZone(server));
 		}
 		else {
