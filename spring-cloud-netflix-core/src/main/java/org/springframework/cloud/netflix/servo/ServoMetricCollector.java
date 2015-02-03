@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -52,7 +53,15 @@ public class ServoMetricCollector implements DisposableBean {
 				BasicMetricFilter.MATCH_ALL, true, observers);
 
 		if (!PollScheduler.getInstance().isStarted()) {
-			PollScheduler.getInstance().start();
+			try {
+				PollScheduler.getInstance().start();
+			}
+			catch (Exception e) {
+				// Can fail due to race condition with evil singletons (if more than one
+				// app in same JVM)
+				log.error("Could not start servo metrics poller", e);
+				return;
+			}
 		}
 		// TODO Make poll interval configurable
 		PollScheduler.getInstance().addPoller(task, 5, TimeUnit.SECONDS);
@@ -62,7 +71,12 @@ public class ServoMetricCollector implements DisposableBean {
 	public void destroy() throws Exception {
 		log.info("Stopping Servo PollScheduler");
 		if (PollScheduler.getInstance().isStarted()) {
-			PollScheduler.getInstance().stop();
+			try {
+				PollScheduler.getInstance().stop();
+			}
+			catch (Exception e) {
+				log.error("Could not stop servo metrics poller", e);
+			}
 		}
 	}
 
