@@ -73,6 +73,28 @@ ID, or VIP).
 
 See {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
 
+=== Status Page and Health Indicator
+
+The status page and health indicators for a Eureka instance default to
+"/info" and "/health" respectively, which are the default locations of
+useful endpoints in a Spring Boot Actuator application. You need to
+change these, even for an Actuator application if you use a
+non-default context path or servlet path
+(e.g. `server.servletPath=/foo`) or management endpoint path
+(e.g. `management.contextPath=/admin`). Example:
+
+.application.yml
+----
+eureka:
+  instance:
+    statusPageUrlPath: ${management.contextPath}/info
+    healthCheckUrlPath: ${management.contextPath}/health
+----
+
+These links show up in the metadata that is consumers by clients, and
+used in some scenarios to decide whether to send requests to your
+application, so it's helpful if they are accurate.
+
 === Making the Eureka Instance ID Unique
 
 By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.metadataMap.instanceId`. For example:
