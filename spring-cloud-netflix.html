@@ -466,7 +466,10 @@ public class Application {
 </div>
 </div>
 <div class="paragraph">
-<p>(i.e. utterly normal Spring Boot app). Configuration is required to locate the Eureka server. Example:</p>
+<p>(i.e. utterly normal Spring Boot app). In this example we use
+<code>@EnableEurekaClient</code> explicitly, but with only Eureka available you
+could also use <code>@EnableDiscoveryClient</code>. Configuration is required to
+locate the Eureka server. Example:</p>
 </div>
 <div class="listingblock">
 <div class="title">application.yml</div>
@@ -1401,7 +1404,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-04 14:06:44 UTC
+Last updated 2015-02-04 14:51:05 UTC
 </div>
 </div>
 </body>
