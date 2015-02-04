@@ -41,7 +41,10 @@ public class Application {
 }
 ----
 
-(i.e. utterly normal Spring Boot app). Configuration is required to locate the Eureka server. Example:
+(i.e. utterly normal Spring Boot app). In this example we use
+`@EnableEurekaClient` explicitly, but with only Eureka available you
+could also use `@EnableDiscoveryClient`. Configuration is required to
+locate the Eureka server. Example:
 
 
 .application.yml
