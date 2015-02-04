@@ -504,6 +504,32 @@ ID, or VIP).</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_status_page_and_health_indicator">Status Page and Health Indicator</h3>
+<div class="paragraph">
+<p>The status page and health indicators for a Eureka instance default to
+"/info" and "/health" respectively, which are the default locations of
+useful endpoints in a Spring Boot Actuator application. You need to
+change these, even for an Actuator application if you use a
+non-default context path or servlet path
+(e.g. <code>server.servletPath=/foo</code>) or management endpoint path
+(e.g. <code>management.contextPath=/admin</code>). Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    statusPageUrlPath: ${management.contextPath}/info
+    healthCheckUrlPath: ${management.contextPath}/health</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These links show up in the metadata that is consumers by clients, and
+used in some scenarios to decide whether to send requests to your
+application, so it&#8217;s helpful if they are accurate.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_making_the_eureka_instance_id_unique">Making the Eureka Instance ID Unique</h3>
 <div class="paragraph">
 <p>By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in <code>eureka.instance.metadataMap.instanceId</code>. For example:</p>
@@ -1404,7 +1430,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-04 14:51:05 UTC
+Last updated 2015-02-04 14:59:38 UTC
 </div>
 </div>
 </body>
