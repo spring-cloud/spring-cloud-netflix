@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Dave Syer
@@ -50,7 +51,10 @@ public class HystrixDashboardTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/hystrix", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
-		entity.getBody().contains("<base href=\"/\">");
+		String body = entity.getBody();
+		assertTrue(body.contains("<base href=\"/hystrix\">"));
+		assertTrue(body.contains("\"/webjars"));
+		assertTrue(body.contains("= \"/hystrix/monitor"));
 	}
 
 	@Test
