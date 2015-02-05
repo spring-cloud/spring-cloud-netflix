@@ -16,17 +16,23 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.Charsets;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.zuul.ZuulFilter;
@@ -67,10 +73,11 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		if (contentType == null) {
 			return false;
 		}
-		// Only use this filter for MediaType : application/x-www-form-urlencoded
+		// Only use this filter for form data
 		try {
-			return MediaType.APPLICATION_FORM_URLENCODED.includes(MediaType
-					.valueOf(contentType));
+			MediaType mediaType = MediaType.valueOf(contentType);
+			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
+					|| MediaType.MULTIPART_FORM_DATA.includes(mediaType);
 		}
 		catch (InvalidMediaTypeException ex) {
 			return false;
@@ -81,14 +88,19 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
+		FormBodyRequestWrapper wrapper = null;
 		if (request instanceof HttpServletRequestWrapper) {
 			HttpServletRequest wrapped = (HttpServletRequest) ReflectionUtils.getField(
 					this.requestField, request);
-			ReflectionUtils.setField(this.requestField, request,
-					new FormBodyRequestWrapper(wrapped));
+			wrapper = new FormBodyRequestWrapper(wrapped);
+			ReflectionUtils.setField(this.requestField, request, wrapper);
 		}
 		else {
-			ctx.setRequest(new FormBodyRequestWrapper(request));
+			wrapper = new FormBodyRequestWrapper(request);
+			ctx.setRequest(wrapper);
+		}
+		if (wrapper != null) {
+			ctx.getZuulRequestHeaders().put("content-type", wrapper.getContentType());
 		}
 		return null;
 	}
@@ -99,17 +111,31 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		private byte[] contentData;
 
+		private MediaType contentType;
+
+		private int contentLength;
+
+		private AllEncompassingFormHttpMessageConverter converter = new AllEncompassingFormHttpMessageConverter();
+
 		public FormBodyRequestWrapper(HttpServletRequest request) {
 			super(request);
 			this.request = request;
 		}
 
 		@Override
+		public String getContentType() {
+			if (this.contentData == null) {
+				buildContentData();
+			}
+			return this.contentType.toString();
+		}
+
+		@Override
 		public int getContentLength() {
 			if (this.contentData == null) {
-				this.contentData = buildContentData();
+				buildContentData();
 			}
-			return this.contentData.length;
+			return this.contentLength;
 		}
 
 		@Override
@@ -119,24 +145,54 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			}
 			else {
 				if (this.contentData == null) {
-					this.contentData = buildContentData();
+					buildContentData();
 				}
 				return new ServletInputStreamWrapper(this.contentData);
 			}
 		}
 
-		private byte[] buildContentData() {
-			StringBuilder builder = new StringBuilder();
+		private synchronized void buildContentData() {
+			MultiValueMap<String, String> builder = new LinkedMultiValueMap<String, String>();
 			for (Entry<String, String[]> entry : this.request.getParameterMap()
 					.entrySet()) {
 				for (String value : entry.getValue()) {
-					if (builder.length() != 0) {
-						builder.append("&");
-					}
-					builder.append(entry.getKey()).append("=").append(value);
+					builder.add(entry.getKey(), value);
 				}
 			}
-			return builder.toString().getBytes(Charsets.UTF_8);
+			FormHttpOutputMessage data = new FormHttpOutputMessage();
+			data.getHeaders().setContentType(
+					MediaType.valueOf(this.request.getContentType()));
+			try {
+				this.converter.write(builder, this.contentType, data);
+				this.contentType = data.getHeaders().getContentType();
+				this.contentLength = new Long(data.getHeaders().getContentLength())
+						.intValue();
+				this.contentData = data.getInput();
+			}
+			catch (Exception e) {
+				throw new IllegalStateException("Cannot convert form data", e);
+			}
+		}
+
+		private class FormHttpOutputMessage implements HttpOutputMessage {
+
+			private HttpHeaders headers = new HttpHeaders();
+			private ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+			@Override
+			public HttpHeaders getHeaders() {
+				return this.headers;
+			}
+
+			@Override
+			public OutputStream getBody() throws IOException {
+				return this.output;
+			}
+
+			public byte[] getInput() throws IOException {
+				return this.output.toByteArray();
+			}
+
 		}
 
 	}

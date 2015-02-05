@@ -86,6 +86,20 @@ public class FormZuulProxyApplicationTests {
 	}
 
 	@Test
+	public void postWithMultipartForm() {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+		form.set("foo", "bar");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, String>>(form, headers),
+				String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {foo=[bar]}", result.getBody());
+	}
+
+	@Test
 	public void postWithUTF8Form() {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
 		form.set("foo", "bar");
