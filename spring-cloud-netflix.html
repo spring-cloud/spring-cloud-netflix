@@ -1311,7 +1311,24 @@ the proxy will not try to contact the service.</p>
 </div>
 <div class="paragraph">
 <p>To skip having a service automatically added, set
-<code>zuul.ignored-services</code> to a list of service ids. To augment or change
+<code>zuul.ignored-services</code> to a list of service id patterns. If a service
+matches a pattern that is ignored, but also included in the explicitly
+configured routes map, then it will be unignored. Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  ignoredServices: *
+  routes:
+    users: /myusers/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example, all services are ignored <strong>except</strong> "users".</p>
+</div>
+<div class="paragraph">
+<p>To augment or change
 the proxy routes, you can add external configuration like the
 following:</p>
 </div>
@@ -1430,7 +1447,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-04 14:59:38 UTC
+Last updated 2015-02-05 21:19:36 UTC
 </div>
 </div>
 </body>
