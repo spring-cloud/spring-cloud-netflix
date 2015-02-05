@@ -20,16 +20,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>spring-boot-starter-logging</artifactId>
-					<groupId>org.springframework.boot</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-log4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -38,12 +28,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-freemarker</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>spring-boot-starter-logging</artifactId>
-					<groupId>org.springframework.boot</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -58,6 +42,10 @@
 			<artifactId>eureka-client</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.netflix.blitz4j</groupId>
+			<artifactId>blitz4j</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
 		</dependency>
@@ -69,15 +57,21 @@
 		<dependency>
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>blitz4j</artifactId>
+					<groupId>com.netflix.blitz4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.netflix.archaius</groupId>
+			<artifactId>archaius-core</artifactId>
 		</dependency>
 		<!-- Eureka deps that are now optional in eureka -->
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.blitz4j</groupId>
-			<artifactId>blitz4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

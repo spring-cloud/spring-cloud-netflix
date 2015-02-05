@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.boot.logging.log4j.Log4JLoggingSystem;
 import org.springframework.cloud.netflix.eureka.DataCenterAwareMarshallingStrategy;
 import org.springframework.cloud.netflix.eureka.DiscoveryManagerInitializer;
@@ -49,9 +52,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.ServletContextAware;
 
+import com.netflix.blitz4j.DefaultBlitz4jConfig;
 import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
@@ -87,6 +93,36 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+
+	@PostConstruct
+	public void initLogging() {
+
+		if (!(LoggingSystem.get(ClassUtils.getDefaultClassLoader()) instanceof Log4JLoggingSystem)) {
+
+			LoggingConfiguration off = new LoggingConfiguration() {
+				@Override
+				public void configure() {
+				}
+			};
+			Field instance = ReflectionUtils.findField(LoggingConfiguration.class,
+					"instance");
+			ReflectionUtils.makeAccessible(instance);
+			ReflectionUtils.setField(instance, null, off);
+			Field blitz4j = ReflectionUtils.findField(LoggingConfiguration.class,
+					"blitz4jConfig");
+			ReflectionUtils.makeAccessible(blitz4j);
+			try {
+				Properties props = PropertiesLoaderUtils
+						.loadAllProperties(new ClassPathResource("log4j.properties",
+								Log4JLoggingSystem.class).toString());
+				DefaultBlitz4jConfig blit4jConfig = new DefaultBlitz4jConfig(props);
+				ReflectionUtils.setField(blitz4j, off, blit4jConfig);
+			}
+			catch (IOException e) {
+			}
+
+		}
 	}
 
 	@Bean
