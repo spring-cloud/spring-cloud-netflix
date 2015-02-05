@@ -210,6 +210,55 @@ public class ProxyRouteLocatorTests {
 	}
 
 	@Test
+	public void testIgnoreRoutesWithPattern() {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
+				this.properties);
+		this.properties.setIgnoredServices(Collections.singletonList("ignore*"));
+		given(this.discovery.getServices()).willReturn(
+				Collections.singletonList(IGNOREDSERVICE));
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
+		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
+	}
+
+	@Test
+	public void testIgnoreAllRoutes() {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
+				this.properties);
+		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		given(this.discovery.getServices()).willReturn(
+				Collections.singletonList(IGNOREDSERVICE));
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		String serviceId = routesMap.get(getMapping(IGNOREDSERVICE));
+		assertNull("routes did not ignore " + IGNOREDSERVICE, serviceId);
+	}
+
+	@Test
+	public void testIgnoredRouteIncludedIfConfiguredAndDiscovered() {
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
+				this.properties);
+		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		String serviceId = routesMap.get(getMapping("foo"));
+		assertNotNull("routes ignored foo", serviceId);
+	}
+
+	@Test
+	public void testIgnoredRouteIncludedIfConfiguredAndNotDiscovered() {
+		this.properties.getRoutes()
+				.put("foo", new ZuulRoute("/foo/**", "http://foo.com"));
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
+				this.properties);
+		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		given(this.discovery.getServices()).willReturn(Collections.singletonList("bar"));
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		String id = routesMap.get(getMapping("foo"));
+		assertNotNull("routes ignored foo", id);
+	}
+
+	@Test
 	public void testAutoRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator(this.discovery,
 				this.properties);

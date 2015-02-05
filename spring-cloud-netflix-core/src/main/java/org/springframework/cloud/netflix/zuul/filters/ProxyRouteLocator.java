@@ -31,6 +31,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -107,7 +108,7 @@ public class ProxyRouteLocator implements RouteLocator {
 						prefix = prefix + routePrefix;
 					}
 				}
-				if(route.getRetryable() != null) {
+				if (route.getRetryable() != null) {
 					retryable = route.getRetryable();
 				}
 				break;
@@ -122,19 +123,38 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	protected LinkedHashMap<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
+		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<String, ZuulRoute>();
 		addConfiguredRoutes(routesMap);
 		routesMap.putAll(this.staticRoutes);
 		if (this.discovery != null) {
+			Map<String, ZuulRoute> staticServices = new LinkedHashMap<String, ZuulRoute>();
+			for (ZuulRoute route : routesMap.values()) {
+				String serviceId = route.getServiceId();
+				if (serviceId == null) {
+					serviceId = route.getId();
+				}
+				if (serviceId != null) {
+					staticServices.put(serviceId, route);
+				}
+			}
 			// Add routes for discovery services by default
 			List<String> services = this.discovery.getServices();
+			String[] ignored = this.properties.getIgnoredServices()
+					.toArray(new String[0]);
 			for (String serviceId : services) {
 				// Ignore specifically ignored services and those that were manually
 				// configured
 				String key = "/" + serviceId + "/**";
-				if (!this.properties.getIgnoredServices().contains(serviceId)
+				ZuulRoute route = new ZuulRoute(key, serviceId);
+				if (staticServices.containsKey(serviceId)
+						&& staticServices.get(serviceId).getUrl() == null) {
+					// Explicitly configured with no URL, cannot be ignored
+					routesMap.put(key, route);
+				}
+				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
 						&& !routesMap.containsKey(key)) {
-					routesMap.put(key, new ZuulRoute(key, serviceId));
+					// Not ignored
+					routesMap.put(key, route);
 				}
 			}
 		}
@@ -167,8 +187,8 @@ public class ProxyRouteLocator implements RouteLocator {
 		for (ZuulRoute entry : routeEntries.values()) {
 			String route = entry.getPath();
 			if (routes.containsKey(route)) {
-				log.warn("Overwriting route "+route+": already defined by " +
-						routes.get(route));
+				log.warn("Overwriting route " + route + ": already defined by "
+						+ routes.get(route));
 			}
 			routes.put(route, entry);
 		}
@@ -191,7 +211,7 @@ public class ProxyRouteLocator implements RouteLocator {
 		private String location;
 
 		private String prefix;
-		
+
 		private Boolean retryable;
 
 	}

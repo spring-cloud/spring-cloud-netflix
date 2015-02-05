@@ -708,7 +708,22 @@ failures will show up in Hystrix metrics, and once the circuit is open
 the proxy will not try to contact the service.
 
 To skip having a service automatically added, set
-`zuul.ignored-services` to a list of service ids. To augment or change
+`zuul.ignored-services` to a list of service id patterns. If a service
+matches a pattern that is ignored, but also included in the explicitly
+configured routes map, then it will be unignored. Example:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  ignoredServices: * 
+  routes:
+    users: /myusers/**
+----
+
+In this example, all services are ignored *except* "users".
+
+To augment or change
 the proxy routes, you can add external configuration like the
 following:
 
