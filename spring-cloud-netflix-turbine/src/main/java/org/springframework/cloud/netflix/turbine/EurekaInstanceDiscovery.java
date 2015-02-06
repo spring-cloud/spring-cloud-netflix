@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -33,6 +34,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
+import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.shared.Application;
 import com.netflix.turbine.discovery.Instance;
@@ -111,14 +113,19 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	private List<Instance> getInstancesForApp(String appName) throws Exception {
 		List<Instance> instances = new ArrayList<Instance>();
 		log.info("Fetching instances for app: " + appName);
-		Application app = DiscoveryManager.getInstance().getDiscoveryClient()
-				.getApplication(appName);
+		DiscoveryClient client = DiscoveryManager.getInstance().getDiscoveryClient();
+		if (client == null) {
+			log.info("Discovery client not ready for: " + appName);
+			return instances;
+		}
+		Application app = client.getApplication(appName);
 		if (app == null) {
 			log.warn("Eureka returned null for app: " + appName);
 		}
 		List<InstanceInfo> instancesForApp = app.getInstances();
 		if (instancesForApp != null) {
-			log.info("Received instance list for app: "+appName+" = " + instancesForApp.size());
+			log.info("Received instance list for app: " + appName + " = "
+					+ instancesForApp.size());
 			for (InstanceInfo iInfo : instancesForApp) {
 				Instance instance = marshallInstanceInfo(iInfo);
 				if (instance != null) {
