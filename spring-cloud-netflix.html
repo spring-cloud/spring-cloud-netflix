@@ -944,13 +944,7 @@ for details on the properties available.</p>
 <p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation.</p>
 </div>
 <div class="paragraph">
-<p>Configuration key <code>turbine.appConfig</code> is a list of eureka serviceId&#8217;s that turbine will use to lookup instances.  And <code>turbine.aggregator.clusterConfig</code> is used to group instances together (from the eureka <code>InstanceInfo</code>).  The clusterName is a SPEL expression evaluated against the InstanceInfo.  The default <code>clusterNameExpression</code> is <code>appName</code>.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <a href="http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS</a></p>
-</div>
-<div class="paragraph">
-<p>The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>.</p>
-</div>
-<div class="paragraph">
-<p>Value returned from eureka are uppercase, thus the examples of all uppercase <code>CUSTOMERS</code></p>
+<p>Configuration key <code>turbine.appConfig</code> is a list of eureka serviceId&#8217;s that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <code><a href="http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt</a>;</code> (the cluster parameter can be omitted if the name is "default"). The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>. Value returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -961,7 +955,14 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>clusterName</code> can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code>.  For example, <code>turbine.clusterNameExpression=aSGName</code> would get the cluster name from the AWS ASG name.</p>
+<p>The <code>clusterName</code> can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code>.  For example, <code>turbine.clusterNameExpression=aSGName</code> would get the cluster name from the AWS ASG name. To use the "default" cluster for all apps you need a string literal expression (with single quotes):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>turbine:
+  appConfig: customers,stores
+  clusterNameExpression: 'default'</pre>
+</div>
 </div>
 <div class="paragraph">
 <p>Spring Cloud provides a <code>spring-cloud-starter-turbine</code> that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with <code>@EnableTurbine</code>.</p>
@@ -1447,7 +1448,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-09 15:07:48 UTC
+Last updated 2015-02-09 16:37:48 UTC
 </div>
 </div>
 </body>
