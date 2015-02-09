@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
@@ -59,16 +60,21 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Autowired
 	private ZuulProperties zuulProperties;
 
+	@Autowired
+	private ServerProperties server;
+
 	@Bean
 	@Override
 	public ProxyRouteLocator routeLocator() {
-		return new ProxyRouteLocator(this.discovery, this.zuulProperties);
+		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
+				this.zuulProperties);
 	}
 
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter() {
-		return new PreDecorationFilter(routeLocator(), this.zuulProperties.isAddProxyHeaders());
+		return new PreDecorationFilter(routeLocator(),
+				this.zuulProperties.isAddProxyHeaders());
 	}
 
 	// route filters

@@ -2,7 +2,7 @@ server:
   port: 9999
 logging:
   level:
-#    org.springframework.web: DEBUG
+    org.springframework.web: DEBUG
 spring:
   application:
     name: testclient

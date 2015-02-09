@@ -52,7 +52,11 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	private Map<String, ZuulRoute> staticRoutes = new LinkedHashMap<>();
 
-	public ProxyRouteLocator(DiscoveryClient discovery, ZuulProperties properties) {
+	private String servletPath;
+
+	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
+			ZuulProperties properties) {
+		this.servletPath = servletPath;
 		this.discovery = discovery;
 		this.properties = properties;
 	}
@@ -89,6 +93,10 @@ public class ProxyRouteLocator implements RouteLocator {
 		String targetPath = null;
 		String id = null;
 		String prefix = this.properties.getPrefix();
+		if (StringUtils.hasText(this.servletPath) && !this.servletPath.equals("/")
+				&& path.startsWith(this.servletPath)) {
+			path = path.substring(this.servletPath.length());
+		}
 		Boolean retryable = this.properties.getRetryable();
 		for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
 			String pattern = entry.getKey();

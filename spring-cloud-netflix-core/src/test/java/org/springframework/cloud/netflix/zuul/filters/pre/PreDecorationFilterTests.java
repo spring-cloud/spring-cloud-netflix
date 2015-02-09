@@ -16,14 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -32,6 +30,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Dave Syer
@@ -49,10 +50,13 @@ public class PreDecorationFilterTests {
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
 
+	private ServerProperties server = new ServerProperties();
+
 	@Before
 	public void init() {
 		initMocks(this);
-		this.routeLocator = new ProxyRouteLocator(this.discovery, this.properties);
+		this.routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
 		this.filter = new PreDecorationFilter(this.routeLocator, true);
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.setRequest(this.request);
@@ -70,7 +74,8 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false,
+				null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));

@@ -30,6 +30,7 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -39,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -86,7 +88,7 @@ public class SampleZuulProxyApplicationTests {
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten!", result.getBody());
+		assertEquals("Gotten 1!", result.getBody());
 	}
 
 	@Test
@@ -97,7 +99,20 @@ public class SampleZuulProxyApplicationTests {
 				"http://localhost:" + this.port + "/self/1", HttpMethod.DELETE,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Deleted!", result.getBody());
+		assertEquals("Deleted 1!", result.getBody());
+	}
+
+	@Test
+	public void stripPrefixFalseAppendsPath() {
+		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
+				"http://localhost:" + this.port + "/local", false, false));
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/strip", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		// Prefix not stripped to it goes to /local/strip
+		assertEquals("Gotten strip!", result.getBody());
 	}
 
 	@Test
@@ -114,7 +129,7 @@ public class SampleZuulProxyApplicationTests {
 				"http://localhost:" + this.port + "/another/twolevel/local/1",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten!", result.getBody());
+		assertEquals("Gotten 1!", result.getBody());
 	}
 
 }
@@ -140,13 +155,13 @@ class SampleZuulProxyApplication {
 	}
 
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.DELETE)
-	public String delete() {
-		return "Deleted!";
+	public String delete(@PathVariable String id) {
+		return "Deleted " + id + "!";
 	}
 
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
-	public String get() {
-		return "Gotten!";
+	public String get(@PathVariable String id) {
+		return "Gotten " + id + "!";
 	}
 
 	@RequestMapping("/")
