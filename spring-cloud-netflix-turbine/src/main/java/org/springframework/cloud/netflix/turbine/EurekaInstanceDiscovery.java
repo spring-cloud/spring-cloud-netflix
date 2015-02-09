@@ -122,16 +122,21 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 		if (app == null) {
 			log.warn("Eureka returned null for app: " + appName);
 		}
-		List<InstanceInfo> instancesForApp = app.getInstances();
-		if (instancesForApp != null) {
-			log.info("Received instance list for app: " + appName + " = "
-					+ instancesForApp.size());
-			for (InstanceInfo iInfo : instancesForApp) {
-				Instance instance = marshallInstanceInfo(iInfo);
-				if (instance != null) {
-					instances.add(instance);
+		try {
+			List<InstanceInfo> instancesForApp = app.getInstances();
+			if (instancesForApp != null) {
+				log.info("Received instance list for app: " + appName + ", size="
+						+ instancesForApp.size());
+				for (InstanceInfo iInfo : instancesForApp) {
+					Instance instance = marshallInstanceInfo(iInfo);
+					if (instance != null) {
+						instances.add(instance);
+					}
 				}
 			}
+		}
+		catch (Exception e) {
+			log.info("Failed to retrieve instances from Eureka");
 		}
 		return instances;
 	}

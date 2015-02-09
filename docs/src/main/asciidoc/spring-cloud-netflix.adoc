@@ -428,11 +428,7 @@ To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableH
 
 Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation.
 
-Configuration key `turbine.appConfig` is a list of eureka serviceId's that turbine will use to lookup instances.  And `turbine.aggregator.clusterConfig` is used to group instances together (from the eureka `InstanceInfo`).  The clusterName is a SPEL expression evaluated against the InstanceInfo.  The default `clusterNameExpression` is `appName`.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: http://my.turbine.sever:8080/turbine.stream?cluster=CUSTOMERS
-
-The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`.
-
-Value returned from eureka are uppercase, thus the examples of all uppercase `CUSTOMERS`
+Configuration key `turbine.appConfig` is a list of eureka serviceId's that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `http://my.turbine.sever:8080/turbine.stream?cluster=<CLUSTERNAME>` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Value returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
 
 ----
 turbine:
@@ -441,7 +437,13 @@ turbine:
   appConfig: customers
 ----
 
-The `clusterName` can be customized by a SPEL expression in `turbine.clusterNameExpression`.  For example, `turbine.clusterNameExpression=aSGName` would get the cluster name from the AWS ASG name.
+The `clusterName` can be customized by a SPEL expression in `turbine.clusterNameExpression`.  For example, `turbine.clusterNameExpression=aSGName` would get the cluster name from the AWS ASG name. To use the "default" cluster for all apps you need a string literal expression (with single quotes):
+
+----
+turbine:
+  appConfig: customers,stores
+  clusterNameExpression: 'default'
+----
 
 Spring Cloud provides a `spring-cloud-starter-turbine` that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with `@EnableTurbine`.
 
