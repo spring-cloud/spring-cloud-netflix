@@ -102,10 +102,6 @@ public class ZuulProperties {
 		}
 
 		public ZuulRoute(String path, String location) {
-			updateRoute(path, location);
-		}
-
-		public void updateRoute(String path, String location) {
 			this.id = extractId(path);
 			this.path = path;
 			setLocation(location);

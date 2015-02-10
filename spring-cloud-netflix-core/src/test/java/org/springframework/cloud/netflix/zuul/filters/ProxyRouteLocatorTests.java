@@ -277,6 +277,25 @@ public class ProxyRouteLocatorTests {
 	}
 
 	@Test
+	public void testIgnoredRouteNonServiceIdPathRemains() {
+		//This is how you setup a route defined like zuul.proxy.route.foo=/**
+		ZuulRoute route = new ZuulRoute("/**", "foo");
+		route.setId("foo");
+
+		this.properties.getRoutes().put("foo", route);
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
+		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
+		ZuulRoute actual = routes.get("/**");
+		assertNotNull("routes ignored foo", actual);
+		assertEquals("id is wrong", "foo", actual.getId());
+		assertEquals("location is wrong", "foo", actual.getServiceId());
+		assertEquals("path is wrong", "/**", actual.getPath());
+	}
+
+	@Test
 	public void testIgnoredRouteIncludedIfConfiguredAndNotDiscovered() {
 		this.properties.getRoutes()
 				.put("foo", new ZuulRoute("/foo/**", "http://foo.com"));

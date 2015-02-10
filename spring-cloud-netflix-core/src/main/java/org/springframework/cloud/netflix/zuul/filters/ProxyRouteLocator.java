@@ -156,9 +156,12 @@ public class ProxyRouteLocator implements RouteLocator {
 				if (staticServices.containsKey(serviceId)
 						&& staticServices.get(serviceId).getUrl() == null) {
 					// Explicitly configured with no URL, cannot be ignored
-					// all static routes are already in routesMap, just update
+					// all static routes are already in routesMap
+					// Update location using serviceId if location is null
 					ZuulRoute staticRoute = staticServices.get(serviceId);
-					staticRoute.updateRoute(key, serviceId);
+					if (!StringUtils.hasText(staticRoute.getLocation())) {
+						staticRoute.setLocation(serviceId);
+					}
 				}
 				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
 						&& !routesMap.containsKey(key)) {
