@@ -153,16 +153,17 @@ public class ProxyRouteLocator implements RouteLocator {
 				// Ignore specifically ignored services and those that were manually
 				// configured
 				String key = "/" + serviceId + "/**";
-				ZuulRoute route = new ZuulRoute(key, serviceId);
 				if (staticServices.containsKey(serviceId)
 						&& staticServices.get(serviceId).getUrl() == null) {
 					// Explicitly configured with no URL, cannot be ignored
-					routesMap.put(key, route);
+					// all static routes are already in routesMap, just update
+					ZuulRoute staticRoute = staticServices.get(serviceId);
+					staticRoute.updateRoute(key, serviceId);
 				}
 				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
 						&& !routesMap.containsKey(key)) {
 					// Not ignored
-					routesMap.put(key, route);
+					routesMap.put(key, new ZuulRoute(key, serviceId));
 				}
 			}
 		}

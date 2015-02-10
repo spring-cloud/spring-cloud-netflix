@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Before;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -255,6 +257,23 @@ public class ProxyRouteLocatorTests {
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		String serviceId = routesMap.get(getMapping("foo"));
 		assertNotNull("routes ignored foo", serviceId);
+	}
+
+	@Test
+	public void testIgnoredRoutePropertiesRemain() {
+		ZuulRoute route = new ZuulRoute("/foo/**");
+		route.setStripPrefix(true);
+		route.setRetryable(Boolean.TRUE);
+		this.properties.getRoutes().put("foo", route);
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
+		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
+		ZuulRoute actual = routes.get(getMapping("foo"));
+		assertNotNull("routes ignored foo", actual);
+		assertTrue("stripPrefix is wrong", actual.isStripPrefix());
+		assertEquals("retryable is wrong", Boolean.TRUE, actual.getRetryable());
 	}
 
 	@Test
