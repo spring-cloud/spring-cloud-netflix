@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Dave Syer
@@ -44,6 +45,7 @@ import static org.junit.Assert.assertEquals;
 		"server.contextPath=/context" })
 public class HystrixDashboardContextTests {
 
+	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";
 	@Value("${local.server.port}")
 	private int port = 0;
 
@@ -52,6 +54,19 @@ public class HystrixDashboardContextTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/context/hystrix", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertTrue("wrong base path rendered in template",
+				body.contains("base href=\"/context/hystrix\""));
+	}
+
+	@Test
+	public void correctJavascriptLink() {
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/context/hystrix", String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertTrue("wrong jquery path rendered in template",
+				body.contains("src=\""+JQUERY_PATH+"\""));
 	}
 
 	@Test
@@ -65,8 +80,7 @@ public class HystrixDashboardContextTests {
 	@Test
 	public void webjarsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port
-						+ "/context/webjars/jquery/2.1.1/jquery.min.js", String.class);
+				"http://localhost:" + this.port + JQUERY_PATH, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -76,6 +90,9 @@ public class HystrixDashboardContextTests {
 				"http://localhost:" + this.port + "/context/hystrix/monitor",
 				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertTrue("wrong base path rendered in template",
+				body.contains("base href=\"/context/hystrix/monitor\""));
 	}
 
 	@Configuration

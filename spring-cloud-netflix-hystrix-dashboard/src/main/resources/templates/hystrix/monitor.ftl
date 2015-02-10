@@ -2,7 +2,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<base href="<@spring.url basePath/>">
+    <base href="${basePath}">
 	<meta charset="utf-8" />
 	<title>Hystrix Monitor</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />

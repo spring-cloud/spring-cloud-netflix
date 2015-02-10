@@ -44,7 +44,7 @@ public class HystrixDashboardController {
 
 	private String extractPath(WebRequest request) {
 		String path = request.getContextPath()
-				+ (String) request.getAttribute("org.springframework."
+				+ request.getAttribute("org.springframework."
 						+ "web.servlet.HandlerMapping.pathWithinHandlerMapping",
 						RequestAttributes.SCOPE_REQUEST);
 		return path;

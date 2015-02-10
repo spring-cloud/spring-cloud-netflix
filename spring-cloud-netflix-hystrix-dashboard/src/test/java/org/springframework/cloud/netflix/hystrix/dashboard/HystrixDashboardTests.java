@@ -71,6 +71,8 @@ public class HystrixDashboardTests {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/hystrix/monitor", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertTrue(body.contains("<base href=\"/hystrix/monitor\">"));
 	}
 
 	@Configuration
