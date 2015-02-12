@@ -136,12 +136,22 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 
 		@Override
 		public boolean isAsyncStarted() {
-			return this.request.isAsyncStarted();
+			try {
+				return this.request.isAsyncStarted();
+			}
+			catch (Throwable e) {
+				return false;
+			}
 		}
 
 		@Override
 		public boolean isAsyncSupported() {
-			return this.request.isAsyncSupported();
+			try {
+				return this.request.isAsyncSupported();
+			}
+			catch (Throwable e) {
+				return false;
+			}
 		}
 
 		@Override

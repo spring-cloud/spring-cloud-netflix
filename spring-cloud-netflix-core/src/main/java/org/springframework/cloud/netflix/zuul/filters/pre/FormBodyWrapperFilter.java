@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.InvalidMediaTypeException;
@@ -34,6 +35,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -152,22 +155,36 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		}
 
 		private synchronized void buildContentData() {
-			MultiValueMap<String, String> builder = new LinkedMultiValueMap<String, String>();
-			for (Entry<String, String[]> entry : this.request.getParameterMap()
-					.entrySet()) {
-				for (String value : entry.getValue()) {
-					builder.add(entry.getKey(), value);
-				}
-			}
-			FormHttpOutputMessage data = new FormHttpOutputMessage();
-			data.getHeaders().setContentType(
-					MediaType.valueOf(this.request.getContentType()));
 			try {
+				MultiValueMap<String, Object> builder = new LinkedMultiValueMap<String, Object>();
+				for (Entry<String, String[]> entry : this.request.getParameterMap()
+						.entrySet()) {
+					for (String value : entry.getValue()) {
+						builder.add(entry.getKey(), value);
+					}
+				}
+				if (this.request instanceof MultipartRequest) {
+					MultipartRequest multi = (MultipartRequest) this.request;
+					for (Entry<String, MultipartFile> part : multi.getFileMap()
+							.entrySet()) {
+						MultipartFile file = part.getValue();
+						HttpHeaders headers = new HttpHeaders();
+						headers.setContentDispositionFormData(file.getName(),
+								file.getOriginalFilename());
+						headers.setContentType(MediaType.valueOf(file.getContentType()));
+						HttpEntity<byte[]> entity = new HttpEntity<byte[]>(
+								file.getBytes(), headers);
+						builder.set(part.getKey(), entity);
+					}
+				}
+				FormHttpOutputMessage data = new FormHttpOutputMessage();
+				this.contentType = MediaType.valueOf(this.request.getContentType());
+				data.getHeaders().setContentType(this.contentType);
 				this.converter.write(builder, this.contentType, data);
+				// copy new content type including multipart boundary
 				this.contentType = data.getHeaders().getContentType();
-				this.contentLength = new Long(data.getHeaders().getContentLength())
-						.intValue();
 				this.contentData = data.getInput();
+				this.contentLength = this.contentData.length;
 			}
 			catch (Exception e) {
 				throw new IllegalStateException("Cannot convert form data", e);
@@ -190,6 +207,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			}
 
 			public byte[] getInput() throws IOException {
+				this.output.flush();
 				return this.output.toByteArray();
 			}
 

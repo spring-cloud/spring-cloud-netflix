@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -28,7 +28,6 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -42,10 +41,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.loadbalancer.BaseLoadBalancer;
@@ -64,12 +64,6 @@ public class FormZuulProxyApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
-
-	@Autowired
-	private ProxyRouteLocator routes;
-
-	@Autowired
-	private RoutesEndpoint endpoint;
 
 	@Test
 	public void postWithForm() {
@@ -100,6 +94,23 @@ public class FormZuulProxyApplicationTests {
 	}
 
 	@Test
+	public void postWithMultipartFile() {
+		MultiValueMap<String, Object> form = new LinkedMultiValueMap<String, Object>();
+		HttpHeaders part = new HttpHeaders();
+		part.setContentType(MediaType.TEXT_PLAIN);
+		part.setContentDispositionFormData("file", "foo.txt");
+		form.set("foo", new HttpEntity<byte[]>("bar".getBytes(), part));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/file", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, Object>>(form, headers),
+				String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! bar", result.getBody());
+	}
+
+	@Test
 	public void postWithUTF8Form() {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
 		form.set("foo", "bar");
@@ -124,8 +135,16 @@ public class FormZuulProxyApplicationTests {
 class FormZuulProxyApplication {
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
-	public String delete(@RequestBody MultiValueMap<String, String> form) {
+	public String accept(@RequestParam MultiValueMap<String, String> form)
+			throws IOException {
 		return "Posted! " + form;
+	}
+
+	// TODO: Why does this not work if you add @RequestParam as above?
+	@RequestMapping(value = "/file", method = RequestMethod.POST)
+	public String file(@RequestParam(required = false) MultipartFile file)
+			throws IOException {
+		return "Posted! " + (file == null ? "" : new String(file.getBytes()));
 	}
 
 	@Bean
@@ -156,7 +175,7 @@ class FormZuulProxyApplication {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(SampleZuulProxyApplication.class, args);
+		SpringApplication.run(FormZuulProxyApplication.class, args);
 	}
 
 }
@@ -170,6 +189,7 @@ class FormRibbonClientConfiguration {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
 		balancer.setServersList(Arrays.asList(new Server("localhost", instance
 				.getNonSecurePort())));
+		// balancer.setServersList(Arrays.asList(new Server("localhost", 8000)));
 		return balancer;
 	}
 
