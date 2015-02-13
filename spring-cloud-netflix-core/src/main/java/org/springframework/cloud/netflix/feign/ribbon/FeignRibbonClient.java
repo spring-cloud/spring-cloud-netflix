@@ -23,6 +23,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
+import lombok.Data;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.util.ReflectionUtils;
 
@@ -34,6 +35,8 @@ import dagger.Lazy;
 import feign.Client;
 import feign.Request;
 import feign.Response;
+
+import static org.springframework.cloud.netflix.feign.ribbon.RibbonLoadBalancer.RibbonRequest;
 
 /**
  * @author Julien Roy
@@ -57,9 +60,10 @@ public class FeignRibbonClient implements Client {
 			String clientName = asUri.getHost();
 			URI uriWithoutSchemeAndPort = URI.create(request.url().replace(
 					asUri.getScheme() + "://" + asUri.getHost(), ""));
-			RibbonLoadBalancer.RibbonRequest ribbonRequest = new RibbonLoadBalancer.RibbonRequest(
+			RibbonLoadBalancer.RibbonRequest ribbonRequest = new RibbonRequest(
 					request, uriWithoutSchemeAndPort);
-			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest)
+			LBClient client = getClient(clientName);
+			return client.getLoadBalancer().executeWithLoadBalancer(ribbonRequest, client.config)
 					.toResponse();
 		}
 		catch (ClientException ex) {
@@ -71,10 +75,17 @@ public class FeignRibbonClient implements Client {
 		}
 	}
 
-	private RibbonLoadBalancer lbClient(String clientName) {
+	@Data
+	private class LBClient {
+		private final IClientConfig config;
+		private final RibbonLoadBalancer loadBalancer;
+	}
+
+	private LBClient getClient(String clientName) {
 		IClientConfig config = this.factory.getClientConfig(clientName);
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
-		return new RibbonLoadBalancer(this.defaultClient, lb, config);
+		RibbonLoadBalancer loadBalancer = new RibbonLoadBalancer(this.defaultClient, lb, config);
+		return new LBClient(config, loadBalancer);
 	}
 
 	public void setDefaultClient(Client defaultClient) {
