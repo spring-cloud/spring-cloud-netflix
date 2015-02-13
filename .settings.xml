@@ -36,14 +36,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<repository>
-		  <id>netflix-bintray</id>
-		  <name>Netflix Bintray</name>
-		  <url>http://dl.bintray.com/netflixoss/maven</url>
-		  <snapshots>
-			  <enabled>false</enabled>
-		  </snapshots>
-		</repository>
 	  </repositories>
 	  <pluginRepositories>
 		<pluginRepository>
