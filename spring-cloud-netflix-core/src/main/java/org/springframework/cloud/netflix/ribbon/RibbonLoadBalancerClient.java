@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
@@ -125,6 +126,16 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		@Override
 		public int getPort() {
 			return this.server.getPort();
+		}
+
+		@Override
+		public boolean isSecure() {
+			return false; //TODO: howto determine https from ribbon Server
+		}
+
+		@Override
+		public URI getUri() {
+			return DefaultServiceInstance.getUri(this);
 		}
 
 		public Server getServer() {

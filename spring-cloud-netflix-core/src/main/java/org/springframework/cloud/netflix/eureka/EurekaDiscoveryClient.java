@@ -16,11 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
@@ -63,6 +65,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 			public int getPort() {
 				return EurekaDiscoveryClient.this.config.getNonSecurePort();
 			}
+
+			@Override
+			public boolean isSecure() {
+				return EurekaDiscoveryClient.this.config.getSecurePortEnabled();
+			}
+
+			@Override
+			public URI getUri() {
+				return DefaultServiceInstance.getUri(this);
+			}
 		};
 	}
 
@@ -97,6 +109,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		@Override
 		public int getPort() {
 			return this.instance.getPort();
+		}
+
+		@Override
+		public boolean isSecure() {
+			return this.instance.isPortEnabled(InstanceInfo.PortType.SECURE);
+		}
+
+		@Override
+		public URI getUri() {
+			return DefaultServiceInstance.getUri(this);
 		}
 	}
 
