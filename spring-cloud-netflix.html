@@ -941,7 +941,7 @@ for details on the properties available.</p>
 <div class="sect2">
 <h3 id="_turbine">Turbine</h3>
 <div class="paragraph">
-<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation.</p>
+<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation.  All of the documented configuration properties from <a href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</a> apply.  The only difference is that the <code>turbine.instanceUrlSuffix</code> does not need the port prepended as this is handled automatically unless <code>turbine.instanceInsertPort=false</code>.</p>
 </div>
 <div class="paragraph">
 <p>Configuration key <code>turbine.appConfig</code> is a list of eureka serviceId&#8217;s that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <code><a href="http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt</a>;</code> (the cluster parameter can be omitted if the name is "default"). The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>. Value returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":</p>
@@ -975,6 +975,9 @@ for details on the properties available.</p>
 </div>
 <div class="paragraph">
 <p>On the server side Just create a Spring Boot application and annotate it with <code>@EnableTurbineAmqp</code> and by default it will come up on port 8989 (point your Hystrix dashboard to that port, any path). You can customize the port using either <code>server.port</code> or <code>turbine.amqp.port</code>. If you have <code>spring-boot-starter-web</code> and <code>spring-boot-starter-actuator</code> on the classpath as well, then you can open up the Actuator endpoints on a separate port (with Tomcat by default) by providing a <code>management.port</code> which is different.</p>
+</div>
+<div class="paragraph">
+<p>You can then point the Hystrix Dashboard to the Turbine AMQP Server instead of individual Hystrix streams.  If Turbine AMQP is running on port 8989 on myhost, then put <code><a href="http://myhost:8989" class="bare">http://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</p>
 </div>
 <div class="paragraph">
 <p>Spring Cloud provides a <code>spring-cloud-starter-turbine-amqp</code> that has all the dependencies you need to get a Turbine AMQP server running. You need Java 8 to run the app because it is Netty-based.</p>
@@ -1555,7 +1558,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-13 21:45:57 UTC
+Last updated 2015-02-14 20:25:21 UTC
 </div>
 </div>
 </body>
