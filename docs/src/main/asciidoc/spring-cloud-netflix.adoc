@@ -95,7 +95,27 @@ These links show up in the metadata that is consumers by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it's helpful if they are accurate.
 
-=== Making the Eureka Instance ID Unique
+=== Eureka Metadata for Instances and Clients
+
+It's worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform. There is standard metadata for things like hostname, IP address, port numbers, status page and health check. These are published in the service registry and used by clients to contact the services in a straightforward way. Additional metadata can be added to the instance registration in the `eureka.instance.metadataMap`, and this will be accessible in the remote clients, but in general will not change the behaviour of the client, unless it is made aware of the meaning of the metadata. There are a couple of special cases described below where Spring Cloud already assigns meaning to the metadata map.
+
+==== Using Eureka on Cloudfoundry
+
+Cloudfoundry has a global router so that all instances of the same app have the same hostname (it's the same in other PaaS solutions with a similar architecture). This isn't necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). For example:
+
+.application.yml
+----
+eureka:
+  instance:
+    metadataMap:
+      hostname: ${vcap.application.uris[0]}
+      nonSecurePort: 80
+      instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}
+----
+
+Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (https://run.pivotal.io[PWS]).
+
+==== Making the Eureka Instance ID Unique
 
 By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.metadataMap.instanceId`. For example:
 
@@ -106,6 +126,12 @@ eureka:
     metadataMap:
       instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 ----
+
+With this meatdata, and multiple service instances deployed on
+localhost, the random value will kick in there to make the instance
+unique. In Cloudfoundry the `spring.application.instance_id` will be
+populated automatically in a Spring Boot Actuator application, so the
+random value will not be needed.
 
 === Using the DiscoveryClient
 
@@ -125,11 +151,11 @@ public String serviceUrl() {
 
 [TIP]
 ====
-Don't use the `DiscoveryClient` in `@PostConstruct` method (or
-anywhere where the `ApplicationContext` might not be started yet). It
-is initialized in a `SmartLifecycle` (with `phase=0`) so the earliest
-you can rely on it being available is in another `SmartLifecycle` with
-higher phase.
+Don't use the `DiscoveryClient` in `@PostConstruct` method or in a
+`@Scheduled` method (or anywhere where the `ApplicationContext` might
+not be started yet). It is initialized in a `SmartLifecycle` (with
+`phase=0`) so the earliest you can rely on it being available is in
+another `SmartLifecycle` with higher phase.
 ====
 
 === Alternatives to the DiscoveryClient
@@ -525,7 +551,7 @@ one of the beans described.  Example:
 
 This replaces the `NoOpPing` with `PingUrl`.
 
-=== Using the Ribbon with Eureka
+=== Using Ribbon with Eureka
 
 When Eureka is used in conjunction with Ribbon the `ribbonServerList`
 is overridden with an extension of `DiscoveryEnabledNIWSServerList`
