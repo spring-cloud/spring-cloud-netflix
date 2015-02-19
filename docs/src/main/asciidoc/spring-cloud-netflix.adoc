@@ -441,6 +441,18 @@ The state of the connected circuit breakers are also exposed in the
 }
 ----
 
+=== Hystrix Metrics Stream
+
+To enable the Hystrix metrics stream include a dependency on `spring-boot-starter-actuator`.  This will expose the `/hystrix.stream` as a management endpoint.
+
+[source,xml]
+----
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+----
+
 == Circuit Breaker: Hystrix Dashboard
 
 One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.  The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.
