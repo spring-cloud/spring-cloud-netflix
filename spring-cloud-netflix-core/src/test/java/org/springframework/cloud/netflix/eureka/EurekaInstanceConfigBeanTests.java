@@ -62,26 +62,7 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void nonSecurePort() {
-		testNonSecurePort("eureka.instance.nonSecurePort");
-	}
-
-	@Test
-	public void nonSecurePort2() {
-		testNonSecurePort("server.port");
-	}
-
-	@Test
-	public void nonSecurePort3() {
-		testNonSecurePort("SERVER_PORT");
-	}
-
-	@Test
-	public void nonSecurePort4() {
-		testNonSecurePort("PORT");
-	}
-
-	private void testNonSecurePort(String propName) {
-		addEnvironment(this.context, propName + ":8888");
+		addEnvironment(this.context, "eureka.instance.nonSecurePort:8888");
 		setupContext();
 		assertEquals(8888, getInstanceConfig().getNonSecurePort());
 	}
@@ -133,7 +114,7 @@ public class EurekaInstanceConfigBeanTests {
 		this.context.refresh();
 	}
 
-	protected EurekaInstanceConfigBean getInstanceConfig() {
+	private EurekaInstanceConfigBean getInstanceConfig() {
 		return this.context.getBean(EurekaInstanceConfigBean.class);
 	}
 

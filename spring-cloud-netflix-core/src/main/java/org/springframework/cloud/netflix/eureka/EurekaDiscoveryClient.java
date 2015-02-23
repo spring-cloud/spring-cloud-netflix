@@ -30,6 +30,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
+import static com.netflix.appinfo.InstanceInfo.PortType.*;
+
 /**
  * @author Spencer Gibb
  */
@@ -108,12 +110,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 		@Override
 		public int getPort() {
-			return this.instance.getPort();
+			// assume if unsecure is enabled, that is the default
+			if (this.instance.isPortEnabled(UNSECURE) || !this.instance.isPortEnabled(SECURE)) {
+				return this.instance.getPort();
+			}
+			return this.instance.getSecurePort();
 		}
 
 		@Override
 		public boolean isSecure() {
-			return this.instance.isPortEnabled(InstanceInfo.PortType.SECURE);
+			return this.instance.isPortEnabled(SECURE);
 		}
 
 		@Override

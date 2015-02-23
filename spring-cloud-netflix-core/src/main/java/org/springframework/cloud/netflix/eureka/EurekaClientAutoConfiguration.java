@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -57,6 +58,9 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 
 	private static final ConcurrentMap<String, String> listenerAdded = new ConcurrentHashMap<>();
 
+	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
+	int nonSecurePort;
+	
 	@PostConstruct
 	public void init() {
 		XmlXStream.getInstance().setMarshallingStrategy(
@@ -74,7 +78,9 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	@Bean
 	@ConditionalOnMissingBean(EurekaInstanceConfig.class)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
-		return new EurekaInstanceConfigBean();
+		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
+		instance.setNonSecurePort(this.nonSecurePort);
+		return instance;
 	}
 
 
