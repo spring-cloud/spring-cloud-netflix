@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import feign.Feign;
 
@@ -30,7 +31,7 @@ import feign.Feign;
 @Configuration
 @ConditionalOnClass(Feign.class)
 @AutoConfigureAfter(ArchaiusAutoConfiguration.class)
-@EnableFeignClients
+@Import(FeignClientsConfiguration.class)
 public class FeignAutoConfiguration {
 
 }
