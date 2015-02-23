@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.junit.Assert.*;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -38,7 +36,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -52,6 +49,10 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  * @author Spencer Gibb
  */
@@ -59,10 +60,8 @@ import com.netflix.loadbalancer.Server;
 @SpringApplicationConfiguration(classes = FeignRibbonClientRetryTests.Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest",
-		"localapp.ribbon.MaxAutoRetries=5",
-		"localapp.ribbon.MaxAutoRetriesNextServer=5",
-		"localapp.ribbon.OkToRetryOnAllOperations=true",
-})
+		"localapp.ribbon.MaxAutoRetries=5", "localapp.ribbon.MaxAutoRetriesNextServer=5",
+		"localapp.ribbon.OkToRetryOnAllOperations=true", })
 @DirtiesContext
 public class FeignRibbonClientRetryTests {
 
@@ -98,17 +97,17 @@ public class FeignRibbonClientRetryTests {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/retryme")
 		public int retryMe() {
-			return retries.getAndIncrement();
+			return this.retries.getAndIncrement();
 		}
 
 		public static void main(String[] args) throws InterruptedException {
-			ConfigurableApplicationContext context = new SpringApplicationBuilder(Application.class).properties(
+			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=feignclienttest",
 					"localapp.ribbon.MaxAutoRetries=5",
 					"localapp.ribbon.MaxAutoRetriesNextServer=5",
 					"localapp.ribbon.OkToRetryOnAllOperations=true",
 					"management.contextPath=/admin"
-					//,"local.server.port=9999"
+			// ,"local.server.port=9999"
 					).run(args);
 		}
 	}
@@ -126,8 +125,8 @@ public class FeignRibbonClientRetryTests {
 	public void testRetries() {
 		int retryMe = this.testClient.retryMe();
 		assertEquals("retryCount didn't match", retryMe, 1);
-		//TODO: not sure how to verify retry happens.  Debugging through it, it works
-		//maybe the assertEquals above is enough because of the bogus servers
+		// TODO: not sure how to verify retry happens. Debugging through it, it works
+		// maybe the assertEquals above is enough because of the bogus servers
 	}
 
 	@Data
@@ -151,8 +150,7 @@ class LocalRibbonClientConfiguration {
 		BaseLoadBalancer balancer = new BaseLoadBalancer();
 		balancer.setServersList(Arrays.asList(new Server("___mybadhost__", 10001),
 				new Server("___mybadhost2__", 10002),
-				new Server("___mybadhost3__", 10003),
-				new Server("localhost", this.port)));
+				new Server("___mybadhost3__", 10003), new Server("localhost", this.port)));
 		return balancer;
 	}
 
