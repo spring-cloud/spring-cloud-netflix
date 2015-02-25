@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
-import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.configure.client.ConfigClientProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.appinfo.InstanceInfo;
