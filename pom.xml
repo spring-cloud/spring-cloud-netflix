@@ -251,6 +251,10 @@
 						<artifactId>groovy-all</artifactId>
 						<groupId>org.codehaus.groovy</groupId>
 					</exclusion>
+					<exclusion>
+						<artifactId>mockito-all</artifactId>
+						<groupId>org.mockito</groupId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
