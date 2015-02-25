@@ -21,13 +21,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.client.IClient;
@@ -42,6 +43,7 @@ import com.netflix.client.IClient;
 @ConditionalOnClass({ IClient.class, RestTemplate.class })
 @RibbonClients
 @AutoConfigureAfter(EurekaClientAutoConfiguration.class)
+@AutoConfigureBefore(LoadBalancerAutoConfiguration.class)
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
@@ -55,24 +57,9 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(RestTemplate.class)
-	public RestTemplate restTemplate(RibbonInterceptor ribbonInterceptor) {
-		RestTemplate restTemplate = new RestTemplate();
-		List<ClientHttpRequestInterceptor> list = new ArrayList<>();
-		list.add(ribbonInterceptor);
-		restTemplate.setInterceptors(list);
-		return restTemplate;
-	}
-
-	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
 	public LoadBalancerClient loadBalancerClient() {
 		return new RibbonLoadBalancerClient(springClientFactory());
-	}
-
-	@Bean
-	public RibbonInterceptor ribbonInterceptor(LoadBalancerClient loadBalancerClient) {
-		return new RibbonInterceptor(loadBalancerClient);
 	}
 
 }
