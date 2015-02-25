@@ -24,7 +24,17 @@ import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.*;
+import com.netflix.loadbalancer.ConfigurationBasedServerList;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.IPing;
+import com.netflix.loadbalancer.IRule;
+import com.netflix.loadbalancer.LoadBalancerBuilder;
+import com.netflix.loadbalancer.NoOpPing;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.loadbalancer.ServerListFilter;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
 import com.netflix.servo.monitor.Monitors;
 
@@ -85,15 +95,11 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
-											ServerList<Server> serverList,
-			ServerListFilter<Server> serverListFilter,
+			ServerList<Server> serverList, ServerListFilter<Server> serverListFilter,
 			IRule rule, IPing ping) {
 		ZoneAwareLoadBalancer<Server> balancer = LoadBalancerBuilder.newBuilder()
-				.withClientConfig(config)
-				.withRule(rule)
-				.withPing(ping)
-				.withServerListFilter(serverListFilter)
-				.withDynamicServerList(serverList)
+				.withClientConfig(config).withRule(rule).withPing(ping)
+				.withServerListFilter(serverListFilter).withDynamicServerList(serverList)
 				.buildDynamicServerListLoadBalancer();
 		return balancer;
 	}

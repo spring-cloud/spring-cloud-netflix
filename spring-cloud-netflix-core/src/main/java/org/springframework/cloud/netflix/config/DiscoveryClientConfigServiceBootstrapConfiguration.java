@@ -22,15 +22,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
+import org.springframework.context.event.SmartApplicationListener;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
@@ -48,7 +49,9 @@ import com.netflix.discovery.DiscoveryClient;
 @Import(EurekaClientAutoConfiguration.class)
 @CommonsLog
 public class DiscoveryClientConfigServiceBootstrapConfiguration implements
-		ApplicationListener<ContextRefreshedEvent> {
+		SmartApplicationListener {
+
+	private HeartbeatMonitor monitor = new HeartbeatMonitor();
 
 	@Autowired
 	private DiscoveryClient client;
@@ -57,14 +60,36 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	private ConfigClientProperties config;
 
 	@Override
-	public void onApplicationEvent(ContextRefreshedEvent event) {
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof ContextRefreshedEvent) {
+			refresh();
+		}
+		else if (event instanceof HeartbeatEvent) {
+			if (this.monitor.update(((HeartbeatEvent) event).getValue())) {
+				refresh();
+			}
+		}
+	}
+
+	@Override
+	public int getOrder() {
+		return 0;
+	}
+
+	@Override
+	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+		return ContextRefreshedEvent.class.isAssignableFrom(eventType)
+				|| HeartbeatEvent.class.isAssignableFrom(eventType);
+	}
+
+	@Override
+	public boolean supportsSourceType(Class<?> sourceType) {
+		return true;
+	}
+
+	private void refresh() {
 		try {
 			log.info("Locating configserver via discovery");
-			Environment environment = event.getApplicationContext().getEnvironment();
-			if (!(environment instanceof ConfigurableEnvironment)) {
-				log.info("Environment is not ConfigurableEnvironment so cannot look up configserver");
-				return;
-			}
 			InstanceInfo server = this.client.getNextServerFromEureka(this.config
 					.getDiscovery().getServiceId(), false);
 			String url = server.getHomePageUrl();

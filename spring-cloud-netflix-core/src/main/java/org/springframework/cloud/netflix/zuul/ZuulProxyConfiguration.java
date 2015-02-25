@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
@@ -25,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
@@ -121,7 +120,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	private static class ZuulRefreshListener implements
 			ApplicationListener<ApplicationEvent> {
 
-		private AtomicReference<Object> latestHeartbeat = new AtomicReference<>();
+		private HeartbeatMonitor monitor = new HeartbeatMonitor();
 
 		@Autowired
 		private ProxyRouteLocator routeLocator;
@@ -148,9 +147,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		}
 
 		private void resetIfNeeded(Object value) {
-			if (this.latestHeartbeat.get() == null
-					|| !this.latestHeartbeat.get().equals(value)) {
-				this.latestHeartbeat.set(value);
+			if (this.monitor.update(value)) {
 				reset();
 			}
 		}
