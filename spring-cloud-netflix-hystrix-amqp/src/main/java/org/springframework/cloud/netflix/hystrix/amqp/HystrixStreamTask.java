@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.BeansException;
@@ -34,6 +32,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.netflix.hystrix.HystrixCircuitBreaker;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandMetrics;
@@ -44,7 +44,9 @@ import com.netflix.hystrix.util.HystrixRollingNumberEvent;
 
 /**
  * @author Spencer Gibb
- * @see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsPoller
+ *
+ * @see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller (nested
+ * private class MetricsPoller)
  */
 @CommonsLog
 public class HystrixStreamTask implements ApplicationContextAware {
@@ -113,7 +115,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 						.getInstance(key);
 
 				StringWriter jsonString = new StringWriter();
-				JsonGenerator json = this.jsonFactory.createJsonGenerator(jsonString);
+				JsonGenerator json = this.jsonFactory.createGenerator(jsonString);
 
 				json.writeStartObject();
 
@@ -293,7 +295,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				HystrixThreadPoolKey key = threadPoolMetrics.getThreadPoolKey();
 
 				StringWriter jsonString = new StringWriter();
-				JsonGenerator json = this.jsonFactory.createJsonGenerator(jsonString);
+				JsonGenerator json = this.jsonFactory.createGenerator(jsonString);
 				json.writeStartObject();
 
 				addServiceData(json, localService);

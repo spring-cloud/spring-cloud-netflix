@@ -495,6 +495,21 @@ You can then point the Hystrix Dashboard to the Turbine AMQP Server instead of i
 
 Spring Cloud provides a `spring-cloud-starter-turbine-amqp` that has all the dependencies you need to get a Turbine AMQP server running. You need Java 8 to run the app because it is Netty-based.
 
+== Customizing the AMQP ConnectionFactory
+
+If you are using AMQP there needs to be a `ConnectionFactory` (from
+Spring Rabbit) in the application context. If there is a single
+`ConnectionFactory` it will be used, or if there is a one qualified as
+`@HystrixConnectionFactory` (on the client) and
+`@TurbineConnectionFactory` (on the server) it will be preferred over
+others, otherwise the `@Primary` one will be used. If there are
+multiple unqualified connection factories there will be an error.
+
+Note that Spring Boot (as of 1.2.2) creates a `ConnectionFactory` that
+is _not_ `@Primary`, so if you want to use one connection factory for
+the bus and another for business messages, you need to create both,
+and annotate them `@*ConnectionFactory` and `@Primary` respectively.
+
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
 

@@ -16,9 +16,8 @@
 
 package org.springframework.cloud.netflix.hystrix.amqp;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.hystrix.HystrixCircuitBreaker;
 
 /**
+ * Autoconfiguration for a Spring Cloud Hystrix on AMQP. Enabled by default if
+ * spring-rabbit is on the classpath, and can be switched off with
+ * <code>spring.cloud.bus.amqp.enabled</code>. If there is a single
+ * {@link ConnectionFactory} in the context it will be used, or if there is a one
+ * qualified as <code>@HystrixConnectionFactory</code> it will be preferred over others,
+ * otherwise the <code>@Primary</code> one will be used. If there are multiple unqualified
+ * connection factories there will be an autowiring error. Note that Spring Boot (as of
+ * 1.2.2) creates a ConnectionFactory that is <i>not</i> <code>@Primary</code>, so if you
+ * want to use one connection factory for the bus and another for business messages, you
+ * need to create both, and annotate them <code>@HystrixConnectionFactory</code> and
+ * <code>@Primary</code> respectively.
+ *
  * @author Spencer Gibb
+ * @author Dave Syer
  */
 @Configuration
 @ConditionalOnClass({ HystrixCircuitBreaker.class, RabbitTemplate.class })
@@ -49,16 +61,26 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 @EnableScheduling
 public class HystrixStreamAutoConfiguration {
 
-	@Autowired
-	private RabbitTemplate amqpTemplate;
+	@Autowired(required = false)
+	@HystrixConnectionFactory
+	private ConnectionFactory hystrixConnectionFactory;
+
+	@Autowired(required = false)
+	private ConnectionFactory primaryConnectionFactory;
 
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
 
-	@PostConstruct
-	public void init() {
-		Jackson2JsonMessageConverter converter = messageConverter();
-		this.amqpTemplate.setMessageConverter(converter);
+	private RabbitTemplate amqpTemplate;
+
+	public RabbitTemplate amqpTemplate() {
+		if (this.amqpTemplate == null) {
+			RabbitTemplate amqpTemplate = new RabbitTemplate(connectionFactory());
+			Jackson2JsonMessageConverter converter = messageConverter();
+			amqpTemplate.setMessageConverter(converter);
+			this.amqpTemplate = amqpTemplate;
+		}
+		return this.amqpTemplate;
 	}
 
 	@Bean
@@ -95,6 +117,13 @@ public class HystrixStreamAutoConfiguration {
 				 */
 				.handle(Amqp.outboundAdapter(this.amqpTemplate).exchangeName(
 						HystrixConstants.HYSTRIX_STREAM_NAME)).get();
+	}
+
+	private ConnectionFactory connectionFactory() {
+		if (this.hystrixConnectionFactory != null) {
+			return this.hystrixConnectionFactory;
+		}
+		return this.primaryConnectionFactory;
 	}
 
 	private Jackson2JsonMessageConverter messageConverter() {

@@ -19,8 +19,6 @@ package org.springframework.cloud.netflix.turbine.amqp;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -42,26 +40,46 @@ import org.springframework.integration.dsl.amqp.Amqp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
+ * Autoconfiguration for a Spring Cloud Turbine on AMQP. Enabled by default if
+ * spring-rabbit is on the classpath, and can be switched off with
+ * <code>spring.cloud.bus.amqp.enabled</code>. If there is a single
+ * {@link ConnectionFactory} in the context it will be used, or if there is a one
+ * qualified as <code>@TurbineConnectionFactory</code> it will be preferred over others,
+ * otherwise the <code>@Primary</code> one will be used. If there are multiple unqualified
+ * connection factories there will be an autowiring error. Note that Spring Boot (as of
+ * 1.2.2) creates a ConnectionFactory that is <i>not</i> <code>@Primary</code>, so if you
+ * want to use one connection factory for the bus and another for business messages, you
+ * need to create both, and annotate them <code>@TurbineConnectionFactory</code> and
+ * <code>@Primary</code> respectively.
+ *
  * @author Spencer Gibb
+ * @author Dave Syer
  */
 @Configuration
 @ConditionalOnClass(AmqpTemplate.class)
 @ConditionalOnProperty(value = "turbine.amqp.enabled", matchIfMissing = true)
 public class TurbineAmqpAutoConfiguration {
 
-	@Autowired
-	private ConnectionFactory connectionFactory;
+	@Autowired(required = false)
+	@TurbineConnectionFactory
+	private ConnectionFactory turbineConnectionFactory;
 
-	@Autowired
-	private RabbitTemplate amqpTemplate;
+	@Autowired(required = false)
+	private ConnectionFactory primaryConnectionFactory;
 
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
 
-	@PostConstruct
-	public void init() {
-		Jackson2JsonMessageConverter converter = messageConverter();
-		this.amqpTemplate.setMessageConverter(converter);
+	private RabbitTemplate amqpTemplate;
+
+	public RabbitTemplate amqpTemplate() {
+		if (this.amqpTemplate == null) {
+			RabbitTemplate amqpTemplate = new RabbitTemplate(connectionFactory());
+			Jackson2JsonMessageConverter converter = messageConverter();
+			amqpTemplate.setMessageConverter(converter);
+			this.amqpTemplate = amqpTemplate;
+		}
+		return this.amqpTemplate;
 	}
 
 	@Bean
@@ -80,14 +98,15 @@ public class TurbineAmqpAutoConfiguration {
 	public Queue hystrixStreamQueue() {
 		Map<String, Object> args = new HashMap<>();
 		args.put("x-message-ttl", 60000); // TODO: configure TTL
-		Queue queue = new Queue(HystrixConstants.HYSTRIX_STREAM_NAME, false, false, false, args);
+		Queue queue = new Queue(HystrixConstants.HYSTRIX_STREAM_NAME, false, false,
+				false, args);
 		return queue;
 	}
 
 	@Bean
 	public IntegrationFlow hystrixStreamAggregatorInboundFlow() {
 		return IntegrationFlows
-				.from(Amqp.inboundAdapter(this.connectionFactory, hystrixStreamQueue())
+				.from(Amqp.inboundAdapter(connectionFactory(), hystrixStreamQueue())
 						.messageConverter(messageConverter()))
 				.channel("hystrixStreamAggregator").get();
 	}
@@ -95,6 +114,13 @@ public class TurbineAmqpAutoConfiguration {
 	@Bean
 	public Aggregator hystrixStreamAggregator() {
 		return new Aggregator();
+	}
+
+	private ConnectionFactory connectionFactory() {
+		if (this.turbineConnectionFactory != null) {
+			return this.turbineConnectionFactory;
+		}
+		return this.primaryConnectionFactory;
 	}
 
 	private Jackson2JsonMessageConverter messageConverter() {
