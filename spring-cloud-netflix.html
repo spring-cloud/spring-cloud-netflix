@@ -1033,6 +1033,26 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_customizing_the_amqp_connectionfactory">Customizing the AMQP ConnectionFactory</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you are using AMQP there needs to be a <code>ConnectionFactory</code> (from
+Spring Rabbit) in the application context. If there is a single
+<code>ConnectionFactory</code> it will be used, or if there is a one qualified as
+<code>@HystrixConnectionFactory</code> (on the client) and
+<code>@TurbineConnectionFactory</code> (on the server) it will be preferred over
+others, otherwise the <code>@Primary</code> one will be used. If there are
+multiple unqualified connection factories there will be an error.</p>
+</div>
+<div class="paragraph">
+<p>Note that Spring Boot (as of 1.2.2) creates a <code>ConnectionFactory</code> that
+is <em>not</em> <code>@Primary</code>, so if you want to use one connection factory for
+the bus and another for business messages, you need to create both,
+and annotate them <code>@*ConnectionFactory</code> and <code>@Primary</code> respectively.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="spring-cloud-ribbon">Client Side Load Balancer: Ribbon</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -1605,7 +1625,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-02-27 12:28:45 UTC
+Last updated 2015-02-27 12:33:26 UTC
 </div>
 </div>
 </body>
