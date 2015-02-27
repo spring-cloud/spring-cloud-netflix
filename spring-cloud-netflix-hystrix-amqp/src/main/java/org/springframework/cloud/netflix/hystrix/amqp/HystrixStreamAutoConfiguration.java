@@ -111,11 +111,11 @@ public class HystrixStreamAutoConfiguration {
 				// TODO: set content type
 				/*
 				 * .enrichHeaders(new ComponentConfigurer<HeaderEnricherSpec>() {
-				 * 
+				 *
 				 * @Override public void configure(HeaderEnricherSpec spec) {
 				 * spec.header("content-type", "application/json", true); } })
 				 */
-				.handle(Amqp.outboundAdapter(this.amqpTemplate).exchangeName(
+				.handle(Amqp.outboundAdapter(amqpTemplate()).exchangeName(
 						HystrixConstants.HYSTRIX_STREAM_NAME)).get();
 	}
 
