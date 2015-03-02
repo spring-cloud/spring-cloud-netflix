@@ -35,6 +35,7 @@ import com.netflix.loadbalancer.ServerStats;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
@@ -81,6 +82,16 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		assertServiceInstance(server, serviceInstance);
+	}
+
+	@Test
+	public void testChooseMissing() {
+		given(this.clientFactory.getLoadBalancer(this.loadBalancer.getName()))
+				.willReturn(null);
+		given(this.loadBalancer.getName()).willReturn("missingservice");
+		RibbonLoadBalancerClient client = new RibbonLoadBalancerClient(this.clientFactory);
+		ServiceInstance instance = client.choose("missingservice");
+		assertNull("instance wasn't null", instance);
 	}
 
 	@Test

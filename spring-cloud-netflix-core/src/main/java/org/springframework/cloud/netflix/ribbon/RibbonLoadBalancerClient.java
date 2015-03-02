@@ -53,7 +53,11 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-		return new RibbonServer(serviceId, getServer(serviceId));
+		Server server = getServer(serviceId);
+		if (server == null) {
+			return null;
+		}
+		return new RibbonServer(serviceId, server);
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
-		Server server = getServer(serviceId, loadBalancer);
+		Server server = getServer(loadBalancer);
 		RibbonServer ribbonServer = new RibbonServer(serviceId, server);
 
 		ServerStats serverStats = context.getServerStats(server);
@@ -88,16 +92,14 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	protected Server getServer(String serviceId) {
-		return getServer(serviceId, getLoadBalancer(serviceId));
+		return getServer(getLoadBalancer(serviceId));
 	}
 
-	protected Server getServer(String serviceId, ILoadBalancer loadBalancer) {
-		Server server = loadBalancer.chooseServer("default");
-		if (server == null) {
-			throw new IllegalStateException(
-					"Unable to locate ILoadBalancer for service: " + serviceId);
+	protected Server getServer(ILoadBalancer loadBalancer) {
+		if (loadBalancer == null) {
+			return null;
 		}
-		return server;
+		return loadBalancer.chooseServer("default"); //TODO: better handling of key
 	}
 
 	protected ILoadBalancer getLoadBalancer(String serviceId) {
