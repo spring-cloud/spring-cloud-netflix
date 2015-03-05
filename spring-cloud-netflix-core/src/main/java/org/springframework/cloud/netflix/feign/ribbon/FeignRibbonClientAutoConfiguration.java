@@ -16,8 +16,12 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import feign.ribbon.LBClientFactory;
+import feign.ribbon.RibbonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
@@ -38,8 +42,18 @@ import feign.Feign;
 @Configuration
 @AutoConfigureBefore(FeignAutoConfiguration.class)
 public class FeignRibbonClientAutoConfiguration {
+
+	@Autowired
+	private SpringClientFactory factory;
+
 	@Bean
-	public Client feignRibbonClient(SpringClientFactory factory) {
-		return new FeignRibbonClient(factory);
+	public LBClientFactory lbClientFactory() {
+		return new SpringLBClientFactory(factory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public Client feignRibbonClient() {
+		return RibbonClient.builder().lbClientFactory(lbClientFactory()).build();
 	}
 }

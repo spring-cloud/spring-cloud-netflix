@@ -16,19 +16,19 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+
+import com.netflix.loadbalancer.*;
+import feign.ribbon.RibbonClient;
 import org.hamcrest.CustomMatcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
 
 import feign.Client;
 import feign.Request;
@@ -37,11 +37,12 @@ import feign.RequestTemplate;
 
 /**
  * @author Dave Syer
+ * @author Spencer Gibb
  */
 public class FeignRibbonClientTests {
 
-	private ILoadBalancer loadBalancer = Mockito.mock(ILoadBalancer.class);
-	private Client delegate = Mockito.mock(Client.class);
+	private AbstractLoadBalancer loadBalancer = mock(AbstractLoadBalancer.class);
+	private Client delegate = mock(Client.class);
 
 	private SpringClientFactory factory = new SpringClientFactory() {
 		@Override
@@ -58,13 +59,21 @@ public class FeignRibbonClientTests {
 		}
 	};
 
-	private FeignRibbonClient client = new FeignRibbonClient(this.factory);
+	// Even though we don't maintain FeignRibbonClient, keep these tests
+	// around to make sure the expected behaviour doesn't break
+	private Client client = RibbonClient.builder()
+			.lbClientFactory(new SpringLBClientFactory(factory))
+			.delegate(delegate)
+			.build();
 
 	@Before
 	public void init() {
-		ReflectionTestUtils.setField(this.client, "defaultClient", this.delegate);
-		Mockito.when(this.loadBalancer.chooseServer(Matchers.any())).thenReturn(
+		when(this.loadBalancer.chooseServer(any())).thenReturn(
 				new Server("foo.com", 8000));
+		//to fix NPE
+		LoadBalancerStats stats = mock(LoadBalancerStats.class);
+		when(this.loadBalancer.getLoadBalancerStats()).thenReturn(stats);
+		when(stats.getSingleServerStat(any(Server.class))).thenReturn(mock(ServerStats.class));
 	}
 
 	@Test
@@ -73,8 +82,8 @@ public class FeignRibbonClientTests {
 				.request();
 		this.client.execute(request, new Options());
 		RequestMatcher matcher = new RequestMatcher("http://foo.com:8000/");
-		Mockito.verify(this.delegate).execute(Matchers.argThat(matcher),
-				Matchers.any(Options.class));
+		verify(this.delegate).execute(argThat(matcher),
+				any(Options.class));
 	}
 
 	@Test
@@ -83,8 +92,8 @@ public class FeignRibbonClientTests {
 				.request();
 		this.client.execute(request, new Options());
 		RequestMatcher matcher = new RequestMatcher("https://foo.com:8000/");
-		Mockito.verify(this.delegate).execute(Matchers.argThat(matcher),
-				Matchers.any(Options.class));
+		verify(this.delegate).execute(argThat(matcher),
+				any(Options.class));
 	}
 
 	private final static class RequestMatcher extends CustomMatcher<Request> {

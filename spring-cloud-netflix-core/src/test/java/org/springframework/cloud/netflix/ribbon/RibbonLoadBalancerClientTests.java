@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 import java.net.URI;
 import java.net.URL;
 
+import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -66,11 +67,21 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	public void reconstructURI() throws Exception {
+	public void reconstructURI() {
+		testReconstructURI("http");
+	}
+
+	@Test
+	public void reconstructSecureURI() throws Exception {
+		testReconstructURI("https");
+	}
+
+	@SneakyThrows
+	private void testReconstructURI(String scheme) {
 		RibbonServer server = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
-		URI uri = client.reconstructURI(serviceInstance, new URL("http://"
+		URI uri = client.reconstructURI(serviceInstance, new URL(scheme +"://"
 				+ server.getServiceId()).toURI());
 		assertEquals(server.getHost(), uri.getHost());
 		assertEquals(server.getPort(), uri.getPort());
