@@ -16,6 +16,16 @@
 		<docs.main>spring-cloud-netflix</docs.main>
 		<main.basedir>${basedir}/..</main.basedir>
 	</properties>
+ 	<build>
+		<plugins>
+	        <plugin>
+		      <artifactId>maven-deploy-plugin</artifactId>
+		      <configuration>
+		        <skip>true</skip>
+		      </configuration>
+	        </plugin>
+		</plugins>
+	</build>
 	<profiles>
 		<profile>
 			<id>docs</id>
