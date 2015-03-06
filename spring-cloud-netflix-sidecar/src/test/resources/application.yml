@@ -17,6 +17,7 @@ eureka:
 
 ribbon:
   ServerListRefreshInterval: 5000
+  ReadTimeout: 7777
 
 endpoints:
   refresh:
