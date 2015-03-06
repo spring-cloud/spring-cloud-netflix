@@ -21,8 +21,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import javax.ws.rs.core.MultivaluedMap;
-
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpRequest.Builder;
 import com.netflix.client.http.HttpRequest.Verb;
@@ -37,6 +35,7 @@ import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import com.netflix.niws.client.http.RestClient;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.util.MultiValueMap;
 
 /**
  * Hystrix wrapper around Eureka Ribbon command
@@ -45,6 +44,7 @@ import com.netflix.zuul.context.RequestContext;
  * https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/
  * netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java
  */
+@SuppressWarnings("deprecation")
 public class RibbonCommand extends HystrixCommand<HttpResponse> {
 
 	private RestClient restClient;
@@ -55,24 +55,24 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 	
 	private Boolean retryable;
 
-	private MultivaluedMap<String, String> headers;
+	private MultiValueMap<String, String> headers;
 
-	private MultivaluedMap<String, String> params;
+	private MultiValueMap<String, String> params;
 
 	private InputStream requestEntity;
 
 	public RibbonCommand(RestClient restClient, Verb verb, String uri,
 			Boolean retryable,
-			MultivaluedMap<String, String> headers,
-			MultivaluedMap<String, String> params, InputStream requestEntity)
+			MultiValueMap<String, String> headers,
+            MultiValueMap<String, String> params, InputStream requestEntity)
 			throws URISyntaxException {
 		this("default", restClient, verb, uri, retryable , headers, params, requestEntity);
 	}
 
 	public RibbonCommand(String commandKey, RestClient restClient, Verb verb, String uri,
 			Boolean retryable,
-			MultivaluedMap<String, String> headers,
-			MultivaluedMap<String, String> params, InputStream requestEntity)
+            MultiValueMap<String, String> headers,
+            MultiValueMap<String, String> params, InputStream requestEntity)
 			throws URISyntaxException {
 		super(getSetter(commandKey));
 		this.restClient = restClient;

@@ -20,13 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MultivaluedMap;
 
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -43,7 +41,6 @@ import com.netflix.niws.client.http.RestClient;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 @CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
@@ -125,7 +122,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		Map<String, Object> info = this.helper.debug(verb.verb(), uri, headers, params,
 				requestEntity);
 		RibbonCommand command = new RibbonCommand(service, restClient, verb, uri, retryable,
-				convertHeaders(headers), convertHeaders(params), requestEntity);
+				headers, params, requestEntity);
 		try {
 			HttpResponse response = command.execute();
 			this.helper.appendDebug(info, response.getStatus(),
@@ -150,18 +147,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	private MultiValueMap<String, String> revertHeaders(
 			Map<String, Collection<String>> headers) {
-		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		for (Entry<String, Collection<String>> entry : headers.entrySet()) {
-			map.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
-		}
-		return map;
-	}
-
-	private MultivaluedMap<String, String> convertHeaders(
-			MultiValueMap<String, String> headers) {
-		MultivaluedMap<String, String> map = new MultivaluedMapImpl();
-		for (Entry<String, List<String>> entry : headers.entrySet()) {
-			map.put(entry.getKey(), entry.getValue());
+			map.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 		}
 		return map;
 	}

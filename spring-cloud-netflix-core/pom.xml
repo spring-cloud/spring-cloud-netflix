@@ -54,6 +54,11 @@
 			<artifactId>eureka-core</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>com.netflix.ribbon</groupId>
+			<artifactId>ribbon-loadbalancer</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<!-- Eureka core deps that are now optional -->
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
