@@ -18,10 +18,12 @@ package org.springframework.cloud.netflix.rx;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import rx.Observable;
+import rx.functions.Action1;
 
 /**
  * Handles return values of type {@link rx.Observable}.
@@ -44,7 +46,20 @@ public class ObservableReturnValueHandler implements HandlerMethodReturnValueHan
 
 		Observable<?> observable = Observable.class.cast(returnValue);
 
-		ObservableDeferredResult<?> deferredResult = new ObservableDeferredResult<>(observable);
+		final DeferredResult<Object> deferredResult = new DeferredResult<>();
+
+        observable.subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object o) {
+                deferredResult.setResult(o);
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                deferredResult.setErrorResult(throwable);
+            }
+        });
+
 		WebAsyncUtils.getAsyncManager(webRequest)
 				.startDeferredResultProcessing(deferredResult, mavContainer);
 	}
