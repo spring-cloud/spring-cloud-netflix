@@ -37,6 +37,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -76,15 +77,21 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		if (contentType == null) {
 			return false;
 		}
-		// Only use this filter for form data
+		// Only use this filter for form data and only for multipart data in a
+		// DispatcherServlet handler
 		try {
 			MediaType mediaType = MediaType.valueOf(contentType);
 			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
-					|| MediaType.MULTIPART_FORM_DATA.includes(mediaType);
+					|| (isDispatcherServletRequest(request) && MediaType.MULTIPART_FORM_DATA
+							.includes(mediaType));
 		}
 		catch (InvalidMediaTypeException ex) {
 			return false;
 		}
+	}
+
+	private boolean isDispatcherServletRequest(HttpServletRequest request) {
+		return request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
 	}
 
 	@Override

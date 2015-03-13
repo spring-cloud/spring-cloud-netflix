@@ -51,6 +51,8 @@ public class ZuulProperties {
 
 	private List<String> ignoredServices = new ArrayList<String>();
 
+	private String servletPath = "/zuul";
+
 	@PostConstruct
 	public void init() {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {
@@ -130,6 +132,17 @@ public class ZuulProperties {
 			return path;
 		}
 
+	}
+
+	public String getServletPattern() {
+		String path = this.servletPath;
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		if (!path.contains("*")) {
+			path = path.endsWith("/") ? (path + "*") : (path + "/*");
+		}
+		return path;
 	}
 
 }

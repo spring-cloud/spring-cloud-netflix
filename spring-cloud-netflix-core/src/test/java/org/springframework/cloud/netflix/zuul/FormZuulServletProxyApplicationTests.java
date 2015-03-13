@@ -63,11 +63,11 @@ import com.netflix.zuul.ZuulFilter;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FormZuulProxyApplication.class)
+@SpringApplicationConfiguration(classes = FormZuulServletProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port:0", "zuul.routes.simple:/simple/**" })
+@IntegrationTest({ "server.port:0", "zuul.routes.simple:/zuul/simple/**" })
 @DirtiesContext
-public class FormZuulProxyApplicationTests {
+public class FormZuulServletProxyApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
@@ -79,7 +79,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
+				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -93,7 +93,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
+				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -110,7 +110,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/file", HttpMethod.POST,
+				"http://localhost:" + this.port + "/zuul/simple/file", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, Object>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -125,7 +125,7 @@ public class FormZuulProxyApplicationTests {
 		headers.setContentType(MediaType
 				.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
+				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -138,11 +138,9 @@ public class FormZuulProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClients({
-		@RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
-		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class) })
+@RibbonClients(@RibbonClient(name = "simple", configuration = ServletFormRibbonClientConfiguration.class))
 @Slf4j
-class FormZuulProxyApplication {
+class FormZuulServletProxyApplication {
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String accept(@RequestParam MultiValueMap<String, String> form)
@@ -214,8 +212,9 @@ class FormZuulProxyApplication {
 
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(FormZuulProxyApplication.class).properties(
-				"zuul.routes.simple:/simple/**",
+				"zuul.routes.simple:/zuul/simple/**",
 				"zuul.routes.direct.url:http://localhost:9999",
+				"zuul.routes.direct.path:/zuul/direct/**",
 				"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB").run(
 				args);
 	}
@@ -224,7 +223,7 @@ class FormZuulProxyApplication {
 
 // Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
-class FormRibbonClientConfiguration {
+class ServletFormRibbonClientConfiguration {
 
 	@Bean
 	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {

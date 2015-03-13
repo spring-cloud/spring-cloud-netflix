@@ -860,6 +860,37 @@ An application with the `@EnableZuulProxy` could act as a standalone
 server if you set a default route ("/"), for example `zuul.route.home:
 /` would route all traffic (i.e. "/**") to the "home" service.
 
+=== Uploading Files through Zuul
+
+If you `@EnableZuulProxy` you can use the proxy paths to
+upload files and it should just work as long as the files
+are small. For large files there is an alternative path 
+which bypasses the Spring `DispatcherServlet` (to 
+avoid multipart processing) in "/zuul/*". I.e. if
+`zuul.routes.customers=/customers/**` then you can 
+POST large files to "/zuul/customers/*". The servlet
+path is externalized via `zuul.servletPath`. Extremely
+large files will also require elevated timeout settings
+if the proxy route takes you through a Ribbon load
+balancer, e.g.
+
+.application.yml
+[source,yaml]
+----
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000
+----
+
+Note that for streaming to work with large files, you need to use chunked encoding in the request (which some browsers
+do not do by default). E.g. on the command line:
+
+----
+$ curl -v -H "Transfer-Encoding: chunked" \
+    -F "file=@mylarge.iso" localhost:9999/zuul/simple/file
+----
+
 === Plain Embedded Zuul
 
 You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you

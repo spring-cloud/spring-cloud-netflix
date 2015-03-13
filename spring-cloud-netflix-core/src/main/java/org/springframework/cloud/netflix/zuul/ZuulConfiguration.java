@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -71,6 +72,12 @@ public class ZuulConfiguration {
 	@Bean
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
+	}
+
+	@Bean
+	public ServletRegistrationBean zuulServlet() {
+		return new ServletRegistrationBean(new ZuulServlet(),
+				this.zuulProperties.getServletPattern());
 	}
 
 	// pre filters

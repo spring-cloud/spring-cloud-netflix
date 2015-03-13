@@ -14,6 +14,10 @@ eureka:
     fetchRegistry: false
 #error:
 #  path: /myerror
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000
 management:
   context-path: /admin
 endpoints:
