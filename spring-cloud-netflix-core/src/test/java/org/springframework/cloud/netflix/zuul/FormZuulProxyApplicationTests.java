@@ -17,13 +17,19 @@
 package org.springframework.cloud.netflix.zuul;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
+import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -58,7 +64,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FormZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port: 0", "zuul.routes.simple: /simple/**" })
+@IntegrationTest({ "server.port:0", "zuul.routes.simple:/simple/**" })
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
@@ -72,7 +78,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
+				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -86,7 +92,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
+				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -118,7 +124,7 @@ public class FormZuulProxyApplicationTests {
 		headers.setContentType(MediaType
 				.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
+				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -132,9 +138,10 @@ public class FormZuulProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class)
+@Slf4j
 class FormZuulProxyApplication {
 
-	@RequestMapping(value = "/", method = RequestMethod.POST)
+	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String accept(@RequestParam MultiValueMap<String, String> form)
 			throws IOException {
 		return "Posted! " + form;
@@ -144,7 +151,22 @@ class FormZuulProxyApplication {
 	@RequestMapping(value = "/file", method = RequestMethod.POST)
 	public String file(@RequestParam(required = false) MultipartFile file)
 			throws IOException {
-		return "Posted! " + (file == null ? "" : new String(file.getBytes()));
+		byte[] bytes = new byte[0];
+		if (file != null) {
+			if (file.getSize() > 1024) {
+				bytes = new byte[1024];
+				InputStream inputStream = file.getInputStream();
+				inputStream.read(bytes);
+				byte[] buffer = new byte[1024 * 1024 * 10];
+				while (inputStream.read(buffer) >= 0) {
+					log.info("Read more bytes");
+				}
+			}
+			else {
+				bytes = file.getBytes();
+			}
+		}
+		return "Posted! " + new String(bytes);
 	}
 
 	@Bean
@@ -174,8 +196,23 @@ class FormZuulProxyApplication {
 		};
 	}
 
+	@Bean
+	public TraceRepository traceRepository() {
+		return new InMemoryTraceRepository() {
+			@Override
+			public void add(Map<String, Object> map) {
+				if (map.containsKey("body")) {
+					map.get("body");
+				}
+				super.add(map);
+			}
+		};
+	}
+
 	public static void main(String[] args) {
-		SpringApplication.run(FormZuulProxyApplication.class, args);
+		new SpringApplicationBuilder(FormZuulProxyApplication.class).properties(
+				"zuul.routes.simple:/simple/**", "multipart.maxFileSize:4096MB",
+				"multipart.maxRequestSize:4096MB").run(args);
 	}
 
 }

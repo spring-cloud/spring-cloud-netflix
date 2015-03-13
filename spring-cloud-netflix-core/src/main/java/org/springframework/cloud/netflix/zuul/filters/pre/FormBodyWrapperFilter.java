@@ -108,7 +108,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		return null;
 	}
 
-	private class FormBodyRequestWrapper extends HttpServletRequestWrapper {
+	private class FormBodyRequestWrapper extends Servlet30RequestWrapper {
 
 		private HttpServletRequest request;
 
@@ -135,6 +135,9 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		@Override
 		public int getContentLength() {
+			if (super.getContentLength() <= 0) {
+				return super.getContentLength();
+			}
 			if (this.contentData == null) {
 				buildContentData();
 			}
@@ -143,15 +146,10 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		@Override
 		public ServletInputStream getInputStream() throws IOException {
-			if (RequestContext.getCurrentContext().isChunkedRequestBody()) {
-				return this.request.getInputStream();
+			if (this.contentData == null) {
+				buildContentData();
 			}
-			else {
-				if (this.contentData == null) {
-					buildContentData();
-				}
-				return new ServletInputStreamWrapper(this.contentData);
-			}
+			return new ServletInputStreamWrapper(this.contentData);
 		}
 
 		private synchronized void buildContentData() {

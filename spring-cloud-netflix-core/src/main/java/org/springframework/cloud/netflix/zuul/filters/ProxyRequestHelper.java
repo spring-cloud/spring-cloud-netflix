@@ -226,9 +226,14 @@ public class ProxyRequestHelper {
 
 	private void debugRequestEntity(Map<String, Object> info, InputStream inputStream)
 			throws IOException {
+		if (RequestContext.getCurrentContext().isChunkedRequestBody()) {
+			info.put("body", "<chunked>");
+			return;
+		}
 		String entity = IOUtils.toString(inputStream);
 		if (StringUtils.hasText(entity)) {
-			info.put("body", entity);
+			info.put("body", entity.length() <= 4096 ? entity : entity.substring(0, 4096)
+					+ "<truncated>");
 		}
 	}
 
