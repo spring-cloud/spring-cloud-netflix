@@ -1490,6 +1490,41 @@ server if you set a default route ("/"), for example <code>zuul.route.home:
 </div>
 </div>
 <div class="sect2">
+<h3 id="_uploading_files_through_zuul">Uploading Files through Zuul</h3>
+<div class="paragraph">
+<p>If you <code>@EnableZuulProxy</code> you can use the proxy paths to
+upload files and it should just work as long as the files
+are small. For large files there is an alternative path
+which bypasses the Spring <code>DispatcherServlet</code> (to
+avoid multipart processing) in "/zuul/<strong>". I.e. if
+<code>zuul.routes.customers=/customers/</strong>*</code> then you can
+POST large files to "/zuul/customers/*". The servlet
+path is externalized via <code>zuul.servletPath</code>. Extremely
+large files will also require elevated timeout settings
+if the proxy route takes you through a Ribbon load
+balancer, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that for streaming to work with large files, you need to use chunked encoding in the request (which some browsers
+do not do by default). E.g. on the command line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ curl -v -H "Transfer-Encoding: chunked" \
+    -F "file=@mylarge.iso" localhost:9999/zuul/simple/file</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_plain_embedded_zuul">Plain Embedded Zuul</h3>
 <div class="paragraph">
 <p>You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
@@ -1625,7 +1660,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-13 16:45:47 UTC
+Last updated 2015-03-13 16:56:16 UTC
 </div>
 </div>
 </body>
