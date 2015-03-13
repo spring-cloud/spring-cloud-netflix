@@ -722,40 +722,6 @@ springBoot {
 </tr>
 </table>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>The Eureka server is tied to log4j and doesn&#8217;t work with logback,
-so the dependency configuration
-has to be tweaked compared to a normal Spring Boot app. The
-<code>spring-cloud-starter-eureka-server</code> does this for you, but if you
-add logback transitively through another dependency you will need to
-exclude it manually, e.g. in Maven</p>
-</div>
-<div class="listingblock">
-<div class="title">pom.xml</div>
-<div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-    &lt;exclusions&gt;
-        &lt;exclusion&gt;
-            &lt;artifactId&gt;spring-boot-starter-logging&lt;/artifactId&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-        &lt;/exclusion&gt;
-    &lt;/exclusions&gt;
-&lt;/dependency&gt;</code></pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
-</div>
 <div class="sect2">
 <h3 id="_high_availability_zones_and_regions">High Availability, Zones and Regions</h3>
 <div class="paragraph">
@@ -1660,7 +1626,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-13 16:56:16 UTC
+Last updated 2015-03-13 17:15:59 UTC
 </div>
 </div>
 </body>
