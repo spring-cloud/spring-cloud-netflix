@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.hystrix.amqp;
 
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +112,7 @@ public class HystrixStreamAutoConfiguration {
 				// TODO: set content type
 				/*
 				 * .enrichHeaders(new ComponentConfigurer<HeaderEnricherSpec>() {
-				 *
+				 * 
 				 * @Override public void configure(HeaderEnricherSpec spec) {
 				 * spec.header("content-type", "application/json", true); } })
 				 */
@@ -121,6 +122,9 @@ public class HystrixStreamAutoConfiguration {
 
 	private ConnectionFactory connectionFactory() {
 		if (this.hystrixConnectionFactory != null) {
+			RabbitAdmin amqpAdmin = new RabbitAdmin(this.hystrixConnectionFactory);
+			hystrixStreamExchange().setAdminsThatShouldDeclare(amqpAdmin);
+			amqpAdmin.afterPropertiesSet();
 			return this.hystrixConnectionFactory;
 		}
 		return this.primaryConnectionFactory;

@@ -25,6 +25,7 @@ import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -105,6 +106,11 @@ public class TurbineAmqpAutoConfiguration {
 
 	private ConnectionFactory connectionFactory() {
 		if (this.turbineConnectionFactory != null) {
+			RabbitAdmin amqpAdmin = new RabbitAdmin(this.turbineConnectionFactory);
+			hystrixStreamExchange().setAdminsThatShouldDeclare(amqpAdmin);
+			localTurbineAmqpQueueBinding().setAdminsThatShouldDeclare(amqpAdmin);
+			hystrixStreamQueue().setAdminsThatShouldDeclare(amqpAdmin);
+			amqpAdmin.afterPropertiesSet();
 			return this.turbineConnectionFactory;
 		}
 		return this.primaryConnectionFactory;
