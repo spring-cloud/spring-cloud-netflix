@@ -76,13 +76,16 @@ public class ProxyRequestHelper {
 			HttpServletRequest request) {
 		RequestContext context = RequestContext.getCurrentContext();
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-		Enumeration<?> headerNames = request.getHeaderNames();
+		Enumeration<String> headerNames = request.getHeaderNames();
 		if (headerNames != null) {
 			while (headerNames.hasMoreElements()) {
-				String name = (String) headerNames.nextElement();
-				String value = request.getHeader(name);
-				if (isIncludedHeader(name)) {
-					headers.set(name, value);
+				String name = headerNames.nextElement();
+                if (isIncludedHeader(name)) {
+                    Enumeration<String> values = request.getHeaders(name);
+                    while (values.hasMoreElements()) {
+                        String value = values.nextElement();
+                        headers.add(name, value);
+                    }
 				}
 			}
 		}
