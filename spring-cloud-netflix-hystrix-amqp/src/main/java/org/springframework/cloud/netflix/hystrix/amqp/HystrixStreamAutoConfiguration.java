@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.IntegrationComponentScan;
@@ -68,6 +69,9 @@ public class HystrixStreamAutoConfiguration {
 
 	@Autowired(required = false)
 	private ConnectionFactory primaryConnectionFactory;
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
@@ -112,7 +116,7 @@ public class HystrixStreamAutoConfiguration {
 				// TODO: set content type
 				/*
 				 * .enrichHeaders(new ComponentConfigurer<HeaderEnricherSpec>() {
-				 * 
+				 *
 				 * @Override public void configure(HeaderEnricherSpec spec) {
 				 * spec.header("content-type", "application/json", true); } })
 				 */
@@ -124,6 +128,7 @@ public class HystrixStreamAutoConfiguration {
 		if (this.hystrixConnectionFactory != null) {
 			RabbitAdmin amqpAdmin = new RabbitAdmin(this.hystrixConnectionFactory);
 			hystrixStreamExchange().setAdminsThatShouldDeclare(amqpAdmin);
+			amqpAdmin.setApplicationContext(this.context);
 			amqpAdmin.afterPropertiesSet();
 			return this.hystrixConnectionFactory;
 		}

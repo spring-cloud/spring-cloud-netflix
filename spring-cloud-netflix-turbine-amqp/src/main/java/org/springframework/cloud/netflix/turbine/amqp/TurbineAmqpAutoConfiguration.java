@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.dsl.IntegrationFlow;
@@ -59,6 +60,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ConditionalOnClass(AmqpTemplate.class)
 @ConditionalOnProperty(value = "turbine.amqp.enabled", matchIfMissing = true)
 public class TurbineAmqpAutoConfiguration {
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired(required = false)
 	@TurbineConnectionFactory
@@ -110,6 +114,7 @@ public class TurbineAmqpAutoConfiguration {
 			hystrixStreamExchange().setAdminsThatShouldDeclare(amqpAdmin);
 			localTurbineAmqpQueueBinding().setAdminsThatShouldDeclare(amqpAdmin);
 			hystrixStreamQueue().setAdminsThatShouldDeclare(amqpAdmin);
+			amqpAdmin.setApplicationContext(this.context);
 			amqpAdmin.afterPropertiesSet();
 			return this.turbineConnectionFactory;
 		}
