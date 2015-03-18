@@ -38,7 +38,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 		if (attrs != null && attrs.containsKey("value")) {
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
 			for (AnnotationAttributes client : clients) {
-				registerClientConfiguration(registry, client.get("name"),
+				registerClientConfiguration(registry, getClientName(client),
 						client.get("configuration"));
 			}
 		}
@@ -60,11 +60,10 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			return null;
 		}
 		String value = (String) client.get("value");
-		if (value != null && StringUtils.hasText(value)) {
-			return value;
+		if (!StringUtils.hasText(value)) {
+			value = (String) client.get("name");
 		}
-		value = (String) client.get("name");
-		if (value != null && StringUtils.hasText(value)) {
+		if (StringUtils.hasText(value)) {
 			return value;
 		}
 		throw new IllegalStateException(

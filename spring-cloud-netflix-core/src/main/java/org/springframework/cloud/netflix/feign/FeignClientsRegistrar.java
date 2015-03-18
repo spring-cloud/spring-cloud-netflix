@@ -17,6 +17,8 @@
 package org.springframework.cloud.netflix.feign;
 
 import java.lang.annotation.Annotation;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -117,10 +119,21 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	}
 
 	private String getServiceId(Map<String, Object> attributes) {
-		if (StringUtils.hasText((String) attributes.get("name"))) {
-			return (String) attributes.get("name");
+		String name = (String) attributes.get("name");
+		if (!StringUtils.hasText(name)) {
+			name = (String) attributes.get("value");
 		}
-		return (String) attributes.get("value");
+		if (!StringUtils.hasText(name)) {
+			return "";
+		}
+		String host = null;
+		try {
+			host = new URI("http://" + name).getHost();
+		}
+		catch (URISyntaxException e) {
+		}
+		Assert.state(host != null, "Service id not legal hostname (" + name + ")");
+		return name;
 	}
 
 	private String getUrl(Map<String, Object> attributes) {
