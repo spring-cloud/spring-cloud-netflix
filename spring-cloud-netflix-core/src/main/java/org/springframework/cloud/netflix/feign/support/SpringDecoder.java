@@ -16,21 +16,20 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import javax.inject.Provider;
-
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.HttpMessageConverterExtractor;
-
-import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
 
 import feign.FeignException;
 import feign.Response;
@@ -43,7 +42,7 @@ import feign.codec.Decoder;
 public class SpringDecoder implements Decoder {
 
 	@Autowired
-	private Provider<HttpMessageConverters> messageConverters;
+	private ObjectFactory<HttpMessageConverters> messageConverters;
 
 	public SpringDecoder() {
 	}
@@ -54,7 +53,7 @@ public class SpringDecoder implements Decoder {
 		if (type instanceof Class || type instanceof ParameterizedType) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
-					type, this.messageConverters.get().getConverters());
+					type, this.messageConverters.getObject().getConverters());
 
 			return extractor.extractData(new FeignResponseAdapter(response));
 		}

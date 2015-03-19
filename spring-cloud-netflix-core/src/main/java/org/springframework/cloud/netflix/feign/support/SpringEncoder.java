@@ -16,16 +16,18 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
-import javax.inject.Provider;
-
 import lombok.extern.apachecommons.CommonsLog;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -37,8 +39,6 @@ import feign.RequestTemplate;
 import feign.codec.EncodeException;
 import feign.codec.Encoder;
 
-import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
-
 /**
  * @author Spencer Gibb
  */
@@ -46,10 +46,10 @@ import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttp
 public class SpringEncoder implements Encoder {
 
 	@Autowired
-	private Provider<HttpMessageConverters> messageConverters;
+	private ObjectFactory<HttpMessageConverters> messageConverters;
 
 	@Override
-	public void encode(Object requestBody, RequestTemplate request)
+	public void encode(Object requestBody, Type bodyType, RequestTemplate request)
 			throws EncodeException {
 		// template.body(conversionService.convert(object, String.class));
 		if (requestBody != null) {
@@ -62,8 +62,8 @@ public class SpringEncoder implements Encoder {
 				requestContentType = MediaType.valueOf(type);
 			}
 
-			for (HttpMessageConverter<?> messageConverter : this.messageConverters.get()
-					.getConverters()) {
+			for (HttpMessageConverter<?> messageConverter : this.messageConverters
+					.getObject().getConverters()) {
 				if (messageConverter.canWrite(requestType, requestContentType)) {
 					if (log.isDebugEnabled()) {
 						if (requestContentType != null) {
