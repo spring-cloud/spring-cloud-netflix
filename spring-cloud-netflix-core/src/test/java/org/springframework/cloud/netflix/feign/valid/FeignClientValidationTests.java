@@ -46,6 +46,7 @@ public class FeignClientValidationTests {
 		@FeignClient("foo")
 		interface Client {
 			@RequestMapping(method = RequestMethod.GET, value = "/")
+			@Deprecated
 			String get();
 		}
 
