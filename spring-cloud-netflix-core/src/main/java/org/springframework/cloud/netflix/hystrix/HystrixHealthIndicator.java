@@ -30,8 +30,8 @@ import com.netflix.hystrix.HystrixCommandMetrics;
 /**
  * A {@link HealthIndicator} implementation for Hystrix circuit breakers.
  * <p>
- * This default implementation will set the system to <code>OUT_OF_SERVICE</code> and
- * include all open circuits by name.
+ * This default implementation will not change the system state (e.g.  <code>OK</code>) but
+ * includes all open circuits by name.
  *
  * @author Christian Dupuis
  */
