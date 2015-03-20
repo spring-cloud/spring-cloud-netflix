@@ -25,6 +25,7 @@ import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
@@ -63,6 +64,13 @@ public class SidecarConfiguration {
 					+ config.getHomePageUrlPath());
 			return config;
 		}
+
+		@Bean
+		public HealthCheckHandler healthCheckHandler(
+				final LocalApplicationHealthIndicator healthIndicator) {
+			return new LocalApplicationHealthCheckHandler(healthIndicator);
+		}
+
 	}
 
 	@Bean
