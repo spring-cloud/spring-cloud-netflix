@@ -65,7 +65,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FormZuulServletProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port:0", "zuul.routes.simple:/zuul/simple/**" })
+@IntegrationTest({ "server.port:0", "zuul.routes.simple:/simple/**" })
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
