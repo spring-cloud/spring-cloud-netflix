@@ -1430,8 +1430,8 @@ and the serviceId independently:</p>
 <div class="paragraph">
 <p>This means that http calls to "/myusers" get forwarded to the
 "users_service" service.  The route has to have a "path" which can be
-specified as an ant-style pattern, so "/myusers/<strong>" only matches one
-level, but "/myusers/</strong>*" matches hierarchically.</p>
+specified as an ant-style pattern, so "/myusers/*" only matches one
+level, but "/myusers/**" matches hierarchically.</p>
 </div>
 <div class="paragraph">
 <p>The location of the backend can be specified as either a "serviceId"
@@ -1527,7 +1527,8 @@ do not do by default). E.g. on the command line:</p>
 <div class="paragraph">
 <p>You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
 use <code>@EnableZuulServer</code> (instead of <code>@EnableZuulProxy</code>). Any beans that you add to the application of type <code>ZuulFilter</code>
-will be installed automatically.</p>
+will be installed automatically, as they are with <code>@EnableZuulProxy</code>, but without any of the proxy filters being added
+automatically.</p>
 </div>
 <div class="paragraph">
 <p>In this case the routes into the Zuul server are
@@ -1658,7 +1659,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-20 11:52:06 UTC
+Last updated 2015-03-20 14:49:46 UTC
 </div>
 </div>
 </body>
