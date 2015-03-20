@@ -1203,33 +1203,6 @@ configuration like this</p>
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_spring_resttemplate_as_a_ribbon_client">Spring RestTemplate as a Ribbon Client</h3>
-<div class="paragraph">
-<p>You can use Ribbon indirectly via an autoconfigured <code>RestTemplate</code>
-(provided Spring Cloud and Ribbon are both on the classpath):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class MyClass {
-    @Autowired
-    private RestTemplate restTemplate;
-
-    public String doOtherStuff() {
-        String results = restTemplate.getForObject("http://stores/stores", String.class);
-        return results;
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The URI is inspected to see if it has a full host name, or a virtual
-one. If it is virtual the Ribbon client is used to create a full
-physical address. See
-<a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/ribbon/RibbonAutoConfiguration.java">RibbonAutoConfiguration</a>
-for details of how the <code>RestTemplate</code> is set up.</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -1659,7 +1632,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-20 14:49:46 UTC
+Last updated 2015-03-20 19:27:48 UTC
 </div>
 </div>
 </body>
