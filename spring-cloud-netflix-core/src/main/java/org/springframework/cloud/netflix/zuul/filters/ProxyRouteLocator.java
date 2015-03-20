@@ -56,7 +56,13 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties) {
-		this.servletPath = servletPath;
+	    if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
+	        this.servletPath = servletPath;
+	    } else {
+	        //set Zuul servlet path
+	        this.servletPath = properties.getServletPath() != null? properties.getServletPath() : "";
+	    }
+		
 		this.discovery = discovery;
 		this.properties = properties;
 	}
@@ -89,17 +95,22 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public ProxyRouteSpec getMatchingRoute(String path) {
+	    log.info("Finding route for path: " + path);	    
+	    
 		String location = null;
 		String targetPath = null;
 		String id = null;
 		String prefix = this.properties.getPrefix();
+		log.debug("servletPath=" + this.servletPath);
 		if (StringUtils.hasText(this.servletPath) && !this.servletPath.equals("/")
 				&& path.startsWith(this.servletPath)) {
 			path = path.substring(this.servletPath.length());
 		}
+		log.debug("path=" + path);
 		Boolean retryable = this.properties.getRetryable();
 		for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
 			String pattern = entry.getKey();
+			log.debug("Matching pattern:" + pattern);
 			if (this.pathMatcher.match(pattern, path)) {
 				ZuulRoute route = entry.getValue();
 				id = route.getId();
