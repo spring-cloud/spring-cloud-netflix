@@ -631,30 +631,6 @@ public class MyClass {
 }
 ----
 
-=== Spring RestTemplate as a Ribbon Client
-
-You can use Ribbon indirectly via an autoconfigured `RestTemplate`
-(provided Spring Cloud and Ribbon are both on the classpath):
-
-[source,java,indent=0]
-----
-public class MyClass {
-    @Autowired
-    private RestTemplate restTemplate;
-
-    public String doOtherStuff() {
-        String results = restTemplate.getForObject("http://stores/stores", String.class);
-        return results;
-    }
-}
-----
-
-The URI is inspected to see if it has a full host name, or a virtual
-one. If it is virtual the Ribbon client is used to create a full
-physical address. See
-{github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/ribbon/RibbonAutoConfiguration.java[RibbonAutoConfiguration]
-for details of how the `RestTemplate` is set up.
-
 [[spring-cloud-feign]]
 == Declarative REST Client: Feign
 
