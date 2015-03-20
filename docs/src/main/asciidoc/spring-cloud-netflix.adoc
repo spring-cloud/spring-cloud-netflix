@@ -808,7 +808,7 @@ and the serviceId independently:
 
 This means that http calls to "/myusers" get forwarded to the
 "users_service" service.  The route has to have a "path" which can be
-specified as an ant-style pattern, so "/myusers/*" only matches one
+specified as an ant-style pattern, so "/myusers/\*" only matches one
 level, but "/myusers/**" matches hierarchically. 
 
 The location of the backend can be specified as either a "serviceId"
@@ -893,7 +893,8 @@ $ curl -v -H "Transfer-Encoding: chunked" \
 
 You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
 use `@EnableZuulServer` (instead of `@EnableZuulProxy`). Any beans that you add to the application of type `ZuulFilter`
-will be installed automatically.
+will be installed automatically, as they are with `@EnableZuulProxy`, but without any of the proxy filters being added
+automatically.
 
 In this case the routes into the Zuul server are 
 still specified by configuring "zuul.routes.*", but there is no service discovery and no proxying, so the
