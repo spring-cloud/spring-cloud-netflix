@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.PreDestroy;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
@@ -76,6 +77,9 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private HealthCheckHandler healthCheckHandler;
 
 	@Autowired
+	private DiscoveryManagerInitializer discoveryManagerInitializer;
+
+	@Autowired
 	private ApplicationContext context;
 
 	@PreDestroy
@@ -94,8 +98,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		if (jerseyClientField != null) {
 			try {
 				jerseyClientField.setAccessible(true);
-				if (DiscoveryManager.getInstance() != null &&
-						DiscoveryManager.getInstance().getDiscoveryClient() != null) {
+				if (DiscoveryManager.getInstance() != null
+						&& DiscoveryManager.getInstance().getDiscoveryClient() != null) {
 					Object obj = jerseyClientField.get(DiscoveryManager.getInstance()
 							.getDiscoveryClient());
 					if (obj != null) {
@@ -119,7 +123,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
-			discoveryManagerIntitializer().init();
+			this.discoveryManagerInitializer.init();
 
 			log.info("Registering application " + this.instanceConfig.getAppname()
 					+ " with eureka with status "
@@ -142,8 +146,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
 				+ " with eureka with status OUT_OF_SERVICE");
-		ApplicationInfoManager.getInstance().setInstanceStatus(
-				InstanceStatus.OUT_OF_SERVICE);
+		if (ApplicationInfoManager.getInstance().getInfo() != null) {
+			ApplicationInfoManager.getInstance().setInstanceStatus(
+					InstanceStatus.OUT_OF_SERVICE);
+		}
 		this.running.set(false);
 	}
 
@@ -172,10 +178,15 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		return this.order;
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
-	public DiscoveryManagerInitializer discoveryManagerIntitializer() {
-		return new DiscoveryManagerInitializer();
+	@Configuration
+	protected static class DiscoveryManagerInitializerConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
+		public DiscoveryManagerInitializer discoveryManagerInitializer() {
+			return new DiscoveryManagerInitializer();
+		}
+
 	}
 
 	@Bean

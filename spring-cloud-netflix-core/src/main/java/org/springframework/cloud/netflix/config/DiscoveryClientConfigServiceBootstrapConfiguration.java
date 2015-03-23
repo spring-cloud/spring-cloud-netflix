@@ -20,7 +20,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
@@ -35,6 +35,7 @@ import org.springframework.context.event.SmartApplicationListener;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
+import com.netflix.discovery.DiscoveryManager;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -43,7 +44,7 @@ import com.netflix.discovery.DiscoveryClient;
  * @author Dave Syer
  */
 @ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
-@ConditionalOnExpression("${spring.cloud.config.discovery.enabled:false}")
+@ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
 @EnableDiscoveryClient
 @Import(EurekaClientAutoConfiguration.class)
@@ -52,9 +53,6 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 		SmartApplicationListener {
 
 	private HeartbeatMonitor monitor = new HeartbeatMonitor();
-
-	@Autowired
-	private DiscoveryClient client;
 
 	@Autowired
 	private ConfigClientProperties config;
@@ -90,8 +88,11 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	private void refresh() {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = this.client.getNextServerFromEureka(this.config
-					.getDiscovery().getServiceId(), false);
+			InstanceInfo server = DiscoveryManager
+					.getInstance()
+					.getDiscoveryClient()
+					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(),
+							false);
 			String url = server.getHomePageUrl();
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");

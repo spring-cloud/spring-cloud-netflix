@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.eureka;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
@@ -37,6 +38,9 @@ public class DiscoveryManagerInitializer {
 		if (DiscoveryManager.getInstance().getDiscoveryClient() == null) {
 			DiscoveryManager.getInstance().initComponent(this.instanceConfig,
 					this.clientConfig);
+		}
+		if (ApplicationInfoManager.getInstance().getInfo() == null) {
+			ApplicationInfoManager.getInstance().initComponent(this.instanceConfig);
 		}
 	}
 

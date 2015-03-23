@@ -16,14 +16,20 @@
 
 package org.springframework.cloud.netflix.config;
 
+import javax.annotation.PostConstruct;
+
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
@@ -34,7 +40,7 @@ import static org.mockito.BDDMockito.given;
 /**
  * @author Dave Syer
  */
-public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
+public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
@@ -46,19 +52,11 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 	@After
 	public void close() {
 		if (this.context != null) {
+			if (this.context.getParent() != null) {
+				((AnnotationConfigApplicationContext) this.context.getParent()).close();
+			}
 			this.context.close();
 		}
-	}
-
-	@Test
-	public void offByDefault() throws Exception {
-		this.context = new AnnotationConfigApplicationContext(
-				DiscoveryClientConfigServiceBootstrapConfiguration.class);
-		assertEquals(0, this.context.getBeanNamesForType(DiscoveryClient.class).length);
-		assertEquals(
-				0,
-				this.context
-						.getBeanNamesForType(DiscoveryClientConfigServiceBootstrapConfiguration.class).length);
 	}
 
 	@Test
@@ -69,47 +67,44 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		assertEquals(
 				1,
 				this.context
-						.getBeanNamesForType(DiscoveryClientConfigServiceBootstrapConfiguration.class).length);
+						.getBeanNamesForType(DiscoveryClientConfigServiceAutoConfiguration.class).length);
 		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
+		Mockito.verify(this.client).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
-	}
-
-	@Test
-	public void setsPasssword() throws Exception {
-		this.info.getMetadata().put("password", "bar");
-		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
-				this.info);
-		setup("spring.cloud.config.discovery.enabled=true");
-		ConfigClientProperties locator = this.context
-				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/", locator.getRawUri());
-		assertEquals("bar", locator.getPassword());
-		assertEquals("user", locator.getUsername());
-	}
-
-	@Test
-	public void setsPath() throws Exception {
-		this.info.getMetadata().put("configPath", "/bar");
-		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
-				this.info);
-		setup("spring.cloud.config.discovery.enabled=true");
-		ConfigClientProperties locator = this.context
-				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/bar", locator.getRawUri());
+		assertEquals("bar", ApplicationInfoManager.getInstance().getInfo().getMetadata()
+				.get("foo"));
 	}
 
 	private void setup(String... env) {
-		this.context = new AnnotationConfigApplicationContext();
-		EnvironmentTestUtils.addEnvironment(this.context, env);
-		this.context.getDefaultListableBeanFactory().registerSingleton(
-				"mockDiscoveryClient", this.client);
+		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
+		EnvironmentTestUtils.addEnvironment(parent, env);
+		parent.getDefaultListableBeanFactory().registerSingleton("mockDiscoveryClient",
+				this.client);
 		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
-		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+		parent.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
-				ConfigClientProperties.class);
+				EnvironmentKnobbler.class, ConfigClientProperties.class);
+		parent.refresh();
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.setParent(parent);
+		this.context.register(DiscoveryClientConfigServiceAutoConfiguration.class);
 		this.context.refresh();
+	}
+
+	@Configuration
+	protected static class EnvironmentKnobbler {
+
+		@Autowired
+		private ConfigurableEnvironment environment;
+
+		@PostConstruct
+		public void init() {
+			EnvironmentTestUtils.addEnvironment(this.environment,
+					"eureka.instance.metadataMap.foo:bar");
+		}
+
 	}
 
 }
