@@ -58,7 +58,9 @@ public class DiscoveryClientConfigServiceAutoConfiguration {
 		this.lifecycle.stop();
 		rebind(this.clientConfig, "eurekaClientConfig");
 		rebind(this.instanceConfig, "eurekaInstanceConfig");
-		DiscoveryManager.getInstance().getDiscoveryClient().shutdown();
+        if (DiscoveryManager.getInstance().getDiscoveryClient() != null) {
+            DiscoveryManager.getInstance().getDiscoveryClient().shutdown();
+        }
 		ApplicationInfoManager.getInstance().initComponent(this.instanceConfig);
 		DiscoveryManager.getInstance().initComponent(this.instanceConfig,
 				this.clientConfig);
