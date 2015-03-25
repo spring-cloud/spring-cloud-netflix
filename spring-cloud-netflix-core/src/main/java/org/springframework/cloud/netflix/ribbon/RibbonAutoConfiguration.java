@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.client.http.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -52,21 +53,6 @@ public class RibbonAutoConfiguration {
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
 
-    @Autowired(required = false)
-    @LoadBalanced
-    private RestTemplate restTemplate;
-
-    @PostConstruct
-    public void init() {
-        if (restTemplate != null) {
-            restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
-        }
-    }
-
-    @Bean
-    public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
-        return new RibbonClientHttpRequestFactory(springClientFactory());
-    }
 
 	@Bean
 	public SpringClientFactory springClientFactory() {
@@ -80,5 +66,28 @@ public class RibbonAutoConfiguration {
 	public LoadBalancerClient loadBalancerClient() {
 		return new RibbonLoadBalancerClient(springClientFactory());
 	}
+
+    @Configuration
+    @ConditionalOnClass(HttpRequest.class)
+    protected static class A {
+        @Autowired(required = false)
+        @LoadBalanced
+        private RestTemplate restTemplate;
+
+        @Autowired
+        private SpringClientFactory springClientFactory;
+
+        @PostConstruct
+        public void init() {
+            if (restTemplate != null) {
+                restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
+            }
+        }
+
+        @Bean
+        public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
+            return new RibbonClientHttpRequestFactory(springClientFactory);
+        }
+    }
 
 }
