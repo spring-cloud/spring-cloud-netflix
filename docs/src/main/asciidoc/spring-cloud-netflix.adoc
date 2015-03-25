@@ -127,7 +127,7 @@ eureka:
       instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 ----
 
-With this meatdata, and multiple service instances deployed on
+With this metadata, and multiple service instances deployed on
 localhost, the random value will kick in there to make the instance
 unique. In Cloudfoundry the `spring.application.instance_id` will be
 populated automatically in a Spring Boot Actuator application, so the
@@ -186,12 +186,11 @@ assumptions about the lease renewal period.
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
 
-Example eureka server:
+Example eureka server (e.g. using spring-cloud-starter-eureka-server to set up the classpath):
 
 [source,java,indent=0]
 ----
-@Configuration
-@EnableAutoConfiguration
+@SpringBootApplication
 @EnableEurekaServer
 public class Application {
 
@@ -462,9 +461,9 @@ To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableH
 
 === Turbine
 
-Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation.  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
+Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
 
-Configuration key `turbine.appConfig` is a list of eureka serviceId's that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `http://my.turbine.sever:8080/turbine.stream?cluster=<CLUSTERNAME>` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Value returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
+The configuration key `turbine.appConfig` is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `http://my.turbine.sever:8080/turbine.stream?cluster=<CLUSTERNAME>` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
 
 ----
 turbine:
@@ -473,7 +472,19 @@ turbine:
   appConfig: customers
 ----
 
-The `clusterName` can be customized by a SPEL expression in `turbine.clusterNameExpression`.  For example, `turbine.clusterNameExpression=aSGName` would get the cluster name from the AWS ASG name. To use the "default" cluster for all apps you need a string literal expression (with single quotes):
+The `clusterName` can be customized by a SPEL expression in `turbine.clusterNameExpression` with root an instance of `InstanceInfo`. The default value is `appName`, which means that the Eureka serviceId ends up as the cluster key (i.e. the `InstanceInfo` for customers has an `appName` of "CUSTOMERS").  A different example would be `turbine.clusterNameExpression=aSGName`, which would get the cluster name from the AWS ASG name. Another example:
+
+----
+turbine:
+  aggregator:
+    clusterConfig: SYSTEM,USER
+  appConfig: customers,stores,ui,admin
+  clusterNameExpression: metadata.cluster
+----
+
+In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".
+
+To use the "default" cluster for all apps you need a string literal expression (with single quotes):
 
 ----
 turbine:
