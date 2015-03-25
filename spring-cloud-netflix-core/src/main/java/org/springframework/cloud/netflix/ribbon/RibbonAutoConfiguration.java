@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
@@ -32,6 +33,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.client.IClient;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Auto configuration for Ribbon (client side load balancing).
@@ -48,6 +51,22 @@ public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
+
+    @Autowired(required = false)
+    @LoadBalanced
+    private RestTemplate restTemplate;
+
+    @PostConstruct
+    public void init() {
+        if (restTemplate != null) {
+            restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
+        }
+    }
+
+    @Bean
+    public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
+        return new RibbonClientHttpRequestFactory(springClientFactory());
+    }
 
 	@Bean
 	public SpringClientFactory springClientFactory() {
