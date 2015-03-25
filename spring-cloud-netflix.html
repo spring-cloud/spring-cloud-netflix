@@ -569,7 +569,7 @@ application, so it&#8217;s helpful if they are accurate.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>With this meatdata, and multiple service instances deployed on
+<p>With this metadata, and multiple service instances deployed on
 localhost, the random value will kick in there to make the instance
 unique. In Cloudfoundry the <code>spring.application.instance_id</code> will be
 populated automatically in a Spring Boot Actuator application, so the
@@ -648,12 +648,11 @@ assumptions about the lease renewal period.</p>
 <h2 id="spring-cloud-eureka-server">Service Discovery: Eureka Server</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Example eureka server:</p>
+<p>Example eureka server (e.g. using spring-cloud-starter-eureka-server to set up the classpath):</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
-@EnableAutoConfiguration
+<pre class="highlight"><code class="language-java" data-lang="java">@SpringBootApplication
 @EnableEurekaServer
 public class Application {
 
@@ -986,10 +985,10 @@ for details on the properties available.</p>
 <div class="sect2">
 <h3 id="_turbine">Turbine</h3>
 <div class="paragraph">
-<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation.  All of the documented configuration properties from <a href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</a> apply.  The only difference is that the <code>turbine.instanceUrlSuffix</code> does not need the port prepended as this is handled automatically unless <code>turbine.instanceInsertPort=false</code>.</p>
+<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation  (e.g. using spring-cloud-starter-turbine to set up the classpath).  All of the documented configuration properties from <a href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</a> apply.  The only difference is that the <code>turbine.instanceUrlSuffix</code> does not need the port prepended as this is handled automatically unless <code>turbine.instanceInsertPort=false</code>.</p>
 </div>
 <div class="paragraph">
-<p>Configuration key <code>turbine.appConfig</code> is a list of eureka serviceId&#8217;s that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <code><a href="http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt</a>;</code> (the cluster parameter can be omitted if the name is "default"). The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>. Value returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":</p>
+<p>The configuration key <code>turbine.appConfig</code> is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <code><a href="http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt</a>;</code> (the cluster parameter can be omitted if the name is "default"). The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1000,7 +999,22 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The <code>clusterName</code> can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code>.  For example, <code>turbine.clusterNameExpression=aSGName</code> would get the cluster name from the AWS ASG name. To use the "default" cluster for all apps you need a string literal expression (with single quotes):</p>
+<p>The <code>clusterName</code> can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code> with root an instance of <code>InstanceInfo</code>. The default value is <code>appName</code>, which means that the Eureka serviceId ends up as the cluster key (i.e. the <code>InstanceInfo</code> for customers has an <code>appName</code> of "CUSTOMERS").  A different example would be <code>turbine.clusterNameExpression=aSGName</code>, which would get the cluster name from the AWS ASG name. Another example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>turbine:
+  aggregator:
+    clusterConfig: SYSTEM,USER
+  appConfig: customers,stores,ui,admin
+  clusterNameExpression: metadata.cluster</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".</p>
+</div>
+<div class="paragraph">
+<p>To use the "default" cluster for all apps you need a string literal expression (with single quotes):</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1632,7 +1646,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-24 19:46:42 UTC
+Last updated 2015-03-25 09:43:21 UTC
 </div>
 </div>
 </body>
