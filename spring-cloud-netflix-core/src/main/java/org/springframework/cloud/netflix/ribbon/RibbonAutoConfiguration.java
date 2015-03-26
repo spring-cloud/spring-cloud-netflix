@@ -19,23 +19,21 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.netflix.client.http.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.client.IClient;
-
-import javax.annotation.PostConstruct;
+import com.netflix.client.http.HttpRequest;
 
 /**
  * Auto configuration for Ribbon (client side load balancing).
@@ -70,23 +68,26 @@ public class RibbonAutoConfiguration {
     @Configuration
     @ConditionalOnClass(HttpRequest.class)
     protected static class RibbonClientConfig {
-        @Autowired(required = false)
-        @LoadBalanced
-        private RestTemplate restTemplate;
 
         @Autowired
         private SpringClientFactory springClientFactory;
 
-        @PostConstruct
-        public void init() {
-            if (restTemplate != null) {
-                restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
-            }
+        @Autowired
+        private LoadBalancerClient loadBalancerClient;
+
+        @Bean
+        public RestTemplateCustomizer restTemplateCustomizer() {
+            return new RestTemplateCustomizer() {
+                @Override
+                public void customize(RestTemplate restTemplate) {
+                    restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
+                }
+            };
         }
 
         @Bean
         public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
-            return new RibbonClientHttpRequestFactory(springClientFactory);
+            return new RibbonClientHttpRequestFactory(springClientFactory, loadBalancerClient);
         }
     }
 
