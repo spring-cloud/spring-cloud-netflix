@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -46,16 +47,21 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 
 	private final SpringClientFactory clientFactory;
 
-	public RibbonClientHttpRequestFactory(SpringClientFactory clientFactory) {
+    private LoadBalancerClient loadBalancer;
+
+	public RibbonClientHttpRequestFactory(SpringClientFactory clientFactory, LoadBalancerClient loadBalancer) {
 		this.clientFactory = clientFactory;
+        this.loadBalancer = loadBalancer;
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod)
+	public ClientHttpRequest createRequest(URI originalUri, HttpMethod httpMethod)
 			throws IOException {
-		//@formatter:off
-		ServiceInstance instance = LoadBalancerInterceptor.getThreadLocalServiceInstance();
+        String serviceId = originalUri.getHost();
+        ServiceInstance instance = loadBalancer.choose(serviceId);
+        URI uri = loadBalancer.reconstructURI(instance, originalUri);
+        //@formatter:off
 		IClientConfig clientConfig = clientFactory.getClientConfig(instance.getServiceId());
 		RestClient client = clientFactory.getClient(instance.getServiceId(), RestClient.class);
 		HttpRequest request = HttpRequest.newBuilder()
@@ -99,14 +105,14 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 		@Override
 		protected ClientHttpResponse executeInternal(HttpHeaders headers)
 				throws IOException {
-			HttpResponse response;
-			try {
-				response = client.execute(request, config);
-				return new RibbonHttpResponse(response);
-			}
-			catch (Exception e) {
-				throw new IOException(e);
-			}
+            // use execute here so stats are collected
+            return loadBalancer.execute(this.config.getClientName(), new LoadBalancerRequest<ClientHttpResponse>() {
+                @Override
+                public ClientHttpResponse apply(ServiceInstance instance) throws Exception {
+                    HttpResponse response = client.execute(request, config);
+                    return new RibbonHttpResponse(response);
+                }
+            });
 		}
 	}
 

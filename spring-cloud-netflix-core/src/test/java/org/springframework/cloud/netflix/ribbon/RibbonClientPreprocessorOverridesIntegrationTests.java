@@ -46,35 +46,40 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 
 	@Test
 	public void ruleOverridesToRandom() throws Exception {
-		RandomRule.class.cast(getLoadBalancer().getRule());
+		RandomRule.class.cast(getLoadBalancer("foo").getRule());
+        RoundRobinRule.class.cast(getLoadBalancer("bar").getRule());
 	}
 
 	@Test
 	public void pingOverridesToDummy() throws Exception {
-		DummyPing.class.cast(getLoadBalancer().getPing());
+		DummyPing.class.cast(getLoadBalancer("foo").getPing());
+        PingConstant.class.cast(getLoadBalancer("bar").getPing());
 	}
 
 	@Test
 	public void serverListOverridesToMy() throws Exception {
-		MyServiceList.class.cast(getLoadBalancer().getServerListImpl());
+		FooServiceList.class.cast(getLoadBalancer("foo").getServerListImpl());
+        BarServiceList.class.cast(getLoadBalancer("bar").getServerListImpl());
 	}
 
 	@SuppressWarnings("unchecked")
-	private ZoneAwareLoadBalancer<Server> getLoadBalancer() {
-		return (ZoneAwareLoadBalancer<Server>) this.factory
-				.getLoadBalancer("foo");
+	private ZoneAwareLoadBalancer<Server> getLoadBalancer(String name) {
+		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer(name);
 	}
 
 	@Test
 	public void serverListFilterOverride() throws Exception {
-		ServerListFilter<Server> filter = getLoadBalancer().getFilter();
-		assertEquals("MyTestZone",
+		ServerListFilter<Server> filter = getLoadBalancer("foo").getFilter();
+		assertEquals("FooTestZone",
 				ZonePreferenceServerListFilter.class.cast(filter)
 						.getZone());
 	}
 
 	@Configuration
-	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+    @RibbonClients({
+        @RibbonClient(name = "foo", configuration = FooConfiguration.class),
+        @RibbonClient(name = "bar", configuration = BarConfiguration.class)
+    })
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, EurekaClientAutoConfiguration.class,
 			RibbonAutoConfiguration.class})
@@ -83,11 +88,6 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 
 	@Configuration
 	public static class FooConfiguration {
-
-		public FooConfiguration() {
-			System.out.println("here");
-		}
-
 		@Bean
 		public IRule ribbonRule() {
 			return new RandomRule();
@@ -100,21 +100,52 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 
 		@Bean
 		public ServerList<Server> ribbonServerList(IClientConfig config) {
-			return new MyServiceList(config);
+			return new FooServiceList(config);
 		}
 
 		@Bean
 		public ZonePreferenceServerListFilter serverListFilter() {
 			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-			filter.setZone("MyTestZone");
+			filter.setZone("FooTestZone");
 			return filter;
 		}
 	}
 
-	public static class MyServiceList extends ConfigurationBasedServerList {
-		public MyServiceList(IClientConfig config) {
+	public static class FooServiceList extends ConfigurationBasedServerList {
+		public FooServiceList(IClientConfig config) {
 			super.initWithNiwsConfig(config);
 		}
 	}
 
+    @Configuration
+    public static class BarConfiguration {
+
+        @Bean
+        public IRule ribbonRule() {
+            return new RoundRobinRule();
+        }
+
+        @Bean
+        public IPing ribbonPing() {
+            return new PingConstant();
+        }
+
+        @Bean
+        public ServerList<Server> ribbonServerList(IClientConfig config) {
+            return new BarServiceList(config);
+        }
+
+        @Bean
+        public ZonePreferenceServerListFilter serverListFilter() {
+            ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
+            filter.setZone("BarTestZone");
+            return filter;
+        }
+    }
+
+    public static class BarServiceList extends ConfigurationBasedServerList {
+        public BarServiceList(IClientConfig config) {
+            super.initWithNiwsConfig(config);
+        }
+    }
 }
