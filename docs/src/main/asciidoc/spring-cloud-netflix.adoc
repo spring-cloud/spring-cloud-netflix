@@ -137,7 +137,9 @@ random value will not be needed.
 
 Once you have an app that is `@EnableEurekaClient` you can use it to
 discover service instances from the <<spring-cloud-eureka-server,
-Eureka Server>>. One way to do that is to use the native `DiscoveryClient`, e.g.
+Eureka Server>>. One way to do that is to use the native
+`com.netflix.discovery.DiscoveryClient` (as opposed to the Spring
+Cloud `DiscoveryClient`), e.g.
 
 ----
 @Autowired
@@ -559,6 +561,14 @@ declaring additional configuration (on top of the
 In this case the client is composed from the components already in
 `RibbonClientConfiguration` together with any in `FooConfiguration`
 (where the latter generally will override the former).
+
+WARNING: The `FooConfiguration` has to be `@Configuration` but take
+care that it is not in a `@ComponentScan` for the main application
+context, otherwise it will be shared by all the `@RibbonClients`. If
+you use `@ComponentScan` (or `@SpringBootApplication`) you need to
+take steps to avoid it being included (for instance put it in a
+separate, non-overlapping package, or specify the packages to scan
+explicitly in the `@ComponentScan`).
 
 Spring Cloud Netflix provides the following beans by default for ribbon
 (`BeanType` beanName: `ClassName`):
