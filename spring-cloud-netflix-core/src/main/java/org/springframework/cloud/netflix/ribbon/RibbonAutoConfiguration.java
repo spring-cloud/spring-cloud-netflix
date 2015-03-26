@@ -69,7 +69,7 @@ public class RibbonAutoConfiguration {
 
     @Configuration
     @ConditionalOnClass(HttpRequest.class)
-    protected static class A {
+    protected static class RibbonClientConfig {
         @Autowired(required = false)
         @LoadBalanced
         private RestTemplate restTemplate;
