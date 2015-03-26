@@ -581,7 +581,9 @@ random value will not be needed.</p>
 <h3 id="_using_the_discoveryclient">Using the DiscoveryClient</h3>
 <div class="paragraph">
 <p>Once you have an app that is <code>@EnableEurekaClient</code> you can use it to
-discover service instances from the <a href="#spring-cloud-eureka-server">Eureka Server</a>. One way to do that is to use the native <code>DiscoveryClient</code>, e.g.</p>
+discover service instances from the <a href="#spring-cloud-eureka-server">Eureka Server</a>. One way to do that is to use the native
+<code>com.netflix.discovery.DiscoveryClient</code> (as opposed to the Spring
+Cloud <code>DiscoveryClient</code>), e.g.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1109,6 +1111,24 @@ public class TestConfiguration {
 <p>In this case the client is composed from the components already in
 <code>RibbonClientConfiguration</code> together with any in <code>FooConfiguration</code>
 (where the latter generally will override the former).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+The <code>FooConfiguration</code> has to be <code>@Configuration</code> but take
+care that it is not in a <code>@ComponentScan</code> for the main application
+context, otherwise it will be shared by all the <code>@RibbonClients</code>. If
+you use <code>@ComponentScan</code> (or <code>@SpringBootApplication</code>) you need to
+take steps to avoid it being included (for instance put it in a
+separate, non-overlapping package, or specify the packages to scan
+explicitly in the <code>@ComponentScan</code>).
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>Spring Cloud Netflix provides the following beans by default for ribbon
@@ -1646,7 +1666,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-25 17:41:36 UTC
+Last updated 2015-03-26 09:38:45 UTC
 </div>
 </div>
 </body>
