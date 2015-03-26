@@ -32,7 +32,7 @@ public class TurbinePortApplicationListener implements
 					ports.put("turbine.amqp.port", serverPort);
 				}
 			}
-			else if (managementPort != null && serverPort == null) {
+			else if (managementPort != null && managementPort != -1 && serverPort == null) {
 				// User wants 2 ports, but hasn't specified server.port explicitly
 				ports.put("server.port", managementPort);
 			}
