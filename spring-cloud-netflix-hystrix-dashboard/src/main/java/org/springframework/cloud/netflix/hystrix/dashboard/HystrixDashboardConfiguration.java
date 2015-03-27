@@ -188,7 +188,7 @@ public class HystrixDashboardConfiguration {
 					}
 				}
 				else {
-					log.debug("Failed opening connection to " + proxyUrl + " : "
+					log.warn("Failed opening connection to " + proxyUrl + " : "
 							+ statusCode + " : " + httpResponse.getStatusLine());
 				}
 			}
