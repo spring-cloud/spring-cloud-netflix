@@ -896,9 +896,8 @@ IP Address rather than its hostname.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>@Configuration
-@EnableAutoConfiguration
-@EnableHystrix
+<pre>@SpringBootApplication
+@EnableCircuitBreaker
 public class Application {
 
     public static void main(String[] args) {
@@ -1666,7 +1665,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-03-26 17:49:07 UTC
+Last updated 2015-03-27 15:46:25 UTC
 </div>
 </div>
 </body>
