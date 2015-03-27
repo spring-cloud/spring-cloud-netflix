@@ -385,9 +385,8 @@ Having an open circuit stops cascading failures and allows overwhelmed or failin
 Example boot app:
 
 ----
-@Configuration
-@EnableAutoConfiguration
-@EnableHystrix
+@SpringBootApplication
+@EnableCircuitBreaker
 public class Application {
 
     public static void main(String[] args) {
