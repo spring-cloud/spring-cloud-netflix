@@ -16,19 +16,18 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-
+import feign.Contract;
+import feign.MethodMetadata;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import feign.Contract;
-import feign.MethodMetadata;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 import static feign.Util.checkState;
 import static feign.Util.emptyToNull;
@@ -45,29 +44,34 @@ public class SpringMvcContract extends Contract.BaseContract {
 	@Override
 	protected void processAnnotationOnMethod(MethodMetadata data,
 			Annotation methodAnnotation, Method method) {
-		if (!(methodAnnotation instanceof RequestMapping)) {
-			return;
-		}
-		RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
-		if (mapping != null) {
-			// HTTP Method
-			checkOne(method, mapping.method(), "method");
-			data.template().method(mapping.method()[0].name());
+        if(!(methodAnnotation instanceof RequestMapping))
+            return;
 
-			// path
-			checkOne(method, mapping.value(), "value");
+        RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
+        if (mapping != null) {
+            // HTTP Method
+            checkOne(method, mapping.method(), "method");
+            data.template().method(mapping.method()[0].name());
 
-			String methodAnnotationValue = mapping.value()[0];
-			String pathValue = emptyToNull(methodAnnotationValue);
-			checkState(pathValue != null, "value was empty on method %s",
-					method.getName());
-			if (!methodAnnotationValue.startsWith("/")
-					&& !data.template().toString().endsWith("/")) {
-				methodAnnotationValue = "/" + methodAnnotationValue;
-			}
-			data.template().append(methodAnnotationValue);
+            // path
+            StringBuilder path = new StringBuilder();
+            RequestMapping classMapping = method.getDeclaringClass().getAnnotation(RequestMapping.class);
+            if(classMapping != null && classMapping.value() != null && classMapping.value().length == 1) {
+                path.append(classMapping.value()[0]);
+            }
 
-			// produces
+            path.append(mapping.value().length == 1 ? mapping.value()[0] : "");
+            String pathValue = emptyToNull(path.toString());
+            checkState(pathValue != null, "value was empty on method %s",
+                    method.getName());
+            if (path.charAt(0) != '/'
+                    && !data.template().toString().endsWith("/")) {
+                path.insert(0, "/");
+            }
+
+            data.template().append(path.toString());
+
+            // produces
 			checkAtMostOne(method, mapping.produces(), "produces");
 			String[] serverProduces = mapping.produces();
 			String clientAccepts = serverProduces.length == 0 ? null
