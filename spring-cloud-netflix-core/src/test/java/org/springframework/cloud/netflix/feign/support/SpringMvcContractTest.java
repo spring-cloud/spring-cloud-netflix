@@ -17,6 +17,9 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author chadjaros
+ */
 public class SpringMvcContractTest {
 
     private SpringMvcContract contract;
