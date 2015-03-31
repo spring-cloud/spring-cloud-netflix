@@ -44,8 +44,9 @@ public class SpringMvcContract extends Contract.BaseContract {
 	@Override
 	protected void processAnnotationOnMethod(MethodMetadata data,
 			Annotation methodAnnotation, Method method) {
-		if(!(methodAnnotation instanceof RequestMapping))
-			return;
+        if (!(methodAnnotation instanceof RequestMapping)) {
+            return;
+        }
 
 		RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
 		if (mapping != null) {
@@ -71,7 +72,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 			data.template().append(path.toString());
 
-            // produces
+			// produces
 			checkAtMostOne(method, mapping.produces(), "produces");
 			String[] serverProduces = mapping.produces();
 			String clientAccepts = serverProduces.length == 0 ? null
