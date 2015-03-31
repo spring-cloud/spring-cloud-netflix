@@ -44,32 +44,32 @@ public class SpringMvcContract extends Contract.BaseContract {
 	@Override
 	protected void processAnnotationOnMethod(MethodMetadata data,
 			Annotation methodAnnotation, Method method) {
-        if(!(methodAnnotation instanceof RequestMapping))
-            return;
+		if(!(methodAnnotation instanceof RequestMapping))
+			return;
 
-        RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
-        if (mapping != null) {
-            // HTTP Method
-            checkOne(method, mapping.method(), "method");
-            data.template().method(mapping.method()[0].name());
+		RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
+		if (mapping != null) {
+			// HTTP Method
+			checkOne(method, mapping.method(), "method");
+			data.template().method(mapping.method()[0].name());
 
-            // path
-            StringBuilder path = new StringBuilder();
-            RequestMapping classMapping = method.getDeclaringClass().getAnnotation(RequestMapping.class);
-            if(classMapping != null && classMapping.value() != null && classMapping.value().length == 1) {
-                path.append(classMapping.value()[0]);
-            }
+			// path
+			StringBuilder path = new StringBuilder();
+			RequestMapping classMapping = method.getDeclaringClass().getAnnotation(RequestMapping.class);
+			if(classMapping != null && classMapping.value() != null && classMapping.value().length == 1) {
+				path.append(classMapping.value()[0]);
+			}
 
-            path.append(mapping.value().length == 1 ? mapping.value()[0] : "");
-            String pathValue = emptyToNull(path.toString());
-            checkState(pathValue != null, "value was empty on method %s",
-                    method.getName());
-            if (path.charAt(0) != '/'
-                    && !data.template().toString().endsWith("/")) {
-                path.insert(0, "/");
-            }
+			path.append(mapping.value().length == 1 ? mapping.value()[0] : "");
+			String pathValue = emptyToNull(path.toString());
+			checkState(pathValue != null, "value was empty on method %s",
+					method.getName());
+			if (path.charAt(0) != '/'
+					&& !data.template().toString().endsWith("/")) {
+				path.insert(0, "/");
+			}
 
-            data.template().append(path.toString());
+			data.template().append(path.toString());
 
             // produces
 			checkAtMostOne(method, mapping.produces(), "produces");
