@@ -55,12 +55,15 @@ public class SpringMvcContract extends Contract.BaseContract {
 			data.template().method(mapping.method()[0].name());
 
 			// path
+			// Look to see if a @RequestMapping annotation is on the class/interface. If so, the value
+			// acts as the base path
 			StringBuilder path = new StringBuilder();
 			RequestMapping classMapping = method.getDeclaringClass().getAnnotation(RequestMapping.class);
 			if(classMapping != null && classMapping.value() != null && classMapping.value().length == 1) {
 				path.append(classMapping.value()[0]);
 			}
 
+			// Add the @RequestMapping annotation from the method. If there is a value, add it to the base path
 			path.append(mapping.value().length == 1 ? mapping.value()[0] : "");
 			String pathValue = emptyToNull(path.toString());
 			checkState(pathValue != null, "value was empty on method %s",
