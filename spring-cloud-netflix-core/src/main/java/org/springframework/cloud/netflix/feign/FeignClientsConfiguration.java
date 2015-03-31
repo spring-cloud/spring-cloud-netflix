@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
+import org.springframework.cloud.netflix.feign.support.ResponseEntityDecoder;
 import org.springframework.cloud.netflix.feign.support.SpringDecoder;
 import org.springframework.cloud.netflix.feign.support.SpringEncoder;
 import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
@@ -24,6 +28,8 @@ import org.springframework.context.annotation.Configuration;
 
 import feign.Contract;
 import feign.Logger;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
 import feign.slf4j.Slf4jLogger;
 
 /**
@@ -32,14 +38,17 @@ import feign.slf4j.Slf4jLogger;
 @Configuration
 public class FeignClientsConfiguration {
 
+	@Autowired
+	private ObjectFactory<HttpMessageConverters> messageConverters;
+
 	@Bean
-	public SpringDecoder feignDecoder() {
-		return new SpringDecoder();
+	public Decoder feignDecoder() {
+		return new ResponseEntityDecoder(new SpringDecoder(messageConverters));
 	}
 
 	@Bean
-	public SpringEncoder feignEncoder() {
-		return new SpringEncoder();
+	public Encoder feignEncoder() {
+		return new SpringEncoder(messageConverters);
 	}
 
 	@Bean

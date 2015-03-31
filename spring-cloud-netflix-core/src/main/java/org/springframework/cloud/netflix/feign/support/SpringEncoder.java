@@ -28,7 +28,6 @@ import java.util.Collection;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
@@ -45,8 +44,11 @@ import feign.codec.Encoder;
 @CommonsLog
 public class SpringEncoder implements Encoder {
 
-	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
+
+	public SpringEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+		this.messageConverters = messageConverters;
+	}
 
 	@Override
 	public void encode(Object requestBody, Type bodyType, RequestTemplate request)

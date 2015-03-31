@@ -31,6 +31,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -57,6 +59,16 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 
 	public TestClient testClient() {
 		return feign().target(TestClient.class, "http://localhost:" + this.port);
+	}
+
+	@Test
+	public void testResponseEntity() {
+		ResponseEntity<Hello> response = testClient().getHelloResponse();
+		assertNotNull("response was null", response);
+		assertEquals("wrong status code", HttpStatus.OK, response.getStatusCode());
+		Hello hello = response.getBody();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world via response"), hello);
 	}
 
 	@Test
@@ -91,6 +103,9 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	}
 
 	protected static interface TestClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/helloresponse")
+		public ResponseEntity<Hello> getHelloResponse();
+
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello();
 
@@ -105,6 +120,11 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	@EnableAutoConfiguration
 	@RestController
 	protected static class Application implements TestClient {
+
+		@Override
+		public ResponseEntity<Hello> getHelloResponse() {
+			return ResponseEntity.ok(new Hello("hello world via response"));
+		}
 
 		@Override
 		public Hello getHello() {

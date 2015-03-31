@@ -24,7 +24,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,10 +40,10 @@ import feign.codec.Decoder;
  */
 public class SpringDecoder implements Decoder {
 
-	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
 
-	public SpringDecoder() {
+	public SpringDecoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+		this.messageConverters = messageConverters;
 	}
 
 	@Override
