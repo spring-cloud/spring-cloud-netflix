@@ -44,9 +44,9 @@ public class SpringMvcContract extends Contract.BaseContract {
 	@Override
 	protected void processAnnotationOnMethod(MethodMetadata data,
 			Annotation methodAnnotation, Method method) {
-        if (!(methodAnnotation instanceof RequestMapping)) {
-            return;
-        }
+		if (!(methodAnnotation instanceof RequestMapping)) {
+			return;
+		}
 
 		RequestMapping mapping = RequestMapping.class.cast(methodAnnotation);
 		if (mapping != null) {
