@@ -26,6 +26,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UrlPathHelper;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -36,6 +37,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	private ProxyRouteLocator routeLocator;
 
 	private boolean addProxyHeaders;
+
+	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
 	public PreDecorationFilter(ProxyRouteLocator routeLocator, boolean addProxyHeaders) {
 		this.routeLocator = routeLocator;
@@ -60,18 +63,19 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		final String requestURI = ctx.getRequest().getRequestURI();
+		final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx
+				.getRequest());
 		ProxyRouteSpec route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
 			if (location != null) {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
-				
+
 				if (route.getRetryable() != null) {
 					ctx.put("retryable", route.getRetryable());
 				}
-				
+
 				if (location.startsWith("http:") || location.startsWith("https:")) {
 					ctx.setRouteHost(getUrl(location));
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
