@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
@@ -54,6 +55,9 @@ public class ZuulConfiguration {
 	@Autowired
 	private ZuulProperties zuulProperties;
 
+	@Autowired(required = false)
+	private ErrorController errorController;
+
 	@Bean
 	public RouteLocator routeLocator() {
 		return new SimpleRouteLocator(this.zuulProperties);
@@ -66,7 +70,9 @@ public class ZuulConfiguration {
 
 	@Bean
 	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes) {
-		return new ZuulHandlerMapping(routes, zuulController());
+		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController());
+		mapping.setErrorController(this.errorController);
+		return mapping;
 	}
 
 	@Bean

@@ -18,7 +18,9 @@ package org.springframework.cloud.netflix.zuul.web;
 
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
@@ -34,11 +36,26 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
 	private final ZuulController zuul;
 
-	@Autowired
+	private ErrorController errorController;
+
 	public ZuulHandlerMapping(RouteLocator routeLocator, ZuulController zuul) {
 		this.routeLocator = routeLocator;
 		this.zuul = zuul;
 		setOrder(-200);
+	}
+
+	public void setErrorController(ErrorController errorController) {
+		this.errorController = errorController;
+	}
+
+	@Override
+	protected Object lookupHandler(String urlPath, HttpServletRequest request)
+			throws Exception {
+		if (this.errorController != null
+				&& urlPath.equals(this.errorController.getErrorPath())) {
+			return null;
+		}
+		return super.lookupHandler(urlPath, request);
 	}
 
 	public void registerHandlers() {
