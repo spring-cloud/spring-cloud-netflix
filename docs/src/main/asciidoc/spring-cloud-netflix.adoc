@@ -107,9 +107,9 @@ Cloudfoundry has a global router so that all instances of the same app have the 
 ----
 eureka:
   instance:
+    hostname: ${vcap.application.uris[0]}
+    nonSecurePort: 80
     metadataMap:
-      hostname: ${vcap.application.uris[0]}
-      nonSecurePort: 80
       instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}
 ----
 
