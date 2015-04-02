@@ -544,9 +544,9 @@ application, so it&#8217;s helpful if they are accurate.</p>
 <div class="content">
 <pre>eureka:
   instance:
+    hostname: ${vcap.application.uris[0]}
+    nonSecurePort: 80
     metadataMap:
-      hostname: ${vcap.application.uris[0]}
-      nonSecurePort: 80
       instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}</pre>
 </div>
 </div>
@@ -1665,7 +1665,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-01 11:06:37 UTC
+Last updated 2015-04-02 12:46:41 UTC
 </div>
 </div>
 </body>
