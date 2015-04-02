@@ -820,6 +820,23 @@ The location of the backend can be specified as either a "serviceId"
       url: http://example.com/users_service
 ----
 
+These simple url-routes doesn't get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon. 
+To achieve this specify a service-route and configure a Ribbon client for the serviceId, e.g.
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    users:
+      path: /myusers/**
+      serviceId: users
+   
+ users:
+  ribbon:
+    listOfServers: example.com,google.com
+----
+
 To add a prefix to all mappings, set `zuul.prefix` to a value, such as
 `/api`. The proxy prefix is stripped from the request before the
 request is forwarded by default (switch this behaviour off with
