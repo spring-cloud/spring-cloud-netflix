@@ -160,7 +160,7 @@ not be started yet). It is initialized in a `SmartLifecycle` (with
 another `SmartLifecycle` with higher phase.
 ====
 
-=== Alternatives to the DiscoveryClient
+=== Alternatives to the native Netflix DiscoveryClient
 
 You don't have to use the raw Netflix `DiscoveryClient` and usually it
 is more convenient to use it behind a wrapper of some sort. Spring
@@ -171,6 +171,23 @@ URLs. To configure Ribbon with a fixed list of physical servers you
 can simply set `<client>.ribbon.listOfServers` to a comma-separated
 list of physical addresses (or hostnames), where `<client>` is the ID 
 of the client.
+
+You can also use the `org.springframework.cloud.client.discovery.DiscoveryClient`
+which provides a simple API for discovery clients that is not specific
+to Netflix, e.g.
+
+----
+@Autowired
+private DiscoveryClient discoveryClient;
+
+public String serviceUrl() {
+    List<ServiceInstance> list = client.getInstances("STORES");
+    if (list != null && list.size() > 0 ) {
+        return list.get(0).getUri();
+    }
+    return null;
+}
+----
 
 === Why is it so Slow to Register a Service?
 
