@@ -616,7 +616,7 @@ another <code>SmartLifecycle</code> with higher phase.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_alternatives_to_the_discoveryclient">Alternatives to the DiscoveryClient</h3>
+<h3 id="_alternatives_to_the_native_netflix_discoveryclient">Alternatives to the native Netflix DiscoveryClient</h3>
 <div class="paragraph">
 <p>You don&#8217;t have to use the raw Netflix <code>DiscoveryClient</code> and usually it
 is more convenient to use it behind a wrapper of some sort. Spring
@@ -627,6 +627,25 @@ URLs. To configure Ribbon with a fixed list of physical servers you
 can simply set <code>&lt;client&gt;.ribbon.listOfServers</code> to a comma-separated
 list of physical addresses (or hostnames), where <code>&lt;client&gt;</code> is the ID
 of the client.</p>
+</div>
+<div class="paragraph">
+<p>You can also use the <code>org.springframework.cloud.client.discovery.DiscoveryClient</code>
+which provides a simple API for discovery clients that is not specific
+to Netflix, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>@Autowired
+private DiscoveryClient discoveryClient;
+
+public String serviceUrl() {
+    List&lt;ServiceInstance&gt; list = client.getInstances("STORES");
+    if (list != null &amp;&amp; list.size() &gt; 0 ) {
+        return list.get(0).getUri();
+    }
+    return null;
+}</pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1665,7 +1684,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-02 12:46:41 UTC
+Last updated 2015-04-06 21:13:25 UTC
 </div>
 </div>
 </body>
