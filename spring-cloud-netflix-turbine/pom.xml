@@ -64,6 +64,12 @@
 		<dependency>
 			<groupId>com.netflix.turbine</groupId>
 			<artifactId>turbine-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.mockito</groupId>
+					<artifactId>mockito-all</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
