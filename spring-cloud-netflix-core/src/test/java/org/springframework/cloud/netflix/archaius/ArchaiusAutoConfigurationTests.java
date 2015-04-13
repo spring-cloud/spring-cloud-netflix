@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,17 @@ import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
 import org.junit.After;
 import org.junit.Test;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
+
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.netflix.config.ConfigurationManager;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Dave Syer
@@ -74,6 +77,39 @@ public class ArchaiusAutoConfigurationTests {
 		this.context.publishEvent(new EnvironmentChangeEvent(Collections
 				.singleton("my.prop")));
 		assertEquals("my.newval", this.propertyValue);
+	}
+
+	@Test
+	public void configurationWithoutExternalConfigurations() throws Exception {
+		this.context = new AnnotationConfigApplicationContext(
+				ArchaiusAutoConfiguration.class);
+		DynamicStringProperty dbProperty = DynamicPropertyFactory.getInstance()
+				.getStringProperty("db.property", null);
+		DynamicStringProperty staticProperty = DynamicPropertyFactory.getInstance()
+				.getStringProperty("archaius.file.property", null);
+
+		assertNull(dbProperty.getValue());
+		assertNotNull(staticProperty.getValue());
+		assertEquals("Static config file property", staticProperty.getValue());
+	}
+
+	@Test
+	public void configurationWithInjectedDbConfiguration() throws Exception {
+		this.context = new AnnotationConfigApplicationContext(
+				ArchaiusAutoConfiguration.class, ArchaiusExternalConfiguration.class);
+		DynamicStringProperty dbProperty = DynamicPropertyFactory.getInstance()
+				.getStringProperty("db.property", null);
+		DynamicStringProperty secondDbProperty = DynamicPropertyFactory.getInstance()
+				.getStringProperty("db.second.property", null);
+		DynamicStringProperty staticProperty = DynamicPropertyFactory.getInstance()
+				.getStringProperty("archaius.file.property", null);
+
+		assertNotNull(dbProperty.getValue());
+		assertNotNull(secondDbProperty.getValue());
+		assertNotNull(staticProperty.getValue());
+		assertEquals("this is a db property", dbProperty.getValue());
+		assertEquals("this is another db property", secondDbProperty.getValue());
+		assertEquals("Static config file property", staticProperty.getValue());
 	}
 
 }

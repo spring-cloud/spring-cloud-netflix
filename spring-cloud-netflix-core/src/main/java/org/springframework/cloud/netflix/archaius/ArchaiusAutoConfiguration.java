@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.archaius;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
@@ -28,6 +29,13 @@ import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
+import com.netflix.config.ConcurrentCompositeConfiguration;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicURLConfiguration;
+import com.netflix.config.DeploymentContext;
+import com.netflix.config.AggregatedConfiguration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -40,12 +48,6 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 
-import com.netflix.config.ConcurrentCompositeConfiguration;
-import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicURLConfiguration;
-
-import static com.netflix.config.ConfigurationBasedDeploymentContext.DEPLOYMENT_APPLICATION_ID_PROPERTY;
 import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
 import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
 import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
@@ -66,6 +68,9 @@ public class ArchaiusAutoConfiguration {
 	@Autowired
 	private ConfigurableEnvironment env;
 
+	@Autowired
+	private List<AbstractConfiguration> externalConfigurations;
+
 	@PreDestroy
 	public void close() {
 		setStatic(ConfigurationManager.class, "instance", null);
@@ -85,7 +90,7 @@ public class ArchaiusAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
-	protected static class ArchaiusEndpointConfuguration {
+	protected static class ArchaiusEndpointConfiguration {
 		@Bean
 		protected ArchaiusEndpoint archaiusEndpoint() {
 			return new ArchaiusEndpoint();
@@ -95,7 +100,8 @@ public class ArchaiusAutoConfiguration {
 	@Configuration
 	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent", matchIfMissing = true)
 	@ConditionalOnClass(EnvironmentChangeEvent.class)
-	protected static class PropagateEventsConfiguration implements ApplicationListener<EnvironmentChangeEvent> {
+	protected static class PropagateEventsConfiguration implements
+			ApplicationListener<EnvironmentChangeEvent> {
 		@Autowired
 		private Environment env;
 
@@ -109,14 +115,13 @@ public class ArchaiusAutoConfiguration {
 					int type = AbstractConfiguration.EVENT_SET_PROPERTY;
 					String value = env.getProperty(key);
 					boolean beforeUpdate = false;
-					listener.configurationChanged(new ConfigurationEvent(source,
-							type, key, value, beforeUpdate));
+					listener.configurationChanged(new ConfigurationEvent(source, type,
+							key, value, beforeUpdate));
 				}
 			}
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	protected void configureArchaius(ConfigurableEnvironmentConfiguration envConfig) {
 		if (initialized.compareAndSet(false, true)) {
 			String appName = this.env.getProperty("spring.application.name");
@@ -124,20 +129,17 @@ public class ArchaiusAutoConfiguration {
 				appName = "application";
 				log.warn("No spring.application.name found, defaulting to 'application'");
 			}
-			// this is deprecated, but currently it seams the only way to set it initially
-			System.setProperty(DEPLOYMENT_APPLICATION_ID_PROPERTY, appName);
-
-			// TODO: support for other DeploymentContexts
+			System.setProperty(DeploymentContext.ContextKey.appId.getKey(), appName);
 
 			ConcurrentCompositeConfiguration config = new ConcurrentCompositeConfiguration();
 
 			// support to add other Configurations (Jdbc, DynamoDb, Zookeeper, jclouds,
 			// etc...)
-			/*
-			 * if (factories != null && !factories.isEmpty()) { for
-			 * (PropertiesSourceFactory factory: factories) {
-			 * config.addConfiguration(factory.getConfiguration(), factory.getName()); } }
-			 */
+			if (externalConfigurations != null) {
+				for (AbstractConfiguration externalConfig : externalConfigurations) {
+					config.addConfiguration(externalConfig);
+				}
+			}
 			config.addConfiguration(envConfig,
 					ConfigurableEnvironmentConfiguration.class.getSimpleName());
 
@@ -165,11 +167,31 @@ public class ArchaiusAutoConfiguration {
 			config.setContainerConfigurationIndex(config
 					.getIndexOfConfiguration(appOverrideConfig));
 
-			ConfigurationManager.install(config);
+			addArchaiusConfiguration(config);
 		}
 		else {
 			// TODO: reinstall ConfigurationManager
 			log.warn("Netflix ConfigurationManager has already been installed, unable to re-install");
+		}
+	}
+
+	private void addArchaiusConfiguration(ConcurrentCompositeConfiguration config) {
+		if (ConfigurationManager.isConfigurationInstalled()) {
+			AbstractConfiguration installedConfiguration = ConfigurationManager
+					.getConfigInstance();
+			if (installedConfiguration instanceof ConcurrentCompositeConfiguration) {
+				ConcurrentCompositeConfiguration configInstance = (ConcurrentCompositeConfiguration) installedConfiguration;
+				configInstance.addConfiguration(config);
+			}
+			else {
+				installedConfiguration.append(config);
+				if (!(installedConfiguration instanceof AggregatedConfiguration)) {
+					log.warn("Appending a configuration to an existing non-aggregated installed configuration will have no effect");
+				}
+			}
+		}
+		else {
+			ConfigurationManager.install(config);
 		}
 	}
 
