@@ -16,6 +16,13 @@
 
 package org.springframework.cloud.netflix.archaius;
 
+import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
+import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,19 +30,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.PreDestroy;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.ConfigurationBuilder;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
-import com.netflix.config.ConcurrentCompositeConfiguration;
-import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicURLConfiguration;
-import com.netflix.config.DeploymentContext;
-import com.netflix.config.AggregatedConfiguration;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -48,12 +49,12 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 
-import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
-import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
-import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
-import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
-import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
-import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
+import com.netflix.config.AggregatedConfiguration;
+import com.netflix.config.ConcurrentCompositeConfiguration;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DeploymentContext;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicURLConfiguration;
 
 /**
  * @author Spencer Gibb
