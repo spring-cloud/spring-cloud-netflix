@@ -34,35 +34,35 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class ProxyRequestHelperTests {
 
-    @Mock
-    private TraceRepository traceRepository;
+	@Mock
+	private TraceRepository traceRepository;
 
-    @Before
-    public void init() {
-        initMocks(this);
-    }
+	@Before
+	public void init() {
+		initMocks(this);
+	}
 
-    @Test
-    public void buildZuulRequestHeadersWork() {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
-        request.addHeader("singleName", "singleValue");
-        request.addHeader("multiName", "multiValue1");
-        request.addHeader("multiName", "multiValue2");
+	@Test
+	public void buildZuulRequestHeadersWork() {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		request.addHeader("singleName", "singleValue");
+		request.addHeader("multiName", "multiValue1");
+		request.addHeader("multiName", "multiValue2");
 
-        ProxyRequestHelper helper = new ProxyRequestHelper();
-        helper.setTraces(traceRepository);
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		helper.setTraces(traceRepository);
 
-        MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-        List<String> singleName = headers.get("singleName");
-        assertThat(singleName, is(notNullValue()));
-        assertThat(singleName.size(), is(1));
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		List<String> singleName = headers.get("singleName");
+		assertThat(singleName, is(notNullValue()));
+		assertThat(singleName.size(), is(1));
 
-        List<String> multiName = headers.get("multiName");
-        assertThat(multiName, is(notNullValue()));
-        assertThat(multiName.size(), is(2));
+		List<String> multiName = headers.get("multiName");
+		assertThat(multiName, is(notNullValue()));
+		assertThat(multiName.size(), is(2));
 
-        List<String> missingName = headers.get("missingName");
-        assertThat(missingName, is(nullValue()));
+		List<String> missingName = headers.get("missingName");
+		assertThat(missingName, is(nullValue()));
 
-    }
+	}
 }
