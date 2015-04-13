@@ -37,10 +37,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.ui.freemarker.SpringTemplateLoader;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
@@ -50,11 +54,15 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
  */
 @SuppressWarnings("deprecation")
 @Configuration
+@EnableConfigurationProperties(HystrixDashboardProperties.class)
 public class HystrixDashboardConfiguration {
 
 	private static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
 
 	private static final String DEFAULT_CHARSET = "UTF-8";
+
+	@Autowired
+	private HystrixDashboardProperties dashboardProperties;
 
 	/**
 	 * Overrides Spring Boot's {@link FreeMarkerAutoConfiguration} to prefer using a
@@ -74,7 +82,10 @@ public class HystrixDashboardConfiguration {
 
 	@Bean
 	public ServletRegistrationBean proxyStreamServlet() {
-		return new ServletRegistrationBean(new ProxyStreamServlet(), "/proxy.stream");
+		ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
+		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(dashboardProperties
+				.isEnableIgnoreConnectionCloseHeader());
+		return new ServletRegistrationBean(proxyStreamServlet, "/proxy.stream");
 	}
 
 	@Bean
@@ -91,6 +102,15 @@ public class HystrixDashboardConfiguration {
 	public static class ProxyStreamServlet extends HttpServlet {
 
 		private static final long serialVersionUID = 1L;
+
+		private static final String CONNECTION_CLOSE_VALUE = "close";
+
+		private boolean enableIgnoreConnectionCloseHeader = false;
+
+		public void setEnableIgnoreConnectionCloseHeader(
+				boolean enableIgnoreConnectionCloseHeader) {
+			this.enableIgnoreConnectionCloseHeader = enableIgnoreConnectionCloseHeader;
+		}
 
 		public ProxyStreamServlet() {
 			super();
@@ -155,9 +175,7 @@ public class HystrixDashboardConfiguration {
 					is = httpResponse.getEntity().getContent();
 
 					// set headers
-					for (Header header : httpResponse.getAllHeaders()) {
-						response.addHeader(header.getName(), header.getValue());
-					}
+					copyHeadersToServletResponse(httpResponse.getAllHeaders(), response);
 
 					// copy data from source to response
 					OutputStream os = response.getOutputStream();
@@ -215,6 +233,26 @@ public class HystrixDashboardConfiguration {
 					catch (Exception ex) {
 						// ignore errors on close
 					}
+				}
+			}
+
+		}
+
+		private void copyHeadersToServletResponse(Header[] headers,
+				HttpServletResponse response) {
+			for (Header header : headers) {
+				// Some versions of Cloud Foundry (HAProxy) are
+				// incorrectly setting a "Connection: close" header
+				// causing the Hystrix dashboard to close the connection
+				// to the stream
+				// https://github.com/cloudfoundry/gorouter/issues/71
+				if (this.enableIgnoreConnectionCloseHeader
+						&& HttpHeaders.CONNECTION.equalsIgnoreCase(header.getName())
+						&& CONNECTION_CLOSE_VALUE.equalsIgnoreCase(header.getValue())) {
+					log.warn("Ignoring 'Connection: close' header from stream response");
+				}
+				else {
+					response.addHeader(header.getName(), header.getValue());
 				}
 			}
 		}
