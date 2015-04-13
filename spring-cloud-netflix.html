@@ -1473,6 +1473,24 @@ level, but "/myusers/**" matches hierarchically.</p>
 </div>
 </div>
 <div class="paragraph">
+<p>These simple url-routes doesn&#8217;t get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
+To achieve this specify a service-route and configure a Ribbon client for the serviceId, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      serviceId: users
+
+ users:
+  ribbon:
+    listOfServers: example.com,google.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>To add a prefix to all mappings, set <code>zuul.prefix</code> to a value, such as
 <code>/api</code>. The proxy prefix is stripped from the request before the
 request is forwarded by default (switch this behaviour off with
@@ -1684,7 +1702,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-13 14:41:54 UTC
+Last updated 2015-04-13 14:42:11 UTC
 </div>
 </div>
 </body>
