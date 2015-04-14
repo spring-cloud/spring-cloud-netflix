@@ -131,6 +131,8 @@
 					//	}, false);
 
 					source.addEventListener('error', function(e) {
+						$("#dependencies .loading").html("Unable to connect to Command Metric Stream.");
+						$("#dependencies .loading").addClass("failed");
 					  if (e.eventPhase == EventSource.CLOSED) {
 					    // Connection was closed.
 						  console.log("Connection was closed on error: " + JSON.stringify(e));
@@ -166,6 +168,8 @@
 					//	}, false);
 	
 					source.addEventListener('error', function(e) {
+                        $("#dependencies .loading").html("Unable to connect to Command Metric Stream.");
+                        $("#dependencies .loading").addClass("failed");
 					  if (e.eventPhase == EventSource.CLOSED) {
 					    // Connection was closed.
 						  console.log("Connection was closed on error: " + e);

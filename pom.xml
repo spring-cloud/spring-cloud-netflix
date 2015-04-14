@@ -25,7 +25,7 @@
 		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.1.147</eureka.version>
 		<feign.version>8.1.0</feign.version>
-		<hystrix.version>1.4.1</hystrix.version>
+		<hystrix.version>1.4.4</hystrix.version>
 		<ribbon.version>2.0.0</ribbon.version>
 		<zuul.version>1.0.28</zuul.version>
 		<netflix.rxjava.version>0.20.7</netflix.rxjava.version>
