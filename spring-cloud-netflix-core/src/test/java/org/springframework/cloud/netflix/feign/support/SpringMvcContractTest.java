@@ -31,11 +31,10 @@ public class SpringMvcContractTest {
 
     @Test
     public void testProcessAnnotationOnMethod_Simple() throws Exception {
-        MethodMetadata data = newMethodMetadata();
         Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest", String.class);
         Annotation annotation = method.getAnnotation(RequestMapping.class);
 
-        contract.processAnnotationOnMethod(data, annotation, method);
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
 
         assertEquals("/test/{id}", data.template().url());
         assertEquals("GET", data.template().method());
@@ -44,15 +43,10 @@ public class SpringMvcContractTest {
 
     @Test
     public void testProcessAnnotations_Simple() throws Exception {
-        MethodMetadata data = newMethodMetadata();
         Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest", String.class);
         Annotation annotation = method.getAnnotation(RequestMapping.class);
 
-        contract.processAnnotationOnMethod(data, annotation, method);
-
-        Annotation[][] annotations = method.getParameterAnnotations();
-
-        contract.processAnnotationsOnParameter(data, annotations[0], 0);
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
 
         assertEquals("/test/{id}", data.template().url());
         assertEquals("GET", data.template().method());
@@ -63,11 +57,10 @@ public class SpringMvcContractTest {
 
     @Test
     public void testProcessAnnotationsOnMethod_Advanced() throws Exception {
-        MethodMetadata data = newMethodMetadata();
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest", String.class, String.class, Integer.class);
         Annotation annotation = method.getAnnotation(RequestMapping.class);
 
-        contract.processAnnotationOnMethod(data, annotation, method);
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
 
         assertEquals("/advanced/test/{id}", data.template().url());
         assertEquals("PUT", data.template().method());
@@ -76,28 +69,20 @@ public class SpringMvcContractTest {
 
     @Test
     public void testProcessAnnotationsOnMethod_Advanced_UnknownAnnotation() throws Exception {
-        MethodMetadata data = newMethodMetadata();
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest", String.class, String.class, Integer.class);
-        Annotation annotation = method.getAnnotation(JsonAutoDetect.class);
+        Annotation annotation = method.getAnnotation(ExceptionHandler.class);
 
-        contract.processAnnotationOnMethod(data, annotation, method);
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
 
         // Don't throw an exception and this passes
     }
 
     @Test
     public void testProcessAnnotations_Advanced() throws Exception {
-        MethodMetadata data = newMethodMetadata();
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest", String.class, String.class, Integer.class);
         Annotation annotation = method.getAnnotation(RequestMapping.class);
 
-        contract.processAnnotationOnMethod(data, annotation, method);
-
-        Annotation[][] annotations = method.getParameterAnnotations();
-
-        contract.processAnnotationsOnParameter(data, annotations[0], 0);
-        contract.processAnnotationsOnParameter(data, annotations[1], 1);
-        contract.processAnnotationsOnParameter(data, annotations[2], 2);
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
 
         assertEquals("/advanced/test/{id}", data.template().url());
         assertEquals("PUT", data.template().method());
@@ -111,6 +96,30 @@ public class SpringMvcContractTest {
         assertEquals("{amount}", data.template().queries().get("amount").iterator().next());
     }
 
+    @Test
+    public void testProcessAnnotations_Advanced2() throws Exception {
+        Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest");
+        Annotation annotation = method.getAnnotation(RequestMapping.class);
+
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+
+        assertEquals("/advanced", data.template().url());
+        assertEquals("GET", data.template().method());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, data.template().headers().get("Accept").iterator().next());
+    }
+
+    @Test
+    public void testProcessAnnotations_Advanced3() throws Exception {
+        Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest");
+        Annotation annotation = method.getAnnotation(RequestMapping.class);
+
+        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+
+        assertEquals("", data.template().url());
+        assertEquals("GET", data.template().method());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, data.template().headers().get("Accept").iterator().next());
+    }
+
     private MethodMetadata newMethodMetadata() throws Exception {
         // Reflect because constructor is package private :(
         Constructor constructor = MethodMetadata.class.getDeclaredConstructor();
@@ -121,6 +130,9 @@ public class SpringMvcContractTest {
     public static interface TestTemplate_Simple {
         @RequestMapping(value = "/test/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
         ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
+
+        @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+        TestObject getTest();
     }
 
     @JsonAutoDetect
@@ -130,6 +142,9 @@ public class SpringMvcContractTest {
         @ExceptionHandler
         @RequestMapping(value = "/test/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
         ResponseEntity<TestObject> getTest(@RequestHeader("Authorization") String auth, @PathVariable("id") String id, @RequestParam("amount") Integer amount );
+
+        @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+        TestObject getTest();
     }
 
     @AllArgsConstructor
