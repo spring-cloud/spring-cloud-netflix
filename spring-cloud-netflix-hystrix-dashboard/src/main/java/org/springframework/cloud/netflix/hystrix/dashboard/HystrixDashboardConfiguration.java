@@ -251,7 +251,7 @@ public class HystrixDashboardConfiguration {
 						&& CONNECTION_CLOSE_VALUE.equalsIgnoreCase(header.getValue())) {
 					log.warn("Ignoring 'Connection: close' header from stream response");
 				}
-				else {
+				else if (!HttpHeaders.TRANSFER_ENCODING.equalsIgnoreCase(header.getName())) {
 					response.addHeader(header.getName(), header.getValue());
 				}
 			}
