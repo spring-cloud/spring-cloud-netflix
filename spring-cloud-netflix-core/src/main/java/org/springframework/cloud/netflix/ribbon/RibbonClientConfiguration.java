@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,6 +39,8 @@ import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
 import com.netflix.servo.monitor.Monitors;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 /**
  * @author Dave Syer
@@ -86,7 +90,7 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer) {
-		RestClient client = new RestClient(config);
+		RestClient client = new OverrideRestClient(config);
 		client.setLoadBalancer(loadBalancer);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
@@ -117,6 +121,25 @@ public class RibbonClientConfiguration {
 	public RibbonLoadBalancerContext ribbonLoadBalancerContext(
 			ILoadBalancer loadBalancer, IClientConfig config) {
 		return new RibbonLoadBalancerContext(loadBalancer, config);
+	}
+
+	private static class OverrideRestClient extends RestClient {
+
+		private OverrideRestClient(IClientConfig ncc) {
+			super(ncc);
+		}
+
+		@Override
+		protected Client apacheHttpClientSpecificInitialization() {
+			ApacheHttpClient4 apache = (ApacheHttpClient4) super
+					.apacheHttpClientSpecificInitialization();
+			apache.getClientHandler()
+					.getHttpClient()
+					.getParams()
+					.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+			return apache;
+		}
+
 	}
 
 }
