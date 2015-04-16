@@ -60,6 +60,9 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 			throws IOException {
         String serviceId = originalUri.getHost();
         ServiceInstance instance = loadBalancer.choose(serviceId);
+		if (instance == null) {
+			throw new IllegalStateException("No instances available for "+serviceId);
+		}
         URI uri = loadBalancer.reconstructURI(instance, originalUri);
         //@formatter:off
 		IClientConfig clientConfig = clientFactory.getClientConfig(instance.getServiceId());

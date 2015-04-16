@@ -23,6 +23,7 @@ import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -44,6 +45,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public URI reconstructURI(ServiceInstance instance, URI original) {
+		Assert.notNull(instance, "instance can not be null");
 		String serviceId = instance.getServiceId();
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
