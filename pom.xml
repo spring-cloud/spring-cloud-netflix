@@ -288,6 +288,11 @@
 				<version>1.13</version>
 			</dependency>
 			<dependency>
+				<groupId>com.sun.jersey.contribs</groupId>
+				<artifactId>jersey-apache-client4</artifactId>
+				<version>1.11</version>
+			</dependency>
+			<dependency>
 				<groupId>org.webjars</groupId>
 				<artifactId>d3js</artifactId>
 				<version>3.4.11</version>
