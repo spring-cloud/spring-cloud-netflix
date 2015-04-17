@@ -43,11 +43,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.params.ClientPNames;
@@ -204,6 +206,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			HttpPut httpPut = new HttpPut(uri + getQueryString());
 			httpRequest = httpPut;
 			httpPut.setEntity(new InputStreamEntity(requestEntity, request
+					.getContentLength()));
+			break;
+		case "PATCH":
+			HttpPatch httpPatch = new HttpPatch(uri + getQueryString());
+			httpRequest = httpPatch;
+			httpPatch.setEntity(new InputStreamEntity(requestEntity, request
 					.getContentLength()));
 			break;
 		default:
