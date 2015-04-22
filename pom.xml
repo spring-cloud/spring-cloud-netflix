@@ -31,7 +31,7 @@
 		<netflix.rxjava.version>0.20.7</netflix.rxjava.version>
 		<java.version>1.7</java.version>
 		<spring-integration-dsl.version>1.0.0.RELEASE</spring-integration-dsl.version>
-		<cloud-connectors.version>1.1.1.BUILD-SNAPSHOT</cloud-connectors.version>
+		<cloud-connectors.version>1.1.1.RELEASE</cloud-connectors.version>
 	</properties>
 	<build>
 		<plugins>
