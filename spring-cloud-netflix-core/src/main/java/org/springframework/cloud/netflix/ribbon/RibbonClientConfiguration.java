@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
@@ -88,6 +89,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Bean
+	@Lazy // see https://github.com/spring-cloud/spring-cloud-netflix/issues/312
 	@ConditionalOnMissingBean
 	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer) {
 		RestClient client = new OverrideRestClient(config);
