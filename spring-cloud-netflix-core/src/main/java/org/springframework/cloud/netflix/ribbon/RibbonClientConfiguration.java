@@ -123,10 +123,11 @@ public class RibbonClientConfiguration {
 		return new RibbonLoadBalancerContext(loadBalancer, config);
 	}
 
-	private static class OverrideRestClient extends RestClient {
+	static class OverrideRestClient extends RestClient {
 
-		private OverrideRestClient(IClientConfig ncc) {
-			super(ncc);
+		protected OverrideRestClient(IClientConfig ncc) {
+			super();
+			initWithNiwsConfig(ncc);
 		}
 
 		@Override
