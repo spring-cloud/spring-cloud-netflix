@@ -650,6 +650,18 @@ stores:
     listOfServers: example.com,google.com
 ----
 
+=== Example: Disable Eureka use in Ribbon
+
+Setting the property `ribbon.eureka.enabled = false` will explicitly
+disable the use of Eureka in Ribbon.
+
+.application.yml
+----
+ribbon:
+  eureka:
+   enabled: false
+----
+
 === Using the Ribbon API Directly
 
 You can also use the `LoadBalancerClient` directly. Example:
@@ -838,18 +850,24 @@ The location of the backend can be specified as either a "serviceId"
 ----
 
 These simple url-routes doesn't get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon. 
-To achieve this specify a service-route and configure a Ribbon client for the serviceId, e.g.
+To achieve this specify a service-route and configure a Ribbon client for the
+serviceId (this currently requires disabling Eureka support in Ribbon:
+see <<spring-cloud-ribbon-without-eureka,above for more information>>), e.g.
 
 .application.yml
 [source,yaml]
 ----
- zuul:
+zuul:
   routes:
     users:
       path: /myusers/**
       serviceId: users
-   
- users:
+
+ribbon:
+  eureka:
+    enabled: false
+
+users:
   ribbon:
     listOfServers: example.com,google.com
 ----
