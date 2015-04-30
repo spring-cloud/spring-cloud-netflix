@@ -108,14 +108,20 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 		@Override
 		protected ClientHttpResponse executeInternal(HttpHeaders headers)
 				throws IOException {
-            // use execute here so stats are collected
-            return loadBalancer.execute(this.config.getClientName(), new LoadBalancerRequest<ClientHttpResponse>() {
+			try {
+				HttpResponse response = client.execute(request, config);
+				return new RibbonHttpResponse(response);
+			} catch (Exception e) {
+				throw new IOException(e);
+			}
+
+			//TODO: fix stats, now that execute is not called
+			// use execute here so stats are collected
+            /*return loadBalancer.execute(this.config.getClientName(), new LoadBalancerRequest<ClientHttpResponse>() {
                 @Override
                 public ClientHttpResponse apply(ServiceInstance instance) throws Exception {
-                    HttpResponse response = client.execute(request, config);
-                    return new RibbonHttpResponse(response);
                 }
-            });
+            });*/
 		}
 	}
 
