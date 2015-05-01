@@ -954,6 +954,30 @@ attribute with a list of <code>@HystrixProperty</code> annotations.  See
 for more details.  See the <a href="https://github.com/Netflix/Hystrix/wiki/Configuration">Hystrix wiki</a>
 for details on the properties available.</p>
 </div>
+<div class="sect2">
+<h3 id="_propagating_the_security_context_or_using_spring_scopes">Propagating the Security Context or using Spring Scopes</h3>
+<div class="paragraph">
+<p>If you want some thread local context to propagate into a <code>@HystrixCommand</code> the default declaration will not work because it executes the command in a thread pool (in case of timeouts). You can switch Hystrix to use the same thread as the caller using some configuration, or directly in the annotation, by asking it to use a different "Isolation Strategy". For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@HystrixCommand(fallbackMethod = "stubMyService",
+    commandProperties = {
+      @HystrixProperty(name="execution.isolation.strategy", value="SEMAPHORE")
+    }
+)
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The same thing applies if you are using <code>@SessionScope</code> or <code>@RequestScope</code>. You will know when you need to do this because of a runtime exception that says it can&#8217;t find the scoped context.</p>
+</div>
+<div class="paragraph">
+<p>In particular you might be interested</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_health_indicator">Health Indicator</h3>
 <div class="paragraph">
 <p>The state of the connected circuit breakers are also exposed in the
 <code>/health</code> endpoint of the calling application.</p>
@@ -969,6 +993,7 @@ for details on the properties available.</p>
     },
     "status": "UP"
 }</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1236,6 +1261,21 @@ configuration like this</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_example_disable_eureka_use_in_ribbon">Example: Disable Eureka use in Ribbon</h3>
+<div class="paragraph">
+<p>Setting the property <code>ribbon.eureka.enabled = false</code> will explicitly
+disable the use of Eureka in Ribbon.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>ribbon:
+  eureka:
+   enabled: false</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_using_the_ribbon_api_directly">Using the Ribbon API Directly</h3>
 <div class="paragraph">
 <p>You can also use the <code>LoadBalancerClient</code> directly. Example:</p>
@@ -1474,18 +1514,24 @@ level, but "/myusers/**" matches hierarchically.</p>
 </div>
 <div class="paragraph">
 <p>These simple url-routes doesn&#8217;t get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
-To achieve this specify a service-route and configure a Ribbon client for the serviceId, e.g.</p>
+To achieve this specify a service-route and configure a Ribbon client for the
+serviceId (this currently requires disabling Eureka support in Ribbon:
+see <a href="#spring-cloud-ribbon-without-eureka">above for more information</a>), e.g.</p>
 </div>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">zuul:
   routes:
     users:
       path: /myusers/**
       serviceId: users
 
- users:
+ribbon:
+  eureka:
+    enabled: false
+
+users:
   ribbon:
     listOfServers: example.com,google.com</code></pre>
 </div>
@@ -1702,7 +1748,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-05-01 09:17:17 UTC
+Last updated 2015-05-01 15:30:53 UTC
 </div>
 </div>
 </body>
