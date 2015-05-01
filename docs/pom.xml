@@ -11,6 +11,7 @@
 	<artifactId>spring-cloud-netflix-docs</artifactId>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix Docs</name>
+	<version>1.0.3.BUILD-SNAPSHOT</version>
 	<description>Spring Cloud Docs</description>
 	<properties>
 		<docs.main>spring-cloud-netflix</docs.main>
