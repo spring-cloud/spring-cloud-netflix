@@ -1236,21 +1236,6 @@ configuration like this</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_example_disable_eureka_use_in_ribbon">Example: Disable Eureka use in Ribbon</h3>
-<div class="paragraph">
-<p>Setting the property <code>ribbon.eureka.enabled = false</code> will explicitly
-disable the use of Eureka in Ribbon.</p>
-</div>
-<div class="listingblock">
-<div class="title">application.yml</div>
-<div class="content">
-<pre>ribbon:
-  eureka:
-   enabled: false</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
 <h3 id="_using_the_ribbon_api_directly">Using the Ribbon API Directly</h3>
 <div class="paragraph">
 <p>You can also use the <code>LoadBalancerClient</code> directly. Example:</p>
@@ -1489,24 +1474,18 @@ level, but "/myusers/**" matches hierarchically.</p>
 </div>
 <div class="paragraph">
 <p>These simple url-routes doesn&#8217;t get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
-To achieve this specify a service-route and configure a Ribbon client for the
-serviceId (this currently requires disabling Eureka support in Ribbon:
-see <a href="#spring-cloud-ribbon-without-eureka">above for more information</a>), e.g.</p>
+To achieve this specify a service-route and configure a Ribbon client for the serviceId, e.g.</p>
 </div>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">zuul:
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
       serviceId: users
 
-ribbon:
-  eureka:
-    enabled: false
-
-users:
+ users:
   ribbon:
     listOfServers: example.com,google.com</code></pre>
 </div>
@@ -1723,7 +1702,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-04-30 18:58:27 UTC
+Last updated 2015-05-01 09:17:17 UTC
 </div>
 </div>
 </body>
