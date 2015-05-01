@@ -440,6 +440,26 @@ https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica#
 for more details.  See the https://github.com/Netflix/Hystrix/wiki/Configuration[Hystrix wiki]
 for details on the properties available.
 
+### Propagating the Security Context or using Spring Scopes
+
+If you want some thread local context to propagate into a `@HystrixCommand` the default declaration will not work because it executes the command in a thread pool (in case of timeouts). You can switch Hystrix to use the same thread as the caller using some configuration, or directly in the annotation, by asking it to use a different "Isolation Strategy". For example:
+
+[source,java]
+----
+@HystrixCommand(fallbackMethod = "stubMyService",
+    commandProperties = {
+      @HystrixProperty(name="execution.isolation.strategy", value="SEMAPHORE")
+    }
+) 
+...
+----
+
+The same thing applies if you are using `@SessionScope` or `@RequestScope`. You will know when you need to do this because of a runtime exception that says it can't find the scoped context.
+
+In particular you might be interested
+
+### Health Indicator
+
 The state of the connected circuit breakers are also exposed in the
 `/health` endpoint of the calling application. 
 
