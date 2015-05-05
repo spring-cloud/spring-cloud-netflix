@@ -136,7 +136,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 			}
 		}
 		catch (Exception e) {
-			log.info("Failed to retrieve instances from Eureka");
+			log.warn("Failed to retrieve instances from Eureka", e);
 		}
 		return instances;
 	}
