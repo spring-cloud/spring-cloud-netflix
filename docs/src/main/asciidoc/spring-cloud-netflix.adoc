@@ -566,7 +566,7 @@ so if you are using `@FeignClient` then this section also applies.
 
 A central concept in Ribbon is that of the named client. Each load
 balancer is part of an ensemble of components that work together to
-contact a remote server on demend, and the ensemble has a name that
+contact a remote server on demand, and the ensemble has a name that
 you give it as an application developer (e.g. using the `@FeignClient`
 annotation). Spring Cloud creates a new ensemble as an
 `ApplicationContext` on demand for each named client using
