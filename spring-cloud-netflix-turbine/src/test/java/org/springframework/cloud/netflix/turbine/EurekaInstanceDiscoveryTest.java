@@ -50,4 +50,16 @@ public class EurekaInstanceDiscoveryTest {
 		assertEquals("clusterName is wrong", asgName, clusterName);
 	}
 
+	@Test
+	public void testGetClusterNameInstanceMetadataMapExpression() {
+		TurbineProperties turbineProperties = new TurbineProperties();
+		turbineProperties.setClusterNameExpression("metadata['cluster']");
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		String metadataProperty = "myCluster";
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+				.setAppName("testApp").add("cluster", metadataProperty).build();
+		String clusterName = discovery.getClusterName(instanceInfo);
+		assertEquals("clusterName is wrong", metadataProperty, clusterName);
+	}
+
 }

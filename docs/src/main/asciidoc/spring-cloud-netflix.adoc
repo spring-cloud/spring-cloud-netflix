@@ -517,7 +517,7 @@ turbine:
   aggregator:
     clusterConfig: SYSTEM,USER
   appConfig: customers,stores,ui,admin
-  clusterNameExpression: metadata.cluster
+  clusterNameExpression: metadata['cluster']
 ----
 
 In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".
