@@ -69,7 +69,7 @@ public class ZuulFilterConfigurationTest {
 		assertEquals(filters.size(), 2);
 		List<String> ignoredFilters = new ArrayList<>();
 		ignoredFilters.add("test");
-		when(zuulProperties.getIgnoredFilters()).thenReturn(ignoredFilters);
+		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
 		zuulFilterConfiguration.zuulFilterInitializer();
 		assertEquals(filters.size(), 1);
 		assertNotNull(filters.get("test2"));
@@ -80,7 +80,7 @@ public class ZuulFilterConfigurationTest {
 		assertEquals(filters.size(), 2);
 		List<String> ignoredFilters = new ArrayList<>();
 		ignoredFilters.add("notfound");
-		when(zuulProperties.getIgnoredFilters()).thenReturn(ignoredFilters);
+		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
 		zuulFilterConfiguration.zuulFilterInitializer();
 		assertEquals(filters.size(), 2);
 		assertNotNull(filters.get("test"));
@@ -92,7 +92,7 @@ public class ZuulFilterConfigurationTest {
 		assertEquals(filters.size(), 2);
 		List<String> ignoredFilters = new ArrayList<>();
 		ignoredFilters.add(null);
-		when(zuulProperties.getIgnoredFilters()).thenReturn(ignoredFilters);
+		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
 		zuulFilterConfiguration.zuulFilterInitializer();
 		assertEquals(filters.size(), 2);
 		assertNotNull(filters.get("test"));
@@ -105,7 +105,7 @@ public class ZuulFilterConfigurationTest {
 		List<String> ignoredFilters = new ArrayList<>();
 		ignoredFilters.add("test");
 		ignoredFilters.add("test");
-		when(zuulProperties.getIgnoredFilters()).thenReturn(ignoredFilters);
+		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
 		zuulFilterConfiguration.zuulFilterInitializer();
 		assertEquals(filters.size(), 1);
 		assertNotNull(filters.get("test2"));
@@ -114,7 +114,7 @@ public class ZuulFilterConfigurationTest {
 	@Test
 	public void testNullCheckIgnoreList() {
 		List<String> ignoredFilters = null;
-		when(zuulProperties.getIgnoredFilters()).thenReturn(ignoredFilters);
+		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
 		zuulFilterConfiguration.zuulFilterInitializer();
 		assertEquals(filters.size(), 2);
 	}

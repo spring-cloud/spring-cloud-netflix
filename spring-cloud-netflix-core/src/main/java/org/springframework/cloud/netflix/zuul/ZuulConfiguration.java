@@ -128,8 +128,8 @@ public class ZuulConfiguration {
 		}
 
 		private void removeIgoredFilters() {
-			if (zuulProperties.getIgnoredFilters() != null) {
-				for (String ingoreFilter : zuulProperties.getIgnoredFilters()) {
+			if (zuulProperties.getIgnoreFilters() != null) {
+				for (String ingoreFilter : zuulProperties.getIgnoreFilters()) {
 					filters.remove(ingoreFilter);
 				}
 			}

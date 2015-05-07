@@ -49,7 +49,7 @@ public class ZuulProperties {
 
 	private List<String> ignoredServices = new ArrayList<String>();
 
-	private List<String> ignoredFilters = new ArrayList<String>();
+	private List<String> ignoreFilters = new ArrayList<String>();
 
 	private String servletPath = "/zuul";
 
