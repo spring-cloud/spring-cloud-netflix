@@ -1,121 +1,39 @@
 package org.springframework.cloud.netflix.zuul;
 
 import com.netflix.zuul.ZuulFilter;
-import org.junit.Before;
+import static org.junit.Assert.*;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.IntegrationTest;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.springframework.cloud.netflix.zuul.ZuulConfiguration.ZuulFilterConfiguration;
 
 /**
  * Corresponding unit test class for class {@link ZuulFilterConfigurationTest}.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = ServletPathZuulProxyApplication.class)
+@WebAppConfiguration
+@IntegrationTest({"server.port: 0", "server.servletPath: /app", "zuul.filter.sendResponse.enabled : false"})
+@DirtiesContext
 public class ZuulFilterConfigurationTest {
 
+	@Autowired
+	private Map<String, ZuulFilter> filters;
 
-	private Map<String, ZuulFilter> filters = new HashMap<>();
-
-	@Mock
-	private ZuulProperties zuulProperties;
-
-	private ZuulFilterConfiguration zuulFilterConfiguration = new ZuulFilterConfiguration();
-
-	@Before
-	public void init() {
-		initMocks(this);
-		filters.put("test", sampleFilter());
-		filters.put("test2", sampleFilter());
-		zuulFilterConfiguration = new ZuulFilterConfiguration();
-		zuulFilterConfiguration.setFilters(filters);
-		zuulFilterConfiguration.setZuulProperties(zuulProperties);
-	}
-
-	public ZuulFilter sampleFilter() {
-		return new ZuulFilter() {
-			@Override
-			public String filterType() {
-				return "pre";
+	@Test
+	public void sendResponseFilterDisabledTest() {
+		for (ZuulFilter filter : filters.values()) {
+			if (filter instanceof SendResponseFilter) {
+				fail();
 			}
-
-			@Override
-			public boolean shouldFilter() {
-				return true;
-			}
-
-			@Override
-			public Object run() {
-				return null;
-			}
-
-			@Override
-			public int filterOrder() {
-				return 0;
-			}
-		};
-	}
-
-	@Test
-	public void testSuccessIgnoreOneFilter() {
-		assertEquals(filters.size(), 2);
-		List<String> ignoredFilters = new ArrayList<>();
-		ignoredFilters.add("test");
-		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
-		zuulFilterConfiguration.zuulFilterInitializer();
-		assertEquals(filters.size(), 1);
-		assertNotNull(filters.get("test2"));
-	}
-
-	@Test
-	public void testNotFoudIgnoreFilter() {
-		assertEquals(filters.size(), 2);
-		List<String> ignoredFilters = new ArrayList<>();
-		ignoredFilters.add("notfound");
-		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
-		zuulFilterConfiguration.zuulFilterInitializer();
-		assertEquals(filters.size(), 2);
-		assertNotNull(filters.get("test"));
-		assertNotNull(filters.get("test2"));
-	}
-
-	@Test
-	public void testNullEntryIgnoreFilter() {
-		assertEquals(filters.size(), 2);
-		List<String> ignoredFilters = new ArrayList<>();
-		ignoredFilters.add(null);
-		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
-		zuulFilterConfiguration.zuulFilterInitializer();
-		assertEquals(filters.size(), 2);
-		assertNotNull(filters.get("test"));
-		assertNotNull(filters.get("test2"));
-	}
-
-	@Test
-	public void testDubleItemisIgnoreFilter() {
-		assertEquals(filters.size(), 2);
-		List<String> ignoredFilters = new ArrayList<>();
-		ignoredFilters.add("test");
-		ignoredFilters.add("test");
-		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
-		zuulFilterConfiguration.zuulFilterInitializer();
-		assertEquals(filters.size(), 1);
-		assertNotNull(filters.get("test2"));
-	}
-
-	@Test
-	public void testNullCheckIgnoreList() {
-		List<String> ignoredFilters = null;
-		when(zuulProperties.getIgnoreFilters()).thenReturn(ignoredFilters);
-		zuulFilterConfiguration.zuulFilterInitializer();
-		assertEquals(filters.size(), 2);
+		}
 	}
 }

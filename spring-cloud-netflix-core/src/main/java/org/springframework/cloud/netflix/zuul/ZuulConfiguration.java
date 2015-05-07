@@ -20,6 +20,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.http.ZuulServlet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -88,16 +89,19 @@ public class ZuulConfiguration {
 	// pre filters
 
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.formBodyWrapper.enabled", matchIfMissing = true)
 	public FormBodyWrapperFilter formBodyWrapperFilter() {
 		return new FormBodyWrapperFilter();
 	}
 
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.debug.enabled", matchIfMissing = true)
 	public DebugFilter debugFilter() {
 		return new DebugFilter();
 	}
 
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.servlet30Wrapper.enabled", matchIfMissing = true)
 	public Servlet30WrapperFilter servlet30WrapperFilter() {
 		return new Servlet30WrapperFilter();
 	}
@@ -105,11 +109,13 @@ public class ZuulConfiguration {
 	// post filters
 
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.sendResponse.enabled", matchIfMissing = true)
 	public SendResponseFilter sendResponseFilter() {
 		return new SendResponseFilter();
 	}
 
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.sendError.enabled", matchIfMissing = true)
 	public SendErrorFilter sendErrorFilter() {
 		return new SendErrorFilter();
 	}
@@ -117,33 +123,14 @@ public class ZuulConfiguration {
 	@Configuration
 	protected static class ZuulFilterConfiguration {
 
+		@Autowired
 		private Map<String, ZuulFilter> filters;
-
-		private ZuulProperties zuulProperties;
 
 		@Bean
 		public ZuulFilterInitializer zuulFilterInitializer() {
-			return new ZuulFilterInitializer(removeIgoredFilters(filters));
+			return new ZuulFilterInitializer(filters);
 		}
 
-		private Map<String, ZuulFilter> removeIgoredFilters(Map<String, ZuulFilter> filters) {
-			if (zuulProperties.getIgnoreFilters() != null) {
-				for (String ingoreFilter : zuulProperties.getIgnoreFilters()) {
-					filters.remove(ingoreFilter);
-				}
-			}
-			return filters;
-		}
-
-		@Autowired
-		public void setFilters(final Map<String, ZuulFilter> filters) {
-			this.filters = filters;
-		}
-
-		@Autowired
-		public void setZuulProperties(final ZuulProperties zuulProperties) {
-			this.zuulProperties = zuulProperties;
-		}
 	}
 
 	private static class ZuulRefreshListener implements
