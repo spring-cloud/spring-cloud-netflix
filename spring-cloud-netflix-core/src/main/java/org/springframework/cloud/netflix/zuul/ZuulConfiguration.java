@@ -123,16 +123,16 @@ public class ZuulConfiguration {
 
 		@Bean
 		public ZuulFilterInitializer zuulFilterInitializer() {
-			removeIgoredFilters();
-			return new ZuulFilterInitializer(filters);
+			return new ZuulFilterInitializer(removeIgoredFilters(filters));
 		}
 
-		private void removeIgoredFilters() {
+		private Map<String, ZuulFilter> removeIgoredFilters(Map<String, ZuulFilter> filters) {
 			if (zuulProperties.getIgnoreFilters() != null) {
 				for (String ingoreFilter : zuulProperties.getIgnoreFilters()) {
 					filters.remove(ingoreFilter);
 				}
 			}
+			return filters;
 		}
 
 		@Autowired
