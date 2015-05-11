@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
@@ -71,6 +72,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	// pre filters
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.preDecoration.enabled", matchIfMissing = true)
 	public PreDecorationFilter preDecorationFilter() {
 		return new PreDecorationFilter(routeLocator(),
 				this.zuulProperties.isAddProxyHeaders());
@@ -78,6 +80,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	// route filters
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.ribbonRouting.enabled", matchIfMissing = true)
 	public RibbonRoutingFilter ribbonRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
@@ -88,6 +91,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnProperty(name = "zuul.filter.simpleHostRouting.enabled", matchIfMissing = true)
 	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
