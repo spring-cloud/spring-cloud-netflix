@@ -978,6 +978,16 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 
 maps all paths in "/api/**" to the Zuul filter chain.
 
+=== Disable Zuul Filters
+
+Zuul for Spring Cloud comes with a number of `ZuulFilter` beans enabled by default
+in both proxy and server mode.  See https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters[the zuul filters package] for the
+possible filters that are enabled.  If you want to disable one, simply set
+`zuul.<SimpleClassName>.<filterType>.disable=true`. By convention, the package after
+`filters` is the Zuul filter type. For example to disable
+`org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter` set
+`zuul.SendResponseFilter.post.disable=true`.
+
 === Polyglot support with Sidecar
 
 Do you have non-jvm languages you want to take advantage of Eureka, Ribbon and
