@@ -1120,7 +1120,7 @@ so if you are using <code>@FeignClient</code> then this section also applies.</p
 <div class="paragraph">
 <p>A central concept in Ribbon is that of the named client. Each load
 balancer is part of an ensemble of components that work together to
-contact a remote server on demend, and the ensemble has a name that
+contact a remote server on demand, and the ensemble has a name that
 you give it as an application developer (e.g. using the <code>@FeignClient</code>
 annotation). Spring Cloud creates a new ensemble as an
 <code>ApplicationContext</code> on demand for each named client using
@@ -1637,6 +1637,18 @@ still specified by configuring "zuul.routes.*", but there is no service discover
 </div>
 </div>
 <div class="sect2">
+<h3 id="_disable_zuul_filters">Disable Zuul Filters</h3>
+<div class="paragraph">
+<p>Zuul for Spring Cloud comes with a number of <code>ZuulFilter</code> beans enabled by default
+in both proxy and server mode.  See <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters">the zuul filters package</a> for the
+possible filters that are enabled.  If you want to disable one, simply set
+<code>zuul.&lt;SimpleClassName&gt;.&lt;filterType&gt;.disable=true</code>. By convention, the package after
+<code>filters</code> is the Zuul filter type. For example to disable
+<code>org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter</code> set
+<code>zuul.SendResponseFilter.post.disable=true</code>.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_polyglot_support_with_sidecar">Polyglot support with Sidecar</h3>
 <div class="paragraph">
 <p>Do you have non-jvm languages you want to take advantage of Eureka, Ribbon and
@@ -1748,7 +1760,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-05-07 13:36:13 UTC
+Last updated 2015-05-11 16:09:16 UTC
 </div>
 </div>
 </body>
