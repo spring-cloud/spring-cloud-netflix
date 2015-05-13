@@ -22,8 +22,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.springframework.util.StringUtils;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
@@ -92,7 +90,7 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 			setZone(server.getInstanceInfo().getMetadata().get("zone"));
 		}
 		else if (approximateZoneFromHostname) {
-			setZone(extractApproximateZone(server));
+			setZone(ZoneUtils.extractApproximateZone(server.getHost()));
 		}
 		else {
 			setZone(server.getZone());
@@ -112,18 +110,4 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 		}
 		return super.getId();
 	}
-
-	private String extractApproximateZone(Server server) {
-		String host = server.getHost();
-		if (!host.contains(".")) {
-			return host;
-		}
-		String[] split = StringUtils.split(host, ".");
-		StringBuilder builder = new StringBuilder(split[1]);
-		for (int i = 2; i < split.length; i++) {
-			builder.append(".").append(split[i]);
-		}
-		return builder.toString();
-	}
-
 }
