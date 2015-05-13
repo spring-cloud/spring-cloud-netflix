@@ -22,8 +22,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.springframework.util.StringUtils;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;

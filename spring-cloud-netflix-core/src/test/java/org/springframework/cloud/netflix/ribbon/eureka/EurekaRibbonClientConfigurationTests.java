@@ -38,6 +38,7 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 
 /**
  * @author Dave Syer
+ * @author Ryan Baxter
  */
 public class EurekaRibbonClientConfigurationTests {
 

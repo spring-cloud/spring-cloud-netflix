@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -50,6 +49,7 @@ import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Ryan Baxter
  */
 @Configuration
 @CommonsLog
@@ -67,7 +67,7 @@ public class EurekaRibbonClientConfiguration {
 
 	@Autowired(required = false)
 	private EurekaClientConfig clientConfig;
-	
+
 	@Autowired
 	private EurekaInstanceConfigBean eurekaConfig;
 
@@ -75,7 +75,8 @@ public class EurekaRibbonClientConfiguration {
 	}
 
 	public EurekaRibbonClientConfiguration(EurekaClientConfig clientConfig,
-			String serviceId, EurekaInstanceConfigBean eurekaConfig, boolean approximateZoneFromHostname) {
+			String serviceId, EurekaInstanceConfigBean eurekaConfig,
+			boolean approximateZoneFromHostname) {
 		this.clientConfig = clientConfig;
 		this.serviceId = serviceId;
 		this.eurekaConfig = eurekaConfig;
@@ -93,26 +94,30 @@ public class EurekaRibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerList<?> ribbonServerList(IClientConfig config) {
-		DiscoveryEnabledNIWSServerList discoveryServerList = new DiscoveryEnabledNIWSServerList(config);
-		DomainExtractingServerList serverList = new DomainExtractingServerList(discoveryServerList, config, this.approximateZoneFromHostname);
+		DiscoveryEnabledNIWSServerList discoveryServerList = new DiscoveryEnabledNIWSServerList(
+				config);
+		DomainExtractingServerList serverList = new DomainExtractingServerList(
+				discoveryServerList, config, this.approximateZoneFromHostname);
 		return serverList;
 	}
 
 	@PostConstruct
 	public void preprocess() {
-		String zone = ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone);
-		System.out.println("zone value: " + zone);
-		if (this.clientConfig != null
-				&& StringUtils.isEmpty(zone)) {
-			if(approximateZoneFromHostname) {
-				String approxZone = ZoneUtils.extractApproximateZone(eurekaConfig.getHostname());
+		String zone = ConfigurationManager.getDeploymentContext().getValue(
+				ContextKey.zone);
+		if (this.clientConfig != null && StringUtils.isEmpty(zone)) {
+			if (approximateZoneFromHostname) {
+				String approxZone = ZoneUtils.extractApproximateZone(eurekaConfig
+						.getHostname());
 				log.debug("Setting Zone To " + approxZone);
 				ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone,
 						approxZone);
-			} else {
+			}
+			else {
 				String[] zones = this.clientConfig.getAvailabilityZones(this.clientConfig
 						.getRegion());
-				String availabilityZone = zones != null && zones.length > 0 ? zones[0] : null;
+				String availabilityZone = zones != null && zones.length > 0 ? zones[0]
+						: null;
 				if (availabilityZone != null) {
 					// You can set this with archaius.deployment.* (maybe requires
 					// custom deployment context)?

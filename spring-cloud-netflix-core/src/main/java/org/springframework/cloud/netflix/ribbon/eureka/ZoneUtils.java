@@ -16,12 +16,16 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 
 import org.springframework.util.StringUtils;
 
-
+/**
+ * Utility class for dealing with zones.
+ * @author Ryan Baxter
+ *
+ */
 public class ZoneUtils {
-	
+
 	/**
-	 * Approximates Eureka zones from a host name.  This method approximates
-	 * the zone to be everything after the first "." in the host name.
+	 * Approximates Eureka zones from a host name. This method approximates the zone to be
+	 * everything after the first "." in the host name.
 	 * @param host The host name to extract the host name from
 	 * @return The approximate zone
 	 */

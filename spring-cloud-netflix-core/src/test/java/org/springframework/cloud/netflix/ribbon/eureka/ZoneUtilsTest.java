@@ -18,12 +18,18 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+/**
+ * 
+ * @author Ryan Baxter
+ *
+ */
 public class ZoneUtilsTest {
 
 	@Test
 	public void extractApproximateZoneTest() {
 		assertTrue("foo".equals(ZoneUtils.extractApproximateZone("foo")));
 		assertTrue("bar".equals(ZoneUtils.extractApproximateZone("foo.bar")));
-		assertTrue("world.foo.bar".equals(ZoneUtils.extractApproximateZone("hello.world.foo.bar")));
+		assertTrue("world.foo.bar".equals(ZoneUtils
+				.extractApproximateZone("hello.world.foo.bar")));
 	}
 }
