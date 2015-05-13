@@ -21,11 +21,16 @@ import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity
 
 import javax.annotation.PostConstruct;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
@@ -47,6 +52,7 @@ import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
  * @author Dave Syer
  */
 @Configuration
+@CommonsLog
 public class EurekaRibbonClientConfiguration {
 
 	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
@@ -61,14 +67,19 @@ public class EurekaRibbonClientConfiguration {
 
 	@Autowired(required = false)
 	private EurekaClientConfig clientConfig;
+	
+	@Autowired
+	private EurekaInstanceConfigBean eurekaConfig;
 
 	public EurekaRibbonClientConfiguration() {
 	}
 
 	public EurekaRibbonClientConfiguration(EurekaClientConfig clientConfig,
-			String serviceId) {
+			String serviceId, EurekaInstanceConfigBean eurekaConfig, boolean approximateZoneFromHostname) {
 		this.clientConfig = clientConfig;
 		this.serviceId = serviceId;
+		this.eurekaConfig = eurekaConfig;
+		this.approximateZoneFromHostname = approximateZoneFromHostname;
 	}
 
 	@Bean
@@ -89,16 +100,25 @@ public class EurekaRibbonClientConfiguration {
 
 	@PostConstruct
 	public void preprocess() {
+		String zone = ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone);
+		System.out.println("zone value: " + zone);
 		if (this.clientConfig != null
-				&& ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone) == null) {
-			String[] zones = this.clientConfig.getAvailabilityZones(this.clientConfig
-					.getRegion());
-			String zone = zones != null && zones.length > 0 ? zones[0] : null;
-			if (zone != null) {
-				// You can set this with archaius.deployment.* (maybe requires
-				// custom deployment context)?
+				&& StringUtils.isEmpty(zone)) {
+			if(approximateZoneFromHostname) {
+				String approxZone = ZoneUtils.extractApproximateZone(eurekaConfig.getHostname());
+				log.debug("Setting Zone To " + approxZone);
 				ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone,
-						zone);
+						approxZone);
+			} else {
+				String[] zones = this.clientConfig.getAvailabilityZones(this.clientConfig
+						.getRegion());
+				String availabilityZone = zones != null && zones.length > 0 ? zones[0] : null;
+				if (availabilityZone != null) {
+					// You can set this with archaius.deployment.* (maybe requires
+					// custom deployment context)?
+					ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone,
+							availabilityZone);
+				}
 			}
 		}
 		setProp(this.serviceId, DeploymentContextBasedVipAddresses.key(), this.serviceId);
