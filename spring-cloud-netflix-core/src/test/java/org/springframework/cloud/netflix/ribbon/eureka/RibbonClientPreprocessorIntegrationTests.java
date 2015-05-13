@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
@@ -97,6 +98,12 @@ public class RibbonClientPreprocessorIntegrationTests {
 			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 			filter.setZone("myTestZone");
 			return filter;
+		}
+		
+		@Bean
+		public EurekaInstanceConfigBean getEurekaInstanceConfigBean() {
+			EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean();
+			return bean;
 		}
 	}
 
