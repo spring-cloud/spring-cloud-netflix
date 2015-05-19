@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
@@ -43,7 +44,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	private EurekaInstanceConfigBean config;
 
 	@Autowired
-	private com.netflix.discovery.DiscoveryClient discovery;
+	private EurekaClient eurekaClient;
 
 	@Override
 	public String description() {
@@ -82,7 +83,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<ServiceInstance> getInstances(String serviceId) {
-		List<InstanceInfo> infos = this.discovery.getInstancesByVipAddress(serviceId,
+		List<InstanceInfo> infos = this.eurekaClient.getInstancesByVipAddress(serviceId,
 				false);
 		List<ServiceInstance> instances = new ArrayList<ServiceInstance>();
 		for (InstanceInfo info : infos) {
@@ -130,12 +131,12 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<String> getServices() {
-		Applications applications = this.discovery.getApplications();
+		Applications applications = this.eurekaClient.getApplications();
 		if (applications == null) {
 			return Collections.emptyList();
 		}
 		List<Application> registered = applications.getRegisteredApplications();
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		for (Application app : registered) {
 			if (app.getInstances().isEmpty()) {
 				continue;

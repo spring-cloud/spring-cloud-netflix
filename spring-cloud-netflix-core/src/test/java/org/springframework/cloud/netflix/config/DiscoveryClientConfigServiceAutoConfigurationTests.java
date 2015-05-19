@@ -35,6 +35,7 @@ import com.netflix.discovery.EurekaClient;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 
 /**
  * @author Dave Syer
@@ -67,12 +68,13 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 				1,
 				this.context
 						.getBeanNamesForType(DiscoveryClientConfigServiceAutoConfiguration.class).length);
-		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
+		Mockito.verify(this.client, times(2)).getNextServerFromEureka("CONFIGSERVER", false);
 		Mockito.verify(this.client).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
-		assertEquals("bar", ApplicationInfoManager.getInstance().getInfo().getMetadata()
+		ApplicationInfoManager applicationInfoManager = this.context.getBean(ApplicationInfoManager.class);
+		assertEquals("bar", applicationInfoManager.getInfo().getMetadata()
 				.get("foo"));
 	}
 
