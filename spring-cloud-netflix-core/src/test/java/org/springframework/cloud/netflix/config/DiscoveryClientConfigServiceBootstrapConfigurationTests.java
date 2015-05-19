@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.config;
 
+import com.netflix.discovery.EurekaClient;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -26,7 +27,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -38,7 +38,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	private DiscoveryClient client = Mockito.mock(DiscoveryClient.class);
+	private EurekaClient client = Mockito.mock(EurekaClient.class);
 
 	private InstanceInfo info = InstanceInfo.Builder.newBuilder().setAppName("app")
 			.setHostName("foo").setHomePageUrl("/", null).build();
@@ -105,7 +105,6 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		EnvironmentTestUtils.addEnvironment(this.context, env);
 		this.context.getDefaultListableBeanFactory().registerSingleton(
 				"mockDiscoveryClient", this.client);
-		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				ConfigClientProperties.class);

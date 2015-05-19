@@ -31,8 +31,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClient;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -44,7 +43,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	private DiscoveryClient client = Mockito.mock(DiscoveryClient.class);
+	private EurekaClient client = Mockito.mock(EurekaClient.class);
 
 	private InstanceInfo info = InstanceInfo.Builder.newBuilder().setAppName("app")
 			.setHostName("foo").setHomePageUrl("/", null).build();
@@ -82,7 +81,6 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		EnvironmentTestUtils.addEnvironment(parent, env);
 		parent.getDefaultListableBeanFactory().registerSingleton("mockDiscoveryClient",
 				this.client);
-		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
 		parent.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				EnvironmentKnobbler.class, ConfigClientProperties.class);

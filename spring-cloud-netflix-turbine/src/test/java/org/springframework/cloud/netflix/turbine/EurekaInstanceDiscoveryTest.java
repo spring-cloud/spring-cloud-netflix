@@ -31,7 +31,7 @@ public class EurekaInstanceDiscoveryTest {
 	public void testGetClusterName() {
 		String appName = "testAppName";
 		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-				new TurbineProperties());
+				new TurbineProperties(), null);
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(appName)
 				.build();
 		String clusterName = discovery.getClusterName(instanceInfo);
@@ -42,7 +42,7 @@ public class EurekaInstanceDiscoveryTest {
 	public void testGetClusterNameCustomExpression() {
 		TurbineProperties turbineProperties = new TurbineProperties();
 		turbineProperties.setClusterNameExpression("aSGName");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, null);
 		String asgName = "myAsgName";
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
 				.setAppName("testApp").setASGName(asgName).build();

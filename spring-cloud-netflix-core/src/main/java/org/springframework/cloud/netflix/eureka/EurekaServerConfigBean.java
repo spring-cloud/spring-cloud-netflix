@@ -154,6 +154,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean logIdentityHeaders = true;
 
+	private int remoteRegionFetchThreadPoolSize = 20;
+
 	@Override
 	public boolean shouldEnableSelfPreservation() {
 		return this.enableSelfPreservation;

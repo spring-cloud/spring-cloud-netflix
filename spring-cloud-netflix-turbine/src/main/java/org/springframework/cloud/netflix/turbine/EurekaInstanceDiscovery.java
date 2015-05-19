@@ -34,8 +34,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.turbine.discovery.Instance;
 import com.netflix.turbine.discovery.InstanceDiscovery;
@@ -61,8 +60,11 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 			.getInstance().getStringProperty("turbine.appConfig", "");
 
 	private final Expression clusterNameExpression;
+	private EurekaClient eurekaClient;
 
-	public EurekaInstanceDiscovery(TurbineProperties turbineProperties) {
+	public EurekaInstanceDiscovery(TurbineProperties turbineProperties,
+			EurekaClient eurekaClient) {
+		this.eurekaClient = eurekaClient;
 		// Eureka client should already be configured by spring-platform-netflix-core
 		// initialize eureka client.
 		// DiscoveryManager.getInstance().initComponent(new MyDataCenterInstanceConfig(),
@@ -113,12 +115,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	private List<Instance> getInstancesForApp(String appName) throws Exception {
 		List<Instance> instances = new ArrayList<Instance>();
 		log.info("Fetching instances for app: " + appName);
-		DiscoveryClient client = DiscoveryManager.getInstance().getDiscoveryClient();
-		if (client == null) {
-			log.info("Discovery client not ready for: " + appName);
-			return instances;
-		}
-		Application app = client.getApplication(appName);
+		Application app = eurekaClient.getApplication(appName);
 		if (app == null) {
 			log.warn("Eureka returned null for app: " + appName);
 		}

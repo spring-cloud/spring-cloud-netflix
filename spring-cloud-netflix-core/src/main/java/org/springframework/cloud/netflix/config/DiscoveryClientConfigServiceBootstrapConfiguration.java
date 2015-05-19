@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.config;
 
+import com.netflix.discovery.EurekaClient;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -43,7 +42,7 @@ import com.netflix.discovery.DiscoveryManager;
  *
  * @author Dave Syer
  */
-@ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
+@ConditionalOnClass({EurekaClient.class, ConfigServicePropertySourceLocator.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
 @EnableDiscoveryClient
@@ -56,6 +55,9 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 
 	@Autowired
 	private ConfigClientProperties config;
+
+	@Autowired
+	private EurekaClient eurekaClient;
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -88,9 +90,7 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	private void refresh() {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = DiscoveryManager
-					.getInstance()
-					.getDiscoveryClient()
+			InstanceInfo server = eurekaClient
 					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(),
 							false);
 			String url = server.getHomePageUrl();
