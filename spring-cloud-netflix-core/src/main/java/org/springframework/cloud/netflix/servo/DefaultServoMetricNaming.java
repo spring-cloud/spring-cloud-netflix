@@ -106,6 +106,9 @@ public class DefaultServoMetricNaming implements ServoMetricNaming {
 	}
 
 	private String cleanupIllegalCharacters(String s, boolean allowPeriodsInName) {
+		if( s == null ) {
+			return null;
+		}
 		if (!allowPeriodsInName) {
 			s = s.replace(".", "_");
 		}
