@@ -21,6 +21,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpRequest.Builder;
 import com.netflix.client.http.HttpRequest.Verb;
@@ -35,7 +39,6 @@ import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import com.netflix.niws.client.http.RestClient;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.util.MultiValueMap;
 
 /**
  * Hystrix wrapper around Eureka Ribbon command
@@ -77,7 +80,7 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 		super(getSetter(commandKey));
 		this.restClient = restClient;
 		this.verb = verb;
-		this.uri = new URI(uri);
+		this.uri = (StringUtils.hasText(uri))? UriComponentsBuilder.fromUriString(uri).build().toUri() : new URI(uri);
 		this.retryable = retryable;
 		this.headers = headers;
 		this.params = params;

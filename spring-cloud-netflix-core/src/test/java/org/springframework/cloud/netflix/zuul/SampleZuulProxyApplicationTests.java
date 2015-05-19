@@ -132,6 +132,15 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals("Gotten 1!", result.getBody());
 	}
 
+	@Test
+	public void routeWithSpace() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/spa ce",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Hello space", result.getBody());
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -167,6 +176,11 @@ class SampleZuulProxyApplication {
 	@RequestMapping("/")
 	public String home() {
 		return "Hello world";
+	}
+
+	@RequestMapping("/spa ce")
+	public String space() {
+		return "Hello space";
 	}
 
 	@Bean
