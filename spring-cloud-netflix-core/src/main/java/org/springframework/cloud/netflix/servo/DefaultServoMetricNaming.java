@@ -48,7 +48,7 @@ public class DefaultServoMetricNaming implements ServoMetricNaming {
 	private String handleMetric(MonitorConfig config, TagList tags) {
 		String type = cleanValue(tags.getTag(DataSourceType.KEY), false);
 		String instanceName = cleanValue(tags.getTag("instance"), false);
-		String name = cleanupIllegalCharacters(config.getName(), false);
+		String name = cleanupIllegalCharacters(config.getName(), true);
 		String statistic = cleanValue(tags.getTag("statistic"), false);
 
 		StringBuilder nameBuilder = new StringBuilder();
