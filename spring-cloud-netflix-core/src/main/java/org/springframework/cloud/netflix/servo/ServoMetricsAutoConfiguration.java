@@ -45,8 +45,15 @@ public class ServoMetricsAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ServoMetricCollector servoMetricCollector(MetricWriter metrics) {
-		return new ServoMetricCollector(metrics);
+	public ServoMetricNaming servoMetricNaming() {
+		return new DefaultServoMetricNaming();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ServoMetricCollector servoMetricCollector(MetricWriter metrics,
+													 ServoMetricNaming naming) {
+		return new ServoMetricCollector(metrics, naming);
 	}
 
 }
