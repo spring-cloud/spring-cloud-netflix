@@ -54,6 +54,12 @@
 			<artifactId>eureka-client</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- eureka-client dependency -->
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-core</artifactId>
