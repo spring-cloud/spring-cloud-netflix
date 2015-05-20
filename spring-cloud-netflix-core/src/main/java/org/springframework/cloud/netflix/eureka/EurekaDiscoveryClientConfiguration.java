@@ -121,6 +121,18 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		if (this.port.get() != 0 && this.instanceConfig.getNonSecurePort() == 0) {
 			// FIXME: eureka DI random port for instance info
 			this.instanceConfig.setNonSecurePort(this.port.get());
+			ReflectionUtils.doWithFields(InstanceInfo.class, new ReflectionUtils.FieldCallback() {
+				@Override
+				public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+					ReflectionUtils.makeAccessible(field);
+					field.set(EurekaDiscoveryClientConfiguration.this.instanceInfo, EurekaDiscoveryClientConfiguration.this.port.get());
+				}
+			}, new ReflectionUtils.FieldFilter() {
+				@Override
+				public boolean matches(Field field) {
+					return field.getName().equals("port");
+				}
+			});
 		}
 
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running

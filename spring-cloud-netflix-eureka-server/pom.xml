@@ -46,6 +46,11 @@
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-client</artifactId>
 		</dependency>
+		<!-- eureka-client dependency -->
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.netflix.blitz4j</groupId>
 			<artifactId>blitz4j</artifactId>
