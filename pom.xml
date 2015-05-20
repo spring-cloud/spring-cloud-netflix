@@ -28,7 +28,7 @@
 		<hystrix.version>1.4.4</hystrix.version>
 		<ribbon.version>2.0.0</ribbon.version>
 		<zuul.version>1.0.28</zuul.version>
-		<netflix.rxjava.version>0.20.7</netflix.rxjava.version>
+		<rxjava.version>1.0.11</rxjava.version>
 		<java.version>1.7</java.version>
 		<spring-integration-dsl.version>1.0.0.RELEASE</spring-integration-dsl.version>
 		<cloud-connectors.version>1.1.1.RELEASE</cloud-connectors.version>
@@ -238,9 +238,9 @@
 				<version>${ribbon.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.netflix.rxjava</groupId>
-				<artifactId>rxjava-core</artifactId>
-				<version>${netflix.rxjava.version}</version>
+				<groupId>io.reactivex</groupId>
+				<artifactId>rxjava</artifactId>
+				<version>${rxjava.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.zuul</groupId>
