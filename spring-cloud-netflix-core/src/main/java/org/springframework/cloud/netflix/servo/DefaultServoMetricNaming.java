@@ -27,8 +27,31 @@ import com.netflix.servo.tag.TagList;
  */
 public class DefaultServoMetricNaming implements ServoMetricNaming {
 	private static final String JMX_DOMAIN_KEY = "JmxDomain";
-	public static final String SERVO = "servo.";
+	public static final String SERVO = "servo";
 
+	protected String servoPrefix;
+	
+	/**
+	 * Naming strategy using the default servo prefix
+	 */
+	public DefaultServoMetricNaming() {
+		this(SERVO);
+	}
+	
+	/**
+	 * Construct a naming strategy with the supplied servo prefix.
+	 * 
+	 * @param servoPrefix the prefix to append to metric name (after the metric type)
+	 */
+	public DefaultServoMetricNaming(String servoPrefix) {
+		this.servoPrefix = servoPrefix;
+	}
+	
+	/**
+	 * Get the metric name for the given servo metric.
+	 * @param metric servo metric whose name must be computed
+	 * @return the metric name
+	 */
 	@Override
 	public String getName(Metric metric) {
 		MonitorConfig config = metric.getConfig();
@@ -45,70 +68,72 @@ public class DefaultServoMetricNaming implements ServoMetricNaming {
 		return name.toLowerCase();
 	}
 
-	private String handleMetric(MonitorConfig config, TagList tags) {
-		String type = cleanValue(tags.getTag(DataSourceType.KEY), false);
-		String instanceName = cleanValue(tags.getTag("instance"), false);
-		String name = cleanupIllegalCharacters(config.getName(), false);
-		String statistic = cleanValue(tags.getTag("statistic"), false);
-
-		StringBuilder nameBuilder = new StringBuilder();
-		if (type != null) {
-			nameBuilder.append(type).append(".");
-		}
-		nameBuilder.append(SERVO);
-		if (instanceName != null) {
-			nameBuilder.append(instanceName).append(".");
-		}
-		if (name != null) {
-			nameBuilder.append(name).append(".");
-		}
-		if (statistic != null) {
-			nameBuilder.append(statistic).append(".");
-		}
-		// remove trailing "."
-		nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
-		return nameBuilder.toString();
+	
+	/**
+	 * Handle a non-JMX servo metric
+	 */
+	protected String handleMetric(MonitorConfig config, TagList tags) {
+		return new NameBuilder()
+					.append(cleanValue(tags.getTag(DataSourceType.KEY), false))
+					.append(servoPrefix)
+					.append(cleanValue(tags.getTag("instance"), false))
+					.append(cleanValue(config.getName(), true))
+					.append(cleanValue(tags.getTag("statistic"), false))
+					.build();
 	}
 
-	private String handleJmxMetric(MonitorConfig config, TagList tags) {
-		String domain = cleanValue(tags.getTag(JMX_DOMAIN_KEY), true);
-		String type = cleanValue(tags.getTag("Jmx.type"), false);
-		String instanceName = cleanValue(tags.getTag("Jmx.instance"), false);
-		String name = cleanValue(tags.getTag("Jmx.name"), false);
-		String fieldName = cleanupIllegalCharacters(config.getName(), false);
-
-		StringBuilder nameBuilder = new StringBuilder();
-		nameBuilder.append(domain).append(".");
-		if (type != null) {
-			nameBuilder.append(type).append(".");
-		}
-		nameBuilder.append(SERVO);
-		if (instanceName != null) {
-			nameBuilder.append(instanceName).append(".");
-		}
-		if (name != null) {
-			nameBuilder.append(name).append(".");
-		}
-		if (fieldName != null) {
-			nameBuilder.append(fieldName).append(".");
-		}
-		// remove trailing "."
-		nameBuilder.deleteCharAt(nameBuilder.lastIndexOf("."));
-		return nameBuilder.toString();
+	/**
+	 * Handle a JMX servo metric
+	 */
+	protected String handleJmxMetric(MonitorConfig config, TagList tags) {	
+		return new NameBuilder()
+					.append(cleanValue(tags.getTag(JMX_DOMAIN_KEY), true))
+					.append(servoPrefix)
+					.append(cleanValue(tags.getTag("Jmx.instance"), false))
+					.append(cleanValue(tags.getTag("Jmx.name"), false))
+					.append(cleanValue(config.getName(), false))
+					.build();
 	}
 
-	private String cleanValue(Tag tag, boolean allowPeriodsInName) {
+	/**
+	 * Get and clean the value of the given tag
+	 */
+	protected String cleanValue(Tag tag, boolean allowPeriodsInName) {
 		if (tag == null) {
 			return null;
 		}
 
-		return cleanupIllegalCharacters(tag.getValue(), allowPeriodsInName);
+		return cleanValue(tag.getValue(), allowPeriodsInName);
 	}
 
-	private String cleanupIllegalCharacters(String s, boolean allowPeriodsInName) {
+	/**
+	 * Clean the input string by replacing invalid characters
+	 */
+	protected String cleanValue(String s, boolean allowPeriodsInName) {
+		if( s == null ) {
+			return null;
+		}
 		if (!allowPeriodsInName) {
 			s = s.replace(".", "_");
 		}
 		return s.replace(" ", "_");
+	}
+	
+	protected static class NameBuilder {
+		private StringBuilder builder = new StringBuilder();
+		
+		public NameBuilder append(String value) {
+			if( value != null ) {
+				if( builder.length() > 0 ) {
+					append(".");
+				}
+				append(value);
+			}
+			return this;
+		}
+		
+		public String build() {
+			return builder.toString();
+		}
 	}
 }
