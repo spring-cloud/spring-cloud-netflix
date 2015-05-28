@@ -48,7 +48,7 @@ public class DefaultServoMetricNaming implements ServoMetricNaming {
 	private String handleMetric(MonitorConfig config, TagList tags) {
 		String type = cleanValue(tags.getTag(DataSourceType.KEY), false);
 		String instanceName = cleanValue(tags.getTag("instance"), false);
-		String name = cleanupIllegalCharacters(config.getName(), false);
+		String name = cleanupIllegalCharacters(config.getName(), true);
 		String statistic = cleanValue(tags.getTag("statistic"), false);
 
 		StringBuilder nameBuilder = new StringBuilder();
@@ -74,7 +74,7 @@ public class DefaultServoMetricNaming implements ServoMetricNaming {
 		String domain = cleanValue(tags.getTag(JMX_DOMAIN_KEY), true);
 		String type = cleanValue(tags.getTag("Jmx.type"), false);
 		String instanceName = cleanValue(tags.getTag("Jmx.instance"), false);
-		String name = cleanValue(tags.getTag("Jmx.name"), false);
+		String name = cleanValue(tags.getTag("Jmx.name"), true);
 		String fieldName = cleanupIllegalCharacters(config.getName(), false);
 
 		StringBuilder nameBuilder = new StringBuilder();
