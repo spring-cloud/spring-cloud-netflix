@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import com.netflix.discovery.EurekaClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -37,6 +39,9 @@ import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 @EnableDiscoveryClient
 public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
+	@Autowired
+	private EurekaClient eurekaClient;
+
 	@Bean
 	public ServletRegistrationBean turbineStreamServlet() {
 		return new ServletRegistrationBean(new TurbineStreamServlet(), "/turbine.stream");
@@ -49,7 +54,7 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
 	@Bean
 	public InstanceDiscovery instanceDiscovery() {
-		return new EurekaInstanceDiscovery(turbineProperties());
+		return new EurekaInstanceDiscovery(turbineProperties(), eurekaClient);
 	}
 
 	private boolean running;

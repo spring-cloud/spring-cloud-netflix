@@ -21,6 +21,9 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
+import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -63,6 +66,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	
 	@PostConstruct
 	public void init() {
+		//FIXME: eureka DI doesn't use xstream for json anymore
 		XmlXStream.getInstance().setMarshallingStrategy(
 				new DataCenterAwareMarshallingStrategy(this.applicationContext));
 		JsonXStream.getInstance().setMarshallingStrategy(
@@ -83,6 +87,17 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 		return instance;
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public InstanceInfo instanceInfo(EurekaInstanceConfig instanceConfig) {
+		return new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(EurekaClient.class)
+	public EurekaClient eurekaClient(InstanceInfo instanceInfo, EurekaClientConfig config) {
+		return new com.netflix.discovery.DiscoveryClient(instanceInfo, config);
+	}
 
 	/**
 	 * propagate HeartbeatEvent from parent to child. Do it via a

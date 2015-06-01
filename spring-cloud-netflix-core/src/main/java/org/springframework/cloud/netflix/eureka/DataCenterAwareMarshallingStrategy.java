@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import com.netflix.discovery.converters.StringCache;
 import lombok.extern.apachecommons.CommonsLog;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -169,6 +170,10 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	}
 
 	private static class DataCenterAwareConverter extends InstanceInfoConverter {
+
+		public DataCenterAwareConverter() {
+			super(new StringCache());
+		}
 
 		@Override
 		public void marshal(Object source, HierarchicalStreamWriter writer,
