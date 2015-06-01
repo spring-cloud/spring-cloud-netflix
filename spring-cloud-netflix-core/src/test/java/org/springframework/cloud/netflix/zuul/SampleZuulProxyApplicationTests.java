@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +52,7 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.ZuulFilter;
+import org.springframework.web.util.UriUtils;
 
 import static org.junit.Assert.assertEquals;
 
@@ -141,6 +144,16 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals("Hello space", result.getBody());
 	}
 
+	@Test
+	public void postWithEncodedValueWorks() throws UnsupportedEncodingException {
+		String id = UriUtils.encodePathSegment("id/with/slashes", "UTF-8");
+		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
+				"http://localhost:" + this.port + "/simple/local/{id}", "body",
+				String.class, id);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted id/with/slashes!", UriUtils.decode(result.getBody(), "UTF-8"));
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -171,6 +184,11 @@ class SampleZuulProxyApplication {
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
 	public String get(@PathVariable String id) {
 		return "Gotten " + id + "!";
+	}
+
+	@RequestMapping(value = "/local/{id}", method = RequestMethod.POST)
+	public String post(@PathVariable String id, @RequestBody String body) {
+		return "Posted " + id + "!";
 	}
 
 	@RequestMapping("/")
