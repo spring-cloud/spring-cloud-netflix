@@ -16,7 +16,8 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import java.io.UnsupportedEncodingException;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -52,9 +53,6 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.ZuulFilter;
-import org.springframework.web.util.UriUtils;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
@@ -142,16 +140,6 @@ public class SampleZuulProxyApplicationTests {
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
-	}
-
-	@Test
-	public void postWithEncodedValueWorks() throws UnsupportedEncodingException {
-		String id = UriUtils.encodePathSegment("id/with/slashes", "UTF-8");
-		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
-				"http://localhost:" + this.port + "/simple/local/{id}", "body",
-				String.class, id);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted id/with/slashes!", UriUtils.decode(result.getBody(), "UTF-8"));
 	}
 
 }
