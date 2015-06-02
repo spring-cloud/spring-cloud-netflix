@@ -17,6 +17,8 @@
 package org.springframework.cloud.netflix.eureka;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,6 +28,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.metrics.reader.CompositeMetricReader;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -220,11 +223,15 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@ConditionalOnClass(Endpoint.class)
 	@ConditionalOnBean(MetricReader.class)
 	protected static class EurekaHealthIndicatorConfiguration {
+		
+		@Autowired
+		private List<MetricReader> metricReaders = Collections.emptyList();
+		
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(
-				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient,
-				MetricReader metrics, EurekaInstanceConfig config) {
+				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient, EurekaInstanceConfig config) {
+			CompositeMetricReader metrics = new CompositeMetricReader(metricReaders.toArray(new MetricReader[0]));
 			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
 		}
 	}
