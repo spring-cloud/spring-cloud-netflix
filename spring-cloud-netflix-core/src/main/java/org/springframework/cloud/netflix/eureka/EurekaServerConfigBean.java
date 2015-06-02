@@ -50,9 +50,9 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private double renewalPercentThreshold = 0.85;
 
-	private int renewalThresholdUpdateIntervalMs = 10 * MINUTES;
+	private int renewalThresholdUpdateIntervalMs = 15 * MINUTES;
 
-	private int peerEurekaNodesUpdateIntervalMs = 15 * MINUTES;
+	private int peerEurekaNodesUpdateIntervalMs = 10 * MINUTES;
 
 	private int numberOfReplicationRetries = 5;
 
