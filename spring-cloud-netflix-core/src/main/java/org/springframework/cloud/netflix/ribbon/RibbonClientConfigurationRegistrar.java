@@ -43,8 +43,13 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			}
 		}
 		if (attrs != null && attrs.containsKey("defaultConfiguration")) {
-			registerClientConfiguration(registry,
-					"default." + metadata.getEnclosingClassName(),
+			String name;
+			if (metadata.hasEnclosingClass()) {
+				name = "default." + metadata.getEnclosingClassName();
+			} else {
+				name = "default." + metadata.getClassName();
+			}
+			registerClientConfiguration(registry, name,
 					attrs.get("defaultConfiguration"));
 		}
 		Map<String, Object> client = metadata.getAnnotationAttributes(
