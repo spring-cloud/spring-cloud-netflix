@@ -26,7 +26,7 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).
 === Basic Compile and Test
 
 To build the source you will need to install
-http://maven.apache.org/run-maven/index.html[Apache Maven] v3.0.6 or above and JDK 1.7.
+http://maven.apache.org/run-maven/index.html[Apache Maven] v3.0.6 or above and JDK 1.8.
 
 Spring Cloud uses Maven for most build-related activities, and you
 should be able to get off the ground quite quickly by cloning the
