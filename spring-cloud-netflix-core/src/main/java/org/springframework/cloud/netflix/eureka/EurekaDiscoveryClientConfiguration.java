@@ -173,6 +173,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Override
 	public void stop(Runnable callback) {
+		stop();
 		callback.run();
 	}
 
