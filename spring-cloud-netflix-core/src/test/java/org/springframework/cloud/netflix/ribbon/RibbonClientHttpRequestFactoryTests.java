@@ -86,6 +86,14 @@ public class RibbonClientHttpRequestFactoryTests {
 	}
 
 	@Test
+	public void requestWithEncodedPathParamWorks() {
+		ResponseEntity<String> response = restTemplate.getForEntity("http://simple/path/{param}",
+				String.class, "world & everyone else");
+		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
+		assertEquals("wrong response body", "hello world & everyone else", response.getBody());
+	}
+
+	@Test
 	public void requestWithRequestParamWorks() {
 		ResponseEntity<String> response = restTemplate.getForEntity("http://simple/request?param={param}", String.class, "world");
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
@@ -97,6 +105,13 @@ public class RibbonClientHttpRequestFactoryTests {
 		ResponseEntity<String> response = restTemplate.postForEntity("http://simple/post", "world", String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
+	}
+
+	@Test
+	public void requestWithEmptyPostWorks() {
+		ResponseEntity<String> response = restTemplate.postForEntity("http://simple/emptypost", "", String.class);
+		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
+		assertEquals("wrong response body", "hello empty", response.getBody());
 	}
 
 	@Test
@@ -134,6 +149,11 @@ public class RibbonClientHttpRequestFactoryTests {
 		@RequestMapping(value = "/post", method = RequestMethod.POST)
 		public String hiPost(@RequestBody String param) {
 			return "hello "+param;
+		}
+
+		@RequestMapping(value = "/emptypost", method = RequestMethod.POST)
+		public String hiPostEmpty() {
+			return "hello empty";
 		}
 
 		@RequestMapping("/header")

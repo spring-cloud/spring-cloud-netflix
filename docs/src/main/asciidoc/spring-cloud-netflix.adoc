@@ -12,7 +12,7 @@ Service Discovery is one of the key tenets of a microservice based architecture.
 
 === Registering with Eureka
 
-When a client registers with Eureka, it provide meta-data about itself
+When a client registers with Eureka, it provides meta-data about itself
 such as host and port, health indicator URL, home page etc.  Eureka
 receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is

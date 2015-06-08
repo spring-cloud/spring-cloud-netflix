@@ -40,6 +40,13 @@ public class DefaultServerMetricNamingTests {
 	}
 
 	@Test
+	public void nameWithPeriodWorks() {
+		MonitorConfig config = MonitorConfig.builder("test.Metric") .build();
+		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+		assertThat(name, is(equalTo("servo.test.metric")));
+	}
+
+	@Test
 	public void typeTagWorks() {
 		MonitorConfig config = MonitorConfig.builder("testMetric")
 				.withTag(DataSourceType.KEY, DataSourceType.COUNTER.getValue())

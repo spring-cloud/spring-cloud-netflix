@@ -18,15 +18,17 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).
 * Circuit Breaker: embedded Hystrix dashboard with declarative Java configuration
 * Declarative REST Client: Feign creates a dynamic implementation of an interface decorated with JAX-RS or Spring MVC annotations
 * Client Side Load Balancer: Ribbon
-* External Configuration: a bridge from the Sprnig Environment to Archaius (enables native configuration of Netflix components using Spring Boot conventions)
+* External Configuration: a bridge from the Spring Environment to Archaius (enables native configuration of Netflix components using Spring Boot conventions)
 * Router and Filter: automatic regsitration of Zuul filters, and a simple convention over configuration approach to reverse proxy creation
 
 == Building
 
+:jdkversion: 1.8
+
 === Basic Compile and Test
 
 To build the source you will need to install
-http://maven.apache.org/run-maven/index.html[Apache Maven] v3.0.6 or above and JDK 1.7.
+http://maven.apache.org/run-maven/index.html[Apache Maven] v3.0.6 or above and JDK {jdkversion}.
 
 Spring Cloud uses Maven for most build-related activities, and you
 should be able to get off the ground quite quickly by cloning the
@@ -152,6 +154,7 @@ The method getLocation() is undefined for the type ProxyRouteLocator.ProxyRouteS
 
 ==== Importing into other IDEs
 Maven is well supported by most Java IDEs. Refer to you vendor documentation.
+
 
 == Contributing
 

@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -41,6 +43,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,8 +53,6 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.ZuulFilter;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
@@ -171,6 +172,11 @@ class SampleZuulProxyApplication {
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
 	public String get(@PathVariable String id) {
 		return "Gotten " + id + "!";
+	}
+
+	@RequestMapping(value = "/local/{id}", method = RequestMethod.POST)
+	public String post(@PathVariable String id, @RequestBody String body) {
+		return "Posted " + id + "!";
 	}
 
 	@RequestMapping("/")
