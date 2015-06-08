@@ -16,11 +16,14 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.BeanUtils;
@@ -125,8 +128,19 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 				context.register(configuration);
 			}
 		}
-		for (Entry<String, RibbonClientSpecification> entry : this.configurations
-				.entrySet()) {
+
+		List<Entry<String, RibbonClientSpecification>> entries = new ArrayList<>(this.configurations
+				.entrySet());
+
+		Collections.sort(entries, new Comparator<Entry<String, RibbonClientSpecification>>() {
+			@Override
+			public int compare(Entry<String, RibbonClientSpecification> o1, Entry<String, RibbonClientSpecification> o2) {
+				return o1.getValue().order().compareTo(o2.getValue().order());
+			}
+		});
+
+
+		for (Entry<String, RibbonClientSpecification> entry : entries) {
 			if (entry.getKey().startsWith("default.")) {
 				for (Class<?> configuration : entry.getValue().getConfiguration()) {
 					context.register(configuration);
