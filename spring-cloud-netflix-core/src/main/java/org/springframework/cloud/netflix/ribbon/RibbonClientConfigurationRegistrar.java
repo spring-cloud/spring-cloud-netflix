@@ -39,7 +39,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
 			for (AnnotationAttributes client : clients) {
 				registerClientConfiguration(registry, getClientName(client),
-						client.get("configuration"), 0);
+						client.get("configuration"));
 			}
 		}
 		if (attrs != null && attrs.containsKey("defaultConfiguration")) {
@@ -50,13 +50,13 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 				name = "default." + metadata.getClassName();
 			}
 			registerClientConfiguration(registry, name,
-					attrs.get("defaultConfiguration"), attrs.get("defaultConfigurationOrder"));
+					attrs.get("defaultConfiguration"));
 		}
 		Map<String, Object> client = metadata.getAnnotationAttributes(
 				RibbonClient.class.getName(), true);
 		String name = getClientName(client);
 		if (name != null) {
-			registerClientConfiguration(registry, name, client.get("configuration"), 0);
+			registerClientConfiguration(registry, name, client.get("configuration"));
 		}
 	}
 
@@ -76,12 +76,11 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 	}
 
 	private void registerClientConfiguration(BeanDefinitionRegistry registry,
-			Object name, Object configuration, Object order) {
+			Object name, Object configuration) {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.genericBeanDefinition(RibbonClientSpecification.class);
 		builder.addConstructorArgValue(name);
 		builder.addConstructorArgValue(configuration);
-		builder.addConstructorArgValue(order);
 		registry.registerBeanDefinition(name + ".RibbonClientSpecification",
 				builder.getBeanDefinition());
 	}

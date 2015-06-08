@@ -30,10 +30,4 @@ public class RibbonClientSpecification {
 
 	private Class<?>[] configuration;
 
-	private int order;
-
-	public Integer order() {
-		return order;
-	}
-
 }

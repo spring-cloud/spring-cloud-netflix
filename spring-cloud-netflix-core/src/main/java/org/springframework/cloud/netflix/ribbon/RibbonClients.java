@@ -42,5 +42,4 @@ public @interface RibbonClients {
 
 	Class<?>[] defaultConfiguration() default {};
 
-	int defaultConfigurationOrder() default 0;
 }
