@@ -137,7 +137,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 			if (this.healthCheckHandler != null) {
 				DiscoveryManager.getInstance().getDiscoveryClient()
-						.registerHealthCheck(this.healthCheckHandler);
+				.registerHealthCheck(this.healthCheckHandler);
 			}
 			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
 					this.instanceConfig));
@@ -173,6 +173,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Override
 	public void stop(Runnable callback) {
+		stop();
 		callback.run();
 	}
 
@@ -223,15 +224,15 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@ConditionalOnClass(Endpoint.class)
 	@ConditionalOnBean(MetricReader.class)
 	protected static class EurekaHealthIndicatorConfiguration {
-		
+
 		@Autowired
 		private List<MetricReader> metricReaders = Collections.emptyList();
-		
+
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(
 				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient, EurekaInstanceConfig config) {
-			CompositeMetricReader metrics = new CompositeMetricReader(metricReaders.toArray(new MetricReader[0]));
+			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
 			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
 		}
 	}
