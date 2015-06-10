@@ -148,10 +148,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Override
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
-				+ " with eureka with status OUT_OF_SERVICE");
+				+ " with eureka with status DOWN");
 		if (ApplicationInfoManager.getInstance().getInfo() != null) {
 			ApplicationInfoManager.getInstance().setInstanceStatus(
-					InstanceStatus.OUT_OF_SERVICE);
+					InstanceStatus.DOWN);
 		}
 		this.running.set(false);
 	}
