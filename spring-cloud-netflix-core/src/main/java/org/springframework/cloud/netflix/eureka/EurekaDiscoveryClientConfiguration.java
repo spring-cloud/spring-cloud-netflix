@@ -110,10 +110,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Override
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
-				+ " with eureka with status OUT_OF_SERVICE");
+				+ " with eureka with status DOWN");
 		if (applicationInfoManager().getInfo() != null) {
 			applicationInfoManager().setInstanceStatus(
-					InstanceStatus.OUT_OF_SERVICE);
+					InstanceStatus.DOWN);
 		}
 		this.running.set(false);
 	}
@@ -193,7 +193,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(
-EurekaClient eurekaClient,
+				EurekaClient eurekaClient,
 				EurekaInstanceConfig config) {
 			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
 			return new EurekaHealthIndicator(eurekaClient, metrics, config);
