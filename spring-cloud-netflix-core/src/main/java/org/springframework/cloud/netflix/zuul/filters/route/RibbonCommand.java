@@ -131,6 +131,15 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 		HttpResponse response = this.restClient
 				.executeWithLoadBalancer(httpClientRequest);
 		context.set("ribbonResponse", response);
+		
+		// Explicitly close the HttpResponse if the Hystrix command timed out to
+		// release the underlying HTTP connection held by the response.
+		// 
+		if( this.isResponseTimedOut() ) {	
+			if( response!= null ) {
+				response.close();
+			}
+		}
 		return response;
 	}
 
