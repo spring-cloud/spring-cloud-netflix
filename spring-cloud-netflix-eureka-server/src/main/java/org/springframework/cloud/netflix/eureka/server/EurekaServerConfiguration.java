@@ -93,36 +93,36 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public javax.ws.rs.core.Application jerseyApplication(Environment environment, ResourceLoader resourceLoader) {
 		
-	    ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false, environment);
-	    
-	    // Filter to include only classes that have a particular annotation.
-	    //
-	    provider.addIncludeFilter(new AnnotationTypeFilter(Path.class));
-	    provider.addIncludeFilter(new AnnotationTypeFilter(Provider.class));
-	    
-	    // Find classes in Eureka packages (or subpackages)
-	    //
-	    Set<Class<?>> classes = Sets.newHashSet();
-	    for(String basePackage: EUREKA_PACKAGES) {
-		    Set<BeanDefinition> beans = provider.findCandidateComponents(basePackage);
-		    for (BeanDefinition bd : beans) {
-                Class<?> cls = ClassUtils.resolveClassName(bd.getBeanClassName(), resourceLoader.getClassLoader());
-                classes.add(cls);
-		    }
-	    }
-	    
-	    // Construct the Jersey ResourceConfig
-	    //
-	    Map<String, Object> propsAndFeatures = Maps.newHashMap();
-	    propsAndFeatures.put(
-	    		// Skip static content used by the webapp
-	    		ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX, 
-	    		EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*"); 
+		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false, environment);
+		
+		// Filter to include only classes that have a particular annotation.
+		//
+		provider.addIncludeFilter(new AnnotationTypeFilter(Path.class));
+		provider.addIncludeFilter(new AnnotationTypeFilter(Provider.class));
+		
+		// Find classes in Eureka packages (or subpackages)
+		//
+		Set<Class<?>> classes = Sets.newHashSet();
+		for(String basePackage: EUREKA_PACKAGES) {
+			Set<BeanDefinition> beans = provider.findCandidateComponents(basePackage);
+			for (BeanDefinition bd : beans) {
+				Class<?> cls = ClassUtils.resolveClassName(bd.getBeanClassName(), resourceLoader.getClassLoader());
+				classes.add(cls);
+			}
+		}
+		
+		// Construct the Jersey ResourceConfig
+		//
+		Map<String, Object> propsAndFeatures = Maps.newHashMap();
+		propsAndFeatures.put(
+				// Skip static content used by the webapp
+				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX, 
+				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*"); 
 
-	    DefaultResourceConfig rc = new DefaultResourceConfig(classes);
-	    rc.setPropertiesAndFeatures(propsAndFeatures);
-	    		
-	    return rc;
+		DefaultResourceConfig rc = new DefaultResourceConfig(classes);
+		rc.setPropertiesAndFeatures(propsAndFeatures);
+
+		return rc;
 	}
 	
 	@Bean
