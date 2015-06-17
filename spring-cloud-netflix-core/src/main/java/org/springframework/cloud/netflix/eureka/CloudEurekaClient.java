@@ -20,10 +20,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import lombok.extern.apachecommons.CommonsLog;
 
-import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.DiscoveryClient;
@@ -33,26 +31,24 @@ import com.netflix.discovery.EurekaClientConfig;
  * @author Spencer Gibb
  */
 @CommonsLog
-public class CloudEurekaClient extends DiscoveryClient implements ApplicationContextAware {
+public class CloudEurekaClient extends DiscoveryClient {
 
-	private AtomicLong cacheRefreshedCount = new AtomicLong(0);
+	private final AtomicLong cacheRefreshedCount = new AtomicLong(0);
 
 	private ApplicationContext context;
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
-			EurekaClientConfig config) {
+			EurekaClientConfig config, ApplicationContext context) {
 		super(applicationInfoManager, config);
+		this.context = context;
 	}
 
 	@Override
 	protected void onCacheRefreshed() {
-		long newCount = cacheRefreshedCount.incrementAndGet();
-		log.trace("onCacheRefreshed called with count: " + newCount);
-		this.context.publishEvent(new HeartbeatEvent(this, newCount));
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.context = context;
+		if (this.cacheRefreshedCount != null) { //might be call during construction and won't be inited yet
+			long newCount = this.cacheRefreshedCount.incrementAndGet();
+			log.trace("onCacheRefreshed called with count: " + newCount);
+			this.context.publishEvent(new HeartbeatEvent(this, newCount));
+		}
 	}
 }

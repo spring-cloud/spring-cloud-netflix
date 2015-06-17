@@ -155,7 +155,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@ConditionalOnMissingBean(EurekaClient.class)
 	@SneakyThrows
 	public EurekaClient eurekaClient() {
-		return new CloudEurekaClient(applicationInfoManager(), clientConfig);
+		return new CloudEurekaClient(applicationInfoManager(), clientConfig, context);
 	}
 
 	@Bean
