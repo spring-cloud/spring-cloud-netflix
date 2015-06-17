@@ -23,7 +23,7 @@
         <bintray.package>netflix</bintray.package>
 		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.5</archaius.version>
-		<eureka.version>1.1.147</eureka.version>
+		<eureka.version>1.1.157</eureka.version>
 		<feign.version>8.1.1</feign.version>
 		<hystrix.version>1.4.10</hystrix.version>
 		<ribbon.version>2.0.0</ribbon.version>
