@@ -81,13 +81,6 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Autowired
 	private ApplicationContext context;
 
-	@PreDestroy
-	public void close() {
-		log.info("Removing application " + this.instanceConfig.getAppname()
-				+ " from eureka");
-		eurekaClient().shutdown();
-	}
-
 	@Override
 	public void start() {
 		// only set the port if the nonSecurePort is 0 and this.port != 0
