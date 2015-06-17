@@ -54,6 +54,17 @@
 			<artifactId>eureka-client</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- eureka client deps -->
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.netflix.netflix-commons</groupId>
+			<artifactId>netflix-eventbus</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
 			<groupId>com.netflix.eureka</groupId>
 			<artifactId>eureka-core</artifactId>

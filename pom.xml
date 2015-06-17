@@ -135,6 +135,19 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
+			<!-- eureka client deps -->
+			<dependency>
+				<groupId>com.google.inject</groupId>
+				<artifactId>guice</artifactId>
+				<version>3.0</version>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>com.netflix.netflix-commons</groupId>
+				<artifactId>netflix-eventbus</artifactId>
+				<version>0.1.2</version>
+				<optional>true</optional>
+			</dependency>
 			<dependency>
 				<groupId>com.netflix.eureka</groupId>
 				<artifactId>eureka-core</artifactId>

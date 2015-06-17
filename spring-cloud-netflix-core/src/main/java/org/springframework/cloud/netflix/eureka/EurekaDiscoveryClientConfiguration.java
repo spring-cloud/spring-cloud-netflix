@@ -24,6 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PreDestroy;
 
+import com.netflix.eventbus.impl.EventBusImpl;
+import com.netflix.eventbus.spi.EventBus;
+import com.netflix.eventbus.spi.InvalidSubscriberException;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,17 +46,18 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.Ordered;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
+import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.EurekaJerseyClient;
 
@@ -74,13 +78,13 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private AtomicInteger port = new AtomicInteger(0);
 
 	@Autowired
+	private EurekaClientConfig clientConfig;
+
+	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 
 	@Autowired(required = false)
 	private HealthCheckHandler healthCheckHandler;
-
-	@Autowired
-	private DiscoveryManagerInitializer discoveryManagerInitializer;
 
 	@Autowired
 	private ApplicationContext context;
@@ -126,7 +130,6 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
-			this.discoveryManagerInitializer.init();
 
 			log.info("Registering application " + this.instanceConfig.getAppname()
 					+ " with eureka with status "
@@ -182,23 +185,40 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		return this.order;
 	}
 
-	@Configuration
-	protected static class DiscoveryManagerInitializerConfiguration {
-
-		@Bean
-		@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
-		public DiscoveryManagerInitializer discoveryManagerInitializer() {
-			return new DiscoveryManagerInitializer();
-		}
-
+	@Bean
+	@ConditionalOnMissingBean(EurekaClient.class)
+	public EurekaClient eurekaClient() throws IllegalAccessException {
+		DiscoveryClientOptionalArgs args = new DiscoveryClientOptionalArgs();
+		Field eventBusField = ReflectionUtils.findField(DiscoveryClientOptionalArgs.class, "eventBus", EventBus.class);
+		ReflectionUtils.makeAccessible(eventBusField);
+		eventBusField.set(args, new EventBusImpl());
+		return new com.netflix.discovery.DiscoveryClient(applicationInfoManager(),
+				clientConfig, args);
 	}
 
 	@Bean
-	@Lazy
-	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-	@ConditionalOnMissingBean(com.netflix.discovery.DiscoveryClient.class)
-	public com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient() {
-		return DiscoveryManager.getInstance().getDiscoveryClient();
+	public EventBus eventBus() {
+		EventBusImpl eventBus = new EventBusImpl();
+		return eventBus;
+	}
+
+	@Bean
+	public EurekaCacheRefreshedSubscriber eurekaCacheRefreshedSubscriber() throws InvalidSubscriberException {
+		EurekaCacheRefreshedSubscriber subscriber = new EurekaCacheRefreshedSubscriber();
+		eventBus().registerSubscriber(subscriber);
+		return subscriber;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(ApplicationInfoManager.class)
+	public ApplicationInfoManager applicationInfoManager() {
+		return new ApplicationInfoManager(instanceConfig, instanceInfo());
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(InstanceInfo.class)
+	public InstanceInfo instanceInfo() {
+		return new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get();
 	}
 
 	@Bean
