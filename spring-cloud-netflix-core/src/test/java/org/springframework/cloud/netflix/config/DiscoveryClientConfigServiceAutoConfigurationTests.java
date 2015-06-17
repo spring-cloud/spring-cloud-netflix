@@ -18,11 +18,11 @@ package org.springframework.cloud.netflix.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 
 import javax.annotation.PostConstruct;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,6 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	}
 
 	@Test
-	@Ignore
 	public void onWhenRequested() throws Exception {
 		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
 				this.info);
@@ -69,7 +68,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 				1,
 				this.context
 						.getBeanNamesForType(DiscoveryClientConfigServiceAutoConfiguration.class).length);
-		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
+		Mockito.verify(this.client, times(2)).getNextServerFromEureka("CONFIGSERVER", false);
 		Mockito.verify(this.client).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
@@ -81,9 +80,8 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	private void setup(String... env) {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(parent, env);
-		parent.getDefaultListableBeanFactory().registerSingleton("mockDiscoveryClient",
+		parent.getDefaultListableBeanFactory().registerSingleton("eurekaClient",
 				this.client);
-		// FIXME how to register the mock EurekaClient
 		parent.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				EnvironmentKnobbler.class, ConfigClientProperties.class);
