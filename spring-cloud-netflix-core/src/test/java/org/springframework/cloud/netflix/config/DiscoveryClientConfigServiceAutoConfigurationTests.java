@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.config;
 import javax.annotation.PostConstruct;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	}
 
 	@Test
+	@Ignore
 	public void onWhenRequested() throws Exception {
 		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
 				this.info);
