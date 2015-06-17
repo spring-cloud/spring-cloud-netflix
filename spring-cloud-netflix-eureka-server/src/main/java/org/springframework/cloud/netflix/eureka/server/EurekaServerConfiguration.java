@@ -20,6 +20,7 @@ import java.util.Collections;
 
 import javax.servlet.Filter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 /**
@@ -43,10 +45,13 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 @EnableConfigurationProperties(EurekaDashboardProperties.class)
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
+	@Autowired
+	private ApplicationInfoManager applicationInfoManager;
+
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
 	public EurekaController eurekaController() {
-		return new EurekaController();
+		return new EurekaController(applicationInfoManager);
 	}
 
 	@Bean

@@ -119,6 +119,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private String escapeCharReplacement = "__";
 
+	private boolean allowRedirects = false;
+
+	private boolean onDemandUpdateStatusChange = true;
+
 	@Override
 	public boolean shouldGZipContent() {
 		return this.gZipContent;
@@ -186,4 +190,13 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 		return this.fetchRegistry;
 	}
 
+	@Override
+	public boolean allowRedirects() {
+		return this.allowRedirects;
+	}
+
+	@Override
+	public boolean shouldOnDemandUpdateStatusChange() {
+		return this.onDemandUpdateStatusChange;
+	}
 }

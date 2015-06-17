@@ -16,19 +16,12 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import lombok.extern.apachecommons.CommonsLog;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
-import org.springframework.context.ApplicationContext;
-
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.DataCenterInfo.Name;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.UniqueIdentifier;
 import com.netflix.discovery.converters.Converters.ApplicationsConverter;
 import com.netflix.discovery.converters.Converters.InstanceInfoConverter;
+import com.netflix.discovery.converters.StringCache;
 import com.netflix.discovery.shared.Applications;
 import com.thoughtworks.xstream.MarshallingStrategy;
 import com.thoughtworks.xstream.converters.Converter;
@@ -57,59 +50,29 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 
 	private TreeMarshallingStrategy delegate = new TreeMarshallingStrategy();
 
-	private ApplicationContext context;
-
-	public DataCenterAwareMarshallingStrategy(ApplicationContext context) {
-		this.context = context;
+	public DataCenterAwareMarshallingStrategy() {
 	}
 
 	@Override
 	public Object unmarshal(Object root, HierarchicalStreamReader reader,
 			DataHolder dataHolder, ConverterLookup converterLookup, Mapper mapper) {
-		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup,
-				this.context);
+		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup);
 		return this.delegate.unmarshal(root, reader, dataHolder, wrapped, mapper);
 	}
 
 	@Override
 	public void marshal(HierarchicalStreamWriter writer, Object obj,
 			ConverterLookup converterLookup, Mapper mapper, DataHolder dataHolder) {
-		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup,
-				this.context);
+		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup);
 		this.delegate.marshal(writer, obj, wrapped, mapper, dataHolder);
-	}
-
-	public static class InstanceIdDataCenterInfo implements DataCenterInfo,
-			UniqueIdentifier {
-
-		private String instanceId;
-
-		public InstanceIdDataCenterInfo(String instanceId) {
-			this.instanceId = instanceId;
-		}
-
-		@Override
-		public Name getName() {
-			return Name.MyOwn;
-		}
-
-		@Override
-		public String getId() {
-			return this.instanceId;
-		}
-
 	}
 
 	private static class DataCenterAwareConverterLookup implements ConverterLookup {
 
 		private ConverterLookup delegate;
 
-		private ApplicationContext context;
-
-		public DataCenterAwareConverterLookup(ConverterLookup delegate,
-				ApplicationContext context) {
+		public DataCenterAwareConverterLookup(ConverterLookup delegate) {
 			this.delegate = delegate;
-			this.context = context;
 		}
 
 		@Override
@@ -119,56 +82,18 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 				return new DataCenterAwareConverter();
 			}
 			else if (Applications.class == type) {
-				return new PublishingApplicationsConverter(this.context);
+				return new ApplicationsConverter();
 			}
 			return converter;
 		}
 
 	}
 
-	private static class PublishingApplicationsConverter extends ApplicationsConverter {
-
-		private ApplicationContext context;
-
-		public PublishingApplicationsConverter(ApplicationContext context) {
-			this.context = context;
-		}
-
-		@Override
-		public Object unmarshal(HierarchicalStreamReader reader,
-				UnmarshallingContext unmarshallingContext) {
-			Object obj = super.unmarshal(reader, unmarshallingContext);
-
-			ProxyFactory factory = new ProxyFactory(obj);
-			factory.addAdvice(new SetVersionInterceptor(this.context));
-			return factory.getProxy();
-		}
-	}
-
-	@CommonsLog
-	private static class SetVersionInterceptor implements MethodInterceptor {
-
-		private ApplicationContext context;
-
-		public SetVersionInterceptor(ApplicationContext context) {
-			this.context = context;
-		}
-
-		@Override
-		public Object invoke(MethodInvocation invocation) throws Throwable {
-			Object ret = invocation.proceed();
-			if ("setVersion".equals(invocation.getMethod().getName())) {
-				Long version = Long.class.cast(invocation.getArguments()[0]);
-				log.debug("Applications.setVersion() called with version: " + version);
-				this.context.publishEvent(new HeartbeatEvent(invocation
-						.getThis(), version));
-			}
-			return ret;
-		}
-
-	}
-
 	private static class DataCenterAwareConverter extends InstanceInfoConverter {
+
+		public DataCenterAwareConverter() {
+			super(new StringCache());
+		}
 
 		@Override
 		public void marshal(Object source, HierarchicalStreamWriter writer,

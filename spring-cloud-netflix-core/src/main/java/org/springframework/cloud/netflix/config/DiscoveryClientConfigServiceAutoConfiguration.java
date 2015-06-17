@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.config;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -25,9 +26,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesBindin
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
@@ -53,17 +52,18 @@ public class DiscoveryClientConfigServiceAutoConfiguration {
 	@Autowired
 	private EurekaDiscoveryClientConfiguration lifecycle;
 
+	@Autowired
+	private EurekaClient eurekaClient;
+
 	@PostConstruct
 	public void init() {
 		this.lifecycle.stop();
 		rebind(this.clientConfig, "eurekaClientConfig");
 		rebind(this.instanceConfig, "eurekaInstanceConfig");
-        if (DiscoveryManager.getInstance().getDiscoveryClient() != null) {
-            DiscoveryManager.getInstance().getDiscoveryClient().shutdown();
-        }
-		ApplicationInfoManager.getInstance().initComponent(this.instanceConfig);
-		DiscoveryManager.getInstance().initComponent(this.instanceConfig,
-				this.clientConfig);
+		eurekaClient.shutdown();;
+		// FIXME: reinit EurekaClient and ApplicationInfoManager
+		//applicationInfoManager.initComponent(this.instanceConfig);
+		//discoveryManager.initComponent(this.instanceConfig, this.clientConfig);
 		this.lifecycle.start();
 	}
 

@@ -84,6 +84,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private long responseCacheUpdateIntervalMs = 30 * 1000;
 
+	private boolean useReadOnlyResponseCache = true;
+
 	private boolean disableDelta;
 
 	private long maxIdleThreadInMinutesAgeForStatusReplication = 10;
@@ -132,6 +134,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int remoteRegionRegistryFetchInterval = 30;
 
+	private int remoteRegionFetchThreadPoolSize = 20;
+
 	private String remoteRegionTrustStore = "";
 
 	private String remoteRegionTrustStorePassword = "changeit";
@@ -153,6 +157,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private int rateLimiterFullFetchAverageRate = 100;
 
 	private boolean logIdentityHeaders = true;
+
+	private String listAutoScalingGroupsRoleName = "ListAutoScalingGroups";
 
 	@Override
 	public boolean shouldEnableSelfPreservation() {
@@ -205,4 +211,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 		return this.logIdentityHeaders;
 	}
 
+	@Override
+	public boolean shouldUseReadOnlyResponseCache() {
+		return this.useReadOnlyResponseCache;
+	}
 }

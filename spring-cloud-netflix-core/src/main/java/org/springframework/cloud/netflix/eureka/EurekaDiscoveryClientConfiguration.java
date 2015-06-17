@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PreDestroy;
 
+import lombok.SneakyThrows;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +43,15 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.Ordered;
-import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.shared.EurekaJerseyClient;
 
 /**
  * @author Dave Syer
@@ -74,48 +70,16 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private AtomicInteger port = new AtomicInteger(0);
 
 	@Autowired
+	private EurekaClientConfig clientConfig;
+
+	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 
 	@Autowired(required = false)
 	private HealthCheckHandler healthCheckHandler;
 
 	@Autowired
-	private DiscoveryManagerInitializer discoveryManagerInitializer;
-
-	@Autowired
 	private ApplicationContext context;
-
-	@PreDestroy
-	public void close() {
-		closeDiscoveryClientJersey();
-		log.info("Removing application " + this.instanceConfig.getAppname()
-				+ " from eureka");
-		DiscoveryManager.getInstance().shutdownComponent();
-	}
-
-	private void closeDiscoveryClientJersey() {
-		log.info("Closing DiscoveryClient.jerseyClient");
-		Field jerseyClientField = ReflectionUtils.findField(
-				com.netflix.discovery.DiscoveryClient.class, "discoveryJerseyClient",
-				EurekaJerseyClient.JerseyClient.class);
-		if (jerseyClientField != null) {
-			try {
-				jerseyClientField.setAccessible(true);
-				if (DiscoveryManager.getInstance() != null
-						&& DiscoveryManager.getInstance().getDiscoveryClient() != null) {
-					Object obj = jerseyClientField.get(DiscoveryManager.getInstance()
-							.getDiscoveryClient());
-					if (obj != null) {
-						EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
-						jerseyClient.destroyResources();
-					}
-				}
-			}
-			catch (Exception ex) {
-				log.error("Error closing DiscoveryClient.jerseyClient", ex);
-			}
-		}
-	}
 
 	@Override
 	public void start() {
@@ -126,18 +90,16 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
-			this.discoveryManagerInitializer.init();
 
 			log.info("Registering application " + this.instanceConfig.getAppname()
 					+ " with eureka with status "
 					+ this.instanceConfig.getInitialStatus());
 
-			ApplicationInfoManager.getInstance().setInstanceStatus(
+			applicationInfoManager().setInstanceStatus(
 					this.instanceConfig.getInitialStatus());
 
 			if (this.healthCheckHandler != null) {
-				DiscoveryManager.getInstance().getDiscoveryClient()
-				.registerHealthCheck(this.healthCheckHandler);
+				eurekaClient().registerHealthCheck(this.healthCheckHandler);
 			}
 			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
 					this.instanceConfig));
@@ -149,8 +111,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
 				+ " with eureka with status OUT_OF_SERVICE");
-		if (ApplicationInfoManager.getInstance().getInfo() != null) {
-			ApplicationInfoManager.getInstance().setInstanceStatus(
+		if (applicationInfoManager().getInfo() != null) {
+			applicationInfoManager().setInstanceStatus(
 					InstanceStatus.OUT_OF_SERVICE);
 		}
 		this.running.set(false);
@@ -182,23 +144,23 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		return this.order;
 	}
 
-	@Configuration
-	protected static class DiscoveryManagerInitializerConfiguration {
-
-		@Bean
-		@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
-		public DiscoveryManagerInitializer discoveryManagerInitializer() {
-			return new DiscoveryManagerInitializer();
-		}
-
+	@Bean
+	@ConditionalOnMissingBean(EurekaClient.class)
+	@SneakyThrows
+	public EurekaClient eurekaClient() {
+		return new CloudEurekaClient(applicationInfoManager(), clientConfig, context);
 	}
 
 	@Bean
-	@Lazy
-	@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
-	@ConditionalOnMissingBean(com.netflix.discovery.DiscoveryClient.class)
-	public com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient() {
-		return DiscoveryManager.getInstance().getDiscoveryClient();
+	@ConditionalOnMissingBean(ApplicationInfoManager.class)
+	public ApplicationInfoManager applicationInfoManager() {
+		return new ApplicationInfoManager(instanceConfig, instanceInfo());
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(InstanceInfo.class)
+	public InstanceInfo instanceInfo() {
+		return new InstanceInfoFactory().create(instanceConfig);
 	}
 
 	@Bean
@@ -231,9 +193,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(
-				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient, EurekaInstanceConfig config) {
+EurekaClient eurekaClient,
+				EurekaInstanceConfig config) {
 			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
-			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
+			return new EurekaHealthIndicator(eurekaClient, metrics, config);
 		}
 	}
 

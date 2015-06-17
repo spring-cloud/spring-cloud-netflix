@@ -33,12 +33,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.boot.logging.log4j.Log4JLoggingSystem;
+import org.springframework.cloud.netflix.eureka.DataCenterAwareJacksonCodec;
 import org.springframework.cloud.netflix.eureka.DataCenterAwareMarshallingStrategy;
-import org.springframework.cloud.netflix.eureka.DiscoveryManagerInitializer;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
 import org.springframework.cloud.netflix.eureka.server.advice.PiggybackMethodInterceptor;
@@ -59,7 +58,6 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.blitz4j.DefaultBlitz4jConfig;
 import com.netflix.blitz4j.LoggingConfiguration;
-import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
@@ -125,15 +123,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		}
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
-	public DiscoveryManagerInitializer discoveryManagerIntitializer() {
-		return new DiscoveryManagerInitializer();
-	}
-
 	@Override
 	public void start() {
-		discoveryManagerIntitializer().init();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -160,14 +151,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 							XmlXStream
 									.getInstance()
 									.setMarshallingStrategy(
-											new DataCenterAwareMarshallingStrategy(
-													EurekaServerInitializerConfiguration.this.applicationContext));
-							JsonXStream
-									.getInstance()
-									.setMarshallingStrategy(
-											new DataCenterAwareMarshallingStrategy(
-													EurekaServerInitializerConfiguration.this.applicationContext));
-							// PeerAwareInstanceRegistry.getInstance();
+											new DataCenterAwareMarshallingStrategy());
+							DataCenterAwareJacksonCodec.init();
 							EurekaServerInitializerConfiguration.this.applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(
 											EurekaServerInitializerConfiguration.this.eurekaServerConfig));

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.netflix.discovery.EurekaClient;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.Status;
@@ -28,7 +29,6 @@ import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
@@ -37,7 +37,7 @@ import com.netflix.discovery.shared.Applications;
  */
 public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
-	private final DiscoveryClient discovery;
+	private final EurekaClient eurekaClient;
 
 	private final MetricReader metrics;
 
@@ -45,10 +45,10 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
 	private int failCount = 0;
 
-	public EurekaHealthIndicator(DiscoveryClient discovery, MetricReader metrics,
+	public EurekaHealthIndicator(EurekaClient eurekaClient, MetricReader metrics,
 			EurekaInstanceConfig instanceConfig) {
 		super();
-		this.discovery = discovery;
+		this.eurekaClient = eurekaClient;
 		this.metrics = metrics;
 		this.instanceConfig = instanceConfig;
 	}
@@ -67,7 +67,7 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	}
 
 	private Status getStatus(Builder builder) {
-		Status status = new Status(this.discovery.getInstanceRemoteStatus().toString(),
+		Status status = new Status(this.eurekaClient.getInstanceRemoteStatus().toString(),
 				"Remote status from Eureka server");
 		@SuppressWarnings("unchecked")
 		Metric<Number> value = (Metric<Number>) this.metrics
@@ -89,11 +89,11 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	}
 
 	private Map<String, Object> getApplications() {
-		Applications applications = this.discovery.getApplications();
+		Applications applications = this.eurekaClient.getApplications();
 		if (applications == null) {
 			return Collections.emptyMap();
 		}
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		for (Application application : applications.getRegisteredApplications()) {
 			result.put(application.getName(), application.getInstances().size());
 		}

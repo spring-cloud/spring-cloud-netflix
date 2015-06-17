@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
+import static com.netflix.appinfo.InstanceInfo.PortType.UNSECURE;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,10 +30,9 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
-
-import static com.netflix.appinfo.InstanceInfo.PortType.*;
 
 /**
  * @author Spencer Gibb
@@ -43,7 +45,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	private EurekaInstanceConfigBean config;
 
 	@Autowired
-	private com.netflix.discovery.DiscoveryClient discovery;
+	private EurekaClient eurekaClient;
 
 	@Override
 	public String description() {
@@ -82,9 +84,9 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<ServiceInstance> getInstances(String serviceId) {
-		List<InstanceInfo> infos = this.discovery.getInstancesByVipAddress(serviceId,
+		List<InstanceInfo> infos = this.eurekaClient.getInstancesByVipAddress(serviceId,
 				false);
-		List<ServiceInstance> instances = new ArrayList<ServiceInstance>();
+		List<ServiceInstance> instances = new ArrayList<>();
 		for (InstanceInfo info : infos) {
 			instances.add(new EurekaServiceInstance(info));
 		}
@@ -130,12 +132,12 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<String> getServices() {
-		Applications applications = this.discovery.getApplications();
+		Applications applications = this.eurekaClient.getApplications();
 		if (applications == null) {
 			return Collections.emptyList();
 		}
 		List<Application> registered = applications.getRegisteredApplications();
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		for (Application app : registered) {
 			if (app.getInstances().isEmpty()) {
 				continue;

@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -40,7 +39,6 @@ import org.springframework.context.annotation.Configuration;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
 
 /**
@@ -53,9 +51,6 @@ import com.netflix.discovery.converters.XmlXStream;
 @AutoConfigureBefore(NoopDiscoveryClientAutoConfiguration.class)
 public class EurekaClientAutoConfiguration implements ApplicationListener<ParentContextApplicationContextInitializer.ParentContextAvailableEvent> {
 
-	@Autowired
-	private ApplicationContext applicationContext;
-
 	private static final ConcurrentMap<String, String> listenerAdded = new ConcurrentHashMap<>();
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
@@ -63,10 +58,9 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	
 	@PostConstruct
 	public void init() {
+		DataCenterAwareJacksonCodec.init();
 		XmlXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(this.applicationContext));
-		JsonXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy(this.applicationContext));
+				new DataCenterAwareMarshallingStrategy());
 	}
 
 	@Bean
