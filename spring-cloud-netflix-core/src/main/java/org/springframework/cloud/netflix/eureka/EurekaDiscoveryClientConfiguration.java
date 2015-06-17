@@ -50,7 +50,6 @@ import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
@@ -103,12 +102,11 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 					+ " with eureka with status "
 					+ this.instanceConfig.getInitialStatus());
 
-			ApplicationInfoManager.getInstance().setInstanceStatus(
+			applicationInfoManager().setInstanceStatus(
 					this.instanceConfig.getInitialStatus());
 
 			if (this.healthCheckHandler != null) {
-				DiscoveryManager.getInstance().getDiscoveryClient()
-				.registerHealthCheck(this.healthCheckHandler);
+				eurekaClient().registerHealthCheck(this.healthCheckHandler);
 			}
 			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
 					this.instanceConfig));
@@ -120,8 +118,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
 				+ " with eureka with status OUT_OF_SERVICE");
-		if (ApplicationInfoManager.getInstance().getInfo() != null) {
-			ApplicationInfoManager.getInstance().setInstanceStatus(
+		if (applicationInfoManager().getInfo() != null) {
+			applicationInfoManager().setInstanceStatus(
 					InstanceStatus.OUT_OF_SERVICE);
 		}
 		this.running.set(false);

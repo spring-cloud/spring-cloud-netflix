@@ -53,6 +53,11 @@ public class EurekaController {
 
 	@Value("${eureka.dashboard.path:/}")
 	private String dashboardPath = "";
+	private ApplicationInfoManager applicationInfoManager;
+
+	public EurekaController(ApplicationInfoManager applicationInfoManager) {
+		this.applicationInfoManager = applicationInfoManager;
+	}
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String status(HttpServletRequest request, Map<String, Object> model) {
@@ -117,8 +122,7 @@ public class EurekaController {
 		model.put("registry", PeerAwareInstanceRegistry.getInstance());
 		model.put("isBelowRenewThresold", PeerAwareInstanceRegistry.getInstance()
 				.isBelowRenewThresold() == 1);
-		DataCenterInfo info = ApplicationInfoManager.getInstance().getInfo()
-				.getDataCenterInfo();
+		DataCenterInfo info = applicationInfoManager.getInfo().getDataCenterInfo();
 		if (info.getName() == DataCenterInfo.Name.Amazon) {
 			AmazonInfo amazonInfo = (AmazonInfo) info;
 			model.put("amazonInfo", amazonInfo);

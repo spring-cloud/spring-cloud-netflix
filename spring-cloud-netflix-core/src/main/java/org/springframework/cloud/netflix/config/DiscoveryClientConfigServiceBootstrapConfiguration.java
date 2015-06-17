@@ -34,7 +34,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClient;
 
 /**
@@ -56,6 +55,9 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 
 	@Autowired
 	private ConfigClientProperties config;
+
+	@Autowired
+	private EurekaClient eurekaClient;
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -88,9 +90,7 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	private void refresh() {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = DiscoveryManager
-					.getInstance()
-					.getDiscoveryClient()
+			InstanceInfo server = eurekaClient
 					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(),
 							false);
 			String url = server.getHomePageUrl();

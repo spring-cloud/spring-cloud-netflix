@@ -71,9 +71,6 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
 	@Override
 	public void start() {
-		// TODO: figure out ordering, so this is already run by
-		// EurekaDiscoveryClientConfiguration
-		// DiscoveryManager.getInstance().initComponent(instanceConfig, clientConfig);
 		PluginsFactory.setClusterMonitorFactory(new SpringAggregatorFactory());
 		PluginsFactory.setInstanceDiscovery(instanceDiscovery());
 		TurbineInit.init();
