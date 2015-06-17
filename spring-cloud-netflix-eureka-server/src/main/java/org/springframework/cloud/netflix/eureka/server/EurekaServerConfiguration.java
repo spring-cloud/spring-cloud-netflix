@@ -26,6 +26,7 @@ import javax.servlet.Filter;
 import javax.ws.rs.Path;
 import javax.ws.rs.ext.Provider;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -44,6 +45,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.netflix.appinfo.ApplicationInfoManager;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
@@ -58,13 +60,17 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server
 	 */
-	private static String[] EUREKA_PACKAGES = new String[] { "com.netflix.discovery",
-			"com.netflix.eureka" };
+	private static String[] EUREKA_PACKAGES = new String[] {
+		"com.netflix.discovery", 
+		"com.netflix.eureka"};
+	
+	@Autowired
+	private ApplicationInfoManager applicationInfoManager;
 
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
 	public EurekaController eurekaController() {
-		return new EurekaController();
+		return new EurekaController(applicationInfoManager);
 	}
 
 	/**

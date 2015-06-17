@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import static org.mockito.Mockito.*;
+
+import com.netflix.discovery.EurekaClient;
 import org.junit.Test;
 
 import com.netflix.appinfo.InstanceInfo;
@@ -29,9 +32,10 @@ public class EurekaInstanceDiscoveryTest {
 
 	@Test
 	public void testGetClusterName() {
+		EurekaClient eurekaClient = mock(EurekaClient.class);
 		String appName = "testAppName";
 		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-				new TurbineProperties());
+				new TurbineProperties(), eurekaClient);
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(appName)
 				.build();
 		String clusterName = discovery.getClusterName(instanceInfo);
@@ -40,9 +44,10 @@ public class EurekaInstanceDiscoveryTest {
 
 	@Test
 	public void testGetClusterNameCustomExpression() {
+		EurekaClient eurekaClient = mock(EurekaClient.class);
 		TurbineProperties turbineProperties = new TurbineProperties();
 		turbineProperties.setClusterNameExpression("aSGName");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
 		String asgName = "myAsgName";
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
 				.setAppName("testApp").setASGName(asgName).build();
@@ -52,9 +57,10 @@ public class EurekaInstanceDiscoveryTest {
 
 	@Test
 	public void testGetClusterNameInstanceMetadataMapExpression() {
+		EurekaClient eurekaClient = mock(EurekaClient.class);
 		TurbineProperties turbineProperties = new TurbineProperties();
 		turbineProperties.setClusterNameExpression("metadata['cluster']");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
 		String metadataProperty = "myCluster";
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
 				.setAppName("testApp").add("cluster", metadataProperty).build();

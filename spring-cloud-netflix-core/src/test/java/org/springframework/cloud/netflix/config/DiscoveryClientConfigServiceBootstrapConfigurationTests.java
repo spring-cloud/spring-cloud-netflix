@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -25,11 +28,7 @@ import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
+import com.netflix.discovery.EurekaClient;
 
 /**
  * @author Dave Syer
@@ -38,7 +37,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	private DiscoveryClient client = Mockito.mock(DiscoveryClient.class);
+	private EurekaClient client = Mockito.mock(EurekaClient.class);
 
 	private InstanceInfo info = InstanceInfo.Builder.newBuilder().setAppName("app")
 			.setHostName("foo").setHomePageUrl("/", null).build();
@@ -54,7 +53,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 	public void offByDefault() throws Exception {
 		this.context = new AnnotationConfigApplicationContext(
 				DiscoveryClientConfigServiceBootstrapConfiguration.class);
-		assertEquals(0, this.context.getBeanNamesForType(DiscoveryClient.class).length);
+		assertEquals(0, this.context.getBeanNamesForType(EurekaClient.class).length);
 		assertEquals(
 				0,
 				this.context
@@ -104,8 +103,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		this.context = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(this.context, env);
 		this.context.getDefaultListableBeanFactory().registerSingleton(
-				"mockDiscoveryClient", this.client);
-		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
+				"eurekaClient", this.client);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				ConfigClientProperties.class);

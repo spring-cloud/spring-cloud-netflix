@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+
 import javax.annotation.PostConstruct;
 
 import org.junit.After;
@@ -31,11 +35,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
+import com.netflix.discovery.EurekaClient;
 
 /**
  * @author Dave Syer
@@ -44,7 +44,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	private DiscoveryClient client = Mockito.mock(DiscoveryClient.class);
+	private EurekaClient client = Mockito.mock(EurekaClient.class);
 
 	private InstanceInfo info = InstanceInfo.Builder.newBuilder().setAppName("app")
 			.setHostName("foo").setHomePageUrl("/", null).build();
@@ -68,21 +68,20 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 				1,
 				this.context
 						.getBeanNamesForType(DiscoveryClientConfigServiceAutoConfiguration.class).length);
-		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
+		Mockito.verify(this.client, times(2)).getNextServerFromEureka("CONFIGSERVER", false);
 		Mockito.verify(this.client).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
-		assertEquals("bar", ApplicationInfoManager.getInstance().getInfo().getMetadata()
-				.get("foo"));
+		ApplicationInfoManager infoManager = this.context.getBean(ApplicationInfoManager.class);
+		assertEquals("bar", infoManager.getInfo().getMetadata().get("foo"));
 	}
 
 	private void setup(String... env) {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(parent, env);
-		parent.getDefaultListableBeanFactory().registerSingleton("mockDiscoveryClient",
+		parent.getDefaultListableBeanFactory().registerSingleton("eurekaClient",
 				this.client);
-		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
 		parent.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				EnvironmentKnobbler.class, ConfigClientProperties.class);
