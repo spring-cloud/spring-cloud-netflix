@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,9 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PreDestroy;
 
-import com.netflix.eventbus.impl.EventBusImpl;
-import com.netflix.eventbus.spi.EventBus;
-import com.netflix.eventbus.spi.InvalidSubscriberException;
+import lombok.SneakyThrows;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,19 +44,15 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
-import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.shared.EurekaJerseyClient;
 
 /**
  * @author Dave Syer
@@ -91,34 +84,9 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@PreDestroy
 	public void close() {
-		closeDiscoveryClientJersey();
 		log.info("Removing application " + this.instanceConfig.getAppname()
 				+ " from eureka");
-		DiscoveryManager.getInstance().shutdownComponent();
-	}
-
-	private void closeDiscoveryClientJersey() {
-		log.info("Closing DiscoveryClient.jerseyClient");
-		Field jerseyClientField = ReflectionUtils.findField(
-				com.netflix.discovery.DiscoveryClient.class, "discoveryJerseyClient",
-				EurekaJerseyClient.JerseyClient.class);
-		if (jerseyClientField != null) {
-			try {
-				jerseyClientField.setAccessible(true);
-				if (DiscoveryManager.getInstance() != null
-						&& DiscoveryManager.getInstance().getDiscoveryClient() != null) {
-					Object obj = jerseyClientField.get(DiscoveryManager.getInstance()
-							.getDiscoveryClient());
-					if (obj != null) {
-						EurekaJerseyClient.JerseyClient jerseyClient = (EurekaJerseyClient.JerseyClient) obj;
-						jerseyClient.destroyResources();
-					}
-				}
-			}
-			catch (Exception ex) {
-				log.error("Error closing DiscoveryClient.jerseyClient", ex);
-			}
-		}
+		eurekaClient().shutdown();
 	}
 
 	@Override
@@ -187,26 +155,9 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Bean
 	@ConditionalOnMissingBean(EurekaClient.class)
-	public EurekaClient eurekaClient() throws IllegalAccessException {
-		DiscoveryClientOptionalArgs args = new DiscoveryClientOptionalArgs();
-		Field eventBusField = ReflectionUtils.findField(DiscoveryClientOptionalArgs.class, "eventBus", EventBus.class);
-		ReflectionUtils.makeAccessible(eventBusField);
-		eventBusField.set(args, new EventBusImpl());
-		return new com.netflix.discovery.DiscoveryClient(applicationInfoManager(),
-				clientConfig, args);
-	}
-
-	@Bean
-	public EventBus eventBus() {
-		EventBusImpl eventBus = new EventBusImpl();
-		return eventBus;
-	}
-
-	@Bean
-	public EurekaCacheRefreshedSubscriber eurekaCacheRefreshedSubscriber() throws InvalidSubscriberException {
-		EurekaCacheRefreshedSubscriber subscriber = new EurekaCacheRefreshedSubscriber();
-		eventBus().registerSubscriber(subscriber);
-		return subscriber;
+	@SneakyThrows
+	public EurekaClient eurekaClient() {
+		return new CloudEurekaClient(applicationInfoManager(), clientConfig);
 	}
 
 	@Bean
@@ -218,7 +169,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Bean
 	@ConditionalOnMissingBean(InstanceInfo.class)
 	public InstanceInfo instanceInfo() {
-		return new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get();
+		return new InstanceInfoFactory().create(instanceConfig);
 	}
 
 	@Bean
@@ -251,9 +202,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(
-				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient, EurekaInstanceConfig config) {
+EurekaClient eurekaClient,
+				EurekaInstanceConfig config) {
 			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
-			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
+			return new EurekaHealthIndicator(eurekaClient, metrics, config);
 		}
 	}
 

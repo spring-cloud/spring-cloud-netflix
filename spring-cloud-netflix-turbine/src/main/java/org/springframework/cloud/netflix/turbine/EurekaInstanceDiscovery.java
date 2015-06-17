@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.discovery.EurekaClient;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.expression.Expression;
@@ -34,8 +35,6 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.shared.Application;
 import com.netflix.turbine.discovery.Instance;
 import com.netflix.turbine.discovery.InstanceDiscovery;
@@ -60,13 +59,11 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	private static final DynamicStringProperty ApplicationList = DynamicPropertyFactory
 			.getInstance().getStringProperty("turbine.appConfig", "");
 
+	private final EurekaClient eurekaClient;
 	private final Expression clusterNameExpression;
 
-	public EurekaInstanceDiscovery(TurbineProperties turbineProperties) {
-		// Eureka client should already be configured by spring-platform-netflix-core
-		// initialize eureka client.
-		// DiscoveryManager.getInstance().initComponent(new MyDataCenterInstanceConfig(),
-		// new DefaultEurekaClientConfig());
+	public EurekaInstanceDiscovery(TurbineProperties turbineProperties, EurekaClient eurekaClient) {
+		this.eurekaClient = eurekaClient;
 		SpelExpressionParser parser = new SpelExpressionParser();
 		this.clusterNameExpression = parser.parseExpression(turbineProperties
 				.getClusterNameExpression());
@@ -78,7 +75,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	 */
 	@Override
 	public Collection<Instance> getInstanceList() throws Exception {
-		List<Instance> instances = new ArrayList<Instance>();
+		List<Instance> instances = new ArrayList<>();
 		List<String> appNames = parseApps();
 		if (appNames == null || appNames.size() == 0) {
 			log.info("No apps configured, returning an empty instance list");
@@ -111,14 +108,9 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 	 * @throws Exception
 	 */
 	private List<Instance> getInstancesForApp(String appName) throws Exception {
-		List<Instance> instances = new ArrayList<Instance>();
+		List<Instance> instances = new ArrayList<>();
 		log.info("Fetching instances for app: " + appName);
-		DiscoveryClient client = DiscoveryManager.getInstance().getDiscoveryClient();
-		if (client == null) {
-			log.info("Discovery client not ready for: " + appName);
-			return instances;
-		}
-		Application app = client.getApplication(appName);
+		Application app = eurekaClient.getApplication(appName);
 		if (app == null) {
 			log.warn("Eureka returned null for app: " + appName);
 		}

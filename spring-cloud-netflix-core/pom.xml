@@ -54,15 +54,10 @@
 			<artifactId>eureka-client</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<!-- eureka client deps -->
 		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.netflix-commons</groupId>
-			<artifactId>netflix-eventbus</artifactId>
+			<groupId>com.netflix.governator</groupId>
+			<artifactId>governator</artifactId>
+			<version>1.3.3</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

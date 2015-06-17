@@ -34,8 +34,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.SmartApplicationListener;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
+import com.netflix.discovery.EurekaClient;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -43,7 +43,7 @@ import com.netflix.discovery.DiscoveryManager;
  *
  * @author Dave Syer
  */
-@ConditionalOnClass({ DiscoveryClient.class, ConfigServicePropertySourceLocator.class })
+@ConditionalOnClass({ EurekaClient.class, ConfigServicePropertySourceLocator.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
 @EnableDiscoveryClient
