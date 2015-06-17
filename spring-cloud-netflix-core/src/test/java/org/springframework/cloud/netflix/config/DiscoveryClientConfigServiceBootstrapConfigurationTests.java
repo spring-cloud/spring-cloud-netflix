@@ -103,8 +103,7 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		this.context = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(this.context, env);
 		this.context.getDefaultListableBeanFactory().registerSingleton(
-				"mockDiscoveryClient", this.client);
-		// FIXME: howto register mock EurekaClient
+				"eurekaClient", this.client);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				ConfigClientProperties.class);

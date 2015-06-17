@@ -122,13 +122,6 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		}
 	}
 
-	/* FIXME create eureka bean?  Maybe separate config.
-	@Bean
-	@ConditionalOnMissingBean(DiscoveryManagerInitializer.class)
-	public DiscoveryManagerInitializer discoveryManagerIntitializer() {
-		return new DiscoveryManagerInitializer();
-	}*/
-
 	@Override
 	public void start() {
 		new Thread(new Runnable() {
@@ -158,8 +151,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 									.getInstance()
 									.setMarshallingStrategy(
 											new DataCenterAwareMarshallingStrategy());
-							//TODO: init eureka jackson support
-							// PeerAwareInstanceRegistry.getInstance();
+							//FIXME: init eureka jackson support
 							EurekaServerInitializerConfiguration.this.applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(
 											EurekaServerInitializerConfiguration.this.eurekaServerConfig));
