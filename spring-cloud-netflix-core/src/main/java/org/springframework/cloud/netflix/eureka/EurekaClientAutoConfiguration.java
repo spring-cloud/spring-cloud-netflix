@@ -58,7 +58,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	
 	@PostConstruct
 	public void init() {
-		//FIXME: init eureka jackson support
+		DataCenterAwareJacksonCodec.init();
 		XmlXStream.getInstance().setMarshallingStrategy(
 				new DataCenterAwareMarshallingStrategy());
 	}

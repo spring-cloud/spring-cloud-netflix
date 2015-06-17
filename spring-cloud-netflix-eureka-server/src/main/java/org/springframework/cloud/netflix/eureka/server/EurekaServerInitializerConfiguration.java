@@ -36,6 +36,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.boot.logging.log4j.Log4JLoggingSystem;
+import org.springframework.cloud.netflix.eureka.DataCenterAwareJacksonCodec;
 import org.springframework.cloud.netflix.eureka.DataCenterAwareMarshallingStrategy;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.cloud.netflix.eureka.server.advice.LeaseManagerLite;
@@ -151,7 +152,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 									.getInstance()
 									.setMarshallingStrategy(
 											new DataCenterAwareMarshallingStrategy());
-							//FIXME: init eureka jackson support
+							DataCenterAwareJacksonCodec.init();
 							EurekaServerInitializerConfiguration.this.applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(
 											EurekaServerInitializerConfiguration.this.eurekaServerConfig));

@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.eureka;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.DataCenterInfo.Name;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.UniqueIdentifier;
 import com.netflix.discovery.converters.Converters.ApplicationsConverter;
 import com.netflix.discovery.converters.Converters.InstanceInfoConverter;
 import com.netflix.discovery.converters.StringCache;
@@ -66,27 +65,6 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			ConverterLookup converterLookup, Mapper mapper, DataHolder dataHolder) {
 		ConverterLookup wrapped = new DataCenterAwareConverterLookup(converterLookup);
 		this.delegate.marshal(writer, obj, wrapped, mapper, dataHolder);
-	}
-
-	public static class InstanceIdDataCenterInfo implements DataCenterInfo,
-			UniqueIdentifier {
-
-		private String instanceId;
-
-		public InstanceIdDataCenterInfo(String instanceId) {
-			this.instanceId = instanceId;
-		}
-
-		@Override
-		public Name getName() {
-			return Name.MyOwn;
-		}
-
-		@Override
-		public String getId() {
-			return this.instanceId;
-		}
-
 	}
 
 	private static class DataCenterAwareConverterLookup implements ConverterLookup {
