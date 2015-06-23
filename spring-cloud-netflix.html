@@ -699,57 +699,6 @@ normal Eureka functionality under <code>/eureka/*</code>.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>You can run the Eureka server as an executable JAR (or WAR) using the
-<a href="http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#build-tool-plugins">Spring
-Boot build tools</a>, but to avoid problems with classpath scanning in
-Jersey 1.x you have to tell the build plugins to unpack the jars that
-contain JAX-RS resources, e.g. (for Maven)</p>
-</div>
-<div class="listingblock">
-<div class="title">pom.xml</div>
-<div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;plugin&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
-    &lt;configuration&gt;
-        &lt;requiresUnpack&gt;
-            &lt;dependency&gt;
-                &lt;groupId&gt;com.netflix.eureka&lt;/groupId&gt;
-                &lt;artifactId&gt;eureka-core&lt;/artifactId&gt;
-            &lt;/dependency&gt;
-            &lt;dependency&gt;
-                &lt;groupId&gt;com.netflix.eureka&lt;/groupId&gt;
-                &lt;artifactId&gt;eureka-client&lt;/artifactId&gt;
-            &lt;/dependency&gt;
-        &lt;/requiresUnpack&gt;
-    &lt;/configuration&gt;
-&lt;/plugin&gt;</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>or with Gradle</p>
-</div>
-<div class="listingblock">
-<div class="title">build.gradle</div>
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">apply plugin: 'spring-boot'
-springBoot {
-    requiresUnpack = ['com.netflix.eureka:eureka-core','com.netflix.eureka:eureka-client']
-}</code></pre>
-</div>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Tip</div>
-</td>
-<td class="content">
-<div class="paragraph">
 <p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring dependency management plugin must be added and the Spring cloud starter parent bom must be imported like so:</p>
 </div>
 <div class="listingblock">
@@ -1760,7 +1709,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-06-17 21:32:51 UTC
+Last updated 2015-06-23 12:03:57 UTC
 </div>
 </div>
 </body>
