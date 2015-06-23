@@ -80,7 +80,7 @@ public class RibbonCommand extends HystrixCommand<HttpResponse> {
 		super(getSetter(commandKey));
 		this.restClient = restClient;
 		this.verb = verb;
-		this.uri = (StringUtils.hasText(uri))? UriComponentsBuilder.fromUriString(uri).build().toUri() : new URI(uri);
+		this.uri = new URI(uri);
 		this.retryable = retryable;
 		this.headers = headers;
 		this.params = params;
