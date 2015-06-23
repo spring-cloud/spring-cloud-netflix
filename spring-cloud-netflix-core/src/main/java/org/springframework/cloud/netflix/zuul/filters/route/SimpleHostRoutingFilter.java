@@ -168,10 +168,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		InputStream requestEntity = getRequestBody(request);
 		HttpClient httpclient = CLIENT.get();
 
-		String uri = request.getRequestURI();
-		if (context.get("requestURI") != null) {
-			uri = (String) context.get("requestURI");
-		}
+		String uri = this.helper.buildZuulRequestURI(request);
 
 		try {
 			HttpResponse response = forward(httpclient, verb, uri, request, headers,
