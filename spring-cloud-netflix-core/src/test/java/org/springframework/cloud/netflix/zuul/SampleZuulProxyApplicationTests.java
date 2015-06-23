@@ -134,9 +134,20 @@ public class SampleZuulProxyApplicationTests {
 	}
 
 	@Test
-	public void routeWithSpace() {
+	public void ribbonRouteWithSpace() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/spa ce",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Hello space", result.getBody());
+	}
+
+	@Test
+	public void simpleHostRouteWithSpace() {
+		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/spa ce",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
