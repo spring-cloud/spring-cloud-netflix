@@ -93,7 +93,7 @@ public class ProxyRequestHelper {
 		for (String header : zuulRequestHeaders.keySet()) {
 			headers.set(header, zuulRequestHeaders.get(header));
 		}
-		headers.set("accept-encoding", "deflate, gzip");
+		headers.set("accept-encoding", "gzip");
 		return headers;
 	}
 

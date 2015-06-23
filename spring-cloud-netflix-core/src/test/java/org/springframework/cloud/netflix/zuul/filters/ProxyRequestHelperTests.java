@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -25,8 +23,10 @@ import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.MultiValueMap;
 
-import static org.junit.Assert.*;
+import java.util.List;
+
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
@@ -65,4 +65,19 @@ public class ProxyRequestHelperTests {
 		assertThat(missingName, is(nullValue()));
 
 	}
+
+	@Test
+	public void buildZuulRequestHeadersRequestsGzipAndOnlyGzip() {
+		MockHttpServletRequest request = new MockHttpServletRequest("", "/");
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+
+		List<String> acceptEncodings = headers.get("accept-encoding");
+		assertThat(acceptEncodings, hasSize(1));
+		assertThat(acceptEncodings, contains("gzip"));
+	}
+
+
 }
