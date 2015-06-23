@@ -95,10 +95,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 		RestClient restClient = this.clientFactory.getClient(serviceId, RestClient.class);
 
-		String uri = request.getRequestURI();
-		if (context.get("requestURI") != null) {
-			uri = (String) context.get("requestURI");
-		}
+		String uri = this.helper.buildZuulRequestURI(request);
+
 		// remove double slashes
 		uri = uri.replace("//", "/");
 		String service = (String) context.get("serviceId");
