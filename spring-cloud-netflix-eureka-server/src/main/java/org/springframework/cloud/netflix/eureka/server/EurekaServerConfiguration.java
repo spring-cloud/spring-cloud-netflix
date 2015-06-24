@@ -17,6 +17,8 @@
 package org.springframework.cloud.netflix.eureka.server;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,8 +45,6 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
@@ -77,18 +77,19 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 	/**
 	 * Register the Jersey filter
-	 * 
+	 *
 	 * @param eurekaJerseyApp the jersey application
 	 * @return
 	 */
 	@Bean
-	public FilterRegistrationBean jerseyFilterRegistration(javax.ws.rs.core.Application eurekaJerseyApp) {
+	public FilterRegistrationBean jerseyFilterRegistration(
+			javax.ws.rs.core.Application eurekaJerseyApp) {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(new ServletContainer(eurekaJerseyApp));
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
 		bean.setUrlPatterns(Collections
 				.singletonList(EurekaServerConfigBean.DEFAULT_PREFIX + "/*"));
-		
+
 		return bean;
 	}
 
@@ -97,40 +98,43 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	 * required by the Eureka server.
 	 */
 	@Bean
-	public javax.ws.rs.core.Application jerseyApplication(Environment environment, ResourceLoader resourceLoader) {
-		
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false, environment);
-		
+	public javax.ws.rs.core.Application jerseyApplication(Environment environment,
+			ResourceLoader resourceLoader) {
+
+		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
+				false, environment);
+
 		// Filter to include only classes that have a particular annotation.
 		//
 		provider.addIncludeFilter(new AnnotationTypeFilter(Path.class));
 		provider.addIncludeFilter(new AnnotationTypeFilter(Provider.class));
-		
+
 		// Find classes in Eureka packages (or subpackages)
 		//
-		Set<Class<?>> classes = Sets.newHashSet();
-		for(String basePackage: EUREKA_PACKAGES) {
+		Set<Class<?>> classes = new HashSet<Class<?>>();
+		for (String basePackage : EUREKA_PACKAGES) {
 			Set<BeanDefinition> beans = provider.findCandidateComponents(basePackage);
 			for (BeanDefinition bd : beans) {
-				Class<?> cls = ClassUtils.resolveClassName(bd.getBeanClassName(), resourceLoader.getClassLoader());
+				Class<?> cls = ClassUtils.resolveClassName(bd.getBeanClassName(),
+						resourceLoader.getClassLoader());
 				classes.add(cls);
 			}
 		}
-		
+
 		// Construct the Jersey ResourceConfig
 		//
-		Map<String, Object> propsAndFeatures = Maps.newHashMap();
+		Map<String, Object> propsAndFeatures = new HashMap<String, Object>();
 		propsAndFeatures.put(
 				// Skip static content used by the webapp
-				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX, 
-				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*"); 
+				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX,
+				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*");
 
 		DefaultResourceConfig rc = new DefaultResourceConfig(classes);
 		rc.setPropertiesAndFeatures(propsAndFeatures);
 
 		return rc;
 	}
-	
+
 	@Bean
 	public FilterRegistrationBean traceFilterRegistration(
 			@Qualifier("webRequestLoggingFilter") Filter filter) {
