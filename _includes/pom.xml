@@ -1,17 +1,7 @@
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>{@= groupId @}</groupId>
-            <artifactId>spring-cloud-starter-parent</artifactId>
-            <version>{@= version @}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
 <dependencies>
     <dependency>
         <groupId>{@= groupId @}</groupId>
         <artifactId>spring-cloud-starter-eureka</artifactId>
+        <version>{@= version @}</version>
     </dependency>
 </dependencies>
