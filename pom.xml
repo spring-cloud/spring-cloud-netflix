@@ -21,6 +21,8 @@
 	</scm>
 	<properties>
         <bintray.package>netflix</bintray.package>
+        <spring-cloud-commons.version>1.0.2.BUILD-SNAPSHOT</spring-cloud-commons.version>
+        <spring-cloud-config.version>1.0.2.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.1.157</eureka.version>
@@ -30,6 +32,7 @@
 		<zuul.version>1.0.28</zuul.version>
 		<rxjava.version>1.0.11</rxjava.version>
 		<java.version>1.7</java.version>
+		<turbine.version>1.0.0</turbine.version>
 		<spring-integration-dsl.version>1.0.0.RELEASE</spring-integration-dsl.version>
 		<cloud-connectors.version>1.1.1.RELEASE</cloud-connectors.version>
 	</properties>
@@ -65,23 +68,62 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-commons</artifactId>
-				<version>1.0.2.BUILD-SNAPSHOT</version>
+				<artifactId>spring-cloud-commons-parent</artifactId>
+				<version>${spring-cloud-commons.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-context</artifactId>
-				<version>1.0.2.BUILD-SNAPSHOT</version>
+				<artifactId>spring-cloud-config</artifactId>
+				<version>${spring-cloud-config.version}</version>
+                <type>pom</type>
+        		<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-config-client</artifactId>
-				<version>1.0.2.BUILD-SNAPSHOT</version>
+				<artifactId>spring-cloud-starter-eureka</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-config-server</artifactId>
-				<version>1.0.2.BUILD-SNAPSHOT</version>
+				<artifactId>spring-cloud-starter-eureka-server</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-feign</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-hystrix</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-ribbon</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-turbine</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-turbine-amqp</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-zuul</artifactId>
+				<version>1.0.3.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -170,6 +212,29 @@
 					<exclusion>
 						<artifactId>com.netflix.blitz4j</artifactId>
 						<groupId>blitz4j</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.netflix.turbine</groupId>
+				<artifactId>turbine-core</artifactId>
+				<version>${turbine.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.netflix.rxjava</groupId>
+						<artifactId>rxjava-core</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-simple</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
