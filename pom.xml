@@ -402,6 +402,15 @@
 		<module>spring-cloud-netflix-turbine</module>
 		<module>spring-cloud-netflix-turbine-amqp</module>
 		<module>spring-cloud-netflix-sidecar</module>
+		<module>spring-cloud-starter-eureka</module>
+		<module>spring-cloud-starter-eureka-server</module>
+		<module>spring-cloud-starter-feign</module>
+		<module>spring-cloud-starter-hystrix</module>
+		<module>spring-cloud-starter-hystrix-dashboard</module>
+		<module>spring-cloud-starter-ribbon</module>
+		<module>spring-cloud-starter-turbine</module>
+		<module>spring-cloud-starter-turbine-amqp</module>
+		<module>spring-cloud-starter-zuul</module>
 		<module>docs</module>
 	</modules>
 </project>
