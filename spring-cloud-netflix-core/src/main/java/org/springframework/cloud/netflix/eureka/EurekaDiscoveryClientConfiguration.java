@@ -17,6 +17,8 @@
 package org.springframework.cloud.netflix.eureka;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,6 +28,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.metrics.reader.CompositeMetricReader;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -134,7 +137,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 			if (this.healthCheckHandler != null) {
 				DiscoveryManager.getInstance().getDiscoveryClient()
-						.registerHealthCheck(this.healthCheckHandler);
+				.registerHealthCheck(this.healthCheckHandler);
 			}
 			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
 					this.instanceConfig));
@@ -145,10 +148,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Override
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
-				+ " with eureka with status OUT_OF_SERVICE");
+				+ " with eureka with status DOWN");
 		if (ApplicationInfoManager.getInstance().getInfo() != null) {
 			ApplicationInfoManager.getInstance().setInstanceStatus(
-					InstanceStatus.OUT_OF_SERVICE);
+					InstanceStatus.DOWN);
 		}
 		this.running.set(false);
 	}
@@ -170,6 +173,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Override
 	public void stop(Runnable callback) {
+		stop();
 		callback.run();
 	}
 
@@ -220,11 +224,15 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@ConditionalOnClass(Endpoint.class)
 	@ConditionalOnBean(MetricReader.class)
 	protected static class EurekaHealthIndicatorConfiguration {
+
+		@Autowired
+		private List<MetricReader> metricReaders = Collections.emptyList();
+
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(
-				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient,
-				MetricReader metrics, EurekaInstanceConfig config) {
+				com.netflix.discovery.DiscoveryClient eurekaDiscoveryClient, EurekaInstanceConfig config) {
+			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
 			return new EurekaHealthIndicator(eurekaDiscoveryClient, metrics, config);
 		}
 	}

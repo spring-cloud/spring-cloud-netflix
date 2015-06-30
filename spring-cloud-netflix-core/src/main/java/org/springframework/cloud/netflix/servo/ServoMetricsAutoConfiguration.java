@@ -18,7 +18,10 @@ package org.springframework.cloud.netflix.servo;
 
 import org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
+import org.springframework.boot.actuate.metrics.GaugeService;
+import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
+import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -38,15 +41,47 @@ import com.netflix.servo.monitor.Monitors;
  */
 @Configuration
 @ConditionalOnClass({ Monitors.class, MetricReader.class })
-@ConditionalOnBean(MetricReader.class)
+@ConditionalOnBean(GaugeService.class)
 @AutoConfigureBefore(EndpointAutoConfiguration.class)
 @AutoConfigureAfter({ MetricRepositoryAutoConfiguration.class })
 public class ServoMetricsAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public ServoMetricCollector servoMetricCollector(MetricWriter metrics) {
-		return new ServoMetricCollector(metrics);
+	public ServoMetricNaming servoMetricNaming() {
+		return new DefaultServoMetricNaming();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ServoMetricCollector servoMetricCollector(GaugeService gauges,
+			ServoMetricNaming naming) {
+		return new ServoMetricCollector(new ActuatorMetricWriter(gauges), naming);
+	}
+
+	// TODO: refactor this when Spring Boot 1.3 is mandatory
+	private static class ActuatorMetricWriter implements MetricWriter {
+
+		private GaugeService gauges;
+
+		public ActuatorMetricWriter(GaugeService gauges) {
+			this.gauges = gauges;
+		}
+
+		@Override
+		public void increment(Delta<?> delta) {
+		}
+
+		@Override
+		public void set(Metric<?> value) {
+			gauges.submit(value.getName(), value.getValue().doubleValue());
+		}
+
+		@Override
+		public void reset(String metricName) {
+			gauges.submit(metricName, 0.);
+		}
+
 	}
 
 }

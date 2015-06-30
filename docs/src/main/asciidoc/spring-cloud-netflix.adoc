@@ -12,7 +12,7 @@ Service Discovery is one of the key tenets of a microservice based architecture.
 
 === Registering with Eureka
 
-When a client registers with Eureka, it provide meta-data about itself
+When a client registers with Eureka, it provides meta-data about itself
 such as host and port, health indicator URL, home page etc.  Eureka
 receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is
@@ -225,46 +225,6 @@ normal Eureka functionality under `/eureka/*`.
 
 Eureka background reading: see https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer[flux capacitor] and https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0[google group discussion].
 
-[TIP]
-====
-You can run the Eureka server as an executable JAR (or WAR) using the
-http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#build-tool-plugins[Spring
-Boot build tools], but to avoid problems with classpath scanning in
-Jersey 1.x you have to tell the build plugins to unpack the jars that
-contain JAX-RS resources, e.g. (for Maven)
-
-.pom.xml
-[source,xml,indent=0]
-----
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <requiresUnpack>
-                        <dependency>
-                            <groupId>com.netflix.eureka</groupId>
-                            <artifactId>eureka-core</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.netflix.eureka</groupId>
-                            <artifactId>eureka-client</artifactId>
-                        </dependency>
-                    </requiresUnpack>
-                </configuration>
-            </plugin>
-----
-
-or with Gradle
-
-.build.gradle
-[source,java,indent=0]
-----
-apply plugin: 'spring-boot'
-springBoot {
-    requiresUnpack = ['com.netflix.eureka:eureka-core','com.netflix.eureka:eureka-client']
-}
-----
-====
 
 [TIP]
 ====
@@ -517,7 +477,7 @@ turbine:
   aggregator:
     clusterConfig: SYSTEM,USER
   appConfig: customers,stores,ui,admin
-  clusterNameExpression: metadata.cluster
+  clusterNameExpression: metadata['cluster']
 ----
 
 In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".

@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -41,6 +43,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,8 +53,6 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.ZuulFilter;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
@@ -132,6 +133,26 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals("Gotten 1!", result.getBody());
 	}
 
+	@Test
+	public void ribbonRouteWithSpace() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/spa ce",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Hello space", result.getBody());
+	}
+
+	@Test
+	public void simpleHostRouteWithSpace() {
+		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/spa ce",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Hello space", result.getBody());
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -164,9 +185,19 @@ class SampleZuulProxyApplication {
 		return "Gotten " + id + "!";
 	}
 
+	@RequestMapping(value = "/local/{id}", method = RequestMethod.POST)
+	public String post(@PathVariable String id, @RequestBody String body) {
+		return "Posted " + id + "!";
+	}
+
 	@RequestMapping("/")
 	public String home() {
 		return "Hello world";
+	}
+
+	@RequestMapping("/spa ce")
+	public String space() {
+		return "Hello space";
 	}
 
 	@Bean

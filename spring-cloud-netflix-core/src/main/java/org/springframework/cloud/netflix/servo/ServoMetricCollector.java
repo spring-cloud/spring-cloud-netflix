@@ -17,19 +17,15 @@
 package org.springframework.cloud.netflix.servo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 
-import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.publish.BaseMetricObserver;
 import com.netflix.servo.publish.BasicMetricFilter;
 import com.netflix.servo.publish.MetricObserver;
 import com.netflix.servo.publish.MonitorRegistryMetricPoller;
@@ -46,9 +42,9 @@ import com.netflix.servo.publish.PollScheduler;
 @CommonsLog
 public class ServoMetricCollector implements DisposableBean {
 
-	public ServoMetricCollector(MetricWriter metrics) {
-		List<MetricObserver> observers = new ArrayList<MetricObserver>();
-		observers.add(new ServoMetricObserver(metrics));
+	public ServoMetricCollector(MetricWriter metrics, ServoMetricNaming naming) {
+		List<MetricObserver> observers = new ArrayList<>();
+		observers.add(new ServoMetricObserver(metrics, naming));
 		PollRunnable task = new PollRunnable(new MonitorRegistryMetricPoller(),
 				BasicMetricFilter.MATCH_ALL, true, observers);
 
@@ -78,37 +74,6 @@ public class ServoMetricCollector implements DisposableBean {
 				log.error("Could not stop servo metrics poller", e);
 			}
 		}
-	}
-
-	/**
-	 * {@link MetricObserver} to convert Servo metrics into Spring Boot {@link Metric}
-	 * instances.
-	 */
-	private static final class ServoMetricObserver extends BaseMetricObserver {
-
-		private final MetricWriter metrics;
-
-		public ServoMetricObserver(MetricWriter metrics) {
-			super("spring-boot");
-			this.metrics = metrics;
-		}
-
-		@Override
-		public void updateImpl(List<com.netflix.servo.Metric> servoMetrics) {
-			for (com.netflix.servo.Metric servoMetric : servoMetrics) {
-				MonitorConfig config = servoMetric.getConfig();
-				String type = config.getTags().getValue("type");
-				String key = new StringBuilder(type).append(".servo.")
-						.append(config.getName()).toString().toLowerCase();
-
-				if (servoMetric.hasNumberValue()) {
-					this.metrics.set(new Metric<Number>(key,
-							servoMetric.getNumberValue(), new Date(servoMetric
-									.getTimestamp())));
-				}
-			}
-		}
-
 	}
 
 }

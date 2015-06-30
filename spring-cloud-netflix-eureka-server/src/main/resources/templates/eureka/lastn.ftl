@@ -32,7 +32,7 @@
                 <tr><th>Timestamp</th><th>Lease</th></tr>
               </thead>
               <tbody>
-                <#if list5?has_content>
+                <#if lastNCanceled?has_content>
 	                <#list lastNCanceled as entry>
 	                  <tr><td>${entry.date?datetime}</td><td>${entry.id}</td></tr>
 	                </#list>

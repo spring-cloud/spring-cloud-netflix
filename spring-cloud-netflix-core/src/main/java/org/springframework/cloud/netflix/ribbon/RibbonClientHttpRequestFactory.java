@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,7 +26,6 @@ import java.util.Map;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -67,48 +67,58 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
         //@formatter:off
 		IClientConfig clientConfig = clientFactory.getClientConfig(instance.getServiceId());
 		RestClient client = clientFactory.getClient(instance.getServiceId(), RestClient.class);
-		HttpRequest request = HttpRequest.newBuilder()
-                .uri(uri)
-                .verb(HttpRequest.Verb.valueOf(httpMethod.name()))
-                .build();
+		HttpRequest.Verb verb = HttpRequest.Verb.valueOf(httpMethod.name());
         //@formatter:on
-		return new RibbonHttpRequest(request, client, clientConfig);
+		return new RibbonHttpRequest(uri, verb, client, clientConfig);
 	}
 
 	public class RibbonHttpRequest extends AbstractClientHttpRequest {
 
-		private HttpRequest request;
+		private HttpRequest.Builder builder;
+		private URI uri;
+		private HttpRequest.Verb verb;
 		private RestClient client;
 		private IClientConfig config;
+		private ByteArrayOutputStream outputStream = null;
 
-		@SuppressWarnings("deprecation")
-		public RibbonHttpRequest(HttpRequest request, RestClient client,
+		public RibbonHttpRequest(URI uri, HttpRequest.Verb verb, RestClient client,
 				IClientConfig config) {
-			this.request = request;
+			this.uri = uri;
+			this.verb = verb;
 			this.client = client;
 			this.config = config;
-			request.getHeaders().putAll(getHeaders());
+			this.builder = HttpRequest.newBuilder().uri(uri).verb(verb);
 		}
 
 		@Override
 		public HttpMethod getMethod() {
-			return HttpMethod.valueOf(request.getVerb().name());
+			return HttpMethod.valueOf(verb.name());
 		}
 
 		@Override
 		public URI getURI() {
-			return request.getUri();
+			return uri;
 		}
 
 		@Override
 		protected OutputStream getBodyInternal(HttpHeaders headers) throws IOException {
-			throw new RuntimeException("Not implemented");
+			if (outputStream == null) {
+				outputStream = new ByteArrayOutputStream();
+			}
+			return outputStream;
 		}
 
 		@Override
+		@SuppressWarnings("deprecation")
 		protected ClientHttpResponse executeInternal(HttpHeaders headers)
 				throws IOException {
 			try {
+				addHeaders(headers);
+				if (outputStream != null) {
+					outputStream.close();
+					builder.entity(outputStream.toByteArray());
+				}
+				HttpRequest request = builder.build();
 				HttpResponse response = client.execute(request, config);
 				return new RibbonHttpResponse(response);
 			} catch (Exception e) {
@@ -122,6 +132,23 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
                 public ClientHttpResponse apply(ServiceInstance instance) throws Exception {
                 }
             });*/
+		}
+
+		private void addHeaders(HttpHeaders headers) {
+			for (String name : headers.keySet()) {
+				// apache http RequestContent pukes if there is a body and
+				// the dynamic headers are already present
+				if (!isDynamic(name) || outputStream == null) {
+					List<String> values = headers.get(name);
+					for (String value : values) {
+						builder.header(name, value);
+					}
+				}
+			}
+		}
+
+		private boolean isDynamic(String name) {
+			return name.equals("Content-Length") || name.equals("Transfer-Encoding");
 		}
 	}
 
