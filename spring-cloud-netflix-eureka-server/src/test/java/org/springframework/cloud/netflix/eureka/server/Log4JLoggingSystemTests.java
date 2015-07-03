@@ -24,8 +24,10 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.boot.logging.LogLevel;
+import org.springframework.boot.logging.LoggingInitializationContext;
 import org.springframework.boot.logging.log4j.Log4JLoggingSystem;
 import org.springframework.boot.test.OutputCapture;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
@@ -61,7 +63,8 @@ public class Log4JLoggingSystemTests {
 	@Ignore("gh-48")
 	public void setLevel() throws Exception {
 		this.loggingSystem.beforeInitialize();
-		this.loggingSystem.initialize(null, null);
+		this.loggingSystem.initialize(new LoggingInitializationContext(
+				new StandardEnvironment()), null, null);
 		this.logger.debug("Hello");
 		this.loggingSystem.setLogLevel("org.springframework.cloud", LogLevel.DEBUG);
 		this.logger.debug("Hello");
