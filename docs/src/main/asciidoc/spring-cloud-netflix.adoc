@@ -776,7 +776,7 @@ configured routes map, then it will be unignored. Example:
 [source,yaml]
 ----
  zuul:
-  ignoredServices: * 
+  ignoredServices: '*'
   routes:
     users: /myusers/**
 ----
