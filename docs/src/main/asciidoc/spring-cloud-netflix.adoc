@@ -91,7 +91,7 @@ eureka:
     healthCheckUrlPath: ${management.contextPath}/health
 ----
 
-These links show up in the metadata that is consumers by clients, and
+These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it's helpful if they are accurate.
 
