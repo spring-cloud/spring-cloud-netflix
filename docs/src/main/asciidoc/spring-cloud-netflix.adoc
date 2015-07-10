@@ -570,7 +570,7 @@ Spring Cloud Netflix provides the following beans by default for ribbon
 * `IClientConfig` ribbonClientConfig: `DefaultClientConfigImpl`
 * `IRule` ribbonRule: `ZoneAvoidanceRule`
 * `IPing` ribbonPing: `NoOpPing`
-* `ServerList<Server> ribbonServerList: `ConfigurationBasedServerList`
+* `ServerList<Server>` ribbonServerList: `ConfigurationBasedServerList`
 * `ServerListFilter<Server>` ribbonServerListFilter: `ZonePreferenceServerListFilter`
 * `ILoadBalancer` ribbonLoadBalancer: `ZoneAwareLoadBalancer`
 
