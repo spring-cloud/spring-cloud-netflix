@@ -9,3 +9,4 @@ _site
 sample-pages
 spring-cloud-*/
 target/
+docs/

@@ -8,7 +8,7 @@ apply plugin: "io.spring.dependency-management"
 
 dependencyManagement {
      imports {
-          mavenBom '{@= groupId @}:spring-cloud-netflix:{@= version @}'
+          mavenBom '{@= groupId @}:spring-cloud-netflix:{@= findBom(version) @}'
      }
 }
 dependencies {
