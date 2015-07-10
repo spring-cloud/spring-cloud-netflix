@@ -416,8 +416,6 @@ If you want some thread local context to propagate into a `@HystrixCommand` the 
 
 The same thing applies if you are using `@SessionScope` or `@RequestScope`. You will know when you need to do this because of a runtime exception that says it can't find the scoped context.
 
-In particular you might be interested
-
 ### Health Indicator
 
 The state of the connected circuit breakers are also exposed in the
