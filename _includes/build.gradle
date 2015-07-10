@@ -1,3 +1,16 @@
+buildscript {
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE"
+    }
+}
+
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+     imports {
+          mavenBom '{@= groupId @}:spring-cloud-netflix:{@= version @}'
+     }
+}
 dependencies {
-    compile '{@= groupId @}:spring-cloud-starter-eureka:{@= version @}'
+    compile '{@= groupId @}:spring-cloud-starter-eureka'
 }
