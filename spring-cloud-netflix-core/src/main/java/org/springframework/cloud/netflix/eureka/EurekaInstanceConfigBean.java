@@ -47,7 +47,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	@Getter(AccessLevel.PRIVATE)
 	@Setter(AccessLevel.PRIVATE)
-	private String[] hostInfo = initHostInfo();
+	private HostInfo hostInfo = initHostInfo();
 
 	@Value("${spring.application.name:unknown}")
 	private String appname = "unknown";
@@ -79,7 +79,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private DataCenterInfo dataCenterInfo = new IdentifyingDataCenterInfo();
 
-	private String ipAddress = this.hostInfo[0];
+	private String ipAddress = this.hostInfo.ipAddress;
 
 	private String statusPageUrlPath = "/info";
 
@@ -97,14 +97,14 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private String namespace = "eureka";
 
-	private String hostname = this.hostInfo[1];
+	private String hostname = this.hostInfo.hostname;
 
 	private boolean preferIpAddress = false;
 
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
 	public String getHostname() {
-		return this.preferIpAddress ? this.ipAddress : this.hostname;
+		return getHostName(false);
 	}
 
 	@Override
@@ -112,11 +112,11 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		return this.securePortEnabled;
 	}
 
-	private String[] initHostInfo() {
-		String[] info = new String[2];
+	private HostInfo initHostInfo() {
+		HostInfo info = new HostInfo();
 		try {
-			info[0] = InetAddress.getLocalHost().getHostAddress();
-			info[1] = InetAddress.getLocalHost().getHostName();
+			info.ipAddress = InetAddress.getLocalHost().getHostAddress();
+			info.hostname = InetAddress.getLocalHost().getHostName();
 		}
 		catch (UnknownHostException ex) {
 			logger.error("Cannot get host info", ex);
@@ -126,7 +126,17 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	@Override
 	public String getHostName(boolean refresh) {
+		if (refresh) {
+			this.hostInfo = initHostInfo();
+			this.ipAddress = this.hostInfo.ipAddress;
+			this.hostname = this.hostInfo.hostname;
+		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
+	}
+
+	private final class HostInfo {
+		private String ipAddress;
+		private String hostname;
 	}
 
 	private final class IdentifyingDataCenterInfo implements DataCenterInfo,
