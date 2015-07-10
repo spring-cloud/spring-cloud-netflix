@@ -874,7 +874,7 @@ Set that flag to "true" to have the Ribbon client automatically retry failed req
 (and if you need to you can modify the parameters of the retry operations using
 the Ribbon client configuration).
 
-The `X-Forwarded-Host` header added to the forwarded requests by
+The `X-Forwarded-Host` header is added to the forwarded requests by
 default.  To turn it off set `zuul.addProxyHeaders = false`.  The
 prefix path is stripped by default, and the request to the backend
 picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
