@@ -3,7 +3,7 @@
         <dependency>
             <groupId>{@= groupId @}</groupId>
             <artifactId>spring-cloud-netflix</artifactId>
-            <version>{@= findBom(version) @}</version>
+            <version>{@= version @}</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
