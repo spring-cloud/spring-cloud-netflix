@@ -66,8 +66,17 @@
 		<dependency>
 			<groupId>com.netflix.turbine</groupId>
 			<artifactId>turbine-core</artifactId>
-			<!-- TODO: turbine 1.0.0 is coming from s-c-netflix pom import -->
 			<version>${turbine.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.netflix.rxjava</groupId>
+					<artifactId>rxjava-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex</groupId>
