@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.web.util.UriComponentsBuilder;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientException;
 import com.netflix.client.ClientRequest;
@@ -47,12 +49,15 @@ public class RibbonLoadBalancer
 	private final int readTimeout;
 
 	private final IClientConfig clientConfig;
+	
+	private final boolean secure;
 
 	public RibbonLoadBalancer(Client delegate, ILoadBalancer lb,
 			IClientConfig clientConfig) {
 		super(lb, clientConfig);
 		this.setRetryHandler(RetryHandler.DEFAULT);
 		this.clientConfig = clientConfig;
+		this.secure = clientConfig.get(CommonClientConfigKey.IsSecure);
 		this.delegate = delegate;
 		this.connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
 		this.readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
@@ -71,8 +76,16 @@ public class RibbonLoadBalancer
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
+		if(isSecure(configOverride)) {
+			URI secureUri = UriComponentsBuilder.fromUri(request.getUri()).scheme("https").build().toUri();
+			request = new RibbonRequest(request.toRequest(), secureUri);
+		}
 		Response response = this.delegate.execute(request.toRequest(), options);
 		return new RibbonResponse(request.getUri(), response);
+	}
+	
+	private boolean isSecure(IClientConfig configOverride) {
+		return configOverride != null ? configOverride.get(CommonClientConfigKey.IsSecure) : secure;
 	}
 
 	@Override
