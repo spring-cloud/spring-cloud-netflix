@@ -18,8 +18,10 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -259,10 +261,20 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return httpclient.execute(httpHost, httpRequest);
 	}
 
-	private String getQueryString() {
+	private String getQueryString() throws UnsupportedEncodingException {
 		HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-		String query = request.getQueryString();
-		return (query != null) ? "?" + query : "";
+		MultiValueMap<String, String> params=helper.buildZuulRequestQueryParams(request);
+		StringBuilder query=new StringBuilder();
+		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+			String key=URLEncoder.encode(entry.getKey(), "UTF-8");
+			for (String value : entry.getValue()) {
+				query.append("&");
+				query.append(key);
+				query.append("=");
+				query.append(URLEncoder.encode(value, "UTF-8"));
+			}
+		}
+		return (query.length()>0) ? "?" + query.substring(1) : "";
 	}
 
 	private HttpHost getHttpHost(URL host) {
