@@ -25,7 +25,10 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
@@ -50,7 +53,12 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 		Server server = new Server(instance.getHost(), instance.getPort());
-		return context.reconstructURIWithServer(server, original);
+		boolean secure = isSecure(this.clientFactory, serviceId);
+		URI uri = original;
+		if(secure) {
+			uri = UriComponentsBuilder.fromUri(uri).scheme("https").build().toUri();
+		}
+		return context.reconstructURIWithServer(server, uri);
 	}
 
 	@Override
@@ -59,7 +67,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		if (server == null) {
 			return null;
 		}
-		return new RibbonServer(serviceId, server);
+		return new RibbonServer(serviceId, server, isSecure(this.clientFactory, serviceId));
 	}
 
 	@Override
@@ -68,7 +76,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 		Server server = getServer(loadBalancer);
-		RibbonServer ribbonServer = new RibbonServer(serviceId, server);
+		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(clientFactory, serviceId));
 
 		ServerStats serverStats = context.getServerStats(server);
 		context.noteOpenConnection(serverStats);
@@ -84,6 +92,14 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
+	}
+	
+	private boolean isSecure(SpringClientFactory clientFactory, String serviceId) {
+		IClientConfig config = clientFactory.getClientConfig(serviceId);
+		if(config != null) {
+			return config.get(CommonClientConfigKey.IsSecure, false);
+		}
+		return false;
 	}
 
 	private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer,
@@ -111,8 +127,13 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	protected static class RibbonServer implements ServiceInstance {
 		private String serviceId;
 		private Server server;
-
+		private boolean secure;
+		
 		protected RibbonServer(String serviceId, Server server) {
+			this(serviceId, server, false);
+		}
+
+		protected RibbonServer(String serviceId, Server server, boolean secure) {
 			this.serviceId = serviceId;
 			this.server = server;
 		}
@@ -134,7 +155,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 		@Override
 		public boolean isSecure() {
-			return false; //TODO: howto determine https from ribbon Server
+			return this.secure;
 		}
 
 		@Override
