@@ -16,11 +16,15 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import feign.httpclient.ApacheHttpClient;
+import feign.ribbon.LBClientFactory;
 import feign.ribbon.RibbonClient;
+import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +34,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 
 import feign.Client;
 import feign.Feign;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
@@ -51,13 +56,44 @@ public class FeignRibbonClientAutoConfiguration {
 	}
 
 	@Bean
+	@Primary
 	public CachingLBClientFactory cachingLBClientFactory() {
 		return new CachingLBClientFactory(springLBClientFactory());
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Client feignRibbonClient() {
+	public Client feignClient() {
 		return RibbonClient.builder().lbClientFactory(cachingLBClientFactory()).build();
+	}
+
+
+	@Configuration
+	@ConditionalOnClass(ApacheHttpClient.class)
+	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
+	protected static class HttpClientConfiguration {
+
+		@Autowired(required = false)
+		private HttpClient httpClient;
+
+		@Autowired(required = false)
+		private LBClientFactory lbClientFactory;
+
+		@Bean
+		public Client feignClient() {
+			RibbonClient.Builder builder = RibbonClient.builder();
+
+			if (httpClient != null) {
+				builder.delegate(new ApacheHttpClient(httpClient));
+			} else {
+				builder.delegate(new ApacheHttpClient());
+			}
+
+			if (lbClientFactory != null) {
+				builder.lbClientFactory(lbClientFactory);
+			}
+
+			return builder.build();
+		}
 	}
 }
