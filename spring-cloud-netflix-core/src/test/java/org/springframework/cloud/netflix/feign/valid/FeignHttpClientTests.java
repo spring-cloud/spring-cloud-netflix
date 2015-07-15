@@ -63,7 +63,7 @@ import feign.Client;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FeignClientTests.Application.class)
+@SpringApplicationConfiguration(classes = FeignHttpClientTests.Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest" })
 @DirtiesContext
@@ -85,7 +85,7 @@ public class FeignHttpClientTests {
 		public Hello getHello();
 
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
-		public ResponseEntity<String> patchHello();
+		public ResponseEntity<Void> patchHello();
 	}
 
 	@Configuration
@@ -101,8 +101,8 @@ public class FeignHttpClientTests {
 		}
 
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
-		public ResponseEntity<String> patchHello() {
-			return ResponseEntity.ok().header("X-Hello", "hello world patch").body("");
+		public ResponseEntity<Void> patchHello() {
+			return ResponseEntity.ok().header("X-Hello", "hello world patch").build();
 		}
 
 		public static void main(String[] args) {
@@ -121,7 +121,7 @@ public class FeignHttpClientTests {
 
 	@Test
 	public void testPatch() {
-		ResponseEntity<String> response = this.testClient.patchHello();
+		ResponseEntity<Void> response = this.testClient.patchHello();
 		assertThat(response, is(notNullValue()));
 		String header = response.getHeaders().getFirst("X-Hello");
 		assertThat(header, equalTo("hello world patch"));
@@ -146,7 +146,7 @@ public class FeignHttpClientTests {
 
 	// Load balancer with fixed server list for "local" pointing to localhost
 	@Configuration
-	private static class LocalRibbonClientConfiguration {
+	static class LocalRibbonClientConfiguration {
 
 		@Value("${local.server.port}")
 		private int port = 0;
