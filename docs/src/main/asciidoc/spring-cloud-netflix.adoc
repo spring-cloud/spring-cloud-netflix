@@ -115,6 +115,22 @@ eureka:
 
 Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (https://run.pivotal.io[PWS]).
 
+==== Using Eureka on AWS
+
+If the application is planned to be deployed to an AWS cloud, then the Eureka instance will have to be configured to be Amazon aware and this can be done by customizing the {github-code}/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] the following way:
+
+[source,java,indent=0]
+----
+@Bean
+@Profile("!default")
+public EurekaInstanceConfigBean eurekaInstanceConfig() {
+  EurekaInstanceConfigBean b = new EurekaInstanceConfigBean();
+  AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
+  b.setDataCenterInfo(info);
+  return b;
+}
+----
+
 ==== Making the Eureka Instance ID Unique
 
 By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.metadataMap.instanceId`. For example:
