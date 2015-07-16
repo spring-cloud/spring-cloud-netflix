@@ -16,11 +16,21 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import com.netflix.hystrix.HystrixExecutable;
-import org.springframework.http.client.ClientHttpResponse;
+import lombok.Value;
+import org.springframework.util.MultiValueMap;
+
+import java.io.InputStream;
 
 /**
  * @author Spencer Gibb
  */
-public interface RibbonCommand extends HystrixExecutable<ClientHttpResponse> {
+@Value
+public class RibbonCommandContext {
+	private final String serviceId;
+	private final String verb;
+	private final String uri;
+	private final Boolean retryable;
+	private final MultiValueMap<String, String> headers;
+	private final MultiValueMap<String, String> params;
+	private final InputStream requestEntity;
 }
