@@ -555,6 +555,24 @@ application, so it&#8217;s helpful if they are accurate.</p>
 </div>
 </div>
 <div class="sect3">
+<h4 id="_using_eureka_on_aws">Using Eureka on AWS</h4>
+<div class="paragraph">
+<p>If the application is planned to be deployed to an AWS cloud, then the Eureka instance will have to be configured to be Amazon aware and this can be done by customizing the <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> the following way:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+@Profile("!default")
+public EurekaInstanceConfigBean eurekaInstanceConfig() {
+  EurekaInstanceConfigBean b = new EurekaInstanceConfigBean();
+  AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
+  b.setDataCenterInfo(info);
+  return b;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_making_the_eureka_instance_id_unique">Making the Eureka Instance ID Unique</h4>
 <div class="paragraph">
 <p>By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in <code>eureka.instance.metadataMap.instanceId</code>. For example:</p>
@@ -1706,7 +1724,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-07-16 02:04:50 UTC
+Last updated 2015-07-18 09:37:30 UTC
 </div>
 </div>
 </body>
