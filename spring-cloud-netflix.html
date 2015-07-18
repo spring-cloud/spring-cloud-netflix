@@ -524,7 +524,7 @@ non-default context path or servlet path
 </div>
 </div>
 <div class="paragraph">
-<p>These links show up in the metadata that is consumed by clients, and
+<p>These links show up in the metadata that is consumers by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it&#8217;s helpful if they are accurate.</p>
 </div>
@@ -939,6 +939,9 @@ for details on the properties available.</p>
 <div class="paragraph">
 <p>The same thing applies if you are using <code>@SessionScope</code> or <code>@RequestScope</code>. You will know when you need to do this because of a runtime exception that says it can&#8217;t find the scoped context.</p>
 </div>
+<div class="paragraph">
+<p>In particular you might be interested</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_health_indicator">Health Indicator</h3>
@@ -1153,7 +1156,7 @@ explicitly in the <code>@ComponentScan</code>).
 <p><code>IPing</code> ribbonPing: <code>NoOpPing</code></p>
 </li>
 <li>
-<p><code>ServerList&lt;Server&gt;</code> ribbonServerList: <code>ConfigurationBasedServerList</code></p>
+<p><code>ServerList&lt;Server&gt; ribbonServerList: `ConfigurationBasedServerList</code></p>
 </li>
 <li>
 <p><code>ServerListFilter&lt;Server&gt;</code> ribbonServerListFilter: <code>ZonePreferenceServerListFilter</code></p>
@@ -1198,7 +1201,7 @@ server list will be constructed with "zone" information as provided in
 the instance metadata (so on the client set
 <code>eureka.instance.metadataMap.zone</code>), and if that is missing it can use
 the domain name from the server hostname as a proxy for zone (if the
-flag <code>approximateZoneFromHostname</code> is set). Once the zone information is
+flag <code>approximateZoneFromDomain</code> is set). Once the zone information is
 available it can be used in a <code>ServerListFilter</code> (by default it will
 be used to locate a server in the same zone as the client because the
 default is a <code>ZonePreferenceServerListFilter</code>).</p>
@@ -1417,7 +1420,7 @@ configured routes map, then it will be unignored. Example:</p>
 <div class="title">application.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
-  ignoredServices: '*'
+  ignoredServices: *
   routes:
     users: /myusers/**</code></pre>
 </div>
@@ -1528,7 +1531,7 @@ Set that flag to "true" to have the Ribbon client automatically retry failed req
 the Ribbon client configuration).</p>
 </div>
 <div class="paragraph">
-<p>The <code>X-Forwarded-Host</code> header is added to the forwarded requests by
+<p>The <code>X-Forwarded-Host</code> header added to the forwarded requests by
 default.  To turn it off set <code>zuul.addProxyHeaders = false</code>.  The
 prefix path is stripped by default, and the request to the backend
 picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
@@ -1724,7 +1727,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-07-18 09:37:30 UTC
+Last updated 2015-07-18 09:37:31 UTC
 </div>
 </div>
 </body>
