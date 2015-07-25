@@ -49,6 +49,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,22 +79,34 @@ public class FeignHttpClientTests {
 	@Autowired
 	private Client feignClient;
 
-	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
+	@Autowired
+	private UserClient userClient;
+
 	@FeignClient("localapp")
-	protected static interface TestClient {
+	protected interface TestClient extends BaseTestClient { }
+
+	protected interface BaseTestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		public Hello getHello();
+		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
-		public ResponseEntity<Void> patchHello();
+		ResponseEntity<Void> patchHello();
 	}
+
+	protected interface UserService {
+		@RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+		User getUser(@PathVariable("id") long id);
+	}
+
+	@FeignClient("localapp")
+	protected interface UserClient extends UserService { }
 
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
 	@EnableFeignClients
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
-	protected static class Application {
+	protected static class Application implements UserService {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
@@ -103,6 +116,11 @@ public class FeignHttpClientTests {
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
 		public ResponseEntity<Void> patchHello() {
 			return ResponseEntity.ok().header("X-Hello", "hello world patch").build();
+		}
+
+		@Override
+		public User getUser(@PathVariable("id") long id) {
+			return new User("John Smith");
 		}
 
 		public static void main(String[] args) {
@@ -137,11 +155,26 @@ public class FeignHttpClientTests {
 		assertThat(delegate, is(instanceOf(feign.httpclient.ApacheHttpClient.class)));
 	}
 
+	@Test
+	public void testFeignInheritanceSupport() {
+		assertNotNull("UserClient was null", userClient);
+		final User user = userClient.getUser(1);
+		assertNotNull("Returned user was null", user);
+		assertEquals("Users were different", user, new User("John Smith"));
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class User {
+		private String name;
 	}
 
 	// Load balancer with fixed server list for "local" pointing to localhost
