@@ -81,6 +81,9 @@ public class FeignClientTests {
 	private TestClient testClient;
 
 	@Autowired
+	private TestClientServiceId testClientServiceId;
+
+	@Autowired
 	private Client feignClient;
 
 	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
@@ -97,6 +100,12 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
 		public List<String> getHelloHeaders();
+	}
+
+	@FeignClient(serviceId = "localapp")
+	protected static interface TestClientServiceId {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		public Hello getHello();
 	}
 
 	@Configuration
@@ -208,6 +217,14 @@ public class FeignClientTests {
 		ReflectionUtils.makeAccessible(field);
 		Client delegate = (Client) field.get(this.feignClient);
 		assertThat(delegate, is(instanceOf(feign.Client.Default.class)));
+	}
+
+	@Test
+	public void testServiceId() {
+		assertNotNull("testClientServiceId was null", testClientServiceId);
+		final Hello hello = testClientServiceId.getHello();
+		assertNotNull("The hello response was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
 	}
 
 	@Data
