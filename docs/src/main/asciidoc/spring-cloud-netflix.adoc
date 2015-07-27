@@ -900,6 +900,23 @@ An application with the `@EnableZuulProxy` could act as a standalone
 server if you set a default route ("/"), for example `zuul.route.home:
 /` would route all traffic (i.e. "/**") to the "home" service.
 
+If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
+These patterns are being evaluated at the end of the route location process, which 
+means prefixes should be included in the pattern to warrant a match. Ignored patterns 
+span all services and supersede any other route specification.
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  ignoredPatterns: */admin/**
+  routes:
+    users: /myusers/**
+----
+
+This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
+But calls including "/admin/" will not resolve.
+
 === Uploading Files through Zuul
 
 If you `@EnableZuulProxy` you can use the proxy paths to
