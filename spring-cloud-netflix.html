@@ -1539,6 +1539,25 @@ above).</p>
 server if you set a default route ("/"), for example <code>zuul.route.home:
 /</code> would route all traffic (i.e. "/**") to the "home" service.</p>
 </div>
+<div class="paragraph">
+<p>If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
+These patterns are being evaluated at the end of the route location process, which
+means prefixes should be included in the pattern to warrant a match. Ignored patterns
+span all services and supersede any other route specification.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  ignoredPatterns: */admin/**
+  routes:
+    users: /myusers/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
+But calls including "/admin/" will not resolve.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_uploading_files_through_zuul">Uploading Files through Zuul</h3>
@@ -1724,7 +1743,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-07-24 20:14:25 UTC
+Last updated 2015-07-27 16:44:10 UTC
 </div>
 </div>
 </body>
