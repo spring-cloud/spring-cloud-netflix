@@ -27,6 +27,7 @@ import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -105,6 +106,7 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		definition.addPropertyValue("url", getUrl(attributes));
 		definition.addPropertyValue("name", getServiceId(attributes));
 		definition.addPropertyValue("type", className);
+		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
 		String beanName = StringUtils.uncapitalize(className.substring(className
 				.lastIndexOf(".") + 1));
