@@ -113,15 +113,20 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	}
 
 	private HostInfo initHostInfo() {
-		HostInfo info = new HostInfo();
+		this.hostInfo = this.hostInfo == null ? new HostInfo() : this.hostInfo;
 		try {
-			info.ipAddress = InetAddress.getLocalHost().getHostAddress();
-			info.hostname = InetAddress.getLocalHost().getHostName();
+			this.hostInfo.ipAddress = InetAddress.getLocalHost().getHostAddress();
+			this.hostInfo.hostname = InetAddress.getLocalHost().getHostName();
 		}
 		catch (UnknownHostException ex) {
 			logger.error("Cannot get host info", ex);
 		}
-		return info;
+		return this.hostInfo;
+	}
+
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+		this.hostInfo.override = true;
 	}
 
 	@Override
@@ -129,18 +134,21 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		if (refresh) {
 			this.hostInfo = initHostInfo();
 			this.ipAddress = this.hostInfo.ipAddress;
-			this.hostname = this.hostInfo.hostname;
+			if (!this.hostInfo.override) {
+				this.hostname = this.hostInfo.hostname;
+			}
 		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
 	}
 
 	private final class HostInfo {
+		public boolean override;
 		private String ipAddress;
 		private String hostname;
 	}
 
 	private final class IdentifyingDataCenterInfo implements DataCenterInfo,
-			UniqueIdentifier {
+	UniqueIdentifier {
 
 		@Getter
 		@Setter
