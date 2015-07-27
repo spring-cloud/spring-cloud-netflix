@@ -51,6 +51,8 @@ public class ZuulProperties {
 
 	private List<String> ignoredServices = new ArrayList<String>();
 
+	private List<String> ignoredPatterns = new ArrayList<String>();
+
 	private String servletPath = "/zuul";
 
 	@PostConstruct

@@ -44,6 +44,8 @@ public class ProxyRouteLocatorTests {
 
 	public static final String IGNOREDSERVICE = "ignoredservice";
 
+	public static final String IGNOREDPATTERN = "/foo/**";
+
 	public static final String ASERVICE = "aservice";
 
 	public static final String MYSERVICE = "myservice";
@@ -151,7 +153,155 @@ public class ProxyRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
+	
+	@Test
+	public void testGetMatchingPathWithoutMatchingIgnoredPattern() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**"));
+		this.properties.init();
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/bar/1");
+		assertEquals("bar", route.getLocation());
+		assertEquals("bar", route.getId());
+	}
+	
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPattern() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+		this.properties.init();
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
+		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
+	}
 
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPatternWithPrefix() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+		this.properties.setPrefix("/proxy");
+		this.properties.init();
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/1", route.getPath());
+	}
+
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPatternWithServletPath() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/app", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+		this.properties.init();
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/app/foo/1");
+		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
+	}
+
+	@Test
+	public void testGetMatchingPathWithoutMatchingIgnoredPatternWithNoPrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo",
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.properties.setStripPrefix(false);
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/proxy/foo/1", route.getPath());
+	}
+
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPatternWithNoPrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo",
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.properties.setStripPrefix(false);
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
+	}
+
+	@Test
+	public void testGetMatchingPathWithoutMatchingIgnoredPatternWithLocalPrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
+		this.properties.setStripPrefix(false);
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/proxy/1", route.getPath());
+	}
+	
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPatternWithLocalPrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
+		this.properties.setStripPrefix(false);
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
+	}
+
+	@Test
+	public void testGetMatchingPathWithoutMatchingIgnoredPatternWithGlobalPrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo",
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/foo/1", route.getPath());
+	}
+	
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPatternWithGlobalPrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		this.properties.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo",
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
+	}
+
+	@Test
+	public void testGetMatchingPathWithMatchingIgnoredPatternWithRoutePrefixStripping() throws Exception {
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		ZuulRoute zuulRoute = new ZuulRoute("/foo/**");
+		zuulRoute.setStripPrefix(true);
+		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.getRoutes().put("foo", zuulRoute);
+		this.properties.init();
+		routeLocator.getRoutes(); // force refresh
+		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
+		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
+	}
+	
 	@Test
 	public void testGetRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
