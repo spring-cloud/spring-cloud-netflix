@@ -81,6 +81,7 @@ import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
 @CommonsLog
+@SuppressWarnings("deprecation")
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
@@ -313,7 +314,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		SchemeRegistry registry = new SchemeRegistry();
 		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
 		registry.register(new Scheme("https", sf, 443));
-		registry.register(new Scheme("https", sf, 8443));
 		ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(registry);
 		cm.setMaxTotal(Integer.parseInt(System.getProperty("zuul.max.host.connections",
 				"200")));
