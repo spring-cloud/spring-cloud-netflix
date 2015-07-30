@@ -8,6 +8,7 @@ org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
 org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration,\
+org.springframework.cloud.netflix.rx.RxJavaAutoConfiguration,\
 org.springframework.cloud.netflix.servo.ServoMetricsAutoConfiguration
 
 org.springframework.cloud.bootstrap.BootstrapConfiguration=\
