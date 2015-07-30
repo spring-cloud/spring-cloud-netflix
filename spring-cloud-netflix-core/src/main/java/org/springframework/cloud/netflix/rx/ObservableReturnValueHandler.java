@@ -20,7 +20,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.WebAsyncUtils;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import rx.Observable;
 import rx.functions.Action1;
@@ -30,7 +30,12 @@ import rx.functions.Action1;
  *
  * @author Spencer Gibb
  */
-public class ObservableReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
+
+	@Override
+	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
+		return returnValue != null && returnValue instanceof Observable;
+	}
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {

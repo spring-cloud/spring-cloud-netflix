@@ -16,50 +16,37 @@
 
 package org.springframework.cloud.netflix.rx;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
-import rx.Observable;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
+import rx.Observable;
 
 /**
  * @author Spencer Gibb
  */
 @Configuration
+@ConditionalOnClass(Observable.class)
 public class RxJavaAutoConfiguration {
 
-	@Configuration
+	@Bean
+	public ObservableReturnValueHandler observableReturnValueHandler() {
+		return new ObservableReturnValueHandler();
+	}
+
+	@Bean
 	@ConditionalOnWebApplication
-	@ConditionalOnClass(Observable.class)
-	public static class ObservableMVCConfiguration extends WebMvcConfigurerAdapter {
-		@Autowired
-		private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
-
-		@Bean
-		public ObservableReturnValueHandler observableReturnValueHandler() {
-			return new ObservableReturnValueHandler();
-		}
-
-		@PostConstruct
-		public void init() {
-			final List<HandlerMethodReturnValueHandler> originalHandlers = new ArrayList<>(requestMappingHandlerAdapter.getReturnValueHandlers());
-			originalHandlers.add(0, observableReturnValueHandler());
-			requestMappingHandlerAdapter.setReturnValueHandlers(originalHandlers);
-		}
-
-		//TODO: this doesn't work, something up the list gets called instead of
-		// ObservableReturnValueHandler see init()
-		/*@Override
-		public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-			returnValueHandlers.add(0, observableReturnValueHandler());
-		}*/
+	public WebMvcConfigurerAdapter observableMVCConfiguration() {
+		return new WebMvcConfigurerAdapter() {
+			@Override
+			public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
+				returnValueHandlers.add(observableReturnValueHandler());
+			}
+		};
 	}
 }
