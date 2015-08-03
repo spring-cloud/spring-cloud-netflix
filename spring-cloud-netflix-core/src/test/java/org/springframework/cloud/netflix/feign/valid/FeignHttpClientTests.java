@@ -16,21 +16,13 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import feign.Client;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +41,16 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
+import javax.validation.Valid;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
-import feign.Client;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Spencer Gibb
@@ -78,9 +71,17 @@ public class FeignHttpClientTests {
 	@Autowired
 	private Client feignClient;
 
+	@Autowired
+	private UserClient userClient;
+
 	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
 	@FeignClient("localapp")
-	protected static interface TestClient {
+	protected static interface TestClient extends BaseTestClient {
+
+	}
+
+	protected static interface BaseTestClient {
+
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello();
 
@@ -88,12 +89,23 @@ public class FeignHttpClientTests {
 		public ResponseEntity<Void> patchHello();
 	}
 
+	protected static interface UserService {
+
+		@RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+		User getUser(@PathVariable("id") long id);
+	}
+
+	@FeignClient("localapp")
+	protected static interface UserClient extends UserService {
+
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
 	@EnableFeignClients
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
-	protected static class Application {
+	protected static class Application implements UserService {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
@@ -103,6 +115,11 @@ public class FeignHttpClientTests {
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
 		public ResponseEntity<Void> patchHello() {
 			return ResponseEntity.ok().header("X-Hello", "hello world patch").build();
+		}
+
+		@Override
+		public User getUser(@PathVariable("id") long id) {
+			return new User("John Smith");
 		}
 
 		public static void main(String[] args) {
@@ -137,11 +154,26 @@ public class FeignHttpClientTests {
 		assertThat(delegate, is(instanceOf(feign.httpclient.ApacheHttpClient.class)));
 	}
 
+	@Test
+	public void testUserCliet() {
+		assertNotNull("UserClient was null", userClient);
+		final User user = userClient.getUser(1);
+		assertNotNull("Returned user was null", user);
+		assertEquals("Users were different", user, new User("John Smith"));
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class User {
+		private String name;
 	}
 
 	// Load balancer with fixed server list for "local" pointing to localhost
