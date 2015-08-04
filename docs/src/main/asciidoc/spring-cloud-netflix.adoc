@@ -723,6 +723,42 @@ don't want to use Eureka, you can simply configure a list of servers
 in your external configuration (see
 <<spring-cloud-ribbon-without-eureka,above for example>>).
 
+[[spring-cloud-feign-inheritance]]
+=== Feign Inheritance Support
+
+Feign supports boilerplate apis via single-inheritance interfaces.
+This allows grouping common operations into convenient base interfaces.
+Together with Spring MVC you can share the same contract for your
+REST endpoint and Feign client.
+
+.UserService.java
+[source,java,indent=0]
+----
+public interface UserService {
+
+    @RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+    User getUser(@PathVariable("id") long id);
+}
+----
+
+.UserResource.java
+[source,java,indent=0]
+----
+@RestController
+public class UserResource implements UserService {
+
+}
+----
+
+.UserClient.java
+[source,java,indent=0]
+----
+@FeignClient("users")
+public interface UserClient extends UserService {
+
+}
+----
+
 == External Configuration: Archaius
 
 https://github.com/Netflix/archaius[Archaius] is the Netflix client side configuration library.  It is the library used by all of the Netflix OSS components for configuration.  Archaius is an extension of the http://commons.apache.org/proper/commons-configuration[Apache Commons Configuration] project.  It allows updates to configuration by either polling a source for changes or for a source to push changes to the client.  Archaius uses Dynamic<Type>Property classes as handles to properties.
