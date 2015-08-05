@@ -53,8 +53,6 @@ public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
 	public DataCenterAwareJacksonCodec() {
 		super();
 
-		StringCache cache = getField("cache");
-
 		ObjectMapper mapper = new ObjectMapper();
 
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -65,10 +63,10 @@ public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
 		module.addSerializer(Application.class, new ApplicationSerializer());
 		module.addSerializer(Applications.class, new ApplicationsSerializer(getVersionDeltaKey(), getAppHashCodeKey()));
 
-		module.addDeserializer(DataCenterInfo.class, new DataCenterInfoDeserializer(cache));
+		module.addDeserializer(DataCenterInfo.class, new DataCenterInfoDeserializer(getCache()));
 		module.addDeserializer(LeaseInfo.class, new LeaseInfoDeserializer());
-		module.addDeserializer(InstanceInfo.class, new DCAwareInstanceInfoDeserializer(cache));
-		module.addDeserializer(Application.class, new ApplicationDeserializer(mapper, cache));
+		module.addDeserializer(InstanceInfo.class, new DCAwareInstanceInfoDeserializer(getCache()));
+		module.addDeserializer(Application.class, new ApplicationDeserializer(mapper, getCache()));
 		module.addDeserializer(Applications.class, new ApplicationsDeserializer(mapper, getVersionDeltaKey(), getAppHashCodeKey()));
 
 		mapper.registerModule(module);
