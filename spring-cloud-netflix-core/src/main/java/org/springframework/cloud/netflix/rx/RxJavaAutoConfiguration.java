@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -31,22 +32,26 @@ import rx.Observable;
  * @author Spencer Gibb
  */
 @Configuration
+@ConditionalOnWebApplication
 @ConditionalOnClass(Observable.class)
 public class RxJavaAutoConfiguration {
 
-	@Bean
-	public ObservableReturnValueHandler observableReturnValueHandler() {
-		return new ObservableReturnValueHandler();
-	}
+	@Configuration
+	@ConditionalOnClass(AsyncHandlerMethodReturnValueHandler.class)
+	protected static class ObservableReturnValueHandlerConfig {
+		@Bean
+		public ObservableReturnValueHandler observableReturnValueHandler() {
+			return new ObservableReturnValueHandler();
+		}
 
-	@Bean
-	@ConditionalOnWebApplication
-	public WebMvcConfigurerAdapter observableMVCConfiguration() {
-		return new WebMvcConfigurerAdapter() {
-			@Override
-			public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-				returnValueHandlers.add(observableReturnValueHandler());
-			}
-		};
+		@Bean
+		public WebMvcConfigurerAdapter observableMVCConfiguration() {
+			return new WebMvcConfigurerAdapter() {
+				@Override
+				public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
+					returnValueHandlers.add(observableReturnValueHandler());
+				}
+			};
+		}
 	}
 }
