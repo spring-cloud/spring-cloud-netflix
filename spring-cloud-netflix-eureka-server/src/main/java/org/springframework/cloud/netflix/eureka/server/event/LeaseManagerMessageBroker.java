@@ -26,7 +26,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
-import com.netflix.eureka.PeerAwareInstanceRegistry;
+import com.netflix.eureka.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.lease.Lease;
 
 /**
@@ -66,7 +66,7 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 			boolean isReplication) {
 		log.debug("renew " + appName + " serverId " + serverId + ", isReplication {}"
 				+ isReplication);
-		List<Application> applications = PeerAwareInstanceRegistry.getInstance()
+		List<Application> applications = PeerAwareInstanceRegistryImpl.getInstance()
 				.getSortedApplications();
 		for (Application input : applications) {
 			if (input.getName().equals(appName)) {

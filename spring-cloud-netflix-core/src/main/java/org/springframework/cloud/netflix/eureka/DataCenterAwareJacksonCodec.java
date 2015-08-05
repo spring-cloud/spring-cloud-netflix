@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,8 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.SneakyThrows;
 import lombok.extern.apachecommons.CommonsLog;
 
-import org.springframework.util.ReflectionUtils;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
@@ -38,7 +35,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.netflix.appinfo.DataCenterInfo;
@@ -54,58 +50,20 @@ import com.netflix.discovery.converters.StringCache;
 public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
 	private static final Version VERSION = new Version(1, 1, 0, null);
 
-	private static final String ELEM_OVERRIDDEN_STATUS = "overriddenstatus";
-	private static final String ELEM_HOST = "hostName";
-	private static final String ELEM_APP = "app";
-	private static final String ELEM_IP = "ipAddr";
-	private static final String ELEM_SID = "sid";
-	private static final String ELEM_STATUS = "status";
-	private static final String ELEM_PORT = "port";
-	private static final String ELEM_SECURE_PORT = "securePort";
-	private static final String ELEM_COUNTRY_ID = "countryId";
-	private static final String ELEM_IDENTIFYING_ATTR = "identifyingAttribute";
-	private static final String ELEM_HEALTHCHECKURL = "healthCheckUrl";
-	private static final String ELEM_SECHEALTHCHECKURL = "secureHealthCheckUrl";
-	private static final String ELEM_APPGROUPNAME = "appGroupName";
-	private static final String ELEM_HOMEPAGEURL = "homePageUrl";
-	private static final String ELEM_STATUSPAGEURL = "statusPageUrl";
-	private static final String ELEM_VIPADDRESS = "vipAddress";
-	private static final String ELEM_SECVIPADDRESS = "secureVipAddress";
-	private static final String ELEM_ISCOORDINATINGDISCSOERVER = "isCoordinatingDiscoveryServer";
-	private static final String ELEM_LASTUPDATEDTS = "lastUpdatedTimestamp";
-	private static final String ELEM_LASTDIRTYTS = "lastDirtyTimestamp";
-	private static final String ELEM_ACTIONTYPE = "actionType";
-	private static final String ELEM_ASGNAME = "asgName";
-
-	private final ObjectMapper mapper;
-
 	@SneakyThrows
 	public DataCenterAwareJacksonCodec() {
 		super();
-		Field mapperField = ReflectionUtils.findField(EurekaJacksonCodec.class, "mapper");
-		ReflectionUtils.makeAccessible(mapperField);
-		mapper = (ObjectMapper) mapperField.get(this);
-
 		SimpleModule module = new SimpleModule("spring-cloud-eureka1.x", VERSION);
 		module.addSerializer(InstanceInfo.class, new DCAwareInstanceInfoSerializer());
 		module.addDeserializer(InstanceInfo.class, new DCAwareInstanceInfoDeserializer(
 				new StringCache()));
-		mapper.registerModule(module);
+		getMapper().registerModule(module);
 	}
 
 	@SneakyThrows
 	public static void init() {
 		if (!(EurekaJacksonCodec.getInstance() instanceof DataCenterAwareJacksonCodec)) {
-			Field instanceField = ReflectionUtils.findField(EurekaJacksonCodec.class,
-					"INSTANCE");
-			ReflectionUtils.makeAccessible(instanceField);
-
-			Field modifiersField = ReflectionUtils.findField(Field.class, "modifiers");
-			ReflectionUtils.makeAccessible(modifiersField);
-			modifiersField.setInt(instanceField, instanceField.getModifiers()
-					& ~Modifier.FINAL);
-
-			instanceField.set(null, new DataCenterAwareJacksonCodec());
+			INSTANCE = new DataCenterAwareJacksonCodec();
 		}
 	}
 
@@ -270,11 +228,11 @@ public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
 								.intValue());
 					}
 					else if (NODE_DATACENTER.equals(fieldName)) {
-						builder.setDataCenterInfo(mapper.treeToValue(fieldNode,
+						builder.setDataCenterInfo(getMapper().treeToValue(fieldNode,
 								DataCenterInfo.class));
 					}
 					else if (NODE_LEASE.equals(fieldName)) {
-						builder.setLeaseInfo(mapper.treeToValue(fieldNode,
+						builder.setLeaseInfo(getMapper().treeToValue(fieldNode,
 								LeaseInfo.class));
 					}
 					else if (NODE_METADATA.equals(fieldName)) {

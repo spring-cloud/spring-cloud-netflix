@@ -57,9 +57,10 @@ public class EurekaInstanceDiscoveryTest {
 
 	@Test
 	public void testGetClusterNameInstanceMetadataMapExpression() {
+		EurekaClient eurekaClient = mock(EurekaClient.class);
 		TurbineProperties turbineProperties = new TurbineProperties();
 		turbineProperties.setClusterNameExpression("metadata['cluster']");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
 		String metadataProperty = "myCluster";
 		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
 				.setAppName("testApp").add("cluster", metadataProperty).build();

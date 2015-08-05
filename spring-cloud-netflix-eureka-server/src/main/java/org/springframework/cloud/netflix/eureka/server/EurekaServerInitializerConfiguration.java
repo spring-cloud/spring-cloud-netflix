@@ -59,11 +59,12 @@ import org.springframework.web.context.ServletContextAware;
 import com.netflix.blitz4j.DefaultBlitz4jConfig;
 import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.discovery.converters.XmlXStream;
+import com.netflix.eureka.AbstractInstanceRegistry;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerConfigurationManager;
-import com.netflix.eureka.InstanceRegistry;
 import com.netflix.eureka.PeerAwareInstanceRegistry;
+import com.netflix.eureka.PeerAwareInstanceRegistryImpl;
 
 /**
  * @author Dave Syer
@@ -211,7 +212,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		@Autowired
 		private ApplicationContext applicationContext;
 
-		private PeerAwareInstanceRegistry instance;
+		private PeerAwareInstanceRegistryImpl instance;
 
 		@Bean
 		public LeaseManagerMessageBroker leaseManagerMessageBroker() {
@@ -221,7 +222,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		@Override
 		public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
 			if (this.instance == null) {
-				this.instance = PeerAwareInstanceRegistry.getInstance();
+				this.instance = PeerAwareInstanceRegistryImpl.getInstance();
 				safeInit();
 				replaceInstance(getProxyForInstance());
 				expectRegistrations(1);
@@ -230,13 +231,13 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 		private void safeInit() {
 			Method method = ReflectionUtils
-					.findMethod(InstanceRegistry.class, "postInit");
+					.findMethod(AbstractInstanceRegistry.class, "postInit");
 			ReflectionUtils.makeAccessible(method);
 			ReflectionUtils.invokeMethod(method, this.instance);
 		}
 
 		private void replaceInstance(Object proxy) {
-			Field field = ReflectionUtils.findField(PeerAwareInstanceRegistry.class,
+			Field field = ReflectionUtils.findField(PeerAwareInstanceRegistryImpl.class,
 					"instance");
 			try {
 				// Awful ugly hack to work around lack of DI in eureka
@@ -270,7 +271,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 			 * registrations (when it's zero, even a successful registration won't reset
 			 * the rate threshold in InstanceRegistry.register()).
 			 */
-			Field field = ReflectionUtils.findField(PeerAwareInstanceRegistry.class,
+			Field field = ReflectionUtils.findField(AbstractInstanceRegistry.class,
 					"expectedNumberOfRenewsPerMin");
 			try {
 				// Awful ugly hack to work around lack of DI in eureka
@@ -289,7 +290,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		/**
 		 * Additional aspect for intercepting method invocations on
 		 * PeerAwareInstanceRegistry. If
-		 * {@link PeerAwareInstanceRegistry#openForTraffic(int)} is called with a zero
+		 * {@link PeerAwareInstanceRegistryImpl#openForTraffic(int)} is called with a zero
 		 * argument, it means that leases are not automatically cancelled if the instance
 		 * hasn't sent any renewals recently. This happens for a standalone server. It
 		 * seems like a bad default, so we set it to the smallest non-zero value we can,
