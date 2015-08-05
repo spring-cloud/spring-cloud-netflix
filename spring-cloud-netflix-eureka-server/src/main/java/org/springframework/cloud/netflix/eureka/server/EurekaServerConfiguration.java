@@ -47,7 +47,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.sun.jersey.api.core.DefaultResourceConfig;
-import com.netflix.appinfo.ApplicationInfoManager;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 /**
@@ -65,11 +64,6 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		"com.netflix.discovery", 
 		"com.netflix.eureka"};
 	
-	
-
-	@Autowired
-	private ApplicationInfoManager applicationInfoManager;
-
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
 
