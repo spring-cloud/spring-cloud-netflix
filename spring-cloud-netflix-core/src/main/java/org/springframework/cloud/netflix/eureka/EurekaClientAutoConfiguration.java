@@ -21,6 +21,11 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -28,6 +33,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.ParentContextApplicationContextInitializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
@@ -53,6 +59,9 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 
 	private static final ConcurrentMap<String, String> listenerAdded = new ConcurrentHashMap<>();
 
+	@Autowired
+	private ApplicationContext context;
+
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
 	
@@ -77,6 +86,29 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 		return instance;
 	}
 
+	@Bean
+	@ConditionalOnMissingBean(EurekaClient.class)
+	@SneakyThrows
+	public EurekaClient eurekaClient() {
+		return new CloudEurekaClient(applicationInfoManager(), eurekaClientConfigBean(), context);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(ApplicationInfoManager.class)
+	public ApplicationInfoManager applicationInfoManager() {
+		return new ApplicationInfoManager(eurekaInstanceConfigBean(), instanceInfo());
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(InstanceInfo.class)
+	public InstanceInfo instanceInfo() {
+		return new InstanceInfoFactory().create(eurekaInstanceConfigBean());
+	}
+
+	@Bean
+	public DiscoveryClient discoveryClient() {
+		return new EurekaDiscoveryClient();
+	}
 
 	/**
 	 * propagate HeartbeatEvent from parent to child. Do it via a
