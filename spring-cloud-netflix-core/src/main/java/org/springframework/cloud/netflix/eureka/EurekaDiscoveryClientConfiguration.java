@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.PreDestroy;
-
-import lombok.SneakyThrows;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +33,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -48,7 +44,6 @@ import org.springframework.core.Ordered;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
@@ -70,9 +65,6 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private AtomicInteger port = new AtomicInteger(0);
 
 	@Autowired
-	private EurekaClientConfig clientConfig;
-
-	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
 
 	@Autowired(required = false)
@@ -81,12 +73,19 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Autowired
 	private ApplicationContext context;
 
+	@Autowired
+	private ApplicationInfoManager applicationInfoManager;
+
+	@Autowired
+	private EurekaClient eurekaClient;
+
 	@Override
 	public void start() {
 		// only set the port if the nonSecurePort is 0 and this.port != 0
 		if (this.port.get() != 0 && this.instanceConfig.getNonSecurePort() == 0) {
 			this.instanceConfig.setNonSecurePort(this.port.get());
 		}
+
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
@@ -95,11 +94,11 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 					+ " with eureka with status "
 					+ this.instanceConfig.getInitialStatus());
 
-			applicationInfoManager().setInstanceStatus(
+			applicationInfoManager.setInstanceStatus(
 					this.instanceConfig.getInitialStatus());
 
 			if (this.healthCheckHandler != null) {
-				eurekaClient().registerHealthCheck(this.healthCheckHandler);
+				eurekaClient.registerHealthCheck(this.healthCheckHandler);
 			}
 			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
 					this.instanceConfig));
@@ -111,8 +110,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	public void stop() {
 		log.info("Unregistering application " + this.instanceConfig.getAppname()
 				+ " with eureka with status DOWN");
-		if (applicationInfoManager().getInfo() != null) {
-			applicationInfoManager().setInstanceStatus(
+		if (applicationInfoManager.getInfo() != null) {
+			applicationInfoManager.setInstanceStatus(
 					InstanceStatus.DOWN);
 		}
 		this.running.set(false);
@@ -145,30 +144,6 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(EurekaClient.class)
-	@SneakyThrows
-	public EurekaClient eurekaClient() {
-		return new CloudEurekaClient(applicationInfoManager(), clientConfig, context);
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(ApplicationInfoManager.class)
-	public ApplicationInfoManager applicationInfoManager() {
-		return new ApplicationInfoManager(instanceConfig, instanceInfo());
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(InstanceInfo.class)
-	public InstanceInfo instanceInfo() {
-		return new InstanceInfoFactory().create(instanceConfig);
-	}
-
-	@Bean
-	public DiscoveryClient discoveryClient() {
-		return new EurekaDiscoveryClient();
-	}
-
-	@Bean
 	protected ApplicationListener<EmbeddedServletContainerInitializedEvent> containerPortInitializer() {
 		return new ApplicationListener<EmbeddedServletContainerInitializedEvent>() {
 
@@ -192,8 +167,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 		@Bean
 		@ConditionalOnMissingBean
-		public EurekaHealthIndicator eurekaHealthIndicator(
-EurekaClient eurekaClient,
+		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 				EurekaInstanceConfig config) {
 			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
 			return new EurekaHealthIndicator(eurekaClient, metrics, config);
