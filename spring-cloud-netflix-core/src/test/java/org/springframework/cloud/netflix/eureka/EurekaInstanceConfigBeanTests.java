@@ -20,9 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,12 +43,7 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Before
 	public void init() {
-		try {
-			this.hostName = InetAddress.getLocalHost().getHostName();
-		}
-		catch (UnknownHostException e) {
-			// Ignore (test must be running in a restricted environment)
-		}
+		this.hostName = EurekaInstanceConfigBean.getFirstNonLoopbackAddress().getHostName();
 	}
 
 	@After

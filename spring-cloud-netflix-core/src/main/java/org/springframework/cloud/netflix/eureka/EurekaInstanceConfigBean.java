@@ -16,8 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +41,7 @@ import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
+ * @author Spencer Gibb
  */
 @Data
 @ConfigurationProperties("eureka.instance")
@@ -114,14 +118,35 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private HostInfo initHostInfo() {
 		this.hostInfo = this.hostInfo == null ? new HostInfo() : this.hostInfo;
+
+		InetAddress address = getFirstNonLoopbackAddress();
+		this.hostInfo.ipAddress = address.getHostAddress();
+		this.hostInfo.hostname = address.getHostName();
+
+		return this.hostInfo;
+	}
+
+	//TODO: move this method to s-c-commons
+	static InetAddress getFirstNonLoopbackAddress() {
 		try {
-			this.hostInfo.ipAddress = InetAddress.getLocalHost().getHostAddress();
-			this.hostInfo.hostname = InetAddress.getLocalHost().getHostName();
+			for (Enumeration<NetworkInterface> enumNic = NetworkInterface.getNetworkInterfaces();
+				 enumNic.hasMoreElements(); ) {
+				NetworkInterface ifc = enumNic.nextElement();
+				if (ifc.isUp()) {
+					for (Enumeration<InetAddress> enumAddr = ifc.getInetAddresses();
+						 enumAddr.hasMoreElements(); ) {
+						InetAddress address = enumAddr.nextElement();
+						if (address instanceof Inet4Address && !address.isLoopbackAddress()) {
+							return address;
+						}
+					}
+				}
+			}
 		}
-		catch (UnknownHostException ex) {
+		catch (IOException ex) {
 			logger.error("Cannot get host info", ex);
 		}
-		return this.hostInfo;
+		return null;
 	}
 
 	public void setHostname(String hostname) {
