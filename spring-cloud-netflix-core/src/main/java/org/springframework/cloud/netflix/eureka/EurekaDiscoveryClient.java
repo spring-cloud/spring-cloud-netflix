@@ -121,7 +121,8 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 		@Override
 		public boolean isSecure() {
-			return this.instance.isPortEnabled(SECURE);
+			// assume if unsecure is enabled, that is the default
+			return !this.instance.isPortEnabled(UNSECURE) && this.instance.isPortEnabled(SECURE);
 		}
 
 		@Override
