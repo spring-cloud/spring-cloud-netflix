@@ -16,10 +16,23 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.net.URI;
 import java.net.URL;
 
 import lombok.SneakyThrows;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,19 +41,12 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertNull;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author Spencer Gibb
@@ -81,10 +87,27 @@ public class RibbonLoadBalancerClientTests {
 		RibbonServer server = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
-		URI uri = client.reconstructURI(serviceInstance, new URL(scheme +"://"
-				+ server.getServiceId()).toURI());
+		URI uri = client.reconstructURI(serviceInstance,
+				new URL(scheme + "://" + server.getServiceId()).toURI());
 		assertEquals(server.getHost(), uri.getHost());
 		assertEquals(server.getPort(), uri.getPort());
+	}
+
+	@Test
+	@SneakyThrows
+	public void testReconstructUriWithSecureClientConfig() {
+		RibbonServer server = getRibbonServer();
+		IClientConfig config = mock(IClientConfig.class);
+		when(config.get(CommonClientConfigKey.IsSecure, false)).thenReturn(true);
+		when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
+
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+		ServiceInstance serviceInstance = client.choose(server.getServiceId());
+		URI uri = client.reconstructURI(serviceInstance,
+				new URL("http://" + server.getServiceId()).toURI());
+		assertEquals(server.getHost(), uri.getHost());
+		assertEquals(server.getPort(), uri.getPort());
+		assertEquals("https", uri.getScheme());
 	}
 
 	@Test
@@ -166,8 +189,8 @@ public class RibbonLoadBalancerClientTests {
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(
 			RibbonServer ribbonServer) {
 		given(this.loadBalancer.getName()).willReturn(ribbonServer.getServiceId());
-		given(this.loadBalancer.chooseServer(anyString()))
-				.willReturn(ribbonServer.getServer());
+		given(this.loadBalancer.chooseServer(anyObject())).willReturn(
+				ribbonServer.getServer());
 		given(this.loadBalancer.getLoadBalancerStats())
 				.willReturn(this.loadBalancerStats);
 		given(this.loadBalancerStats.getSingleServerStat(ribbonServer.getServer()))
