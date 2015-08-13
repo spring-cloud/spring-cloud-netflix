@@ -39,7 +39,14 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
 			EurekaClientConfig config, ApplicationContext context) {
-		super(applicationInfoManager, config);
+		this(applicationInfoManager, config, null, context);
+	}
+
+	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
+							 EurekaClientConfig config,
+							 DiscoveryClientOptionalArgs args,
+							 ApplicationContext context) {
+		super(applicationInfoManager, config, args);
 		this.context = context;
 	}
 
