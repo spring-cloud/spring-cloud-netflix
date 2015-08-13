@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.zuul;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,10 +35,11 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -79,6 +81,9 @@ public class SampleZuulProxyApplicationTests {
 
 	@Autowired
 	private RoutesEndpoint endpoint;
+
+	@Autowired
+	private RibbonCommandFactory ribbonCommandFactory;
 
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
@@ -183,6 +188,12 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals("Received {key=[overridden]}", result.getBody());
 	}
 
+	@Test
+	public void ribbonCommandFactoryOverridden() {
+		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
+				ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -236,6 +247,11 @@ class SampleZuulProxyApplication {
 	}
 
 	@Bean
+	public RibbonCommandFactory ribbonCommandFactory(SpringClientFactory clientFactory) {
+		return new MyRibbonCommandFactory(clientFactory);
+	}
+
+	@Bean
 	public ZuulFilter sampleFilter() {
 		return new ZuulFilter() {
 			@Override
@@ -267,6 +283,13 @@ class SampleZuulProxyApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SampleZuulProxyApplication.class, args);
+	}
+
+	public static class MyRibbonCommandFactory extends RestClientRibbonCommandFactory {
+
+		public MyRibbonCommandFactory(SpringClientFactory clientFactory) {
+			super(clientFactory);
+		}
 	}
 
 }

@@ -87,12 +87,12 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	// route filters
 	@Bean
-	public RibbonRoutingFilter ribbonRoutingFilter() {
+	public RibbonRoutingFilter ribbonRoutingFilter(RibbonCommandFactory ribbonCommandFactory) {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
 			helper.setTraces(this.traces);
 		}
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory());
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory);
 		return filter;
 	}
 
