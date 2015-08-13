@@ -28,6 +28,8 @@ import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
+ * Subclass of {@link DiscoveryClient} that sends a {@link HeartbeatEvent} when
+ * {@link CloudEurekaClient#onCacheRefreshed()} is called.
  * @author Spencer Gibb
  */
 @CommonsLog
@@ -52,7 +54,7 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	@Override
 	protected void onCacheRefreshed() {
-		if (this.cacheRefreshedCount != null) { //might be call during construction and won't be inited yet
+		if (this.cacheRefreshedCount != null) { //might be called during construction and will be null
 			long newCount = this.cacheRefreshedCount.incrementAndGet();
 			log.trace("onCacheRefreshed called with count: " + newCount);
 			this.context.publishEvent(new HeartbeatEvent(this, newCount));
