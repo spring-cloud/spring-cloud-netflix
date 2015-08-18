@@ -1,5 +1,9 @@
 server:
   port: 9999
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/xml,application/json
 logging:
   level:
     org.springframework.web: DEBUG
