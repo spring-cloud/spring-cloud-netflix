@@ -54,6 +54,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.loadbalancer.BaseLoadBalancer;
@@ -92,22 +93,25 @@ public class FeignClientTests {
 	@FeignClient("localapp")
 	protected static interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		public Hello getHello();
+		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
-		public List<Hello> getHellos();
+		List<Hello> getHellos();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
-		public List<String> getHelloStrings();
+		List<String> getHelloStrings();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
-		public List<String> getHelloHeaders();
+		List<String> getHelloHeaders();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
+		List<String> getParams(@RequestParam("params") List<String> params);
 	}
 
 	@FeignClient(serviceId = "localapp")
 	protected static interface TestClientServiceId {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		public Hello getHello();
+		Hello getHello();
 	}
 
 	@Configuration
@@ -163,6 +167,11 @@ public class FeignClientTests {
 			headers.add(myheader1);
 			headers.add(myheader2);
 			return headers;
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
+		public List<String> getParams(@RequestParam("params") List<String> params) {
+			return params;
 		}
 
 		public static void main(String[] args) {
@@ -227,6 +236,14 @@ public class FeignClientTests {
 		final Hello hello = testClientServiceId.getHello();
 		assertNotNull("The hello response was null", hello);
 		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
+
+	@Test
+	public void testParams() {
+		List<String> list = Arrays.asList("a", "1", "test");
+		List<String> params = this.testClient.getParams(list);
+		assertNotNull("params was null", params);
+		assertEquals("params size was wrong", list.size(), params.size());
 	}
 
 	@Data
