@@ -6,7 +6,7 @@
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
 		<version>1.1.0.BUILD-SNAPSHOT</version>
-		<relativePath/>
+		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-ribbon</artifactId>
 	<name>spring-cloud-starter-ribbon</name>
