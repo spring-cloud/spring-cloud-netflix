@@ -20,9 +20,9 @@
 		<tag>HEAD</tag>
 	</scm>
 	<properties>
-        <bintray.package>netflix</bintray.package>
-        <spring-cloud-commons.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
-        <spring-cloud-config.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-config.version>
+		<bintray.package>netflix</bintray.package>
+		<spring-cloud-commons.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
+		<spring-cloud-config.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.2.0</eureka.version>
@@ -70,15 +70,15 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-commons-parent</artifactId>
 				<version>${spring-cloud-commons.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-config</artifactId>
 				<version>${spring-cloud-config.version}</version>
-                <type>pom</type>
-        		<scope>import</scope>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
