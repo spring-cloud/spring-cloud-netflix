@@ -38,14 +38,17 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
 		RestClient restClient = this.clientFactory.getClient(context.getServiceId(),
 				RestClient.class);
-		RestClientRibbonCommand command = new RestClientRibbonCommand(
+		return new RestClientRibbonCommand(
 				context.getServiceId(), restClient, getVerb(context.getVerb()),
 				context.getUri(), context.getRetryable(), context.getHeaders(),
 				context.getParams(), context.getRequestEntity());
-		return command;
 	}
 
-	private HttpRequest.Verb getVerb(String sMethod) {
+	protected SpringClientFactory getClientFactory() {
+		return clientFactory;
+	}
+
+	protected static HttpRequest.Verb getVerb(String sMethod) {
 		if (sMethod == null)
 			return HttpRequest.Verb.GET;
 		try {

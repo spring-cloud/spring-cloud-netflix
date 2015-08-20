@@ -87,7 +87,7 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		this.requestEntity = requestEntity;
 	}
 
-	private static HystrixCommand.Setter getSetter(String commandKey) {
+	protected static HystrixCommand.Setter getSetter(String commandKey) {
 		// we want to default to semaphore-isolation since this wraps
 		// 2 others commands that are already thread isolated
 		String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
@@ -106,7 +106,7 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		return forward();
 	}
 
-	private ClientHttpResponse forward() throws Exception {
+	protected ClientHttpResponse forward() throws Exception {
 		RequestContext context = RequestContext.getCurrentContext();
 		Builder builder = HttpRequest.newBuilder().verb(this.verb).uri(this.uri)
 				.entity(this.requestEntity);
@@ -127,6 +127,9 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 				builder.queryParams(name, value);
 			}
 		}
+
+		customizeRequest(builder);
+
 		HttpRequest httpClientRequest = builder.build();
 		HttpResponse response = this.restClient
 				.executeWithLoadBalancer(httpClientRequest);
@@ -146,4 +149,35 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		return ribbonHttpResponse;
 	}
 
+	protected void customizeRequest(Builder requestBuilder) {
+
+	}
+
+	protected MultiValueMap<String, String> getHeaders() {
+		return headers;
+	}
+
+	protected MultiValueMap<String, String> getParams() {
+		return params;
+	}
+
+	protected InputStream getRequestEntity() {
+		return requestEntity;
+	}
+
+	protected RestClient getRestClient() {
+		return restClient;
+	}
+
+	protected Boolean getRetryable() {
+		return retryable;
+	}
+
+	protected URI getUri() {
+		return uri;
+	}
+
+	protected Verb getVerb() {
+		return verb;
+	}
 }
