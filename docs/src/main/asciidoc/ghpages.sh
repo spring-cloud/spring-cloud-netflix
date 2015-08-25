@@ -14,7 +14,8 @@ fi
 
 # Find name of current branch
 ###################################################################
-branch=`git rev-parse --abbrev-ref HEAD`
+branch=$TRAVIS_BRANCH
+[ "$branch" == "" ] && branch=`git rev-parse --abbrev-ref HEAD`
 target=.
 if [ "$branch" != "master" ]; then target=./$branch; mkdir -p $target; fi
 
