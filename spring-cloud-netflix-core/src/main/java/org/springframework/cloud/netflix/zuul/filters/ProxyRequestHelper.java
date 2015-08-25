@@ -30,16 +30,18 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.io.IOUtils;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
 
 /**
  * @author Dave Syer
@@ -93,17 +95,17 @@ public class ProxyRequestHelper {
 	public MultiValueMap<String, String> buildZuulRequestHeaders(
 			HttpServletRequest request) {
 		RequestContext context = RequestContext.getCurrentContext();
-		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		MultiValueMap<String, String> headers = new HttpHeaders();
 		Enumeration<String> headerNames = request.getHeaderNames();
 		if (headerNames != null) {
 			while (headerNames.hasMoreElements()) {
 				String name = headerNames.nextElement();
-                if (isIncludedHeader(name)) {
-                    Enumeration<String> values = request.getHeaders(name);
-                    while (values.hasMoreElements()) {
-                        String value = values.nextElement();
-                        headers.add(name, value);
-                    }
+				if (isIncludedHeader(name)) {
+					Enumeration<String> values = request.getHeaders(name);
+					while (values.hasMoreElements()) {
+						String value = values.nextElement();
+						headers.add(name, value);
+					}
 				}
 			}
 		}
@@ -111,7 +113,7 @@ public class ProxyRequestHelper {
 		for (String header : zuulRequestHeaders.keySet()) {
 			headers.set(header, zuulRequestHeaders.get(header));
 		}
-		headers.set("accept-encoding", "gzip");
+		headers.set(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		return headers;
 	}
 
