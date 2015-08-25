@@ -37,6 +37,7 @@ for f in docs/target/generated-docs/*; do
     fi
 done
 
+[ -e README.adoc ] && git add -A README.adoc
 git commit -a -m "Sync docs from $branch to gh-pages"
 
 # Uncomment the following push if you want to auto push to
