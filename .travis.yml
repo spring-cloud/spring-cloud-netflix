@@ -15,8 +15,8 @@ before_install:
   - gem install asciidoctor
 install:
 - mvn --settings .settings.xml install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
-- ./docs/src/main/asciidoc/ghpages.sh
 script:
+- ./docs/src/main/asciidoc/ghpages.sh
 - git status
 - ls -a
 - '[ "${TRAVIS_PULL_REQUEST}" != "false" ] || mvn --settings .settings.xml deploy -P release -nsu -Dmaven.test.redirectTestOutputToFile=true'
