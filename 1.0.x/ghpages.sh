@@ -37,13 +37,14 @@ for f in docs/target/generated-docs/*; do
     fi
 done
 
-git commit -a -m "Sync docs from $branch to gh-pages"
+git add -A README.adoc || echo "No change to README.adoc"
+git commit -a -m "Sync docs from $branch to gh-pages" || echo "Nothing committed"
 
 # Uncomment the following push if you want to auto push to
 # the gh-pages branch whenever you commit to branch locally.
 # This is a little extreme. Use with care!
 ###################################################################
-git push origin gh-pages
+git push origin gh-pages || echo "Cannot push gh-pages"
 
 # Finally, switch back to the current branch and exit block
 git checkout $branch
