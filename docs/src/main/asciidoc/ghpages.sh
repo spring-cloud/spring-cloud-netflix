@@ -12,13 +12,17 @@ if ! [ -d docs/target/generated-docs ]; then
     exit 0
 fi
 
+# Find name of current branch
+###################################################################
+branch=`git rev-parse --abbrev-ref HEAD`
+
 # Stash any outstanding changes
 ###################################################################
 git diff-index --quiet HEAD
 dirty=$?
 if [ "$dirty" != "0" ]; then git stash; fi
 
-# Switch to gh-pages branch to sync it with master
+# Switch to gh-pages branch to sync it with current branch
 ###################################################################
 git checkout gh-pages
 
@@ -31,16 +35,16 @@ for f in docs/target/generated-docs/*; do
     fi
 done
 
-git commit -a -m "Sync docs from master to gh-pages"
+git commit -a -m "Sync docs from $branch to gh-pages"
 
 # Uncomment the following push if you want to auto push to
-# the gh-pages branch whenever you commit to master locally.
+# the gh-pages branch whenever you commit to branch locally.
 # This is a little extreme. Use with care!
 ###################################################################
 git push origin gh-pages
 
-# Finally, switch back to the master branch and exit block
-git checkout master
+# Finally, switch back to the current branch and exit block
+git checkout $branch
 if [ "$dirty" != "0" ]; then git stash pop; fi
 
 exit 0
