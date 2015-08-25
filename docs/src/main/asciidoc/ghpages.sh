@@ -15,6 +15,8 @@ fi
 # Find name of current branch
 ###################################################################
 branch=`git rev-parse --abbrev-ref HEAD`
+target=.
+if [ "$branch" != "master" ]; then target=./$branch; mkdir -p $target; fi
 
 # Stash any outstanding changes
 ###################################################################
@@ -30,8 +32,8 @@ for f in docs/target/generated-docs/*; do
     file=${f#docs/target/generated-docs/*}
     if ! git ls-files -i -o --exclude-standard --directory | grep -q ^$file$; then
         # Not ignored...
-        cp -rf $f .
-        git add -A $file
+        cp -rf $f $target
+        git add -A $target/$file
     fi
 done
 
