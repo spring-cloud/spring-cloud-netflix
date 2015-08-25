@@ -519,12 +519,12 @@ non-default context path or servlet path
 <div class="content">
 <pre>eureka:
   instance:
-    statusPageUrlPath: ${management.contextPath}/info
-    healthCheckUrlPath: ${management.contextPath}/health</pre>
+    statusPageUrlPath: ${management.context-path}/info
+    healthCheckUrlPath: ${management.context-path}/health</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>These links show up in the metadata that is consumers by clients, and
+<p>These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it&#8217;s helpful if they are accurate.</p>
 </div>
@@ -939,9 +939,6 @@ for details on the properties available.</p>
 <div class="paragraph">
 <p>The same thing applies if you are using <code>@SessionScope</code> or <code>@RequestScope</code>. You will know when you need to do this because of a runtime exception that says it can&#8217;t find the scoped context.</p>
 </div>
-<div class="paragraph">
-<p>In particular you might be interested</p>
-</div>
 </div>
 <div class="sect2">
 <h3 id="_health_indicator">Health Indicator</h3>
@@ -1156,7 +1153,7 @@ explicitly in the <code>@ComponentScan</code>).
 <p><code>IPing</code> ribbonPing: <code>NoOpPing</code></p>
 </li>
 <li>
-<p><code>ServerList&lt;Server&gt; ribbonServerList: `ConfigurationBasedServerList</code></p>
+<p><code>ServerList&lt;Server&gt;</code> ribbonServerList: <code>ConfigurationBasedServerList</code></p>
 </li>
 <li>
 <p><code>ServerListFilter&lt;Server&gt;</code> ribbonServerListFilter: <code>ZonePreferenceServerListFilter</code></p>
@@ -1201,7 +1198,7 @@ server list will be constructed with "zone" information as provided in
 the instance metadata (so on the client set
 <code>eureka.instance.metadataMap.zone</code>), and if that is missing it can use
 the domain name from the server hostname as a proxy for zone (if the
-flag <code>approximateZoneFromDomain</code> is set). Once the zone information is
+flag <code>approximateZoneFromHostname</code> is set). Once the zone information is
 available it can be used in a <code>ServerListFilter</code> (by default it will
 be used to locate a server in the same zone as the client because the
 default is a <code>ZonePreferenceServerListFilter</code>).</p>
@@ -1317,6 +1314,43 @@ don&#8217;t want to use Eureka, you can simply configure a list of servers
 in your external configuration (see
 <a href="#spring-cloud-ribbon-without-eureka">above for example</a>).</p>
 </div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-inheritance">Feign Inheritance Support</h3>
+<div class="paragraph">
+<p>Feign supports boilerplate apis via single-inheritance interfaces.
+This allows grouping common operations into convenient base interfaces.
+Together with Spring MVC you can share the same contract for your
+REST endpoint and Feign client.</p>
+</div>
+<div class="listingblock">
+<div class="title">UserService.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public interface UserService {
+
+    @RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+    User getUser(@PathVariable("id") long id);
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">UserResource.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestController
+public class UserResource implements UserService {
+
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">UserClient.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("users")
+public interface UserClient extends UserService {
+
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1420,7 +1454,7 @@ configured routes map, then it will be unignored. Example:</p>
 <div class="title">application.yml</div>
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
-  ignoredServices: *
+  ignoredServices: '*'
   routes:
     users: /myusers/**</code></pre>
 </div>
@@ -1531,7 +1565,7 @@ Set that flag to "true" to have the Ribbon client automatically retry failed req
 the Ribbon client configuration).</p>
 </div>
 <div class="paragraph">
-<p>The <code>X-Forwarded-Host</code> header added to the forwarded requests by
+<p>The <code>X-Forwarded-Host</code> header is added to the forwarded requests by
 default.  To turn it off set <code>zuul.addProxyHeaders = false</code>.  The
 prefix path is stripped by default, and the request to the backend
 picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
@@ -1541,6 +1575,25 @@ above).</p>
 <p>An application with the <code>@EnableZuulProxy</code> could act as a standalone
 server if you set a default route ("/"), for example <code>zuul.route.home:
 /</code> would route all traffic (i.e. "/**") to the "home" service.</p>
+</div>
+<div class="paragraph">
+<p>If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
+These patterns are being evaluated at the end of the route location process, which
+means prefixes should be included in the pattern to warrant a match. Ignored patterns
+span all services and supersede any other route specification.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  ignoredPatterns: */admin/**
+  routes:
+    users: /myusers/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
+But calls including "/admin/" will not resolve.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1727,7 +1780,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-08-25 10:14:49 UTC
+Last updated 2015-08-25 14:13:58 UTC
 </div>
 </div>
 </body>
