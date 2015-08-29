@@ -95,6 +95,27 @@ These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it's helpful if they are accurate.
 
+=== Eureka's Health Checks
+
+Unless specified otherwise the Discovery Client will not propagate the
+application Spring Boot Actuator current health check status. Which means
+that after successful registration Eureka will always announce that the
+application is in 'UP' state. This behaviour can be altered by enabling
+Eureka health checks, which results in propagating application status
+to Eureka, as a consequence every other application will not sending
+traffic to application in state other then 'UP'.
+
+.application.yml
+----
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+----
+
+If you require more control over the health checks, you may consider
+implementing your own `com.netflix.appinfo.HealthCheckHandler`.
+
 === Eureka Metadata for Instances and Clients
 
 It's worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform. There is standard metadata for things like hostname, IP address, port numbers, status page and health check. These are published in the service registry and used by clients to contact the services in a straightforward way. Additional metadata can be added to the instance registration in the `eureka.instance.metadataMap`, and this will be accessible in the remote clients, but in general will not change the behaviour of the client, unless it is made aware of the meaning of the metadata. There are a couple of special cases described below where Spring Cloud already assigns meaning to the metadata map.

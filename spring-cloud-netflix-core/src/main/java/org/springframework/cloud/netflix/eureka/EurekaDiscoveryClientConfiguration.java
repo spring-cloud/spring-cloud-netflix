@@ -16,15 +16,18 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.health.HealthAggregator;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.OrderedHealthAggregator;
 import org.springframework.boot.actuate.metrics.reader.CompositeMetricReader;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -41,12 +44,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Dave Syer
@@ -174,4 +175,18 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		}
 	}
 
+	@Configuration
+	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled", matchIfMissing = false)
+	@ConditionalOnBean(HealthIndicator.class)
+	protected static class EurekaHealthCheckHandlerConfiguration {
+
+		@Autowired(required = false)
+		private HealthAggregator healthAggregator = new OrderedHealthAggregator();
+
+		@Bean
+		@ConditionalOnMissingBean(HealthCheckHandler.class)
+		public EurekaHealthCheckHandler eurekaHealthCheckHandler() {
+			return new EurekaHealthCheckHandler(healthAggregator);
+		}
+	}
 }
