@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
-import java.util.Arrays;
 
 import lombok.SneakyThrows;
 
@@ -47,9 +46,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 
 /**
  * @author Spencer Gibb
@@ -170,10 +168,8 @@ class SimpleRibbonClientConfiguration {
 	private int port = 0;
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer() {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", port)));
-		return balancer;
+	public ServerList<Server> ribbonServerList() {
+		return new StaticServerList<>(new Server("localhost", this.port));
 	}
 
 }

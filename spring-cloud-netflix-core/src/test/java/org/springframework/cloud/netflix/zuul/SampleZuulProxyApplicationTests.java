@@ -36,6 +36,7 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
@@ -58,9 +59,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
@@ -299,11 +299,8 @@ class SampleZuulProxyApplication {
 class SimpleRibbonClientConfiguration {
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", instance
-				.getNonSecurePort())));
-		return balancer;
+	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+		return new StaticServerList<>(new Server("localhost", instance.getNonSecurePort()));
 	}
 
 }
@@ -312,11 +309,8 @@ class SimpleRibbonClientConfiguration {
 class AnotherRibbonClientConfiguration {
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", instance
-				.getNonSecurePort())));
-		return balancer;
+	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+		return new StaticServerList<>(new Server("localhost", instance.getNonSecurePort()));
 	}
 
 }

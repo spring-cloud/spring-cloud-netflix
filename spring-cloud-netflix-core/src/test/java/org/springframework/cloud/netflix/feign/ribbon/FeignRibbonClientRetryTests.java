@@ -16,9 +16,12 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.AllArgsConstructor;
@@ -36,6 +39,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -45,13 +49,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.netflix.loadbalancer.ServerList;
 
 /**
  * @author Spencer Gibb
@@ -146,12 +145,10 @@ class LocalRibbonClientConfiguration {
 	private int port = 0;
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer() {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("___mybadhost__", 10001),
+	public ServerList<Server> ribbonServerList() {
+		return new StaticServerList<>(new Server("___mybadhost__", 10001),
 				new Server("___mybadhost2__", 10002),
-				new Server("___mybadhost3__", 10003), new Server("localhost", this.port)));
-		return balancer;
+				new Server("___mybadhost3__", 10003), new Server("localhost", this.port));
 	}
 
 }
