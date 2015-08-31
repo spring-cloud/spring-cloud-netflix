@@ -29,6 +29,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -127,6 +128,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	}
 
 	//TODO: move this method to s-c-commons
+	@SneakyThrows
 	static InetAddress getFirstNonLoopbackAddress() {
 		try {
 			for (Enumeration<NetworkInterface> enumNic = NetworkInterface.getNetworkInterfaces();
@@ -146,7 +148,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		catch (IOException ex) {
 			logger.error("Cannot get host info", ex);
 		}
-		return null;
+		return InetAddress.getLocalHost();
 	}
 
 	public void setHostname(String hostname) {
