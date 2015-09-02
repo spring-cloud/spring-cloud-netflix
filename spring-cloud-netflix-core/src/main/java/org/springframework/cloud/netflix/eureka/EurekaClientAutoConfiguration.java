@@ -21,8 +21,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
-import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -31,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.ParentContextApplicationContextInitializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
@@ -48,6 +47,8 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.XmlXStream;
 
+import lombok.SneakyThrows;
+
 /**
  * @author Dave Syer
  */
@@ -55,7 +56,7 @@ import com.netflix.discovery.converters.XmlXStream;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-@AutoConfigureBefore(NoopDiscoveryClientAutoConfiguration.class)
+@AutoConfigureBefore({NoopDiscoveryClientAutoConfiguration.class, CommonsClientAutoConfiguration.class})
 public class EurekaClientAutoConfiguration implements ApplicationListener<ParentContextApplicationContextInitializer.ParentContextAvailableEvent> {
 
 	private static final ConcurrentMap<String, String> listenerAdded = new ConcurrentHashMap<>();
@@ -65,7 +66,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
-	
+
 	@PostConstruct
 	public void init() {
 		DataCenterAwareJacksonCodec.init();
@@ -91,7 +92,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	@ConditionalOnMissingBean(EurekaClient.class)
 	@SneakyThrows
 	public EurekaClient eurekaClient() {
-		return new CloudEurekaClient(applicationInfoManager(), eurekaClientConfigBean(), context);
+		return new CloudEurekaClient(applicationInfoManager(), eurekaClientConfigBean(), this.context);
 	}
 
 	@Bean
