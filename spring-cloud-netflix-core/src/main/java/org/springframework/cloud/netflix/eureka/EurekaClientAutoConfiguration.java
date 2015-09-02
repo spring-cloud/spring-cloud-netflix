@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.ParentContextApplicationContextInitializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
@@ -50,7 +51,7 @@ import com.netflix.discovery.converters.XmlXStream;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-@AutoConfigureBefore(NoopDiscoveryClientAutoConfiguration.class)
+@AutoConfigureBefore({NoopDiscoveryClientAutoConfiguration.class, CommonsClientAutoConfiguration.class})
 public class EurekaClientAutoConfiguration implements ApplicationListener<ParentContextApplicationContextInitializer.ParentContextAvailableEvent> {
 
 	@Autowired
@@ -60,7 +61,7 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
-	
+
 	@PostConstruct
 	public void init() {
 		XmlXStream.getInstance().setMarshallingStrategy(
