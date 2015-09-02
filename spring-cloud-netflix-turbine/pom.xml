@@ -24,6 +24,14 @@
 				<version>${turbine.version}</version>
 				<exclusions>
 					<exclusion>
+						<groupId>com.netflix.rxjava</groupId>
+						<artifactId>rxjava-core</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-simple</artifactId>
+					</exclusion>
+					<exclusion>
 						<groupId>javax.servlet</groupId>
 						<artifactId>servlet-api</artifactId>
 					</exclusion>
