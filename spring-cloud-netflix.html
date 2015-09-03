@@ -530,6 +530,32 @@ application, so it&#8217;s helpful if they are accurate.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_eureka_s_health_checks">Eureka&#8217;s Health Checks</h3>
+<div class="paragraph">
+<p>By default, Eureka uses the client heartbeat to determine if a client is up.
+Unless specified otherwise the Discovery Client will not propagate the
+application Spring Boot Actuator current health check status.  Which means
+that after successful registration Eureka will always announce that the
+application is in 'UP' state. This behaviour can be altered by enabling
+Eureka health checks, which results in propagating application status
+to Eureka, as a consequence every other application will not sending
+traffic to application in state other then 'UP'.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  client:
+    healthcheck:
+      enabled: true</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you require more control over the health checks, you may consider
+implementing your own <code>com.netflix.appinfo.HealthCheckHandler</code>.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_eureka_metadata_for_instances_and_clients">Eureka Metadata for Instances and Clients</h3>
 <div class="paragraph">
 <p>It&#8217;s worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform. There is standard metadata for things like hostname, IP address, port numbers, status page and health check. These are published in the service registry and used by clients to contact the services in a straightforward way. Additional metadata can be added to the instance registration in the <code>eureka.instance.metadataMap</code>, and this will be accessible in the remote clients, but in general will not change the behaviour of the client, unless it is made aware of the meaning of the metadata. There are a couple of special cases described below where Spring Cloud already assigns meaning to the metadata map.</p>
@@ -1780,7 +1806,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-02 12:28:05 UTC
+Last updated 2015-09-03 23:40:22 UTC
 </div>
 </div>
 </body>
