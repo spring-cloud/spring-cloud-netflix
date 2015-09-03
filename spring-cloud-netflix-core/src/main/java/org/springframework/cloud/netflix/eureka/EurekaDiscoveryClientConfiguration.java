@@ -25,6 +25,9 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.health.HealthAggregator;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.OrderedHealthAggregator;
 import org.springframework.boot.actuate.metrics.reader.CompositeMetricReader;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -50,6 +53,9 @@ import com.netflix.discovery.EurekaClientConfig;
 
 /**
  * @author Dave Syer
+ * @author Spencer Gibb
+ * @author Jon Schneider
+ * @author Jakub Narloch
  */
 @Configuration
 @EnableConfigurationProperties
@@ -174,4 +180,18 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		}
 	}
 
+	@Configuration
+	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled", matchIfMissing = false)
+	@ConditionalOnBean(HealthIndicator.class)
+	protected static class EurekaHealthCheckHandlerConfiguration {
+
+		@Autowired(required = false)
+		private HealthAggregator healthAggregator = new OrderedHealthAggregator();
+
+		@Bean
+		@ConditionalOnMissingBean(HealthCheckHandler.class)
+		public EurekaHealthCheckHandler eurekaHealthCheckHandler() {
+			return new EurekaHealthCheckHandler(healthAggregator);
+		}
+	}
 }
