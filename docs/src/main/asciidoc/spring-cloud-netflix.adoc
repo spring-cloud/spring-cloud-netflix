@@ -728,7 +728,7 @@ public interface StoreClient {
     List<Store> getStores();
 
     @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
-    Store update(@PathParameter("storeId") Long storeId, Store store);
+    Store update(@PathVariable("storeId") Long storeId, Store store);
 }
 ----
 
