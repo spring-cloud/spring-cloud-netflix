@@ -64,7 +64,7 @@ https://github.com/spring-cloud-samples/scripts[scripts demo
 repository] for specific instructions about the common cases of mongo,
 rabbit and redis.
 
-NOTE: migration to the Maven wrapper (`.mvnw`) is underway. If you
+NOTE: migration to the Maven wrapper (`./mvnw`) is underway. If you
 find a project that doesn't have it yet, raise an issue to get it
 added, and build with the command from `.travis.yml` (usually
 `mvn install -s .settings.xml`).
@@ -95,7 +95,7 @@ marketplace".
 Unfortunately m2e does not yet support Maven 3.3, so once the projects
 are imported into Eclipse you will also need to tell m2eclipse to use
 the `.settings.xml` file for the projects.  If you do not do this you
-may see errors many different errors related to the POMs in the
+may see many different errors related to the POMs in the
 projects.  Open your Eclipse preferences, expand the Maven
 preferences, and select User Settings.  In the User Settings field
 click Browse and navigate to the Spring Cloud project you imported
