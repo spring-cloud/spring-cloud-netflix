@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,17 @@
 
 package org.springframework.cloud.netflix.servo;
 
-import com.netflix.servo.Metric;
+import java.lang.annotation.*;
 
 /**
- * @author Spencer Gibb
+ * Annotation to enable Servo metrics collection. This has been deprecated in favor of @EnableSpectator.
+ *
+ * @author Jon Schneider
  */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
 @Deprecated
-public interface ServoMetricNaming {
-	String getName(Metric metric);
+public @interface EnableServo {
 }

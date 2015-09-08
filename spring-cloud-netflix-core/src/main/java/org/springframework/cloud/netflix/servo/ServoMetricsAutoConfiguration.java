@@ -44,6 +44,7 @@ import com.netflix.servo.monitor.Monitors;
 @ConditionalOnBean(GaugeService.class)
 @AutoConfigureBefore(EndpointAutoConfiguration.class)
 @AutoConfigureAfter({ MetricRepositoryAutoConfiguration.class })
+@Deprecated
 public class ServoMetricsAutoConfiguration {
 
 	@Bean

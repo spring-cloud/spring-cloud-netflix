@@ -25,6 +25,7 @@ import com.netflix.servo.tag.TagList;
 /**
  * @author Spencer Gibb
  */
+@Deprecated
 public class DefaultServoMetricNaming implements ServoMetricNaming {
 	private static final String JMX_DOMAIN_KEY = "JmxDomain";
 	public static final String SERVO = "servo.";

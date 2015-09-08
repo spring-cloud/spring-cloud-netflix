@@ -39,6 +39,7 @@ import com.netflix.servo.publish.PollScheduler;
  * @author Dave Syer
  * @author Christian Dupuis
  */
+@Deprecated
 @CommonsLog
 public class ServoMetricCollector implements DisposableBean {
 

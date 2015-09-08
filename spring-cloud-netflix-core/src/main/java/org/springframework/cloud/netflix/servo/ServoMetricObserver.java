@@ -27,6 +27,7 @@ import java.util.List;
  * {@link com.netflix.servo.publish.MetricObserver} to convert Servo metrics into Spring Boot {@link org.springframework.boot.actuate.metrics.Metric}
  * instances.
  */
+@Deprecated
 final class ServoMetricObserver extends BaseMetricObserver {
 
 	private final MetricWriter metrics;

@@ -1,0 +1,5 @@
+org.springframework.cloud.netflix.metrics.spectator.EnableSpectator=\
+org.springframework.cloud.netflix.metrics.spectator.SpectatorAutoConfiguration
+
+org.springframework.cloud.netflix.metrics.atlas.EnableAtlas=\
+org.springframework.cloud.netflix.metrics.atlas.AtlasAutoConfiguration
