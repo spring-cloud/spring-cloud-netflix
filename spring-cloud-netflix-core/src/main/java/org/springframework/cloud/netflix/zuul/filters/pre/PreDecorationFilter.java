@@ -21,6 +21,7 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.netflix.zuul.constants.ZuulHeaders;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
@@ -91,6 +92,9 @@ public class PreDecorationFilter extends ZuulFilter {
 							"X-Forwarded-Host",
 							ctx.getRequest().getServerName() + ":"
 									+ String.valueOf(ctx.getRequest().getServerPort()));
+					ctx.addZuulRequestHeader(
+							ZuulHeaders.X_FORWARDED_PROTO,
+							ctx.getRequest().getScheme());
 					if (StringUtils.hasText(route.getPrefix())) {
 						ctx.addZuulRequestHeader("X-Forwarded-Prefix", route.getPrefix());
 					}
