@@ -164,6 +164,10 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean enableReplicatedRequestCompression = false;
 
+	private String jsonCodecName;
+
+	private String xmlCodecName;
+
 	@Override
 	public boolean shouldEnableSelfPreservation() {
 		return this.enableSelfPreservation;
@@ -223,5 +227,15 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	@Override
 	public boolean shouldEnableReplicatedRequestCompression() {
 		return this.enableReplicatedRequestCompression;
+	}
+
+	@Override
+	public String getJsonCodecName() {
+		return jsonCodecName;
+	}
+
+	@Override
+	public String getXmlCodecName() {
+		return xmlCodecName;
 	}
 }

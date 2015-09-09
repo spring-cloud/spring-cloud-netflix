@@ -21,14 +21,9 @@ import com.netflix.appinfo.DataCenterInfo.Name;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.converters.Converters.ApplicationsConverter;
 import com.netflix.discovery.converters.Converters.InstanceInfoConverter;
-import com.netflix.discovery.converters.StringCache;
 import com.netflix.discovery.shared.Applications;
 import com.thoughtworks.xstream.MarshallingStrategy;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.ConverterLookup;
-import com.thoughtworks.xstream.converters.DataHolder;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.*;
 import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -90,11 +85,6 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 	}
 
 	private static class DataCenterAwareConverter extends InstanceInfoConverter {
-
-		public DataCenterAwareConverter() {
-			super(new StringCache());
-		}
-
 		@Override
 		public void marshal(Object source, HierarchicalStreamWriter writer,
 				MarshallingContext context) {

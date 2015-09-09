@@ -20,7 +20,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.Status;
@@ -39,18 +42,16 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
 	private final EurekaClient eurekaClient;
 
-	private final MetricReader metrics;
-
 	private final EurekaInstanceConfig instanceConfig;
 
-	private int failCount = 0;
+	private final EurekaClientConfig clientConfig;
 
-	public EurekaHealthIndicator(EurekaClient eurekaClient, MetricReader metrics,
-			EurekaInstanceConfig instanceConfig) {
+	public EurekaHealthIndicator(EurekaClient eurekaClient, EurekaInstanceConfig instanceConfig,
+								 EurekaClientConfig clientConfig) {
 		super();
 		this.eurekaClient = eurekaClient;
-		this.metrics = metrics;
 		this.instanceConfig = instanceConfig;
+		this.clientConfig = clientConfig;
 	}
 
 	@Override
@@ -69,22 +70,21 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	private Status getStatus(Builder builder) {
 		Status status = new Status(this.eurekaClient.getInstanceRemoteStatus().toString(),
 				"Remote status from Eureka server");
-		@SuppressWarnings("unchecked")
-		Metric<Number> value = (Metric<Number>) this.metrics
-				.findOne("counter.servo.discoveryclient_failed");
-		if (value != null) {
-			int renewalPeriod = this.instanceConfig.getLeaseRenewalIntervalInSeconds();
-			int latest = value.getValue().intValue();
-			builder.withDetail("failCount", latest);
-			builder.withDetail("renewalPeriod", renewalPeriod);
-			if (this.failCount < latest) {
-				status = new Status("UP", "Eureka discovery client is reporting failures");
-				this.failCount = latest;
+
+		if(eurekaClient instanceof DiscoveryClient && clientConfig.shouldFetchRegistry()) {
+			DiscoveryClient discoveryClient = (DiscoveryClient) eurekaClient;
+			long lastFetch = discoveryClient.getLastSuccessfulRegistryFetchTimePeriod();
+
+			if(lastFetch < 0) {
+				status = new Status("UP", "Eureka discovery client has not yet successfully connected to a Eureka server");
 			}
-			else {
-				status = new Status("UP", "No new failures in Eureka discovery client");
+			else if(lastFetch > clientConfig.getRegistryFetchIntervalSeconds()*2) {
+				status = new Status("UP", "Eureka discovery client is reporting failures to connect to a Eureka server");
+				builder.withDetail("renewalPeriod", instanceConfig.getLeaseRenewalIntervalInSeconds());
+				builder.withDetail("failCount", lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
 			}
 		}
+
 		return status;
 	}
 

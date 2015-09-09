@@ -29,17 +29,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
 import com.netflix.discovery.converters.EurekaJacksonCodec;
-import com.netflix.discovery.converters.StringCache;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
@@ -47,7 +42,7 @@ import com.netflix.discovery.shared.Applications;
  * @author Spencer Gibb
  */
 public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
-	private static final Version VERSION = new Version(1, 1, 0, null);
+	private static final Version VERSION = new Version(1, 1, 0, null, null, null);
 
 	@SneakyThrows
 	public DataCenterAwareJacksonCodec() {
@@ -63,23 +58,23 @@ public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
 		module.addSerializer(Application.class, new ApplicationSerializer());
 		module.addSerializer(Applications.class, new ApplicationsSerializer(getVersionDeltaKey(), getAppHashCodeKey()));
 
-		module.addDeserializer(DataCenterInfo.class, new DataCenterInfoDeserializer(getCache()));
+		module.addDeserializer(DataCenterInfo.class, new DataCenterInfoDeserializer());
 		module.addDeserializer(LeaseInfo.class, new LeaseInfoDeserializer());
-		module.addDeserializer(InstanceInfo.class, new DCAwareInstanceInfoDeserializer(getCache()));
-		module.addDeserializer(Application.class, new ApplicationDeserializer(mapper, getCache()));
+		module.addDeserializer(InstanceInfo.class, new DCAwareInstanceInfoDeserializer());
+		module.addDeserializer(Application.class, new ApplicationDeserializer(mapper));
 		module.addDeserializer(Applications.class, new ApplicationsDeserializer(mapper, getVersionDeltaKey(), getAppHashCodeKey()));
 
 		mapper.registerModule(module);
 
 		Map<Class<?>, ObjectReader> readers = getField("objectReaderByClass");
-		readers.put(InstanceInfo.class, mapper.reader().withType(InstanceInfo.class).withRootName("instance"));
-		readers.put(Application.class, mapper.reader().withType(Application.class).withRootName("application"));
-		readers.put(Applications.class, mapper.reader().withType(Applications.class).withRootName("applications"));
+		readers.put(InstanceInfo.class, mapper.reader().forType(InstanceInfo.class).withRootName("instance"));
+		readers.put(Application.class, mapper.reader().forType(Application.class).withRootName("application"));
+		readers.put(Applications.class, mapper.reader().forType(Applications.class).withRootName("applications"));
 
 		Map<Class<?>, ObjectWriter> writers = getField("objectWriterByClass");
-		writers.put(InstanceInfo.class, mapper.writer().withType(InstanceInfo.class).withRootName("instance"));
-		writers.put(Application.class, mapper.writer().withType(Application.class).withRootName("application"));
-		writers.put(Applications.class, mapper.writer().withType(Applications.class).withRootName("applications"));
+		writers.put(InstanceInfo.class, mapper.writer().forType(InstanceInfo.class).withRootName("instance"));
+		writers.put(Application.class, mapper.writer().forType(Application.class).withRootName("application"));
+		writers.put(Applications.class, mapper.writer().forType(Applications.class).withRootName("applications"));
 
 		Field field = ReflectionUtils.findField(EurekaJacksonCodec.class, "mapper");
 		ReflectionUtils.makeAccessible(field);
@@ -121,8 +116,8 @@ public class DataCenterAwareJacksonCodec extends EurekaJacksonCodec {
 	}
 
 	private class DCAwareInstanceInfoDeserializer extends InstanceInfoDeserializer {
-		private DCAwareInstanceInfoDeserializer(StringCache cache) {
-			super(getMapper(), cache);
+		private DCAwareInstanceInfoDeserializer() {
+			super(getMapper());
 		}
 
 		@Override
