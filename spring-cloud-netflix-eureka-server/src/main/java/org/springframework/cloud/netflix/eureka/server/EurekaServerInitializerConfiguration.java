@@ -58,6 +58,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.blitz4j.DefaultBlitz4jConfig;
 import com.netflix.blitz4j.LoggingConfiguration;
+import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.eureka.AbstractInstanceRegistry;
 import com.netflix.eureka.EurekaBootStrap;
@@ -145,14 +146,13 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 								// ignore
 							}
 							LoggingConfiguration.getInstance().configure();
-							EurekaServerConfigurationManager
-									.getInstance()
+							EurekaServerConfigurationManager.getInstance()
 									.setConfiguration(
 											EurekaServerInitializerConfiguration.this.eurekaServerConfig);
-							XmlXStream
-									.getInstance()
-									.setMarshallingStrategy(
-											new DataCenterAwareMarshallingStrategy());
+							XmlXStream.getInstance().setMarshallingStrategy(
+									new DataCenterAwareMarshallingStrategy());
+							JsonXStream.getInstance().setMarshallingStrategy(
+									new DataCenterAwareMarshallingStrategy());
 							DataCenterAwareJacksonCodec.init();
 							EurekaServerInitializerConfiguration.this.applicationContext
 									.publishEvent(new EurekaRegistryAvailableEvent(
