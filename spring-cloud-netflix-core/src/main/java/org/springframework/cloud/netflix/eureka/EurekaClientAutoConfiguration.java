@@ -21,6 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
+import lombok.SneakyThrows;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -45,9 +47,8 @@ import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
-
-import lombok.SneakyThrows;
 
 /**
  * @author Dave Syer
@@ -71,6 +72,8 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	public void init() {
 		DataCenterAwareJacksonCodec.init();
 		XmlXStream.getInstance().setMarshallingStrategy(
+				new DataCenterAwareMarshallingStrategy());
+		JsonXStream.getInstance().setMarshallingStrategy(
 				new DataCenterAwareMarshallingStrategy());
 	}
 
