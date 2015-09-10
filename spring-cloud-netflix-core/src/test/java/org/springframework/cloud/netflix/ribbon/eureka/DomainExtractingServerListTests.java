@@ -98,7 +98,7 @@ public class DomainExtractingServerListTests {
 				actualServer instanceof DomainExtractingServer);
 		DomainExtractingServer des = DomainExtractingServer.class.cast(actualServer);
 		assertEquals("zone was wrong", zone, des.getZone());
-		assertEquals("instanceId was wrong", INSTANCE_ID, des.getId());
+		assertEquals("instanceId was wrong", HOST_NAME + ":" + INSTANCE_ID, des.getId());
 		return des;
 	}
 
