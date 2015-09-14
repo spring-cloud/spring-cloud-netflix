@@ -95,6 +95,17 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		assertEquals("first hello didn't match", "hello world 1", hellos.get(0));
 	}
 
+	@Test
+	public void testResponseEntityVoid() {
+		ResponseEntity<Void> response = testClient().getHelloVoid();
+		assertNotNull("response was null", response);
+		List<String> headers = response.getHeaders().get("X-test-header");
+		assertNotNull("headers was null", headers);
+		assertEquals("headers size was wrong", 1, headers.size());
+		String header = headers.get(0);
+		assertEquals("header was wrong", "myval", header);
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -114,6 +125,9 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
 		public List<String> getHelloStrings();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellovoid")
+		public ResponseEntity<Void> getHelloVoid();
 	}
 
 	@Configuration
@@ -124,6 +138,11 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		@Override
 		public ResponseEntity<Hello> getHelloResponse() {
 			return ResponseEntity.ok(new Hello("hello world via response"));
+		}
+
+		@Override
+		public ResponseEntity<Void> getHelloVoid() {
+			return ResponseEntity.noContent().header("X-test-header", "myval").build();
 		}
 
 		@Override

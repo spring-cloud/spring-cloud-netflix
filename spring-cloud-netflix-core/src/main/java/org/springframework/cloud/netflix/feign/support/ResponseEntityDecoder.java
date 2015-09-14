@@ -39,8 +39,12 @@ public class ResponseEntityDecoder implements Decoder {
             type = ((ParameterizedType) type).getActualTypeArguments()[0];
             Object decodedObject = decoder.decode(response, type);
 
+            Class<?> clazz = null;
+            if (decodedObject != null) {
+                clazz = decodedObject.getClass();
+            }
             return createResponse(
-                    decodedObject.getClass(),
+                    clazz,
                     decodedObject,
                     response);
         }
@@ -56,9 +60,11 @@ public class ResponseEntityDecoder implements Decoder {
             headers.put(key, new LinkedList<>(response.headers().get(key)));
         }
 
-        return new ResponseEntity<T>(
-                clazz.cast(instance),
-                headers,
+        T retVal = null;
+        if (clazz != null && instance != null) {
+            retVal = clazz.cast(instance);
+        }
+        return new ResponseEntity<>(retVal, headers,
                 HttpStatus.valueOf(response.status()));
     }
 }
