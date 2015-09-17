@@ -13,6 +13,9 @@
 
 package org.springframework.cloud.netflix.metrics.atlas;
 
+import org.springframework.cloud.netflix.metrics.spectator.EnableSpectator;
+import org.springframework.context.annotation.Import;
+
 import java.lang.annotation.*;
 
 /**
@@ -22,5 +25,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@EnableSpectator
+@Import(AtlasAutoConfiguration.class)
 public @interface EnableAtlas {
 }

@@ -18,6 +18,3 @@ org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration
 
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
-
-org.springframework.cloud.netflix.servo.EnableServo=\
-org.springframework.cloud.netflix.servo.ServoMetricsAutoConfiguration

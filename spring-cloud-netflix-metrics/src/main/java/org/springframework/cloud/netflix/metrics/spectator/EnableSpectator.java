@@ -13,6 +13,8 @@
 
 package org.springframework.cloud.netflix.metrics.spectator;
 
+import org.springframework.context.annotation.Import;
+
 import java.lang.annotation.*;
 
 /**
@@ -24,5 +26,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+@Import(SpectatorAutoConfiguration.class)
 public @interface EnableSpectator {
 }

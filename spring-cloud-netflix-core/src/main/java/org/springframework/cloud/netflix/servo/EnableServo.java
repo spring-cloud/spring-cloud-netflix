@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.servo;
 
+import org.springframework.context.annotation.Import;
+
 import java.lang.annotation.*;
 
 /**
@@ -28,5 +30,6 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Deprecated
+@Import(ServoMetricsAutoConfiguration.class)
 public @interface EnableServo {
 }

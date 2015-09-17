@@ -66,8 +66,8 @@ public class AtlasAutoConfigurationIntegrationTests {
 @Configuration
 @EnableWebMvc
 @EnableScheduling
-@ImportAutoConfiguration({ SpectatorAutoConfiguration.class, AtlasAutoConfiguration.class,
-		PropertyPlaceholderAutoConfiguration.class, ConfigurationPropertiesAutoConfiguration.class })
+@EnableAtlas
+@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class, ConfigurationPropertiesAutoConfiguration.class })
 class AtlasTestConfig {
 	@Autowired
 	Exporter exporter;

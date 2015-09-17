@@ -107,7 +107,8 @@ public class SpectatorMetricsHandlerInterceptorIntegrationTests {
 
 @Configuration
 @EnableWebMvc
-@ImportAutoConfiguration({ SpectatorAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
+@EnableSpectator
+@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class })
 class SpectatorTestConfig {
 	@Bean
 	SpectatorTestController testController() {

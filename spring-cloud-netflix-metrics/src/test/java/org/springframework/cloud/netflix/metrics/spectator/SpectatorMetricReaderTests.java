@@ -62,7 +62,7 @@ public class SpectatorMetricReaderTests {
 		public SimpleId(String name, String... tagPairs) {
 			this.name = name;
 			tags = new ArrayList<>();
-			for (int i = 0; i < tagPairs.length; i++)
+			for (int i = 0; i < tagPairs.length; i+=2)
 				tags.add(new SimpleTag(tagPairs[i], tagPairs[i + 1]));
 		}
 

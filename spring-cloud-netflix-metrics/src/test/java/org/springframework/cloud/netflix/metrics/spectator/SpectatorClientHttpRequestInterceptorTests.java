@@ -40,12 +40,13 @@ import com.netflix.spectator.api.Registry;
  * @author Jon Schneider
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = SpectatorRestTemplateTestConfig.class)
+@ContextConfiguration(classes = { SpectatorRestTemplateRestTemplateConfig.class, SpectatorRestTemplateTestConfig.class })
 @TestPropertySource(properties = { "netflix.spectator.restClient.metricName=metricName",
 		"spring.aop.proxy-target-class=true" })
-public class SpectatorClientHttpRequestInterceptorSpec {
+public class SpectatorClientHttpRequestInterceptorTests {
 	@Autowired
 	Registry registry;
+
 	@Autowired
 	RestTemplate restTemplate;
 
@@ -66,16 +67,15 @@ public class SpectatorClientHttpRequestInterceptorSpec {
 }
 
 @Configuration
-@ImportAutoConfiguration({ SpectatorAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-		AopAutoConfiguration.class })
+@EnableSpectator
+@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class, AopAutoConfiguration.class })
 class SpectatorRestTemplateTestConfig {
-	@Bean
-	RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+}
 
-	@Bean
-	Registry spectatorRegistry() {
-		return new DefaultRegistry();
-	}
+@Configuration
+class SpectatorRestTemplateRestTemplateConfig {
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }
