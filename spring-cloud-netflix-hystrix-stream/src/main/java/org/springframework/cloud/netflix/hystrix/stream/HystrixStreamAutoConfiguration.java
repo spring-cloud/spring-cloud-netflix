@@ -16,15 +16,21 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.config.ChannelBindingProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.netflix.hystrix.HystrixCircuitBreaker;
+
+import javax.annotation.PostConstruct;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Autoconfiguration for a Spring Cloud Hystrix on AMQP. Enabled by default if
@@ -49,6 +55,16 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 @EnableScheduling
 @EnableBinding(HystrixStreamClient.class)
 public class HystrixStreamAutoConfiguration {
+
+	@Autowired
+	private ChannelBindingProperties bindings;
+
+	@PostConstruct
+	public void init() {
+		this.bindings.getBindings().put(HystrixStreamClient.OUTPUT,
+				new HashMap<>(Collections.singletonMap("destination",
+						HystrixStreamClient.HYSTRIX_STREAM_DESTINATION)));
+	}
 
 	@Bean
 	public HystrixStreamProperties hystrixStreamProperties() {

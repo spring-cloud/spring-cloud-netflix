@@ -16,11 +16,17 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.config.ChannelBindingProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Autoconfiguration for a Spring Cloud Turbine using Spring Cloud Stream.
@@ -45,6 +51,16 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "turbine.stream.enabled", matchIfMissing = true)
 @EnableBinding(TurbineStreamClient.class)
 public class TurbineStreamAutoConfiguration {
+
+	@Autowired
+	private ChannelBindingProperties bindings;
+
+	@PostConstruct
+	public void init() {
+		this.bindings.getBindings().put(TurbineStreamClient.INPUT,
+				new HashMap<>(Collections.singletonMap("destination",
+						TurbineStreamClient.HYSTRIX_STREAM_DESTINATION)));
+	}
 
 	@Bean
 	public HystrixStreamAggregator hystrixStreamAggregator() {

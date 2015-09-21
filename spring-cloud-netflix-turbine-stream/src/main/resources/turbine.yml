@@ -3,8 +3,6 @@ info:
 spring:
   application:
     name: turbine
-  cloud.stream.bindings:
-    turbineStreamInput: springCloudHystrixStream
   jmx:
     default_domain: cloud.turbine.stream
 
