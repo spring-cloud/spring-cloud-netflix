@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.hystrix;
+package org.springframework.cloud.netflix.hystrix.stream;
+
+import org.springframework.cloud.netflix.hystrix.HystrixConstants;
+import org.springframework.cloud.stream.annotation.Output;
+import org.springframework.messaging.MessageChannel;
 
 /**
- * @author Spencer Gibb
+ * @author Dave Syer
+ *
  */
-public interface HystrixConstants {
+public interface HystrixStreamClient extends HystrixConstants {
 
-	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+	String OUTPUT = "hystrixStreamOutput";
 
+	@Output(OUTPUT)
+	MessageChannel hystrixStreamOutput();
 }
