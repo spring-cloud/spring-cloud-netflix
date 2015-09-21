@@ -29,10 +29,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TurbineAmqpTests.Application.class)
+@SpringApplicationConfiguration(classes = TurbineStreamTests.Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "turbine.amqp.port=0", "spring.jmx.enabled=true" })
-public class TurbineAmqpTests {
+@IntegrationTest({ "server.port=0", "turbine.stream.port=0", "spring.jmx.enabled=true" })
+public class TurbineStreamTests {
 
 	@EnableAutoConfiguration
 	@EnableTurbineStream

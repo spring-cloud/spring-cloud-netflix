@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.util.Map;
 
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import rx.subjects.PublishSubject;
@@ -33,7 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Spencer Gibb
  */
 @CommonsLog
-public class Aggregator {
+@Component //needed for ServiceActivator to be picked up
+public class HystrixStreamAggregator {
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -42,11 +44,10 @@ public class Aggregator {
 	private PublishSubject<Map<String, Object>> subject;
 
 	@ServiceActivator(inputChannel = TurbineStreamClient.INPUT)
-	public void handle(Object payload) {
+	public void sendToSubject(String payload) {
 		try {
-			String json = (String) payload;
 			@SuppressWarnings("unchecked")
-			Map<String, Object> map = this.objectMapper.readValue(json, Map.class);
+			Map<String, Object> map = this.objectMapper.readValue(payload, Map.class);
 			Map<String, Object> data = getPayloadData(map);
 
 			log.debug("Received hystrix stream payload: " + data);

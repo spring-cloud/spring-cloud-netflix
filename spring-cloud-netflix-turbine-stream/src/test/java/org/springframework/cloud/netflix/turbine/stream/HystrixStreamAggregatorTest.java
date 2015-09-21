@@ -31,11 +31,11 @@ import com.netflix.turbine.aggregator.StreamAggregator;
 import com.netflix.turbine.aggregator.TypeAndNameKey;
 import com.netflix.turbine.internal.JsonUtility;
 
-import static org.springframework.cloud.netflix.turbine.stream.Aggregator.getPayloadData;
+import static org.springframework.cloud.netflix.turbine.stream.HystrixStreamAggregator.getPayloadData;
 
-public class AggregatorTest {
+public class HystrixStreamAggregatorTest {
 
-	public static final String STREAM_ALL = "hystrixamqp";
+	public static final String STREAM_ALL = "hystrixtest";
 
 	public static void main(String[] args) {
 		getHystrixStreamFromFile(STREAM_ALL, 1)
@@ -49,9 +49,9 @@ public class AggregatorTest {
 		Observable<Map<String, Object>> objectObservable = Observable.create(sub -> {
 			try {
 				while (!sub.isUnsubscribed()) {
-					String packagePath = AggregatorTest.class.getPackage().getName()
+					String packagePath = HystrixStreamAggregatorTest.class.getPackage().getName()
 							.replace('.', '/');
-					InputStream file = AggregatorTest.class.getResourceAsStream("/"
+					InputStream file = HystrixStreamAggregatorTest.class.getResourceAsStream("/"
 							+ packagePath + "/" + stream + ".stream");
 					BufferedReader in = new BufferedReader(new InputStreamReader(file));
 					String line = null;

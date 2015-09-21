@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -24,15 +23,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Autoconfiguration for a Spring Cloud Turbine on AMQP. Enabled by default if
- * spring-rabbit is on the classpath, and can be switched off with
- * <code>spring.cloud.bus.amqp.enabled</code>. If there is a single
+ * Autoconfiguration for a Spring Cloud Turbine using Spring Cloud Stream.
+ * Enabled by default if spring-cloud-stream is on the classpath, and can be
+ * switched off with <code>turbine.stream.enabled</code>.
+ *
+ * If there is a single
  * {@link ConnectionFactory} in the context it will be used, or if there is a one
  * qualified as <code>@TurbineConnectionFactory</code> it will be preferred over others,
  * otherwise the <code>@Primary</code> one will be used. If there are multiple unqualified
  * connection factories there will be an autowiring error. Note that Spring Boot (as of
  * 1.2.2) creates a ConnectionFactory that is <i>not</i> <code>@Primary</code>, so if you
- * want to use one connection factory for the bus and another for business messages, you
+ * want to use one connection factory for turbine and another for business messages, you
  * need to create both, and annotate them <code>@TurbineConnectionFactory</code> and
  * <code>@Primary</code> respectively.
  *
@@ -46,8 +47,8 @@ import org.springframework.context.annotation.Configuration;
 public class TurbineStreamAutoConfiguration {
 
 	@Bean
-	public Aggregator hystrixStreamAggregator() {
-		return new Aggregator();
+	public HystrixStreamAggregator hystrixStreamAggregator() {
+		return new HystrixStreamAggregator();
 	}
 
 }

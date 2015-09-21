@@ -25,7 +25,8 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
- * Run the RxNetty based Spring Cloud Turbine AMQP server. Based on Netflix Turbine 2
+ * Run the RxNetty based Spring Cloud Turbine Stream server.
+ * Based on Netflix Turbine 2 and Spring Cloud Stream
  *
  * @author Spencer Gibb
  */

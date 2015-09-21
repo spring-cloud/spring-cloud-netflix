@@ -27,31 +27,31 @@ public class TurbinePortApplicationListenerTests {
 		EnvironmentTestUtils.addEnvironment(environment, "server.port=9999");
 		listener.onApplicationEvent(event);
 		assertEquals("-1", environment.resolvePlaceholders("${server.port}"));
-		assertEquals("9999", environment.resolvePlaceholders("${turbine.amqp.port}"));
+		assertEquals("9999", environment.resolvePlaceholders("${turbine.stream.port}"));
 	}
 
 	@Test
 	public void turbinePortOnly() {
-		EnvironmentTestUtils.addEnvironment(environment, "turbine.amqp.port=9999");
+		EnvironmentTestUtils.addEnvironment(environment, "turbine.stream.port=9999");
 		listener.onApplicationEvent(event);
-		assertEquals("9999", environment.resolvePlaceholders("${turbine.amqp.port}"));
+		assertEquals("9999", environment.resolvePlaceholders("${turbine.stream.port}"));
 		assertEquals("0", environment.resolvePlaceholders("${server.port:0}"));
 	}
 
 	@Test
 	public void turbineAndManagementPorts() {
-		EnvironmentTestUtils.addEnvironment(environment, "turbine.amqp.port=9999", "management.port=9000");
+		EnvironmentTestUtils.addEnvironment(environment, "turbine.stream.port=9999", "management.port=9000");
 		listener.onApplicationEvent(event);
-		assertEquals("9999", environment.resolvePlaceholders("${turbine.amqp.port}"));
+		assertEquals("9999", environment.resolvePlaceholders("${turbine.stream.port}"));
 		assertEquals("9000", environment.resolvePlaceholders("${server.port:0}"));
 		assertEquals("9000", environment.resolvePlaceholders("${management.port:0}"));
 	}
 
 	@Test
 	public void turbineAndServerPorts() {
-		EnvironmentTestUtils.addEnvironment(environment, "turbine.amqp.port=9999", "server.port=9000");
+		EnvironmentTestUtils.addEnvironment(environment, "turbine.stream.port=9999", "server.port=9000");
 		listener.onApplicationEvent(event);
-		assertEquals("9999", environment.resolvePlaceholders("${turbine.amqp.port}"));
+		assertEquals("9999", environment.resolvePlaceholders("${turbine.stream.port}"));
 		assertEquals("9000", environment.resolvePlaceholders("${server.port:0}"));
 		assertEquals("0", environment.resolvePlaceholders("${management.port:0}"));
 	}
