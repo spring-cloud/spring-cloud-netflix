@@ -1,0 +1,9 @@
+server:
+  port: 17642
+
+spring.cloud.stream.bindings:
+  hystrixStreamOutput: springCloudHystrixStream
+
+logging:
+  level:
+    org.springframework.netflix.hystrix.stream: TRACE

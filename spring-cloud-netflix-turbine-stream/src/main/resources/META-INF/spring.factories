@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.cloud.netflix.turbine.stream.TurbineStreamAutoConfiguration
+
+org.springframework.context.ApplicationListener=\
+org.springframework.cloud.netflix.turbine.stream.TurbinePortApplicationListener
