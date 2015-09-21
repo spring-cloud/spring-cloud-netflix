@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.hystrix;
+package org.springframework.cloud.netflix.turbine.stream;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Import;
 
 /**
+ * Run the RxNetty based Spring Cloud Turbine Stream server.
+ * Based on Netflix Turbine 2 and Spring Cloud Stream
+ *
  * @author Spencer Gibb
  */
-public interface HystrixConstants {
-
-	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import(TurbineStreamConfiguration.class)
+public @interface EnableTurbineStream {
 
 }

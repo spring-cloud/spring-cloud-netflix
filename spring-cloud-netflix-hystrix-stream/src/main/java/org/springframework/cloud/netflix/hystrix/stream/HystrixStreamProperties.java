@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.hystrix;
+package org.springframework.cloud.netflix.hystrix.stream;
+
+import lombok.Data;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Spencer Gibb
  */
-public interface HystrixConstants {
+@ConfigurationProperties("hystrix.stream.queue")
+@Data
+public class HystrixStreamProperties {
 
-	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+	private boolean enabled = true;
+
+	private boolean prefixMetricName = true;
+
+	private boolean sendId = true;
 
 }

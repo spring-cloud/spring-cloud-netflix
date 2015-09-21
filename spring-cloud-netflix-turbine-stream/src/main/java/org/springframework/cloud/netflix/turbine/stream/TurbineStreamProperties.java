@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.hystrix;
+package org.springframework.cloud.netflix.turbine.stream;
+
+import lombok.Data;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @author Spencer Gibb
+ * @author Dave Syer
  */
-public interface HystrixConstants {
+@ConfigurationProperties("turbine.stream")
+@Data
+public class TurbineStreamProperties {
 
-	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+	@Value("${server.port:8989}")
+	private int port = 8989;
 
 }

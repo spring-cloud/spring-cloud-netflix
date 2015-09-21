@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.hystrix;
+package org.springframework.cloud.netflix.turbine.stream;
+
+import org.springframework.cloud.netflix.hystrix.HystrixConstants;
+import org.springframework.cloud.stream.annotation.Input;
+import org.springframework.messaging.SubscribableChannel;
 
 /**
- * @author Spencer Gibb
+ * @author Dave Syer
+ *
  */
-public interface HystrixConstants {
+public interface TurbineStreamClient extends HystrixConstants {
 
-	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+	String INPUT = "turbineStreamInput";
 
+	@Input(INPUT)
+	SubscribableChannel turbineStreamInput();
 }
