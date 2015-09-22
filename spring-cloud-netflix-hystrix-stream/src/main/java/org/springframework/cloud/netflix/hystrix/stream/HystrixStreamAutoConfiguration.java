@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,10 +32,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.netflix.hystrix.HystrixCircuitBreaker;
-
-import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Autoconfiguration for a Spring Cloud Hystrix on AMQP. Enabled by default if
@@ -59,11 +60,21 @@ public class HystrixStreamAutoConfiguration {
 	@Autowired
 	private ChannelBindingProperties bindings;
 
+	@Autowired
+	private HystrixStreamProperties properties;
+
 	@PostConstruct
 	public void init() {
-		this.bindings.getBindings().put(HystrixStreamClient.OUTPUT,
-				new HashMap<>(Collections.singletonMap("destination",
-						HystrixStreamClient.HYSTRIX_STREAM_DESTINATION)));
+		Object outputBinding = this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
+		if (outputBinding == null || outputBinding instanceof String) {
+			this.bindings.getBindings().put(HystrixStreamClient.OUTPUT,
+					new HashMap<String, Object>());
+		}
+		@SuppressWarnings("unchecked")
+		Map<String, Object> output = (Map<String, Object>) this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
+		if (!output.containsKey("destination") || HystrixStreamClient.OUTPUT.equals(outputBinding)) {
+			output.put("destination", this.properties.getDestination());
+		}
 	}
 
 	@Bean

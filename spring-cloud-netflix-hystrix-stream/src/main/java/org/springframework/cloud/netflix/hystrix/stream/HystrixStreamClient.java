@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
-import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 
@@ -24,7 +23,7 @@ import org.springframework.messaging.MessageChannel;
  * @author Dave Syer
  *
  */
-public interface HystrixStreamClient extends HystrixConstants {
+public interface HystrixStreamClient {
 
 	String OUTPUT = "hystrixStreamOutput";
 

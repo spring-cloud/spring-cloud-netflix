@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,10 +28,6 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.config.ChannelBindingProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Autoconfiguration for a Spring Cloud Turbine using Spring Cloud Stream.
@@ -55,11 +56,21 @@ public class TurbineStreamAutoConfiguration {
 	@Autowired
 	private ChannelBindingProperties bindings;
 
+	@Autowired
+	private TurbineStreamProperties properties;
+
 	@PostConstruct
 	public void init() {
-		this.bindings.getBindings().put(TurbineStreamClient.INPUT,
-				new HashMap<>(Collections.singletonMap("destination",
-						TurbineStreamClient.HYSTRIX_STREAM_DESTINATION)));
+		Object inputBinding = this.bindings.getBindings().get(TurbineStreamClient.INPUT);
+		if (inputBinding == null || inputBinding instanceof String) {
+			this.bindings.getBindings().put(TurbineStreamClient.INPUT,
+					new HashMap<String, Object>());
+		}
+		@SuppressWarnings("unchecked")
+		Map<String, Object> input = (Map<String, Object>) this.bindings.getBindings().get(TurbineStreamClient.INPUT);
+		if (!input.containsKey("destination") || TurbineStreamClient.INPUT.equals(inputBinding)) {
+			input.put("destination", properties.getDestination());
+		}
 	}
 
 	@Bean
