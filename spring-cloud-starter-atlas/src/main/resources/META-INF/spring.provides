@@ -1,0 +1,1 @@
+provides: spring-cloud-starter, spring-cloud-netflix-core, servo-core, jackson-dataformat-smile
