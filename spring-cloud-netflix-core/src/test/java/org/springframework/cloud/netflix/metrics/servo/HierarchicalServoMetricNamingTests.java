@@ -14,62 +14,61 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.servo;
+package org.springframework.cloud.netflix.metrics.servo;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
-
-import com.netflix.servo.annotations.DataSourceType;
-import com.netflix.servo.monitor.MonitorConfig;
 import org.junit.Test;
 
-import com.netflix.servo.Metric;
+import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.monitor.AbstractMonitor;
+import com.netflix.servo.monitor.MonitorConfig;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Spencer Gibb
  */
-public class DefaultServerMetricNamingTests {
+public class HierarchicalServoMetricNamingTests {
 
-	private DefaultServoMetricNaming naming = new DefaultServoMetricNaming();
+	private HierarchicalServoMetricNaming naming = new HierarchicalServoMetricNaming();
 
 	@Test
 	public void vanillaServoMetricWorks() {
-		MonitorConfig config = MonitorConfig.builder("testMetric") .build();
-		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+		MonitorConfig config = MonitorConfig.builder("testMetric").build();
+		String name = naming.asHierarchicalName(new FixedValueMonitor<>(config, 0));
 		assertThat(name, is(equalTo("servo.testmetric")));
 	}
 
 	@Test
 	public void nameWithPeriodWorks() {
-		MonitorConfig config = MonitorConfig.builder("test.Metric") .build();
-		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+		MonitorConfig config = MonitorConfig.builder("test.Metric").build();
+		String name = naming.asHierarchicalName(new FixedValueMonitor<>(config, 0));
 		assertThat(name, is(equalTo("servo.test.metric")));
 	}
 
 	@Test
 	public void typeTagWorks() {
 		MonitorConfig config = MonitorConfig.builder("testMetric")
-				.withTag(DataSourceType.KEY, DataSourceType.COUNTER.getValue())
-				.build();
-		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+				.withTag(DataSourceType.KEY, DataSourceType.COUNTER.getValue()).build();
+
+		String name = naming.asHierarchicalName(new FixedValueMonitor<>(config, 0));
 		assertThat(name, is(equalTo("counter.servo.testmetric")));
 	}
 
 	@Test
 	public void instanceTagWorks() {
 		MonitorConfig config = MonitorConfig.builder("testMetric")
-				.withTag("instance", "instance0")
-				.build();
-		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+				.withTag("instance", "instance0").build();
+		String name = naming.asHierarchicalName(new FixedValueMonitor<>(config, 0));
 		assertThat(name, is(equalTo("servo.instance0.testmetric")));
 	}
 
 	@Test
 	public void statisticTagWorks() {
 		MonitorConfig config = MonitorConfig.builder("testMetric")
-				.withTag("statistic", "min")
-				.build();
-		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+				.withTag("statistic", "min").build();
+		String name = naming.asHierarchicalName(new FixedValueMonitor<>(config, 0));
 		assertThat(name, is(equalTo("servo.testmetric.min")));
 	}
 
@@ -77,10 +76,22 @@ public class DefaultServerMetricNamingTests {
 	public void allTagsWork() {
 		MonitorConfig config = MonitorConfig.builder("testMetric")
 				.withTag(DataSourceType.KEY, DataSourceType.COUNTER.getValue())
-				.withTag("instance", "instance0")
-				.withTag("statistic", "min")
-				.build();
-		String name = naming.getName(new Metric(config, System.currentTimeMillis(), 0));
+				.withTag("instance", "instance0").withTag("statistic", "min").build();
+		String name = naming.asHierarchicalName(new FixedValueMonitor<>(config, 0));
 		assertThat(name, is(equalTo("counter.servo.instance0.testmetric.min")));
+	}
+
+	private class FixedValueMonitor<T> extends AbstractMonitor<T> {
+		T value;
+
+		protected FixedValueMonitor(MonitorConfig config, T value) {
+			super(config);
+			this.value = value;
+		}
+
+		@Override
+		public T getValue(int pollerIndex) {
+			return value;
+		}
 	}
 }
