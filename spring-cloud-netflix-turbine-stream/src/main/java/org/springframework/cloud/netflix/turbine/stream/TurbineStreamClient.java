@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.messaging.SubscribableChannel;
 
@@ -24,7 +23,7 @@ import org.springframework.messaging.SubscribableChannel;
  * @author Dave Syer
  *
  */
-public interface TurbineStreamClient extends HystrixConstants {
+public interface TurbineStreamClient {
 
 	String INPUT = "turbineStreamInput";
 

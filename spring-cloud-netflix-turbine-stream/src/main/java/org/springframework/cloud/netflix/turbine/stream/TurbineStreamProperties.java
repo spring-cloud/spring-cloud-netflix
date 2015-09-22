@@ -20,6 +20,7 @@ import lombok.Data;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 
 /**
  * @author Dave Syer
@@ -31,4 +32,5 @@ public class TurbineStreamProperties {
 	@Value("${server.port:8989}")
 	private int port = 8989;
 
+	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
 }

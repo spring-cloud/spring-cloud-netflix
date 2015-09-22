@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.hystrix.stream;
 import lombok.Data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 
 /**
  * @author Spencer Gibb
@@ -32,5 +33,7 @@ public class HystrixStreamProperties {
 	private boolean prefixMetricName = true;
 
 	private boolean sendId = true;
+
+	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
 
 }
