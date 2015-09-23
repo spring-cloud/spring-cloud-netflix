@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.health.HealthAggregator;
@@ -37,11 +35,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -50,6 +50,8 @@ import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
@@ -100,25 +102,24 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 					+ " with eureka with status "
 					+ this.instanceConfig.getInitialStatus());
 
-			applicationInfoManager.setInstanceStatus(
-					this.instanceConfig.getInitialStatus());
+			this.applicationInfoManager
+					.setInstanceStatus(this.instanceConfig.getInitialStatus());
 
 			if (this.healthCheckHandler != null) {
-				eurekaClient.registerHealthCheck(this.healthCheckHandler);
+				this.eurekaClient.registerHealthCheck(this.healthCheckHandler);
 			}
-			this.context.publishEvent(new InstanceRegisteredEvent<>(this,
-					this.instanceConfig));
+			this.context.publishEvent(
+					new InstanceRegisteredEvent<>(this, this.instanceConfig));
 			this.running.set(true);
 		}
 	}
 
 	@Override
 	public void stop() {
-		log.info("Unregistering application " + this.instanceConfig.getAppname()
-				+ " with eureka with status DOWN");
-		if (applicationInfoManager.getInfo() != null) {
-			applicationInfoManager.setInstanceStatus(
-					InstanceStatus.DOWN);
+		if (this.applicationInfoManager.getInfo() != null) {
+			log.info("Unregistering application " + this.instanceConfig.getAppname()
+					+ " with eureka with status DOWN");
+			this.applicationInfoManager.setInstanceStatus(InstanceStatus.DOWN);
 		}
 		this.running.set(false);
 	}
@@ -149,18 +150,26 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		return this.order;
 	}
 
-	@Bean
-	protected ApplicationListener<EmbeddedServletContainerInitializedEvent> containerPortInitializer() {
-		return new ApplicationListener<EmbeddedServletContainerInitializedEvent>() {
+	@EventListener(EmbeddedServletContainerInitializedEvent.class)
+	public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
+		// TODO: take SSL into account when Spring Boot 1.2 is available
+		EurekaDiscoveryClientConfiguration.this.port.compareAndSet(0,
+				event.getEmbeddedServletContainer().getPort());
+		EurekaDiscoveryClientConfiguration.this.start();
+	}
 
-			@Override
-			public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
-				// TODO: take SSL into account when Spring Boot 1.2 is available
-				EurekaDiscoveryClientConfiguration.this.port.compareAndSet(0, event
-						.getEmbeddedServletContainer().getPort());
-				EurekaDiscoveryClientConfiguration.this.start();
-			}
-		};
+	@EventListener(EnvironmentChangeEvent.class)
+	public void onApplicationEvent(EnvironmentChangeEvent event) {
+		// register in case meta data changed
+		stop();
+		start();
+	}
+
+	@EventListener(ContextClosedEvent.class)
+	public void onApplicationEvent(ContextClosedEvent event) {
+		// register in case meta data changed
+		stop();
+		this.eurekaClient.shutdown();
 	}
 
 	@Configuration
@@ -175,7 +184,8 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 				EurekaInstanceConfig config) {
-			CompositeMetricReader metrics = new CompositeMetricReader(this.metricReaders.toArray(new MetricReader[0]));
+			CompositeMetricReader metrics = new CompositeMetricReader(
+					this.metricReaders.toArray(new MetricReader[0]));
 			return new EurekaHealthIndicator(eurekaClient, metrics, config);
 		}
 	}
@@ -191,7 +201,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		@Bean
 		@ConditionalOnMissingBean(HealthCheckHandler.class)
 		public EurekaHealthCheckHandler eurekaHealthCheckHandler() {
-			return new EurekaHealthCheckHandler(healthAggregator);
+			return new EurekaHealthCheckHandler(this.healthAggregator);
 		}
 	}
 }

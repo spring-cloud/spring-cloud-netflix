@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +24,11 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.builder.ParentContextApplicationContextInitializer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
-import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -57,10 +49,9 @@ import lombok.SneakyThrows;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-@AutoConfigureBefore({NoopDiscoveryClientAutoConfiguration.class, CommonsClientAutoConfiguration.class})
-public class EurekaClientAutoConfiguration implements ApplicationListener<ParentContextApplicationContextInitializer.ParentContextAvailableEvent> {
-
-	private static final ConcurrentMap<String, String> listenerAdded = new ConcurrentHashMap<>();
+@AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
+		CommonsClientAutoConfiguration.class })
+public class EurekaClientAutoConfiguration {
 
 	@Autowired
 	private ApplicationContext context;
@@ -71,10 +62,10 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	@PostConstruct
 	public void init() {
 		DataCenterAwareJacksonCodec.init();
-		XmlXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy());
-		JsonXStream.getInstance().setMarshallingStrategy(
-				new DataCenterAwareMarshallingStrategy());
+		XmlXStream.getInstance()
+				.setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
+		JsonXStream.getInstance()
+				.setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
 	}
 
 	@Bean
@@ -94,13 +85,15 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	@Bean
 	@ConditionalOnMissingBean(EurekaClient.class)
 	@SneakyThrows
-	public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config) {
+	public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager,
+			EurekaClientConfig config) {
 		return new CloudEurekaClient(applicationInfoManager, config, this.context);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(ApplicationInfoManager.class)
-	public ApplicationInfoManager applicationInfoManager(EurekaInstanceConfig config, InstanceInfo instanceInfo) {
+	public ApplicationInfoManager applicationInfoManager(EurekaInstanceConfig config,
+			InstanceInfo instanceInfo) {
 		return new ApplicationInfoManager(config, instanceInfo);
 	}
 
@@ -111,34 +104,9 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	}
 
 	@Bean
-	public DiscoveryClient discoveryClient(EurekaInstanceConfig config, EurekaClient client) {
+	public DiscoveryClient discoveryClient(EurekaInstanceConfig config,
+			EurekaClient client) {
 		return new EurekaDiscoveryClient(config, client);
 	}
 
-	/**
-	 * propagate HeartbeatEvent from parent to child. Do it via a
-	 * ParentHeartbeatEvent since events get published to the parent context,
-	 * otherwise results in a stack overflow
-	 * @param event
-	 */
-	@Override
-	public void onApplicationEvent(final ParentContextApplicationContextInitializer.ParentContextAvailableEvent event) {
-		final ConfigurableApplicationContext context = event.getApplicationContext();
-		String childId = context.getId();
-		ApplicationContext parent = context.getParent();
-		if (parent != null && "bootstrap".equals(parent.getId())
-				&& parent instanceof ConfigurableApplicationContext) {
-			if (listenerAdded.putIfAbsent(childId, childId) == null) {
-				@SuppressWarnings("resource")
-				ConfigurableApplicationContext ctx = (ConfigurableApplicationContext) parent;
-				ctx.addApplicationListener(new ApplicationListener<HeartbeatEvent>() {
-					@Override
-					public void onApplicationEvent(HeartbeatEvent dhe) {
-						context.publishEvent(new ParentHeartbeatEvent(dhe
-								.getSource(), dhe.getValue()));
-					}
-				});
-			}
-		}
-	}
 }
