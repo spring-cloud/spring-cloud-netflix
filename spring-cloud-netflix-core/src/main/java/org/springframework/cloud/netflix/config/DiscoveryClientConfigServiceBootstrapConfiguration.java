@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.config;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -35,6 +33,8 @@ import org.springframework.context.event.SmartApplicationListener;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -89,8 +89,8 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 
 	private void refresh() {
 		try {
-			log.info("Locating configserver via discovery");
-			InstanceInfo server = eurekaClient
+			log.debug("Locating configserver via discovery");
+			InstanceInfo server = this.eurekaClient
 					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(),
 							false);
 			String url = server.getHomePageUrl();

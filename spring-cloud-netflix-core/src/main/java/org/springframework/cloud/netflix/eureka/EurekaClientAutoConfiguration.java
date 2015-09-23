@@ -21,8 +21,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.PostConstruct;
 
-import lombok.SneakyThrows;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -49,6 +47,8 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
+
+import lombok.SneakyThrows;
 
 /**
  * @author Dave Syer
@@ -94,25 +94,25 @@ public class EurekaClientAutoConfiguration implements ApplicationListener<Parent
 	@Bean
 	@ConditionalOnMissingBean(EurekaClient.class)
 	@SneakyThrows
-	public EurekaClient eurekaClient() {
-		return new CloudEurekaClient(applicationInfoManager(), eurekaClientConfigBean(), this.context);
+	public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config) {
+		return new CloudEurekaClient(applicationInfoManager, config, this.context);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(ApplicationInfoManager.class)
-	public ApplicationInfoManager applicationInfoManager() {
-		return new ApplicationInfoManager(eurekaInstanceConfigBean(), instanceInfo());
+	public ApplicationInfoManager applicationInfoManager(EurekaInstanceConfig config, InstanceInfo instanceInfo) {
+		return new ApplicationInfoManager(config, instanceInfo);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(InstanceInfo.class)
-	public InstanceInfo instanceInfo() {
-		return new InstanceInfoFactory().create(eurekaInstanceConfigBean());
+	public InstanceInfo instanceInfo(EurekaInstanceConfig config) {
+		return new InstanceInfoFactory().create(config);
 	}
 
 	@Bean
-	public DiscoveryClient discoveryClient() {
-		return new EurekaDiscoveryClient();
+	public DiscoveryClient discoveryClient(EurekaInstanceConfig config, EurekaClient client) {
+		return new EurekaDiscoveryClient(config, client);
 	}
 
 	/**

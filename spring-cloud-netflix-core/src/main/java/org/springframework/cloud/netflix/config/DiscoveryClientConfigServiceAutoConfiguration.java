@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.config;
 
 import javax.annotation.PostConstruct;
 
-import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -52,18 +51,16 @@ public class DiscoveryClientConfigServiceAutoConfiguration {
 	@Autowired
 	private EurekaDiscoveryClientConfiguration lifecycle;
 
-	@Autowired
-	private EurekaClient eurekaClient;
-
 	@PostConstruct
 	public void init() {
 		this.lifecycle.stop();
 		rebind(this.clientConfig, "eurekaClientConfig");
 		rebind(this.instanceConfig, "eurekaInstanceConfig");
-		eurekaClient.shutdown();;
+		// Danger, here be dragons (once it shuts down it's hard to resurrect it)
+		// eurekaClient.shutdown();
 		// FIXME: reinit EurekaClient and ApplicationInfoManager
-		//applicationInfoManager.initComponent(this.instanceConfig);
-		//discoveryManager.initComponent(this.instanceConfig, this.clientConfig);
+		// applicationInfoManager.initComponent(this.instanceConfig);
+		// discoveryManager.initComponent(this.instanceConfig, this.clientConfig);
 		this.lifecycle.start();
 	}
 
