@@ -49,11 +49,11 @@ public class DiscoveryClientConfigServiceAutoConfiguration {
 	private ConfigurationPropertiesBindingPostProcessor binder;
 
 	@Autowired
-	private EurekaDiscoveryClientConfiguration lifecycle;
+	private EurekaDiscoveryClientConfiguration clientConfiguration;
 
 	@PostConstruct
 	public void init() {
-		this.lifecycle.stop();
+		this.clientConfiguration.stop();
 		rebind(this.clientConfig, "eurekaClientConfig");
 		rebind(this.instanceConfig, "eurekaInstanceConfig");
 		// Danger, here be dragons (once it shuts down it's hard to resurrect it)
@@ -61,7 +61,7 @@ public class DiscoveryClientConfigServiceAutoConfiguration {
 		// FIXME: reinit EurekaClient and ApplicationInfoManager
 		// applicationInfoManager.initComponent(this.instanceConfig);
 		// discoveryManager.initComponent(this.instanceConfig, this.clientConfig);
-		this.lifecycle.start();
+		this.clientConfiguration.start();
 	}
 
 	private void rebind(Object bean, String name) {
