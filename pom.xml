@@ -168,13 +168,10 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-stream</artifactId>
+				<artifactId>spring-cloud-stream-parent</artifactId>
 				<version>${spring-cloud-stream.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
-				<version>${spring-cloud-stream.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.archaius</groupId>
@@ -390,6 +387,7 @@
 	<modules>
 		<module>spring-cloud-netflix-core</module>
 		<module>spring-cloud-netflix-hystrix-dashboard</module>
+		<module>spring-cloud-netflix-hystrix-amqp</module>
 		<module>spring-cloud-netflix-hystrix-stream</module>
 		<module>spring-cloud-netflix-eureka-server</module>
 		<module>spring-cloud-netflix-turbine</module>
@@ -403,6 +401,7 @@
 		<module>spring-cloud-netflix-metrics</module>
 		<module>spring-cloud-starter-ribbon</module>
 		<module>spring-cloud-starter-turbine</module>
+		<module>spring-cloud-starter-turbine-amqp</module>
 		<module>spring-cloud-starter-turbine-stream</module>
 		<module>spring-cloud-starter-zuul</module>
 		<module>docs</module>
