@@ -158,11 +158,18 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		EurekaDiscoveryClientConfiguration.this.start();
 	}
 
-	@EventListener(EnvironmentChangeEvent.class)
-	public void onApplicationEvent(EnvironmentChangeEvent event) {
-		// register in case meta data changed
-		stop();
-		start();
+	@Configuration
+	@ConditionalOnClass(EnvironmentChangeEvent.class)
+	protected static class EurekaClientConfigurationRefresher {
+		@Autowired
+		private EurekaDiscoveryClientConfiguration clientConfig;
+
+		@EventListener(EnvironmentChangeEvent.class)
+		public void onApplicationEvent(EnvironmentChangeEvent event) {
+			// register in case meta data changed
+			this.clientConfig.stop();
+			this.clientConfig.start();
+		}
 	}
 
 	@EventListener(ContextClosedEvent.class)
