@@ -26,6 +26,7 @@ import lombok.Data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
@@ -90,7 +91,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
-	private Map<String, String> serviceUrl = new HashMap<String, String>();
+	private Map<String, String> serviceUrl = new HashMap<>();
 	{
 		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
 	}
@@ -122,6 +123,12 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	private boolean allowRedirects = false;
 
 	private boolean onDemandUpdateStatusChange = true;
+
+	private String encoderName;
+
+	private String decoderName;
+
+	private String clientDataAccept = EurekaAccept.full.name();
 
 	@Override
 	public boolean shouldGZipContent() {
@@ -199,4 +206,5 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	public boolean shouldOnDemandUpdateStatusChange() {
 		return this.onDemandUpdateStatusChange;
 	}
+
 }
