@@ -22,8 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -52,8 +50,6 @@ import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-import com.netflix.discovery.converters.JsonXStream;
-import com.netflix.discovery.converters.XmlXStream;
 
 import lombok.SneakyThrows;
 
@@ -71,15 +67,6 @@ public class EurekaClientAutoConfiguration {
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
-
-	@PostConstruct
-	public void init() {
-		DataCenterAwareJacksonCodec.init();
-		XmlXStream.getInstance()
-				.setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
-		JsonXStream.getInstance()
-				.setMarshallingStrategy(new DataCenterAwareMarshallingStrategy());
-	}
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)

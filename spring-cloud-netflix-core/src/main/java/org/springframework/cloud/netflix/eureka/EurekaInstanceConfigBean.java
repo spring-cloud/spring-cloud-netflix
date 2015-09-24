@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.netflix.appinfo.MyDataCenterInfo;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -38,7 +39,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
@@ -76,13 +76,15 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Value("${spring.application.name:unknown}")
 	private String virtualHostName;
 
+    private String sid;
+
 	private String secureVirtualHostName;
 
 	private String aSGName;
 
 	private Map<String, String> metadataMap = new HashMap<>();
 
-	private DataCenterInfo dataCenterInfo = new IdentifyingDataCenterInfo();
+	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(DataCenterInfo.Name.MyOwn);
 
 	private String ipAddress = this.hostInfo.ipAddress;
 
@@ -112,7 +114,15 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		return getHostName(false);
 	}
 
-	@Override
+    @Override
+    public String getSID() {
+		if (this.sid == null && this.metadataMap != null) {
+			return this.metadataMap.get("instanceId");
+		}
+        return sid;
+    }
+
+    @Override
 	public boolean getSecurePortEnabled() {
 		return this.securePortEnabled;
 	}
@@ -173,26 +183,4 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		private String ipAddress;
 		private String hostname;
 	}
-
-	private final class IdentifyingDataCenterInfo implements DataCenterInfo,
-	UniqueIdentifier {
-
-		@Getter
-		@Setter
-		private Name name = Name.MyOwn;
-
-		@Override
-		public String getId() {
-			String instanceId = EurekaInstanceConfigBean.this.metadataMap
-					.get("instanceId");
-			if (instanceId != null) {
-				String old = getHostname();
-				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
-				return id;
-			}
-			return getHostname();
-		}
-
-	}
-
 }
