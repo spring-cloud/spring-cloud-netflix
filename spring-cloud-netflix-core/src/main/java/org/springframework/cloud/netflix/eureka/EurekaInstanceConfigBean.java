@@ -29,8 +29,8 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
 import lombok.SneakyThrows;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,7 +76,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Value("${spring.application.name:unknown}")
 	private String virtualHostName;
 
-    private String sid;
+	private String instanceId;
 
 	private String secureVirtualHostName;
 
@@ -113,11 +113,6 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	public String getHostname() {
 		return getHostName(false);
 	}
-
-    @Override
-    public String getSID() {
-        return sid;
-    }
 
     @Override
 	public boolean getSecurePortEnabled() {

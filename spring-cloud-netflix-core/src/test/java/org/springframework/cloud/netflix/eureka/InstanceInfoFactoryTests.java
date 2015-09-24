@@ -27,8 +27,8 @@ public class InstanceInfoFactoryTests {
     }
 
     @Test
-    public void instanceIdIsSidWhenSet() {
-        assertEquals("special", setupInstance("eureka.instance.sid:special").getId());
+    public void instanceIdCanBeOverridden() {
+        assertEquals("special", setupInstance("eureka.instance.instanceId:special").getId());
     }
 
     private InstanceInfo setupInstance(String... pairs) {

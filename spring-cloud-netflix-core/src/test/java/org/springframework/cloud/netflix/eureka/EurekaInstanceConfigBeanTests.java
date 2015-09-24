@@ -67,11 +67,11 @@ public class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	public void sid() {
-		addEnvironment(this.context, "eureka.instance.sid:special");
+	public void instanceId() {
+		addEnvironment(this.context, "eureka.instance.instanceId:special");
 		setupContext();
 		EurekaInstanceConfigBean instance = getInstanceConfig();
-		assertEquals("special", instance.getSID());
+		assertEquals("special", instance.getInstanceId());
 	}
 
 	@Test
