@@ -21,12 +21,11 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBindingPostProcessor;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.EurekaClient;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -36,36 +35,23 @@ import com.netflix.discovery.EurekaClientConfig;
  */
 @ConditionalOnBean({ EurekaDiscoveryClientConfiguration.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
-@Configuration
+@Configuration(value = "DiscoveryClientConfigServiceAutoConfiguration")
 public class DiscoveryClientConfigServiceAutoConfiguration {
 
 	@Autowired
-	private EurekaClientConfig clientConfig;
-
-	@Autowired
-	private EurekaInstanceConfig instanceConfig;
-
-	@Autowired
-	private ConfigurationPropertiesBindingPostProcessor binder;
-
-	@Autowired
-	private EurekaDiscoveryClientConfiguration clientConfiguration;
+	private ConfigurableApplicationContext context;
 
 	@PostConstruct
 	public void init() {
-		this.clientConfiguration.stop();
-		rebind(this.clientConfig, "eurekaClientConfig");
-		rebind(this.instanceConfig, "eurekaInstanceConfig");
-		// Danger, here be dragons (once it shuts down it's hard to resurrect it)
-		// eurekaClient.shutdown();
-		// FIXME: reinit EurekaClient and ApplicationInfoManager
-		// applicationInfoManager.initComponent(this.instanceConfig);
-		// discoveryManager.initComponent(this.instanceConfig, this.clientConfig);
-		this.clientConfiguration.start();
-	}
-
-	private void rebind(Object bean, String name) {
-		this.binder.postProcessBeforeInitialization(bean, name);
+		if (this.context.getParent() != null) {
+			if (this.context.getBeanNamesForType(EurekaClient.class).length > 0
+					&& this.context.getParent()
+							.getBeanNamesForType(EurekaClient.class).length > 0) {
+				// If the parent has a EurekaClient as well it should be shutdown, so the
+				// local one can register accurate instance info
+				this.context.getParent().getBean(EurekaClient.class).shutdown();
+			}
+		}
 	}
 
 }
