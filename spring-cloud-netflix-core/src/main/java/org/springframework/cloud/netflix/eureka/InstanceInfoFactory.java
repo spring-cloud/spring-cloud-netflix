@@ -42,6 +42,7 @@ public class InstanceInfoFactory {
 
 		builder.setNamespace(config.getNamespace())
 				.setAppName(config.getAppname())
+				.setInstanceId(config.getInstanceId())
 				.setAppGroupName(config.getAppGroupName())
 				.setDataCenterInfo(config.getDataCenterInfo())
 				.setIPAddr(config.getIpAddress())

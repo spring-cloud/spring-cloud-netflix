@@ -16,16 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import lombok.Data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
@@ -123,6 +120,12 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private boolean onDemandUpdateStatusChange = true;
 
+	private String encoderName;
+
+	private String decoderName;
+
+	private String clientDataAccept = EurekaAccept.full.name();
+
 	@Override
 	public boolean shouldGZipContent() {
 		return this.gZipContent;
@@ -198,5 +201,20 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	@Override
 	public boolean shouldOnDemandUpdateStatusChange() {
 		return this.onDemandUpdateStatusChange;
+	}
+
+	@Override
+	public String getEncoderName() {
+		return encoderName;
+	}
+
+	@Override
+	public String getDecoderName() {
+		return decoderName;
+	}
+
+	@Override
+	public String getClientDataAccept() {
+		return clientDataAccept;
 	}
 }

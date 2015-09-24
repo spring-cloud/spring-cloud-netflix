@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.Test;
@@ -28,8 +29,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.eureka.server.ApplicationTests.Application;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -66,10 +66,14 @@ public class ApplicationTests {
 
 	@Test
 	public void adminLoads() {
-		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/env", Map.class);
-		assertEquals(HttpStatus.OK, entity.getStatusCode());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        @SuppressWarnings("rawtypes")
+        ResponseEntity<Map> entity = new TestRestTemplate().exchange(
+                "http://localhost:" + this.port + "/env", HttpMethod.GET,
+                new HttpEntity<>("parameters", headers), Map.class);
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
 	@Test
@@ -82,5 +86,4 @@ public class ApplicationTests {
 		assertNotNull(body);
 		assertFalse("basePath contains double slashes", body.contains(basePath + "/"));
 	}
-
 }
