@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,8 +43,7 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Before
 	public void init() {
-		this.hostName = EurekaInstanceConfigBean.getFirstNonLoopbackAddress()
-				.getHostName();
+		this.hostName = getFirstNonLoopbackHostInfo().getHostname();
 	}
 
 	@After

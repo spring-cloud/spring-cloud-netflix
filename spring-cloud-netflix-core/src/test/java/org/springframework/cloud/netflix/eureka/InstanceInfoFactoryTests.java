@@ -3,6 +3,7 @@ package org.springframework.cloud.netflix.eureka;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
 
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
@@ -17,19 +18,22 @@ public class InstanceInfoFactoryTests {
 
 	@Test
 	public void instanceIdIsHostNameByDefault() {
-		assertEquals(EurekaInstanceConfigBean.getFirstNonLoopbackAddress().getHostName(),
-				setupInstance().getId());
+		InstanceInfo instanceInfo = setupInstance();
+		assertEquals(getFirstNonLoopbackHostInfo().getHostname(),
+				instanceInfo.getId());
 	}
 
 	@Test
 	public void instanceIdIsIpWhenIpPreferred() throws Exception {
-		assertTrue(setupInstance("eureka.instance.preferIpAddress:true").getId().matches(
+		InstanceInfo instanceInfo = setupInstance("eureka.instance.preferIpAddress:true");
+		assertTrue(instanceInfo.getId().matches(
 				"(\\d+\\.){3}\\d+"));
 	}
 
 	@Test
 	public void instanceIdIsSidWhenSet() {
-		assertEquals("special", setupInstance("eureka.instance.sid:special").getId());
+		InstanceInfo instanceInfo = setupInstance("eureka.instance.sid:special");
+		assertEquals("special", instanceInfo.getId());
 	}
 
 	private InstanceInfo setupInstance(String... pairs) {

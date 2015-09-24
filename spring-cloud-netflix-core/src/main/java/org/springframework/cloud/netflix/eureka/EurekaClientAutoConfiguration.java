@@ -16,11 +16,15 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import static org.springframework.cloud.util.IdUtils.getDefaultInstanceId;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import lombok.SneakyThrows;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,14 +48,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-
-import lombok.SneakyThrows;
 
 /**
  * @author Dave Syer
@@ -68,6 +71,9 @@ public class EurekaClientAutoConfiguration {
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
 
+	@Autowired
+	ConfigurableEnvironment env;
+
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaClientConfigBean eurekaClientConfigBean() {
@@ -79,6 +85,7 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
 		instance.setNonSecurePort(this.nonSecurePort);
+		instance.setSid(getDefaultInstanceId(env));
 		return instance;
 	}
 

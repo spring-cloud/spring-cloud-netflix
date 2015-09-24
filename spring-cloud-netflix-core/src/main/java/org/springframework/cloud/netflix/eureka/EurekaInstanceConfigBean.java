@@ -16,29 +16,26 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
+import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netflix.appinfo.MyDataCenterInfo;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import lombok.SneakyThrows;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.util.InetUtils.HostInfo;
 
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.MyDataCenterInfo;
 
 /**
  * @author Dave Syer
@@ -52,7 +49,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	@Getter(AccessLevel.PRIVATE)
 	@Setter(AccessLevel.PRIVATE)
-	private HostInfo hostInfo = initHostInfo();
+	private HostInfo hostInfo = getFirstNonLoopbackHostInfo();
 
 	@Value("${spring.application.name:unknown}")
 	private String appname = "unknown";
@@ -86,7 +83,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(DataCenterInfo.Name.MyOwn);
 
-	private String ipAddress = this.hostInfo.ipAddress;
+	private String ipAddress = this.hostInfo.getIpAddress();
 
 	private String statusPageUrlPath = "/info";
 
@@ -104,7 +101,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private String namespace = "eureka";
 
-	private String hostname = this.hostInfo.hostname;
+	private String hostname = this.hostInfo.getHostname();
 
 	private boolean preferIpAddress = false;
 
@@ -127,40 +124,6 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 		return this.securePortEnabled;
 	}
 
-	private HostInfo initHostInfo() {
-		this.hostInfo = this.hostInfo == null ? new HostInfo() : this.hostInfo;
-
-		InetAddress address = getFirstNonLoopbackAddress();
-		this.hostInfo.ipAddress = address.getHostAddress();
-		this.hostInfo.hostname = address.getHostName();
-
-		return this.hostInfo;
-	}
-
-	//TODO: move this method to s-c-commons
-	@SneakyThrows
-	static InetAddress getFirstNonLoopbackAddress() {
-		try {
-			for (Enumeration<NetworkInterface> enumNic = NetworkInterface.getNetworkInterfaces();
-				 enumNic.hasMoreElements(); ) {
-				NetworkInterface ifc = enumNic.nextElement();
-				if (ifc.isUp()) {
-					for (Enumeration<InetAddress> enumAddr = ifc.getInetAddresses();
-						 enumAddr.hasMoreElements(); ) {
-						InetAddress address = enumAddr.nextElement();
-						if (address instanceof Inet4Address && !address.isLoopbackAddress()) {
-							return address;
-						}
-					}
-				}
-			}
-		}
-		catch (IOException ex) {
-			logger.error("Cannot get host info", ex);
-		}
-		return InetAddress.getLocalHost();
-	}
-
 	public void setHostname(String hostname) {
 		this.hostname = hostname;
 		this.hostInfo.override = true;
@@ -169,18 +132,14 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Override
 	public String getHostName(boolean refresh) {
 		if (refresh) {
-			this.hostInfo = initHostInfo();
-			this.ipAddress = this.hostInfo.ipAddress;
+			boolean originalOverride = this.hostInfo.override;
+			this.hostInfo = getFirstNonLoopbackHostInfo();
+			this.hostInfo.setOverride(originalOverride);
+			this.ipAddress = this.hostInfo.getIpAddress();
 			if (!this.hostInfo.override) {
-				this.hostname = this.hostInfo.hostname;
+				this.hostname = this.hostInfo.getHostname();
 			}
 		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
-	}
-
-	private final class HostInfo {
-		public boolean override;
-		private String ipAddress;
-		private String hostname;
 	}
 }
