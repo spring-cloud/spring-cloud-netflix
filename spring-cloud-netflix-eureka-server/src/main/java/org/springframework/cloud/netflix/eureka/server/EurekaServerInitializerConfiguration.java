@@ -58,6 +58,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.blitz4j.DefaultBlitz4jConfig;
 import com.netflix.blitz4j.LoggingConfiguration;
+import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.eureka.AbstractInstanceRegistry;
@@ -72,8 +73,8 @@ import com.netflix.eureka.PeerAwareInstanceRegistryImpl;
  */
 @Configuration
 @EnableConfigurationProperties(EurekaServerConfigBean.class)
-public class EurekaServerInitializerConfiguration implements ServletContextAware,
-		SmartLifecycle, Ordered {
+public class EurekaServerInitializerConfiguration
+		implements ServletContextAware, SmartLifecycle, Ordered {
 
 	private static Log logger = LogFactory
 			.getLog(EurekaServerInitializerConfiguration.class);
@@ -98,7 +99,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 	@PostConstruct
 	public void initLogging() {
 
-		if (!(LoggingSystem.get(ClassUtils.getDefaultClassLoader()) instanceof Log4JLoggingSystem)) {
+		if (!(LoggingSystem
+				.get(ClassUtils.getDefaultClassLoader()) instanceof Log4JLoggingSystem)) {
 
 			LoggingConfiguration off = new LoggingConfiguration() {
 				@Override
@@ -139,7 +141,7 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 									System.setProperty("log4j.configuration",
 											new ClassPathResource("log4j.properties",
 													Log4JLoggingSystem.class).getURL()
-													.toString());
+															.toString());
 								}
 							}
 							catch (IOException ex) {
@@ -206,11 +208,11 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 	@Configuration
 	@ConditionalOnClass(PeerAwareInstanceRegistry.class)
-	protected static class RegistryInstanceProxyInitializer implements
-			ApplicationListener<EurekaRegistryAvailableEvent> {
+	protected static class RegistryInstanceProxyInitializer
+			implements ApplicationListener<EurekaRegistryAvailableEvent> {
 
-		@Autowired
-		private ApplicationContext applicationContext;
+		@Autowired(required = false)
+		private EurekaClient client;
 
 		private PeerAwareInstanceRegistryImpl instance;
 
@@ -221,6 +223,9 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 
 		@Override
 		public void onApplicationEvent(EurekaRegistryAvailableEvent event) {
+			if (this.client != null) {
+				this.client.getApplications(); // force initialization
+			}
 			if (this.instance == null) {
 				this.instance = PeerAwareInstanceRegistryImpl.getInstance();
 				safeInit();
@@ -230,8 +235,8 @@ public class EurekaServerInitializerConfiguration implements ServletContextAware
 		}
 
 		private void safeInit() {
-			Method method = ReflectionUtils
-					.findMethod(AbstractInstanceRegistry.class, "postInit");
+			Method method = ReflectionUtils.findMethod(AbstractInstanceRegistry.class,
+					"postInit");
 			ReflectionUtils.makeAccessible(method);
 			ReflectionUtils.invokeMethod(method, this.instance);
 		}

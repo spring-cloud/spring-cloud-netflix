@@ -35,7 +35,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
-import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -98,6 +98,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
 
+			this.eurekaClient.getApplications(); // force initialization
 			log.info("Registering application " + this.instanceConfig.getAppname()
 					+ " with eureka with status "
 					+ this.instanceConfig.getInitialStatus());
@@ -159,13 +160,13 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	}
 
 	@Configuration
-	@ConditionalOnClass(EnvironmentChangeEvent.class)
+	@ConditionalOnClass(RefreshScopeRefreshedEvent.class)
 	protected static class EurekaClientConfigurationRefresher {
 		@Autowired
 		private EurekaDiscoveryClientConfiguration clientConfig;
 
-		@EventListener(EnvironmentChangeEvent.class)
-		public void onApplicationEvent(EnvironmentChangeEvent event) {
+		@EventListener(RefreshScopeRefreshedEvent.class)
+		public void onApplicationEvent(RefreshScopeRefreshedEvent event) {
 			// register in case meta data changed
 			this.clientConfig.stop();
 			this.clientConfig.start();
