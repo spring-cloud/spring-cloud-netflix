@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
@@ -54,14 +53,6 @@ public class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	public void idFromInstanceId() throws Exception {
-		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
-		instance.getMetadataMap().put("instanceId", "foo");
-		instance.setHostname("bar");
-		assertEquals("bar:foo", ((UniqueIdentifier) instance.getDataCenterInfo()).getId());
-	}
-
-	@Test
 	public void basicBinding() {
 		addEnvironment(this.context, "eureka.instance.appGroupName=mygroup");
 		setupContext();
@@ -73,6 +64,14 @@ public class EurekaInstanceConfigBeanTests {
 		addEnvironment(this.context, "eureka.instance.nonSecurePort:8888");
 		setupContext();
 		assertEquals(8888, getInstanceConfig().getNonSecurePort());
+	}
+
+	@Test
+	public void sid() {
+		addEnvironment(this.context, "eureka.instance.sid:special");
+		setupContext();
+		EurekaInstanceConfigBean instance = getInstanceConfig();
+		assertEquals("special", instance.getSID());
 	}
 
 	@Test
@@ -110,7 +109,7 @@ public class EurekaInstanceConfigBeanTests {
 	public void testDefaultInitialStatus() {
 		setupContext();
 		assertEquals("initialStatus wrong", InstanceStatus.UP, getInstanceConfig()
-				.getInitialStatus());
+                .getInitialStatus());
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -124,7 +123,7 @@ public class EurekaInstanceConfigBeanTests {
 		addEnvironment(this.context, "eureka.instance.initial-status:STARTING");
 		setupContext();
 		assertEquals("initialStatus wrong", InstanceStatus.STARTING, getInstanceConfig()
-				.getInitialStatus());
+                .getInitialStatus());
 	}
 
 	@Test
@@ -133,34 +132,24 @@ public class EurekaInstanceConfigBeanTests {
 		setupContext();
 		EurekaInstanceConfigBean instance = getInstanceConfig();
 		assertTrue("Wrong hostname: " + instance.getHostname(), getInstanceConfig()
-				.getHostname().equals(instance.getIpAddress()));
-
-	}
-
-	@Test
-	public void testPreferIpAddressInDatacenter() throws Exception {
-		addEnvironment(this.context, "eureka.instance.preferIpAddress:true");
-		setupContext();
-		EurekaInstanceConfigBean instance = getInstanceConfig();
-		String id = ((UniqueIdentifier) instance.getDataCenterInfo()).getId();
-		assertTrue("Wrong hostname: " + id, id.equals(instance.getIpAddress()));
+                .getHostname().equals(instance.getIpAddress()));
 
 	}
 
 	private void setupContext() {
-		this.context.register(PropertyPlaceholderAutoConfiguration.class,
-				TestConfiguration.class);
-		this.context.refresh();
-	}
+        this.context.register(PropertyPlaceholderAutoConfiguration.class,
+                TestConfiguration.class);
+        this.context.refresh();
+    }
 
-	private EurekaInstanceConfigBean getInstanceConfig() {
-		return this.context.getBean(EurekaInstanceConfigBean.class);
-	}
+    private EurekaInstanceConfigBean getInstanceConfig() {
+        return this.context.getBean(EurekaInstanceConfigBean.class);
+    }
 
-	@Configuration
-	@EnableConfigurationProperties(EurekaInstanceConfigBean.class)
-	protected static class TestConfiguration {
+    @Configuration
+    @EnableConfigurationProperties(EurekaInstanceConfigBean.class)
+    protected static class TestConfiguration {
 
-	}
+    }
 
 }
