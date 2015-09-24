@@ -91,6 +91,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		this.context.setParent(parent);
 		this.context.register(DiscoveryClientConfigServiceAutoConfiguration.class);
 		this.context.refresh();
+		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
 	}
 
 	@Configuration

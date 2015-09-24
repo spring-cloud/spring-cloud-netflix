@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.config;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,6 +25,7 @@ import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -36,6 +35,8 @@ import org.springframework.context.event.SmartApplicationListener;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -57,9 +58,12 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	@Autowired
 	private ConfigClientProperties config;
 
+	@Autowired
+	private ApplicationContext context;
+
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof ContextRefreshedEvent) {
+		if (event instanceof ContextRefreshedEvent && ((ContextRefreshedEvent) event).getApplicationContext()==context) {
 			refresh();
 		}
 		else if (event instanceof HeartbeatEvent) {
