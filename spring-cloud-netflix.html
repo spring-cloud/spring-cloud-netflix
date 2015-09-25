@@ -530,6 +530,21 @@ application, so it&#8217;s helpful if they are accurate.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_registering_a_secure_application">Registering a Secure Application</h3>
+<div class="paragraph">
+<p>If your app wants to be contacted over HTTPS you can set two flags in
+the <code>EurekaInstanceConfig</code>, <em>viz</em>
+<code>eureka.instance.[nonSecurePortEnabled,securePortEnabled]=[false,true]</code>
+respectively. This will make Eureka publish instance information
+showing an explicit preference for secure communication. The Spring
+Cloud <code>DiscoveryClient</code> will always return an <code><a href="https://&#8230;&#8203" class="bare">https://&#8230;&#8203</a>;</code> URI for a
+service configured this way, and the Eureka (native) instance
+information will have a secure health check URL. Because of the way
+Eureka works internally, it will still publish a non-secure URL for
+status and home page unless you also override those explicitly.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_eureka_s_health_checks">Eureka&#8217;s Health Checks</h3>
 <div class="paragraph">
 <p>By default, Eureka uses the client heartbeat to determine if a client is up.
@@ -1806,7 +1821,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-25 04:23:51 UTC
+Last updated 2015-09-25 12:41:04 UTC
 </div>
 </div>
 </body>
