@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +23,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.config.ChannelBindingProperties;
+import org.springframework.cloud.stream.config.BindingProperties;
+import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -58,22 +56,21 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 public class HystrixStreamAutoConfiguration {
 
 	@Autowired
-	private ChannelBindingProperties bindings;
+	private ChannelBindingServiceProperties bindings;
 
 	@Autowired
 	private HystrixStreamProperties properties;
 
 	@PostConstruct
 	public void init() {
-		Object outputBinding = this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
-		if (outputBinding == null || outputBinding instanceof String) {
+		BindingProperties outputBinding = this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
+		if (outputBinding == null) {
 			this.bindings.getBindings().put(HystrixStreamClient.OUTPUT,
-					new HashMap<String, Object>());
+					new BindingProperties());
 		}
-		@SuppressWarnings("unchecked")
-		Map<String, Object> output = (Map<String, Object>) this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
-		if (!output.containsKey("destination") || HystrixStreamClient.OUTPUT.equals(outputBinding)) {
-			output.put("destination", this.properties.getDestination());
+		BindingProperties output = this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
+		if (output.getDestination() == null) {
+			output.setDestination(this.properties.getDestination());
 		}
 	}
 
