@@ -95,6 +95,19 @@ These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it's helpful if they are accurate.
 
+=== Registering a Secure Application
+
+If your app wants to be contacted over HTTPS you can set two flags in
+the `EurekaInstanceConfig`, _viz_
+`eureka.instance.[nonSecurePortEnabled,securePortEnabled]=[false,true]`
+respectively. This will make Eureka publish instance information
+showing an explicit preference for secure communication. The Spring
+Cloud `DiscoveryClient` will always return an `https://...` URI for a
+service configured this way, and the Eureka (native) instance
+information will have a secure health check URL. Because of the way
+Eureka works internally, it will still publish a non-secure URL for
+status and home page unless you also override those explicitly.
+
 === Eureka's Health Checks
 
 By default, Eureka uses the client heartbeat to determine if a client is up.

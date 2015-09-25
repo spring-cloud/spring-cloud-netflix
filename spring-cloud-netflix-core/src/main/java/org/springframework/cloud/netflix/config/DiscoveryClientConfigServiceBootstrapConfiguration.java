@@ -16,9 +16,13 @@
 
 package org.springframework.cloud.netflix.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
@@ -49,6 +53,9 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration {
 	private ConfigClientProperties config;
 
 	@Autowired
+	private DiscoveryClient client;
+
+	@Autowired
 	private EurekaClient eurekaClient;
 
 	@EventListener(ContextRefreshedEvent.class)
@@ -63,7 +70,7 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration {
 			log.debug("Locating configserver via discovery");
 			InstanceInfo server = this.eurekaClient.getNextServerFromEureka(
 					this.config.getDiscovery().getServiceId(), false);
-			String url = server.getHomePageUrl();
+			String url = getHomePage(server);
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");
 				user = user == null ? "user" : user;
@@ -83,6 +90,15 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration {
 		catch (Exception ex) {
 			log.warn("Could not locate configserver via discovery", ex);
 		}
+	}
+
+	private String getHomePage(InstanceInfo server) {
+		List<ServiceInstance> instances = this.client
+				.getInstances(this.config.getDiscovery().getServiceId());
+		if (instances == null || instances.isEmpty()) {
+			return server.getHomePageUrl();
+		}
+		return instances.get(0).getUri().toString() + "/";
 	}
 
 }
