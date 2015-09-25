@@ -51,7 +51,7 @@
                     </#if>
                     <#list instanceInfo.instances as instance>
                       <#if instance.isHref>
-                        <a href="${instance.url}">${instance.id}</a>
+                        <a href="${instance.url}" target="_blank">${instance.id}</a>
                       <#else>
                         ${instance.id}
                       </#if><#if instance_has_next>,</#if>
