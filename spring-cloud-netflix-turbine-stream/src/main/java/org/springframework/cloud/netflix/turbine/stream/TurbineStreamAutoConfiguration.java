@@ -16,16 +16,14 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.config.ChannelBindingProperties;
+import org.springframework.cloud.stream.config.BindingProperties;
+import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,22 +52,21 @@ import org.springframework.context.annotation.Configuration;
 public class TurbineStreamAutoConfiguration {
 
 	@Autowired
-	private ChannelBindingProperties bindings;
+	private ChannelBindingServiceProperties bindings;
 
 	@Autowired
 	private TurbineStreamProperties properties;
 
 	@PostConstruct
 	public void init() {
-		Object inputBinding = this.bindings.getBindings().get(TurbineStreamClient.INPUT);
-		if (inputBinding == null || inputBinding instanceof String) {
+		BindingProperties inputBinding = this.bindings.getBindings().get(TurbineStreamClient.INPUT);
+		if (inputBinding == null) {
 			this.bindings.getBindings().put(TurbineStreamClient.INPUT,
-					new HashMap<String, Object>());
+					new BindingProperties());
 		}
-		@SuppressWarnings("unchecked")
-		Map<String, Object> input = (Map<String, Object>) this.bindings.getBindings().get(TurbineStreamClient.INPUT);
-		if (!input.containsKey("destination") || TurbineStreamClient.INPUT.equals(inputBinding)) {
-			input.put("destination", properties.getDestination());
+		BindingProperties input = this.bindings.getBindings().get(TurbineStreamClient.INPUT);
+		if (input.getDestination() == null) {
+			input.setDestination(properties.getDestination());
 		}
 	}
 
