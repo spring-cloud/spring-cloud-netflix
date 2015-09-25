@@ -32,6 +32,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaServerConfigBean;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +67,11 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
+
+	@Bean
+	public HasFeatures eurekaServerFeature() {
+		return HasFeatures.namedFeature("Eureka Server", EurekaServerConfiguration.class);
+	}
 
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)

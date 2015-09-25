@@ -19,11 +19,13 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.ribbon.Ribbon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
@@ -50,6 +52,11 @@ public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
+
+	@Bean
+	public HasFeatures ribbonFeature() {
+		return HasFeatures.namedFeature("Ribbon", Ribbon.class);
+	}
 
 	@Bean
 	public SpringClientFactory springClientFactory() {

@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -63,6 +64,11 @@ public class HystrixDashboardConfiguration {
 
 	@Autowired
 	private HystrixDashboardProperties dashboardProperties;
+
+	@Bean
+	public HasFeatures hystrixDashboardFeature() {
+		return HasFeatures.namedFeature("Hystrix Dashboard", HystrixDashboardConfiguration.class);
+	}
 
 	/**
 	 * Overrides Spring Boot's {@link FreeMarkerAutoConfiguration} to prefer using a

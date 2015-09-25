@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.config.BindingProperties;
 import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
@@ -60,6 +61,11 @@ public class HystrixStreamAutoConfiguration {
 
 	@Autowired
 	private HystrixStreamProperties properties;
+
+	@Bean
+	public HasFeatures hystrixStreamQueueFeature() {
+		return HasFeatures.namedFeature("Hystrix Stream (Queue)", HystrixStreamAutoConfiguration.class);
+	}
 
 	@PostConstruct
 	public void init() {

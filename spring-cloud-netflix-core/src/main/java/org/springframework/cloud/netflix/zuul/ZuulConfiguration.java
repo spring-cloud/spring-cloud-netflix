@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
@@ -57,6 +58,11 @@ public class ZuulConfiguration {
 
 	@Autowired(required = false)
 	private ErrorController errorController;
+
+	@Bean
+	public HasFeatures zuulFeature() {
+		return HasFeatures.namedFeature("Zuul (Simple)", ZuulConfiguration.class);
+	}
 
 	@Bean
 	public RouteLocator routeLocator() {

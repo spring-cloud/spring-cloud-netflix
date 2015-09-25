@@ -20,6 +20,7 @@ import com.netflix.discovery.EurekaClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +42,11 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
 
 	@Autowired
 	private EurekaClient eurekaClient;
+
+	@Bean
+	public HasFeatures Feature() {
+		return HasFeatures.namedFeature("Turbine (HTTP)", TurbineConfiguration.class);
+	}
 
 	@Bean
 	public ServletRegistrationBean turbineStreamServlet() {
