@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.config;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,6 +30,7 @@ import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.PortType;
 import com.netflix.discovery.EurekaClient;
 
 /**
@@ -73,6 +76,23 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
+	}
+
+	@Test
+	public void secureWhenRequested() throws Exception {
+		this.info = InstanceInfo.Builder.newBuilder().setAppName("app").setHostName("foo")
+				.setHomePageUrl("/", null).enablePort(PortType.SECURE, true).setSecurePort(443).build();
+		given(this.client.getNextServerFromEureka("CONFIGSERVER", false))
+				.willReturn(this.info);
+		given(this.client.getInstancesByVipAddress("CONFIGSERVER", false))
+				.willReturn(Arrays.asList(this.info));
+		setup("spring.cloud.config.discovery.enabled=true");
+		assertEquals(1, this.context.getBeanNamesForType(
+				DiscoveryClientConfigServiceBootstrapConfiguration.class).length);
+		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
+		ConfigClientProperties locator = this.context
+				.getBean(ConfigClientProperties.class);
+		assertEquals("https://foo:443/", locator.getRawUri());
 	}
 
 	@Test
