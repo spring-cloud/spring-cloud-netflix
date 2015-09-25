@@ -563,7 +563,7 @@ implementing your own <code>com.netflix.appinfo.HealthCheckHandler</code>.</p>
 <div class="sect3">
 <h4 id="_using_eureka_on_cloudfoundry">Using Eureka on Cloudfoundry</h4>
 <div class="paragraph">
-<p>Cloudfoundry has a global router so that all instances of the same app have the same hostname (it&#8217;s the same in other PaaS solutions with a similar architecture). This isn&#8217;t necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). For example:</p>
+<p>Cloudfoundry has a global router so that all instances of the same app have the same hostname (it&#8217;s the same in other PaaS solutions with a similar architecture). This isn&#8217;t necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). By default, the <code>eureka.instance.instanceId</code> is <code>vcap.application.instance_id</code>. For example:</p>
 </div>
 <div class="listingblock">
 <div class="title">application.yml</div>
@@ -571,9 +571,7 @@ implementing your own <code>com.netflix.appinfo.HealthCheckHandler</code>.</p>
 <pre>eureka:
   instance:
     hostname: ${vcap.application.uris[0]}
-    nonSecurePort: 80
-    metadataMap:
-      instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}</pre>
+    nonSecurePort: 80</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -599,17 +597,19 @@ public EurekaInstanceConfigBean eurekaInstanceConfig() {
 </div>
 </div>
 <div class="sect3">
-<h4 id="_making_the_eureka_instance_id_unique">Making the Eureka Instance ID Unique</h4>
+<h4 id="_changing_the_eureka_instance_id">Changing the Eureka Instance ID</h4>
 <div class="paragraph">
-<p>By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in <code>eureka.instance.metadataMap.instanceId</code>. For example:</p>
+<p>A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Spring Cloud Eureka provides a sensible default that looks like this: <code>${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}}</code>. For example <code>myhost:myappname:8080</code>.</p>
+</div>
+<div class="paragraph">
+<p>Using Spring Cloud you can override this by providing a unique identifier in <code>eureka.instance.instanceId</code>. For example:</p>
 </div>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
 <pre>eureka:
   instance:
-    metadataMap:
-      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}</pre>
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1806,7 +1806,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-24 23:20:54 UTC
+Last updated 2015-09-25 04:23:51 UTC
 </div>
 </div>
 </body>
