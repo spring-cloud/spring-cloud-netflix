@@ -146,19 +146,29 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 		Boolean status = parseInstanceStatus(instanceInfo.getStatus());
 		if (hostname != null && cluster != null && status != null) {
 			Instance instance = new Instance(hostname, cluster, status);
+
+			// add metadata
 			Map<String, String> metadata = instanceInfo.getMetadata();
 			if (metadata != null) {
 				instance.getAttributes().putAll(metadata);
 			}
+
+			// add amazon metadata
 			String asgName = instanceInfo.getASGName();
 			if (asgName != null) {
 				instance.getAttributes().put("asg", asgName);
 			}
-			instance.getAttributes().put("port", String.valueOf(instanceInfo.getPort()));
 			DataCenterInfo dcInfo = instanceInfo.getDataCenterInfo();
 			if (dcInfo != null && dcInfo.getName().equals(DataCenterInfo.Name.Amazon)) {
 				AmazonInfo amznInfo = (AmazonInfo) dcInfo;
 				instance.getAttributes().putAll(amznInfo.getMetadata());
+			}
+
+			// add ports
+			instance.getAttributes().put("port", String.valueOf(instanceInfo.getPort()));
+			boolean securePortEnabled = instanceInfo.isPortEnabled(InstanceInfo.PortType.SECURE);
+			if (securePortEnabled) {
+				instance.getAttributes().put("securePort", String.valueOf(instanceInfo.getSecurePort()));
 			}
 			return instance;
 		}
