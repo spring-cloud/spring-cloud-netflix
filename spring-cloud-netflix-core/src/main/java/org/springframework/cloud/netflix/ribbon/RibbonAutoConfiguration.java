@@ -51,7 +51,6 @@ public class RibbonAutoConfiguration {
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
 
-
 	@Bean
 	public SpringClientFactory springClientFactory() {
 		SpringClientFactory factory = new SpringClientFactory();
@@ -65,30 +64,31 @@ public class RibbonAutoConfiguration {
 		return new RibbonLoadBalancerClient(springClientFactory());
 	}
 
-    @Configuration
-    @ConditionalOnClass(HttpRequest.class)
-    protected static class RibbonClientConfig {
+	@Configuration
+	@ConditionalOnClass(HttpRequest.class)
+	protected static class RibbonClientConfig {
 
-        @Autowired
-        private SpringClientFactory springClientFactory;
+		@Autowired
+		private SpringClientFactory springClientFactory;
 
-        @Autowired
-        private LoadBalancerClient loadBalancerClient;
+		@Autowired
+		private LoadBalancerClient loadBalancerClient;
 
-        @Bean
-        public RestTemplateCustomizer restTemplateCustomizer() {
-            return new RestTemplateCustomizer() {
-                @Override
-                public void customize(RestTemplate restTemplate) {
-                    restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
-                }
-            };
-        }
+		@Bean
+		public RestTemplateCustomizer restTemplateCustomizer() {
+			return new RestTemplateCustomizer() {
+				@Override
+				public void customize(RestTemplate restTemplate) {
+					restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
+				}
+			};
+		}
 
-        @Bean
-        public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
-            return new RibbonClientHttpRequestFactory(springClientFactory, loadBalancerClient);
-        }
-    }
+		@Bean
+		public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
+			return new RibbonClientHttpRequestFactory(springClientFactory,
+					loadBalancerClient);
+		}
+	}
 
 }
