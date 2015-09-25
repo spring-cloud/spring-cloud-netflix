@@ -85,7 +85,7 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
 		instance.setNonSecurePort(this.nonSecurePort);
-		instance.setSid(getDefaultInstanceId(env));
+		instance.setInstanceId(getDefaultInstanceId(env));
 		return instance;
 	}
 

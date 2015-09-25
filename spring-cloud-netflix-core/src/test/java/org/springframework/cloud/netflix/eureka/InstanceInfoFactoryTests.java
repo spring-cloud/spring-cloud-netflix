@@ -31,8 +31,8 @@ public class InstanceInfoFactoryTests {
 	}
 
 	@Test
-	public void instanceIdIsSidWhenSet() {
-		InstanceInfo instanceInfo = setupInstance("eureka.instance.sid:special");
+	public void instanceInfoIdIsInstanceIdWhenSet() {
+		InstanceInfo instanceInfo = setupInstance("eureka.instance.instanceId:special");
 		assertEquals("special", instanceInfo.getId());
 	}
 

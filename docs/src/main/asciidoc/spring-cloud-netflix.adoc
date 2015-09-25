@@ -123,7 +123,7 @@ It's worth spending a bit of time understanding how the Eureka metadata works, s
 
 ==== Using Eureka on Cloudfoundry
 
-Cloudfoundry has a global router so that all instances of the same app have the same hostname (it's the same in other PaaS solutions with a similar architecture). This isn't necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). For example:
+Cloudfoundry has a global router so that all instances of the same app have the same hostname (it's the same in other PaaS solutions with a similar architecture). This isn't necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). By default, the `eureka.instance.instanceId` is `vcap.application.instance_id`. For example:
 
 .application.yml
 ----
@@ -131,8 +131,6 @@ eureka:
   instance:
     hostname: ${vcap.application.uris[0]}
     nonSecurePort: 80
-    metadataMap:
-      instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}
 ----
 
 Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (https://run.pivotal.io[PWS]).
@@ -153,16 +151,17 @@ public EurekaInstanceConfigBean eurekaInstanceConfig() {
 }
 ----
 
-==== Making the Eureka Instance ID Unique
+==== Changing the Eureka Instance ID
 
-By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.metadataMap.instanceId`. For example:
+A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Spring Cloud Eureka provides a sensible default that looks like this: `${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}}`. For example `myhost:myappname:8080`.
+
+Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.instanceId`. For example:
 
 .application.yml
 ----
 eureka:
   instance:
-    metadataMap:
-      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 ----
 
 With this metadata, and multiple service instances deployed on
