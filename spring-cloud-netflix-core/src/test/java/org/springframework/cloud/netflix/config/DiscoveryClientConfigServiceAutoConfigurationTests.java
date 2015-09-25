@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -69,7 +70,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 				DiscoveryClientConfigServiceAutoConfiguration.class).length);
 		Mockito.verify(this.client, times(2)).getNextServerFromEureka("CONFIGSERVER",
 				false);
-		Mockito.verify(this.client, times(0)).shutdown();
+		Mockito.verify(this.client, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
@@ -89,7 +90,9 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		parent.refresh();
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.setParent(parent);
-		this.context.register(DiscoveryClientConfigServiceAutoConfiguration.class,
+		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+				DiscoveryClientConfigServiceAutoConfiguration.class,
+				EurekaClientAutoConfiguration.class,
 				EurekaDiscoveryClientConfiguration.class);
 		this.context.refresh();
 	}
