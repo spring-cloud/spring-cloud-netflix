@@ -18,7 +18,9 @@ package org.springframework.cloud.netflix.feign;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -34,4 +36,8 @@ import feign.Feign;
 @Import(FeignClientsConfiguration.class)
 public class FeignAutoConfiguration {
 
+	@Bean
+	public HasFeatures feignFeature() {
+		return HasFeatures.namedFeature("Feign", Feign.class);
+	}
 }

@@ -30,6 +30,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,6 +59,11 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	private TurbineStreamProperties properties;
 
 	private int turbinePort;
+
+	@Bean
+	public HasFeatures Feature() {
+		return HasFeatures.namedFeature("Turbine (Stream)", TurbineStreamProperties.class);
+	}
 
 	@Bean
 	public PublishSubject<Map<String, Object>> hystrixSubject() {

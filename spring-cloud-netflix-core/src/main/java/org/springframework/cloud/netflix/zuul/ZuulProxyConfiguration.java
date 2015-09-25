@@ -22,6 +22,7 @@ import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
@@ -64,6 +65,11 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Autowired
 	private ServerProperties server;
+
+	@Override
+	public HasFeatures zuulFeature() {
+		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyConfiguration.class);
+	}
 
 	@Bean
 	@Override
