@@ -32,15 +32,16 @@ import com.netflix.discovery.DiscoveryManager;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
- * Bootstrap configuration for a config client that wants to lookup the config
- * server via discovery.
+ * Bootstrap configuration for a config client that wants to lookup the config server via
+ * discovery.
  *
  * @author Dave Syer
  */
 @ConditionalOnBean({ EurekaDiscoveryClientConfiguration.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
-public class DiscoveryClientConfigServiceAutoConfiguration implements ApplicationListener<RefreshScopeRefreshedEvent> {
+public class DiscoveryClientConfigServiceAutoConfiguration
+		implements ApplicationListener<RefreshScopeRefreshedEvent> {
 
 	@Autowired
 	private EurekaClientConfig clientConfig;
@@ -58,10 +59,11 @@ public class DiscoveryClientConfigServiceAutoConfiguration implements Applicatio
 			DiscoveryManager.getInstance().getDiscoveryClient().shutdown();
 		}
 		ApplicationInfoManager.getInstance().initComponent(this.instanceConfig);
-		DiscoveryManager.getInstance().initComponent(this.instanceConfig, this.clientConfig);
+		DiscoveryManager.getInstance().initComponent(this.instanceConfig,
+				this.clientConfig);
 		this.lifecycle.start();
 	}
-	
+
 	@Override
 	public void onApplicationEvent(RefreshScopeRefreshedEvent arg0) {
 		init();
