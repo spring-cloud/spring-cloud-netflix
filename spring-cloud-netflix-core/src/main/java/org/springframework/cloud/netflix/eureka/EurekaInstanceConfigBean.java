@@ -73,7 +73,7 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Value("${spring.application.name:unknown}")
 	private String virtualHostName;
 
-    private String sid;
+    private String instanceId;
 
 	private String secureVirtualHostName;
 
@@ -112,11 +112,11 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	}
 
     @Override
-    public String getSID() {
-		if (this.sid == null && this.metadataMap != null) {
+    public String getInstanceId() {
+		if (this.instanceId == null && this.metadataMap != null) {
 			return this.metadataMap.get("instanceId");
 		}
-        return sid;
+        return instanceId;
     }
 
     @Override
