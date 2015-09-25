@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -61,20 +62,18 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	@Test
 	public void onWhenRequested() throws Exception {
-		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
-				this.info);
+		given(this.client.getNextServerFromEureka("CONFIGSERVER", false))
+				.willReturn(this.info);
 		setup("spring.cloud.config.discovery.enabled=true");
-		assertEquals(
-				1,
-				this.context
-						.getBeanNamesForType(DiscoveryClientConfigServiceAutoConfiguration.class).length);
+		assertEquals(1, this.context.getBeanNamesForType(
+				DiscoveryClientConfigServiceAutoConfiguration.class).length);
 		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
 		Mockito.verify(this.client).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
-		assertEquals("bar", ApplicationInfoManager.getInstance().getInfo().getMetadata()
-				.get("foo"));
+		assertEquals("bar",
+				ApplicationInfoManager.getInstance().getInfo().getMetadata().get("foo"));
 	}
 
 	private void setup(String... env) {
@@ -89,7 +88,9 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		parent.refresh();
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.setParent(parent);
-		this.context.register(DiscoveryClientConfigServiceAutoConfiguration.class);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+				DiscoveryClientConfigServiceAutoConfiguration.class,
+				EurekaClientAutoConfiguration.class);
 		this.context.refresh();
 		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
 	}

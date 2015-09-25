@@ -16,9 +16,12 @@
 
 package org.springframework.cloud.netflix.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
@@ -39,8 +42,8 @@ import com.netflix.discovery.DiscoveryManager;
 import lombok.extern.apachecommons.CommonsLog;
 
 /**
- * Bootstrap configuration for a config client that wants to lookup the config server via
- * discovery.
+ * Bootstrap configuration for a config client that wants to lookup the config
+ * server via discovery.
  *
  * @author Dave Syer
  */
@@ -50,8 +53,7 @@ import lombok.extern.apachecommons.CommonsLog;
 @EnableDiscoveryClient
 @Import(EurekaClientAutoConfiguration.class)
 @CommonsLog
-public class DiscoveryClientConfigServiceBootstrapConfiguration implements
-		SmartApplicationListener {
+public class DiscoveryClientConfigServiceBootstrapConfiguration implements SmartApplicationListener {
 
 	private HeartbeatMonitor monitor = new HeartbeatMonitor();
 
@@ -59,14 +61,17 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	private ConfigClientProperties config;
 
 	@Autowired
+	private org.springframework.cloud.client.discovery.DiscoveryClient client;
+
+	@Autowired
 	private ApplicationContext context;
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof ContextRefreshedEvent && ((ContextRefreshedEvent) event).getApplicationContext()==context) {
+		if (event instanceof ContextRefreshedEvent
+				&& ((ContextRefreshedEvent) event).getApplicationContext() == context) {
 			refresh();
-		}
-		else if (event instanceof HeartbeatEvent) {
+		} else if (event instanceof HeartbeatEvent) {
 			if (this.monitor.update(((HeartbeatEvent) event).getValue())) {
 				refresh();
 			}
@@ -92,12 +97,9 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 	private void refresh() {
 		try {
 			log.info("Locating configserver via discovery");
-			InstanceInfo server = DiscoveryManager
-					.getInstance()
-					.getDiscoveryClient()
-					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(),
-							false);
-			String url = server.getHomePageUrl();
+			InstanceInfo server = DiscoveryManager.getInstance().getDiscoveryClient()
+					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(), false);
+			String url = getHomePage(server);
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");
 				user = user == null ? "user" : user;
@@ -113,10 +115,17 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 				url = url + path;
 			}
 			this.config.setUri(url);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			log.warn("Could not locate configserver via discovery", ex);
 		}
+	}
+
+	private String getHomePage(InstanceInfo server) {
+		List<ServiceInstance> instances = client.getInstances(this.config.getDiscovery().getServiceId());
+		if (instances==null || instances.isEmpty()) {
+			return server.getHomePageUrl();
+		}
+		return instances.get(0).getUri().toString() + "/";
 	}
 
 }
