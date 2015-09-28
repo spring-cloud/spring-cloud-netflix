@@ -543,6 +543,26 @@ information will have a secure health check URL. Because of the way
 Eureka works internally, it will still publish a non-secure URL for
 status and home page unless you also override those explicitly.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+If your app is running behind a proxy, and the SSL termination
+is in the proxy (e.g. if you run in Cloud Foundry or other platforms
+as a service) then you will need to ensure that the proxy "forwarded"
+headers are intercepted and handled by the application. An embedded
+Tomcat container in a Spring Boot app does this automatically for most
+proxies (since 1.3.0), but other containers might need explicit
+configuration for the 'X-Forwarded-\*` headers. A sign that you got
+this wrong will be that the links rendered by your app to itslef will be
+wrong (the wrong host, port or protocol).
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_eureka_s_health_checks">Eureka&#8217;s Health Checks</h3>
@@ -1821,7 +1841,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-25 23:08:34 UTC
+Last updated 2015-09-28 16:58:50 UTC
 </div>
 </div>
 </body>
