@@ -105,15 +105,11 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		if (config != null) {
 			return config.get(CommonClientConfigKey.IsSecure, false);
 		}
-		if (ClassUtils.isPresent("com.netflix.niws.loadbalancer.DiscoveryEnabledServer",
-				null)) {
-			if (server instanceof DiscoveryEnabledServer) {
-				DiscoveryEnabledServer enabled = (DiscoveryEnabledServer) server;
-				return enabled.getInstanceInfo().isPortEnabled(PortType.SECURE);
-			}
+		ServerIntrospector serverIntrospector = clientFactory.getInstance(serviceId, ServerIntrospector.class);
+		if (serverIntrospector == null) {
+			serverIntrospector = new DefaultServerIntrospector();
 		}
-		// Can we do better?
-		return ("" + server.getPort()).endsWith("443");
+		return serverIntrospector.isSecure(server);
 	}
 
 	private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer,
