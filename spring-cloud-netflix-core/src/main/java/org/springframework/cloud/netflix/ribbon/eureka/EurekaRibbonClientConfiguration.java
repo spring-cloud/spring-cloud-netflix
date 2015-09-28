@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
@@ -99,6 +100,11 @@ public class EurekaRibbonClientConfiguration {
 		DomainExtractingServerList serverList = new DomainExtractingServerList(
 				discoveryServerList, config, this.approximateZoneFromHostname);
 		return serverList;
+	}
+
+	@Bean
+	public ServerIntrospector serverIntrospector() {
+		return new EurekaServerIntrospector();
 	}
 
 	@PostConstruct

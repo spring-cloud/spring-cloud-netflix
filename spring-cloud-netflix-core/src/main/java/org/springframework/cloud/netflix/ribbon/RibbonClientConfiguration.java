@@ -26,10 +26,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.netflix.appinfo.InstanceInfo.PortType;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -44,7 +42,6 @@ import com.netflix.loadbalancer.ServerListFilter;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
-import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import com.netflix.servo.monitor.Monitors;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
@@ -95,9 +92,9 @@ public class RibbonClientConfiguration {
 	}
 
 	/**
-	 * Create a Netflix {@link RestClient} integrated with Ribbon if none already exists in the
-	 * application context. It is not required for Ribbon to work properly and is therefore
-	 * created lazily if ever another component requires it.
+	 * Create a Netflix {@link RestClient} integrated with Ribbon if none already exists
+	 * in the application context. It is not required for Ribbon to work properly and is
+	 * therefore created lazily if ever another component requires it.
 	 *
 	 * @param config the configuration to use by the underlying Ribbon instance
 	 * @param loadBalancer the load balancer to use by the underlying Ribbon instance
@@ -106,8 +103,9 @@ public class RibbonClientConfiguration {
 	@Bean
 	@Lazy
 	@ConditionalOnMissingBean
-	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer) {
-		RestClient client = new OverrideRestClient(config);
+	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer,
+			ServerIntrospector serverIntrospector) {
+		RestClient client = new OverrideRestClient(config, serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
@@ -140,32 +138,31 @@ public class RibbonClientConfiguration {
 		return new RibbonLoadBalancerContext(loadBalancer, config);
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public ServerIntrospector serverIntrospector() {
+		return new DefaultServerIntrospector();
+	}
+
 	static class OverrideRestClient extends RestClient {
 
-		protected OverrideRestClient(IClientConfig ncc) {
+		private ServerIntrospector serverIntrospector;
+
+		protected OverrideRestClient(IClientConfig ncc,
+				ServerIntrospector serverIntrospector) {
 			super();
+			this.serverIntrospector = serverIntrospector;
 			initWithNiwsConfig(ncc);
 		}
 
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
 			String scheme = original.getScheme();
-			if (!"https".equals(scheme) && isSecure(server)) {
-				original = UriComponentsBuilder.fromUri(original).scheme("https").build().toUri();
+			if (!"https".equals(scheme) && serverIntrospector.isSecure(server)) {
+				original = UriComponentsBuilder.fromUri(original).scheme("https").build()
+						.toUri();
 			}
 			return super.reconstructURIWithServer(server, original);
-		}
-
-		private boolean isSecure(Server server) {
-			if (ClassUtils.isPresent("com.netflix.niws.loadbalancer.DiscoveryEnabledServer",
-					null)) {
-				if (server instanceof DiscoveryEnabledServer) {
-					DiscoveryEnabledServer enabled = (DiscoveryEnabledServer) server;
-					return enabled.getInstanceInfo().isPortEnabled(PortType.SECURE);
-				}
-			}
-			// Can we do better?
-			return (""+server.getPort()).endsWith("443");
 		}
 
 		@Override
