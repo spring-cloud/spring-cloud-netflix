@@ -24,14 +24,17 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.netflix.appinfo.InstanceInfo.PortType;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
+import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import com.netflix.servo.monitor.Stopwatch;
 
 /**
@@ -53,9 +56,9 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 		Server server = new Server(instance.getHost(), instance.getPort());
-		boolean secure = isSecure(this.clientFactory, serviceId);
+		boolean secure = isSecure(this.clientFactory, server, serviceId);
 		URI uri = original;
-		if(secure) {
+		if (secure) {
 			uri = UriComponentsBuilder.fromUri(uri).scheme("https").build().toUri();
 		}
 		return context.reconstructURIWithServer(server, uri);
@@ -67,7 +70,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		if (server == null) {
 			return null;
 		}
-		return new RibbonServer(serviceId, server, isSecure(this.clientFactory, serviceId));
+		return new RibbonServer(serviceId, server,
+				isSecure(this.clientFactory, server, serviceId));
 	}
 
 	@Override
@@ -76,7 +80,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 		Server server = getServer(loadBalancer);
-		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(clientFactory, serviceId));
+		RibbonServer ribbonServer = new RibbonServer(serviceId, server,
+				isSecure(this.clientFactory, server, serviceId));
 
 		ServerStats serverStats = context.getServerStats(server);
 		context.noteOpenConnection(serverStats);
@@ -93,20 +98,30 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		}
 		return null;
 	}
-	
-	private boolean isSecure(SpringClientFactory clientFactory, String serviceId) {
+
+	private boolean isSecure(SpringClientFactory clientFactory, Server server,
+			String serviceId) {
 		IClientConfig config = clientFactory.getClientConfig(serviceId);
-		if(config != null) {
+		if (config != null) {
 			return config.get(CommonClientConfigKey.IsSecure, false);
 		}
-		return false;
+		if (ClassUtils.isPresent("com.netflix.niws.loadbalancer.DiscoveryEnabledServer",
+				null)) {
+			if (server instanceof DiscoveryEnabledServer) {
+				DiscoveryEnabledServer enabled = (DiscoveryEnabledServer) server;
+				return enabled.getInstanceInfo().isPortEnabled(PortType.SECURE);
+			}
+		}
+		// Can we do better?
+		return ("" + server.getPort()).endsWith("443");
 	}
 
 	private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer,
 			ServerStats serverStats, Object entity, Throwable exception) {
 		tracer.stop();
 		long duration = tracer.getDuration(TimeUnit.MILLISECONDS);
-		context.noteRequestCompletion(serverStats, entity, exception, duration, null/* errorHandler */);
+		context.noteRequestCompletion(serverStats, entity, exception, duration,
+				null/* errorHandler */);
 	}
 
 	protected Server getServer(String serviceId) {
@@ -117,7 +132,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		if (loadBalancer == null) {
 			return null;
 		}
-		return loadBalancer.chooseServer("default"); //TODO: better handling of key
+		return loadBalancer.chooseServer("default"); // TODO: better handling of key
 	}
 
 	protected ILoadBalancer getLoadBalancer(String serviceId) {
@@ -128,7 +143,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		private String serviceId;
 		private Server server;
 		private boolean secure;
-		
+
 		protected RibbonServer(String serviceId, Server server) {
 			this(serviceId, server, false);
 		}
