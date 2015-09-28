@@ -112,11 +112,10 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 		@Override
 		public int getPort() {
-			// assume if secure is enabled, that is the default
-			if (!this.instance.isPortEnabled(SECURE)) {
-				return this.instance.getPort();
+			if (isSecure()) {
+				return this.instance.getSecurePort();
 			}
-			return this.instance.getSecurePort();
+			return this.instance.getPort();
 		}
 
 		@Override
