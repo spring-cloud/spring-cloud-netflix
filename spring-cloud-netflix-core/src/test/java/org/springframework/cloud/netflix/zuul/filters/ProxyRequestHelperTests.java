@@ -16,18 +16,28 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.boot.actuate.trace.TraceRepository;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.util.MultiValueMap;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
+import org.springframework.boot.actuate.trace.Trace;
+import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * @author Spencer Gibb
@@ -43,6 +53,29 @@ public class ProxyRequestHelperTests {
 	}
 
 	@Test
+	public void debug() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContent("{}".getBytes());
+		request.addHeader("singleName", "singleValue");
+		request.addHeader("multiName", "multiValue1");
+		request.addHeader("multiName", "multiValue2");
+		RequestContext.getCurrentContext().setRequest(request);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		this.traceRepository = new InMemoryTraceRepository();
+		helper.setTraces(this.traceRepository);
+
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+
+		helper.debug("POST", "http://example.com", headers,
+				new LinkedMultiValueMap<String, String>(), request.getInputStream());
+		Trace actual = this.traceRepository.findAll().get(0);
+		System.err.println(actual.getInfo());
+		assertThat((String)actual.getInfo().get("body"), equalTo("{}"));
+
+	}
+
+	@Test
 	public void buildZuulRequestHeadersWork() {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		request.addHeader("singleName", "singleValue");
@@ -50,7 +83,7 @@ public class ProxyRequestHelperTests {
 		request.addHeader("multiName", "multiValue2");
 
 		ProxyRequestHelper helper = new ProxyRequestHelper();
-		helper.setTraces(traceRepository);
+		helper.setTraces(this.traceRepository);
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 		List<String> singleName = headers.get("singleName");
@@ -78,6 +111,5 @@ public class ProxyRequestHelperTests {
 		assertThat(acceptEncodings, hasSize(1));
 		assertThat(acceptEncodings, contains("gzip"));
 	}
-
 
 }
