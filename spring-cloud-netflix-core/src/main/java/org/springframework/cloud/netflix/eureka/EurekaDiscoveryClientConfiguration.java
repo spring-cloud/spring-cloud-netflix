@@ -69,7 +69,7 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private AtomicInteger port = new AtomicInteger(0);
 
 	@Autowired
-	private EurekaInstanceConfigBean instanceConfig;
+	private CloudEurekaInstanceConfig instanceConfig;
 
 	@Autowired(required = false)
 	private HealthCheckHandler healthCheckHandler;

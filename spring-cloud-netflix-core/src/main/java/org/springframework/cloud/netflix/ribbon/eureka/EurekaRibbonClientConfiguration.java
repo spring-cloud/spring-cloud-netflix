@@ -26,12 +26,12 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -70,13 +70,13 @@ public class EurekaRibbonClientConfiguration {
 	private EurekaClientConfig clientConfig;
 
 	@Autowired
-	private EurekaInstanceConfigBean eurekaConfig;
+	private EurekaInstanceConfig eurekaConfig;
 
 	public EurekaRibbonClientConfiguration() {
 	}
 
 	public EurekaRibbonClientConfiguration(EurekaClientConfig clientConfig,
-			String serviceId, EurekaInstanceConfigBean eurekaConfig,
+			String serviceId, EurekaInstanceConfig eurekaConfig,
 			boolean approximateZoneFromHostname) {
 		this.clientConfig = clientConfig;
 		this.serviceId = serviceId;
@@ -114,7 +114,7 @@ public class EurekaRibbonClientConfiguration {
 		if (this.clientConfig != null && StringUtils.isEmpty(zone)) {
 			if (approximateZoneFromHostname) {
 				String approxZone = ZoneUtils.extractApproximateZone(eurekaConfig
-						.getHostname());
+						.getHostName(false));
 				log.debug("Setting Zone To " + approxZone);
 				ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone,
 						approxZone);

@@ -33,7 +33,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.util.InetUtils.HostInfo;
 
 import com.netflix.appinfo.DataCenterInfo;
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.appinfo.MyDataCenterInfo;
 
@@ -43,7 +42,7 @@ import com.netflix.appinfo.MyDataCenterInfo;
  */
 @Data
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 
 	private static final Log logger = LogFactory.getLog(EurekaInstanceConfigBean.class);
 

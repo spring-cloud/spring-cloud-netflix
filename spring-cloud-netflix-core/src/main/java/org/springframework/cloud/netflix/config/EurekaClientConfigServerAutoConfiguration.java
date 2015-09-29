@@ -26,6 +26,7 @@ import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClient;
 
 /**
@@ -40,7 +41,7 @@ import com.netflix.discovery.EurekaClient;
 public class EurekaClientConfigServerAutoConfiguration {
 
 	@Autowired(required = false)
-	private EurekaInstanceConfigBean instance;
+	private EurekaInstanceConfig instance;
 
 	@Autowired(required = false)
 	private ConfigServerProperties server;
