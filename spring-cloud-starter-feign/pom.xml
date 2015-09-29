@@ -42,10 +42,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
-			<artifactId>feign-ribbon</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.feign</groupId>
 			<artifactId>feign-slf4j</artifactId>
 		</dependency>
 		<dependency>

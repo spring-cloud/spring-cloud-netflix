@@ -62,7 +62,6 @@
 		<dependency>
 			<groupId>com.netflix.governator</groupId>
 			<artifactId>governator</artifactId>
-			<version>1.3.3</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -100,11 +99,6 @@
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
 			<artifactId>feign-httpclient</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.feign</groupId>
-			<artifactId>feign-ribbon</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
