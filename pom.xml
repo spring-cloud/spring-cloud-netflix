@@ -242,17 +242,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.feign</groupId>
-				<artifactId>feign-ribbon</artifactId>
-				<version>${feign.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>com.netflix.ribbon</groupId>
-						<artifactId>ribbon-loadbalancer</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.netflix.feign</groupId>
 				<artifactId>feign-slf4j</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
