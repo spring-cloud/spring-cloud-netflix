@@ -158,7 +158,7 @@ public class RibbonClientConfiguration {
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
 			String scheme = original.getScheme();
-			if (!"https".equals(scheme) && serverIntrospector.isSecure(server)) {
+			if (!"https".equals(scheme) && this.serverIntrospector.isSecure(server)) {
 				original = UriComponentsBuilder.fromUri(original).scheme("https").build()
 						.toUri();
 			}

@@ -16,28 +16,30 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
-import feign.ribbon.LBClient;
-import feign.ribbon.LBClientFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 
 /**
  * @author Spencer Gibb
  */
-public class CachingLBClientFactoryTests {
+public class CachingSpringLoadBalancerFactoryTests {
 
 	@Mock
-	private LBClientFactory delegate;
+	private SpringClientFactory delegate;
 
-	private CachingLBClientFactory factory;
+	private CachingSpringLoadBalancerFactory factory;
 
 	@Before
 	public void init() {
@@ -47,32 +49,29 @@ public class CachingLBClientFactoryTests {
 		config.set(CommonClientConfigKey.ConnectTimeout, 1000);
 		config.set(CommonClientConfigKey.ReadTimeout, 500);
 
-		LBClient client1 = LBClient.create(null, config);
-		LBClient client2 = LBClient.create(null, config);
+		when(this.delegate.getClientConfig("client1")).thenReturn(config);
+		when(this.delegate.getClientConfig("client2")).thenReturn(config);
 
-		when(delegate.create("client1")).thenReturn(client1);
-		when(delegate.create("client2")).thenReturn(client2);
-
-		factory = new CachingLBClientFactory(delegate);
+		this.factory = new CachingSpringLoadBalancerFactory(this.delegate);
 	}
 
 	@Test
 	public void delegateCreatesWhenMissing() {
-		LBClient client = factory.create("client1");
+		FeignLoadBalancer client = this.factory.create("client1");
 		assertNotNull("client was null", client);
 
-		verify(delegate, times(1)).create("client1");
+		verify(this.delegate, times(1)).getClientConfig("client1");
 	}
 
 	@Test
 	public void cacheWorks() {
-		LBClient client = factory.create("client2");
+		FeignLoadBalancer client = this.factory.create("client2");
 		assertNotNull("client was null", client);
 
-		client = factory.create("client2");
+		client = this.factory.create("client2");
 		assertNotNull("client was null", client);
 
-		verify(delegate, times(1)).create("client2");
+		verify(this.delegate, times(1)).getClientConfig("client2");
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
@@ -32,35 +33,29 @@ import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
 
 import feign.Client;
 import feign.Request;
 import feign.RequestTemplate;
 import feign.Response;
 
-public class RibbonLoadBalancer
-		extends
-		AbstractLoadBalancerAwareClient<RibbonLoadBalancer.RibbonRequest, RibbonLoadBalancer.RibbonResponse> {
-
-	private final Client delegate;
+public class FeignLoadBalancer extends
+		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
 
 	private final int connectTimeout;
-
 	private final int readTimeout;
-
 	private final IClientConfig clientConfig;
+	private final ServerIntrospector serverIntrospector;
 
-	private final boolean secure;
-
-	public RibbonLoadBalancer(Client delegate, ILoadBalancer lb,
-			IClientConfig clientConfig) {
+	public FeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
+			ServerIntrospector serverIntrospector) {
 		super(lb, clientConfig);
 		this.setRetryHandler(RetryHandler.DEFAULT);
 		this.clientConfig = clientConfig;
-		this.secure = clientConfig.get(CommonClientConfigKey.IsSecure);
-		this.delegate = delegate;
 		this.connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
 		this.readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
+		this.serverIntrospector = serverIntrospector;
 	}
 
 	@Override
@@ -68,31 +63,24 @@ public class RibbonLoadBalancer
 			throws IOException {
 		Request.Options options;
 		if (configOverride != null) {
-			options = new Request.Options(configOverride.get(
-					CommonClientConfigKey.ConnectTimeout, this.connectTimeout),
+			options = new Request.Options(
+					configOverride.get(CommonClientConfigKey.ConnectTimeout,
+							this.connectTimeout),
 					(configOverride.get(CommonClientConfigKey.ReadTimeout,
 							this.readTimeout)));
 		}
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
-		if (isSecure(configOverride)) {
-			URI secureUri = UriComponentsBuilder.fromUri(request.getUri())
-					.scheme("https").build().toUri();
-			request = new RibbonRequest(request.toRequest(), secureUri);
-		}
-		Response response = this.delegate.execute(request.toRequest(), options);
+		Response response = request.client().execute(request.toRequest(), options);
 		return new RibbonResponse(request.getUri(), response);
-	}
-
-	private boolean isSecure(IClientConfig config) {
-		return (config != null) ? config.get(CommonClientConfigKey.IsSecure) : secure;
 	}
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
 			RibbonRequest request, IClientConfig requestConfig) {
-		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations, false)) {
+		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations,
+				false)) {
 			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
 					requestConfig);
 		}
@@ -106,11 +94,24 @@ public class RibbonLoadBalancer
 		}
 	}
 
+	@Override
+	public URI reconstructURIWithServer(Server server, URI original) {
+		String scheme = original.getScheme();
+		if (!"https".equals(scheme) && (this.serverIntrospector.isSecure(server)
+				|| this.clientConfig.get(CommonClientConfigKey.IsSecure, false))) {
+			original = UriComponentsBuilder.fromUri(original).scheme("https").build()
+					.toUri();
+		}
+		return super.reconstructURIWithServer(server, original);
+	}
+
 	static class RibbonRequest extends ClientRequest implements Cloneable {
 
 		private final Request request;
+		private final Client client;
 
-		RibbonRequest(Request request, URI uri) {
+		RibbonRequest(Client client, Request request, URI uri) {
+			this.client = client;
 			this.request = request;
 			setUri(uri);
 		}
@@ -121,9 +122,13 @@ public class RibbonLoadBalancer
 					.body(this.request.body(), this.request.charset()).request();
 		}
 
+		Client client() {
+			return this.client;
+		}
+
 		@Override
 		public Object clone() {
-			return new RibbonRequest(this.request, getUri());
+			return new RibbonRequest(this.client, this.request, getUri());
 		}
 	}
 

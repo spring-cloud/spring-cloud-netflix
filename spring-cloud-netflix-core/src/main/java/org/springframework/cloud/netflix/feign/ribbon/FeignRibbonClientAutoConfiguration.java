@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import feign.httpclient.ApacheHttpClient;
-import feign.ribbon.LBClientFactory;
-import feign.ribbon.RibbonClient;
 import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -29,12 +26,13 @@ import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import com.netflix.loadbalancer.ILoadBalancer;
 
 import feign.Client;
 import feign.Feign;
-import org.springframework.context.annotation.Primary;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
@@ -47,26 +45,18 @@ import org.springframework.context.annotation.Primary;
 @AutoConfigureBefore(FeignAutoConfiguration.class)
 public class FeignRibbonClientAutoConfiguration {
 
-	@Autowired
-	private SpringClientFactory factory;
-
-	@Bean
-	public SpringLBClientFactory springLBClientFactory() {
-		return new SpringLBClientFactory(factory);
-	}
-
 	@Bean
 	@Primary
-	public CachingLBClientFactory cachingLBClientFactory() {
-		return new CachingLBClientFactory(springLBClientFactory());
+	public CachingSpringLoadBalancerFactory cachingLBClientFactory(
+			SpringClientFactory factory) {
+		return new CachingSpringLoadBalancerFactory(factory);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Client feignClient() {
-		return RibbonClient.builder().lbClientFactory(cachingLBClientFactory()).build();
+	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory) {
+		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory);
 	}
-
 
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
@@ -76,24 +66,19 @@ public class FeignRibbonClientAutoConfiguration {
 		@Autowired(required = false)
 		private HttpClient httpClient;
 
-		@Autowired(required = false)
-		private LBClientFactory lbClientFactory;
+		@Autowired
+		CachingSpringLoadBalancerFactory cachingFactory;
 
 		@Bean
 		public Client feignClient() {
-			RibbonClient.Builder builder = RibbonClient.builder();
-
-			if (httpClient != null) {
-				builder.delegate(new ApacheHttpClient(httpClient));
-			} else {
-				builder.delegate(new ApacheHttpClient());
+			ApacheHttpClient delegate;
+			if (this.httpClient != null) {
+				delegate = new ApacheHttpClient(this.httpClient);
 			}
-
-			if (lbClientFactory != null) {
-				builder.lbClientFactory(lbClientFactory);
+			else {
+				delegate = new ApacheHttpClient();
 			}
-
-			return builder.build();
+			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
 		}
 	}
 }
