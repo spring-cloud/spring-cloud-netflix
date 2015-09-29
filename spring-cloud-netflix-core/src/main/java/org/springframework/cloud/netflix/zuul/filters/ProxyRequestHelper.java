@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -28,8 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.boot.actuate.trace.TraceRepository;
@@ -42,6 +42,8 @@ import org.springframework.web.util.WebUtils;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
@@ -69,9 +71,13 @@ public class ProxyRequestHelper {
 		String contextURI = (String) context.get("requestURI");
 		if (contextURI != null) {
 			try {
-				uri = UriUtils.encodePath(contextURI, WebUtils.DEFAULT_CHARACTER_ENCODING);
-			} catch (Exception e) {
-				log.debug("unable to encode uri path from context, falling back to uri from request", e);
+				uri = UriUtils.encodePath(contextURI,
+						WebUtils.DEFAULT_CHARACTER_ENCODING);
+			}
+			catch (Exception e) {
+				log.debug(
+						"unable to encode uri path from context, falling back to uri from request",
+						e);
 			}
 		}
 		return uri;
@@ -253,10 +259,12 @@ public class ProxyRequestHelper {
 			info.put("body", "<chunked>");
 			return;
 		}
-		String entity = IOUtils.toString(inputStream);
+		char[] buffer = new char[4096];
+		int count = IOUtils.read(new InputStreamReader(inputStream, Charset.forName("UTF-8")),
+				buffer);
+		String entity = new String(buffer).substring(0, count);
 		if (StringUtils.hasText(entity)) {
-			info.put("body", entity.length() <= 4096 ? entity : entity.substring(0, 4096)
-					+ "<truncated>");
+			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
 		}
 	}
 
