@@ -23,16 +23,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,13 +39,13 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,6 +58,9 @@ import com.netflix.loadbalancer.ServerList;
 import feign.Client;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -221,17 +219,16 @@ public class FeignClientTests {
 
 	@Test
 	public void testFeignClientType() throws IllegalAccessException {
-		assertThat(this.feignClient, is(instanceOf(feign.ribbon.RibbonClient.class)));
-		Field field = ReflectionUtils.findField(feign.ribbon.RibbonClient.class, "delegate", Client.class);
-		ReflectionUtils.makeAccessible(field);
-		Client delegate = (Client) field.get(this.feignClient);
+		assertThat(this.feignClient, is(instanceOf(LoadBalancerFeignClient.class)));
+		LoadBalancerFeignClient client = (LoadBalancerFeignClient) this.feignClient;
+		Client delegate = client.getDelegate();
 		assertThat(delegate, is(instanceOf(feign.Client.Default.class)));
 	}
 
 	@Test
 	public void testServiceId() {
-		assertNotNull("testClientServiceId was null", testClientServiceId);
-		final Hello hello = testClientServiceId.getHello();
+		assertNotNull("testClientServiceId was null", this.testClientServiceId);
+		final Hello hello = this.testClientServiceId.getHello();
 		assertNotNull("The hello response was null", hello);
 		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
 	}

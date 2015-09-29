@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.netflix.ribbon.Ribbon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -36,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.netflix.client.IClient;
 import com.netflix.client.http.HttpRequest;
+import com.netflix.ribbon.Ribbon;
 
 /**
  * Auto configuration for Ribbon (client side load balancing).
@@ -93,8 +93,8 @@ public class RibbonAutoConfiguration {
 
 		@Bean
 		public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
-			return new RibbonClientHttpRequestFactory(springClientFactory,
-					loadBalancerClient);
+			return new RibbonClientHttpRequestFactory(this.springClientFactory,
+					this.loadBalancerClient);
 		}
 	}
 

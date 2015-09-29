@@ -16,19 +16,27 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.netflix.loadbalancer.*;
-import feign.ribbon.RibbonClient;
 import org.hamcrest.CustomMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.AbstractLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.LoadBalancerStats;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerStats;
 
 import feign.Client;
 import feign.Request;
@@ -54,6 +62,16 @@ public class FeignRibbonClientTests {
 		}
 
 		@Override
+		public <C> C getInstance(String name, Class<C> type) {
+			if (type.isAssignableFrom(ServerIntrospector.class)) {
+				@SuppressWarnings("unchecked")
+				C instance = (C) new DefaultServerIntrospector();
+				return instance;
+			}
+			return null;
+		}
+
+		@Override
 		public ILoadBalancer getLoadBalancer(String name) {
 			return FeignRibbonClientTests.this.loadBalancer;
 		}
@@ -61,10 +79,7 @@ public class FeignRibbonClientTests {
 
 	// Even though we don't maintain FeignRibbonClient, keep these tests
 	// around to make sure the expected behaviour doesn't break
-	private Client client = RibbonClient.builder()
-			.lbClientFactory(new SpringLBClientFactory(factory))
-			.delegate(delegate)
-			.build();
+	private Client client = new LoadBalancerFeignClient(this.delegate, new CachingSpringLoadBalancerFactory(this.factory));
 
 	@Before
 	public void init() {
