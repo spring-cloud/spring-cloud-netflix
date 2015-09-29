@@ -16,10 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
+
 import lombok.SneakyThrows;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 /**
  * @author Spencer Gibb
@@ -45,7 +47,7 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 	}
 
 	protected SpringClientFactory getClientFactory() {
-		return clientFactory;
+		return this.clientFactory;
 	}
 
 	protected static HttpRequest.Verb getVerb(String sMethod) {

@@ -55,7 +55,7 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 	private Verb verb;
 
 	private URI uri;
-	
+
 	private Boolean retryable;
 
 	private MultiValueMap<String, String> headers;
@@ -97,7 +97,7 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 				.withExecutionIsolationStrategy(ExecutionIsolationStrategy.SEMAPHORE)
 				.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
 		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
+				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
 				.andCommandPropertiesDefaults(setter);
 	}
 
@@ -110,11 +110,11 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		RequestContext context = RequestContext.getCurrentContext();
 		Builder builder = HttpRequest.newBuilder().verb(this.verb).uri(this.uri)
 				.entity(this.requestEntity);
-		
-		if(retryable != null) {
-			builder.setRetriable(retryable);
+
+		if(this.retryable != null) {
+			builder.setRetriable(this.retryable);
 		}
-		
+
 		for (String name : this.headers.keySet()) {
 			List<String> values = this.headers.get(name);
 			for (String value : values) {
@@ -134,11 +134,11 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		HttpResponse response = this.restClient
 				.executeWithLoadBalancer(httpClientRequest);
 		context.set("ribbonResponse", response);
-		
+
 		// Explicitly close the HttpResponse if the Hystrix command timed out to
 		// release the underlying HTTP connection held by the response.
-		// 
-		if( this.isResponseTimedOut() ) {	
+		//
+		if( this.isResponseTimedOut() ) {
 			if( response!= null ) {
 				response.close();
 			}
@@ -154,30 +154,30 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 	}
 
 	protected MultiValueMap<String, String> getHeaders() {
-		return headers;
+		return this.headers;
 	}
 
 	protected MultiValueMap<String, String> getParams() {
-		return params;
+		return this.params;
 	}
 
 	protected InputStream getRequestEntity() {
-		return requestEntity;
+		return this.requestEntity;
 	}
 
 	protected RestClient getRestClient() {
-		return restClient;
+		return this.restClient;
 	}
 
 	protected Boolean getRetryable() {
-		return retryable;
+		return this.retryable;
 	}
 
 	protected URI getUri() {
-		return uri;
+		return this.uri;
 	}
 
 	protected Verb getVerb() {
-		return verb;
+		return this.verb;
 	}
 }
