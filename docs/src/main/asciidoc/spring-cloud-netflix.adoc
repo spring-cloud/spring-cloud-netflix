@@ -193,17 +193,17 @@ unique. In Cloudfoundry the `spring.application.instance_id` will be
 populated automatically in a Spring Boot Actuator application, so the
 random value will not be needed.
 
-=== Using the DiscoveryClient
+=== Using the EurekaClient
 
-Once you have an app that is `@EnableEurekaClient` you can use it to
+Once you have an app that is `@EnableDiscoveryClient` (or `@EnableEurekaClient`) you can use it to
 discover service instances from the <<spring-cloud-eureka-server,
 Eureka Server>>. One way to do that is to use the native
-`com.netflix.discovery.DiscoveryClient` (as opposed to the Spring
+`com.netflix.discovery.EurekaClient` (as opposed to the Spring
 Cloud `DiscoveryClient`), e.g.
 
 ----
 @Autowired
-private DiscoveryClient discoveryClient;
+private EurekaClient discoveryClient;
 
 public String serviceUrl() {
     InstanceInfo instance = discoveryClient.getNextServerFromEureka("STORES", false);
@@ -213,16 +213,16 @@ public String serviceUrl() {
 
 [TIP]
 ====
-Don't use the `DiscoveryClient` in `@PostConstruct` method or in a
+Don't use the `EurekaClient` in `@PostConstruct` method or in a
 `@Scheduled` method (or anywhere where the `ApplicationContext` might
 not be started yet). It is initialized in a `SmartLifecycle` (with
 `phase=0`) so the earliest you can rely on it being available is in
 another `SmartLifecycle` with higher phase.
 ====
 
-=== Alternatives to the native Netflix DiscoveryClient
+=== Alternatives to the native Netflix EurekaClient
 
-You don't have to use the raw Netflix `DiscoveryClient` and usually it
+You don't have to use the raw Netflix `EurekaClient` and usually it
 is more convenient to use it behind a wrapper of some sort. Spring
 Cloud has support for <<spring-cloud-feign, Feign>> (a REST client
 builder) and also <<spring-cloud-ribbon, Spring `RestTemplate`>> using
