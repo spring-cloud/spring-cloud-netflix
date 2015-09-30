@@ -657,17 +657,17 @@ random value will not be needed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_using_the_discoveryclient">Using the DiscoveryClient</h3>
+<h3 id="_using_the_eurekaclient">Using the EurekaClient</h3>
 <div class="paragraph">
-<p>Once you have an app that is <code>@EnableEurekaClient</code> you can use it to
+<p>Once you have an app that is <code>@EnableDiscoveryClient</code> (or <code>@EnableEurekaClient</code>) you can use it to
 discover service instances from the <a href="#spring-cloud-eureka-server">Eureka Server</a>. One way to do that is to use the native
-<code>com.netflix.discovery.DiscoveryClient</code> (as opposed to the Spring
+<code>com.netflix.discovery.EurekaClient</code> (as opposed to the Spring
 Cloud <code>DiscoveryClient</code>), e.g.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre>@Autowired
-private DiscoveryClient discoveryClient;
+private EurekaClient discoveryClient;
 
 public String serviceUrl() {
     InstanceInfo instance = discoveryClient.getNextServerFromEureka("STORES", false);
@@ -683,7 +683,7 @@ public String serviceUrl() {
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Don&#8217;t use the <code>DiscoveryClient</code> in <code>@PostConstruct</code> method or in a
+<p>Don&#8217;t use the <code>EurekaClient</code> in <code>@PostConstruct</code> method or in a
 <code>@Scheduled</code> method (or anywhere where the <code>ApplicationContext</code> might
 not be started yet). It is initialized in a <code>SmartLifecycle</code> (with
 <code>phase=0</code>) so the earliest you can rely on it being available is in
@@ -695,9 +695,9 @@ another <code>SmartLifecycle</code> with higher phase.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_alternatives_to_the_native_netflix_discoveryclient">Alternatives to the native Netflix DiscoveryClient</h3>
+<h3 id="_alternatives_to_the_native_netflix_eurekaclient">Alternatives to the native Netflix EurekaClient</h3>
 <div class="paragraph">
-<p>You don&#8217;t have to use the raw Netflix <code>DiscoveryClient</code> and usually it
+<p>You don&#8217;t have to use the raw Netflix <code>EurekaClient</code> and usually it
 is more convenient to use it behind a wrapper of some sort. Spring
 Cloud has support for <a href="#spring-cloud-feign">Feign</a> (a REST client
 builder) and also <a href="#spring-cloud-ribbon">Spring <code>RestTemplate</code></a> using
@@ -1841,7 +1841,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-30 02:09:48 UTC
+Last updated 2015-09-30 10:34:53 UTC
 </div>
 </div>
 </body>
