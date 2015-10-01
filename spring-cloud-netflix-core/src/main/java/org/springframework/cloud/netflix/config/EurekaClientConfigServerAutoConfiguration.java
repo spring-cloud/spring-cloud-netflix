@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.config.server.ConfigServerProperties;
+import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
