@@ -18,11 +18,13 @@ package org.springframework.cloud.netflix.feign.valid;
 
 import org.junit.Test;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -42,10 +44,11 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@EnableFeignClients
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = GoodUrlConfiguration.Client.class)
 	protected static class GoodUrlConfiguration {
 
-		@FeignClient(url="http://example.com")
+		@FeignClient(name="example", url="http://example.com")
 		interface Client {
 			@RequestMapping(method = RequestMethod.GET, value = "/")
 			@Deprecated
@@ -65,7 +68,8 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@EnableFeignClients
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = GoodServiceIdConfiguration.Client.class)
 	protected static class GoodServiceIdConfiguration {
 
 		@FeignClient("foo")

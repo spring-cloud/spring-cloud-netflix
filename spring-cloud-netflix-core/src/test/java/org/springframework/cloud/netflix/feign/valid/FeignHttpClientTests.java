@@ -100,7 +100,7 @@ public class FeignHttpClientTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients
+	@EnableFeignClients(clients = {TestClient.class, UserClient.class})
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application implements UserService {
 

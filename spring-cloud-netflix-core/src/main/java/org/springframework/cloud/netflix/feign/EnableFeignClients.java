@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
+ * TODO: fix documentation here
  * Scans for interfaces that declare they are feign clients (via {@link FeignClient
  * <code>@FeignClient</code>}). Configures component scanning directives for use with
  * {@link org.springframework.context.annotation.Configuration
@@ -37,7 +38,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ FeignClientsConfiguration.class, FeignClientsRegistrar.class })
+@Import(FeignClientsRegistrar.class)
 public @interface EnableFeignClients {
 
 	/**
@@ -71,4 +72,11 @@ public @interface EnableFeignClients {
 	 */
 	Class<?>[] basePackageClasses() default {};
 
+	Class<?>[] defaultConfiguration() default {};
+
+	/**
+	 * List of classes annotated with @FeignClient. If not empty, disables classpath scanning.
+	 * @return
+	 */
+	Class<?>[] clients() default {};
 }
