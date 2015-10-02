@@ -83,7 +83,7 @@ public class FeignRibbonClientRetryTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients
+	@EnableFeignClients(clients = TestClient.class)
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	public static class Application {
 

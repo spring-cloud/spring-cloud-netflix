@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -54,11 +55,18 @@ import static org.junit.Assert.assertNotNull;
 @DirtiesContext
 public class SpringDecoderTests extends FeignClientFactoryBean {
 
+	@Autowired
+	FeignClientFactory factory;
+
 	@Value("${local.server.port}")
 	private int port = 0;
 
+	public SpringDecoderTests() {
+		setName("test");
+	}
+
 	public TestClient testClient() {
-		return feign().target(TestClient.class, "http://localhost:" + this.port);
+		return feign(factory).target(TestClient.class, "http://localhost:" + this.port);
 	}
 
 	@Test

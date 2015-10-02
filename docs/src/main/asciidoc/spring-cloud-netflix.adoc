@@ -767,6 +767,67 @@ don't want to use Eureka, you can simply configure a list of servers
 in your external configuration (see
 <<spring-cloud-ribbon-without-eureka,above for example>>).
 
+[[spring-cloud-feign-overriding-defaults]]
+=== Overriding Feign Defaults
+
+A central concept in Spring Cloud's Feign support is that of the named client. Each feign client is part of an ensemble of components that work together to contact a remote server on demand, and the ensemble has a name that you give it as an application developer using the `@FeignClient` annotation. Spring Cloud creates a new ensemble as an
+`ApplicationContext` on demand for each named client using `FeignClientsConfiguration`. This contains (amongst other things) an `feign.Decoder`, a `feign.Encoder`, and a `feign.Contract`.
+
+Spring Cloud lets you take full control of the feign client by declaring additional configuration (on top of the `FeignClientsConfiguration`) using `@FeignClient`. Example:
+
+[source,java,indent=0]
+----
+	@FeignClient(name = "stores", configuration = FooConfiguration.class)
+	public interface StoreClient {
+        //..
+	}
+----
+
+In this case the client is composed from the components already in `FeignClientsConfiguration` together with any in `FooConfiguration` (where the latter will override the former).
+
+WARNING: The `FooConfiguration` has to be `@Configuration` but take care that it is not in a `@ComponentScan` for the main application context, otherwise it will be shared by all the `@FeignClient`s. If you use `@ComponentScan` (or `@SpringBootApplication`) you need to take steps to avoid it being included (for instance put it in a separate, non-overlapping package, or specify the packages to scan explicitly in the `@ComponentScan`).
+
+NOTE: The `serviceId` attribute is now deprecated in favor of the `name` attribute.
+
+WARNING: Previously, using the `url` attribute, did not require the `name` attribute. Using `name` is now required.
+
+Spring Cloud Netflix provides the following beans by default for feign (`BeanType` beanName: `ClassName`):
+
+* `Decoder` feignDecoder: `ResponseEntityDecoder` (which wraps a `SpringDecoder`)
+* `Encoder` feignEncoder: `SpringEncoder`
+* `Logger` feignLogger: `Slf4jLogger`
+* `Contract` feignContract: `SpringMvcContract`
+
+Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
+
+* `Logger.Level`
+* `Retryer`
+* `ErrorDecoder`
+* `Request.Options`
+* `Collection<RequestInterceptor>`
+
+Creating a bean of one of those type and placing it in a `@FeignClient` configuration (such as `FooConfiguration` above) allows you to override each one of the beans described.  Example:
+
+[source,java,indent=0]
+----
+	@Configuration
+	public class FooConfiguration {
+		@Bean
+    	public Contract feignContractg() {
+    		return new feign.Contract.Default();
+    	}
+
+    	@Bean
+    	public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+    		return new BasicAuthRequestInterceptor("user", "password");
+    	}
+	}
+----
+
+This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `RequestInterceptor` to the collection of `RequestInterceptor`.
+
+Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
+
 [[spring-cloud-feign-inheritance]]
 === Feign Inheritance Support
 
