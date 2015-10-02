@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import({ FeignClientsConfiguration.class, FeignClientsRegistrar.class })
+@Import(FeignClientsRegistrar.class)
 public @interface EnableFeignClients {
 
 	/**
@@ -71,4 +71,18 @@ public @interface EnableFeignClients {
 	 */
 	Class<?>[] basePackageClasses() default {};
 
+	/**
+	 * A custom <code>@Configuration</code> for all feign clients. Can contain override
+	 * <code>@Bean</code> definition for the pieces that make up the client, for instance
+	 * {@link feign.codec.Decoder}, {@link feign.codec.Encoder}, {@link feign.Contract}.
+	 *
+	 * @see FeignClientsConfiguration for the defaults
+	 */
+	Class<?>[] defaultConfiguration() default {};
+
+	/**
+	 * List of classes annotated with @FeignClient. If not empty, disables classpath scanning.
+	 * @return
+	 */
+	Class<?>[] clients() default {};
 }

@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
@@ -59,10 +58,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (StringUtils.hasText(this.name)) {
-			Assert.state(!StringUtils.hasText(this.url),
-					"Either value or url can be specified, but not both");
-		}
+		Assert.hasText(this.name, "Name must be set");
 	}
 
 	@Override
@@ -70,30 +66,30 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		this.context = context;
 	}
 
-	protected Feign.Builder feign() {
+	protected Feign.Builder feign(FeignClientFactory factory) {
 		// @formatter:off
 		Feign.Builder builder = Feign.builder()
 				// required values
-				.logger(get(Logger.class))
-				.encoder(get(Encoder.class))
-				.decoder(get(Decoder.class))
-				.contract(get(Contract.class));
+				.logger(get(factory, Logger.class))
+				.encoder(get(factory, Encoder.class))
+				.decoder(get(factory, Decoder.class))
+				.contract(get(factory, Contract.class));
 		// @formatter:on
 
 		// optional values
-		Logger.Level level = getOptional(Logger.Level.class);
+		Logger.Level level = getOptional(factory, Logger.Level.class);
 		if (level != null) {
 			builder.logLevel(level);
 		}
-		Retryer retryer = getOptional(Retryer.class);
+		Retryer retryer = getOptional(factory, Retryer.class);
 		if (retryer != null) {
 			builder.retryer(retryer);
 		}
-		ErrorDecoder errorDecoder = getOptional(ErrorDecoder.class);
+		ErrorDecoder errorDecoder = getOptional(factory, ErrorDecoder.class);
 		if (errorDecoder != null) {
 			builder.errorDecoder(errorDecoder);
 		}
-		Request.Options options = getOptional(Request.Options.class);
+		Request.Options options = getOptional(factory, Request.Options.class);
 		if (options != null) {
 			builder.options(options);
 		}
@@ -105,24 +101,23 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		return builder;
 	}
 
-	protected <T> T get(Class<T> type) {
-		return this.context.getBean(type);
-	}
-
-	protected <T> T getOptional(Class<T> type) {
-		try {
-			return this.context.getBean(type);
-		} catch (NoSuchBeanDefinitionException e) {
-			//ignore
+	protected <T> T get(FeignClientFactory factory, Class<T> type) {
+		T instance = factory.getInstance(this.name, type);
+		if (instance == null) {
+			throw new IllegalStateException("No bean found of type " + type + " for " + this.name);
 		}
-		return null;
+		return instance;
 	}
 
-	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
+	protected <T> T getOptional(FeignClientFactory factory, Class<T> type) {
+		return factory.getInstance(this.name, type);
+	}
+
+	protected <T> T loadBalance(Feign.Builder builder, FeignClientFactory factory, Class<T> type, String url) {
 		builder.logger(new Slf4jLogger(type)); // TODO: how to have choice here?
-		Client client = getOptional(Client.class);
+		Client client = getOptional(factory, Client.class);
 		if (client != null) {
-			return builder.client(client).target(type, schemeName);
+			return builder.client(client).target(type, url);
 		}
 
 		throw new IllegalStateException("No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-ribbon?");
@@ -130,16 +125,21 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 
 	@Override
 	public Object getObject() throws Exception {
-		if (StringUtils.hasText(this.name) && !this.name.startsWith("http")) {
-			this.name = "http://" + this.name;
-		}
-		if (StringUtils.hasText(this.name)) {
-			return loadBalance(feign(), this.type, this.name);
+		FeignClientFactory factory = context.getBean(FeignClientFactory.class);
+
+		if (!StringUtils.hasText(this.url)) {
+			String url;
+			if (!this.name.startsWith("http")) {
+				url = "http://" + this.name;
+			} else {
+				url = this.name;
+			}
+			return loadBalance(feign(factory), factory, this.type, url);
 		}
 		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
 			this.url = "http://" + this.url;
 		}
-		return feign().target(this.type, this.url);
+		return feign(factory).target(this.type, this.url);
 	}
 
 	@Override

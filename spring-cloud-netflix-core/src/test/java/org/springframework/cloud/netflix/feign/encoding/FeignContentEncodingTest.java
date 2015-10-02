@@ -75,7 +75,7 @@ public class FeignContentEncodingTest {
 
     }
 
-    @EnableFeignClients
+    @EnableFeignClients(clients = InvoiceClient.class)
     @RibbonClient(name = "local", configuration = LocalRibbonClientConfiguration.class)
     @ComponentScan("org.springframework.cloud.netflix.feign.encoding.app")
     @EnableAutoConfiguration

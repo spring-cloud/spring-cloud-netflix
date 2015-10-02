@@ -47,21 +47,25 @@ public class FeignClientsConfiguration {
 	private ObjectFactory<HttpMessageConverters> messageConverters;
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
 		return new ResponseEntityDecoder(new SpringDecoder(messageConverters));
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
 		return new SpringEncoder(messageConverters);
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Logger feignLogger() {
 		return new Slf4jLogger();
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Contract feignContract() {
 		return new SpringMvcContract();
 	}
