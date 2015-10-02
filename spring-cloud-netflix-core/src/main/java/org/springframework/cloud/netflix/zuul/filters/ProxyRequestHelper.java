@@ -31,12 +31,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
@@ -260,10 +258,10 @@ public class ProxyRequestHelper {
 			return;
 		}
 		char[] buffer = new char[4096];
-		int count = IOUtils.read(new InputStreamReader(inputStream, Charset.forName("UTF-8")),
-				buffer);
-		String entity = new String(buffer).substring(0, count);
-		if (StringUtils.hasText(entity)) {
+		int count = new InputStreamReader(inputStream, Charset.forName("UTF-8"))
+				.read(buffer, 0, buffer.length);
+		if (count > 0) {
+			String entity = new String(buffer).substring(0, count);
 			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
 		}
 	}
