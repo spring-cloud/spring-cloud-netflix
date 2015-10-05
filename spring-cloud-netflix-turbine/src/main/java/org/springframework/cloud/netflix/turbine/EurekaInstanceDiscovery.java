@@ -159,7 +159,7 @@ public class EurekaInstanceDiscovery implements InstanceDiscovery {
 				instance.getAttributes().put("asg", asgName);
 			}
 			if (!combineHostPort) {
-                instance.getAttributes().put("port", String.valueOf(instanceInfo.getPort()));
+                instance.getAttributes().put("port", port);
             }
 			DataCenterInfo dcInfo = instanceInfo.getDataCenterInfo();
 			if (dcInfo != null && dcInfo.getName().equals(DataCenterInfo.Name.Amazon)) {
