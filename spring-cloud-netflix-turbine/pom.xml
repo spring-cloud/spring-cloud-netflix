@@ -8,7 +8,8 @@
 		<version>1.1.0.M1</version>
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
-	<artifactId>spring-cloud-netflix-turbine</artifactId>
+    <artifactId>spring-cloud-netflix-turbine</artifactId>
+    <version>1.1.0.M1-fixes</version>
 	<packaging>jar</packaging>
 	<name>Spring Cloud Netflix Turbine</name>
 	<url>http://projects.spring.io/spring-cloud/</url>
