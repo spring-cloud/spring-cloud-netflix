@@ -60,12 +60,11 @@ public @interface FeignClient {
 	String url() default "";
 
 	/**
-	 * TODO: fix documentation here
 	 * A custom <code>@Configuration</code> for the feign client. Can contain override
 	 * <code>@Bean</code> definition for the pieces that make up the client, for instance
-	 * {@link ILoadBalancer}, {@link ServerListFilter}, {@link IRule}.
+	 * {@link feign.codec.Decoder}, {@link feign.codec.Encoder}, {@link feign.Contract}.
 	 *
-	 * @see RibbonClientConfiguration for the defaults
+	 * @see FeignClientsConfiguration for the defaults
 	 */
 	Class<?>[] configuration() default {};
 }

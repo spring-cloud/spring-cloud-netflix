@@ -275,7 +275,6 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 			return value;
 		}
 
-		//FIXME: handle url
 		throw new IllegalStateException(
 				"Either 'name' or 'value' must be provided in @" + FeignClient.class.getSimpleName());
 	}

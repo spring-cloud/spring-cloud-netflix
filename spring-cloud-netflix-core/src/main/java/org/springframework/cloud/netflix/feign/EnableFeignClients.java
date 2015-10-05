@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 /**
- * TODO: fix documentation here
  * Scans for interfaces that declare they are feign clients (via {@link FeignClient
  * <code>@FeignClient</code>}). Configures component scanning directives for use with
  * {@link org.springframework.context.annotation.Configuration
@@ -72,6 +71,13 @@ public @interface EnableFeignClients {
 	 */
 	Class<?>[] basePackageClasses() default {};
 
+	/**
+	 * A custom <code>@Configuration</code> for all feign clients. Can contain override
+	 * <code>@Bean</code> definition for the pieces that make up the client, for instance
+	 * {@link feign.codec.Decoder}, {@link feign.codec.Encoder}, {@link feign.Contract}.
+	 *
+	 * @see FeignClientsConfiguration for the defaults
+	 */
 	Class<?>[] defaultConfiguration() default {};
 
 	/**
