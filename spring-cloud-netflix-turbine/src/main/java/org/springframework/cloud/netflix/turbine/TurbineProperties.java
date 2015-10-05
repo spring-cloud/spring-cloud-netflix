@@ -29,6 +29,6 @@ public class TurbineProperties {
 
 	private String clusterNameExpression = "appName";
 
-    private boolean combineHostPort = false;
+	private boolean combineHostPort = false;
 
 }
