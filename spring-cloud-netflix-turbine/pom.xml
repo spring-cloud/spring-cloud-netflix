@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
-		<version>1.1.0.M1</version>
+		<version>1.1.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
     <artifactId>spring-cloud-netflix-turbine</artifactId>
-    <version>1.1.0.M1-fixes</version>
+    <version>1.1.0.BUILD-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Spring Cloud Netflix Turbine</name>
 	<url>http://projects.spring.io/spring-cloud/</url>
