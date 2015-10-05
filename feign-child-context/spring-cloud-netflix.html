@@ -1376,6 +1376,129 @@ in your external configuration (see
 <a href="#spring-cloud-ribbon-without-eureka">above for example</a>).</p>
 </div>
 <div class="sect2">
+<h3 id="spring-cloud-feign-overriding-defaults">Overriding Feign Defaults</h3>
+<div class="paragraph">
+<p>A central concept in Spring Cloud&#8217;s Feign support is that of the named client. Each feign client is part of an ensemble of components that work together to contact a remote server on demand, and the ensemble has a name that you give it as an application developer using the <code>@FeignClient</code> annotation. Spring Cloud creates a new ensemble as an
+<code>ApplicationContext</code> on demand for each named client using <code>FeignClientsConfiguration</code>. This contains (amongst other things) an <code>feign.Decoder</code>, a <code>feign.Encoder</code>, and a <code>feign.Contract</code>.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud lets you take full control of the feign client by declaring additional configuration (on top of the <code>FeignClientsConfiguration</code>) using <code>@FeignClient</code>. Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "stores", configuration = FooConfiguration.class)
+public interface StoreClient {
+    //..
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case the client is composed from the components already in <code>FeignClientsConfiguration</code> together with any in <code>FooConfiguration</code> (where the latter will override the former).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+The <code>FooConfiguration</code> has to be <code>@Configuration</code> but take care that it is not in a <code>@ComponentScan</code> for the main application context, otherwise it will be shared by all the <code>@FeignClient`s. If you use `@ComponentScan</code> (or <code>@SpringBootApplication</code>) you need to take steps to avoid it being included (for instance put it in a separate, non-overlapping package, or specify the packages to scan explicitly in the <code>@ComponentScan</code>).
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The <code>serviceId</code> attribute is now deprecated in favor of the <code>name</code> attribute.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Previously, using the <code>url</code> attribute, did not require the <code>name</code> attribute. Using <code>name</code> is now required.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Netflix provides the following beans by default for feign (<code>BeanType</code> beanName: <code>ClassName</code>):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Decoder</code> feignDecoder: <code>ResponseEntityDecoder</code> (which wraps a <code>SpringDecoder</code>)</p>
+</li>
+<li>
+<p><code>Encoder</code> feignEncoder: <code>SpringEncoder</code></p>
+</li>
+<li>
+<p><code>Logger</code> feignLogger: <code>Slf4jLogger</code></p>
+</li>
+<li>
+<p><code>Contract</code> feignContract: <code>SpringMvcContract</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Netflix <em>does not</em> provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Logger.Level</code></p>
+</li>
+<li>
+<p><code>Retryer</code></p>
+</li>
+<li>
+<p><code>ErrorDecoder</code></p>
+</li>
+<li>
+<p><code>Request.Options</code></p>
+</li>
+<li>
+<p><code>Collection&lt;RequestInterceptor&gt;</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Creating a bean of one of those type and placing it in a <code>@FeignClient</code> configuration (such as <code>FooConfiguration</code> above) allows you to override each one of the beans described.  Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+    public Contract feignContractg() {
+        return new feign.Contract.Default();
+    }
+
+    @Bean
+    public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+        return new BasicAuthRequestInterceptor("user", "password");
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This replaces the <code>SpringMvcContract</code> with <code>feign.Contract.Default</code> and adds a <code>RequestInterceptor</code> to the collection of <code>RequestInterceptor</code>.</p>
+</div>
+<div class="paragraph">
+<p>Default configurations can be specified in the <code>@EnableFeignClients</code> attribute <code>defaultConfiguration</code> in a similar manner as described above. The difference is that this configuration will apply to <em>all</em> feign clients.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="spring-cloud-feign-inheritance">Feign Inheritance Support</h3>
 <div class="paragraph">
 <p>Feign supports boilerplate apis via single-inheritance interfaces.
@@ -1841,7 +1964,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-02 21:40:54 UTC
+Last updated 2015-10-05 19:53:45 UTC
 </div>
 </div>
 </body>
