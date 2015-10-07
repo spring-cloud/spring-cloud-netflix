@@ -110,7 +110,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private String fetchRemoteRegionsRegistry;
 
-	private Map<String, String> availabilityZones = new HashMap<String, String>();
+	private Map<String, String> availabilityZones = new HashMap<>();
 
 	private boolean filterOnlyUpInstances = true;
 
