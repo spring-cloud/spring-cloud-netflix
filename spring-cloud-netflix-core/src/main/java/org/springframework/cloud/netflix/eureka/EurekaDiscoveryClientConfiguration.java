@@ -95,9 +95,12 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
 
 			this.eurekaClient.getApplications(); // force initialization
-			log.info("Registering application " + this.instanceConfig.getAppname()
-					+ " with eureka with status "
-					+ this.instanceConfig.getInitialStatus());
+			
+			if (log.isInfoEnabled()) {
+				log.info("Registering application " + this.instanceConfig.getAppname()
+						+ " with eureka with status "
+						+ this.instanceConfig.getInitialStatus());
+			}
 
 			this.applicationInfoManager
 					.setInstanceStatus(this.instanceConfig.getInitialStatus());
@@ -114,8 +117,12 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Override
 	public void stop() {
 		if (this.applicationInfoManager.getInfo() != null) {
-			log.info("Unregistering application " + this.instanceConfig.getAppname()
-					+ " with eureka with status DOWN");
+			
+			if (log.isInfoEnabled()) {
+				log.info("Unregistering application " + this.instanceConfig.getAppname()
+						+ " with eureka with status DOWN");
+			}
+			
 			this.applicationInfoManager.setInstanceStatus(InstanceStatus.DOWN);
 		}
 		this.running.set(false);
