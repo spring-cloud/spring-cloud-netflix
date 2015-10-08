@@ -42,7 +42,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 	private static final String CONTENT_TYPE = "Content-Type";
 
 	@Override
-	protected MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
+	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
 
 		RequestMapping classAnnotation = targetType.getAnnotation(RequestMapping.class);
