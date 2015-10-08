@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.health.HealthAggregator;
@@ -36,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
@@ -47,8 +50,6 @@ import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * @author Dave Syer
  * @author Spencer Gibb
@@ -59,6 +60,7 @@ import lombok.extern.apachecommons.CommonsLog;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@Import(DiscoveryClientConfiguration.class)
 @CommonsLog
 public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Ordered {
 
