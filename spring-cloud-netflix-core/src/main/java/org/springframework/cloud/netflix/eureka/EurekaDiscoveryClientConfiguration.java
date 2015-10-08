@@ -38,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
@@ -59,6 +60,7 @@ import com.netflix.discovery.EurekaClientConfig;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+@Import(DiscoveryClientConfiguration.class)
 @CommonsLog
 public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Ordered {
 
