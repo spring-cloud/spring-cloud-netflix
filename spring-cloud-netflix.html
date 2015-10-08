@@ -573,7 +573,7 @@ application Spring Boot Actuator current health check status.  Which means
 that after successful registration Eureka will always announce that the
 application is in 'UP' state. This behaviour can be altered by enabling
 Eureka health checks, which results in propagating application status
-to Eureka, as a consequence every other application will not sending
+to Eureka. As a consequence every other application won&#8217;t be sending
 traffic to application in state other then 'UP'.</p>
 </div>
 <div class="listingblock">
@@ -1535,6 +1535,32 @@ public interface UserClient extends UserService {
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_feign_request_response_compression">Feign request/response compression</h3>
+<div class="paragraph">
+<p>You may consider enabling the request or response GZIP compression for your
+Feign requests. You can do this by enabling one of the properties:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
+feign.compression.response.enabled=true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Feign request compression gives you settings similar to what you may set for your web server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
+feign.compression.request.mime-types=text/xml,application/xml,application/json
+feign.compression.request.min-request-size=2048</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These properties allow you to be selective about the compressed media types and minimum request threshold length.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1964,7 +1990,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-08 22:03:30 UTC
+Last updated 2015-10-08 22:12:57 UTC
 </div>
 </div>
 </body>
