@@ -128,9 +128,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 		boolean isHttpAnnotation = false;
 		// TODO: support spring parameter annotations?
 		for (Annotation parameterAnnotation : annotations) {
-			Class<? extends Annotation> annotationType = parameterAnnotation
-					.annotationType();
-			if (annotationType == PathVariable.class) {
+			if (parameterAnnotation instanceof PathVariable) {
 				String name = PathVariable.class.cast(parameterAnnotation).value();
 				checkState(emptyToNull(name) != null,
 						"PathVariable annotation was empty on param %s.", paramIndex);
@@ -143,7 +141,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 					data.formParams().add(name);
 				}
 			}
-			else if (annotationType == RequestParam.class) {
+			else if (parameterAnnotation instanceof RequestParam) {
 				String name = RequestParam.class.cast(parameterAnnotation).value();
 				checkState(emptyToNull(name) != null,
 						"QueryParam.value() was empty on parameter %s", paramIndex);
@@ -153,7 +151,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 				nameParam(data, name, paramIndex);
 				isHttpAnnotation = true;
 			}
-			else if (annotationType == RequestHeader.class) {
+			else if (parameterAnnotation instanceof RequestHeader) {
 				String name = RequestHeader.class.cast(parameterAnnotation).value();
 				checkState(emptyToNull(name) != null,
 						"HeaderParam.value() was empty on parameter %s", paramIndex);
