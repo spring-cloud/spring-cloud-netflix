@@ -126,7 +126,7 @@ application Spring Boot Actuator current health check status.  Which means
 that after successful registration Eureka will always announce that the
 application is in 'UP' state. This behaviour can be altered by enabling
 Eureka health checks, which results in propagating application status
-to Eureka, as a consequence every other application will not sending
+to Eureka. As a consequence every other application won't be sending
 traffic to application in state other then 'UP'.
 
 .application.yml
@@ -863,6 +863,28 @@ public interface UserClient extends UserService {
 
 }
 ----
+
+=== Feign request/response compression
+
+You may consider enabling the request or response GZIP compression for your
+Feign requests. You can do this by enabling one of the properties:
+
+[source,java]
+----
+feign.compression.request.enabled=true
+feign.compression.response.enabled=true
+----
+
+The request compression gives you similar setting as you may set for your web server:
+
+[source,java]
+----
+feign.compression.request.enabled=true
+feign.compression.request.mime-types=text/xml,application/xml,application/json
+feign.compression.request.min-request-size=2048
+----
+
+Allowing to be selective about the compressed media types and minimum request threshold length.
 
 == External Configuration: Archaius
 
