@@ -16,8 +16,12 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import lombok.SneakyThrows;
+import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
@@ -39,15 +43,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
+import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
@@ -83,11 +87,15 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Autowired
 	private EurekaClient eurekaClient;
 
+	@Autowired
+	private InstanceInfo instanceInfo;
+
 	@Override
 	public void start() {
 		// only set the port if the nonSecurePort is 0 and this.port != 0
 		if (this.port.get() != 0 && this.instanceConfig.getNonSecurePort() == 0) {
 			this.instanceConfig.setNonSecurePort(this.port.get());
+			setInstanceInfoPort();
 		}
 
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
@@ -112,6 +120,13 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 					new InstanceRegisteredEvent<>(this, this.instanceConfig));
 			this.running.set(true);
 		}
+	}
+
+	@SneakyThrows
+	private void setInstanceInfoPort() {
+		Field port = ReflectionUtils.findField(InstanceInfo.class, "port");
+		ReflectionUtils.makeAccessible(port);
+		port.setInt(this.instanceInfo, this.port.get());
 	}
 
 	@Override
