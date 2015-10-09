@@ -28,7 +28,7 @@
 		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.2.5</eureka.version>
 		<feign.version>8.10.0</feign.version>
-		<hystrix.version>1.4.16</hystrix.version>
+		<hystrix.version>1.4.17</hystrix.version>
 		<ribbon.version>2.1.0</ribbon.version>
 		<servo.version>0.9.4</servo.version>
 		<zuul.version>1.1.0-rc.1</zuul.version>
