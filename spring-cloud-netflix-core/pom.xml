@@ -70,8 +70,8 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.governator</groupId>
-			<artifactId>governator</artifactId>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
