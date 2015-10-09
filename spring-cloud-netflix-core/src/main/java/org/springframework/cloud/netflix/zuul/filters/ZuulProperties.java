@@ -55,6 +55,8 @@ public class ZuulProperties {
 
 	private String servletPath = "/zuul";
 
+	private boolean ignoreLocalService = true;
+
 	@PostConstruct
 	public void init() {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {

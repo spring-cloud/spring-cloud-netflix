@@ -27,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.apachecommons.CommonsLog;
 
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
@@ -62,7 +63,17 @@ public class ProxyRouteLocator implements RouteLocator {
 	        //set Zuul servlet path
 	        this.servletPath = properties.getServletPath() != null? properties.getServletPath() : "";
 	    }
-		
+
+		if (properties.isIgnoreLocalService()) {
+			ServiceInstance instance = discovery.getLocalServiceInstance();
+			if (instance != null) {
+				String localServiceId = instance.getServiceId();
+				if (!properties.getIgnoredServices().contains(localServiceId)) {
+					properties.getIgnoredServices().add(localServiceId);
+				}
+			}
+		}
+
 		this.discovery = discovery;
 		this.properties = properties;
 	}

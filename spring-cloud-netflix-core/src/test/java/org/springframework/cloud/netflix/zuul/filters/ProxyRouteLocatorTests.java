@@ -16,18 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.core.env.ConfigurableEnvironment;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -35,6 +23,19 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.cloud.client.DefaultServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author Spencer Gibb
@@ -484,6 +485,39 @@ public class ProxyRouteLocatorTests {
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);
 	}
+
+	@Test
+	public void testIgnoredLocalServiceByDefault() {
+		given(this.discovery.getServices()).willReturn(Collections.singletonList(MYSERVICE));
+		given(this.discovery.getLocalServiceInstance()).willReturn(new DefaultServiceInstance(MYSERVICE, "localhost", 80, false));
+
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+
+		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
+		ZuulRoute actual = routes.get("/**");
+		assertNull("routes didn't ignore "+MYSERVICE, actual);
+
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertTrue("routesMap was empty", routesMap.isEmpty());
+	}
+
+	@Test
+	public void testIgnoredLocalServiceFalse() {
+		this.properties.setIgnoreLocalService(false);
+
+		given(this.discovery.getServices()).willReturn(Collections.singletonList(MYSERVICE));
+
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, MYSERVICE);
+	}
+
 
 	protected void assertMapping(Map<String, String> routesMap, String serviceId) {
 		assertMapping(routesMap, serviceId, serviceId);
