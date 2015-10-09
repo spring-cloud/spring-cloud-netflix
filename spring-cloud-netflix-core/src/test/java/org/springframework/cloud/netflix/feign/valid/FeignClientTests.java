@@ -247,18 +247,18 @@ public class FeignClientTests {
 	public static class Hello {
 		private String message;
 	}
-}
 
-// Load balancer with fixed server list for "local" pointing to localhost
-@Configuration
-class LocalRibbonClientConfiguration {
+	// Load balancer with fixed server list for "local" pointing to localhost
+	@Configuration
+	public static class LocalRibbonClientConfiguration {
 
-	@Value("${local.server.port}")
-	private int port = 0;
+		@Value("${local.server.port}")
+		private int port = 0;
 
-	@Bean
-	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", this.port));
+		@Bean
+		public ServerList<Server> ribbonServerList() {
+			return new StaticServerList<>(new Server("localhost", this.port));
+		}
+
 	}
-
 }
