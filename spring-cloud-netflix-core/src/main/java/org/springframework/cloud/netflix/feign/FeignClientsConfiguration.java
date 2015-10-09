@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.Client;
-import feign.httpclient.ApacheHttpClient;
 import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +29,11 @@ import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import feign.Client;
 import feign.Contract;
-import feign.Logger;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
-import feign.slf4j.Slf4jLogger;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * @author Dave Syer
@@ -56,12 +54,6 @@ public class FeignClientsConfiguration {
 	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
 		return new SpringEncoder(messageConverters);
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	public Logger feignLogger() {
-		return new Slf4jLogger();
 	}
 
 	@Bean

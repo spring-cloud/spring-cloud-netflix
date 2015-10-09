@@ -67,10 +67,16 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 	}
 
 	protected Feign.Builder feign(FeignClientFactory factory) {
+		Logger logger = getOptional(factory, Logger.class);
+
+		if (logger == null) {
+			logger = new Slf4jLogger(this.type);
+		}
+
 		// @formatter:off
 		Feign.Builder builder = Feign.builder()
 				// required values
-				.logger(get(factory, Logger.class))
+				.logger(logger)
 				.encoder(get(factory, Encoder.class))
 				.decoder(get(factory, Decoder.class))
 				.contract(get(factory, Contract.class));
@@ -114,7 +120,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 	}
 
 	protected <T> T loadBalance(Feign.Builder builder, FeignClientFactory factory, Class<T> type, String url) {
-		builder.logger(new Slf4jLogger(type)); // TODO: how to have choice here?
 		Client client = getOptional(factory, Client.class);
 		if (client != null) {
 			return builder.client(client).target(type, url);

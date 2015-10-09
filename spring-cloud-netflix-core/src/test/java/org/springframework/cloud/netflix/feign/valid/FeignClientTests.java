@@ -29,6 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +60,9 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
 import feign.Client;
+import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -68,8 +70,10 @@ import lombok.NoArgsConstructor;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignClientTests.Application.class)
-@WebIntegrationTest(randomPort = true, value = { "spring.application.name=feignclienttest",
-	"feign.httpclient.enabled=false"})
+@WebIntegrationTest(randomPort = true, value = {
+		"spring.application.name=feignclienttest",
+		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
+		"feign.httpclient.enabled=false"})
 @DirtiesContext
 public class FeignClientTests {
 
@@ -113,7 +117,8 @@ public class FeignClientTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class})
+	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class},
+			defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application {
 
@@ -246,6 +251,14 @@ public class FeignClientTests {
 	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+	}
+
+	@Configuration
+	public static class TestDefaultFeignConfig {
+		@Bean
+		Logger.Level feignLoggerLevel() {
+			return Logger.Level.FULL;
+		}
 	}
 
 	// Load balancer with fixed server list for "local" pointing to localhost

@@ -606,10 +606,10 @@ declaring additional configuration (on top of the
 
 [source,java,indent=0]
 ----
-	@Configuration
-	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
-	public class TestConfiguration {
-	}
+@Configuration
+@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+public class TestConfiguration {
+}
 ----
 
 In this case the client is composed from the components already in
@@ -640,13 +640,13 @@ one of the beans described.  Example:
 
 [source,java,indent=0]
 ----
-	@Configuration
-	public class FooConfiguration {
-		@Bean
-    	public IPing ribbonPing(IClientConfig config) {
-    		return new PingUrl();
-    	}
-	}
+@Configuration
+public class FooConfiguration {
+    @Bean
+    public IPing ribbonPing(IClientConfig config) {
+        return new PingUrl();
+    }
+}
 ----
 
 This replaces the `NoOpPing` with `PingUrl`.
@@ -777,10 +777,10 @@ Spring Cloud lets you take full control of the feign client by declaring additio
 
 [source,java,indent=0]
 ----
-	@FeignClient(name = "stores", configuration = FooConfiguration.class)
-	public interface StoreClient {
-        //..
-	}
+@FeignClient(name = "stores", configuration = FooConfiguration.class)
+public interface StoreClient {
+    //..
+}
 ----
 
 In this case the client is composed from the components already in `FeignClientsConfiguration` together with any in `FooConfiguration` (where the latter will override the former).
@@ -810,18 +810,18 @@ Creating a bean of one of those type and placing it in a `@FeignClient` configur
 
 [source,java,indent=0]
 ----
-	@Configuration
-	public class FooConfiguration {
-		@Bean
-    	public Contract feignContractg() {
-    		return new feign.Contract.Default();
-    	}
+@Configuration
+public class FooConfiguration {
+    @Bean
+    public Contract feignContractg() {
+        return new feign.Contract.Default();
+    }
 
-    	@Bean
-    	public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
-    		return new BasicAuthRequestInterceptor("user", "password");
-    	}
-	}
+    @Bean
+    public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+        return new BasicAuthRequestInterceptor("user", "password");
+    }
+}
 ----
 
 This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `RequestInterceptor` to the collection of `RequestInterceptor`.
@@ -858,6 +858,8 @@ public class UserResource implements UserService {
 .UserClient.java
 [source,java,indent=0]
 ----
+package project.user;
+
 @FeignClient("users")
 public interface UserClient extends UserService {
 
@@ -885,6 +887,37 @@ feign.compression.request.min-request-size=2048
 ----
 
 These properties allow you to be selective about the compressed media types and minimum request threshold length.
+
+=== Feign logging
+
+A logger is created for each Feign client created. By default the name of the logger is the full class name of the interface used to create the Feign client. Feign logging only responds to the `DEBUG` level.
+
+.application.yml
+
+[source,yaml]
+----
+logging.level.project.user.UserClient: DEBUG
+----
+
+The `Logger.Level` object that you may configure per client, tells Feign how much to log. Choices are:
+
+* `NONE`, No logging (*DEFAULT*).
+* `BASIC`, Log only the request method and URL and the response status code and execution time.
+* `HEADERS`, Log the basic information along with request and response headers.
+* `FULL`, Log the headers, body, and metadata for both requests and responses.
+
+For example, the following would set the `Logger.Level` to `FULL`:
+
+[source,java,indent=0]
+----
+@Configuration
+public class FooConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+}
+----
 
 == External Configuration: Archaius
 
