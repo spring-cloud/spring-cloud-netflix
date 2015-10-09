@@ -45,13 +45,13 @@ public class ZuulProperties {
 
 	private Boolean retryable;
 
-	private Map<String, ZuulRoute> routes = new LinkedHashMap<String, ZuulRoute>();
+	private Map<String, ZuulRoute> routes = new LinkedHashMap<>();
 
 	private boolean addProxyHeaders = true;
 
-	private List<String> ignoredServices = new ArrayList<String>();
+	private List<String> ignoredServices = new ArrayList<>();
 
-	private List<String> ignoredPatterns = new ArrayList<String>();
+	private List<String> ignoredPatterns = new ArrayList<>();
 
 	private String servletPath = "/zuul";
 
