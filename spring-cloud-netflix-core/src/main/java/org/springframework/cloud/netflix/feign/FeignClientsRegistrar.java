@@ -109,8 +109,11 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		Map<String, Object> attrs = metadata.getAnnotationAttributes(
 				EnableFeignClients.class.getName());
 		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(FeignClient.class);
-		if (attrs != null && attrs.containsKey("clients")) {
-			final Class<?>[] clients = (Class<?>[]) attrs.get("clients");
+		final Class<?>[] clients = attrs == null ? null : (Class<?>[]) attrs.get("clients");
+		if (clients == null || clients.length == 0) {
+			scanner.addIncludeFilter(annotationTypeFilter);
+			basePackages = getBasePackages(metadata);
+		} else {
 			final Set<String> clientClasses = new HashSet<>();
 			basePackages = new HashSet<>();
 			for (Class<?> clazz : clients) {
@@ -125,9 +128,6 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 				}
 			};
 			scanner.addIncludeFilter(new AllTypeFilter(Arrays.asList(filter, annotationTypeFilter)));
-		} else {
-			scanner.addIncludeFilter(annotationTypeFilter);
-			basePackages = getBasePackages(metadata);
 		}
 
 		for (String basePackage : basePackages) {
