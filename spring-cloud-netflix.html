@@ -1528,7 +1528,9 @@ public class UserResource implements UserService {
 <div class="listingblock">
 <div class="title">UserClient.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("users")
+<pre class="highlight"><code class="language-java" data-lang="java">package project.user;
+
+@FeignClient("users")
 public interface UserClient extends UserService {
 
 }</code></pre>
@@ -1559,6 +1561,51 @@ feign.compression.request.min-request-size=2048</code></pre>
 </div>
 <div class="paragraph">
 <p>These properties allow you to be selective about the compressed media types and minimum request threshold length.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_feign_logging">Feign logging</h3>
+<div class="paragraph">
+<p>A logger is created for each Feign client created. By default the name of the logger is the full class name of the interface used to create the Feign client. Feign logging only responds to the <code>DEBUG</code> level.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">logging.level.project.user.UserClient: DEBUG</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>Logger.Level</code> object that you may configure per client, tells Feign how much to log. Choices are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>NONE</code>, No logging (<strong>DEFAULT</strong>).</p>
+</li>
+<li>
+<p><code>BASIC</code>, Log only the request method and URL and the response status code and execution time.</p>
+</li>
+<li>
+<p><code>HEADERS</code>, Log the basic information along with request and response headers.</p>
+</li>
+<li>
+<p><code>FULL</code>, Log the headers, body, and metadata for both requests and responses.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For example, the following would set the <code>Logger.Level</code> to <code>FULL</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1990,7 +2037,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-09 22:15:05 UTC
+Last updated 2015-10-09 23:07:34 UTC
 </div>
 </div>
 </body>
