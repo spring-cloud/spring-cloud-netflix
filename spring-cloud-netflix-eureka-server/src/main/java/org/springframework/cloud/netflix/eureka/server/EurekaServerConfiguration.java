@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.Filter;
 import javax.ws.rs.Path;
@@ -58,12 +60,6 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 @EnableDiscoveryClient
 @EnableConfigurationProperties(EurekaDashboardProperties.class)
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
-	/**
-	 * List of packages containing Jersey resources required by the Eureka server
-	 */
-	private static String[] EUREKA_PACKAGES = new String[] {
-		"com.netflix.discovery", 
-		"com.netflix.eureka"};
 	
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
@@ -115,19 +111,13 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 		// Find classes in Eureka packages (or subpackages)
 		//
-		Set<Class<?>> classes = new HashSet<Class<?>>();
-		for (String basePackage : EUREKA_PACKAGES) {
-			Set<BeanDefinition> beans = provider.findCandidateComponents(basePackage);
-			for (BeanDefinition bd : beans) {
-				Class<?> cls = ClassUtils.resolveClassName(bd.getBeanClassName(),
-						resourceLoader.getClassLoader());
-				classes.add(cls);
-			}
-		}
-
+		Set<Class<?>> classes = Stream.of("com.netflix.discovery", "com.netflix.eureka")
+			.flatMap(basePackage -> provider.findCandidateComponents(basePackage).stream())
+			.collect(Collectors.toCollection(HashSet::new));
+		
 		// Construct the Jersey ResourceConfig
 		//
-		Map<String, Object> propsAndFeatures = new HashMap<String, Object>();
+		Map<String, Object> propsAndFeatures = new HashMap<>();
 		propsAndFeatures.put(
 				// Skip static content used by the webapp
 				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX,
