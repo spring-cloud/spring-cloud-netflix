@@ -57,8 +57,6 @@ import org.springframework.web.context.ServletContextAware;
 import com.netflix.blitz4j.DefaultBlitz4jConfig;
 import com.netflix.blitz4j.LoggingConfiguration;
 import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.converters.JsonXStream;
-import com.netflix.discovery.converters.XmlXStream;
 import com.netflix.eureka.AbstractInstanceRegistry;
 import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
