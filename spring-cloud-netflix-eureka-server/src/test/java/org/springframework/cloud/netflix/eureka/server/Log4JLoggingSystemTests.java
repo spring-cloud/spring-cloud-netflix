@@ -31,8 +31,6 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
 
-import com.netflix.blitz4j.LoggingConfiguration;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -56,7 +54,6 @@ public class Log4JLoggingSystemTests {
 		System.setProperty("log4j.configuration", new ClassPathResource(
 				"log4j.properties", Log4JLoggingSystem.class).getURL().toString());
 		this.logger = Logger.getLogger(getClass());
-		LoggingConfiguration.getInstance().configure();
 	}
 
 	@Test

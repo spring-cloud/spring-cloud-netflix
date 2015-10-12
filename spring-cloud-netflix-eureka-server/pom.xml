@@ -47,10 +47,6 @@
 			<artifactId>eureka-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.blitz4j</groupId>
-			<artifactId>blitz4j</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
 		</dependency>

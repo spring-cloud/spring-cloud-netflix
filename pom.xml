@@ -265,12 +265,6 @@
 				<artifactId>xstream</artifactId>
 				<version>1.4.2</version>
 			</dependency>
-			<!-- Eureka server dep that is now optional -->
-			<dependency>
-				<groupId>com.netflix.blitz4j</groupId>
-				<artifactId>blitz4j</artifactId>
-				<version>1.36.0</version>
-			</dependency>
 			<dependency>
 				<groupId>com.netflix.feign</groupId>
 				<artifactId>feign-core</artifactId>
