@@ -69,7 +69,7 @@ public class EurekaRibbonClientConfiguration {
 	@Autowired(required = false)
 	private EurekaClientConfig clientConfig;
 
-	@Autowired
+	@Autowired(required = false)
 	private EurekaInstanceConfig eurekaConfig;
 
 	public EurekaRibbonClientConfiguration() {
@@ -112,7 +112,7 @@ public class EurekaRibbonClientConfiguration {
 		String zone = ConfigurationManager.getDeploymentContext().getValue(
 				ContextKey.zone);
 		if (this.clientConfig != null && StringUtils.isEmpty(zone)) {
-			if (approximateZoneFromHostname) {
+			if (approximateZoneFromHostname && eurekaConfig != null) {
 				String approxZone = ZoneUtils.extractApproximateZone(eurekaConfig
 						.getHostName(false));
 				log.debug("Setting Zone To " + approxZone);
