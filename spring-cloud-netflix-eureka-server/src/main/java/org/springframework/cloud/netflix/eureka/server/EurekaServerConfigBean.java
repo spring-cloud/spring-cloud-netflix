@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,37 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.eureka;
+package org.springframework.cloud.netflix.eureka.server;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.netflix.eureka.aws.AwsBindingStrategy;
 import lombok.Data;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.netflix.eureka.EurekaServerConfig;
+
+import org.springframework.cloud.netflix.eureka.EurekaConstants;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Dave Syer
  */
 @Data
-@ConfigurationProperties("eureka.server")
-public class EurekaServerConfigBean implements EurekaServerConfig {
+@ConfigurationProperties(EurekaServerConfigBean.PREFIX)
+public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstants {
 
-	public static final String DEFAULT_PREFIX = "/eureka";
+	public static final String PREFIX = "eureka.server";
 
 	private static final int MINUTES = 60 * 1000;
+
+	@Autowired(required = false)
+	PropertyResolver propertyResolver;
 
 	private String aWSAccessId;
 
@@ -45,6 +53,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private int eIPBindRebindRetries = 3;
 
 	private int eIPBindingRetryIntervalMs = 5 * MINUTES;
+
+	private int eIPBindingRetryIntervalMsWhenUnbound = 1 * MINUTES;
 
 	private boolean enableSelfPreservation = true;
 
@@ -100,7 +110,10 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean syncWhenTimestampDiffers = true;
 
-	private int registrySyncRetries = 5;
+	//TODO: what should these defaults be? for single first?
+	private int registrySyncRetries = 0;
+
+	private long registrySyncRetryWaitMs = 30 * 1000;
 
 	private int maxElementsInPeerReplicationPool = 10000;
 
@@ -128,7 +141,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private boolean gZipContentFromRemoteRegion = true;
 
-	private Map<String, String> remoteRegionUrlsWithName = new HashMap<String, String>();
+	private Map<String, String> remoteRegionUrlsWithName = new HashMap<>();
 
 	private String[] remoteRegionUrls;
 
@@ -167,6 +180,14 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	private String jsonCodecName;
 
 	private String xmlCodecName;
+
+	private int route53BindRebindRetries = 3;
+
+	private int route53BindingRetryIntervalMs = 5 * MINUTES;
+
+	private long route53DomainTTL = 30;
+
+	private AwsBindingStrategy bindingStrategy = AwsBindingStrategy.EIP;
 
 	@Override
 	public boolean shouldEnableSelfPreservation() {
@@ -237,5 +258,14 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	@Override
 	public boolean shouldEnableReplicatedRequestCompression() {
 		return this.enableReplicatedRequestCompression;
+	}
+
+	@Override
+	public String getExperimental(String name) {
+		if (propertyResolver != null) {
+			return propertyResolver.getProperty(PREFIX + ".experimental." + name,
+					String.class, null);
+		}
+		return null;
 	}
 }

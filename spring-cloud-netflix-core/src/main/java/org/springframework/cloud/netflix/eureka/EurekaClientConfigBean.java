@@ -22,28 +22,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Data;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.env.PropertyResolver;
 
 import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.shared.transport.EurekaTransportConfig;
+
+import lombok.Data;
 
 /**
  * @author Dave Syer
  */
 @Data
-@ConfigurationProperties("eureka.client")
-public class EurekaClientConfigBean implements EurekaClientConfig {
+@ConfigurationProperties(EurekaClientConfigBean.PREFIX)
+public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstants {
+
+	public static final String PREFIX = "eureka.client";
+
+	@Autowired(required = false)
+	PropertyResolver propertyResolver;
 
 	public static final String DEFAULT_URL = "http://localhost:8761"
-			+ EurekaServerConfigBean.DEFAULT_PREFIX + "/";
+			+ DEFAULT_PREFIX + "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
 
 	private static final int MINUTES = 60;
 
 	private boolean enabled = true;
+
+	private EurekaTransportConfig transport = new CloudEurkeaTransportConfig();
 
 	private int registryFetchIntervalSeconds = 30;
 
@@ -207,4 +217,17 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 		return this.onDemandUpdateStatusChange;
 	}
 
+	@Override
+	public String getExperimental(String name) {
+		if (propertyResolver != null) {
+			return propertyResolver.getProperty(PREFIX + ".experimental." + name,
+					String.class, null);
+		}
+		return null;
+	}
+
+	@Override
+	public EurekaTransportConfig getTransportConfig() {
+		return getTransport();
+	}
 }

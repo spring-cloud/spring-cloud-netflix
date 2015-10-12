@@ -68,6 +68,10 @@
 			<groupId>com.netflix.archaius</groupId>
 			<artifactId>archaius-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+		</dependency>
 		<!-- Eureka deps that are now optional in eureka -->
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
