@@ -37,6 +37,7 @@
 		<turbine.version>1.0.0</turbine.version>
 		<spring-integration-dsl.version>1.0.0.RELEASE</spring-integration-dsl.version>
 		<cloud-connectors.version>1.1.1.RELEASE</cloud-connectors.version>
+		<eureka-jersey.version>1.19</eureka-jersey.version>
 	</properties>
 	<build>
 		<plugins>
@@ -193,27 +194,27 @@
 			<dependency>
 				<groupId>com.sun.jersey</groupId>
 				<artifactId>jersey-servlet</artifactId>
-				<version>1.19</version>
+				<version>${eureka-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.jersey</groupId>
 				<artifactId>jersey-core</artifactId>
-				<version>1.19</version>
+				<version>${eureka-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.jersey</groupId>
 				<artifactId>jersey-client</artifactId>
-				<version>1.19</version>
+				<version>${eureka-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.jersey</groupId>
 				<artifactId>jersey-server</artifactId>
-				<version>1.19</version>
+				<version>${eureka-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.sun.jersey.contribs</groupId>
 				<artifactId>jersey-apache-client4</artifactId>
-				<version>1.19</version>
+				<version>${eureka-jersey.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.servo</groupId>
@@ -299,6 +300,12 @@
 				<groupId>com.netflix.ribbon</groupId>
 				<artifactId>ribbon</artifactId>
 				<version>${ribbon.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>commons-logging</groupId>
+						<artifactId>commons-logging</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.ribbon</groupId>
