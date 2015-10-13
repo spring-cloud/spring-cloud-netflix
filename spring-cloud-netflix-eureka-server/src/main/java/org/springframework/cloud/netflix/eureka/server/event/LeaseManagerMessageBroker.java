@@ -45,8 +45,10 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 
 	@Override
 	public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {
-		log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
-				+ ", leaseDuration " + leaseDuration + ", isReplication " + isReplication);
+		if (log.isDebugEnabled()) {
+			log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
+					+ ", leaseDuration " + leaseDuration + ", isReplication " + isReplication);
+		}
 		// TODO: what to publish from info (whole object?)
 		this.ctxt.publishEvent(new EurekaInstanceRegisteredEvent(this, info,
 				leaseDuration, isReplication));
@@ -54,8 +56,10 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 
 	@Override
 	public boolean cancel(String appName, String serverId, boolean isReplication) {
-		log.debug("cancel " + appName + " serverId " + serverId + ", isReplication {}"
-				+ isReplication);
+		if (log.isDebugEnabled()) {
+			log.debug("cancel " + appName + " serverId " + serverId + ", isReplication {}"
+					+ isReplication);
+		}
 		this.ctxt.publishEvent(new EurekaInstanceCanceledEvent(this, appName, serverId,
 				isReplication));
 		return false;
@@ -64,8 +68,10 @@ public class LeaseManagerMessageBroker implements LeaseManagerLite<InstanceInfo>
 	@Override
 	public boolean renew(final String appName, final String serverId,
 			boolean isReplication) {
-		log.debug("renew " + appName + " serverId " + serverId + ", isReplication {}"
-				+ isReplication);
+		if (log.isDebugEnabled()) {
+			log.debug("renew " + appName + " serverId " + serverId + ", isReplication {}"
+					+ isReplication);
+		}
 		List<Application> applications = PeerAwareInstanceRegistryImpl.getInstance()
 				.getSortedApplications();
 		for (Application input : applications) {
