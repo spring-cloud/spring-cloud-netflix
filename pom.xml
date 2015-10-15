@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>1.0.3.BUILD-SNAPSHOT</version>
+		<version>1.0.3.RELEASE</version>
 		<relativePath />
 	</parent>
 	<artifactId>spring-cloud-netflix</artifactId>
@@ -21,8 +21,8 @@
 	</scm>
 	<properties>
         <bintray.package>netflix</bintray.package>
-        <spring-cloud-commons.version>1.0.3.BUILD-SNAPSHOT</spring-cloud-commons.version>
-        <spring-cloud-config.version>1.0.3.BUILD-SNAPSHOT</spring-cloud-config.version>
+        <spring-cloud-commons.version>1.0.3.RELEASE</spring-cloud-commons.version>
+        <spring-cloud-config.version>1.0.3.RELEASE</spring-cloud-config.version>
 		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.1.147</eureka.version>
