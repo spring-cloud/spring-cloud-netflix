@@ -25,4 +25,6 @@ public interface RouteLocator {
 
 	Collection<String> getRoutePaths();
 
+	Collection<String> getIgnoredPaths();
+
 }

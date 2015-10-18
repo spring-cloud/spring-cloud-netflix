@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
 /**
@@ -53,6 +54,10 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 			throws Exception {
 		if (this.errorController != null
 				&& urlPath.equals(this.errorController.getErrorPath())) {
+			return null;
+		}
+		String[] ignored = this.routeLocator.getIgnoredPaths().toArray(new String[0]);
+		if (PatternMatchUtils.simpleMatch(ignored, urlPath)) {
 			return null;
 		}
 		return super.lookupHandler(urlPath, request);

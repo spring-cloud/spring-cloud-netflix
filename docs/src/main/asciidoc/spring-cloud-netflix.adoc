@@ -1096,7 +1096,7 @@ server if you set a default route ("/"), for example `zuul.route.home:
 /` would route all traffic (i.e. "/**") to the "home" service.
 
 If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
-These patterns are being evaluated at the end of the route location process, which 
+These patterns are being evaluated at the start of the route location process, which 
 means prefixes should be included in the pattern to warrant a match. Ignored patterns 
 span all services and supersede any other route specification.
 
@@ -1104,13 +1104,54 @@ span all services and supersede any other route specification.
 [source,yaml]
 ----
  zuul:
-  ignoredPatterns: */admin/**
+  ignoredPatterns: /**/admin/**
   routes:
     users: /myusers/**
 ----
 
 This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
 But calls including "/admin/" will not resolve.
+
+=== Strangulation Patterns and Local Forwards
+
+A common pattern when migrating an existing application or API is to
+"strangle" old endpoints, slowly replacing them with different
+implementations. The Zuul proxy is a useful tool for this because you
+can use it to handle all traffic from clients of the old endpoints,
+but redirect some of the requests to new ones.
+
+Example configuration:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    first:
+      path: /first/**
+      url: http://first.example.com
+    second:
+      path: /second/**
+      url: forward:/second
+    third:
+      path: /third/**
+      url: forward:/3rd
+    legacy:
+      path: /**
+      url: http://legacy.example.com
+----
+
+In this example we are strangling the "legacy" app which is mapped to
+all requests that do not match one of the other patterns. Paths in
+`/first/**` have been extracted into a new service with an external
+URL. And paths in `/second/**` are forwared so they can be handled
+locally, e.g. with a normal Spring `@RequestMapping`. Paths in
+`/third/**` are also forwarded, but with a different prefix
+(i.e. `/third/foo` is forwarded to `/3rd/foo`).
+
+NOTE: The ignored pattterns aren't completely ignored, they just
+aren't handled by the proxy (so they are also effectively forwarded
+locally).
 
 === Uploading Files through Zuul
 

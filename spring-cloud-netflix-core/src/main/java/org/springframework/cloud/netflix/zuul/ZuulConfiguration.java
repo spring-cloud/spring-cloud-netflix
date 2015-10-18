@@ -29,6 +29,7 @@ import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
+import org.springframework.cloud.netflix.zuul.filters.post.SendForwardFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter;
@@ -119,6 +120,11 @@ public class ZuulConfiguration {
 	@Bean
 	public SendErrorFilter sendErrorFilter() {
 		return new SendErrorFilter();
+	}
+
+	@Bean
+	public SendForwardFilter sendForwardFilter() {
+		return new SendForwardFilter();
 	}
 
 	@Configuration

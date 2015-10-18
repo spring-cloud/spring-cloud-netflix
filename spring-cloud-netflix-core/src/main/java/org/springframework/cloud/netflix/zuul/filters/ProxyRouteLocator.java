@@ -23,10 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -34,6 +30,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -93,6 +93,11 @@ public class ProxyRouteLocator implements RouteLocator {
 		return getRoutes().keySet();
 	}
 
+	@Override
+	public Collection<String> getIgnoredPaths() {
+		return this.properties.getIgnoredPatterns();
+	}
+
 	public Map<String, String> getRoutes() {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
@@ -106,8 +111,8 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public ProxyRouteSpec getMatchingRoute(String path) {
-	    log.info("Finding route for path: " + path);	    
-	    
+	    log.info("Finding route for path: " + path);
+
 		String location = null;
 		String targetPath = null;
 		String id = null;
