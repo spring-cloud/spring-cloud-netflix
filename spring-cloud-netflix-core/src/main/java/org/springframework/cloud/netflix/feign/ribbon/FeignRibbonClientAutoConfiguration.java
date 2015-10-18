@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import com.netflix.loadbalancer.ILoadBalancer;
+import feign.okhttp.OkHttpClient;
+import feign.Client;
+import feign.Feign;
+import feign.httpclient.ApacheHttpClient;
 import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -27,12 +32,6 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-
-import com.netflix.loadbalancer.ILoadBalancer;
-
-import feign.Client;
-import feign.Feign;
-import feign.httpclient.ApacheHttpClient;
 
 /**
  * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
@@ -77,6 +76,30 @@ public class FeignRibbonClientAutoConfiguration {
 			}
 			else {
 				delegate = new ApacheHttpClient();
+			}
+			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(com.squareup.okhttp.OkHttpClient.class)
+	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = false)
+	protected static class OkHttpConfiguration {
+
+		@Autowired(required = false)
+		private com.squareup.okhttp.OkHttpClient okHttpClient;
+
+		@Autowired
+		CachingSpringLoadBalancerFactory cachingFactory;
+
+		@Bean
+		public Client feignClient() {
+			OkHttpClient delegate;
+			if (this.okHttpClient != null) {
+				delegate = new OkHttpClient(this.okHttpClient);
+			}
+			else {
+				delegate = new OkHttpClient();
 			}
 			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
 		}
