@@ -112,17 +112,16 @@ NOTE: If your app is running behind a proxy, and the SSL termination
 is in the proxy (e.g. if you run in Cloud Foundry or other platforms
 as a service) then you will need to ensure that the proxy "forwarded"
 headers are intercepted and handled by the application. An embedded
-Tomcat container in a Spring Boot app does this automatically for most
-proxies (since 1.3.0), but other containers might need explicit
-configuration for the 'X-Forwarded-\*` headers. A sign that you got
-this wrong will be that the links rendered by your app to itslef will be
-wrong (the wrong host, port or protocol).
+Tomcat container in a Spring Boot app does this automatically if it
+has explicit configuration for the 'X-Forwarded-\*` headers. A sign
+that you got this wrong will be that the links rendered by your app to
+itself will be wrong (the wrong host, port or protocol).
 
 === Eureka's Health Checks
 
 By default, Eureka uses the client heartbeat to determine if a client is up.
 Unless specified otherwise the Discovery Client will not propagate the
-application Spring Boot Actuator current health check status.  Which means
+current health check status of the application per the Spring Boot Actuator.  Which means
 that after successful registration Eureka will always announce that the
 application is in 'UP' state. This behaviour can be altered by enabling
 Eureka health checks, which results in propagating application status
