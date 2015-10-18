@@ -74,7 +74,7 @@ import feign.RequestTemplate;
 @WebIntegrationTest(randomPort = true, value = {
 		"spring.application.name=feignclienttest",
 		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
-		"feign.httpclient.enabled=false"})
+		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false"})
 @DirtiesContext
 public class FeignClientTests {
 

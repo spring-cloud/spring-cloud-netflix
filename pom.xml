@@ -287,6 +287,11 @@
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.netflix.feign</groupId>
+				<artifactId>feign-okhttp</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.netflix.hystrix</groupId>
 				<artifactId>hystrix-core</artifactId>
 				<version>${hystrix.version}</version>
@@ -362,6 +367,11 @@
 				<groupId>org.springframework.integration</groupId>
 				<artifactId>spring-integration-java-dsl</artifactId>
 				<version>${spring-integration-dsl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp</groupId>
+				<artifactId>okhttp</artifactId>
+				<version>2.5.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>

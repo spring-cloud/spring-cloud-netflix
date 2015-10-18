@@ -33,6 +33,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import feign.Client;
 import feign.Feign;
 import feign.httpclient.ApacheHttpClient;
+import feign.okhttp.OkHttpClient;
 
 /**
  * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
@@ -77,6 +78,30 @@ public class FeignRibbonClientAutoConfiguration {
 			}
 			else {
 				delegate = new ApacheHttpClient();
+			}
+			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(OkHttpClient.class)
+	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
+	protected static class OkHttpConfiguration {
+
+		@Autowired(required = false)
+		private com.squareup.okhttp.OkHttpClient okHttpClient;
+
+		@Autowired
+		CachingSpringLoadBalancerFactory cachingFactory;
+
+		@Bean
+		public Client feignClient() {
+			OkHttpClient delegate;
+			if (this.okHttpClient != null) {
+				delegate = new OkHttpClient(this.okHttpClient);
+			}
+			else {
+				delegate = new OkHttpClient();
 			}
 			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
 		}
