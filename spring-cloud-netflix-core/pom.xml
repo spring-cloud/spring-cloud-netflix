@@ -112,6 +112,11 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.netflix.feign</groupId>
+			<artifactId>feign-hystrix</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>com.netflix.hystrix</groupId>
 			<artifactId>hystrix-core</artifactId>
 			<optional>true</optional>

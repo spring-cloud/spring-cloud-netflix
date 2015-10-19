@@ -56,6 +56,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netflix.hystrix.HystrixCommand;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
@@ -106,6 +107,9 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
 		List<String> getParams(@RequestParam("params") List<String> params);
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		HystrixCommand<List<Hello>> getHellosHystrix();
 	}
 
 	@FeignClient(serviceId = "localapp")
@@ -244,6 +248,15 @@ public class FeignClientTests {
 		List<String> params = this.testClient.getParams(list);
 		assertNotNull("params was null", params);
 		assertEquals("params size was wrong", list.size(), params.size());
+	}
+
+	@Test
+	public void testHystrixCommand() {
+		HystrixCommand<List<Hello>> command = this.testClient.getHellosHystrix();
+		assertNotNull("command was null", command);
+		List<Hello> hellos = command.execute();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos didn't match", hellos, getHelloList());
 	}
 
 	@Data

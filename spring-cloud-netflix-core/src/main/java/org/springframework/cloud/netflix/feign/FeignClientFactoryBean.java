@@ -39,6 +39,7 @@ import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
+import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
 
 /**
@@ -74,7 +75,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		}
 
 		// @formatter:off
-		Feign.Builder builder = Feign.builder()
+		Feign.Builder builder = HystrixFeign.builder()
 				// required values
 				.logger(logger)
 				.encoder(get(factory, Encoder.class))
