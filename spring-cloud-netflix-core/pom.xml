@@ -112,6 +112,11 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.netflix.feign</groupId>
+			<artifactId>feign-okhttp</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>com.netflix.hystrix</groupId>
 			<artifactId>hystrix-core</artifactId>
 			<optional>true</optional>
@@ -169,6 +174,11 @@
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-apache-client4</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
