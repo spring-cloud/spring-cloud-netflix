@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.web;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.util.Arrays;
 
 import org.junit.Before;
@@ -25,8 +28,7 @@ import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * @author Dave Syer
@@ -43,6 +45,7 @@ public class ZuulHandlerMappingTests {
 
 	@Before
 	public void init() {
+		RequestContext.getCurrentContext().clear();
 		this.mapping = new ZuulHandlerMapping(this.locator, new ZuulController());
 		this.mapping.setErrorController(this.errors);
 		Mockito.when(this.errors.getErrorPath()).thenReturn("/error");
