@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters.post;
+package org.springframework.cloud.netflix.zuul.filters.route;
 
 import javax.servlet.RequestDispatcher;
 
@@ -32,12 +32,12 @@ public class SendForwardFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "post";
+		return "route";
 	}
 
 	@Override
 	public int filterOrder() {
-		return 2000;
+		return 500;
 	}
 
 	@Override
@@ -57,6 +57,7 @@ public class SendForwardFilter extends ZuulFilter {
 				ctx.set(SEND_FORWARD_FILTER_RAN, true);
 				if (!ctx.getResponse().isCommitted()) {
 					dispatcher.forward(ctx.getRequest(), ctx.getResponse());
+					ctx.getResponse().flushBuffer();
 				}
 			}
 		}
