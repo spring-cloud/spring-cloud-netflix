@@ -6,7 +6,7 @@
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
 		<version>1.1.0.BUILD-SNAPSHOT</version>
-		<relativePath/>
+		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-feign</artifactId>
 	<name>spring-cloud-starter-feign</name>
@@ -42,11 +42,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
-			<artifactId>feign-ribbon</artifactId>
+			<artifactId>feign-slf4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
-			<artifactId>feign-slf4j</artifactId>
+			<artifactId>feign-hystrix</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

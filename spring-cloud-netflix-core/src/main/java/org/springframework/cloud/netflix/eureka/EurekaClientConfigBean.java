@@ -26,6 +26,7 @@ import lombok.Data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 
 /**
@@ -90,7 +91,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
-	private Map<String, String> serviceUrl = new HashMap<String, String>();
+	private Map<String, String> serviceUrl = new HashMap<>();
 	{
 		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
 	}
@@ -109,7 +110,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	private String fetchRemoteRegionsRegistry;
 
-	private Map<String, String> availabilityZones = new HashMap<String, String>();
+	private Map<String, String> availabilityZones = new HashMap<>();
 
 	private boolean filterOnlyUpInstances = true;
 
@@ -118,6 +119,16 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	private String dollarReplacement = "_-";
 
 	private String escapeCharReplacement = "__";
+
+	private boolean allowRedirects = false;
+
+	private boolean onDemandUpdateStatusChange = true;
+
+	private String encoderName;
+
+	private String decoderName;
+
+	private String clientDataAccept = EurekaAccept.full.name();
 
 	@Override
 	public boolean shouldGZipContent() {
@@ -184,6 +195,16 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	@Override
 	public boolean shouldFetchRegistry() {
 		return this.fetchRegistry;
+	}
+
+	@Override
+	public boolean allowRedirects() {
+		return this.allowRedirects;
+	}
+
+	@Override
+	public boolean shouldOnDemandUpdateStatusChange() {
+		return this.onDemandUpdateStatusChange;
 	}
 
 }

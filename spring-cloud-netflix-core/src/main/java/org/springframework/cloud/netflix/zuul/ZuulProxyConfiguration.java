@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
@@ -32,6 +34,8 @@ import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
@@ -62,11 +66,22 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Autowired
 	private ServerProperties server;
 
+	@Override
+	public HasFeatures zuulFeature() {
+		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyConfiguration.class);
+	}
+
 	@Bean
 	@Override
 	public ProxyRouteLocator routeLocator() {
 		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
 				this.zuulProperties);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public RibbonCommandFactory ribbonCommandFactory() {
+		return new RestClientRibbonCommandFactory(this.clientFactory);
 	}
 
 	// pre filters
@@ -78,12 +93,12 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	// route filters
 	@Bean
-	public RibbonRoutingFilter ribbonRoutingFilter() {
+	public RibbonRoutingFilter ribbonRoutingFilter(RibbonCommandFactory ribbonCommandFactory) {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
 			helper.setTraces(this.traces);
 		}
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, this.clientFactory);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory);
 		return filter;
 	}
 

@@ -16,10 +16,13 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +30,7 @@ import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -35,18 +39,25 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.core.type.ClassMetadata;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.core.type.filter.AbstractClassTestingTypeFilter;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Spencer Gibb
+ * @author Jakub Narloch
  */
 public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		ResourceLoaderAware, BeanClassLoaderAware {
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
+	// and RibbonClientsConfigurationRegistgrar
 
 	private ResourceLoader resourceLoader;
 
@@ -66,14 +77,58 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	}
 
 	@Override
-	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
+	public void registerBeanDefinitions(AnnotationMetadata metadata,
 			BeanDefinitionRegistry registry) {
+		registerDefaultConfiguration(metadata, registry);
+		registerFeignClients(metadata, registry);
+	}
 
-		Set<String> basePackages = getBasePackages(importingClassMetadata);
+	private void registerDefaultConfiguration(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+		Map<String, Object> defaultAttrs = metadata.getAnnotationAttributes(
+				EnableFeignClients.class.getName(), true);
 
+		if (defaultAttrs != null && defaultAttrs.containsKey("defaultConfiguration")) {
+			String name;
+			if (metadata.hasEnclosingClass()) {
+				name = "default." + metadata.getEnclosingClassName();
+			} else {
+				name = "default." + metadata.getClassName();
+			}
+			registerClientConfiguration(registry, name,
+					defaultAttrs.get("defaultConfiguration"));
+		}
+	}
+
+	public void registerFeignClients(AnnotationMetadata metadata,
+									 BeanDefinitionRegistry registry) {
 		ClassPathScanningCandidateComponentProvider scanner = getScanner();
-		scanner.addIncludeFilter(new AnnotationTypeFilter(FeignClient.class));
 		scanner.setResourceLoader(this.resourceLoader);
+
+		Set<String> basePackages;
+
+		Map<String, Object> attrs = metadata.getAnnotationAttributes(
+				EnableFeignClients.class.getName());
+		AnnotationTypeFilter annotationTypeFilter = new AnnotationTypeFilter(FeignClient.class);
+		final Class<?>[] clients = attrs == null ? null : (Class<?>[]) attrs.get("clients");
+		if (clients == null || clients.length == 0) {
+			scanner.addIncludeFilter(annotationTypeFilter);
+			basePackages = getBasePackages(metadata);
+		} else {
+			final Set<String> clientClasses = new HashSet<>();
+			basePackages = new HashSet<>();
+			for (Class<?> clazz : clients) {
+				basePackages.add(ClassUtils.getPackageName(clazz));
+				clientClasses.add(clazz.getCanonicalName());
+			}
+			AbstractClassTestingTypeFilter filter = new AbstractClassTestingTypeFilter() {
+				@Override
+				protected boolean match(ClassMetadata metadata) {
+					String cleaned = metadata.getClassName().replaceAll("\\$", ".");
+					return clientClasses.contains(cleaned);
+				}
+			};
+			scanner.addIncludeFilter(new AllTypeFilter(Arrays.asList(filter, annotationTypeFilter)));
+		}
 
 		for (String basePackage : basePackages) {
 			Set<BeanDefinition> candidateComponents = scanner
@@ -86,18 +141,21 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 					Assert.isTrue(annotationMetadata.isInterface(),
 							"@FeignClient can only be specified on an interface");
 
-					BeanDefinitionHolder holder = createBeanDefinition(annotationMetadata);
-					BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
+					Map<String, Object> attributes = annotationMetadata
+							.getAnnotationAttributes(FeignClient.class.getCanonicalName());
+
+					String name = getClientName(attributes);
+					registerClientConfiguration(registry, name, attributes.get("configuration"));
+
+					registerFeignClient(registry, annotationMetadata, attributes);
 				}
 			}
 		}
 	}
 
-	private BeanDefinitionHolder createBeanDefinition(
-			AnnotationMetadata annotationMetadata) {
-		Map<String, Object> attributes = annotationMetadata
-				.getAnnotationAttributes(FeignClient.class.getCanonicalName());
-
+	private void registerFeignClient( BeanDefinitionRegistry registry,
+									  AnnotationMetadata annotationMetadata,
+									  Map<String, Object> attributes) {
 		String className = annotationMetadata.getClassName();
 		BeanDefinitionBuilder definition = BeanDefinitionBuilder
 				.genericBeanDefinition(FeignClientFactoryBean.class);
@@ -105,21 +163,26 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		definition.addPropertyValue("url", getUrl(attributes));
 		definition.addPropertyValue("name", getServiceId(attributes));
 		definition.addPropertyValue("type", className);
+		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
 		String beanName = StringUtils.uncapitalize(className.substring(className
 				.lastIndexOf(".") + 1));
-		return new BeanDefinitionHolder(definition.getBeanDefinition(), beanName);
+		BeanDefinitionHolder holder = new BeanDefinitionHolder(definition.getBeanDefinition(), beanName);
+		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 	}
 
 	private void validate(Map<String, Object> attributes) {
 		if (StringUtils.hasText((String) attributes.get("value"))) {
-			Assert.isTrue(!StringUtils.hasText((String) attributes.get("name")),
-					"Either name or value can be specified, but not both");
+			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
+					"Either serviceId or value can be specified, but not both");
 		}
 	}
 
 	private String getServiceId(Map<String, Object> attributes) {
-		String name = (String) attributes.get("name");
+		String name = (String) attributes.get("serviceId");
+		if (!StringUtils.hasText(name)) {
+			name = (String) attributes.get("name");
+		}
 		if (!StringUtils.hasText(name)) {
 			name = (String) attributes.get("value");
 		}
@@ -150,10 +213,10 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 					if (beanDefinition.getMetadata().isInterface()
 							&& beanDefinition.getMetadata().getInterfaceNames().length == 1
 							&& Annotation.class.getName().equals(
-									beanDefinition.getMetadata().getInterfaceNames()[0])) {
+							beanDefinition.getMetadata().getInterfaceNames()[0])) {
 						try {
 							Class<?> target = ClassUtils.forName(beanDefinition
-									.getMetadata().getClassName(),
+											.getMetadata().getClassName(),
 									FeignClientsRegistrar.this.classLoader);
 							return !target.isAnnotation();
 						}
@@ -197,4 +260,68 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		return basePackages;
 	}
 
+	private String getClientName(Map<String, Object> client) {
+		if (client == null) {
+			return null;
+		}
+		String value = (String) client.get("value");
+		if (!StringUtils.hasText(value)) {
+			value = (String) client.get("name");
+		}
+		if (!StringUtils.hasText(value)) {
+			value = (String) client.get("serviceId");
+		}
+		if (StringUtils.hasText(value)) {
+			return value;
+		}
+
+		throw new IllegalStateException(
+				"Either 'name' or 'value' must be provided in @" + FeignClient.class.getSimpleName());
+	}
+
+	private void registerClientConfiguration(BeanDefinitionRegistry registry,
+											 Object name, Object configuration) {
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder
+				.genericBeanDefinition(FeignClientSpecification.class);
+		builder.addConstructorArgValue(name);
+		builder.addConstructorArgValue(configuration);
+		registry.registerBeanDefinition(name + "." + FeignClientSpecification.class.getSimpleName(),
+				builder.getBeanDefinition());
+	}
+
+	/**
+	 * Helper class to create a {@link TypeFilter} that matches if all the delegates match.
+	 *
+	 * @author Oliver Gierke
+	 */
+	private static class AllTypeFilter implements TypeFilter {
+
+		private final List<TypeFilter> delegates;
+
+		/**
+		 * Creates a new {@link AllTypeFilter} to match if all the given delegates match.
+		 *
+		 * @param delegates must not be {@literal null}.
+		 */
+		public AllTypeFilter(List<TypeFilter> delegates) {
+
+			Assert.notNull(delegates);
+			this.delegates = delegates;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.springframework.core.type.filter.TypeFilter#match(org.springframework.core.type.classreading.MetadataReader, org.springframework.core.type.classreading.MetadataReaderFactory)
+		 */
+		public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
+
+			for (TypeFilter filter : delegates) {
+				if (!filter.match(metadataReader, metadataReaderFactory)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
 }

@@ -16,14 +16,16 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -37,7 +39,7 @@ import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.ribbon.LoadBalancingTarget;
+import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
 
 /**
@@ -45,7 +47,7 @@ import feign.slf4j.Slf4jLogger;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean {
+class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, ApplicationContextAware {
 
 	private Class<?> type;
 
@@ -53,92 +55,97 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean {
 
 	private String url;
 
-	@Autowired
-	private Decoder decoder;
-
-	@Autowired
-	private Encoder encoder;
-
-	@Autowired
-	private Logger logger;
-
-	@Autowired
-	private Contract contract;
-
-	@Autowired(required = false)
-	private Logger.Level logLevel;
-
-	@Autowired(required = false)
-	private Retryer retryer;
-
-	@Autowired(required = false)
-	private ErrorDecoder errorDecoder;
-
-	@Autowired(required = false)
-	private Request.Options options;
-
-	@Autowired(required = false)
-	private Client ribbonClient;
-
-	@Autowired(required = false)
-	private List<RequestInterceptor> requestInterceptors;
+	private ApplicationContext context;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		if (StringUtils.hasText(this.name)) {
-			Assert.state(!StringUtils.hasText(this.url),
-					"Either value or url can be specified, but not both");
-		}
+		Assert.hasText(this.name, "Name must be set");
 	}
 
-	protected Feign.Builder feign() {
-		Feign.Builder builder = Feign.builder()
+	@Override
+	public void setApplicationContext(ApplicationContext context) throws BeansException {
+		this.context = context;
+	}
+
+	protected Feign.Builder feign(FeignClientFactory factory) {
+		Logger logger = getOptional(factory, Logger.class);
+
+		if (logger == null) {
+			logger = new Slf4jLogger(this.type);
+		}
+
+		// @formatter:off
+		Feign.Builder builder = HystrixFeign.builder()
 				// required values
-				.logger(this.logger).encoder(this.encoder).decoder(this.decoder)
-				.contract(this.contract);
+				.logger(logger)
+				.encoder(get(factory, Encoder.class))
+				.decoder(get(factory, Decoder.class))
+				.contract(get(factory, Contract.class));
+		// @formatter:on
 
 		// optional values
-		if (this.logLevel != null) {
-			builder.logLevel(this.logLevel);
+		Logger.Level level = getOptional(factory, Logger.Level.class);
+		if (level != null) {
+			builder.logLevel(level);
 		}
-		if (this.retryer != null) {
-			builder.retryer(this.retryer);
+		Retryer retryer = getOptional(factory, Retryer.class);
+		if (retryer != null) {
+			builder.retryer(retryer);
 		}
-		if (this.errorDecoder != null) {
-			builder.errorDecoder(this.errorDecoder);
+		ErrorDecoder errorDecoder = getOptional(factory, ErrorDecoder.class);
+		if (errorDecoder != null) {
+			builder.errorDecoder(errorDecoder);
 		}
-		if (this.options != null) {
-			builder.options(this.options);
+		Request.Options options = getOptional(factory, Request.Options.class);
+		if (options != null) {
+			builder.options(options);
 		}
-		if (this.requestInterceptors != null) {
-			builder.requestInterceptors(this.requestInterceptors);
+		Map<String, RequestInterceptor> requestInterceptors = this.context.getBeansOfType(RequestInterceptor.class);
+		if (requestInterceptors != null) {
+			builder.requestInterceptors(requestInterceptors.values());
 		}
 
 		return builder;
 	}
 
-	protected <T> T loadBalance(Feign.Builder builder, Class<T> type, String schemeName) {
-		builder.logger(new Slf4jLogger(type)); // TODO: how to have choice here?
-		if (this.ribbonClient != null) {
-			return builder.client(this.ribbonClient).target(type, schemeName);
+	protected <T> T get(FeignClientFactory factory, Class<T> type) {
+		T instance = factory.getInstance(this.name, type);
+		if (instance == null) {
+			throw new IllegalStateException("No bean found of type " + type + " for " + this.name);
 		}
-		else {
-			return builder.target(LoadBalancingTarget.create(type, schemeName));
+		return instance;
+	}
+
+	protected <T> T getOptional(FeignClientFactory factory, Class<T> type) {
+		return factory.getInstance(this.name, type);
+	}
+
+	protected <T> T loadBalance(Feign.Builder builder, FeignClientFactory factory, Class<T> type, String url) {
+		Client client = getOptional(factory, Client.class);
+		if (client != null) {
+			return builder.client(client).target(type, url);
 		}
+
+		throw new IllegalStateException("No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-ribbon?");
 	}
 
 	@Override
 	public Object getObject() throws Exception {
-		if (StringUtils.hasText(this.name) && !this.name.startsWith("http")) {
-			this.name = "http://" + this.name;
-		}
-		if (StringUtils.hasText(this.name)) {
-			return loadBalance(feign(), this.type, this.name);
+		FeignClientFactory factory = context.getBean(FeignClientFactory.class);
+
+		if (!StringUtils.hasText(this.url)) {
+			String url;
+			if (!this.name.startsWith("http")) {
+				url = "http://" + this.name;
+			} else {
+				url = this.name;
+			}
+			return loadBalance(feign(factory), factory, this.type, url);
 		}
 		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
 			this.url = "http://" + this.url;
 		}
-		return feign().target(this.type, this.url);
+		return feign(factory).target(this.type, this.url);
 	}
 
 	@Override

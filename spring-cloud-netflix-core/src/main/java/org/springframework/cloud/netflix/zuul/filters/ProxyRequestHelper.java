@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -29,17 +31,17 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.apachecommons.CommonsLog;
-import org.apache.commons.io.IOUtils;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
@@ -67,9 +69,13 @@ public class ProxyRequestHelper {
 		String contextURI = (String) context.get("requestURI");
 		if (contextURI != null) {
 			try {
-				uri = UriUtils.encodePath(contextURI, WebUtils.DEFAULT_CHARACTER_ENCODING);
-			} catch (Exception e) {
-				log.debug("unable to encode uri path from context, falling back to uri from request", e);
+				uri = UriUtils.encodePath(contextURI,
+						WebUtils.DEFAULT_CHARACTER_ENCODING);
+			}
+			catch (Exception e) {
+				log.debug(
+						"unable to encode uri path from context, falling back to uri from request",
+						e);
 			}
 		}
 		return uri;
@@ -93,17 +99,17 @@ public class ProxyRequestHelper {
 	public MultiValueMap<String, String> buildZuulRequestHeaders(
 			HttpServletRequest request) {
 		RequestContext context = RequestContext.getCurrentContext();
-		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		MultiValueMap<String, String> headers = new HttpHeaders();
 		Enumeration<String> headerNames = request.getHeaderNames();
 		if (headerNames != null) {
 			while (headerNames.hasMoreElements()) {
 				String name = headerNames.nextElement();
-                if (isIncludedHeader(name)) {
-                    Enumeration<String> values = request.getHeaders(name);
-                    while (values.hasMoreElements()) {
-                        String value = values.nextElement();
-                        headers.add(name, value);
-                    }
+				if (isIncludedHeader(name)) {
+					Enumeration<String> values = request.getHeaders(name);
+					while (values.hasMoreElements()) {
+						String value = values.nextElement();
+						headers.add(name, value);
+					}
 				}
 			}
 		}
@@ -111,7 +117,7 @@ public class ProxyRequestHelper {
 		for (String header : zuulRequestHeaders.keySet()) {
 			headers.set(header, zuulRequestHeaders.get(header));
 		}
-		headers.set("accept-encoding", "gzip");
+		headers.set(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		return headers;
 	}
 
@@ -251,10 +257,12 @@ public class ProxyRequestHelper {
 			info.put("body", "<chunked>");
 			return;
 		}
-		String entity = IOUtils.toString(inputStream);
-		if (StringUtils.hasText(entity)) {
-			info.put("body", entity.length() <= 4096 ? entity : entity.substring(0, 4096)
-					+ "<truncated>");
+		char[] buffer = new char[4096];
+		int count = new InputStreamReader(inputStream, Charset.forName("UTF-8"))
+				.read(buffer, 0, buffer.length);
+		if (count > 0) {
+			String entity = new String(buffer).substring(0, count);
+			info.put("body", entity.length() < 4096 ? entity : entity + "<truncated>");
 		}
 	}
 

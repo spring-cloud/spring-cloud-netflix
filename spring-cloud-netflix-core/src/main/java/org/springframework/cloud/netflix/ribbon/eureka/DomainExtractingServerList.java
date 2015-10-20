@@ -105,7 +105,7 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 			DiscoveryEnabledServer enabled = (DiscoveryEnabledServer) server;
 			InstanceInfo instance = enabled.getInstanceInfo();
 			if (instance.getMetadata().containsKey("instanceId")) {
-				return instance.getMetadata().get("instanceId");
+				return instance.getHostName()+":"+instance.getMetadata().get("instanceId");
 			}
 		}
 		return super.getId();

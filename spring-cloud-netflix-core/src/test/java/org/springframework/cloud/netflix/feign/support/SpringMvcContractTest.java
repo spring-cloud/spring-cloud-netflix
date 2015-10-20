@@ -1,21 +1,27 @@
 package org.springframework.cloud.netflix.feign.support;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import feign.MethodMetadata;
+import static org.junit.Assert.assertEquals;
+
+import java.lang.reflect.Method;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import static org.junit.Assert.assertEquals;
+import feign.MethodMetadata;
 
 /**
  * @author chadjaros
@@ -32,9 +38,7 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotationOnMethod_Simple() throws Exception {
         Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest", String.class);
-        Annotation annotation = method.getAnnotation(RequestMapping.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        MethodMetadata data = contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         assertEquals("/test/{id}", data.template().url());
         assertEquals("GET", data.template().method());
@@ -44,9 +48,7 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotations_Simple() throws Exception {
         Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest", String.class);
-        Annotation annotation = method.getAnnotation(RequestMapping.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        MethodMetadata data = contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         assertEquals("/test/{id}", data.template().url());
         assertEquals("GET", data.template().method());
@@ -58,9 +60,7 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotationsOnMethod_Advanced() throws Exception {
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest", String.class, String.class, Integer.class);
-        Annotation annotation = method.getAnnotation(RequestMapping.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        MethodMetadata data = contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         assertEquals("/advanced/test/{id}", data.template().url());
         assertEquals("PUT", data.template().method());
@@ -70,9 +70,7 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotationsOnMethod_Advanced_UnknownAnnotation() throws Exception {
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest", String.class, String.class, Integer.class);
-        Annotation annotation = method.getAnnotation(ExceptionHandler.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         // Don't throw an exception and this passes
     }
@@ -80,9 +78,7 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotations_Advanced() throws Exception {
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest", String.class, String.class, Integer.class);
-        Annotation annotation = method.getAnnotation(RequestMapping.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        MethodMetadata data = contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         assertEquals("/advanced/test/{id}", data.template().url());
         assertEquals("PUT", data.template().method());
@@ -99,9 +95,7 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotations_Advanced2() throws Exception {
         Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest");
-        Annotation annotation = method.getAnnotation(RequestMapping.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        MethodMetadata data = contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         assertEquals("/advanced", data.template().url());
         assertEquals("GET", data.template().method());
@@ -111,23 +105,14 @@ public class SpringMvcContractTest {
     @Test
     public void testProcessAnnotations_Advanced3() throws Exception {
         Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest");
-        Annotation annotation = method.getAnnotation(RequestMapping.class);
-
-        MethodMetadata data = contract.parseAndValidatateMetadata(method);
+        MethodMetadata data = contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
         assertEquals("", data.template().url());
         assertEquals("GET", data.template().method());
         assertEquals(MediaType.APPLICATION_JSON_VALUE, data.template().headers().get("Accept").iterator().next());
     }
 
-    private MethodMetadata newMethodMetadata() throws Exception {
-        // Reflect because constructor is package private :(
-        Constructor constructor = MethodMetadata.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        return (MethodMetadata)constructor.newInstance();
-    }
-
-    public static interface TestTemplate_Simple {
+    public interface TestTemplate_Simple {
         @RequestMapping(value = "/test/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
         ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
 
@@ -137,7 +122,7 @@ public class SpringMvcContractTest {
 
     @JsonAutoDetect
     @RequestMapping("/advanced")
-    public static interface TestTemplate_Advanced {
+    public interface TestTemplate_Advanced {
 
         @ExceptionHandler
         @RequestMapping(value = "/test/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)

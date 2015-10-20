@@ -23,16 +23,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -62,7 +63,17 @@ public class ProxyRouteLocator implements RouteLocator {
 	        //set Zuul servlet path
 	        this.servletPath = properties.getServletPath() != null? properties.getServletPath() : "";
 	    }
-		
+
+		if (properties.isIgnoreLocalService()) {
+			ServiceInstance instance = discovery.getLocalServiceInstance();
+			if (instance != null) {
+				String localServiceId = instance.getServiceId();
+				if (!properties.getIgnoredServices().contains(localServiceId)) {
+					properties.getIgnoredServices().add(localServiceId);
+				}
+			}
+		}
+
 		this.discovery = discovery;
 		this.properties = properties;
 	}
@@ -82,6 +93,11 @@ public class ProxyRouteLocator implements RouteLocator {
 		return getRoutes().keySet();
 	}
 
+	@Override
+	public Collection<String> getIgnoredPaths() {
+		return this.properties.getIgnoredPatterns();
+	}
+
 	public Map<String, String> getRoutes() {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
@@ -95,8 +111,8 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public ProxyRouteSpec getMatchingRoute(String path) {
-	    log.info("Finding route for path: " + path);	    
-	    
+	    log.info("Finding route for path: " + path);
+
 		String location = null;
 		String targetPath = null;
 		String id = null;
@@ -108,33 +124,46 @@ public class ProxyRouteLocator implements RouteLocator {
 		}
 		log.debug("path=" + path);
 		Boolean retryable = this.properties.getRetryable();
-		for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
-			String pattern = entry.getKey();
-			log.debug("Matching pattern:" + pattern);
-			if (this.pathMatcher.match(pattern, path)) {
-				ZuulRoute route = entry.getValue();
-				id = route.getId();
-				location = route.getLocation();
-				targetPath = path;
-				if (path.startsWith(prefix) && this.properties.isStripPrefix()) {
-					targetPath = path.substring(prefix.length());
-				}
-				if (route.isStripPrefix()) {
-					int index = route.getPath().indexOf("*") - 1;
-					if (index > 0) {
-						String routePrefix = route.getPath().substring(0, index);
-						targetPath = targetPath.replaceFirst(routePrefix, "");
-						prefix = prefix + routePrefix;
+		if (!matchesIgnoredPatterns(path)) {
+			for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
+				String pattern = entry.getKey();
+				log.debug("Matching pattern:" + pattern);
+				if (this.pathMatcher.match(pattern, path)) {
+					ZuulRoute route = entry.getValue();
+					id = route.getId();
+					location = route.getLocation();
+					targetPath = path;
+					if (path.startsWith(prefix) && this.properties.isStripPrefix()) {
+						targetPath = path.substring(prefix.length());
 					}
+					if (route.isStripPrefix()) {
+						int index = route.getPath().indexOf("*") - 1;
+						if (index > 0) {
+							String routePrefix = route.getPath().substring(0, index);
+							targetPath = targetPath.replaceFirst(routePrefix, "");
+							prefix = prefix + routePrefix;
+						}
+					}
+					if (route.getRetryable() != null) {
+						retryable = route.getRetryable();
+					}
+					break;
 				}
-				if (route.getRetryable() != null) {
-					retryable = route.getRetryable();
-				}
-				break;
 			}
 		}
 		return (location == null ? null : new ProxyRouteSpec(id, targetPath, location,
 				prefix, retryable));
+	}
+
+	protected boolean matchesIgnoredPatterns(String path) {
+		for (String pattern : this.properties.getIgnoredPatterns()) {
+			log.debug("Matching ignored pattern:" + pattern);
+			if (this.pathMatcher.match(pattern, path)) {
+				log.debug("Path " + path + " matches ignored pattern " + pattern);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void resetRoutes() {

@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.Test;
@@ -28,13 +32,14 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.eureka.server.ApplicationServletPathTests.Application;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -97,9 +102,13 @@ public class ApplicationServletPathTests {
 
 	@Test
 	public void adminLoads() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/servlet/env", Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().exchange("http://localhost:"
+				+ this.port + "/servlet/env", HttpMethod.GET, new HttpEntity<>(
+				"parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

@@ -16,20 +16,23 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import feign.ribbon.RibbonClient;
+import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import com.netflix.loadbalancer.ILoadBalancer;
 
 import feign.Client;
 import feign.Feign;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
@@ -42,22 +45,40 @@ import feign.Feign;
 @AutoConfigureBefore(FeignAutoConfiguration.class)
 public class FeignRibbonClientAutoConfiguration {
 
-	@Autowired
-	private SpringClientFactory factory;
-
 	@Bean
-	public SpringLBClientFactory springLBClientFactory() {
-		return new SpringLBClientFactory(factory);
-	}
-
-	@Bean
-	public CachingLBClientFactory cachingLBClientFactory() {
-		return new CachingLBClientFactory(springLBClientFactory());
+	@Primary
+	public CachingSpringLoadBalancerFactory cachingLBClientFactory(
+			SpringClientFactory factory) {
+		return new CachingSpringLoadBalancerFactory(factory);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Client feignRibbonClient() {
-		return RibbonClient.builder().lbClientFactory(cachingLBClientFactory()).build();
+	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory) {
+		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory);
+	}
+
+	@Configuration
+	@ConditionalOnClass(ApacheHttpClient.class)
+	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
+	protected static class HttpClientConfiguration {
+
+		@Autowired(required = false)
+		private HttpClient httpClient;
+
+		@Autowired
+		CachingSpringLoadBalancerFactory cachingFactory;
+
+		@Bean
+		public Client feignClient() {
+			ApacheHttpClient delegate;
+			if (this.httpClient != null) {
+				delegate = new ApacheHttpClient(this.httpClient);
+			}
+			else {
+				delegate = new ApacheHttpClient();
+			}
+			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
+		}
 	}
 }

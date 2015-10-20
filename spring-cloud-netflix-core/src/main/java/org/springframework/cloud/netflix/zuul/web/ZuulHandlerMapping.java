@@ -22,7 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
+
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.
@@ -53,6 +56,14 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 			throws Exception {
 		if (this.errorController != null
 				&& urlPath.equals(this.errorController.getErrorPath())) {
+			return null;
+		}
+		String[] ignored = this.routeLocator.getIgnoredPaths().toArray(new String[0]);
+		if (PatternMatchUtils.simpleMatch(ignored, urlPath)) {
+			return null;
+		}
+		RequestContext ctx = RequestContext.getCurrentContext();
+		if (ctx.containsKey("forward.to")) {
 			return null;
 		}
 		return super.lookupHandler(urlPath, request);

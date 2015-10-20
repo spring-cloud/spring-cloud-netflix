@@ -177,7 +177,7 @@ public class SpringClientFactory implements DisposableBean, ApplicationContextAw
 		return result;
 	}
 
-	private <C> C getInstance(String name, Class<C> type) {
+	public <C> C getInstance(String name, Class<C> type) {
 		AnnotationConfigApplicationContext context = getContext(name);
 		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, type).length > 0) {
 			return context.getBean(type);

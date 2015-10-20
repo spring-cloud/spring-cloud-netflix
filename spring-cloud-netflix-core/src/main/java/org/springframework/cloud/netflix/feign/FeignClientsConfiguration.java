@@ -16,8 +16,11 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.cloud.netflix.feign.support.ResponseEntityDecoder;
 import org.springframework.cloud.netflix.feign.support.SpringDecoder;
@@ -26,11 +29,11 @@ import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import feign.Client;
 import feign.Contract;
-import feign.Logger;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
-import feign.slf4j.Slf4jLogger;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * @author Dave Syer
@@ -42,23 +45,36 @@ public class FeignClientsConfiguration {
 	private ObjectFactory<HttpMessageConverters> messageConverters;
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
 		return new ResponseEntityDecoder(new SpringDecoder(messageConverters));
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
 		return new SpringEncoder(messageConverters);
 	}
 
 	@Bean
-	public Logger feignLogger() {
-		return new Slf4jLogger();
-	}
-
-	@Bean
+	@ConditionalOnMissingBean
 	public Contract feignContract() {
 		return new SpringMvcContract();
 	}
 
+	@Configuration
+	@ConditionalOnClass(ApacheHttpClient.class)
+	protected static class HttpClientConfiguration {
+
+		@Autowired(required = false)
+		private HttpClient httpClient;
+
+		@ConditionalOnMissingBean
+		public Client feignClient() {
+			if (httpClient != null) {
+				return new ApacheHttpClient(httpClient);
+			}
+			return new ApacheHttpClient();
+		}
+	}
 }

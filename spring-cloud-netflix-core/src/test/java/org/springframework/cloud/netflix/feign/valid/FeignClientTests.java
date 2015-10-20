@@ -16,6 +16,13 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -32,38 +39,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.hystrix.HystrixCommand;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 
+import feign.Client;
+import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
+ * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignClientTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest" })
+@WebIntegrationTest(randomPort = true, value = {
+		"spring.application.name=feignclienttest",
+		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
+		"feign.httpclient.enabled=false"})
 @DirtiesContext
 public class FeignClientTests {
 
@@ -73,26 +84,45 @@ public class FeignClientTests {
 	@Autowired
 	private TestClient testClient;
 
+	@Autowired
+	private TestClientServiceId testClientServiceId;
+
+	@Autowired
+	private Client feignClient;
+
 	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
 	@FeignClient("localapp")
 	protected static interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		public Hello getHello();
+		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
-		public List<Hello> getHellos();
+		List<Hello> getHellos();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
-		public List<String> getHelloStrings();
+		List<String> getHelloStrings();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
-		public List<String> getHelloHeaders();
+		List<String> getHelloHeaders();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
+		List<String> getParams(@RequestParam("params") List<String> params);
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		HystrixCommand<List<Hello>> getHellosHystrix();
+	}
+
+	@FeignClient(serviceId = "localapp")
+	protected static interface TestClientServiceId {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		Hello getHello();
 	}
 
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients
+	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class},
+			defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application {
 
@@ -144,6 +174,11 @@ public class FeignClientTests {
 			return headers;
 		}
 
+		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
+		public List<String> getParams(@RequestParam("params") List<String> params) {
+			return params;
+		}
+
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=feignclienttest",
@@ -191,26 +226,65 @@ public class FeignClientTests {
 				headers.contains("myheader2value"));
 	}
 
+	@Test
+	public void testFeignClientType() throws IllegalAccessException {
+		assertThat(this.feignClient, is(instanceOf(LoadBalancerFeignClient.class)));
+		LoadBalancerFeignClient client = (LoadBalancerFeignClient) this.feignClient;
+		Client delegate = client.getDelegate();
+		assertThat(delegate, is(instanceOf(feign.Client.Default.class)));
+	}
+
+	@Test
+	public void testServiceId() {
+		assertNotNull("testClientServiceId was null", this.testClientServiceId);
+		final Hello hello = this.testClientServiceId.getHello();
+		assertNotNull("The hello response was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
+
+	@Test
+	public void testParams() {
+		List<String> list = Arrays.asList("a", "1", "test");
+		List<String> params = this.testClient.getParams(list);
+		assertNotNull("params was null", params);
+		assertEquals("params size was wrong", list.size(), params.size());
+	}
+
+	@Test
+	public void testHystrixCommand() {
+		HystrixCommand<List<Hello>> command = this.testClient.getHellosHystrix();
+		assertNotNull("command was null", command);
+		List<Hello> hellos = command.execute();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos didn't match", hellos, getHelloList());
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class Hello {
 		private String message;
 	}
-}
 
-// Load balancer with fixed server list for "local" pointing to localhost
-@Configuration
-class LocalRibbonClientConfiguration {
-
-	@Value("${local.server.port}")
-	private int port = 0;
-
-	@Bean
-	public ILoadBalancer ribbonLoadBalancer() {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", this.port)));
-		return balancer;
+	@Configuration
+	public static class TestDefaultFeignConfig {
+		@Bean
+		Logger.Level feignLoggerLevel() {
+			return Logger.Level.FULL;
+		}
 	}
 
+	// Load balancer with fixed server list for "local" pointing to localhost
+	@Configuration
+	public static class LocalRibbonClientConfiguration {
+
+		@Value("${local.server.port}")
+		private int port = 0;
+
+		@Bean
+		public ServerList<Server> ribbonServerList() {
+			return new StaticServerList<>(new Server("localhost", this.port));
+		}
+
+	}
 }

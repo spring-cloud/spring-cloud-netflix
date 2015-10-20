@@ -16,8 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,24 +30,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.util.InetUtils.HostInfo;
 
 import com.netflix.appinfo.DataCenterInfo;
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.UniqueIdentifier;
+import com.netflix.appinfo.MyDataCenterInfo;
 
 /**
  * @author Dave Syer
+ * @author Spencer Gibb
  */
 @Data
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 
 	private static final Log logger = LogFactory.getLog(EurekaInstanceConfigBean.class);
 
 	@Getter(AccessLevel.PRIVATE)
 	@Setter(AccessLevel.PRIVATE)
-	private String[] hostInfo = initHostInfo();
+	private HostInfo hostInfo = getFirstNonLoopbackHostInfo();
 
 	@Value("${spring.application.name:unknown}")
 	private String appname = "unknown";
@@ -71,15 +72,17 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 	@Value("${spring.application.name:unknown}")
 	private String virtualHostName;
 
+    private String instanceId;
+
 	private String secureVirtualHostName;
 
 	private String aSGName;
 
 	private Map<String, String> metadataMap = new HashMap<>();
 
-	private DataCenterInfo dataCenterInfo = new IdentifyingDataCenterInfo();
+	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(DataCenterInfo.Name.MyOwn);
 
-	private String ipAddress = this.hostInfo[0];
+	private String ipAddress = this.hostInfo.getIpAddress();
 
 	private String statusPageUrlPath = "/info";
 
@@ -97,57 +100,45 @@ public class EurekaInstanceConfigBean implements EurekaInstanceConfig {
 
 	private String namespace = "eureka";
 
-	private String hostname = this.hostInfo[1];
+	private String hostname = this.hostInfo.getHostname();
 
 	private boolean preferIpAddress = false;
 
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
 	public String getHostname() {
-		return this.preferIpAddress ? this.ipAddress : this.hostname;
+		return getHostName(false);
 	}
 
-	@Override
+    @Override
+    public String getInstanceId() {
+		if (this.instanceId == null && this.metadataMap != null) {
+			return this.metadataMap.get("instanceId");
+		}
+        return instanceId;
+    }
+
+    @Override
 	public boolean getSecurePortEnabled() {
 		return this.securePortEnabled;
 	}
 
-	private String[] initHostInfo() {
-		String[] info = new String[2];
-		try {
-			info[0] = InetAddress.getLocalHost().getHostAddress();
-			info[1] = InetAddress.getLocalHost().getHostName();
-		}
-		catch (UnknownHostException ex) {
-			logger.error("Cannot get host info", ex);
-		}
-		return info;
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+		this.hostInfo.override = true;
 	}
 
 	@Override
 	public String getHostName(boolean refresh) {
+		if (refresh) {
+			boolean originalOverride = this.hostInfo.override;
+			this.hostInfo = getFirstNonLoopbackHostInfo();
+			this.hostInfo.setOverride(originalOverride);
+			this.ipAddress = this.hostInfo.getIpAddress();
+			if (!this.hostInfo.override) {
+				this.hostname = this.hostInfo.getHostname();
+			}
+		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
 	}
-
-	private final class IdentifyingDataCenterInfo implements DataCenterInfo,
-			UniqueIdentifier {
-
-		@Getter
-		@Setter
-		private Name name = Name.MyOwn;
-
-		@Override
-		public String getId() {
-			String instanceId = EurekaInstanceConfigBean.this.metadataMap
-					.get("instanceId");
-			if (instanceId != null) {
-				String old = getHostname();
-				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
-				return id;
-			}
-			return getHostname();
-		}
-
-	}
-
 }

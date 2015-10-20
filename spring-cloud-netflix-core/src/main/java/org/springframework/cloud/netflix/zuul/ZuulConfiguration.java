@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
@@ -32,6 +33,7 @@ import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
 import org.springframework.cloud.netflix.zuul.web.ZuulController;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
@@ -57,6 +59,11 @@ public class ZuulConfiguration {
 
 	@Autowired(required = false)
 	private ErrorController errorController;
+
+	@Bean
+	public HasFeatures zuulFeature() {
+		return HasFeatures.namedFeature("Zuul (Simple)", ZuulConfiguration.class);
+	}
 
 	@Bean
 	public RouteLocator routeLocator() {
@@ -113,6 +120,11 @@ public class ZuulConfiguration {
 	@Bean
 	public SendErrorFilter sendErrorFilter() {
 		return new SendErrorFilter();
+	}
+
+	@Bean
+	public SendForwardFilter sendForwardFilter() {
+		return new SendForwardFilter();
 	}
 
 	@Configuration

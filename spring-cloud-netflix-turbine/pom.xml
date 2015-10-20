@@ -6,7 +6,7 @@
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
 		<version>1.1.0.BUILD-SNAPSHOT</version>
-		<relativePath>..</relativePath>
+		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-netflix-turbine</artifactId>
 	<packaging>jar</packaging>
@@ -83,6 +83,11 @@
 			<!-- Only needed at compile time -->
 			<scope>compile</scope>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

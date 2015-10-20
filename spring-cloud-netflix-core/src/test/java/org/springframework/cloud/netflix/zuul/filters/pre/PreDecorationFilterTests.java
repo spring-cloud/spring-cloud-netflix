@@ -16,12 +16,14 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -30,9 +32,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Dave Syer
@@ -50,8 +49,6 @@ public class PreDecorationFilterTests {
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
 
-	private ServerProperties server = new ServerProperties();
-
 	@Before
 	public void init() {
 		initMocks(this);
@@ -59,6 +56,7 @@ public class PreDecorationFilterTests {
 				this.properties);
 		this.filter = new PreDecorationFilter(this.routeLocator, true);
 		RequestContext ctx = RequestContext.getCurrentContext();
+		ctx.clear();
 		ctx.setRequest(this.request);
 	}
 
@@ -80,8 +78,31 @@ public class PreDecorationFilterTests {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
 		assertEquals("localhost:80", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo", getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+	}
+
+	@Test
+	public void forwardRouteAddsLocation() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.request.setRequestURI("/api/foo/1");
+		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true,
+				null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/foo/1", ctx.get("forward.to"));
+	}
+
+	@Test
+	public void forwardWithoutStripPrefixAppendsPath() throws Exception {
+		this.request.setRequestURI("/foo/1");
+		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/bar", false,
+				null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/bar/foo/1", ctx.get("forward.to"));
 	}
 
 	@Test
@@ -94,6 +115,7 @@ public class PreDecorationFilterTests {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/1", ctx.get("requestURI"));
 		assertEquals("localhost:80", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api/foo", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo", getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}

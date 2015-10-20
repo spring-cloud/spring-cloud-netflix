@@ -18,9 +18,13 @@ package org.springframework.cloud.netflix.feign.valid;
 
 import org.junit.Test;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -32,16 +36,41 @@ import static org.junit.Assert.assertNotNull;
 public class FeignClientValidationTests {
 
 	@Test
-	public void valid() {
+	public void validNotLoadBalanced() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				GoodConfiguration.class);
-		assertNotNull(context.getBean(GoodConfiguration.Client.class));
+				GoodUrlConfiguration.class);
+		assertNotNull(context.getBean(GoodUrlConfiguration.Client.class));
 		context.close();
 	}
 
 	@Configuration
-	@EnableFeignClients
-	protected static class GoodConfiguration {
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = GoodUrlConfiguration.Client.class)
+	protected static class GoodUrlConfiguration {
+
+		@FeignClient(name="example", url="http://example.com")
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			@Deprecated
+			String get();
+		}
+
+	}
+
+	@Test
+	public void validLoadBalanced() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				RibbonAutoConfiguration.class,
+				FeignRibbonClientAutoConfiguration.class,
+				GoodServiceIdConfiguration.class);
+		assertNotNull(context.getBean(GoodServiceIdConfiguration.Client.class));
+		context.close();
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = GoodServiceIdConfiguration.Client.class)
+	protected static class GoodServiceIdConfiguration {
 
 		@FeignClient("foo")
 		interface Client {

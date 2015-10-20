@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+
 import javax.annotation.PostConstruct;
 
 import org.junit.After;
@@ -25,17 +29,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
-import com.netflix.discovery.DiscoveryManager;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
+import com.netflix.discovery.EurekaClient;
 
 /**
  * @author Dave Syer
@@ -44,7 +46,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	private DiscoveryClient client = Mockito.mock(DiscoveryClient.class);
+	private EurekaClient client = Mockito.mock(EurekaClient.class);
 
 	private InstanceInfo info = InstanceInfo.Builder.newBuilder().setAppName("app")
 			.setHostName("foo").setHomePageUrl("/", null).build();
@@ -61,35 +63,37 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	@Test
 	public void onWhenRequested() throws Exception {
-		given(this.client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(
-				this.info);
+		given(this.client.getNextServerFromEureka("CONFIGSERVER", false))
+				.willReturn(this.info);
 		setup("spring.cloud.config.discovery.enabled=true");
-		assertEquals(
-				1,
-				this.context
-						.getBeanNamesForType(DiscoveryClientConfigServiceAutoConfiguration.class).length);
-		Mockito.verify(this.client).getNextServerFromEureka("CONFIGSERVER", false);
-		Mockito.verify(this.client).shutdown();
+		assertEquals(1, this.context.getBeanNamesForType(
+				DiscoveryClientConfigServiceAutoConfiguration.class).length);
+		Mockito.verify(this.client, times(2)).getNextServerFromEureka("CONFIGSERVER",
+				false);
+		Mockito.verify(this.client, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
-		assertEquals("bar", ApplicationInfoManager.getInstance().getInfo().getMetadata()
-				.get("foo"));
+		ApplicationInfoManager infoManager = this.context
+				.getBean(ApplicationInfoManager.class);
+		assertEquals("bar", infoManager.getInfo().getMetadata().get("foo"));
 	}
 
 	private void setup(String... env) {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(parent, env);
-		parent.getDefaultListableBeanFactory().registerSingleton("mockDiscoveryClient",
+		parent.getDefaultListableBeanFactory().registerSingleton("eurekaClient",
 				this.client);
-		DiscoveryManager.getInstance().setDiscoveryClient(this.client);
 		parent.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				EnvironmentKnobbler.class, ConfigClientProperties.class);
 		parent.refresh();
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.setParent(parent);
-		this.context.register(DiscoveryClientConfigServiceAutoConfiguration.class);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+				DiscoveryClientConfigServiceAutoConfiguration.class,
+				EurekaClientAutoConfiguration.class,
+				EurekaDiscoveryClientConfiguration.class);
 		this.context.refresh();
 	}
 

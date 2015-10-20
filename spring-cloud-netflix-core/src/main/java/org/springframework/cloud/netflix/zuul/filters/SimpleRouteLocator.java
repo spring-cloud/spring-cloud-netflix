@@ -41,4 +41,9 @@ public class SimpleRouteLocator implements RouteLocator {
 		return paths;
 	}
 
+	@Override
+	public Collection<String> getIgnoredPaths() {
+		return this.properties.getIgnoredPatterns();
+	}
+
 }

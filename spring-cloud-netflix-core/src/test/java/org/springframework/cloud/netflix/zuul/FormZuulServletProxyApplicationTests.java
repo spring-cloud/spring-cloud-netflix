@@ -16,9 +16,10 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -55,12 +57,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FormZuulServletProxyApplication.class)
@@ -226,12 +225,8 @@ class FormZuulServletProxyApplication {
 class ServletFormRibbonClientConfiguration {
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", instance
-				.getNonSecurePort())));
-		// balancer.setServersList(Arrays.asList(new Server("localhost", 8000)));
-		return balancer;
+	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+		return new StaticServerList<>(new Server("localhost", instance.getNonSecurePort()));
 	}
 
 }

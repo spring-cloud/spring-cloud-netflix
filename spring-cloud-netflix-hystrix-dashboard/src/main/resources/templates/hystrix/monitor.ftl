@@ -61,8 +61,7 @@
 		<div id="dependencies" class="row dependencies"><span class="loading">Loading ...</span></div>
 		
 		<div class="spacer"></div>
-		<div class="spacer"></div>
-		
+
 		<div class="row">
 			<div class="menubar">
 				<div class="title">
@@ -102,9 +101,9 @@
 			var poolStream = "${contextPath}/proxy.stream?origin=" + stream;
 			
 			if(getUrlVars()["title"] != undefined) {
-				$('#title_name').html("Hystrix Stream: " + decodeURIComponent(getUrlVars()["title"]))
+				$('#title_name').text("Hystrix Stream: " + decodeURIComponent(getUrlVars()["title"]))
 			} else {
-				$('#title_name').html("Hystrix Stream: " + decodeURIComponent(stream))
+				$('#title_name').text("Hystrix Stream: " + decodeURIComponent(stream))
 			}
 		}
 		console.log("Command Stream: " + commandStream)

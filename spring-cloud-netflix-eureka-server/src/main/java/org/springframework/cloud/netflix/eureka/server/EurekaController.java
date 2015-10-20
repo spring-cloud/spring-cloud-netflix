@@ -39,7 +39,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Pair;
-import com.netflix.eureka.PeerAwareInstanceRegistry;
+import com.netflix.eureka.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
@@ -53,6 +53,11 @@ public class EurekaController {
 
 	@Value("${eureka.dashboard.path:/}")
 	private String dashboardPath = "";
+	private ApplicationInfoManager applicationInfoManager;
+
+	public EurekaController(ApplicationInfoManager applicationInfoManager) {
+		this.applicationInfoManager = applicationInfoManager;
+	}
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String status(HttpServletRequest request, Map<String, Object> model) {
@@ -73,7 +78,7 @@ public class EurekaController {
 	@RequestMapping(value = "/lastn", method = RequestMethod.GET)
 	public String lastn(HttpServletRequest request, Map<String, Object> model) {
 		populateBase(request, model);
-		PeerAwareInstanceRegistry registery = PeerAwareInstanceRegistry.getInstance();
+		PeerAwareInstanceRegistryImpl registery = PeerAwareInstanceRegistryImpl.getInstance();
 		ArrayList<Map<String, Object>> lastNCanceled = new ArrayList<>();
 		List<Pair<Long, String>> list = registery.getLastNCanceledInstances();
 		for (Pair<Long, String> entry : list) {
@@ -114,11 +119,10 @@ public class EurekaController {
 				.getDeploymentEnvironment());
 		model.put("datacenter", ConfigurationManager.getDeploymentContext()
 				.getDeploymentDatacenter());
-		model.put("registry", PeerAwareInstanceRegistry.getInstance());
-		model.put("isBelowRenewThresold", PeerAwareInstanceRegistry.getInstance()
+		model.put("registry", PeerAwareInstanceRegistryImpl.getInstance());
+		model.put("isBelowRenewThresold", PeerAwareInstanceRegistryImpl.getInstance()
 				.isBelowRenewThresold() == 1);
-		DataCenterInfo info = ApplicationInfoManager.getInstance().getInfo()
-				.getDataCenterInfo();
+		DataCenterInfo info = applicationInfoManager.getInfo().getDataCenterInfo();
 		if (info.getName() == DataCenterInfo.Name.Amazon) {
 			AmazonInfo amazonInfo = (AmazonInfo) info;
 			model.put("amazonInfo", amazonInfo);
@@ -131,7 +135,7 @@ public class EurekaController {
 
 	private void populateNavbar(HttpServletRequest request, Map<String, Object> model) {
 		Map<String, String> replicas = new LinkedHashMap<>();
-		List<PeerEurekaNode> list = PeerAwareInstanceRegistry.getInstance()
+		List<PeerEurekaNode> list = PeerAwareInstanceRegistryImpl.getInstance()
 				.getReplicaNodes();
 		for (PeerEurekaNode node : list) {
 			try {
@@ -147,7 +151,7 @@ public class EurekaController {
 	}
 
 	private void populateApps(Map<String, Object> model) {
-		List<com.netflix.discovery.shared.Application> sortedApplications = PeerAwareInstanceRegistry
+		List<com.netflix.discovery.shared.Application> sortedApplications = PeerAwareInstanceRegistryImpl
 				.getInstance().getSortedApplications();
 		ArrayList<Map<String, Object>> apps = new ArrayList<>();
 		for (Application app : sortedApplications) {

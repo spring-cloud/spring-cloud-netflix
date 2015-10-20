@@ -17,8 +17,12 @@
 package org.springframework.cloud.netflix.zuul;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,8 +35,12 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -42,17 +50,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
@@ -71,6 +81,9 @@ public class SampleZuulProxyApplicationTests {
 
 	@Autowired
 	private RoutesEndpoint endpoint;
+
+	@Autowired
+	private RibbonCommandFactory ribbonCommandFactory;
 
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
@@ -153,6 +166,34 @@ public class SampleZuulProxyApplicationTests {
 		assertEquals("Hello space", result.getBody());
 	}
 
+	@Test
+	public void simpleHostRouteWithOriginalQString() {
+		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/qstring?original=value1&original=value2", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Received {original=[value1, value2]}", result.getBody());
+	}
+
+	@Test
+	public void simpleHostRouteWithOverriddenQString() {
+		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/qstring?override=true&different=key", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Received {key=[overridden]}", result.getBody());
+	}
+
+	@Test
+	public void ribbonCommandFactoryOverridden() {
+		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
+				ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -190,6 +231,11 @@ class SampleZuulProxyApplication {
 		return "Posted " + id + "!";
 	}
 
+	@RequestMapping(value = "/qstring")
+	public String qstring(@RequestParam MultiValueMap<String,String> params) {
+		return "Received "+params.toString();	
+	}
+
 	@RequestMapping("/")
 	public String home() {
 		return "Hello world";
@@ -198,6 +244,11 @@ class SampleZuulProxyApplication {
 	@RequestMapping("/spa ce")
 	public String space() {
 		return "Hello space";
+	}
+
+	@Bean
+	public RibbonCommandFactory ribbonCommandFactory(SpringClientFactory clientFactory) {
+		return new MyRibbonCommandFactory(clientFactory);
 	}
 
 	@Bean
@@ -215,6 +266,11 @@ class SampleZuulProxyApplication {
 
 			@Override
 			public Object run() {
+				if (RequestContext.getCurrentContext().getRequest().getParameterMap().containsKey("override")) {
+					Map<String,List<String>> overridden=new HashMap<>();
+					overridden.put("key", Arrays.asList("overridden"));
+					RequestContext.getCurrentContext().setRequestQueryParams(overridden);
+				}
 				return null;
 			}
 
@@ -229,6 +285,13 @@ class SampleZuulProxyApplication {
 		SpringApplication.run(SampleZuulProxyApplication.class, args);
 	}
 
+	public static class MyRibbonCommandFactory extends RestClientRibbonCommandFactory {
+
+		public MyRibbonCommandFactory(SpringClientFactory clientFactory) {
+			super(clientFactory);
+		}
+	}
+
 }
 
 // Load balancer with fixed server list for "simple" pointing to localhost
@@ -236,11 +299,8 @@ class SampleZuulProxyApplication {
 class SimpleRibbonClientConfiguration {
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", instance
-				.getNonSecurePort())));
-		return balancer;
+	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+		return new StaticServerList<>(new Server("localhost", instance.getNonSecurePort()));
 	}
 
 }
@@ -249,11 +309,8 @@ class SimpleRibbonClientConfiguration {
 class AnotherRibbonClientConfiguration {
 
 	@Bean
-	public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
-		BaseLoadBalancer balancer = new BaseLoadBalancer();
-		balancer.setServersList(Arrays.asList(new Server("localhost", instance
-				.getNonSecurePort())));
-		return balancer;
+	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+		return new StaticServerList<>(new Server("localhost", instance.getNonSecurePort()));
 	}
 
 }

@@ -2,8 +2,6 @@ package org.springframework.cloud.netflix.zuul;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +33,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -121,13 +119,11 @@ class RetryableZuulProxyApplication {
 //Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class RetryableRibbonClientConfiguration {
-		@Bean
-		public ILoadBalancer ribbonLoadBalancer(EurekaInstanceConfig instance) {
-				BaseLoadBalancer balancer = new BaseLoadBalancer();
-				balancer.setServersList(Arrays.asList(
-						new Server("localhost", instance.getNonSecurePort()),
-						new Server("failed-localhost", instance.getNonSecurePort())
-				));
-				return balancer;
-		}
+	@Bean
+	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+		return new StaticServerList<>(
+				new Server("localhost", instance.getNonSecurePort()),
+				new Server("failed-localhost", instance.getNonSecurePort())
+		);
+	}
 }

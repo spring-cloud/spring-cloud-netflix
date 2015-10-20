@@ -1,0 +1,13 @@
+info:
+  component: Turbine Stream
+spring:
+  application:
+    name: turbine
+  jmx:
+    default_domain: cloud.turbine.stream
+
+server:
+  port: 8990
+turbine:
+  stream:
+    port: 8989

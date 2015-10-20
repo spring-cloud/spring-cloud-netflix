@@ -61,6 +61,8 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 				throw new RuntimeException(
 						"Host must have cluster name in order to use ClusterConfigBasedUrlClosure");
 			}
+
+			// find url
 			String key = "turbine.instanceUrlSuffix." + host.getCluster();
 			DynamicStringProperty urlClosureConfig = DynamicPropertyFactory.getInstance()
 					.getStringProperty(key, null);
@@ -73,6 +75,19 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 						+ urlClosureConfig.getName() + " or "
 						+ this.defaultUrlClosureConfig.getName() + " must be set");
 			}
+
+			// find port and scheme
+			String port;
+			String scheme;
+			if (host.getAttributes().containsKey("securePort")) {
+				port = host.getAttributes().get("securePort");
+				scheme = "https";
+			} else {
+				port = host.getAttributes().get("port");
+				scheme = "http";
+			}
+
+			// determine if to insert port
 			String insertPortKey = "turbine.instanceInsertPort." + host.getCluster();
 			DynamicStringProperty insertPortProp = DynamicPropertyFactory.getInstance()
 					.getStringProperty(insertPortKey, null);
@@ -83,18 +98,22 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 			else {
 				insertPort = Boolean.parseBoolean(insertPortProp.get());
 			}
+
+			// format url with port
 			if (insertPort) {
 				if (url.startsWith("/")) {
 					url = url.substring(1);
 				}
-				if (!host.getAttributes().containsKey("port")) {
+				if (port == null) {
 					throw new RuntimeException(
-							"Configured to use port, but port is not in host attributes");
+							"Configured to use port, but port or securePort is not in host attributes");
 				}
-				return String.format("http://%s:%s/%s", host.getHostname(), host
-						.getAttributes().get("port"), url);
+
+				return String.format("%s://%s:%s/%s", scheme, host.getHostname(), port, url);
 			}
-			return "http://" + host.getHostname() + url;
+
+			//format url without port
+			return scheme + "://" + host.getHostname() + url;
 		}
 	};
 

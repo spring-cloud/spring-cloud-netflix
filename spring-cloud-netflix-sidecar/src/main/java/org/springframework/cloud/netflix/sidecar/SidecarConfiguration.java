@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,11 @@ import com.netflix.discovery.EurekaClientConfig;
 @EnableConfigurationProperties
 @ConditionalOnProperty(value = "spring.cloud.netflix.sidecar.enabled", matchIfMissing = true)
 public class SidecarConfiguration {
+
+	@Bean
+	public HasFeatures Feature() {
+		return HasFeatures.namedFeature("Netflix Sidecar", SidecarConfiguration.class);
+	}
 
 	@Bean
 	public SidecarProperties sidecarProperties() {

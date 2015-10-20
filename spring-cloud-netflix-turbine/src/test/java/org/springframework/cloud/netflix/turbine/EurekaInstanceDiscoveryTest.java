@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import static org.mockito.Mockito.*;
+
+import com.netflix.discovery.EurekaClient;
+import com.netflix.turbine.discovery.Instance;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.netflix.appinfo.InstanceInfo;
@@ -27,24 +32,74 @@ import static org.junit.Assert.assertEquals;
  */
 public class EurekaInstanceDiscoveryTest {
 
+	private EurekaClient eurekaClient;
+	private TurbineProperties turbineProperties;
+	private InstanceInfo.Builder builder;
+
+	@Before
+	public void setUp() throws Exception {
+		eurekaClient = mock(EurekaClient.class);
+		turbineProperties = new TurbineProperties();
+		builder = InstanceInfo.Builder.newBuilder();
+	}
+
 	@Test
 	public void testGetClusterName() {
-		String appName = "testAppName";
 		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
-				new TurbineProperties());
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName(appName)
+				turbineProperties, eurekaClient);
+		String appName = "testAppName";
+		InstanceInfo instanceInfo = builder.setAppName(appName)
 				.build();
 		String clusterName = discovery.getClusterName(instanceInfo);
 		assertEquals("clusterName is wrong", appName.toUpperCase(), clusterName);
 	}
 
 	@Test
+	public void testGetPort() {
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
+				turbineProperties, eurekaClient);
+		String appName = "testAppName";
+		int port = 8080;
+		String hostName = "myhost";
+		InstanceInfo instanceInfo = builder.setAppName(appName)
+				.setHostName(hostName)
+				.setPort(port)
+				.build();
+		Instance instance = discovery.marshallInstanceInfo(instanceInfo);
+		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
+		assertEquals("url is wrong", "http://"+hostName+":"+port+"/hystrix.stream", urlPath);
+	}
+
+	@Test
+	public void testGetSecurePort() {
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
+				turbineProperties, eurekaClient);
+		String appName = "testAppName";
+		int port = 8080;
+		int securePort = 8443;
+		String hostName = "myhost";
+		InstanceInfo instanceInfo = builder.setAppName(appName)
+				.setHostName(hostName)
+				.setPort(port)
+				.setSecurePort(securePort)
+				.enablePort(InstanceInfo.PortType.SECURE, true)
+				.build();
+		Instance instance = discovery.marshallInstanceInfo(instanceInfo);
+		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+		assertEquals("securePort is wrong", String.valueOf(securePort), instance.getAttributes().get("securePort"));
+
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
+		assertEquals("url is wrong", "https://"+hostName+":"+securePort+"/hystrix.stream", urlPath);
+	}
+
+	@Test
 	public void testGetClusterNameCustomExpression() {
-		TurbineProperties turbineProperties = new TurbineProperties();
 		turbineProperties.setClusterNameExpression("aSGName");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
 		String asgName = "myAsgName";
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+		InstanceInfo instanceInfo = builder
 				.setAppName("testApp").setASGName(asgName).build();
 		String clusterName = discovery.getClusterName(instanceInfo);
 		assertEquals("clusterName is wrong", asgName, clusterName);
@@ -52,11 +107,10 @@ public class EurekaInstanceDiscoveryTest {
 
 	@Test
 	public void testGetClusterNameInstanceMetadataMapExpression() {
-		TurbineProperties turbineProperties = new TurbineProperties();
 		turbineProperties.setClusterNameExpression("metadata['cluster']");
-		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
 		String metadataProperty = "myCluster";
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+		InstanceInfo instanceInfo = builder
 				.setAppName("testApp").add("cluster", metadataProperty).build();
 		String clusterName = discovery.getClusterName(instanceInfo);
 		assertEquals("clusterName is wrong", metadataProperty, clusterName);

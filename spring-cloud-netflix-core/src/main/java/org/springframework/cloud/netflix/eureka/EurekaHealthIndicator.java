@@ -23,12 +23,12 @@ import java.util.Map;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.Status;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.DiscoveryClient;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
@@ -37,20 +37,18 @@ import com.netflix.discovery.shared.Applications;
  */
 public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 
-	private final DiscoveryClient discovery;
-
-	private final MetricReader metrics;
+	private final EurekaClient eurekaClient;
 
 	private final EurekaInstanceConfig instanceConfig;
 
-	private int failCount = 0;
+	private final EurekaClientConfig clientConfig;
 
-	public EurekaHealthIndicator(DiscoveryClient discovery, MetricReader metrics,
-			EurekaInstanceConfig instanceConfig) {
+	public EurekaHealthIndicator(EurekaClient eurekaClient,
+			EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
 		super();
-		this.discovery = discovery;
-		this.metrics = metrics;
+		this.eurekaClient = eurekaClient;
 		this.instanceConfig = instanceConfig;
+		this.clientConfig = clientConfig;
 	}
 
 	@Override
@@ -67,33 +65,37 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 	}
 
 	private Status getStatus(Builder builder) {
-		Status status = new Status(this.discovery.getInstanceRemoteStatus().toString(),
+		Status status = new Status(
+				this.eurekaClient.getInstanceRemoteStatus().toString(),
 				"Remote status from Eureka server");
-		@SuppressWarnings("unchecked")
-		Metric<Number> value = (Metric<Number>) this.metrics
-				.findOne("counter.servo.discoveryclient_failed");
-		if (value != null) {
-			int renewalPeriod = this.instanceConfig.getLeaseRenewalIntervalInSeconds();
-			int latest = value.getValue().intValue();
-			builder.withDetail("failCount", latest);
-			builder.withDetail("renewalPeriod", renewalPeriod);
-			if (this.failCount < latest) {
-				status = new Status("UP", "Eureka discovery client is reporting failures");
-				this.failCount = latest;
+
+		if (eurekaClient instanceof DiscoveryClient && clientConfig.shouldFetchRegistry()) {
+			DiscoveryClient discoveryClient = (DiscoveryClient) eurekaClient;
+			long lastFetch = discoveryClient.getLastSuccessfulRegistryFetchTimePeriod();
+
+			if (lastFetch < 0) {
+				status = new Status("UP",
+						"Eureka discovery client has not yet successfully connected to a Eureka server");
 			}
-			else {
-				status = new Status("UP", "No new failures in Eureka discovery client");
+			else if (lastFetch > clientConfig.getRegistryFetchIntervalSeconds() * 2) {
+				status = new Status("UP",
+						"Eureka discovery client is reporting failures to connect to a Eureka server");
+				builder.withDetail("renewalPeriod",
+						instanceConfig.getLeaseRenewalIntervalInSeconds());
+				builder.withDetail("failCount",
+						lastFetch / clientConfig.getRegistryFetchIntervalSeconds());
 			}
 		}
+
 		return status;
 	}
 
 	private Map<String, Object> getApplications() {
-		Applications applications = this.discovery.getApplications();
+		Applications applications = this.eurekaClient.getApplications();
 		if (applications == null) {
 			return Collections.emptyMap();
 		}
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		for (Application application : applications.getRegisteredApplications()) {
 			result.put(application.getName(), application.getInstances().size());
 		}
