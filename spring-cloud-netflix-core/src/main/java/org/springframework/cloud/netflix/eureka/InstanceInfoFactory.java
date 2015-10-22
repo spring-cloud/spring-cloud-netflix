@@ -31,7 +31,7 @@ import com.netflix.appinfo.LeaseInfo;
 @CommonsLog
 public class InstanceInfoFactory {
 
-	public MutableInstanceInfo create(EurekaInstanceConfig config) {
+	public InstanceInfo create(EurekaInstanceConfig config) {
 		LeaseInfo.Builder leaseInfoBuilder = LeaseInfo.Builder.newBuilder()
 				.setRenewalIntervalInSecs(config.getLeaseRenewalIntervalInSeconds())
 				.setDurationInSecs(config.getLeaseExpirationDurationInSeconds());
@@ -87,6 +87,6 @@ public class InstanceInfoFactory {
 
 		InstanceInfo instanceInfo = builder.build();
 		instanceInfo.setLeaseInfo(leaseInfoBuilder.build());
-		return new MutableInstanceInfo(instanceInfo);
+		return instanceInfo;
 	}
 }

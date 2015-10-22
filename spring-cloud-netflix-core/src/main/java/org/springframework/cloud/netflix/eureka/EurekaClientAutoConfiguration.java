@@ -90,7 +90,7 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(InstanceInfo.class)
-	public MutableInstanceInfo instanceInfo(EurekaInstanceConfig config) {
+	public InstanceInfo instanceInfo(EurekaInstanceConfig config) {
 		return new InstanceInfoFactory().create(config);
 	}
 
