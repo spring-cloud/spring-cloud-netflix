@@ -20,20 +20,17 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 
-import javax.annotation.PostConstruct;
-
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
@@ -45,11 +42,6 @@ import com.netflix.discovery.EurekaClient;
 public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
-
-	private EurekaClient client = Mockito.mock(EurekaClient.class);
-
-	private InstanceInfo info = InstanceInfo.Builder.newBuilder().setAppName("app")
-			.setHostName("foo").setHomePageUrl("/", null).build();
 
 	@After
 	public void close() {
@@ -63,14 +55,16 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	@Test
 	public void onWhenRequested() throws Exception {
-		given(this.client.getNextServerFromEureka("CONFIGSERVER", false))
-				.willReturn(this.info);
-		setup("spring.cloud.config.discovery.enabled=true");
+		setup("spring.cloud.config.discovery.enabled=true",
+				"eureka.instance.metadataMap.foo:bar",
+				"eureka.instance.nonSecurePort:7001",
+				"eureka.instance.hostname:foo");
 		assertEquals(1, this.context.getBeanNamesForType(
 				DiscoveryClientConfigServiceAutoConfiguration.class).length);
-		Mockito.verify(this.client, times(2)).getNextServerFromEureka("CONFIGSERVER",
+		EurekaClient eurekaClient = this.context.getParent().getBean(EurekaClient.class);
+		Mockito.verify(eurekaClient, times(2)).getNextServerFromEureka("CONFIGSERVER",
 				false);
-		Mockito.verify(this.client, times(1)).shutdown();
+		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
 		assertEquals("http://foo:7001/", locator.getRawUri());
@@ -82,8 +76,6 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	private void setup(String... env) {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(parent, env);
-		parent.getDefaultListableBeanFactory().registerSingleton("eurekaClient",
-				this.client);
 		parent.register(PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				EnvironmentKnobbler.class, ConfigClientProperties.class);
@@ -100,13 +92,12 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	@Configuration
 	protected static class EnvironmentKnobbler {
 
-		@Autowired
-		private ConfigurableEnvironment environment;
-
-		@PostConstruct
-		public void init() {
-			EnvironmentTestUtils.addEnvironment(this.environment,
-					"eureka.instance.metadataMap.foo:bar");
+		@Bean
+		public EurekaClient eurekaClient(InstanceInfo info) {
+			EurekaClient client = Mockito.mock(EurekaClient.class);
+			given(client.getNextServerFromEureka("CONFIGSERVER", false))
+					.willReturn(info);
+			return client;
 		}
 
 	}
