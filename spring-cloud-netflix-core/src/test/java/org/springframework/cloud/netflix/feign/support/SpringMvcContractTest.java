@@ -3,6 +3,7 @@ package org.springframework.cloud.netflix.feign.support;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.ToString;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
