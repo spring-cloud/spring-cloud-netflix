@@ -1,12 +1,6 @@
 package org.springframework.cloud.netflix.feign.support;
 
-import static org.junit.Assert.assertEquals;
-
 import java.lang.reflect.Method;
-
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import feign.MethodMetadata;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author chadjaros
