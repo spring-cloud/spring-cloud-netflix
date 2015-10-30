@@ -16,37 +16,8 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.PreDestroy;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.netflix.zuul.context.RequestContext;
 import lombok.extern.apachecommons.CommonsLog;
-
-import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -64,27 +35,37 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
-import com.netflix.zuul.context.RequestContext;
+import javax.annotation.PreDestroy;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Map;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicReference;
 
 @CommonsLog
 @SuppressWarnings("deprecation")
-public class SimpleHostRoutingFilter extends ZuulFilter {
-
-	public static final String CONTENT_ENCODING = "Content-Encoding";
+public class SimpleHostRoutingFilter extends HostRoutingFilter {
 
 	private static final Runnable CLIENTLOADER = new Runnable() {
 		@Override
@@ -93,19 +74,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	};
 
-	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
-			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS,
-					10000);
-
-	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
-			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS,
-					2000);
-
-	private static final AtomicReference<HttpClient> CLIENT = new AtomicReference<HttpClient>(
-			newClient());
-
-	private static final Timer CONNECTION_MANAGER_TIMER = new Timer(
-			"SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
+	private static final AtomicReference<HttpClient> CLIENT = new AtomicReference<HttpClient>(newClient());
 
 	// cleans expired connections at an interval
 	static {
@@ -128,14 +97,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}, 30000, 5000);
 	}
 
-	private ProxyRequestHelper helper;
-
 	public SimpleHostRoutingFilter() {
-		this(new ProxyRequestHelper());
+		super();
 	}
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper) {
-		this.helper = helper;
+		super(helper);
 	}
 
 	@PreDestroy
@@ -143,56 +110,16 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		CONNECTION_MANAGER_TIMER.cancel();
 	}
 
-	@Override
-	public String filterType() {
-		return "route";
-	}
-
-	@Override
-	public int filterOrder() {
-		return 100;
-	}
-
-	@Override
-	public boolean shouldFilter() {
-		return RequestContext.getCurrentContext().getRouteHost() != null
-				&& RequestContext.getCurrentContext().sendZuulResponse();
-	}
-
-	@Override
-	public Object run() {
-		RequestContext context = RequestContext.getCurrentContext();
-		HttpServletRequest request = context.getRequest();
-		MultiValueMap<String, String> headers = this.helper
-				.buildZuulRequestHeaders(request);
-		MultiValueMap<String, String> params = this.helper
-				.buildZuulRequestQueryParams(request);
-		String verb = getVerb(request);
-		InputStream requestEntity = getRequestBody(request);
-		HttpClient httpclient = CLIENT.get();
-
-		String uri = this.helper.buildZuulRequestURI(request);
-
-		try {
-			HttpResponse response = forward(httpclient, verb, uri, request, headers,
-					params, requestEntity);
-			setResponse(response);
-		}
-		catch (Exception ex) {
-			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", ex);
-		}
-		return null;
-	}
-
-	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
+    @Override
+	protected HttpResponse forward(String verb, String uri,
 			HttpServletRequest request, MultiValueMap<String, String> headers,
 			MultiValueMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
-		HttpHost httpHost = getHttpHost(host);
+        HttpHost httpHost = new HttpHost(host.getHost(), host.getPort(),
+                host.getProtocol());
 		uri = StringUtils.cleanPath(host.getPath() + uri);
 		HttpRequest httpRequest;
 		switch (verb.toUpperCase()) {
@@ -222,7 +149,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			httpRequest.setHeaders(convertHeaders(headers));
 			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
-			HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
+            HttpClient httpclient = CLIENT.get();
+			HttpResponse zuulResponse = httpclient.execute(httpHost, httpRequest);
 			this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
 					revertHeaders(zuulResponse.getAllHeaders()));
 			return zuulResponse;
@@ -233,33 +161,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			// immediate deallocation of all system resources
 			// httpclient.getConnectionManager().shutdown();
 		}
-	}
-
-	private MultiValueMap<String, String> revertHeaders(Header[] headers) {
-		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-		for (Header header : headers) {
-			String name = header.getName();
-			if (!map.containsKey(name)) {
-				map.put(name, new ArrayList<String>());
-			}
-			map.get(name).add(header.getValue());
-		}
-		return map;
-	}
-
-	private Header[] convertHeaders(MultiValueMap<String, String> headers) {
-		List<Header> list = new ArrayList<>();
-		for (String name : headers.keySet()) {
-			for (String value : headers.get(name)) {
-				list.add(new BasicHeader(name, value));
-			}
-		}
-		return list.toArray(new BasicHeader[0]);
-	}
-
-	private HttpResponse forwardRequest(HttpClient httpclient, HttpHost httpHost,
-			HttpRequest httpRequest) throws IOException {
-		return httpclient.execute(httpHost, httpRequest);
 	}
 
 	private String getQueryString() throws UnsupportedEncodingException {
@@ -276,34 +177,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			}
 		}
 		return (query.length()>0) ? "?" + query.substring(1) : "";
-	}
-
-	private HttpHost getHttpHost(URL host) {
-		HttpHost httpHost = new HttpHost(host.getHost(), host.getPort(),
-				host.getProtocol());
-		return httpHost;
-	}
-
-	private InputStream getRequestBody(HttpServletRequest request) {
-		InputStream requestEntity = null;
-		try {
-			requestEntity = request.getInputStream();
-		}
-		catch (IOException ex) {
-			// no requestBody is ok.
-		}
-		return requestEntity;
-	}
-
-	private String getVerb(HttpServletRequest request) {
-		String sMethod = request.getMethod();
-		return sMethod.toUpperCase();
-	}
-
-	private void setResponse(HttpResponse response) throws IOException {
-		this.helper.setResponse(response.getStatusLine().getStatusCode(),
-				response.getEntity() == null ? null : response.getEntity().getContent(),
-				revertHeaders(response.getAllHeaders()));
 	}
 
 	private static ClientConnectionManager newConnectionManager() throws Exception {
@@ -376,7 +249,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	}
 
-	public static class MySSLSocketFactory extends SSLSocketFactory {
+	private static class MySSLSocketFactory extends SSLSocketFactory {
 		private SSLContext sslContext = SSLContext.getInstance("TLS");
 
 		public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException,

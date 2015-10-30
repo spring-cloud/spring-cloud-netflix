@@ -34,10 +34,7 @@ import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
-import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
-import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.*;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -103,7 +100,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
-	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
+	public HostRoutingFilter hostRoutingFilter() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
 			helper.setTraces(this.traces);
