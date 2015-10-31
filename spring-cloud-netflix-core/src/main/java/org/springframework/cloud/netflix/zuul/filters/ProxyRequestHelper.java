@@ -16,21 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -38,10 +26,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.util.HTTPRequestUtils;
-
-import lombok.extern.apachecommons.CommonsLog;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * @author Dave Syer
@@ -49,17 +40,12 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class ProxyRequestHelper {
 
-	/**
-	 * Zuul context key for a collection of ignored headers for the current request.
-	 * Pre-filters can set this up as a set of lowercase strings.
-	 */
-	public static final String IGNORED_HEADERS = "ignoredHeaders";
-
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
 	private TraceRepository traces;
+    private HashSet<String> ignoredHeaders = new HashSet<>();
 
-	public void setTraces(TraceRepository traces) {
+    public void setTraces(TraceRepository traces) {
 		this.traces = traces;
 	}
 
@@ -155,25 +141,15 @@ public class ProxyRequestHelper {
 	}
 
 	public void addIgnoredHeaders(String... names) {
-		RequestContext ctx = RequestContext.getCurrentContext();
-		if (!ctx.containsKey(IGNORED_HEADERS)) {
-			ctx.set(IGNORED_HEADERS, new HashSet<String>());
-		}
-		@SuppressWarnings("unchecked")
-		Set<String> set = (Set<String>) ctx.get(IGNORED_HEADERS);
 		for (String name : names) {
-			set.add(name.toLowerCase());
+            ignoredHeaders.add(name.toLowerCase());
 		}
 	}
 
 	public boolean isIncludedHeader(String headerName) {
 		String name = headerName.toLowerCase();
-		RequestContext ctx = RequestContext.getCurrentContext();
-		if (ctx.containsKey(IGNORED_HEADERS)) {
-			Object object = ctx.get(IGNORED_HEADERS);
-			if (object instanceof Collection && ((Collection<?>) object).contains(name)) {
-				return false;
-			}
+		if (ignoredHeaders.contains(name)) {
+            return false;
 		}
 		switch (name) {
 		case "host":
