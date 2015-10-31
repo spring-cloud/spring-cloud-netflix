@@ -47,7 +47,7 @@ public class HystrixHealthIndicator extends AbstractHealthIndicator {
 		for (HystrixCommandMetrics metrics : HystrixCommandMetrics.getInstances()) {
 			HystrixCircuitBreaker circuitBreaker = HystrixCircuitBreaker.Factory
 					.getInstance(metrics.getCommandKey());
-			if (circuitBreaker.isOpen()) {
+			if (circuitBreaker != null && circuitBreaker.isOpen()) {
 				openCircuitBreakers.add(metrics.getCommandGroup().name() + "::"
 						+ metrics.getCommandKey().name());
 			}
