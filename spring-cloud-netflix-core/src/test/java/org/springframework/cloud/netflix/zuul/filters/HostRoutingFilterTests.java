@@ -1,29 +1,9 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
-import com.netflix.zuul.context.RequestContext;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +17,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.ZuulProxyConfiguration;
 import org.springframework.cloud.netflix.zuul.filters.route.HostRoutingFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -48,23 +29,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpSession;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -73,7 +42,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleCustomZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port: 0", "server.contextPath: /app" })
+@IntegrationTest({"server.port: 0", "server.contextPath: /app"})
 @DirtiesContext
 public class HostRoutingFilterTests {
 
@@ -115,7 +84,7 @@ public class HostRoutingFilterTests {
         ResponseEntity<String> result = new TestRestTemplate().exchange(
                 "http://localhost:" + this.port + "/app/self/put/3", HttpMethod.PUT,
                 new HttpEntity<>((Void) null), String.class);
-                assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals("Put 3", result.getBody());
     }
 
@@ -131,6 +100,7 @@ public class HostRoutingFilterTests {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals("Patch 45", result.getBody());
     }
+
     @Test
     public void getOnSelfIgnoredHeaders() {
         this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
@@ -140,6 +110,23 @@ public class HostRoutingFilterTests {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertTrue(result.getHeaders().containsKey("X-NotIgnored"));
         assertFalse(result.getHeaders().containsKey("X-Ignored"));
+    }
+
+    @Test
+    public void postOnSelfVerifyResponseCookie() {
+        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+        this.endpoint.reset();
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        ResponseEntity<String> result1 = restTemplate.getForEntity(
+                "http://localhost:" + this.port + "/app/self/cookie/1", String.class);
+
+        ResponseEntity<String> result2 = restTemplate.getForEntity(
+                "http://localhost:" + this.port + "/app/self/cookie/2", String.class);
+
+        assertEquals("SetCookie 1", result1.getBody());
+        assertEquals("GetCookie 1", result2.getBody());
     }
 
 }
@@ -154,6 +141,16 @@ class SampleCustomZuulProxyApplication {
         response.setHeader("X-Ignored", "foo");
         response.setHeader("X-NotIgnored", "bar");
         return "Get " + id;
+    }
+
+    @RequestMapping(value = "/cookie/{id}", method = RequestMethod.GET)
+    public String getWithCookie(@PathVariable String id, HttpSession session) {
+        Object testCookie = session.getAttribute("testCookie");
+        if (testCookie != null) {
+            return "GetCookie " + testCookie;
+        }
+        session.setAttribute("testCookie", id);
+        return "SetCookie " + id;
     }
 
     @RequestMapping(value = "/post", method = RequestMethod.POST)
@@ -186,110 +183,22 @@ class SampleCustomZuulProxyApplication {
             return new CustomHostRoutingFilter(helper);
         }
 
-        private class CustomHostRoutingFilter extends HostRoutingFilter {
-            private HttpClient httpClient;
-
+        private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
             public CustomHostRoutingFilter(ProxyRequestHelper helper) {
                 super(helper);
             }
 
             @Override
-            protected HttpResponse forward(String verb, String uri, HttpServletRequest request, MultiValueMap<String, String> headers,
-                                           MultiValueMap<String, String> params, InputStream requestEntity) throws Exception {
-                URL host = RequestContext.getCurrentContext().getRouteHost();
-                HttpHost httpHost = new HttpHost(host.getHost(), host.getPort(), host.getProtocol());
-                uri = StringUtils.cleanPath(host.getPath() + uri);
-                HttpRequest httpRequest;
-                switch (verb.toUpperCase()) {
-                    case "POST":
-                        HttpPost httpPost = new HttpPost(uri + getQueryString());
-                        httpRequest = httpPost;
-                        httpPost.setEntity(new InputStreamEntity(requestEntity, request.getContentLength()));
-                        break;
-                    case "PUT":
-                        HttpPut httpPut = new HttpPut(uri + getQueryString());
-                        httpRequest = httpPut;
-                        httpPut.setEntity(new InputStreamEntity(requestEntity, request.getContentLength()));
-                        break;
-                    case "PATCH":
-                        HttpPatch httpPatch = new HttpPatch(uri + getQueryString());
-                        httpRequest = httpPatch;
-                        httpPatch.setEntity(new InputStreamEntity(requestEntity, request.getContentLength()));
-                        break;
-                    default:
-                        httpRequest = new BasicHttpRequest(verb, uri + getQueryString());
-                }
-                httpRequest.setHeaders(convertHeaders(headers));
-                return getHttpClient().execute(httpHost, httpRequest);
+            protected CloseableHttpClient newClient() {
+                // Custom client with cookie support.
+                // In practice, we would want a custom cookie store using a multimap with a user key.
+                return HttpClients.custom()
+                        .setConnectionManager(newConnectionManager())
+                        .setDefaultRequestConfig(RequestConfig.custom()
+                                .setCookieSpec(CookieSpecs.DEFAULT)
+                                .build())
+                        .build();
             }
-
-            private HttpClient getHttpClient() throws Exception {
-                if (httpClient == null) {
-                    SSLContext sslContext = SSLContext.getInstance("SSL");
-                    sslContext.init(null, new TrustManager[]{new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                        }
-                        @Override
-                        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                        }
-                        @Override
-                        public X509Certificate[] getAcceptedIssuers() {
-                            return null;
-                        }
-                    }}, new SecureRandom());
-
-                    Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                            .register("http", PlainConnectionSocketFactory.INSTANCE)
-                            .register("https", new SSLConnectionSocketFactory(sslContext))
-                            .build();
-
-                    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
-                    connectionManager.setMaxTotal(Integer.parseInt(System.getProperty("zuul.max.host.connections", "200")));
-                    connectionManager.setDefaultMaxPerRoute(Integer.parseInt(System.getProperty("zuul.max.host.connections", "20")));
-
-                    RequestConfig requestConfig = RequestConfig.custom()
-                            .setSocketTimeout(10000)
-                            .setConnectTimeout(2000)
-                            .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                            .build();
-
-                    httpClient = HttpClients.custom()
-                            .setConnectionManager(connectionManager)
-                            .setDefaultRequestConfig(requestConfig)
-                            .setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
-                            .setRedirectStrategy(new RedirectStrategy() {
-                                @Override
-                                public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
-                                    return false;
-                                }
-
-                                @Override
-                                public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
-                                    return null;
-                                }
-                            })
-                            .build();
-                }
-                return httpClient;
-            }
-
-            private String getQueryString() throws UnsupportedEncodingException {
-                HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-                MultiValueMap<String, String> params = helper.buildZuulRequestQueryParams(request);
-                StringBuilder query = new StringBuilder();
-                for (Map.Entry<String, List<String>> entry : params.entrySet()) {
-                    String key = URLEncoder.encode(entry.getKey(), "UTF-8");
-                    for (String value : entry.getValue()) {
-                        query.append("&");
-                        query.append(key);
-                        query.append("=");
-                        query.append(URLEncoder.encode(value, "UTF-8"));
-                    }
-                }
-                return (query.length() > 0) ? "?" + query.substring(1) : "";
-            }
-
         }
     }
 

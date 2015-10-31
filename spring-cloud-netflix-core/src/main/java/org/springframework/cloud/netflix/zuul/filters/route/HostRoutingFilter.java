@@ -4,7 +4,6 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHeader;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -14,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class HostRoutingFilter extends ZuulFilter {
 
@@ -93,16 +91,6 @@ public abstract class HostRoutingFilter extends ZuulFilter {
             map.get(name).add(header.getValue());
         }
         return map;
-    }
-
-    protected Header[] convertHeaders(MultiValueMap<String, String> headers) {
-        List<Header> list = new ArrayList<>();
-        for (String name : headers.keySet()) {
-            for (String value : headers.get(name)) {
-                list.add(new BasicHeader(name, value));
-            }
-        }
-        return list.toArray(new Header[list.size()]);
     }
 
     protected abstract HttpResponse forward(String verb, String uri,
