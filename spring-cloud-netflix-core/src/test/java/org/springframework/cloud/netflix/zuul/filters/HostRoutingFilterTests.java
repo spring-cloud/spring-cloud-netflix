@@ -113,7 +113,7 @@ public class HostRoutingFilterTests {
     }
 
     @Test
-    public void postOnSelfVerifyResponseCookie() {
+    public void getOnSelfWithSessionCookie() {
         this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
         this.endpoint.reset();
 
