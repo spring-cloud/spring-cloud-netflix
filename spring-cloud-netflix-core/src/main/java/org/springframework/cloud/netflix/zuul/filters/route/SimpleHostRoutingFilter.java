@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import com.netflix.config.DynamicIntProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.http.HttpHost;
@@ -60,6 +63,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -74,7 +78,18 @@ public class SimpleHostRoutingFilter extends HostRoutingFilter {
 		}
 	};
 
-	private static final AtomicReference<HttpClient> CLIENT = new AtomicReference<HttpClient>(newClient());
+    private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
+            .getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS,
+                    10000);
+
+    private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
+            .getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS,
+                    2000);
+
+    private static final Timer CONNECTION_MANAGER_TIMER = new Timer(
+            "SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
+
+	private static final AtomicReference<HttpClient> CLIENT = new AtomicReference<>(newClient());
 
 	// cleans expired connections at an interval
 	static {

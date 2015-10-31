@@ -55,6 +55,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -65,6 +66,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -128,6 +131,16 @@ public class HostRoutingFilterTests {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals("Patch 45", result.getBody());
     }
+    @Test
+    public void getOnSelfIgnoredHeaders() {
+        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+        this.endpoint.reset();
+        ResponseEntity<String> result = new TestRestTemplate().getForEntity(
+                "http://localhost:" + this.port + "/app/self/get/1", String.class);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertTrue(result.getHeaders().containsKey("X-NotIgnored"));
+        assertFalse(result.getHeaders().containsKey("X-Ignored"));
+    }
 
 }
 
@@ -137,7 +150,9 @@ public class HostRoutingFilterTests {
 class SampleCustomZuulProxyApplication {
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public String get(@PathVariable String id) {
+    public String get(@PathVariable String id, HttpServletResponse response) {
+        response.setHeader("X-Ignored", "foo");
+        response.setHeader("X-NotIgnored", "bar");
         return "Get " + id;
     }
 
@@ -234,8 +249,8 @@ class SampleCustomZuulProxyApplication {
                     connectionManager.setDefaultMaxPerRoute(Integer.parseInt(System.getProperty("zuul.max.host.connections", "20")));
 
                     RequestConfig requestConfig = RequestConfig.custom()
-                            .setSocketTimeout(SOCKET_TIMEOUT.get())
-                            .setConnectTimeout(CONNECTION_TIMEOUT.get())
+                            .setSocketTimeout(10000)
+                            .setConnectTimeout(2000)
                             .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                             .build();
 

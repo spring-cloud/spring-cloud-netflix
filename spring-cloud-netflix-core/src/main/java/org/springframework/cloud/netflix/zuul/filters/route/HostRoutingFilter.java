@@ -1,9 +1,6 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -18,20 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 public abstract class HostRoutingFilter extends ZuulFilter {
-
-    protected static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
-            .getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS,
-                    10000);
-
-    protected static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
-            .getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS,
-                    2000);
-
-    protected static final Timer CONNECTION_MANAGER_TIMER = new Timer(
-            "SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
 
     protected ProxyRequestHelper helper;
 
