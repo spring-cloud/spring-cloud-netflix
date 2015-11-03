@@ -49,15 +49,10 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class ProxyRequestHelper {
 
-	/**
-	 * Zuul context key for a collection of ignored headers for the current request.
-	 * Pre-filters can set this up as a set of lowercase strings.
-	 */
-	public static final String IGNORED_HEADERS = "ignoredHeaders";
-
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
 	private TraceRepository traces;
+	private Set<String> ignoredHeaders = new HashSet<>();
 
 	public void setTraces(TraceRepository traces) {
 		this.traces = traces;
@@ -155,25 +150,15 @@ public class ProxyRequestHelper {
 	}
 
 	public void addIgnoredHeaders(String... names) {
-		RequestContext ctx = RequestContext.getCurrentContext();
-		if (!ctx.containsKey(IGNORED_HEADERS)) {
-			ctx.set(IGNORED_HEADERS, new HashSet<String>());
-		}
-		@SuppressWarnings("unchecked")
-		Set<String> set = (Set<String>) ctx.get(IGNORED_HEADERS);
 		for (String name : names) {
-			set.add(name.toLowerCase());
+			ignoredHeaders.add(name.toLowerCase());
 		}
 	}
 
 	public boolean isIncludedHeader(String headerName) {
 		String name = headerName.toLowerCase();
-		RequestContext ctx = RequestContext.getCurrentContext();
-		if (ctx.containsKey(IGNORED_HEADERS)) {
-			Object object = ctx.get(IGNORED_HEADERS);
-			if (object instanceof Collection && ((Collection<?>) object).contains(name)) {
-				return false;
-			}
+		if (ignoredHeaders.contains(name)) {
+			return false;
 		}
 		switch (name) {
 		case "host":
