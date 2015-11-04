@@ -16,11 +16,14 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.discovery.EurekaClient;
-import com.netflix.discovery.EurekaClientConfig;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import lombok.SneakyThrows;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
@@ -36,11 +39,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 
 /**
  * @author Spencer Gibb
@@ -61,13 +64,16 @@ public class DiscoveryClientConfiguration {
 		@Autowired
 		private ApplicationContext context;
 
+		@Autowired(required = false)
+		private DiscoveryClientOptionalArgs optionalArgs;
+
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		@SneakyThrows
 		public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager,
 										 EurekaClientConfig config, EurekaInstanceConfig instance) {
 			applicationInfoManager.initComponent(instance);
-			return new CloudEurekaClient(applicationInfoManager, config, this.context);
+			return new CloudEurekaClient(applicationInfoManager, config, optionalArgs, this.context);
 		}
 	}
 
@@ -78,6 +84,9 @@ public class DiscoveryClientConfiguration {
 		@Autowired
 		private ApplicationContext context;
 
+		@Autowired(required = false)
+		private DiscoveryClientOptionalArgs optionalArgs;
+
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		@SneakyThrows
@@ -85,7 +94,7 @@ public class DiscoveryClientConfiguration {
 		public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager,
 										 EurekaClientConfig config, EurekaInstanceConfig instance) {
 			applicationInfoManager.initComponent(instance);
-			return new CloudEurekaClient(applicationInfoManager, config, this.context);
+			return new CloudEurekaClient(applicationInfoManager, config, optionalArgs, this.context);
 		}
 
 	}
