@@ -16,18 +16,25 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
-import feign.Contract;
-import feign.MethodMetadata;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
+import org.springframework.cloud.netflix.feign.annotation.PathVariableParameterProcessor;
+import org.springframework.cloud.netflix.feign.annotation.RequestHeaderParameterProcessor;
+import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterProcessor;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import feign.Contract;
+import feign.MethodMetadata;
 
 import static feign.Util.checkState;
 import static feign.Util.emptyToNull;
@@ -40,6 +47,24 @@ public class SpringMvcContract extends Contract.BaseContract {
 	private static final String ACCEPT = "Accept";
 
 	private static final String CONTENT_TYPE = "Content-Type";
+
+	private final Map<Class<? extends Annotation>, AnnotatedParameterProcessor> annotatedArgumentProcessors;
+
+	public SpringMvcContract() {
+		this(Collections.<AnnotatedParameterProcessor>emptyList());
+	}
+
+	public SpringMvcContract(List<AnnotatedParameterProcessor> annotatedParameterProcessors) {
+		Assert.notNull(annotatedParameterProcessors, "Parameter processors can not be null.");
+
+		List<AnnotatedParameterProcessor> processors;
+		if(!annotatedParameterProcessors.isEmpty()) {
+			processors = new ArrayList<>(annotatedParameterProcessors);
+		} else {
+			processors = getDefaultAnnotatedArgumentsProcessors();
+		}
+		this.annotatedArgumentProcessors = toAnnotatedArgumentProcessorMap(processors);
+	}
 
 	@Override
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
@@ -109,6 +134,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 		parseHeaders(data, method, methodMapping);
 	}
 
+
 	private void checkAtMostOne(Method method, Object[] values, String fieldName) {
 		checkState(values != null && (values.length == 0 || values.length == 1),
 				"Method %s can only contain at most 1 %s field. Found: %s",
@@ -123,70 +149,17 @@ public class SpringMvcContract extends Contract.BaseContract {
 	}
 
 	@Override
-	protected boolean processAnnotationsOnParameter(MethodMetadata data,
-			Annotation[] annotations, int paramIndex) {
+	protected boolean processAnnotationsOnParameter(MethodMetadata data, Annotation[] annotations, int paramIndex) {
 		boolean isHttpAnnotation = false;
-		// TODO: support spring parameter annotations?
+
+		AnnotatedParameterProcessor.AnnotatedParameterContext context =
+				new SimpleAnnotatedParameterContext(data, paramIndex);
 		for (Annotation parameterAnnotation : annotations) {
-			if (parameterAnnotation instanceof PathVariable) {
-				String name = PathVariable.class.cast(parameterAnnotation).value();
-				checkState(emptyToNull(name) != null,
-						"PathVariable annotation was empty on param %s.", paramIndex);
-				nameParam(data, name, paramIndex);
-				isHttpAnnotation = true;
-				String varName = '{' + name + '}';
-				if (data.template().url().indexOf(varName) == -1
-						&& !searchMapValues(data.template().queries(), varName)
-						&& !searchMapValues(data.template().headers(), varName)) {
-					data.formParams().add(name);
-				}
-			}
-			else if (parameterAnnotation instanceof RequestParam) {
-				String name = RequestParam.class.cast(parameterAnnotation).value();
-				checkState(emptyToNull(name) != null,
-						"QueryParam.value() was empty on parameter %s", paramIndex);
-				Collection<String> query = addTemplatedParam(data.template().queries()
-						.get(name), name);
-				data.template().query(name, query);
-				nameParam(data, name, paramIndex);
-				isHttpAnnotation = true;
-			}
-			else if (parameterAnnotation instanceof RequestHeader) {
-				String name = RequestHeader.class.cast(parameterAnnotation).value();
-				checkState(emptyToNull(name) != null,
-						"HeaderParam.value() was empty on parameter %s", paramIndex);
-				Collection<String> header = addTemplatedParam(data.template().headers()
-						.get(name), name);
-				data.template().header(name, header);
-				nameParam(data, name, paramIndex);
-				isHttpAnnotation = true;
-			}
-
-			// TODO
-			/*
-			 * else if (annotationType == FormParam.class) { String name =
-			 * FormParam.class.cast(parameterAnnotation).value();
-			 * checkState(emptyToNull(name) != null,
-			 * "FormParam.value() was empty on parameter %s", paramIndex);
-			 * data.formParams().add(name); nameParam(data, name, paramIndex);
-			 * isHttpAnnotation = true; }
-			 */
-
+			AnnotatedParameterProcessor processor =
+					annotatedArgumentProcessors.get(parameterAnnotation.annotationType());
+			isHttpAnnotation |= processor.processArgument(context, parameterAnnotation);
 		}
 		return isHttpAnnotation;
-	}
-
-	private <K, V> boolean searchMapValues(Map<K, Collection<V>> map, V search) {
-		Collection<Collection<V>> values = map.values();
-		if (values == null) {
-			return false;
-		}
-		for (Collection<V> entry : values) {
-			if (entry.contains(search)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private void parseProduces(MethodMetadata md, Method method, RequestMapping annotation) {
@@ -217,6 +190,57 @@ public class SpringMvcContract extends Contract.BaseContract {
 				md.template().header(header.substring(0, colon),
 						header.substring(colon + 2));
 			}
+		}
+	}
+
+	private Map<Class<? extends Annotation>, AnnotatedParameterProcessor> toAnnotatedArgumentProcessorMap(List<AnnotatedParameterProcessor> processors) {
+		Map<Class<? extends Annotation>, AnnotatedParameterProcessor> result = new HashMap<>();
+		for(AnnotatedParameterProcessor processor : processors) {
+			result.put(processor.getAnnotationType(), processor);
+		}
+		return result;
+	}
+
+	private List<AnnotatedParameterProcessor> getDefaultAnnotatedArgumentsProcessors() {
+
+		List<AnnotatedParameterProcessor> annotatedArgumentResolvers = new ArrayList<>();
+
+		annotatedArgumentResolvers.add(new PathVariableParameterProcessor());
+		annotatedArgumentResolvers.add(new RequestParamParameterProcessor());
+		annotatedArgumentResolvers.add(new RequestHeaderParameterProcessor());
+
+		return annotatedArgumentResolvers;
+	}
+
+	private class SimpleAnnotatedParameterContext implements AnnotatedParameterProcessor.AnnotatedParameterContext {
+
+		private final MethodMetadata methodMetadata;
+
+		private final int parameterIndex;
+
+		public SimpleAnnotatedParameterContext(MethodMetadata methodMetadata, int parameterIndex) {
+			this.methodMetadata = methodMetadata;
+			this.parameterIndex = parameterIndex;
+		}
+
+		@Override
+		public MethodMetadata getMethodMetadata() {
+			return methodMetadata;
+		}
+
+		@Override
+		public int getParameterIndex() {
+			return parameterIndex;
+		}
+
+		@Override
+		public void setParameterName(String name) {
+			nameParam(methodMetadata, name, parameterIndex);
+		}
+
+		@Override
+		public Collection<String> setTemplateParameter(String name, Collection<String> rest) {
+			return addTemplatedParam(rest, name);
 		}
 	}
 

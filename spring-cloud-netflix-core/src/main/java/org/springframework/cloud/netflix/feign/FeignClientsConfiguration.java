@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,9 @@ public class FeignClientsConfiguration {
 	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
 
+	@Autowired(required = false)
+	private List<AnnotatedParameterProcessor> parameterProcessors = new ArrayList<>();
+
 	@Bean
 	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
@@ -59,7 +65,7 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Contract feignContract() {
-		return new SpringMvcContract();
+		return new SpringMvcContract(parameterProcessors);
 	}
 
 	@Configuration
