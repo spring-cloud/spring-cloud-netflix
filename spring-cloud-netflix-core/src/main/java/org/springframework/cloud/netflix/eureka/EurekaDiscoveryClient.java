@@ -93,11 +93,15 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		return instances;
 	}
 
-	static class EurekaServiceInstance implements ServiceInstance {
+	public static class EurekaServiceInstance implements ServiceInstance {
 		private InstanceInfo instance;
 
 		EurekaServiceInstance(InstanceInfo instance) {
 			this.instance = instance;
+		}
+
+		public InstanceInfo getInstanceInfo() {
+			return instance;
 		}
 
 		@Override
