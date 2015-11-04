@@ -14,7 +14,7 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 		<spring-cloud.version>1.1.0.BUILD-SNAPSHOT</spring-cloud.version>
-		<wro4j.version>1.7.6</wro4j.version>
+		<wro4j.version>1.7.9</wro4j.version>
 	</properties>
 	<dependencies>
 		<dependency>

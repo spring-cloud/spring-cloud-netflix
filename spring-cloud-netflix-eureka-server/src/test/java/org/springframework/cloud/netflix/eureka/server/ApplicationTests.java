@@ -16,10 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -41,6 +37,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -90,5 +91,16 @@ public class ApplicationTests {
 		String body = entity.getBody();
 		assertNotNull(body);
 		assertFalse("basePath contains double slashes", body.contains(basePath + "/"));
+	}
+
+	@Test
+	public void cssParsedByLess() {
+		String basePath = "http://localhost:" + this.port + "/eureka/css/wro.css";
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(basePath,
+				String.class);
+		assertEquals(HttpStatus.OK, entity.getStatusCode());
+		String body = entity.getBody();
+		assertNotNull(body);
+		assertTrue("css wasn't preprocessed", body.contains("spring-logo"));
 	}
 }
