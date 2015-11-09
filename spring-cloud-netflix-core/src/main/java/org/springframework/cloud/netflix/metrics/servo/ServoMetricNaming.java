@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.servo;
+package org.springframework.cloud.netflix.metrics.servo;
 
-import com.netflix.servo.Metric;
+import com.netflix.servo.monitor.Monitor;
 
 /**
  * @author Spencer Gibb
  */
 public interface ServoMetricNaming {
-	String getName(Metric metric);
+    /**
+	 * @param monitor a monitor representing a single statistic (not a CompositeMonitor)
+	 * @return a hierarchical name representing a single statistic for a servo monitor; note that this method will be
+	 * called once for each statistic on a composite servo Monitor like a Timer.
+	 */
+    String asHierarchicalName(Monitor<?> monitor);
 }

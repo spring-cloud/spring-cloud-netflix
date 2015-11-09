@@ -30,7 +30,7 @@
 		<feign.version>8.11.0</feign.version>
 		<hystrix.version>1.4.18</hystrix.version>
 		<ribbon.version>2.1.0</ribbon.version>
-		<servo.version>0.9.4</servo.version>
+		<servo.version>0.10.0</servo.version>
 		<zuul.version>1.1.0-rc.1</zuul.version>
 		<rxjava.version>1.0.11</rxjava.version>
 		<java.version>1.7</java.version>
@@ -85,6 +85,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-atlas</artifactId>
+				<version>1.1.0.BUILD-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-eureka</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -112,6 +117,11 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-ribbon</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-spectator</artifactId>
+				<version>1.1.0.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -152,6 +162,11 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-sidecar</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-netflix-spectator</artifactId>
+				<version>1.1.0.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -220,6 +235,11 @@
 				<groupId>com.netflix.servo</groupId>
 				<artifactId>servo-core</artifactId>
 				<version>${servo.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-smile</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.eureka</groupId>
@@ -410,15 +430,18 @@
 		<module>spring-cloud-netflix-hystrix-amqp</module>
 		<module>spring-cloud-netflix-hystrix-stream</module>
 		<module>spring-cloud-netflix-eureka-server</module>
+		<module>spring-cloud-netflix-spectator</module>
 		<module>spring-cloud-netflix-turbine</module>
 		<module>spring-cloud-netflix-turbine-stream</module>
 		<module>spring-cloud-netflix-sidecar</module>
+		<module>spring-cloud-starter-atlas</module>
 		<module>spring-cloud-starter-eureka</module>
 		<module>spring-cloud-starter-eureka-server</module>
 		<module>spring-cloud-starter-feign</module>
 		<module>spring-cloud-starter-hystrix</module>
 		<module>spring-cloud-starter-hystrix-dashboard</module>
 		<module>spring-cloud-starter-ribbon</module>
+		<module>spring-cloud-starter-spectator</module>
 		<module>spring-cloud-starter-turbine</module>
 		<module>spring-cloud-starter-turbine-amqp</module>
 		<module>spring-cloud-starter-turbine-stream</module>
