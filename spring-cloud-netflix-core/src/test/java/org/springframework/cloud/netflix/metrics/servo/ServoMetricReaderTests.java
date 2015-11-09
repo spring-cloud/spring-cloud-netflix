@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.BasicTimer;
+import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
 
 import static junit.framework.Assert.assertEquals;
@@ -20,6 +21,11 @@ public class ServoMetricReaderTests extends AbstractMetricsTests {
 	@Test
 	public void singleCompositeMonitorYieldsMultipleActuatorMetrics() {
 		MonitorRegistry registry = DefaultMonitorRegistry.getInstance();
+
+		// deal with monitors registered in other tests
+		for (Monitor<?> monitor : registry.getRegisteredMonitors()) {
+			registry.unregister(monitor);
+		}
 
 		ServoMetricReader reader = new ServoMetricReader(registry,
 				new DimensionalServoMetricNaming());
@@ -47,3 +53,4 @@ public class ServoMetricReaderTests extends AbstractMetricsTests {
 				metricNames.get(3));
 	}
 }
+
