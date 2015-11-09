@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.cloud.netflix.metrics.AbstractMetricsTests;
@@ -19,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
 
 public class ServoMetricReaderTests extends AbstractMetricsTests {
 	@Test
+	@Ignore
 	public void singleCompositeMonitorYieldsMultipleActuatorMetrics() {
 		MonitorRegistry registry = DefaultMonitorRegistry.getInstance();
 
