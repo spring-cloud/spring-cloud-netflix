@@ -49,6 +49,9 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 	@Autowired
 	Collection<MetricsTagProvider> tagProviders;
 
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
+
 	@Value("${netflix.metrics.restClient.metricName:restclient}")
 	String metricName;
 
@@ -75,7 +78,7 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 					.builder(metricName);
 			monitorConfigBuilder.withTags(builder);
 
-			ServoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
+			servoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
 					System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 		}
 	}

@@ -26,6 +26,7 @@ import org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfigura
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -60,12 +61,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 @TestPropertySource(properties = "netflix.metrics.rest.metricName=metricName")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class MetricsHandlerInterceptorIntegrationTests extends AbstractMetricsTests {
+public class MetricsHandlerInterceptorIntegrationTests {
 	@Autowired
 	WebApplicationContext webAppContext;
 
 	@Autowired
 	MonitorRegistry registry;
+
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
 
 	MockMvc mvc;
 
@@ -117,7 +121,7 @@ public class MetricsHandlerInterceptorIntegrationTests extends AbstractMetricsTe
 		if (exceptionType != null)
 			builder = builder.withTag("exception", exceptionType);
 
-		BasicTimer timer = ServoMonitorCache.getTimer(builder.build());
+		BasicTimer timer = servoMonitorCache.getTimer(builder.build());
 		Assert.assertEquals(1L, (long) timer.getCount());
 	}
 }
@@ -130,6 +134,12 @@ class MetricsTestConfig {
 	@Bean
 	MetricsTestController testController() {
 		return new MetricsTestController();
+	}
+
+	@Bean
+	@Primary
+	public MonitorRegistry monitorRegistry() {
+		return new SimpleMonitorRegistry();
 	}
 }
 

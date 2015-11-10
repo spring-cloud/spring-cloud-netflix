@@ -16,10 +16,8 @@ package org.springframework.cloud.netflix.metrics.servo;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.BasicTimer;
-import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
 
 /**
@@ -28,32 +26,26 @@ import com.netflix.servo.monitor.MonitorConfig;
  * @author Jon Schneider
  */
 public class ServoMonitorCache {
-	private static final Map<MonitorConfig, BasicTimer> timerCache = new HashMap<>();
+	private final Map<MonitorConfig, BasicTimer> timerCache = new HashMap<>();
+	private final MonitorRegistry monitorRegistry;
+
+	public ServoMonitorCache(MonitorRegistry monitorRegistry) {
+		this.monitorRegistry = monitorRegistry;
+	}
 
 	/**
 	 * @param config contains the name and tags that uniquely identify a timer
 	 * @return an already registered timer if it exists, otherwise create/register one and
 	 * return it.
 	 */
-	public synchronized static BasicTimer getTimer(MonitorConfig config) {
+	public synchronized BasicTimer getTimer(MonitorConfig config) {
 		BasicTimer t = timerCache.get(config);
 		if (t != null)
 			return t;
 
 		t = new BasicTimer(config);
 		timerCache.put(config, t);
-		DefaultMonitorRegistry.getInstance().register(t);
+		monitorRegistry.register(t);
 		return t;
-	}
-
-	/**
-	 * Useful for tests to clear the monitor registry between runs
-	 */
-	public static void unregisterAll() {
-		MonitorRegistry registry = DefaultMonitorRegistry.getInstance();
-		for (Monitor<?> monitor : registry.getRegisteredMonitors()) {
-			registry.unregister(monitor);
-		}
-		timerCache.clear();
 	}
 }

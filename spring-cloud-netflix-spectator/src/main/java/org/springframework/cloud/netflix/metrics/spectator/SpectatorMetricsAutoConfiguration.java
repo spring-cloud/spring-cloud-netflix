@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.netflix.metrics.DefaultMetricsTagProvider;
 import org.springframework.cloud.netflix.metrics.MetricsInterceptorConfiguration;
 import org.springframework.cloud.netflix.metrics.MetricsTagProvider;
+import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -65,6 +66,11 @@ public class SpectatorMetricsAutoConfiguration {
 	Registry registry(MonitorRegistry monitorRegistry) {
 		return new ServoRegistry();
 	}
+
+    @Bean
+    public ServoMonitorCache monitorCache() {
+        return new ServoMonitorCache(monitorRegistry());
+    }
 
 	@Bean
 	@ConditionalOnMissingBean(MetricPoller.class)

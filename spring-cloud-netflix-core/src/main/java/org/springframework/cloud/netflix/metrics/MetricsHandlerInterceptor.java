@@ -48,6 +48,9 @@ public class MetricsHandlerInterceptor extends HandlerInterceptorAdapter {
 	MonitorRegistry registry;
 
 	@Autowired
+	ServoMonitorCache servoMonitorCache;
+
+	@Autowired
 	Collection<MetricsTagProvider> tagProviders;
 
 	@Override
@@ -89,7 +92,7 @@ public class MetricsHandlerInterceptor extends HandlerInterceptorAdapter {
 		MonitorConfig.Builder monitorConfigBuilder = MonitorConfig.builder(metricName);
 		monitorConfigBuilder.withTags(builder);
 
-		ServoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
+		servoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
 				System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 	}
 }
