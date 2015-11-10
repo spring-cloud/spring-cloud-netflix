@@ -16,18 +16,19 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.DiscoveryClientConfiguration.ConditionalOnRefreshScope;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration.ConditionalOnRefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Dave Syer
@@ -47,7 +48,7 @@ public class ConditionalOnRefreshScopeTests {
 	@Test
 	public void refreshScopeIncluded() {
 		this.context = new SpringApplicationBuilder(RefreshAutoConfiguration.class,
-				Beans.class).web(false).showBanner(false).run();
+				Beans.class).web(false).bannerMode(Mode.OFF).run();
 		assertNotNull(this.context.getBean(
 				org.springframework.cloud.context.scope.refresh.RefreshScope.class));
 		assertEquals("foo", this.context.getBean("foo"));
@@ -56,7 +57,7 @@ public class ConditionalOnRefreshScopeTests {
 	@Test
 	public void refreshScopeNotIncluded() {
 		this.context = new SpringApplicationBuilder(Beans.class).web(false)
-				.showBanner(false).run();
+				.bannerMode(Mode.OFF).run();
 		assertFalse(this.context.containsBean("foo"));
 	}
 

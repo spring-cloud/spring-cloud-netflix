@@ -16,30 +16,45 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.springframework.cloud.util.IdUtils.getDefaultInstanceId;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
+import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
+import org.springframework.cloud.context.scope.refresh.RefreshScope;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+
+import static org.springframework.cloud.util.IdUtils.getDefaultInstanceId;
 
 /**
  * @author Dave Syer
@@ -77,21 +92,118 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
 		instance.setNonSecurePort(this.nonSecurePort);
-		instance.setInstanceId(getDefaultInstanceId(env));
+		instance.setInstanceId(getDefaultInstanceId(this.env));
 		return instance;
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(ApplicationInfoManager.class)
-	public ApplicationInfoManager applicationInfoManager(EurekaInstanceConfig config,
-			InstanceInfo instanceInfo) {
-		return new ApplicationInfoManager(config, instanceInfo);
+	public DiscoveryClient discoveryClient(EurekaInstanceConfig config,
+			EurekaClient client) {
+		return new EurekaDiscoveryClient(config, client);
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(InstanceInfo.class)
-	public InstanceInfo instanceInfo(EurekaInstanceConfig config) {
-		return new InstanceInfoFactory().create(config);
+	@Configuration
+	@ConditionalOnMissingRefreshScope
+	protected static class EurekaClientConfiguration {
+
+		@Autowired
+		private ApplicationContext context;
+
+		@Autowired(required = false)
+		private DiscoveryClientOptionalArgs optionalArgs;
+
+		@Bean(destroyMethod = "shutdown")
+		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
+		public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager,
+				EurekaClientConfig config) {
+			return new CloudEurekaClient(applicationInfoManager, config,
+					this.optionalArgs, this.context);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(value = ApplicationInfoManager.class, search = SearchStrategy.CURRENT)
+		public ApplicationInfoManager eurekaApplicationInfoManager(
+				EurekaInstanceConfig config) {
+			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
+			return new ApplicationInfoManager(config, instanceInfo);
+		}
+
+	}
+
+	@Configuration
+	@ConditionalOnRefreshScope
+	protected static class RefreshableEurekaClientConfiguration {
+
+		@Autowired
+		private ApplicationContext context;
+
+		@Autowired(required = false)
+		private DiscoveryClientOptionalArgs optionalArgs;
+
+		@Bean(destroyMethod = "shutdown")
+		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager,
+				EurekaClientConfig config, EurekaInstanceConfig instance) {
+			applicationInfoManager.getInfo(); // force initialization
+			return new CloudEurekaClient(applicationInfoManager, config,
+					this.optionalArgs, this.context);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(value = ApplicationInfoManager.class, search = SearchStrategy.CURRENT)
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		public ApplicationInfoManager eurekaApplicationInfoManager(
+				EurekaInstanceConfig config) {
+			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
+			return new ApplicationInfoManager(config, instanceInfo);
+		}
+
+	}
+
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnMissingRefreshScopeCondition.class)
+	@interface ConditionalOnMissingRefreshScope {
+
+	}
+
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRefreshScopeCondition.class)
+	@interface ConditionalOnRefreshScope {
+
+	}
+
+	private static class OnMissingRefreshScopeCondition extends AnyNestedCondition {
+
+		public OnMissingRefreshScopeCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnMissingClass("org.springframework.cloud.context.scope.refresh.RefreshScope")
+		static class MissingClass {
+		}
+
+		@ConditionalOnMissingBean(RefreshAutoConfiguration.class)
+		static class MissingScope {
+		}
+
+	}
+
+	private static class OnRefreshScopeCondition extends AllNestedConditions {
+
+		public OnRefreshScopeCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@ConditionalOnClass(RefreshScope.class)
+		@ConditionalOnBean(RefreshAutoConfiguration.class)
+		static class FoundScope {
+		}
+
 	}
 
 }

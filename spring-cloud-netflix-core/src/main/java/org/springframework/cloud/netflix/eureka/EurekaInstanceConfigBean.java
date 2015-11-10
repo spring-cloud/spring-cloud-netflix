@@ -16,18 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.util.InetUtils.HostInfo;
@@ -36,6 +27,13 @@ import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.appinfo.MyDataCenterInfo;
 
+import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
+
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author Dave Syer
  * @author Spencer Gibb
@@ -43,8 +41,6 @@ import com.netflix.appinfo.MyDataCenterInfo;
 @Data
 @ConfigurationProperties("eureka.instance")
 public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
-
-	private static final Log logger = LogFactory.getLog(EurekaInstanceConfigBean.class);
 
 	@Getter(AccessLevel.PRIVATE)
 	@Setter(AccessLevel.PRIVATE)
@@ -72,7 +68,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	@Value("${spring.application.name:unknown}")
 	private String virtualHostName;
 
-    private String instanceId;
+	private String instanceId;
 
 	private String secureVirtualHostName;
 
@@ -80,7 +76,8 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 
 	private Map<String, String> metadataMap = new HashMap<>();
 
-	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(DataCenterInfo.Name.MyOwn);
+	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(
+			DataCenterInfo.Name.MyOwn);
 
 	private String ipAddress = this.hostInfo.getIpAddress();
 
@@ -110,15 +107,15 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 		return getHostName(false);
 	}
 
-    @Override
-    public String getInstanceId() {
+	@Override
+	public String getInstanceId() {
 		if (this.instanceId == null && this.metadataMap != null) {
 			return this.metadataMap.get("instanceId");
 		}
-        return instanceId;
-    }
+		return this.instanceId;
+	}
 
-    @Override
+	@Override
 	public boolean getSecurePortEnabled() {
 		return this.securePortEnabled;
 	}

@@ -25,9 +25,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
-import org.springframework.cloud.netflix.eureka.DiscoveryClientConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -47,7 +45,7 @@ import lombok.extern.apachecommons.CommonsLog;
 @ConditionalOnClass({ EurekaClient.class, ConfigServicePropertySourceLocator.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
-@Import({EurekaClientAutoConfiguration.class, DiscoveryClientConfiguration.class})
+@Import(EurekaClientAutoConfiguration.class)
 @CommonsLog
 public class DiscoveryClientConfigServiceBootstrapConfiguration {
 

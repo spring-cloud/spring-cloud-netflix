@@ -18,8 +18,10 @@ package org.springframework.cloud.netflix.eureka;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -40,25 +42,39 @@ public class EurekaClientAutoConfigurationTests {
 		}
 	}
 
-	private void setupContext() {
-		this.context.register(PropertyPlaceholderAutoConfiguration.class,
-				TestConfiguration.class);
+	private void setupContext(Class<?>... config) {
+		this.context.register(PropertyPlaceholderAutoConfiguration.class);
+		for (Class<?> value : config) {
+			this.context.register(value);
+		}
+		this.context.register(TestConfiguration.class);
 		this.context.refresh();
 	}
 
 	@Test
-	public void nonSecurePort2() {
+	public void nonSecurePortPeriods() {
 		testNonSecurePort("server.port");
 	}
 
 	@Test
-	public void nonSecurePort3() {
+	public void nonSecurePortUnderscores() {
 		testNonSecurePort("SERVER_PORT");
 	}
 
 	@Test
-	public void nonSecurePort4() {
+	public void nonSecurePort() {
 		testNonSecurePort("PORT");
+		assertEquals("eurekaClient",
+				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+	}
+
+	@Test
+	public void refreshScopedBeans() {
+		setupContext(RefreshAutoConfiguration.class);
+		assertEquals(ScopedProxyFactoryBean.class.getName(),
+				this.context.getBeanDefinition("eurekaClient").getBeanClassName());
+		assertEquals(ScopedProxyFactoryBean.class.getName(), this.context
+				.getBeanDefinition("eurekaApplicationInfoManager").getBeanClassName());
 	}
 
 	private void testNonSecurePort(String propName) {

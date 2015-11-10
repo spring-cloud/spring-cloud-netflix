@@ -16,12 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import lombok.SneakyThrows;
-import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
@@ -40,7 +36,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
@@ -48,11 +43,11 @@ import org.springframework.core.Ordered;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-import org.springframework.util.ReflectionUtils;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
@@ -64,7 +59,6 @@ import org.springframework.util.ReflectionUtils;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-@Import(DiscoveryClientConfiguration.class)
 @CommonsLog
 public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Ordered {
 
@@ -89,23 +83,19 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@Autowired
 	private EurekaClient eurekaClient;
 
-	@Autowired
-	private InstanceInfo instanceInfo;
-
 	@Override
 	public void start() {
 		// only set the port if the nonSecurePort is 0 and this.port != 0
 		if (this.port.get() != 0 && this.instanceConfig.getNonSecurePort() == 0) {
 			this.instanceConfig.setNonSecurePort(this.port.get());
-			setInstanceInfoPort();
 		}
 
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
 		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
 
-			this.eurekaClient.getApplications(); // force initialization
-			
+			maybeInitializeClient();
+
 			if (log.isInfoEnabled()) {
 				log.info("Registering application " + this.instanceConfig.getAppname()
 						+ " with eureka with status "
@@ -124,22 +114,21 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 		}
 	}
 
-	@SneakyThrows
-	private void setInstanceInfoPort() {
-		Field port = ReflectionUtils.findField(InstanceInfo.class, "port");
-		ReflectionUtils.makeAccessible(port);
-		port.setInt(this.instanceInfo, this.port.get());
+	private void maybeInitializeClient() {
+		// force initialization of possibly scoped proxies
+		this.applicationInfoManager.getInfo();
+		this.eurekaClient.getApplications();
 	}
 
 	@Override
 	public void stop() {
 		if (this.applicationInfoManager.getInfo() != null) {
-			
+
 			if (log.isInfoEnabled()) {
 				log.info("Unregistering application " + this.instanceConfig.getAppname()
 						+ " with eureka with status DOWN");
 			}
-			
+
 			this.applicationInfoManager.setInstanceStatus(InstanceStatus.DOWN);
 		}
 		this.running.set(false);
@@ -174,9 +163,12 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	@EventListener(EmbeddedServletContainerInitializedEvent.class)
 	public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
 		// TODO: take SSL into account when Spring Boot 1.2 is available
-		EurekaDiscoveryClientConfiguration.this.port.compareAndSet(0,
-				event.getEmbeddedServletContainer().getPort());
-		EurekaDiscoveryClientConfiguration.this.start();
+		int localPort = event.getEmbeddedServletContainer().getPort();
+		if (this.port.get() == 0) {
+			log.info("Updating port to " + localPort);
+			this.port.compareAndSet(0, localPort);
+			start();
+		}
 	}
 
 	@Configuration

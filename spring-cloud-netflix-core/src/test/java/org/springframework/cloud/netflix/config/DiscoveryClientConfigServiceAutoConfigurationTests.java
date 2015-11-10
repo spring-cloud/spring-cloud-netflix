@@ -16,10 +16,6 @@
 
 package org.springframework.cloud.netflix.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -35,6 +31,10 @@ import org.springframework.context.annotation.Configuration;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 
 /**
  * @author Dave Syer
@@ -57,8 +57,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	public void onWhenRequested() throws Exception {
 		setup("spring.cloud.config.discovery.enabled=true",
 				"eureka.instance.metadataMap.foo:bar",
-				"eureka.instance.nonSecurePort:7001",
-				"eureka.instance.hostname:foo");
+				"eureka.instance.nonSecurePort:7001", "eureka.instance.hostname:foo");
 		assertEquals(1, this.context.getBeanNamesForType(
 				DiscoveryClientConfigServiceAutoConfiguration.class).length);
 		EurekaClient eurekaClient = this.context.getParent().getBean(EurekaClient.class);
@@ -93,10 +92,10 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	protected static class EnvironmentKnobbler {
 
 		@Bean
-		public EurekaClient eurekaClient(InstanceInfo info) {
+		public EurekaClient eurekaClient(ApplicationInfoManager manager) {
+			InstanceInfo info = manager.getInfo();
 			EurekaClient client = Mockito.mock(EurekaClient.class);
-			given(client.getNextServerFromEureka("CONFIGSERVER", false))
-					.willReturn(info);
+			given(client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(info);
 			return client;
 		}
 
