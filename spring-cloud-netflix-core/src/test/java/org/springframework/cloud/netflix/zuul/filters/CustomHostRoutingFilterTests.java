@@ -182,17 +182,18 @@ class SampleCustomZuulProxyApplication {
         @Bean
         @Override
         public SimpleHostRoutingFilter simpleHostRoutingFilter() {
-            ProxyRequestHelper helper = new ProxyRequestHelper();
-            helper.addIgnoredHeaders("X-Ignored");
-            return new CustomHostRoutingFilter(helper);
+            return new CustomHostRoutingFilter();
         }
 
         private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
-            public CustomHostRoutingFilter(ProxyRequestHelper helper) {
-                super(helper);
-            }
 
-            @Override
+	        @Override
+	        public Object run() {
+		        super.addIgnoredHeaders("X-Ignored");
+		        return super.run();
+	        }
+
+	        @Override
             protected CloseableHttpClient newClient() {
                 // Custom client with cookie support.
                 // In practice, we would want a custom cookie store using a multimap with a user key.

@@ -235,8 +235,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
-			HttpServletRequest request, MultiValueMap<String, String> headers,
-			MultiValueMap<String, String> params, InputStream requestEntity)
+	                             HttpServletRequest request, MultiValueMap<String, String> headers,
+	                             MultiValueMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
 				requestEntity);
@@ -353,6 +353,14 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		this.helper.setResponse(response.getStatusLine().getStatusCode(),
 				response.getEntity() == null ? null : response.getEntity().getContent(),
 				revertHeaders(response.getAllHeaders()));
+	}
+
+	/**
+	 * Add header names to exclude from proxied response in the current request.
+	 * @param names
+	 */
+	protected void addIgnoredHeaders(String... names) {
+		helper.addIgnoredHeaders(names);
 	}
 
 }
