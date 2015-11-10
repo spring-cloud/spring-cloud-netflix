@@ -13,22 +13,21 @@
 
 package org.springframework.cloud.netflix.metrics;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.netflix.servo.MonitorRegistry;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.tag.SmallTagMap;
+import com.netflix.servo.tag.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.tag.SmallTagMap;
-import com.netflix.servo.tag.Tags;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 
@@ -46,6 +45,9 @@ public class MetricsHandlerInterceptor extends HandlerInterceptorAdapter {
 
 	@Autowired
 	MonitorRegistry registry;
+
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
 
 	@Autowired
 	Collection<MetricsTagProvider> tagProviders;
@@ -89,7 +91,7 @@ public class MetricsHandlerInterceptor extends HandlerInterceptorAdapter {
 		MonitorConfig.Builder monitorConfigBuilder = MonitorConfig.builder(metricName);
 		monitorConfigBuilder.withTags(builder);
 
-		ServoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
+		servoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
 				System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 	}
 }
