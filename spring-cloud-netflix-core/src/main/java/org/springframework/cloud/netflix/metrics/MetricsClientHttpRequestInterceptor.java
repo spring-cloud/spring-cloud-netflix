@@ -13,11 +13,10 @@
 
 package org.springframework.cloud.netflix.metrics;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
+import com.netflix.servo.MonitorRegistry;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.tag.SmallTagMap;
+import com.netflix.servo.tag.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
@@ -26,10 +25,10 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.monitor.MonitorConfig;
-import com.netflix.servo.tag.SmallTagMap;
-import com.netflix.servo.tag.Tags;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Intercepts RestTemplate requests and records metrics about execution time and results.
@@ -48,6 +47,9 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 
 	@Autowired
 	Collection<MetricsTagProvider> tagProviders;
+
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
 
 	@Value("${netflix.metrics.restClient.metricName:restclient}")
 	String metricName;
@@ -75,7 +77,7 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 					.builder(metricName);
 			monitorConfigBuilder.withTags(builder);
 
-			ServoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
+			servoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
 					System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 		}
 	}

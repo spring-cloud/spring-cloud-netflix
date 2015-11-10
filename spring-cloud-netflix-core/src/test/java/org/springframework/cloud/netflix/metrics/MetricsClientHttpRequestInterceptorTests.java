@@ -24,6 +24,7 @@ import org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfigura
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,9 +47,12 @@ import com.netflix.servo.monitor.MonitorConfig;
 		MetricsRestTemplateTestConfig.class })
 @TestPropertySource(properties = { "netflix.metrics.restClient.metricName=metricName",
 		"spring.aop.proxy-target-class=true" })
-public class MetricsClientHttpRequestInterceptorTests extends AbstractMetricsTests {
+public class MetricsClientHttpRequestInterceptorTests {
 	@Autowired
 	MonitorRegistry registry;
+
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
 
 	@Autowired
 	RestTemplate restTemplate;
@@ -67,7 +71,7 @@ public class MetricsClientHttpRequestInterceptorTests extends AbstractMetricsTes
 				.withTag("status", "200")
 				.withTag("clientName", "none");
 
-		BasicTimer timer = ServoMonitorCache.getTimer(builder.build());
+		BasicTimer timer = servoMonitorCache.getTimer(builder.build());
 
 		Assert.assertEquals(1L, (long) timer.getCount());
 		mockServer.verify();
@@ -78,6 +82,11 @@ public class MetricsClientHttpRequestInterceptorTests extends AbstractMetricsTes
 @ImportAutoConfiguration({ ServoMetricsAutoConfiguration.class,
 		PropertyPlaceholderAutoConfiguration.class, AopAutoConfiguration.class })
 class MetricsRestTemplateTestConfig {
+	@Bean
+	@Primary
+	public MonitorRegistry monitorRegistry() {
+		return new SimpleMonitorRegistry();
+	}
 }
 
 @Configuration

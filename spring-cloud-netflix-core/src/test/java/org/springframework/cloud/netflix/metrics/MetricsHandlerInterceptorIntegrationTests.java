@@ -13,6 +13,10 @@
 
 package org.springframework.cloud.netflix.metrics;
 
+import static org.junit.Assert.assertFalse;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
@@ -26,6 +30,7 @@ import org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfigura
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,12 +39,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -47,10 +47,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.BasicTimer;
 import com.netflix.servo.monitor.MonitorConfig;
-
-import static org.junit.Assert.assertFalse;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author Jon Schneider
@@ -60,12 +56,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 @TestPropertySource(properties = "netflix.metrics.rest.metricName=metricName")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class MetricsHandlerInterceptorIntegrationTests extends AbstractMetricsTests {
+public class MetricsHandlerInterceptorIntegrationTests {
 	@Autowired
 	WebApplicationContext webAppContext;
 
 	@Autowired
 	MonitorRegistry registry;
+
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
 
 	MockMvc mvc;
 
@@ -117,7 +116,7 @@ public class MetricsHandlerInterceptorIntegrationTests extends AbstractMetricsTe
 		if (exceptionType != null)
 			builder = builder.withTag("exception", exceptionType);
 
-		BasicTimer timer = ServoMonitorCache.getTimer(builder.build());
+		BasicTimer timer = servoMonitorCache.getTimer(builder.build());
 		Assert.assertEquals(1L, (long) timer.getCount());
 	}
 }
@@ -130,6 +129,12 @@ class MetricsTestConfig {
 	@Bean
 	MetricsTestController testController() {
 		return new MetricsTestController();
+	}
+
+	@Bean
+	@Primary
+	public MonitorRegistry monitorRegistry() {
+		return new SimpleMonitorRegistry();
 	}
 }
 

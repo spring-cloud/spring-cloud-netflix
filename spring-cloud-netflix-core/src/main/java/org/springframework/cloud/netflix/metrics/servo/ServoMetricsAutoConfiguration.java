@@ -67,6 +67,11 @@ public class ServoMetricsAutoConfiguration {
 	}
 
 	@Bean
+	public ServoMonitorCache monitorCache() {
+		return new ServoMonitorCache(monitorRegistry());
+	}
+
+	@Bean
 	public MetricReaderPublicMetrics servoPublicMetrics(MonitorRegistry monitorRegistry, ServoMetricNaming servoMetricNaming) {
 		ServoMetricReader reader = new ServoMetricReader(monitorRegistry, servoMetricNaming);
 		return new MetricReaderPublicMetrics(reader);
