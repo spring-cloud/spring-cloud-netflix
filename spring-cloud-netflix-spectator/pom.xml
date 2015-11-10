@@ -41,11 +41,6 @@
 				<artifactId>spectator-reg-servo</artifactId>
 				<version>${spectator.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.netflix.servo</groupId>
-				<artifactId>servo-core</artifactId>
-				<version>${servo.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>

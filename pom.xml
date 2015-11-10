@@ -204,6 +204,10 @@
 						<artifactId>commons-logging</artifactId>
 						<groupId>commons-logging</groupId>
 					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
@@ -235,6 +239,12 @@
 				<groupId>com.netflix.servo</groupId>
 				<artifactId>servo-core</artifactId>
 				<version>${servo.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -253,6 +263,14 @@
 					<exclusion>
 						<artifactId>commons-logging</artifactId>
 						<groupId>commons-logging</groupId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>jsr305</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
@@ -281,6 +299,14 @@
 					<exclusion>
 						<artifactId>com.netflix.blitz4j</artifactId>
 						<groupId>blitz4j</groupId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>jsr305</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
@@ -319,6 +345,12 @@
 				<groupId>com.netflix.hystrix</groupId>
 				<artifactId>hystrix-core</artifactId>
 				<version>${hystrix.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.hystrix</groupId>
@@ -329,6 +361,16 @@
 				<groupId>com.netflix.hystrix</groupId>
 				<artifactId>hystrix-javanica</artifactId>
 				<version>${hystrix.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>jsr305</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.ribbon</groupId>
@@ -345,17 +387,33 @@
 				<groupId>com.netflix.ribbon</groupId>
 				<artifactId>ribbon-core</artifactId>
 				<version>${ribbon.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.ribbon</groupId>
 				<artifactId>ribbon-httpclient</artifactId>
 				<version>${ribbon.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.ribbon</groupId>
 				<artifactId>ribbon-eureka</artifactId>
 				<version>${ribbon.version}</version>
 				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
 					<exclusion>
 						<groupId>javax.servlet</groupId>
 						<artifactId>servlet-api</artifactId>
@@ -366,6 +424,12 @@
 				<groupId>com.netflix.ribbon</groupId>
 				<artifactId>ribbon-loadbalancer</artifactId>
 				<version>${ribbon.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>annotations</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>io.reactivex</groupId>
