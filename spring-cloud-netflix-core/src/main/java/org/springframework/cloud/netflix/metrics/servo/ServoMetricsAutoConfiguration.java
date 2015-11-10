@@ -60,10 +60,15 @@ public class ServoMetricsAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public MonitorRegistry monitorRegistry() {
-		System.setProperty(DefaultMonitorRegistry.class.getCanonicalName() + ".registryClass", servoMetricsConfig()
+	public MonitorRegistry monitorRegistry(ServoMetricsConfigBean servoMetricsConfig) {
+		System.setProperty(DefaultMonitorRegistry.class.getCanonicalName() + ".registryClass", servoMetricsConfig
 				.getRegistryClass());
 		return DefaultMonitorRegistry.getInstance();
+	}
+
+	@Bean
+	public ServoMonitorCache monitorCache(MonitorRegistry monitorRegistry) {
+		return new ServoMonitorCache(monitorRegistry);
 	}
 
 	@Bean

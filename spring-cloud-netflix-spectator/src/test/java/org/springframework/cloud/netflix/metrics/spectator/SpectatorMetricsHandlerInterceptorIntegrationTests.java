@@ -67,6 +67,9 @@ public class SpectatorMetricsHandlerInterceptorIntegrationTests {
 	@Autowired
 	MonitorRegistry registry;
 
+	@Autowired
+	ServoMonitorCache servoMonitorCache;
+
 	MockMvc mvc;
 
 	@Test
@@ -117,7 +120,7 @@ public class SpectatorMetricsHandlerInterceptorIntegrationTests {
 		if (exceptionType != null)
 			builder = builder.withTag("exception", exceptionType);
 
-		BasicTimer timer = ServoMonitorCache.getTimer(builder.build());
+		BasicTimer timer = servoMonitorCache.getTimer(builder.build());
 		Assert.assertEquals(1L, (long) timer.getCount());
 	}
 }
