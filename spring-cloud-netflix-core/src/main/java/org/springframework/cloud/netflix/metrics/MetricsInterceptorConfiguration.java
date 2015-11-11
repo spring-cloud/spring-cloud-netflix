@@ -15,6 +15,7 @@ package org.springframework.cloud.netflix.metrics;
 
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
+import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -36,18 +37,18 @@ public class MetricsInterceptorConfiguration {
 	@ConditionalOnWebApplication
 	static class MetricsWebResourceConfiguration extends WebMvcConfigurerAdapter {
 		@Bean
-		MetricsHandlerInterceptor spectatorMonitoringWebResourceInterceptor() {
+		MetricsHandlerInterceptor servoMonitoringWebResourceInterceptor() {
 			return new MetricsHandlerInterceptor();
 		}
 
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
-			registry.addInterceptor(spectatorMonitoringWebResourceInterceptor());
+			registry.addInterceptor(servoMonitoringWebResourceInterceptor());
 		}
 	}
 
 	@Configuration
-	@ConditionalOnBean({ RestTemplate.class })
+	@ConditionalOnBean({ RestTemplate.class, AopAutoConfiguration.CglibAutoProxyConfiguration.class })
 	static class MetricsRestTemplateConfiguration {
 		@Bean
 		RestTemplateUrlTemplateCapturingAspect restTemplateUrlTemplateCapturingAspect() {
