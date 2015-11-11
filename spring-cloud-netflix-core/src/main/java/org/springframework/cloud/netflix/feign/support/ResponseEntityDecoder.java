@@ -5,8 +5,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 import feign.FeignException;
 import feign.Response;
 import feign.codec.Decoder;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Decoder adds compatibility for Spring MVC's ResponseEntity to any other decoder via
@@ -34,17 +33,28 @@ public class ResponseEntityDecoder implements Decoder {
 	public Object decode(final Response response, Type type) throws IOException,
 			FeignException {
 
-		if (type instanceof ParameterizedType
-				&& ((ParameterizedType) type).getRawType().equals(ResponseEntity.class)) {
-
+		if (isParameterizeResponseEntity(type)) {
 			type = ((ParameterizedType) type).getActualTypeArguments()[0];
 			Object decodedObject = decoder.decode(response, type);
 
 			return createResponse(decodedObject, response);
 		}
+		else if (isResponseEntity(type)) {
+			return createResponse(null, response);
+		}
 		else {
 			return decoder.decode(response, type);
 		}
+	}
+
+	private boolean isParameterizeResponseEntity(Type type) {
+		return type instanceof ParameterizedType
+				&& ((ParameterizedType) type).getRawType().equals(ResponseEntity.class);
+	}
+
+	private boolean isResponseEntity(Type type) {
+
+		return type instanceof Class && type.equals(ResponseEntity.class);
 	}
 
 	@SuppressWarnings("unchecked")
