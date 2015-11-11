@@ -16,20 +16,19 @@
 
 package org.springframework.cloud.netflix.turbine;
 
-import com.netflix.discovery.EurekaClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 
+import com.netflix.discovery.EurekaClient;
 import com.netflix.turbine.discovery.InstanceDiscovery;
-import com.netflix.turbine.init.TurbineInit;
-import com.netflix.turbine.plugins.PluginsFactory;
 import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 
 /**
@@ -38,14 +37,11 @@ import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 @Configuration
 @EnableConfigurationProperties
 @EnableDiscoveryClient
-public class TurbineConfiguration implements SmartLifecycle, Ordered {
-
-	@Autowired
-	private EurekaClient eurekaClient;
+public class TurbineHttpConfiguration {
 
 	@Bean
 	public HasFeatures Feature() {
-		return HasFeatures.namedFeature("Turbine (HTTP)", TurbineConfiguration.class);
+		return HasFeatures.namedFeature("Turbine (HTTP)", TurbineHttpConfiguration.class);
 	}
 
 	@Bean
@@ -59,47 +55,30 @@ public class TurbineConfiguration implements SmartLifecycle, Ordered {
 	}
 
 	@Bean
-	public InstanceDiscovery instanceDiscovery() {
-		return new EurekaInstanceDiscovery(turbineProperties(), eurekaClient);
+	public TurbineLifecycle turbineLifecycle(InstanceDiscovery instanceDiscovery) {
+		return new TurbineLifecycle(instanceDiscovery);
 	}
 
-	private boolean running;
+	@Configuration
+	@ConditionalOnClass(EurekaClient.class)
+	protected static class EurekaTurbineConfiguration {
 
-	@Override
-	public boolean isAutoStartup() {
-		return true;
+		@Bean
+		@ConditionalOnMissingBean
+		public InstanceDiscovery instanceDiscovery(TurbineProperties turbineProperties, EurekaClient eurekaClient) {
+			return new EurekaInstanceDiscovery(turbineProperties, eurekaClient);
+		}
+
 	}
 
-	@Override
-	public void stop(Runnable callback) {
-		callback.run();
-	}
+	@Configuration
+	@ConditionalOnMissingClass("com.netflix.discovery.EurekaClient")
+	protected static class DiscoveryClientTurbineConfiguration {
 
-	@Override
-	public void start() {
-		PluginsFactory.setClusterMonitorFactory(new SpringAggregatorFactory());
-		PluginsFactory.setInstanceDiscovery(instanceDiscovery());
-		TurbineInit.init();
+		@Bean
+		@ConditionalOnMissingBean
+		public InstanceDiscovery instanceDiscovery(TurbineProperties turbineProperties, DiscoveryClient discoveryClient) {
+			return new CommonsInstanceDiscovery(turbineProperties, discoveryClient);
+		}
 	}
-
-	@Override
-	public void stop() {
-		this.running = false;
-	}
-
-	@Override
-	public boolean isRunning() {
-		return this.running;
-	}
-
-	@Override
-	public int getPhase() {
-		return 0;
-	}
-
-	@Override
-	public int getOrder() {
-		return -1;
-	}
-
 }

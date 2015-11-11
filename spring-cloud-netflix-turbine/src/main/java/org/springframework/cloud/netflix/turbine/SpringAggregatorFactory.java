@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.turbine.data.AggDataFromCluster;
@@ -32,6 +30,8 @@ import com.netflix.turbine.monitor.TurbineDataMonitor;
 import com.netflix.turbine.monitor.cluster.AggregateClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.AggregatorClusterMonitorConsole;
 

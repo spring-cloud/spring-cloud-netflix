@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Import;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(TurbineConfiguration.class)
+@Import(TurbineHttpConfiguration.class)
 public @interface EnableTurbine {
 
 }

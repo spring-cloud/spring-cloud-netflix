@@ -16,16 +16,15 @@
 
 package org.springframework.cloud.netflix.turbine;
 
-import static org.mockito.Mockito.*;
-
-import com.netflix.discovery.EurekaClient;
-import com.netflix.turbine.discovery.Instance;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.turbine.discovery.Instance;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Spencer Gibb
@@ -65,7 +64,7 @@ public class EurekaInstanceDiscoveryTest {
 				.setHostName(hostName)
 				.setPort(port)
 				.build();
-		Instance instance = discovery.marshallInstanceInfo(instanceInfo);
+		Instance instance = discovery.marshall(instanceInfo);
 		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
 
 		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
@@ -86,7 +85,7 @@ public class EurekaInstanceDiscoveryTest {
 				.setSecurePort(securePort)
 				.enablePort(InstanceInfo.PortType.SECURE, true)
 				.build();
-		Instance instance = discovery.marshallInstanceInfo(instanceInfo);
+		Instance instance = discovery.marshall(instanceInfo);
 		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
 		assertEquals("securePort is wrong", String.valueOf(securePort), instance.getAttributes().get("securePort"));
 
