@@ -34,17 +34,28 @@ public class ResponseEntityDecoder implements Decoder {
 	public Object decode(final Response response, Type type) throws IOException,
 			FeignException {
 
-		if (type instanceof ParameterizedType
-				&& ((ParameterizedType) type).getRawType().equals(ResponseEntity.class)) {
+		if (isParameterizeResponseEntity(type)) {
 
 			type = ((ParameterizedType) type).getActualTypeArguments()[0];
 			Object decodedObject = decoder.decode(response, type);
 
 			return createResponse(decodedObject, response);
-		}
-		else {
+		} else if(isResponseEntity(type)) {
+
+			return createResponse(null, response);
+		} else {
 			return decoder.decode(response, type);
 		}
+	}
+
+	private boolean isParameterizeResponseEntity(Type type) {
+		return type instanceof ParameterizedType
+				&& ((ParameterizedType) type).getRawType().equals(ResponseEntity.class);
+	}
+
+	private boolean isResponseEntity(Type type) {
+
+		return type instanceof Class && type.equals(ResponseEntity.class);
 	}
 
 	@SuppressWarnings("unchecked")

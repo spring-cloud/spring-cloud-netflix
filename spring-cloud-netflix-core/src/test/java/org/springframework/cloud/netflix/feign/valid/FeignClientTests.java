@@ -48,6 +48,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -110,6 +111,12 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
 		HystrixCommand<List<Hello>> getHellosHystrix();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/noContent")
+		ResponseEntity noContent();
+
+		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
+		ResponseEntity head();
 	}
 
 	@FeignClient(serviceId = "localapp")
@@ -177,6 +184,16 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
 		public List<String> getParams(@RequestParam("params") List<String> params) {
 			return params;
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/noContent")
+		ResponseEntity noContent() {
+			return ResponseEntity.noContent().build();
+		}
+
+		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
+		ResponseEntity head() {
+			return ResponseEntity.ok().build();
 		}
 
 		public static void main(String[] args) {
@@ -257,6 +274,16 @@ public class FeignClientTests {
 		List<Hello> hellos = command.execute();
 		assertNotNull("hellos was null", hellos);
 		assertEquals("hellos didn't match", hellos, getHelloList());
+	}
+
+	@Test
+	public void testNoContentResponse() {
+		assertNotNull(testClient.noContent());
+	}
+
+	@Test
+	public void testHeadResponse() {
+		assertNotNull(testClient.head());
 	}
 
 	@Data
