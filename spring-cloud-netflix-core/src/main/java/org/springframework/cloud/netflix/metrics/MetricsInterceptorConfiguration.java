@@ -13,10 +13,12 @@
 
 package org.springframework.cloud.netflix.metrics;
 
+import org.aspectj.lang.JoinPoint;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,12 +49,21 @@ public class MetricsInterceptorConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnClass(JoinPoint.class)
+	@ConditionalOnProperty(value = "spring.aop.enabled", havingValue = "true", matchIfMissing = true)
 	@ConditionalOnBean({ RestTemplate.class })
-	static class MetricsRestTemplateConfiguration {
+	static class MetricsRestTemplateAspectConfiguration {
+
 		@Bean
 		RestTemplateUrlTemplateCapturingAspect restTemplateUrlTemplateCapturingAspect() {
 			return new RestTemplateUrlTemplateCapturingAspect();
 		}
+
+	}
+
+	@Configuration
+	@ConditionalOnBean({ RestTemplate.class })
+	static class MetricsRestTemplateConfiguration {
 
 		@Bean
 		MetricsClientHttpRequestInterceptor spectatorLoggingClientHttpRequestInterceptor() {
@@ -64,14 +75,17 @@ public class MetricsInterceptorConfiguration {
 				final MetricsClientHttpRequestInterceptor interceptor) {
 			return new BeanPostProcessor() {
 				@Override
-				public Object postProcessBeforeInitialization(Object bean, String beanName) {
+				public Object postProcessBeforeInitialization(Object bean,
+						String beanName) {
 					return bean;
 				}
 
 				@Override
-				public Object postProcessAfterInitialization(Object bean, String beanName) {
-					if (bean instanceof RestTemplate)
+				public Object postProcessAfterInitialization(Object bean,
+						String beanName) {
+					if (bean instanceof RestTemplate) {
 						((RestTemplate) bean).getInterceptors().add(interceptor);
+					}
 					return bean;
 				}
 			};
