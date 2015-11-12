@@ -13,7 +13,8 @@
 
 package org.springframework.cloud.netflix.metrics;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +63,8 @@ public class MetricsClientHttpRequestInterceptorTests {
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 		mockServer.expect(MockRestRequestMatchers.requestTo("/test/123"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
-				.andRespond(MockRestResponseCreators.withSuccess("{\"status\" : \"OK\"}", MediaType.APPLICATION_JSON));
-		restTemplate.getForObject("/test/{id}", String.class, 123);
+				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
+		String s = restTemplate.getForObject("/test/{id}", String.class, 123);
 
 		MonitorConfig.Builder builder = new MonitorConfig.Builder("metricName")
 				.withTag("method", "GET")
@@ -73,7 +74,9 @@ public class MetricsClientHttpRequestInterceptorTests {
 
 		BasicTimer timer = servoMonitorCache.getTimer(builder.build());
 
-		Assert.assertEquals(1L, (long) timer.getCount());
+		assertEquals(1L, (long) timer.getCount());
+		assertEquals("OK", s);
+
 		mockServer.verify();
 	}
 }
