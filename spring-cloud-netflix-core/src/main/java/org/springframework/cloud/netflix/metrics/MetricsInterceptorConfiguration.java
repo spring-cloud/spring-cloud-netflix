@@ -34,6 +34,7 @@ import com.netflix.servo.monitor.Monitors;
 @Configuration
 @ConditionalOnClass({ Monitors.class, MetricReader.class })
 public class MetricsInterceptorConfiguration {
+
 	@Configuration
 	@ConditionalOnWebApplication
 	static class MetricsWebResourceConfiguration extends WebMvcConfigurerAdapter {
