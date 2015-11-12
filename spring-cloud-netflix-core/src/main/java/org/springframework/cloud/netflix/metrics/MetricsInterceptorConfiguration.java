@@ -39,13 +39,13 @@ public class MetricsInterceptorConfiguration {
 	@ConditionalOnWebApplication
 	static class MetricsWebResourceConfiguration extends WebMvcConfigurerAdapter {
 		@Bean
-		MetricsHandlerInterceptor spectatorMonitoringWebResourceInterceptor() {
+		MetricsHandlerInterceptor servoMonitoringWebResourceInterceptor() {
 			return new MetricsHandlerInterceptor();
 		}
 
 		@Override
 		public void addInterceptors(InterceptorRegistry registry) {
-			registry.addInterceptor(spectatorMonitoringWebResourceInterceptor());
+			registry.addInterceptor(servoMonitoringWebResourceInterceptor());
 		}
 	}
 
