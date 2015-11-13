@@ -47,6 +47,8 @@ public @interface FeignClient {
 	/**
 	 * The serviceId with optional protocol prefix. Synonym for {@link #value() value}.
 	 * Either serviceId or url must be specified but not both.
+	 *
+	 * @deprecated use {@link #name() name} instead
 	 */
 	@Deprecated
 	String serviceId() default "";
