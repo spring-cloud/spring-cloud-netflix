@@ -57,12 +57,14 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties) {
-	    if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
-	        this.servletPath = servletPath;
-	    } else {
-	        //set Zuul servlet path
-	        this.servletPath = properties.getServletPath() != null? properties.getServletPath() : "";
-	    }
+		if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
+			this.servletPath = servletPath;
+		}
+		else {
+			// set Zuul servlet path
+			this.servletPath = properties.getServletPath() != null
+					? properties.getServletPath() : "";
+		}
 
 		if (properties.isIgnoreLocalService()) {
 			ServiceInstance instance = discovery.getLocalServiceInstance();
@@ -111,7 +113,9 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public ProxyRouteSpec getMatchingRoute(String path) {
-	    log.info("Finding route for path: " + path);
+		if (log.isDebugEnabled()) {
+			log.debug("Finding route for path: " + path);
+		}
 
 		String location = null;
 		String targetPath = null;
@@ -151,8 +155,8 @@ public class ProxyRouteLocator implements RouteLocator {
 				}
 			}
 		}
-		return (location == null ? null : new ProxyRouteSpec(id, targetPath, location,
-				prefix, retryable));
+		return (location == null ? null
+				: new ProxyRouteSpec(id, targetPath, location, prefix, retryable));
 	}
 
 	protected boolean matchesIgnoredPatterns(String path) {
