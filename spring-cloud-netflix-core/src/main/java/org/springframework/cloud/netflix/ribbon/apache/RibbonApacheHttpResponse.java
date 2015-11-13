@@ -20,14 +20,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
 import com.netflix.client.ClientException;
 import com.netflix.client.http.CaseInsensitiveMultiMap;
@@ -71,25 +72,25 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 		return this.uri;
 	}
 
-	@Override
 	public int getStatus() {
 		return httpResponse.getStatusLine().getStatusCode();
 	}
 
-	@Override
 	public String getStatusLine() {
 		return httpResponse.getStatusLine().toString();
 	}
 
 	@Override
 	public Map<String, Collection<String>> getHeaders() {
-		final Map<String, Collection<String>> headers = Maps.newHashMap();
+		final Map<String, Collection<String>> headers = new HashMap<>();
 		for (final Header header : this.httpResponse.getAllHeaders()) {
 			if (headers.containsKey(header.getName())) {
 				headers.get(header.getName()).add(header.getValue());
 			}
 			else {
-				headers.put(header.getName(), Lists.newArrayList(header.getValue()));
+				final List<String> values = new ArrayList<>();
+				values.add(header.getValue());
+				headers.put(header.getName(), values);
 			}
 		}
 
@@ -134,16 +135,25 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 		return hasPayload();
 	}
 
+	/**
+	 * Not used
+	 */
 	@Override
 	public <T> T getEntity(final Class<T> type) throws Exception {
 		return null;
 	}
 
+	/**
+	 * Not used
+	 */
 	@Override
 	public <T> T getEntity(final Type type) throws Exception {
 		return null;
 	}
 
+	/**
+	 * Not used
+	 */
 	@Override
 	public <T> T getEntity(final TypeToken<T> type) throws Exception {
 		return null;
