@@ -95,15 +95,37 @@ These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it's helpful if they are accurate.
 
+=== Registering a Secure Application
+
+If your app wants to be contacted over HTTPS you can set two flags in
+the `EurekaInstanceConfig`, _viz_
+`eureka.instance.[nonSecurePortEnabled,securePortEnabled]=[false,true]`
+respectively. This will make Eureka publish instance information
+showing an explicit preference for secure communication. The Spring
+Cloud `DiscoveryClient` will always return an `https://...` URI for a
+service configured this way, and the Eureka (native) instance
+information will have a secure health check URL. Because of the way
+Eureka works internally, it will still publish a non-secure URL for
+status and home page unless you also override those explicitly.
+
+NOTE: If your app is running behind a proxy, and the SSL termination
+is in the proxy (e.g. if you run in Cloud Foundry or other platforms
+as a service) then you will need to ensure that the proxy "forwarded"
+headers are intercepted and handled by the application. An embedded
+Tomcat container in a Spring Boot app does this automatically if it
+has explicit configuration for the 'X-Forwarded-\*` headers. A sign
+that you got this wrong will be that the links rendered by your app to
+itself will be wrong (the wrong host, port or protocol).
+
 === Eureka's Health Checks
 
 By default, Eureka uses the client heartbeat to determine if a client is up.
 Unless specified otherwise the Discovery Client will not propagate the
-application Spring Boot Actuator current health check status.  Which means
+current health check status of the application per the Spring Boot Actuator.  Which means
 that after successful registration Eureka will always announce that the
 application is in 'UP' state. This behaviour can be altered by enabling
 Eureka health checks, which results in propagating application status
-to Eureka, as a consequence every other application will not sending
+to Eureka. As a consequence every other application won't be sending
 traffic to application in state other then 'UP'.
 
 .application.yml
@@ -123,7 +145,7 @@ It's worth spending a bit of time understanding how the Eureka metadata works, s
 
 ==== Using Eureka on Cloudfoundry
 
-Cloudfoundry has a global router so that all instances of the same app have the same hostname (it's the same in other PaaS solutions with a similar architecture). This isn't necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). For example:
+Cloudfoundry has a global router so that all instances of the same app have the same hostname (it's the same in other PaaS solutions with a similar architecture). This isn't necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). By default, the `eureka.instance.instanceId` is `vcap.application.instance_id`. For example:
 
 .application.yml
 ----
@@ -131,8 +153,6 @@ eureka:
   instance:
     hostname: ${vcap.application.uris[0]}
     nonSecurePort: 80
-    metadataMap:
-      instanceId: ${vcap.application.instance_id:${spring.application.name}:${spring.application.instance_id:${server.port}}}
 ----
 
 Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (https://run.pivotal.io[PWS]).
@@ -153,16 +173,17 @@ public EurekaInstanceConfigBean eurekaInstanceConfig() {
 }
 ----
 
-==== Making the Eureka Instance ID Unique
+==== Changing the Eureka Instance ID
 
-By default a eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.metadataMap.instanceId`. For example:
+A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Spring Cloud Eureka provides a sensible default that looks like this: `${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}}`. For example `myhost:myappname:8080`.
+
+Using Spring Cloud you can override this by providing a unique identifier in `eureka.instance.instanceId`. For example:
 
 .application.yml
 ----
 eureka:
   instance:
-    metadataMap:
-      instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 ----
 
 With this metadata, and multiple service instances deployed on
@@ -171,17 +192,17 @@ unique. In Cloudfoundry the `spring.application.instance_id` will be
 populated automatically in a Spring Boot Actuator application, so the
 random value will not be needed.
 
-=== Using the DiscoveryClient
+=== Using the EurekaClient
 
-Once you have an app that is `@EnableEurekaClient` you can use it to
+Once you have an app that is `@EnableDiscoveryClient` (or `@EnableEurekaClient`) you can use it to
 discover service instances from the <<spring-cloud-eureka-server,
 Eureka Server>>. One way to do that is to use the native
-`com.netflix.discovery.DiscoveryClient` (as opposed to the Spring
+`com.netflix.discovery.EurekaClient` (as opposed to the Spring
 Cloud `DiscoveryClient`), e.g.
 
 ----
 @Autowired
-private DiscoveryClient discoveryClient;
+private EurekaClient discoveryClient;
 
 public String serviceUrl() {
     InstanceInfo instance = discoveryClient.getNextServerFromEureka("STORES", false);
@@ -191,16 +212,16 @@ public String serviceUrl() {
 
 [TIP]
 ====
-Don't use the `DiscoveryClient` in `@PostConstruct` method or in a
+Don't use the `EurekaClient` in `@PostConstruct` method or in a
 `@Scheduled` method (or anywhere where the `ApplicationContext` might
 not be started yet). It is initialized in a `SmartLifecycle` (with
 `phase=0`) so the earliest you can rely on it being available is in
 another `SmartLifecycle` with higher phase.
 ====
 
-=== Alternatives to the native Netflix DiscoveryClient
+=== Alternatives to the native Netflix EurekaClient
 
-You don't have to use the raw Netflix `DiscoveryClient` and usually it
+You don't have to use the raw Netflix `EurekaClient` and usually it
 is more convenient to use it behind a wrapper of some sort. Spring
 Cloud has support for <<spring-cloud-feign, Feign>> (a REST client
 builder) and also <<spring-cloud-ribbon, Spring `RestTemplate`>> using
@@ -584,10 +605,10 @@ declaring additional configuration (on top of the
 
 [source,java,indent=0]
 ----
-	@Configuration
-	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
-	public class TestConfiguration {
-	}
+@Configuration
+@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+public class TestConfiguration {
+}
 ----
 
 In this case the client is composed from the components already in
@@ -618,13 +639,13 @@ one of the beans described.  Example:
 
 [source,java,indent=0]
 ----
-	@Configuration
-	public class FooConfiguration {
-		@Bean
-    	public IPing ribbonPing(IClientConfig config) {
-    		return new PingUrl();
-    	}
-	}
+@Configuration
+public class FooConfiguration {
+    @Bean
+    public IPing ribbonPing(IClientConfig config) {
+        return new PingUrl();
+    }
+}
 ----
 
 This replaces the `NoOpPing` with `PingUrl`.
@@ -745,6 +766,67 @@ don't want to use Eureka, you can simply configure a list of servers
 in your external configuration (see
 <<spring-cloud-ribbon-without-eureka,above for example>>).
 
+[[spring-cloud-feign-overriding-defaults]]
+=== Overriding Feign Defaults
+
+A central concept in Spring Cloud's Feign support is that of the named client. Each feign client is part of an ensemble of components that work together to contact a remote server on demand, and the ensemble has a name that you give it as an application developer using the `@FeignClient` annotation. Spring Cloud creates a new ensemble as an
+`ApplicationContext` on demand for each named client using `FeignClientsConfiguration`. This contains (amongst other things) an `feign.Decoder`, a `feign.Encoder`, and a `feign.Contract`.
+
+Spring Cloud lets you take full control of the feign client by declaring additional configuration (on top of the `FeignClientsConfiguration`) using `@FeignClient`. Example:
+
+[source,java,indent=0]
+----
+@FeignClient(name = "stores", configuration = FooConfiguration.class)
+public interface StoreClient {
+    //..
+}
+----
+
+In this case the client is composed from the components already in `FeignClientsConfiguration` together with any in `FooConfiguration` (where the latter will override the former).
+
+WARNING: The `FooConfiguration` has to be `@Configuration` but take care that it is not in a `@ComponentScan` for the main application context, otherwise it will be used for every `@FeignClient`. If you use `@ComponentScan` (or `@SpringBootApplication`) you need to take steps to avoid it being included (for instance put it in a separate, non-overlapping package, or specify the packages to scan explicitly in the `@ComponentScan`).
+
+NOTE: The `serviceId` attribute is now deprecated in favor of the `name` attribute.
+
+WARNING: Previously, using the `url` attribute, did not require the `name` attribute. Using `name` is now required.
+
+Spring Cloud Netflix provides the following beans by default for feign (`BeanType` beanName: `ClassName`):
+
+* `Decoder` feignDecoder: `ResponseEntityDecoder` (which wraps a `SpringDecoder`)
+* `Encoder` feignEncoder: `SpringEncoder`
+* `Logger` feignLogger: `Slf4jLogger`
+* `Contract` feignContract: `SpringMvcContract`
+
+Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
+
+* `Logger.Level`
+* `Retryer`
+* `ErrorDecoder`
+* `Request.Options`
+* `Collection<RequestInterceptor>`
+
+Creating a bean of one of those type and placing it in a `@FeignClient` configuration (such as `FooConfiguration` above) allows you to override each one of the beans described.  Example:
+
+[source,java,indent=0]
+----
+@Configuration
+public class FooConfiguration {
+    @Bean
+    public Contract feignContractg() {
+        return new feign.Contract.Default();
+    }
+
+    @Bean
+    public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+        return new BasicAuthRequestInterceptor("user", "password");
+    }
+}
+----
+
+This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `RequestInterceptor` to the collection of `RequestInterceptor`.
+
+Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
+
 [[spring-cloud-feign-inheritance]]
 === Feign Inheritance Support
 
@@ -775,9 +857,64 @@ public class UserResource implements UserService {
 .UserClient.java
 [source,java,indent=0]
 ----
+package project.user;
+
 @FeignClient("users")
 public interface UserClient extends UserService {
 
+}
+----
+
+=== Feign request/response compression
+
+You may consider enabling the request or response GZIP compression for your
+Feign requests. You can do this by enabling one of the properties:
+
+[source,java]
+----
+feign.compression.request.enabled=true
+feign.compression.response.enabled=true
+----
+
+Feign request compression gives you settings similar to what you may set for your web server:
+
+[source,java]
+----
+feign.compression.request.enabled=true
+feign.compression.request.mime-types=text/xml,application/xml,application/json
+feign.compression.request.min-request-size=2048
+----
+
+These properties allow you to be selective about the compressed media types and minimum request threshold length.
+
+=== Feign logging
+
+A logger is created for each Feign client created. By default the name of the logger is the full class name of the interface used to create the Feign client. Feign logging only responds to the `DEBUG` level.
+
+.application.yml
+
+[source,yaml]
+----
+logging.level.project.user.UserClient: DEBUG
+----
+
+The `Logger.Level` object that you may configure per client, tells Feign how much to log. Choices are:
+
+* `NONE`, No logging (*DEFAULT*).
+* `BASIC`, Log only the request method and URL and the response status code and execution time.
+* `HEADERS`, Log the basic information along with request and response headers.
+* `FULL`, Log the headers, body, and metadata for both requests and responses.
+
+For example, the following would set the `Logger.Level` to `FULL`:
+
+[source,java,indent=0]
+----
+@Configuration
+public class FooConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
 }
 ----
 
@@ -799,7 +936,7 @@ class ArchaiusTest {
 }
 ----
 
-Archaius has its own set of configuration files and loading priorities.  Spring applications should generally not use Archaius directly., but the need to configure the Netflix tools natively remains.  Spring Cloud has a Spring Environment Bridge so Archaius can read properties from the Spring Environment.  This allows Spring Boot projects to use the normal configuration toolchain, while allowing them to configure the Netflix tools, for the most part, as documented.
+Archaius has its own set of configuration files and loading priorities.  Spring applications should generally not use Archaius directly, but the need to configure the Netflix tools natively remains.  Spring Cloud has a Spring Environment Bridge so Archaius can read properties from the Spring Environment.  This allows Spring Boot projects to use the normal configuration toolchain, while allowing them to configure the Netflix tools, for the most part, as documented.
 
 == Router and Filter: Zuul
 
@@ -959,7 +1096,7 @@ server if you set a default route ("/"), for example `zuul.route.home:
 /` would route all traffic (i.e. "/**") to the "home" service.
 
 If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
-These patterns are being evaluated at the end of the route location process, which 
+These patterns are being evaluated at the start of the route location process, which 
 means prefixes should be included in the pattern to warrant a match. Ignored patterns 
 span all services and supersede any other route specification.
 
@@ -967,13 +1104,54 @@ span all services and supersede any other route specification.
 [source,yaml]
 ----
  zuul:
-  ignoredPatterns: */admin/**
+  ignoredPatterns: /**/admin/**
   routes:
     users: /myusers/**
 ----
 
 This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
 But calls including "/admin/" will not resolve.
+
+=== Strangulation Patterns and Local Forwards
+
+A common pattern when migrating an existing application or API is to
+"strangle" old endpoints, slowly replacing them with different
+implementations. The Zuul proxy is a useful tool for this because you
+can use it to handle all traffic from clients of the old endpoints,
+but redirect some of the requests to new ones.
+
+Example configuration:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    first:
+      path: /first/**
+      url: http://first.example.com
+    second:
+      path: /second/**
+      url: forward:/second
+    third:
+      path: /third/**
+      url: forward:/3rd
+    legacy:
+      path: /**
+      url: http://legacy.example.com
+----
+
+In this example we are strangling the "legacy" app which is mapped to
+all requests that do not match one of the other patterns. Paths in
+`/first/**` have been extracted into a new service with an external
+URL. And paths in `/second/**` are forwared so they can be handled
+locally, e.g. with a normal Spring `@RequestMapping`. Paths in
+`/third/**` are also forwarded, but with a different prefix
+(i.e. `/third/foo` is forwarded to `/3rd/foo`).
+
+NOTE: The ignored pattterns aren't completely ignored, they just
+aren't handled by the proxy (so they are also effectively forwarded
+locally).
 
 === Uploading Files through Zuul
 

@@ -42,6 +42,7 @@ public class InstanceInfoFactory {
 
 		builder.setNamespace(config.getNamespace())
 				.setAppName(config.getAppname())
+				.setInstanceId(config.getInstanceId())
 				.setAppGroupName(config.getAppGroupName())
 				.setDataCenterInfo(config.getDataCenterInfo())
 				.setIPAddr(config.getIpAddress())
@@ -63,14 +64,18 @@ public class InstanceInfoFactory {
 		// Start off with the STARTING state to avoid traffic
 		if (!config.isInstanceEnabledOnit()) {
 			InstanceInfo.InstanceStatus initialStatus = InstanceInfo.InstanceStatus.STARTING;
-			log.info("Setting initial instance status as: " + initialStatus);
+			if (log.isInfoEnabled()) {
+				log.info("Setting initial instance status as: " + initialStatus);
+			}
 			builder.setStatus(initialStatus);
 		}
 		else {
-			log.info("Setting initial instance status as: "
-					+ InstanceInfo.InstanceStatus.UP
-					+ ". This may be too early for the instance to advertise itself as available. "
-					+ "You would instead want to control this via a healthcheck handler.");
+			if (log.isInfoEnabled()) {
+				log.info("Setting initial instance status as: "
+						+ InstanceInfo.InstanceStatus.UP
+						+ ". This may be too early for the instance to advertise itself as available. "
+						+ "You would instead want to control this via a healthcheck handler.");
+			}
 		}
 
 		// Add any user-specific metadata information

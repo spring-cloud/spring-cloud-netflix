@@ -25,6 +25,7 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +62,11 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 	@Test
 	public void pingDefaultsToDiscoveryPing() throws Exception {
 		NIWSDiscoveryPing.class.cast(getLoadBalancer().getPing());
+	}
+
+	@Test
+	public void serverIntrospectorDefaultsToEureka() throws Exception {
+		EurekaServerIntrospector.class.cast(this.factory.getInstance("foo", ServerIntrospector.class));
 	}
 
 	@SuppressWarnings("unchecked")

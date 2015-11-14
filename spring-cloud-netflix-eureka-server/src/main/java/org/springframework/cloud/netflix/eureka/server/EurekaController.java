@@ -27,6 +27,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.eureka.EurekaServerContext;
+import com.netflix.eureka.EurekaServerContextHolder;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +43,6 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Pair;
-import com.netflix.eureka.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.resources.StatusResource;
 import com.netflix.eureka.util.StatusInfo;
@@ -78,19 +81,17 @@ public class EurekaController {
 	@RequestMapping(value = "/lastn", method = RequestMethod.GET)
 	public String lastn(HttpServletRequest request, Map<String, Object> model) {
 		populateBase(request, model);
-		PeerAwareInstanceRegistryImpl registery = PeerAwareInstanceRegistryImpl.getInstance();
+		PeerAwareInstanceRegistryImpl registry = (PeerAwareInstanceRegistryImpl) getRegistry();
 		ArrayList<Map<String, Object>> lastNCanceled = new ArrayList<>();
-		List<Pair<Long, String>> list = registery.getLastNCanceledInstances();
+		List<Pair<Long, String>> list = registry.getLastNCanceledInstances();
 		for (Pair<Long, String> entry : list) {
-			lastNCanceled.add(registeredInstance(entry.second(), entry.first()
-					.longValue()));
+			lastNCanceled.add(registeredInstance(entry.second(), entry.first()));
 		}
 		model.put("lastNCanceled", lastNCanceled);
-		list = registery.getLastNRegisteredInstances();
+		list = registry.getLastNRegisteredInstances();
 		ArrayList<Map<String, Object>> lastNRegistered = new ArrayList<>();
 		for (Pair<Long, String> entry : list) {
-			lastNRegistered.add(registeredInstance(entry.second(), entry.first()
-					.longValue()));
+			lastNRegistered.add(registeredInstance(entry.second(), entry.first()));
 		}
 		model.put("lastNRegistered", lastNRegistered);
 		return "eureka/lastn";
@@ -119,9 +120,9 @@ public class EurekaController {
 				.getDeploymentEnvironment());
 		model.put("datacenter", ConfigurationManager.getDeploymentContext()
 				.getDeploymentDatacenter());
-		model.put("registry", PeerAwareInstanceRegistryImpl.getInstance());
-		model.put("isBelowRenewThresold", PeerAwareInstanceRegistryImpl.getInstance()
-				.isBelowRenewThresold() == 1);
+		PeerAwareInstanceRegistry registry = getRegistry();
+		model.put("registry", registry);
+		model.put("isBelowRenewThresold", registry.isBelowRenewThresold() == 1);
 		DataCenterInfo info = applicationInfoManager.getInfo().getDataCenterInfo();
 		if (info.getName() == DataCenterInfo.Name.Amazon) {
 			AmazonInfo amazonInfo = (AmazonInfo) info;
@@ -133,10 +134,17 @@ public class EurekaController {
 		}
 	}
 
+	private PeerAwareInstanceRegistry getRegistry() {
+		return getServerContext().getRegistry();
+	}
+
+	private EurekaServerContext getServerContext() {
+		return EurekaServerContextHolder.getInstance().getServerContext();
+	}
+
 	private void populateNavbar(HttpServletRequest request, Map<String, Object> model) {
 		Map<String, String> replicas = new LinkedHashMap<>();
-		List<PeerEurekaNode> list = PeerAwareInstanceRegistryImpl.getInstance()
-				.getReplicaNodes();
+		List<PeerEurekaNode> list = getServerContext().getPeerEurekaNodes().getPeerNodesView();
 		for (PeerEurekaNode node : list) {
 			try {
 				URI uri = new URI(node.getServiceUrl());
@@ -151,8 +159,7 @@ public class EurekaController {
 	}
 
 	private void populateApps(Map<String, Object> model) {
-		List<com.netflix.discovery.shared.Application> sortedApplications = PeerAwareInstanceRegistryImpl
-				.getInstance().getSortedApplications();
+		List<Application> sortedApplications = getRegistry().getSortedApplications();
 		ArrayList<Map<String, Object>> apps = new ArrayList<>();
 		for (Application app : sortedApplications) {
 			LinkedHashMap<String, Object> appData = new LinkedHashMap<>();
@@ -174,17 +181,17 @@ public class EurekaController {
 				}
 				Integer count = amiCounts.get(ami);
 				if (count != null) {
-					amiCounts.put(ami, Integer.valueOf(count.intValue() + 1));
+					amiCounts.put(ami, count + 1);
 				}
 				else {
-					amiCounts.put(ami, Integer.valueOf(1));
+					amiCounts.put(ami, 1);
 				}
 				count = zoneCounts.get(zone);
 				if (count != null) {
-					zoneCounts.put(zone, Integer.valueOf(count.intValue() + 1));
+					zoneCounts.put(zone, count + 1);
 				}
 				else {
-					zoneCounts.put(zone, Integer.valueOf(1));
+					zoneCounts.put(zone, 1);
 				}
 				List<Pair<String, String>> list = instancesByStatus.get(status);
 				if (list == null) {

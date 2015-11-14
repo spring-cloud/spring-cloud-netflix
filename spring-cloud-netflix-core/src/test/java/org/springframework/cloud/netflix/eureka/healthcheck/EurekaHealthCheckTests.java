@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient;
+import com.netflix.discovery.EurekaClient;
 
 
 /**
@@ -46,17 +46,17 @@ import com.netflix.discovery.DiscoveryClient;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port=0", "eureka.client.healthcheck.enabled=true"})
+@IntegrationTest({"server.port=0", "eureka.client.healthcheck.enabled=true", "debug=true"})
 @DirtiesContext
 public class EurekaHealthCheckTests {
 
     @Autowired
-    private DiscoveryClient discoveryClient;
+    private EurekaClient discoveryClient;
 
     @Test
     public void shouldRegisterService() {
 
-        InstanceInfo.InstanceStatus status = discoveryClient.getHealthCheckHandler()
+        InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
                         .getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
 
         assertNotNull(status);

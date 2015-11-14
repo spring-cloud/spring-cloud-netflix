@@ -47,7 +47,7 @@ public class RibbonClientConfigurationTests {
 	static class TestRestClient extends RibbonClientConfiguration.OverrideRestClient {
 
 		private TestRestClient(IClientConfig ncc) {
-			super(ncc);
+			super(ncc, new DefaultServerIntrospector());
 		}
 
 		@Override

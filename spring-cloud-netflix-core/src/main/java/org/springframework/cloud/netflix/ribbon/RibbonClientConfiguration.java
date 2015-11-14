@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.net.URI;
+
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
@@ -89,10 +92,10 @@ public class RibbonClientConfiguration {
 	}
 
 	/**
-	 * Create a Netflix {@link RestClient} integrated with Ribbon if none already exists in the
-	 * application context. It is not required for Ribbon to work properly and is therefore  
-	 * created lazily if ever another component requires it.
-	 * 
+	 * Create a Netflix {@link RestClient} integrated with Ribbon if none already exists
+	 * in the application context. It is not required for Ribbon to work properly and is
+	 * therefore created lazily if ever another component requires it.
+	 *
 	 * @param config the configuration to use by the underlying Ribbon instance
 	 * @param loadBalancer the load balancer to use by the underlying Ribbon instance
 	 * @return a {@link RestClient} instances backed by Ribbon
@@ -100,8 +103,9 @@ public class RibbonClientConfiguration {
 	@Bean
 	@Lazy
 	@ConditionalOnMissingBean
-	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer) {
-		RestClient client = new OverrideRestClient(config);
+	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer,
+			ServerIntrospector serverIntrospector) {
+		RestClient client = new OverrideRestClient(config, serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
@@ -134,11 +138,31 @@ public class RibbonClientConfiguration {
 		return new RibbonLoadBalancerContext(loadBalancer, config);
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public ServerIntrospector serverIntrospector() {
+		return new DefaultServerIntrospector();
+	}
+
 	static class OverrideRestClient extends RestClient {
 
-		protected OverrideRestClient(IClientConfig ncc) {
+		private ServerIntrospector serverIntrospector;
+
+		protected OverrideRestClient(IClientConfig ncc,
+				ServerIntrospector serverIntrospector) {
 			super();
+			this.serverIntrospector = serverIntrospector;
 			initWithNiwsConfig(ncc);
+		}
+
+		@Override
+		public URI reconstructURIWithServer(Server server, URI original) {
+			String scheme = original.getScheme();
+			if (!"https".equals(scheme) && this.serverIntrospector.isSecure(server)) {
+				original = UriComponentsBuilder.fromUri(original).scheme("https").build()
+						.toUri();
+			}
+			return super.reconstructURIWithServer(server, original);
 		}
 
 		@Override

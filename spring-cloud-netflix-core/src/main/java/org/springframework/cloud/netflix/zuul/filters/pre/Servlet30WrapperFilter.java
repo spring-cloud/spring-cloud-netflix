@@ -52,7 +52,7 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 
 	@Override
 	public int filterOrder() {
-		return 0;
+		return -2;
 	}
 
 	@Override

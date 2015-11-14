@@ -32,6 +32,8 @@ import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.client.actuator.NamedFeature;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +63,11 @@ public class HystrixCircuitBreakerConfiguration {
 		return new HystrixShutdownHook();
 	}
 
+	@Bean
+	public HasFeatures hystrixFeature() {
+		return HasFeatures.namedFeatures(new NamedFeature("Hystrix", HystrixCommandAspect.class));
+	}
+
 	@Configuration
 	@ConditionalOnProperty(value = "hystrix.stream.endpoint.enabled", matchIfMissing = true)
 	@ConditionalOnWebApplication
@@ -72,6 +79,10 @@ public class HystrixCircuitBreakerConfiguration {
 			return new HystrixStreamEndpoint();
 		}
 
+		@Bean
+		public HasFeatures hystrixFeature() {
+			return HasFeatures.namedFeature("Hystrix Stream Servlet", HystrixStreamEndpoint.class);
+		}
 	}
 
 	@Configuration

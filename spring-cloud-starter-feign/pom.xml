@@ -42,11 +42,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
-			<artifactId>feign-ribbon</artifactId>
+			<artifactId>feign-slf4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.feign</groupId>
-			<artifactId>feign-slf4j</artifactId>
+			<artifactId>feign-hystrix</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

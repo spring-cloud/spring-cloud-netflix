@@ -23,16 +23,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -56,13 +57,25 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties) {
-	    if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
-	        this.servletPath = servletPath;
-	    } else {
-	        //set Zuul servlet path
-	        this.servletPath = properties.getServletPath() != null? properties.getServletPath() : "";
-	    }
-		
+		if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
+			this.servletPath = servletPath;
+		}
+		else {
+			// set Zuul servlet path
+			this.servletPath = properties.getServletPath() != null
+					? properties.getServletPath() : "";
+		}
+
+		if (properties.isIgnoreLocalService()) {
+			ServiceInstance instance = discovery.getLocalServiceInstance();
+			if (instance != null) {
+				String localServiceId = instance.getServiceId();
+				if (!properties.getIgnoredServices().contains(localServiceId)) {
+					properties.getIgnoredServices().add(localServiceId);
+				}
+			}
+		}
+
 		this.discovery = discovery;
 		this.properties = properties;
 	}
@@ -82,6 +95,11 @@ public class ProxyRouteLocator implements RouteLocator {
 		return getRoutes().keySet();
 	}
 
+	@Override
+	public Collection<String> getIgnoredPaths() {
+		return this.properties.getIgnoredPatterns();
+	}
+
 	public Map<String, String> getRoutes() {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
@@ -95,8 +113,10 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public ProxyRouteSpec getMatchingRoute(String path) {
-	    log.info("Finding route for path: " + path);	    
-	    
+		if (log.isDebugEnabled()) {
+			log.debug("Finding route for path: " + path);
+		}
+
 		String location = null;
 		String targetPath = null;
 		String id = null;
@@ -135,8 +155,8 @@ public class ProxyRouteLocator implements RouteLocator {
 				}
 			}
 		}
-		return (location == null ? null : new ProxyRouteSpec(id, targetPath, location,
-				prefix, retryable));
+		return (location == null ? null
+				: new ProxyRouteSpec(id, targetPath, location, prefix, retryable));
 	}
 
 	protected boolean matchesIgnoredPatterns(String path) {

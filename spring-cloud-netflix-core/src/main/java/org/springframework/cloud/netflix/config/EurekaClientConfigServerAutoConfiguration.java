@@ -21,11 +21,12 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.config.server.ConfigServerProperties;
+import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.EurekaClient;
 
 /**
@@ -40,7 +41,7 @@ import com.netflix.discovery.EurekaClient;
 public class EurekaClientConfigServerAutoConfiguration {
 
 	@Autowired(required = false)
-	private EurekaInstanceConfigBean instance;
+	private EurekaInstanceConfig instance;
 
 	@Autowired(required = false)
 	private ConfigServerProperties server;

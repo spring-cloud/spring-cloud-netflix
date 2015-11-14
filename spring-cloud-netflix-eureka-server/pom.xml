@@ -14,7 +14,7 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 		<spring-cloud.version>1.1.0.BUILD-SNAPSHOT</spring-cloud.version>
-		<wro4j.version>1.7.6</wro4j.version>
+		<wro4j.version>1.7.9</wro4j.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -47,10 +47,6 @@
 			<artifactId>eureka-client</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.blitz4j</groupId>
-			<artifactId>blitz4j</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
 		</dependency>
@@ -71,6 +67,10 @@
 		<dependency>
 			<groupId>com.netflix.archaius</groupId>
 			<artifactId>archaius-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
 		</dependency>
 		<!-- Eureka deps that are now optional in eureka -->
 		<dependency>

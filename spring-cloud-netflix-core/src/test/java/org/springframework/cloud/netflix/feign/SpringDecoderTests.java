@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -54,11 +55,19 @@ import static org.junit.Assert.assertNotNull;
 @DirtiesContext
 public class SpringDecoderTests extends FeignClientFactoryBean {
 
+	@Autowired
+	FeignClientFactory factory;
+
 	@Value("${local.server.port}")
 	private int port = 0;
 
+	public SpringDecoderTests() {
+		setName("test");
+	}
+
 	public TestClient testClient() {
-		return feign().target(TestClient.class, "http://localhost:" + this.port);
+		setType(this.getClass());
+		return feign(factory).target(TestClient.class, "http://localhost:" + this.port);
 	}
 
 	@Test
@@ -95,6 +104,17 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		assertEquals("first hello didn't match", "hello world 1", hellos.get(0));
 	}
 
+	@Test
+	public void testResponseEntityVoid() {
+		ResponseEntity<Void> response = testClient().getHelloVoid();
+		assertNotNull("response was null", response);
+		List<String> headerVals = response.getHeaders().get("X-test-header");
+		assertNotNull("headerVals was null", headerVals);
+		assertEquals("headerVals size was wrong", 1, headerVals.size());
+		String header = headerVals.get(0);
+		assertEquals("header was wrong", "myval", header);
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -105,6 +125,9 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	protected static interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/helloresponse")
 		public ResponseEntity<Hello> getHelloResponse();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellovoid")
+		public ResponseEntity<Void> getHelloVoid();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello();
@@ -124,6 +147,11 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		@Override
 		public ResponseEntity<Hello> getHelloResponse() {
 			return ResponseEntity.ok(new Hello("hello world via response"));
+		}
+
+		@Override
+		public ResponseEntity<Void> getHelloVoid() {
+			return ResponseEntity.noContent().header("X-test-header", "myval").build();
 		}
 
 		@Override

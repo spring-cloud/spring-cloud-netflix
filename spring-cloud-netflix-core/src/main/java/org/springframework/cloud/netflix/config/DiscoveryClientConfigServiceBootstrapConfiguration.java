@@ -16,25 +16,25 @@
 
 package org.springframework.cloud.netflix.config;
 
-import lombok.extern.apachecommons.CommonsLog;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
-import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.ConfigServicePropertySourceLocator;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.SmartApplicationListener;
+import org.springframework.context.event.EventListener;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via
@@ -45,55 +45,32 @@ import com.netflix.discovery.EurekaClient;
 @ConditionalOnClass({ EurekaClient.class, ConfigServicePropertySourceLocator.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
-@EnableDiscoveryClient
 @Import(EurekaClientAutoConfiguration.class)
 @CommonsLog
-public class DiscoveryClientConfigServiceBootstrapConfiguration implements
-		SmartApplicationListener {
-
-	private HeartbeatMonitor monitor = new HeartbeatMonitor();
+public class DiscoveryClientConfigServiceBootstrapConfiguration {
 
 	@Autowired
 	private ConfigClientProperties config;
 
 	@Autowired
+	private DiscoveryClient client;
+
+	@Autowired
 	private EurekaClient eurekaClient;
 
-	@Override
-	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof ContextRefreshedEvent) {
-			refresh();
-		}
-		else if (event instanceof HeartbeatEvent) {
-			if (this.monitor.update(((HeartbeatEvent) event).getValue())) {
-				refresh();
-			}
-		}
+	@EventListener(ContextRefreshedEvent.class)
+	public void onApplicationEvent(ContextRefreshedEvent event) {
+		refresh();
 	}
 
-	@Override
-	public int getOrder() {
-		return 0;
-	}
-
-	@Override
-	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-		return ContextRefreshedEvent.class.isAssignableFrom(eventType)
-				|| HeartbeatEvent.class.isAssignableFrom(eventType);
-	}
-
-	@Override
-	public boolean supportsSourceType(Class<?> sourceType) {
-		return true;
-	}
+	// TODO: re-instate heart beat (maybe? isn't it handled in the child context?)
 
 	private void refresh() {
 		try {
-			log.info("Locating configserver via discovery");
-			InstanceInfo server = eurekaClient
-					.getNextServerFromEureka(this.config.getDiscovery().getServiceId(),
-							false);
-			String url = server.getHomePageUrl();
+			log.debug("Locating configserver via discovery");
+			InstanceInfo server = this.eurekaClient.getNextServerFromEureka(
+					this.config.getDiscovery().getServiceId(), false);
+			String url = getHomePage(server);
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");
 				user = user == null ? "user" : user;
@@ -113,6 +90,15 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration implements
 		catch (Exception ex) {
 			log.warn("Could not locate configserver via discovery", ex);
 		}
+	}
+
+	private String getHomePage(InstanceInfo server) {
+		List<ServiceInstance> instances = this.client
+				.getInstances(this.config.getDiscovery().getServiceId());
+		if (instances == null || instances.isEmpty()) {
+			return server.getHomePageUrl();
+		}
+		return instances.get(0).getUri().toString() + "/";
 	}
 
 }

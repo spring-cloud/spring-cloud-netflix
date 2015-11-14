@@ -24,12 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import java.lang.reflect.Field;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +34,7 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
@@ -48,7 +43,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,6 +52,9 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
 import feign.Client;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -103,7 +100,7 @@ public class FeignHttpClientTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients
+	@EnableFeignClients(clients = {TestClient.class, UserClient.class})
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application implements UserService {
 
@@ -146,18 +143,16 @@ public class FeignHttpClientTests {
 
 	@Test
 	public void testFeignClientType() throws IllegalAccessException {
-		assertThat(this.feignClient, is(instanceOf(feign.ribbon.RibbonClient.class)));
-		Field field = ReflectionUtils.findField(feign.ribbon.RibbonClient.class,
-				"delegate", Client.class);
-		ReflectionUtils.makeAccessible(field);
-		Client delegate = (Client) field.get(this.feignClient);
+		assertThat(this.feignClient, is(instanceOf(LoadBalancerFeignClient.class)));
+		LoadBalancerFeignClient client = (LoadBalancerFeignClient) this.feignClient;
+		Client delegate = client.getDelegate();
 		assertThat(delegate, is(instanceOf(feign.httpclient.ApacheHttpClient.class)));
 	}
 
 	@Test
 	public void testFeignInheritanceSupport() {
-		assertNotNull("UserClient was null", userClient);
-		final User user = userClient.getUser(1);
+		assertNotNull("UserClient was null", this.userClient);
+		final User user = this.userClient.getUser(1);
 		assertNotNull("Returned user was null", user);
 		assertEquals("Users were different", user, new User("John Smith"));
 	}

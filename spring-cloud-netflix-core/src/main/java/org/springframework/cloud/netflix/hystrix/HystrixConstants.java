@@ -21,6 +21,6 @@ package org.springframework.cloud.netflix.hystrix;
  */
 public interface HystrixConstants {
 
-	String HYSTRIX_STREAM_NAME = "spring.cloud.hystrix.stream";
+	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
 
 }

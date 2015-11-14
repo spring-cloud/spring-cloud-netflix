@@ -17,35 +17,35 @@
 package org.springframework.cloud.netflix.eureka;
 
 import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
-import static com.netflix.appinfo.InstanceInfo.PortType.UNSECURE;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * @author Spencer Gibb
  */
+@RequiredArgsConstructor
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
 
-	@Autowired
-	private EurekaInstanceConfigBean config;
+	private final EurekaInstanceConfig config;
 
-	@Autowired
-	private EurekaClient eurekaClient;
+	private final EurekaClient eurekaClient;
 
 	@Override
 	public String description() {
@@ -62,7 +62,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 			@Override
 			public String getHost() {
-				return EurekaDiscoveryClient.this.config.getHostname();
+				return EurekaDiscoveryClient.this.config.getHostName(false);
 			}
 
 			@Override
@@ -93,11 +93,15 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		return instances;
 	}
 
-	static class EurekaServiceInstance implements ServiceInstance {
+	public static class EurekaServiceInstance implements ServiceInstance {
 		private InstanceInfo instance;
 
 		EurekaServiceInstance(InstanceInfo instance) {
 			this.instance = instance;
+		}
+
+		public InstanceInfo getInstanceInfo() {
+			return instance;
 		}
 
 		@Override
@@ -112,17 +116,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 		@Override
 		public int getPort() {
-			// assume if unsecure is enabled, that is the default
-			if (this.instance.isPortEnabled(UNSECURE) || !this.instance.isPortEnabled(SECURE)) {
-				return this.instance.getPort();
+			if (isSecure()) {
+				return this.instance.getSecurePort();
 			}
-			return this.instance.getSecurePort();
+			return this.instance.getPort();
 		}
 
 		@Override
 		public boolean isSecure() {
-			// assume if unsecure is enabled, that is the default
-			return !this.instance.isPortEnabled(UNSECURE) && this.instance.isPortEnabled(SECURE);
+			// assume if secure is enabled, that is the default
+			return this.instance.isPortEnabled(SECURE);
 		}
 
 		@Override

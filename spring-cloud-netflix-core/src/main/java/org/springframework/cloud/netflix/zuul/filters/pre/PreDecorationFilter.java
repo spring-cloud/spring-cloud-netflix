@@ -19,18 +19,16 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.servlet.http.HttpServletResponse;
-
-import com.netflix.zuul.constants.ZuulHeaders;
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
 import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 @CommonsLog
 public class PreDecorationFilter extends ZuulFilter {
@@ -58,14 +56,15 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	@Override
 	public boolean shouldFilter() {
-		return true;
+		RequestContext ctx = RequestContext.getCurrentContext();
+		return !ctx.containsKey("forward.to");
 	}
 
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx
-				.getRequest());
+		final String requestURI = this.urlPathHelper
+				.getPathWithinApplication(ctx.getRequest());
 		ProxyRouteSpec route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
@@ -81,6 +80,12 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.setRouteHost(getUrl(location));
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
 				}
+				else if (location.startsWith("forward:")) {
+					ctx.set("forward.to", StringUtils.cleanPath(
+							location.substring("forward:".length()) + route.getPath()));
+					ctx.setRouteHost(null);
+					return null;
+				}
 				else {
 					// set serviceId for use in filters.route.RibbonRequest
 					ctx.set("serviceId", location);
@@ -88,12 +93,10 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
 				}
 				if (this.addProxyHeaders) {
-					ctx.addZuulRequestHeader(
-							"X-Forwarded-Host",
+					ctx.addZuulRequestHeader("X-Forwarded-Host",
 							ctx.getRequest().getServerName() + ":"
 									+ String.valueOf(ctx.getRequest().getServerPort()));
-					ctx.addZuulRequestHeader(
-							ZuulHeaders.X_FORWARDED_PROTO,
+					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
 							ctx.getRequest().getScheme());
 					if (StringUtils.hasText(route.getPrefix())) {
 						ctx.addZuulRequestHeader("X-Forwarded-Prefix", route.getPrefix());
@@ -103,7 +106,7 @@ public class PreDecorationFilter extends ZuulFilter {
 		}
 		else {
 			log.warn("No route found for uri: " + requestURI);
-			ctx.set("error.status_code", HttpServletResponse.SC_NOT_FOUND);
+			ctx.set("forward.to", requestURI);
 		}
 		return null;
 	}

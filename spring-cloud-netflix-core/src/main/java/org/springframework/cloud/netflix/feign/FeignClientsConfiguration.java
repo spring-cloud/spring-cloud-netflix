@@ -16,8 +16,9 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.Client;
-import feign.httpclient.ApacheHttpClient;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +32,11 @@ import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import feign.Client;
 import feign.Contract;
-import feign.Logger;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
-import feign.slf4j.Slf4jLogger;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * @author Dave Syer
@@ -46,24 +47,25 @@ public class FeignClientsConfiguration {
 	@Autowired
 	private ObjectFactory<HttpMessageConverters> messageConverters;
 
+	@Autowired(required = false)
+	private List<AnnotatedParameterProcessor> parameterProcessors = new ArrayList<>();
+
 	@Bean
+	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
 		return new ResponseEntityDecoder(new SpringDecoder(messageConverters));
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
 		return new SpringEncoder(messageConverters);
 	}
 
 	@Bean
-	public Logger feignLogger() {
-		return new Slf4jLogger();
-	}
-
-	@Bean
+	@ConditionalOnMissingBean
 	public Contract feignContract() {
-		return new SpringMvcContract();
+		return new SpringMvcContract(parameterProcessors);
 	}
 
 	@Configuration

@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +32,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.UniqueIdentifier;
 
 /**
  * @author Dave Syer
@@ -43,7 +43,7 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Before
 	public void init() {
-		this.hostName = EurekaInstanceConfigBean.getFirstNonLoopbackAddress().getHostName();
+		this.hostName = getFirstNonLoopbackHostInfo().getHostname();
 	}
 
 	@After
@@ -51,14 +51,6 @@ public class EurekaInstanceConfigBeanTests {
 		if (this.context != null) {
 			this.context.close();
 		}
-	}
-
-	@Test
-	public void idFromInstanceId() throws Exception {
-		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
-		instance.getMetadataMap().put("instanceId", "foo");
-		instance.setHostname("bar");
-		assertEquals("bar:foo", ((UniqueIdentifier) instance.getDataCenterInfo()).getId());
 	}
 
 	@Test
@@ -73,6 +65,14 @@ public class EurekaInstanceConfigBeanTests {
 		addEnvironment(this.context, "eureka.instance.nonSecurePort:8888");
 		setupContext();
 		assertEquals(8888, getInstanceConfig().getNonSecurePort());
+	}
+
+	@Test
+	public void instanceId() {
+		addEnvironment(this.context, "eureka.instance.instanceId:special");
+		setupContext();
+		EurekaInstanceConfigBean instance = getInstanceConfig();
+		assertEquals("special", instance.getInstanceId());
 	}
 
 	@Test
@@ -134,16 +134,6 @@ public class EurekaInstanceConfigBeanTests {
 		EurekaInstanceConfigBean instance = getInstanceConfig();
 		assertTrue("Wrong hostname: " + instance.getHostname(), getInstanceConfig()
 				.getHostname().equals(instance.getIpAddress()));
-
-	}
-
-	@Test
-	public void testPreferIpAddressInDatacenter() throws Exception {
-		addEnvironment(this.context, "eureka.instance.preferIpAddress:true");
-		setupContext();
-		EurekaInstanceConfigBean instance = getInstanceConfig();
-		String id = ((UniqueIdentifier) instance.getDataCenterInfo()).getId();
-		assertTrue("Wrong hostname: " + id, id.equals(instance.getIpAddress()));
 
 	}
 

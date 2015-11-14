@@ -1,0 +1,1 @@
+provides: spring-cloud-starter, spring-cloud-netflix-spectator

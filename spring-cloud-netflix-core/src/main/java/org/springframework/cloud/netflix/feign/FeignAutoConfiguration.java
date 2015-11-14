@@ -16,11 +16,14 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 import feign.Feign;
 
@@ -30,8 +33,20 @@ import feign.Feign;
  */
 @Configuration
 @ConditionalOnClass(Feign.class)
-@AutoConfigureAfter(ArchaiusAutoConfiguration.class)
-@Import(FeignClientsConfiguration.class)
 public class FeignAutoConfiguration {
 
+	@Autowired(required = false)
+	private List<FeignClientSpecification> configurations = new ArrayList<>();
+
+	@Bean
+	public HasFeatures feignFeature() {
+		return HasFeatures.namedFeature("Feign", Feign.class);
+	}
+
+	@Bean
+	public FeignClientFactory feignClientFactory() {
+		FeignClientFactory factory = new FeignClientFactory();
+		factory.setConfigurations(this.configurations);
+		return factory;
+	}
 }

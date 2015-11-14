@@ -20,9 +20,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -46,7 +48,8 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@EnableFeignClients()
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = BadConfiguration.Client.class)
 	protected static class BadConfiguration {
 
 		@FeignClient("foo_bar")
