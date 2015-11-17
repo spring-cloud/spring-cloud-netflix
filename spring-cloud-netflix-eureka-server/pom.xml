@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
-		<version>1.1.0.M3</version>
+		<version>1.1.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-netflix-eureka-server</artifactId>
@@ -13,7 +13,7 @@
 	<url>http://projects.spring.io/spring-cloud/</url>
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
-		<spring-cloud.version>1.1.0.M3</spring-cloud.version>
+		<spring-cloud.version>1.1.0.BUILD-SNAPSHOT</spring-cloud.version>
 		<wro4j.version>1.7.9</wro4j.version>
 	</properties>
 	<dependencies>
