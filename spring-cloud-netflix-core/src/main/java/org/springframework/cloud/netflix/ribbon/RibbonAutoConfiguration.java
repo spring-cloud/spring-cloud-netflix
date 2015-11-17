@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -73,6 +74,7 @@ public class RibbonAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(HttpRequest.class)
+	@ConditionalOnProperty(value = "ribbon.http.client.enabled", matchIfMissing = true)
 	protected static class RibbonClientConfig {
 
 		@Autowired
