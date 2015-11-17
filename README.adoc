@@ -64,10 +64,8 @@ https://github.com/spring-cloud-samples/scripts[scripts demo
 repository] for specific instructions about the common cases of mongo,
 rabbit and redis.
 
-NOTE: migration to the Maven wrapper (`./mvnw`) is underway. If you
-find a project that doesn't have it yet, raise an issue to get it
-added, and build with the command from `.travis.yml` (usually
-`mvn install -s .settings.xml`).
+NOTE: If all else fails, build with the command from `.travis.yml` (usually
+`./mvnw install`).
 
 === Documentation
 
