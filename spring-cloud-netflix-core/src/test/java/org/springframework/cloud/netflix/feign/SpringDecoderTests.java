@@ -115,6 +115,11 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		assertEquals("header was wrong", "myval", header);
 	}
 
+	@Test(expected = RuntimeException.class)
+	public void test404() {
+		testClient().getNotFound();
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -122,21 +127,24 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		private String message;
 	}
 
-	protected static interface TestClient {
+	protected interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/helloresponse")
-		public ResponseEntity<Hello> getHelloResponse();
+		ResponseEntity<Hello> getHelloResponse();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellovoid")
-		public ResponseEntity<Void> getHelloVoid();
+		ResponseEntity<Void> getHelloVoid();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		public Hello getHello();
+		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
-		public List<Hello> getHellos();
+		List<Hello> getHellos();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
-		public List<String> getHelloStrings();
+		List<String> getHelloStrings();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hellonotfound")
+		ResponseEntity<String> getNotFound();
 	}
 
 	@Configuration
@@ -173,6 +181,11 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 			hellos.add("hello world 1");
 			hellos.add("oi terra 2");
 			return hellos;
+		}
+
+		@Override
+		public ResponseEntity<String> getNotFound() {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
 		}
 
 		public static void main(String[] args) {
