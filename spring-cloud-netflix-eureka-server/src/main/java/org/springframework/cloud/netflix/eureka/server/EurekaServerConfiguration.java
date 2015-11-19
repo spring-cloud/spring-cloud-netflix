@@ -126,8 +126,6 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(ServerCodecs serverCodecs) {
 		eurekaClient.getApplications(); // force initialization
-		expectedNumberOfRenewsPerMin = 1;
-		defaultOpenForTrafficCount = 1;
 		return new InstanceRegistry(eurekaServerConfig, eurekaClientConfig, serverCodecs,
 				eurekaClient, expectedNumberOfRenewsPerMin, defaultOpenForTrafficCount);
 	}
