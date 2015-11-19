@@ -58,6 +58,28 @@ public class FeignClientValidationTests {
 	}
 
 	@Test
+	public void validPlaceholder() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				PlaceholderUrlConfiguration.class);
+		assertNotNull(context.getBean(PlaceholderUrlConfiguration.Client.class));
+		context.close();
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = PlaceholderUrlConfiguration.Client.class)
+	protected static class PlaceholderUrlConfiguration {
+
+		@FeignClient(name="example", url="${feignClient.url:http://example.com}")
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			@Deprecated
+			String get();
+		}
+
+	}
+
+	@Test
 	public void validLoadBalanced() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				RibbonAutoConfiguration.class,

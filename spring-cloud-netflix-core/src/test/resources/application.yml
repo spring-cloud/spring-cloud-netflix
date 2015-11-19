@@ -37,3 +37,5 @@ zuul:
     stores:
       url: http://localhost:8081
       path: /stores/**
+feignClient:
+  localappName: localapp

@@ -790,6 +790,16 @@ NOTE: The `serviceId` attribute is now deprecated in favor of the `name` attribu
 
 WARNING: Previously, using the `url` attribute, did not require the `name` attribute. Using `name` is now required.
 
+Placeholders are supported in the `name` and `url` attributes.
+
+[source,java,indent=0]
+----
+@FeignClient(name = "${feign.name}", url = "${feign.url}")
+public interface StoreClient {
+    //..
+}
+----
+
 Spring Cloud Netflix provides the following beans by default for feign (`BeanType` beanName: `ClassName`):
 
 * `Decoder` feignDecoder: `ResponseEntityDecoder` (which wraps a `SpringDecoder`)
