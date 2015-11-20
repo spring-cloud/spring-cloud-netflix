@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.HttpEncodingProperties;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
@@ -102,6 +103,12 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public HasFeatures eurekaServerFeature() {
 		return HasFeatures.namedFeature("Eureka Server", EurekaServerConfiguration.class);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public EurekaServerConfig eurekaServerConfig() {
+		return new EurekaServerConfigBean();
 	}
 
 	//TODO: is there a better way?
