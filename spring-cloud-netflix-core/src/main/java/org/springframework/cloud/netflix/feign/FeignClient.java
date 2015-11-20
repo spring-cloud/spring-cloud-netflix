@@ -40,7 +40,7 @@ public @interface FeignClient {
 	/**
 	 * The serviceId with optional protocol prefix. Synonym for {@link #serviceId()
 	 * serviceId}. Either serviceId or url must be specified but not both. Can be
-     * specified as property key, eg: ${propertyKey}.
+	 * specified as property key, eg: ${propertyKey}.
 	 */
 	@AliasFor("name")
 	String value() default "";
@@ -48,7 +48,7 @@ public @interface FeignClient {
 	/**
 	 * The serviceId with optional protocol prefix. Synonym for {@link #value() value}.
 	 * Either serviceId or url must be specified but not both. Can be
-     * specified as property key, eg: ${propertyKey}.
+	 * specified as property key, eg: ${propertyKey}.
 	 *
 	 * @deprecated use {@link #name() name} instead
 	 */
