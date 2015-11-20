@@ -1431,6 +1431,17 @@ Previously, using the <code>url</code> attribute, did not require the <code>name
 </table>
 </div>
 <div class="paragraph">
+<p>Placeholders are supported in the <code>name</code> and <code>url</code> attributes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "${feign.name}", url = "${feign.url}")
+public interface StoreClient {
+    //..
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>Spring Cloud Netflix provides the following beans by default for feign (<code>BeanType</code> beanName: <code>ClassName</code>):</p>
 </div>
 <div class="ulist">
@@ -2091,7 +2102,7 @@ info:
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-11-20 17:49:18 UTC
+Last updated 2015-11-20 22:32:12 UTC
 </div>
 </div>
 </body>
