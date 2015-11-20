@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
@@ -37,6 +39,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.ClassMetadata;
@@ -189,6 +192,21 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		if (!StringUtils.hasText(name)) {
 			return "";
 		}
+		// Matching environment property ${(.+)}
+		Pattern propKeyPattern = Pattern.compile("^\\$\\{(.+)\\}$");
+		Matcher matcher = propKeyPattern.matcher(name);
+		String propertyKey = null;
+		if (matcher.find()) {
+			propertyKey = matcher.group(1);
+		}
+		if (StringUtils.hasText(propertyKey)) {
+			if (resourceLoader instanceof AbstractApplicationContext) {
+				name = ((AbstractApplicationContext) this.resourceLoader).getEnvironment().getProperty(propertyKey);
+			}
+			if (!StringUtils.hasText(name)) {
+				return "";
+			}
+		}		
 		String host = null;
 		try {
 			host = new URI("http://" + name).getHost();

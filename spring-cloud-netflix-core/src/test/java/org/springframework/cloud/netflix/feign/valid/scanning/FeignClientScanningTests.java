@@ -61,6 +61,9 @@ public class FeignClientScanningTests {
 	private TestClient testClient;
 
 	@Autowired
+	private TestClientByKey testClientByKey;
+    
+	@Autowired
 	private Client feignClient;
 
 	@FeignClient("localapp")
@@ -69,6 +72,12 @@ public class FeignClientScanningTests {
 		String getHello();
 	}
 
+	@FeignClient("${feignClient.localappName}")
+	protected interface TestClientByKey {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		String getHello();
+	}
+    
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
@@ -94,6 +103,13 @@ public class FeignClientScanningTests {
 		assertEquals("first hello didn't match", "hello world 1", hello);
 	}
 
+	@Test
+	public void testSimpleTypeByKey() {
+		String hello = this.testClientByKey.getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", "hello world 1", hello);
+	}
+    
 	// Load balancer with fixed server list for "local" pointing to localhost
 	@Configuration
 	public static class LocalRibbonClientConfiguration {
