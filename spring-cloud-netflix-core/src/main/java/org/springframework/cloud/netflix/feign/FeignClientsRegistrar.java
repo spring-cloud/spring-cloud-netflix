@@ -18,8 +18,10 @@ package org.springframework.cloud.netflix.feign;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +36,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -186,9 +189,11 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		if (!StringUtils.hasText(name)) {
 			name = (String) attributes.get("value");
 		}
+		name = resolve(name);
 		if (!StringUtils.hasText(name)) {
 			return "";
 		}
+
 		String host = null;
 		try {
 			host = new URI("http://" + name).getHost();
@@ -199,8 +204,25 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		return name;
 	}
 
+	private String resolve(String value) {
+		if (StringUtils.hasText(value )
+				&& this.resourceLoader instanceof ConfigurableApplicationContext) {
+			return ((ConfigurableApplicationContext)this.resourceLoader)
+					.getEnvironment().resolvePlaceholders(value);
+		}
+		return value;
+	}
+
 	private String getUrl(Map<String, Object> attributes) {
-		return (String) attributes.get("url");
+		String url = resolve((String) attributes.get("url"));
+		if (StringUtils.hasText(url)) {
+			try {
+				new URL(url);
+			} catch (MalformedURLException e) {
+				throw new IllegalArgumentException(url + " is malformed", e);
+			}
+		}
+		return url;
 	}
 
 	protected ClassPathScanningCandidateComponentProvider getScanner() {
