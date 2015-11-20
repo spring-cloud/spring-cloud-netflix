@@ -88,7 +88,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS,
 					2000);
 
-	private static final Timer CONNECTION_MANAGER_TIMER = new Timer(
+	private final Timer CONNECTION_MANAGER_TIMER = new Timer(
 			"SimpleHostRoutingFilter.CONNECTION_MANAGER_TIMER", true);
 
 	private ProxyRequestHelper helper;
@@ -133,7 +133,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	@PreDestroy
 	public void stop() {
-		CONNECTION_MANAGER_TIMER.purge();
+		CONNECTION_MANAGER_TIMER.cancel();
 	}
 
 	@Override
