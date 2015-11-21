@@ -49,10 +49,12 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	private static final String EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION = "appName";
 
 	private final EurekaClient eurekaClient;
+	private final boolean combineHostPort;
 
 	public EurekaInstanceDiscovery(TurbineProperties turbineProperties, EurekaClient eurekaClient) {
 		super(turbineProperties, EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION);
 		this.eurekaClient = eurekaClient;
+		this.combineHostPort = turbineProperties.isCombineHostPort();
 	}
 
 	/**
@@ -98,10 +100,12 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	 */
 	Instance marshall(InstanceInfo instanceInfo) {
 		String hostname = instanceInfo.getHostName();
+		String port = String.valueOf(instanceInfo.getPort());
 		String cluster = getClusterName(instanceInfo);
 		Boolean status = parseInstanceStatus(instanceInfo.getStatus());
 		if (hostname != null && cluster != null && status != null) {
-			Instance instance = new Instance(hostname, cluster, status);
+			String hostPart = combineHostPort ? hostname+":"+port : hostname;
+			Instance instance = new Instance(hostPart, cluster, status);
 
 			// add metadata
 			Map<String, String> metadata = instanceInfo.getMetadata();
@@ -125,6 +129,11 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 			boolean securePortEnabled = instanceInfo.isPortEnabled(InstanceInfo.PortType.SECURE);
 			if (securePortEnabled) {
 				instance.getAttributes().put("securePort", String.valueOf(instanceInfo.getSecurePort()));
+			}
+
+			if (combineHostPort) {
+				String fusedHostPort = securePortEnabled ? hostname+":"+String.valueOf(instanceInfo.getSecurePort()) : hostPart ;
+				instance.getAttributes().put("fusedHostPort", fusedHostPort);
 			}
 			return instance;
 		}
