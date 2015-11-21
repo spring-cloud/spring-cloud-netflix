@@ -16,20 +16,21 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import com.netflix.client.config.IClientConfig;
-import com.netflix.client.http.HttpRequest;
-import com.netflix.client.http.HttpResponse;
-import com.netflix.niws.client.http.RestClient;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.AbstractClientHttpRequest;
-import org.springframework.http.client.ClientHttpResponse;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.AbstractClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
+
+import com.netflix.client.config.IClientConfig;
+import com.netflix.client.http.HttpRequest;
+import com.netflix.client.http.HttpResponse;
+import com.netflix.niws.client.http.RestClient;
 
 /**
  * @author Spencer Gibb
@@ -81,7 +82,7 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 				builder.entity(outputStream.toByteArray());
 			}
 			HttpRequest request = builder.build();
-			HttpResponse response = client.execute(request, config);
+			HttpResponse response = client.executeWithLoadBalancer(request, config);
 			return new RibbonHttpResponse(response);
 		} catch (Exception e) {
 			throw new IOException(e);

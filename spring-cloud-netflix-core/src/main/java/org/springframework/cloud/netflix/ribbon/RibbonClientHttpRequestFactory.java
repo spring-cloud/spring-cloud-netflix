@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.ribbon;
 import java.io.IOException;
 import java.net.URI;
 
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
@@ -45,17 +44,12 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public ClientHttpRequest createRequest(URI originalUri, HttpMethod httpMethod)
+	public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod)
 			throws IOException {
-        String serviceId = originalUri.getHost();
-        ServiceInstance instance = loadBalancer.choose(serviceId);
-		if (instance == null) {
-			throw new IllegalStateException("No instances available for "+serviceId);
-		}
-        URI uri = loadBalancer.reconstructURI(instance, originalUri);
+        String serviceId = uri.getHost();
         //@formatter:off
-		IClientConfig clientConfig = clientFactory.getClientConfig(instance.getServiceId());
-		RestClient client = clientFactory.getClient(instance.getServiceId(), RestClient.class);
+		IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
+		RestClient client = clientFactory.getClient(serviceId, RestClient.class);
 		HttpRequest.Verb verb = HttpRequest.Verb.valueOf(httpMethod.name());
         //@formatter:on
 		return new RibbonHttpRequest(uri, verb, client, clientConfig);
