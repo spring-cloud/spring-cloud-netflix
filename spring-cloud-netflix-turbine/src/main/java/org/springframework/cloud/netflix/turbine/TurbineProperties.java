@@ -35,6 +35,8 @@ public class TurbineProperties {
 
 	private String appConfig;
 
+	private boolean combineHostPort = false;
+
 	public List<String> getAppConfigList() {
 		if (!StringUtils.hasText(appConfig)) {
 			return null;

@@ -87,6 +87,10 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 				scheme = "http";
 			}
 
+			if (host.getAttributes().containsKey("fusedHostPort")) {
+				return String.format("%s://%s/%s", scheme, host.getAttributes().get("fusedHostPort"), url);
+			}
+
 			// determine if to insert port
 			String insertPortKey = "turbine.instanceInsertPort." + host.getCluster();
 			DynamicStringProperty insertPortProp = DynamicPropertyFactory.getInstance()
