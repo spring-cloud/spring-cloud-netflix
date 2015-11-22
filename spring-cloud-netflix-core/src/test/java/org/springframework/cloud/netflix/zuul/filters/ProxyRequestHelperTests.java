@@ -16,15 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
-
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Before;
@@ -33,11 +25,23 @@ import org.mockito.Mock;
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.Trace;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import com.netflix.zuul.context.RequestContext;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Spencer Gibb
@@ -71,7 +75,7 @@ public class ProxyRequestHelperTests {
 				new LinkedMultiValueMap<String, String>(), request.getInputStream());
 		Trace actual = this.traceRepository.findAll().get(0);
 		System.err.println(actual.getInfo());
-		assertThat((String)actual.getInfo().get("body"), equalTo("{}"));
+		assertThat((String) actual.getInfo().get("body"), equalTo("{}"));
 
 	}
 
@@ -112,4 +116,45 @@ public class ProxyRequestHelperTests {
 		assertThat(acceptEncodings, contains("gzip"));
 	}
 
+	@Test
+	public void setResponseLowercase() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.setResponse(response);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		MultiValueMap<String, String> headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_ENCODING.toLowerCase(), "gzip");
+
+		helper.setResponse(
+				200,
+				request.getInputStream(),
+				headers);
+		assertTrue(context.getResponseGZipped());
+	}
+
+	@Test
+	public void setResponseUppercase() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.setResponse(response);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		MultiValueMap<String, String> headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
+
+		helper.setResponse(
+				200,
+				request.getInputStream(),
+				headers);
+		assertTrue(context.getResponseGZipped());
+	}
 }

@@ -43,6 +43,9 @@ import com.netflix.zuul.util.HTTPRequestUtils;
 
 import lombok.extern.apachecommons.CommonsLog;
 
+import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+
 /**
  * @author Dave Syer
  */
@@ -54,8 +57,6 @@ public class ProxyRequestHelper {
 	 * Pre-filters can set this up as a set of lowercase strings.
 	 */
 	public static final String IGNORED_HEADERS = "ignoredHeaders";
-
-	public static final String CONTENT_ENCODING = "Content-Encoding";
 
 	private TraceRepository traces;
 
@@ -122,15 +123,23 @@ public class ProxyRequestHelper {
 	}
 
 	public void setResponse(int status, InputStream entity,
-			MultiValueMap<String, String> headers) throws IOException {
+							MultiValueMap<String, String> headers) throws IOException {
 		RequestContext context = RequestContext.getCurrentContext();
-		RequestContext.getCurrentContext().setResponseStatusCode(status);
+		context.setResponseStatusCode(status);
 		if (entity != null) {
-			RequestContext.getCurrentContext().setResponseDataStream(entity);
+			context.setResponseDataStream(entity);
+		}
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		for (Entry<String, List<String>> header : headers.entrySet()) {
+			List<String> values = header.getValue();
+			for (String value : values) {
+				httpHeaders.add(header.getKey(), value);
+			}
 		}
 		boolean isOriginResponseGzipped = false;
-		if (headers.containsKey(CONTENT_ENCODING)) {
-			Collection<String> collection = headers.get(CONTENT_ENCODING);
+		if (httpHeaders.containsKey(CONTENT_ENCODING)) {
+			List<String> collection = httpHeaders.get(CONTENT_ENCODING);
 			for (String header : collection) {
 				if (HTTPRequestUtils.getInstance().isGzipped(header)) {
 					isOriginResponseGzipped = true;
@@ -139,16 +148,16 @@ public class ProxyRequestHelper {
 			}
 		}
 		context.setResponseGZipped(isOriginResponseGzipped);
+
 		for (Entry<String, List<String>> header : headers.entrySet()) {
-			RequestContext ctx = RequestContext.getCurrentContext();
 			String name = header.getKey();
 			for (String value : header.getValue()) {
-				ctx.addOriginResponseHeader(name, value);
-				if (name.equalsIgnoreCase("content-length")) {
-					ctx.setOriginContentLength(value);
+				context.addOriginResponseHeader(name, value);
+				if (name.equalsIgnoreCase(CONTENT_LENGTH)) {
+					context.setOriginContentLength(value);
 				}
 				if (isIncludedHeader(name)) {
-					ctx.addZuulResponseHeader(name, value);
+					context.addZuulResponseHeader(name, value);
 				}
 			}
 		}
@@ -176,21 +185,21 @@ public class ProxyRequestHelper {
 			}
 		}
 		switch (name) {
-		case "host":
-		case "connection":
-		case "content-length":
-		case "content-encoding":
-		case "server":
-		case "transfer-encoding":
-			return false;
-		default:
-			return true;
+			case "host":
+			case "connection":
+			case "content-length":
+			case "content-encoding":
+			case "server":
+			case "transfer-encoding":
+				return false;
+			default:
+				return true;
 		}
 	}
 
 	public Map<String, Object> debug(String verb, String uri,
-			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
-			InputStream requestEntity) throws IOException {
+									 MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+									 InputStream requestEntity) throws IOException {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
 		if (this.traces != null) {
 			RequestContext context = RequestContext.getCurrentContext();
@@ -233,7 +242,7 @@ public class ProxyRequestHelper {
 	}
 
 	public void appendDebug(Map<String, Object> info, int status,
-			MultiValueMap<String, String> headers) {
+							MultiValueMap<String, String> headers) {
 		if (this.traces != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
@@ -267,3 +276,4 @@ public class ProxyRequestHelper {
 	}
 
 }
+
