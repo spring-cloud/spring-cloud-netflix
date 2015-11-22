@@ -57,6 +57,8 @@ public class ProxyRequestHelper {
 
 	public static final String CONTENT_ENCODING = "Content-Encoding";
 
+	public static final String CONTENT_ENCODING_LOWER = "content-encoding";
+
 	private TraceRepository traces;
 
 	public void setTraces(TraceRepository traces) {
@@ -129,8 +131,14 @@ public class ProxyRequestHelper {
 			RequestContext.getCurrentContext().setResponseDataStream(entity);
 		}
 		boolean isOriginResponseGzipped = false;
-		if (headers.containsKey(CONTENT_ENCODING)) {
-			Collection<String> collection = headers.get(CONTENT_ENCODING);
+		if (headers.containsKey(CONTENT_ENCODING) || headers.containsKey(CONTENT_ENCODING_LOWER)) {
+
+			Collection<String> collection = null;
+			if (headers.containsKey(CONTENT_ENCODING)) {
+				collection = headers.get(CONTENT_ENCODING);
+			} else {
+				collection = headers.get(CONTENT_ENCODING_LOWER);
+			}
 			for (String header : collection) {
 				if (HTTPRequestUtils.getInstance().isGzipped(header)) {
 					isOriginResponseGzipped = true;

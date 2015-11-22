@@ -25,6 +25,7 @@ import java.util.zip.GZIPInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.config.DynamicBooleanProperty;
@@ -39,6 +40,7 @@ import com.netflix.zuul.context.RequestContext;
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class SendResponseFilter extends ZuulFilter {
 
 	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
@@ -101,7 +103,7 @@ public class SendResponseFilter extends ZuulFilter {
 			boolean isGzipRequested = false;
 			final String requestEncoding = context.getRequest().getHeader(
 					ZuulHeaders.ACCEPT_ENCODING);
-			if (requestEncoding != null && requestEncoding.equals("gzip")) {
+			if (requestEncoding != null && requestEncoding.contains("gzip")) {
 				isGzipRequested = true;
 			}
 			is = context.getResponseDataStream();
@@ -117,8 +119,8 @@ public class SendResponseFilter extends ZuulFilter {
 							inputStream = new GZIPInputStream(is);
 						}
 						catch (java.util.zip.ZipException ex) {
-							System.out.println("gzip expected but not "
-									+ "received assuming unencoded response"
+							log.debug("gzip expected but not "
+									+ "received assuming unencoded response "
 									+ RequestContext.getCurrentContext().getRequest()
 											.getRequestURL().toString());
 							inputStream = is;
