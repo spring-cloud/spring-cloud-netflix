@@ -43,6 +43,52 @@ public class EurekaInstanceDiscoveryTest {
 	}
 
 	@Test
+	public void testSecureCombineHostPort() {
+		turbineProperties.setCombineHostPort(true);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
+				turbineProperties, eurekaClient);
+		String appName = "testAppName";
+		int port = 8080;
+		int securePort = 8443;
+		String hostName = "myhost";
+		InstanceInfo instanceInfo = builder.setAppName(appName)
+				.setHostName(hostName)
+				.setPort(port)
+				.setSecurePort(securePort)
+				.enablePort(InstanceInfo.PortType.SECURE, true)
+				.build();
+		Instance instance = discovery.marshall(instanceInfo);
+		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+		assertEquals("securePort is wrong", String.valueOf(securePort), instance.getAttributes().get("securePort"));
+
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
+		assertEquals("url is wrong", "https://"+hostName+":"+securePort+"/hystrix.stream", urlPath);
+	}
+
+	@Test
+	public void testCombineHostPort() {
+		turbineProperties.setCombineHostPort(true);
+		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
+			turbineProperties, eurekaClient);
+		String appName = "testAppName";
+		int port = 8080;
+		String hostName = "myhost";
+		InstanceInfo instanceInfo = builder.setAppName(appName)
+				.setHostName(hostName)
+				.setPort(port)
+				.build();
+		Instance instance = discovery.marshall(instanceInfo);
+		assertEquals("hostname is wrong", hostName+":"+port, instance.getHostname());
+		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
+
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
+		assertEquals("url is wrong", "http://"+hostName+":"+port+"/hystrix.stream", urlPath);
+
+		String clusterName = discovery.getClusterName(instanceInfo);
+		assertEquals("clusterName is wrong", appName.toUpperCase(), clusterName);
+	}
+
+	@Test
 	public void testGetClusterName() {
 		EurekaInstanceDiscovery discovery = new EurekaInstanceDiscovery(
 				turbineProperties, eurekaClient);

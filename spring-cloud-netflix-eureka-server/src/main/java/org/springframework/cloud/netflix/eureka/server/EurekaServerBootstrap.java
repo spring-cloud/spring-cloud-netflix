@@ -17,18 +17,19 @@
 package org.springframework.cloud.netflix.eureka.server;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.DataCenterInfo;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.converters.JsonXStream;
 import com.netflix.discovery.converters.XmlXStream;
-import com.netflix.eureka.EurekaBootStrap;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.EurekaServerContext;
 import com.netflix.eureka.EurekaServerContextHolder;
 import com.netflix.eureka.V1AwareInstanceInfoConverter;
+import com.netflix.eureka.aws.AwsBinder;
 import com.netflix.eureka.aws.AwsBinderDelegate;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.util.EurekaMonitors;
@@ -40,7 +41,7 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author Spencer Gibb
  */
 @CommonsLog
-public class EurekaServerBootstrap extends EurekaBootStrap {
+public class EurekaServerBootstrap {
 	private static final String TEST = "test";
 
 	private static final String ARCHAIUS_DEPLOYMENT_ENVIRONMENT = "archaius.deployment.environment";
@@ -53,13 +54,16 @@ public class EurekaServerBootstrap extends EurekaBootStrap {
 
 	private static final String EUREKA_DATACENTER = "eureka.datacenter";
 
-	private EurekaServerConfig eurekaServerConfig;
+	protected EurekaServerConfig eurekaServerConfig;
 
-	private ApplicationInfoManager applicationInfoManager;
+	protected ApplicationInfoManager applicationInfoManager;
 
-	private EurekaClientConfig eurekaClientConfig;
+	protected EurekaClientConfig eurekaClientConfig;
 
-	private PeerAwareInstanceRegistry registry;
+	protected PeerAwareInstanceRegistry registry;
+
+	protected volatile EurekaServerContext serverContext;
+	protected volatile AwsBinder awsBinder;
 
 	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager, EurekaClientConfig eurekaClientConfig, EurekaServerConfig eurekaServerConfig, PeerAwareInstanceRegistry registry, EurekaServerContext serverContext) {
 		this.applicationInfoManager = applicationInfoManager;
@@ -67,16 +71,6 @@ public class EurekaServerBootstrap extends EurekaBootStrap {
 		this.eurekaServerConfig = eurekaServerConfig;
 		this.registry = registry;
 		this.serverContext = serverContext;
-	}
-
-	@Override
-	public void contextInitialized(ServletContextEvent event) {
-		//NO-OP so it doesn't get initialzed by servlet container, we want spring to init
-	}
-
-	@Override
-	public void contextDestroyed(ServletContextEvent event) {
-		//NO-OP so it doesn't get destroyed by servlet container, we want spring to destroy
 	}
 
 	public void contextInitialized(ServletContext context) {
@@ -105,7 +99,6 @@ public class EurekaServerBootstrap extends EurekaBootStrap {
 		log.info("Eureka Service is now shutdown...");
 	}
 
-	@Override
 	protected void initEurekaEnvironment() throws Exception {
 		log.info("Setting the eureka configuration..");
 
@@ -123,7 +116,6 @@ public class EurekaServerBootstrap extends EurekaBootStrap {
 		}
 	}
 
-	@Override
 	protected void initEurekaServerContext() throws Exception {
 		// For backward compatibility
 		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
@@ -145,4 +137,29 @@ public class EurekaServerBootstrap extends EurekaBootStrap {
 		// Register all monitoring statistics.
 		EurekaMonitors.registerAllStats();
 	}
+
+	/**
+	 * Server context shutdown hook. Override for custom logic
+	 */
+	protected void destroyEurekaServerContext() throws Exception {
+		EurekaMonitors.shutdown();
+		if (awsBinder != null) {
+			awsBinder.shutdown();
+		}
+		if (serverContext != null) {
+			serverContext.shutdown();
+		}
+	}
+
+	/**
+	 * Users can override to clean up the environment themselves.
+	 */
+	protected void destroyEurekaEnvironment() throws Exception { }
+
+	protected boolean isAws(InstanceInfo selfInstanceInfo) {
+		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo.getDataCenterInfo().getName();
+		log.info("isAws returned " + result);
+		return result;
+	}
+
 }
