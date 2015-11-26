@@ -188,12 +188,12 @@ public class SendResponseFilter extends ZuulFilter {
 			}
 		}
 		RequestContext ctx = RequestContext.getCurrentContext();
-		Integer contentLength = ctx.getOriginContentLength();
+		Long contentLength = ctx.getOriginContentLength();
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
 			if (contentLength != null && !ctx.getResponseGZipped()) {
-				servletResponse.setContentLength(contentLength);
+				servletResponse.setContentLength(contentLength.intValue());
 			}
 		}
 	}
