@@ -25,6 +25,7 @@ import java.util.zip.GZIPInputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.netflix.zuul.util.HTTPRequestUtils;
 import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.util.ReflectionUtils;
 
@@ -103,7 +104,8 @@ public class SendResponseFilter extends ZuulFilter {
 			boolean isGzipRequested = false;
 			final String requestEncoding = context.getRequest().getHeader(
 					ZuulHeaders.ACCEPT_ENCODING);
-			if (requestEncoding != null && requestEncoding.contains("gzip")) {
+
+			if (requestEncoding != null && HTTPRequestUtils.getInstance().isGzipped(requestEncoding)) {
 				isGzipRequested = true;
 			}
 			is = context.getResponseDataStream();
