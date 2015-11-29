@@ -16,14 +16,11 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.net.URI;
 
-import lombok.SneakyThrows;
-
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,10 +41,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+
+import lombok.SneakyThrows;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -58,6 +61,9 @@ import com.netflix.loadbalancer.ServerList;
 		"spring.jmx.enabled=true" }, randomPort = true)
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
+
+	@Rule
+	public final ExpectedException exceptionRule = ExpectedException.none();
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -121,6 +127,13 @@ public class RibbonClientHttpRequestFactoryTests {
 		ResponseEntity<String> response = restTemplate.exchange(entity, String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
+	}
+
+	@Test
+	public void invalidHostNameError() {
+		exceptionRule.expect(ResourceAccessException.class);
+		exceptionRule.expectMessage("Invalid hostname");
+		restTemplate.getForEntity("http://simple_bad", String.class);
 	}
 
 	@Configuration
