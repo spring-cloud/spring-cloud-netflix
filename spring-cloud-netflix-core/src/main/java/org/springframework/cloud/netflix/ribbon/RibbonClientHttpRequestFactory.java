@@ -48,6 +48,9 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 	public ClientHttpRequest createRequest(URI originalUri, HttpMethod httpMethod)
 			throws IOException {
         String serviceId = originalUri.getHost();
+        if (serviceId == null) {
+            throw new IOException("Invalid hostname in the URI [" + originalUri.toASCIIString() + "]");
+        }
         ServiceInstance instance = loadBalancer.choose(serviceId);
 		if (instance == null) {
 			throw new IllegalStateException("No instances available for "+serviceId);
