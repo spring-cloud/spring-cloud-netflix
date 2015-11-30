@@ -46,6 +46,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
@@ -73,6 +74,12 @@ public class EurekaClientAutoConfiguration {
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
 
+	@Value("${management.port:${MANAGEMENT_PORT:${PORT:8080}}}")
+	int managementPort;
+
+	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
+	String hostname;
+
 	@Autowired
 	ConfigurableEnvironment env;
 
@@ -93,6 +100,16 @@ public class EurekaClientAutoConfiguration {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
+		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
+			if (StringUtils.hasText(this.hostname)) {
+				instance.setHostname(this.hostname);
+			}
+			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
+			instance.setStatusPageUrl(scheme + "://" + instance.getHostname() + ":"
+					+ this.managementPort + instance.getStatusPageUrlPath());
+			instance.setHealthCheckUrl(scheme + "://" + instance.getHostname() + ":"
+					+ this.managementPort + instance.getHealthCheckUrlPath());
+		}
 		return instance;
 	}
 

@@ -56,16 +56,19 @@ public class SidecarConfiguration {
 		@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 		private int serverPort = 8080;
 
+		@Value("${management.port:${MANAGEMENT_PORT:${PORT:8080}}}")
+		private int managementPort = 8080;
+
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean();
-			int port = sidecarProperties.getPort();
+			int port = this.sidecarProperties.getPort();
 			config.setNonSecurePort(port);
 			String scheme = config.getSecurePortEnabled() ? "https" : "http";
 			config.setStatusPageUrl(scheme + "://" + config.getHostname() + ":"
-					+ this.serverPort + config.getStatusPageUrlPath());
+					+ this.managementPort + config.getStatusPageUrlPath());
 			config.setHealthCheckUrl(scheme + "://" + config.getHostname() + ":"
-					+ this.serverPort + config.getHealthCheckUrlPath());
+					+ this.managementPort + config.getHealthCheckUrlPath());
 			config.setHomePageUrl(scheme + "://" + config.getHostname() + ":" + port
 					+ config.getHomePageUrlPath());
 			return config;

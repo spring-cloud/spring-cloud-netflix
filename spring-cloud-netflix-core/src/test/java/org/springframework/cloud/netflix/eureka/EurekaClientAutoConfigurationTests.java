@@ -21,12 +21,14 @@ import org.junit.Test;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
 
 /**
@@ -66,6 +68,28 @@ public class EurekaClientAutoConfigurationTests {
 		testNonSecurePort("PORT");
 		assertEquals("eurekaClient",
 				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+	}
+
+	@Test
+	public void managementPort() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("9999"));
+	}
+
+	@Test
+	public void hostname() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "eureka.instance.hostname=foo");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("foo"));
 	}
 
 	@Test
