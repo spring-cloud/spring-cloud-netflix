@@ -125,7 +125,6 @@ public class FeignClientOverrideDefaultsTests {
 
 	}
 
-	@Configuration
 	public static class FooConfiguration {
 		@Bean
 		public Decoder feignDecoder() {
@@ -154,7 +153,6 @@ public class FeignClientOverrideDefaultsTests {
 		String get();
 	}
 
-	@Configuration
 	public static class BarConfiguration {
 		@Bean
 		Logger.Level feignLevel() {
