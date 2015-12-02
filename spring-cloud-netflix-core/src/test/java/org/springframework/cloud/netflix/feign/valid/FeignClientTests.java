@@ -45,6 +45,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -92,9 +93,8 @@ public class FeignClientTests {
 	@Autowired
 	private Client feignClient;
 
-	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
-	@FeignClient("localapp")
-	protected static interface TestClient {
+	@FeignClient(value = "localapp", configuration = TestClientConfig.class)
+	protected interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
 
@@ -120,19 +120,7 @@ public class FeignClientTests {
 		ResponseEntity head();
 	}
 
-	@FeignClient(serviceId = "localapp")
-	protected static interface TestClientServiceId {
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		Hello getHello();
-	}
-
-	@Configuration
-	@EnableAutoConfiguration
-	@RestController
-	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class},
-			defaultConfiguration = TestDefaultFeignConfig.class)
-	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
-	protected static class Application {
+	public static class TestClientConfig {
 
 		@Bean
 		public RequestInterceptor interceptor1() {
@@ -153,6 +141,25 @@ public class FeignClientTests {
 				}
 			};
 		}
+	}
+
+	@FeignClient(name = "localapp1")
+	protected interface TestClientServiceId {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		Hello getHello();
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class},
+			defaultConfiguration = TestDefaultFeignConfig.class)
+	@RibbonClients({
+			@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
+			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class)
+	})
+	protected static class Application {
+
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {

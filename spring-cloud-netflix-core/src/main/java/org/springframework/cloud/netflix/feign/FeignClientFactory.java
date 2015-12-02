@@ -117,4 +117,13 @@ public class FeignClientFactory implements DisposableBean, ApplicationContextAwa
 		return null;
 	}
 
+
+	public <C> Map<String, C> getInstances(String name, Class<C> type) {
+		AnnotationConfigApplicationContext context = getContext(name);
+		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, type).length > 0) {
+			return context.getBeansOfType(type);
+		}
+		return null;
+	}
+
 }

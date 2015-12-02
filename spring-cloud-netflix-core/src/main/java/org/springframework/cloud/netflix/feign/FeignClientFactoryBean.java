@@ -100,7 +100,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		if (options != null) {
 			builder.options(options);
 		}
-		Map<String, RequestInterceptor> requestInterceptors = this.context.getBeansOfType(RequestInterceptor.class);
+		Map<String, RequestInterceptor> requestInterceptors = factory.getInstances(this.name, RequestInterceptor.class);
 		if (requestInterceptors != null) {
 			builder.requestInterceptors(requestInterceptors.values());
 		}
