@@ -16,9 +16,21 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.util.HTTPRequestUtils;
-import lombok.extern.apachecommons.CommonsLog;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -26,14 +38,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.Map.Entry;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
 
+import lombok.extern.apachecommons.CommonsLog;
 import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 
@@ -63,7 +71,8 @@ public class ProxyRequestHelper {
 			try {
 				uri = UriUtils.encodePath(contextURI,
 						WebUtils.DEFAULT_CHARACTER_ENCODING);
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				log.debug(
 						"unable to encode uri path from context, falling back to uri from request",
 						e);
