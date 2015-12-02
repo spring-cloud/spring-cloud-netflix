@@ -29,9 +29,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -44,113 +42,113 @@ import static org.mockito.MockitoAnnotations.initMocks;
  */
 public class ProxyRequestHelperTests {
 
-    @Mock
-    private TraceRepository traceRepository;
+	@Mock
+	private TraceRepository traceRepository;
 
-    @Before
-    public void init() {
-        initMocks(this);
-    }
+	@Before
+	public void init() {
+		initMocks(this);
+	}
 
-    @Test
-    public void debug() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.setContent("{}".getBytes());
-        request.addHeader("singleName", "singleValue");
-        request.addHeader("multiName", "multiValue1");
-        request.addHeader("multiName", "multiValue2");
-        RequestContext.getCurrentContext().setRequest(request);
+	@Test
+	public void debug() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContent("{}".getBytes());
+		request.addHeader("singleName", "singleValue");
+		request.addHeader("multiName", "multiValue1");
+		request.addHeader("multiName", "multiValue2");
+		RequestContext.getCurrentContext().setRequest(request);
 
-        ProxyRequestHelper helper = new ProxyRequestHelper();
-        this.traceRepository = new InMemoryTraceRepository();
-        helper.setTraces(this.traceRepository);
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		this.traceRepository = new InMemoryTraceRepository();
+		helper.setTraces(this.traceRepository);
 
-        MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
-        helper.debug("POST", "http://example.com", headers,
-                new LinkedMultiValueMap<String, String>(), request.getInputStream());
-        Trace actual = this.traceRepository.findAll().get(0);
-        System.err.println(actual.getInfo());
-        assertThat((String) actual.getInfo().get("body"), equalTo("{}"));
+		helper.debug("POST", "http://example.com", headers,
+				new LinkedMultiValueMap<String, String>(), request.getInputStream());
+		Trace actual = this.traceRepository.findAll().get(0);
+		System.err.println(actual.getInfo());
+		assertThat((String) actual.getInfo().get("body"), equalTo("{}"));
 
-    }
+	}
 
-    @Test
-    public void buildZuulRequestHeadersWork() {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
-        request.addHeader("singleName", "singleValue");
-        request.addHeader("multiName", "multiValue1");
-        request.addHeader("multiName", "multiValue2");
+	@Test
+	public void buildZuulRequestHeadersWork() {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		request.addHeader("singleName", "singleValue");
+		request.addHeader("multiName", "multiValue1");
+		request.addHeader("multiName", "multiValue2");
 
-        ProxyRequestHelper helper = new ProxyRequestHelper();
-        helper.setTraces(this.traceRepository);
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		helper.setTraces(this.traceRepository);
 
-        MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
-        List<String> singleName = headers.get("singleName");
-        assertThat(singleName, is(notNullValue()));
-        assertThat(singleName.size(), is(1));
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		List<String> singleName = headers.get("singleName");
+		assertThat(singleName, is(notNullValue()));
+		assertThat(singleName.size(), is(1));
 
-        List<String> multiName = headers.get("multiName");
-        assertThat(multiName, is(notNullValue()));
-        assertThat(multiName.size(), is(2));
+		List<String> multiName = headers.get("multiName");
+		assertThat(multiName, is(notNullValue()));
+		assertThat(multiName.size(), is(2));
 
-        List<String> missingName = headers.get("missingName");
-        assertThat(missingName, is(nullValue()));
+		List<String> missingName = headers.get("missingName");
+		assertThat(missingName, is(nullValue()));
 
-    }
+	}
 
-    @Test
-    public void buildZuulRequestHeadersRequestsGzipAndOnlyGzip() {
-        MockHttpServletRequest request = new MockHttpServletRequest("", "/");
+	@Test
+	public void buildZuulRequestHeadersRequestsGzipAndOnlyGzip() {
+		MockHttpServletRequest request = new MockHttpServletRequest("", "/");
 
-        ProxyRequestHelper helper = new ProxyRequestHelper();
+		ProxyRequestHelper helper = new ProxyRequestHelper();
 
-        MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
-        List<String> acceptEncodings = headers.get("accept-encoding");
-        assertThat(acceptEncodings, hasSize(1));
-        assertThat(acceptEncodings, contains("gzip"));
-    }
+		List<String> acceptEncodings = headers.get("accept-encoding");
+		assertThat(acceptEncodings, hasSize(1));
+		assertThat(acceptEncodings, contains("gzip"));
+	}
 
-    @Test
-    public void setResponseLowercase() throws IOException {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test
+	public void setResponseLowercase() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        RequestContext context = RequestContext.getCurrentContext();
-        context.setRequest(request);
-        context.setResponse(response);
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.setResponse(response);
 
-        ProxyRequestHelper helper = new ProxyRequestHelper();
+		ProxyRequestHelper helper = new ProxyRequestHelper();
 
-        MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_ENCODING.toLowerCase(),"gzip");
+		MultiValueMap<String, String> headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_ENCODING.toLowerCase(), "gzip");
 
-        helper.setResponse(
-                200,
-                request.getInputStream(),
-                headers);
-        assertTrue(context.getResponseGZipped());
-    }
+		helper.setResponse(
+				200,
+				request.getInputStream(),
+				headers);
+		assertTrue(context.getResponseGZipped());
+	}
 
-    @Test
-    public void setResponseUppercase() throws IOException {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test
+	public void setResponseUppercase() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        RequestContext context = RequestContext.getCurrentContext();
-        context.setRequest(request);
-        context.setResponse(response);
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.setResponse(response);
 
-        ProxyRequestHelper helper = new ProxyRequestHelper();
+		ProxyRequestHelper helper = new ProxyRequestHelper();
 
-        MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_ENCODING,"gzip");
+		MultiValueMap<String, String> headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
 
-        helper.setResponse(
-                200,
-                request.getInputStream(),
-                headers);
-        assertTrue(context.getResponseGZipped());
-    }
+		helper.setResponse(
+				200,
+				request.getInputStream(),
+				headers);
+		assertTrue(context.getResponseGZipped());
+	}
 }

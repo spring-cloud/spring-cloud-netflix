@@ -16,19 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-
-import javax.servlet.http.HttpServletResponse;
-
-import com.netflix.zuul.util.HTTPRequestUtils;
-import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -37,6 +24,17 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
+import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.util.ReflectionUtils;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author Spencer Gibb
@@ -78,8 +76,7 @@ public class SendResponseFilter extends ZuulFilter {
 		try {
 			addResponseHeaders();
 			writeResponse();
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
@@ -119,31 +116,27 @@ public class SendResponseFilter extends ZuulFilter {
 					if (context.getResponseGZipped() && !isGzipRequested) {
 						try {
 							inputStream = new GZIPInputStream(is);
-						}
-						catch (java.util.zip.ZipException ex) {
+						} catch (java.util.zip.ZipException ex) {
 							log.debug("gzip expected but not "
 									+ "received assuming unencoded response "
 									+ RequestContext.getCurrentContext().getRequest()
-											.getRequestURL().toString());
+									.getRequestURL().toString());
 							inputStream = is;
 						}
-					}
-					else if (context.getResponseGZipped() && isGzipRequested) {
+					} else if (context.getResponseGZipped() && isGzipRequested) {
 						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
 					}
 					writeResponse(inputStream, outStream);
 				}
 			}
-		}
-		finally {
+		} finally {
 			try {
 				if (is != null) {
 					is.close();
 				}
 				outStream.flush();
 				outStream.close();
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 			}
 		}
 	}
@@ -155,8 +148,7 @@ public class SendResponseFilter extends ZuulFilter {
 			try {
 				out.write(bytes, 0, bytesRead);
 				out.flush();
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				// ignore
 			}
 			// doubles buffer size if previous read filled it
