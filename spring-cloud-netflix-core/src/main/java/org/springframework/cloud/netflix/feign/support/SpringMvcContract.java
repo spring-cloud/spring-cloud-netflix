@@ -157,7 +157,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 		for (Annotation parameterAnnotation : annotations) {
 			AnnotatedParameterProcessor processor =
 					annotatedArgumentProcessors.get(parameterAnnotation.annotationType());
-			isHttpAnnotation |= processor.processArgument(context, parameterAnnotation);
+			isHttpAnnotation |= (processor != null && processor.processArgument(context, parameterAnnotation));
 		}
 		return isHttpAnnotation;
 	}
