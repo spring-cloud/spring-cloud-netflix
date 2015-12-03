@@ -28,6 +28,8 @@ import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 
 import com.google.common.reflect.TypeToken;
 import com.netflix.client.ClientException;
@@ -43,6 +45,7 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 	private URI uri;
 
 	public RibbonApacheHttpResponse(final HttpResponse httpResponse, final URI uri) {
+		Assert.notNull(httpResponse, "httpResponse can not be null");
 		this.httpResponse = httpResponse;
 		this.uri = uri;
 	}
@@ -50,6 +53,9 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 	@Override
 	public Object getPayload() throws ClientException {
 		try {
+			if (!hasPayload()) {
+				return null;
+			}
 			return this.httpResponse.getEntity().getContent();
 		}
 		catch (final IOException e) {
@@ -64,7 +70,7 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 
 	@Override
 	public boolean isSuccess() {
-		return this.httpResponse.getStatusLine().getStatusCode() == 200;
+		return HttpStatus.valueOf(this.httpResponse.getStatusLine().getStatusCode()).is2xxSuccessful();
 	}
 
 	@Override
@@ -123,6 +129,9 @@ public class RibbonApacheHttpResponse implements com.netflix.client.http.HttpRes
 	@Override
 	public InputStream getInputStream() {
 		try {
+			if (!hasPayload()) {
+				return null;
+			}
 			return this.httpResponse.getEntity().getContent();
 		}
 		catch (final IOException e) {
