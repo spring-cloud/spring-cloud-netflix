@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Christian Lohmann
@@ -35,10 +35,9 @@ public class HttpClientRibbonCommandFactory implements
 	@Override
 	public HttpClientRibbonCommand create(final RibbonCommandContext context) {
 		final String serviceId = context.getServiceId();
-		final RibbonLoadBalancingHttpClient client = clientFactory.getClient(serviceId,
-				RibbonLoadBalancingHttpClient.class);
+		final RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
+				serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
-		client.setClientConfig(this.clientFactory.getClientConfig(serviceId));
 
 		final HttpClientRibbonCommand httpClientRibbonCommand = new HttpClientRibbonCommand(
 				serviceId, client, context.getVerb(), context.getUri(),
