@@ -29,29 +29,27 @@ import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
-
-import lombok.Setter;
 
 /**
  * @author Christian Lohmann
  */
 public class RibbonLoadBalancingHttpClient
-		extends AbstractLoadBalancerAwareClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
+		extends
+		AbstractLoadBalancerAwareClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
 	private final HttpClient delegate = HttpClientBuilder.create().build();
 
-	@Setter
 	private int connectTimeout;
 
-	@Setter
 	private int readTimeout;
 
-	@Setter
 	private boolean secure;
 
-	@Setter
-	private IClientConfig clientConfig;
+	private boolean followRedirects;
+
+	private boolean okToRetryOnAllOperations;
 
 	public RibbonLoadBalancingHttpClient() {
 		super(null);
@@ -64,9 +62,28 @@ public class RibbonLoadBalancingHttpClient
 	}
 
 	@Override
+	public void initWithNiwsConfig(IClientConfig clientConfig) {
+		super.initWithNiwsConfig(clientConfig);
+		this.connectTimeout = clientConfig.getPropertyAsInteger(
+				CommonClientConfigKey.ConnectTimeout,
+				DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
+		this.readTimeout = clientConfig.getPropertyAsInteger(
+				CommonClientConfigKey.ReadTimeout,
+				DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT);
+		this.secure = clientConfig.getPropertyAsBoolean(CommonClientConfigKey.IsSecure,
+				false);
+		this.followRedirects = clientConfig.getPropertyAsBoolean(
+				CommonClientConfigKey.FollowRedirects,
+				DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
+		this.okToRetryOnAllOperations = clientConfig.getPropertyAsBoolean(
+				CommonClientConfigKey.OkToRetryOnAllOperations,
+				DefaultClientConfigImpl.DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
+	}
+
+	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
 			final RibbonApacheHttpRequest request, final IClientConfig requestConfig) {
-		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations, false)) {
+		if (this.okToRetryOnAllOperations) {
 			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
 					requestConfig);
 		}
@@ -90,10 +107,13 @@ public class RibbonLoadBalancingHttpClient
 					CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
 			builder.setConnectionRequestTimeout(configOverride.get(
 					CommonClientConfigKey.ReadTimeout, this.readTimeout));
+			builder.setRedirectsEnabled(configOverride.get(
+					CommonClientConfigKey.FollowRedirects, this.followRedirects));
 		}
 		else {
 			builder.setConnectTimeout(this.connectTimeout);
 			builder.setConnectionRequestTimeout(this.readTimeout);
+			builder.setRedirectsEnabled(this.followRedirects);
 		}
 
 		final RequestConfig requestConfig = builder.build();
@@ -110,6 +130,7 @@ public class RibbonLoadBalancingHttpClient
 	}
 
 	private boolean isSecure(final IClientConfig config) {
-		return (config != null) ? config.get(CommonClientConfigKey.IsSecure) : secure;
+		return (config != null) ? config.get(CommonClientConfigKey.IsSecure)
+				: this.secure;
 	}
 }
