@@ -64,21 +64,30 @@ public class RateLimitFilter extends ZuulFilter {
 		HttpServletResponse response  = ctx.getResponse();
 		HttpServletRequest request = ctx.getRequest();
 		Policy policy = findRequestPolicy(request);
-		String key = request.getRemoteAddr();
+		String key = findKey(request);
 		Rate rate = limiter.consume(policy,key);
-		response.setHeader("X-RateLimit-Limit",rate.getLimit().toString());
-		response.setHeader("X-RateLimit-Remaining",Math.max(rate.getRemaining(),0)+"");
-		response.setHeader("X-RateLimit-Reset",rate.getReset().toString());
+		response.setHeader(Headers.LIMIT,rate.getLimit().toString());
+		response.setHeader(Headers.REMAINING,Math.max(rate.getRemaining(),0)+"");
+		response.setHeader(Headers.RESET,rate.getReset().toString());
 		if(rate.getRemaining() <= 0){
 			ctx.put("error.status_code", 429);
 		}
 		return null;
 	}
+
 	private Policy findRequestPolicy(HttpServletRequest request){
-		return properties.getPolicies().get(RateLimitProperties.PolicyType.ANONYMOUS);
+		Policy policy = (request.getUserPrincipal() == null) ? properties.getPolicies().get(Policy.PolicyType.ANONYMOUS) : properties.getPolicies().get(Policy.PolicyType.AUTHENTICATED);
+		return policy;
 	}
 
 	private String findKey(HttpServletRequest request){
-		return request.getRemoteAddr();
+		String key = (request.getUserPrincipal() == null) ? request.getRemoteAddr() : request.getUserPrincipal().getName();
+		return key;
+	}
+
+	public static interface Headers {
+		String LIMIT = "X-RateLimit-Limit";
+		String REMAINING = "X-RateLimit-Remaining";
+		String RESET = "X-RateLimit-Reset";
 	}
 }

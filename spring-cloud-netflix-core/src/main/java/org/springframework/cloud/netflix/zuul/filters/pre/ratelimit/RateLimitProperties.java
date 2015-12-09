@@ -24,25 +24,25 @@ import javax.annotation.PostConstruct;
 
 import lombok.Data;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
  * @author Vinicius Carvalho
  */
 @Data
+@ConfigurationProperties("zuul.ratelimit")
 public class RateLimitProperties {
 
 	private Map<String, Policy> policies = new LinkedHashMap<>();
+	private boolean enabled;
 
 	@PostConstruct
 	public void init() {
-		if (policies.get(PolicyType.ANONYMOUS) == null) {
-			policies.put(PolicyType.ANONYMOUS, new Policy(60L, 60L));
+		if (policies.get(Policy.PolicyType.ANONYMOUS) == null) {
+			policies.put(Policy.PolicyType.ANONYMOUS, new Policy(60L, 60L));
 		}
 	}
 
 
-	static interface PolicyType {
-		String ANONYMOUS = "anonymous";
 
-		String AUTHENTICATED = "authenticated";
-	}
 }

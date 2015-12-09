@@ -37,4 +37,10 @@ public class Policy {
 	this.refreshInterval = refreshInterval;
 	this.limit = limit;
 	}
+
+	public static interface PolicyType {
+		String ANONYMOUS = "anonymous";
+
+		String AUTHENTICATED = "authenticated";
+	}
 }
