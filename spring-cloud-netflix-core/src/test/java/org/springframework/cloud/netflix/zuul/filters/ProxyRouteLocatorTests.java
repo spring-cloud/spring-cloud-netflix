@@ -16,14 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,7 +27,16 @@ import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.core.env.ConfigurableEnvironment;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Spencer Gibb
@@ -516,6 +517,34 @@ public class ProxyRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
+	}
+
+	@Test
+	public void testRegExServiceRouteMapperNoServiceIdMatches() {
+		given(this.discovery.getServices()).willReturn(Collections.singletonList(MYSERVICE));
+
+		RegExServiceRouteMapper regExServiceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMapper().getServicePattern(),
+				properties.getRegexMapper().getRoutePattern());
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties, regExServiceRouteMapper);
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, MYSERVICE);
+	}
+
+	@Test
+	public void testRegExServiceRouteMapperServiceIdMatches() {
+		given(this.discovery.getServices()).willReturn(Collections.singletonList("rest-service-v1"));
+
+		RegExServiceRouteMapper regExServiceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMapper().getServicePattern(),
+				properties.getRegexMapper().getRoutePattern());
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties, regExServiceRouteMapper);
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
 	}
 
 

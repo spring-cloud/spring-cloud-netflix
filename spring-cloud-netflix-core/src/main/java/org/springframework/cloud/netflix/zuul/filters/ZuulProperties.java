@@ -21,15 +21,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.annotation.PostConstruct;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Spencer Gibb
@@ -57,6 +56,8 @@ public class ZuulProperties {
 
 	private boolean ignoreLocalService = true;
 
+	private RegexMapper regexMapper = new RegexMapper();
+
 	@PostConstruct
 	public void init() {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {
@@ -71,6 +72,17 @@ public class ZuulProperties {
 				value.path = "/" + entry.getKey() + "/**";
 			}
 		}
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class RegexMapper {
+		private boolean enabled = false;
+
+		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
+
+		private String routePattern = "${version}/${name}";
 	}
 
 	@Data
