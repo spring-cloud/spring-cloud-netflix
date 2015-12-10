@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.PatternMatchUtils;
@@ -55,6 +56,8 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	private String servletPath;
 
+	private ServiceRouteMapper serviceRouteMapper;
+
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties) {
 		if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
@@ -76,8 +79,17 @@ public class ProxyRouteLocator implements RouteLocator {
 			}
 		}
 
+        if(properties.isRegexMapper()) {
+            this.serviceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMap().getServicePattern(), properties.getRegexMap().getRoutePattern());
+        }
 		this.discovery = discovery;
 		this.properties = properties;
+	}
+
+	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
+							 ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
+		this(servletPath, discovery, properties);
+		this.serviceRouteMapper = serviceRouteMapper;
 	}
 
 	public void addRoute(String path, String location) {
@@ -196,7 +208,7 @@ public class ProxyRouteLocator implements RouteLocator {
 			for (String serviceId : services) {
 				// Ignore specifically ignored services and those that were manually
 				// configured
-				String key = "/" + serviceId + "/**";
+				String key = "/" + mapRouteToService(serviceId) + "/**";
 				if (staticServices.containsKey(serviceId)
 						&& staticServices.get(serviceId).getUrl() == null) {
 					// Explicitly configured with no URL, cannot be ignored
@@ -236,6 +248,13 @@ public class ProxyRouteLocator implements RouteLocator {
 			values.put(path, entry.getValue());
 		}
 		return values;
+	}
+
+	protected String mapRouteToService(String serviceId) {
+		if(this.serviceRouteMapper != null) {
+			return this.serviceRouteMapper.apply(serviceId);
+		}
+		return serviceId;
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {

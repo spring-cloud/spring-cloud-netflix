@@ -518,6 +518,34 @@ public class ProxyRouteLocatorTests {
 		assertMapping(routesMap, MYSERVICE);
 	}
 
+	@Test
+	public void testRegExServiceRouteMapperNoServiceIdMatches() {
+		this.properties.setRegexMapper(true);
+
+		given(this.discovery.getServices()).willReturn(Collections.singletonList(MYSERVICE));
+
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, MYSERVICE);
+	}
+
+	@Test
+	public void testRegExServiceRouteMapperServiceIdMatches() {
+		this.properties.setRegexMapper(true);
+
+		given(this.discovery.getServices()).willReturn(Collections.singletonList("rest-service-v1"));
+
+		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
+				this.properties);
+		Map<String, String> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
+	}
+
 
 	protected void assertMapping(Map<String, String> routesMap, String serviceId) {
 		assertMapping(routesMap, serviceId, serviceId);
