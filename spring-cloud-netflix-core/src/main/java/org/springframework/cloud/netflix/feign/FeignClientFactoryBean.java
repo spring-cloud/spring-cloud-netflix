@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.feign;
 
 import java.util.Map;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
