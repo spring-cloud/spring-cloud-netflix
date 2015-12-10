@@ -279,6 +279,7 @@ public class FeignClientTests {
 	public void testHystrixCommand() {
 		HystrixCommand<List<Hello>> command = this.testClient.getHellosHystrix();
 		assertNotNull("command was null", command);
+		assertEquals("Hystrix command group name should match the name of the feign client", "localapp", command.getCommandGroup().name());
 		List<Hello> hellos = command.execute();
 		assertNotNull("hellos was null", hellos);
 		assertEquals("hellos didn't match", hellos, getHelloList());
