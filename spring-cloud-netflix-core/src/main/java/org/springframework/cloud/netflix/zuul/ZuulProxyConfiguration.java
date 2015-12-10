@@ -21,6 +21,7 @@ import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -32,8 +33,11 @@ import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEven
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ServiceRouteMapper;
+import org.springframework.cloud.netflix.zuul.filters.SimpleServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
+import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
@@ -66,6 +70,9 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Autowired
 	private ServerProperties server;
 
+	@Autowired
+	private ServiceRouteMapper serviceRouteMapper;
+
 	@Override
 	public HasFeatures zuulFeature() {
 		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyConfiguration.class);
@@ -75,7 +82,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Override
 	public ProxyRouteLocator routeLocator() {
 		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
-				this.zuulProperties);
+				this.zuulProperties, serviceRouteMapper);
 	}
 
 	@Bean
@@ -86,8 +93,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	// pre filters
 	@Bean
-	public PreDecorationFilter preDecorationFilter() {
-		return new PreDecorationFilter(routeLocator(),
+	public PreDecorationFilter preDecorationFilter(ProxyRouteLocator routeLocator) {
+		return new PreDecorationFilter(routeLocator,
 				this.zuulProperties.isAddProxyHeaders());
 	}
 
@@ -116,6 +123,27 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
 	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "zuul.regexMapper.enabled", matchIfMissing = false)
+	protected static class RegexServiceRouteMapperConfiguration {
+
+		@Bean
+		public ServiceRouteMapper serviceRouteMapper(ZuulProperties props) {
+			return new RegExServiceRouteMapper(props.getRegexMapper().getServicePattern(),
+					props.getRegexMapper().getRoutePattern());
+		}
+	}
+
+	@Configuration
+	@ConditionalOnMissingBean(ServiceRouteMapper.class)
+	protected static class SimpleServiceRouteMapperConfiguration {
+		@Bean
+		public ServiceRouteMapper serviceRouteMapper() {
+			return new SimpleServiceRouteMapper();
+		}
+	}
+
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
