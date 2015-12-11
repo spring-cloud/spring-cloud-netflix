@@ -241,7 +241,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
-		uri = StringUtils.cleanPath(host.getPath() + uri);
+		uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
 		HttpRequest httpRequest;
 		switch (verb.toUpperCase()) {
 		case "POST":
