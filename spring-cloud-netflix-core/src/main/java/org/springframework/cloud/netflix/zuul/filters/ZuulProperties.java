@@ -57,9 +57,7 @@ public class ZuulProperties {
 
 	private boolean ignoreLocalService = true;
 
-	private boolean isRegexMapper = false;
-
-	private RegexMapper regexMap = new RegexMapper("(?<name>.*)-(?<version>v.*$)", "${version}/${name}");
+	private RegexMapper regexMapper = new RegexMapper();
 
 	@PostConstruct
 	public void init() {
@@ -81,9 +79,11 @@ public class ZuulProperties {
 	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class RegexMapper {
-		private String servicePattern;
+		private boolean enable = false;
 
-		private String routePattern;
+		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
+
+		private String routePattern = "${version}/${name}";
 	}
 
 	@Data

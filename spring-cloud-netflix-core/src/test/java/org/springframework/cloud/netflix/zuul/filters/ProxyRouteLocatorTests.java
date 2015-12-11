@@ -35,6 +35,7 @@ import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
@@ -520,12 +521,12 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testRegExServiceRouteMapperNoServiceIdMatches() {
-		this.properties.setRegexMapper(true);
-
 		given(this.discovery.getServices()).willReturn(Collections.singletonList(MYSERVICE));
 
+		RegExServiceRouteMapper regExServiceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMapper().getServicePattern(),
+				properties.getRegexMapper().getRoutePattern());
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
+				this.properties, regExServiceRouteMapper);
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
@@ -534,12 +535,12 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testRegExServiceRouteMapperServiceIdMatches() {
-		this.properties.setRegexMapper(true);
-
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("rest-service-v1"));
 
+		RegExServiceRouteMapper regExServiceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMapper().getServicePattern(),
+				properties.getRegexMapper().getRoutePattern());
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
+				this.properties, regExServiceRouteMapper);
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());

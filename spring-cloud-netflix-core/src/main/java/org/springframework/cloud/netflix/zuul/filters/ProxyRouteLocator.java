@@ -78,10 +78,7 @@ public class ProxyRouteLocator implements RouteLocator {
 				}
 			}
 		}
-
-        if(properties.isRegexMapper()) {
-            this.serviceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMap().getServicePattern(), properties.getRegexMap().getRoutePattern());
-        }
+		this.serviceRouteMapper = new SimpleServiceRouteMapper();
 		this.discovery = discovery;
 		this.properties = properties;
 	}
@@ -251,10 +248,7 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	protected String mapRouteToService(String serviceId) {
-		if(this.serviceRouteMapper != null) {
-			return this.serviceRouteMapper.apply(serviceId);
-		}
-		return serviceId;
+		return this.serviceRouteMapper.apply(serviceId);
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {

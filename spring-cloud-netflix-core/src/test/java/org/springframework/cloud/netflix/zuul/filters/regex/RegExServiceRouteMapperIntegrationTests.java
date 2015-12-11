@@ -44,14 +44,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
+/**
+ * @author Stéphane Leroy
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleCustomZuulProxyApplication.class)
 @WebIntegrationTest(value = { "spring.application.name=regex-test-application",
         "spring.jmx.enabled=true"}, randomPort = true)
 @TestPropertySource(properties = {
-        "zuul.regexMapper=true",
-        "zuul.regexMap.servicePattern=(?<domain>^.*)-(?<name>.*)-(?<version>v.*$)",
-        "zuul.regexMap.routePattern=${version}/${domain}/${name}"})
+        "eureka.client.enabled=false",
+        "zuul.regexMapper.enable=true",
+        "zuul.regexMapper.servicePattern=(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
+        "zuul.regexMapper.routePattern=${version}/${domain}/${name}"})
 @DirtiesContext
 public class RegExServiceRouteMapperIntegrationTests {
 
@@ -92,8 +96,18 @@ public class RegExServiceRouteMapperIntegrationTests {
 @Configuration
 @EnableAutoConfiguration
 @RestController
+@EnableZuulProxy
 @RibbonClient(value = SERVICE_ID, configuration = SimpleRibbonClientConfiguration.class)
 class SampleCustomZuulProxyApplication {
+
+    @Bean
+    public DiscoveryClient discoveryClient() {
+        DiscoveryClient discoveryClient = mock(DiscoveryClient.class);
+        List<String> services = new ArrayList<>();
+        services.add(SERVICE_ID);
+        when(discoveryClient.getServices()).thenReturn(services);
+        return discoveryClient;
+    }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     public String get(@PathVariable String id) {
@@ -103,28 +117,6 @@ class SampleCustomZuulProxyApplication {
     public static void main(String[] args) {
         SpringApplication.run(SampleCustomZuulProxyApplication.class, args);
     }
-
-    @Configuration
-    @EnableZuulProxy
-    protected static class CustomZuulProxyConfig extends ZuulProxyConfiguration {
-        @Autowired
-        private ZuulProperties zuulProperties;
-        @Autowired
-        private ServerProperties server;
-
-        @Bean
-        @Override
-        public ProxyRouteLocator routeLocator() {
-            DiscoveryClient discoveryClient = mock(DiscoveryClient.class);
-            List<String> services = new ArrayList<>();
-            services.add(SERVICE_ID);
-            when(discoveryClient.getServices()).thenReturn(services);
-            return new ProxyRouteLocator(this.server.getServletPrefix(), discoveryClient,
-                    this.zuulProperties);
-        }
-    }
-
-
 }
 
 @Configuration

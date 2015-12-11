@@ -47,6 +47,24 @@ public class RegExServiceRouteMapper implements ServiceRouteMapper {
     public String apply(String serviceId) {
         Matcher matcher = servicePattern.matcher(serviceId);
         String route = matcher.replaceFirst(routePattern);
+        route = cleanRoute(route);
         return (StringUtils.hasText(route)?route:serviceId);
+    }
+
+    /**
+     * Route with regex and replace can be a bit messy when used with conditional named group.
+     * We clean here first and trailing '/' and remove multiple consecutive '/'
+     * @param route
+     * @return
+     */
+    private String cleanRoute(final String route) {
+        String routeToClean = route.replaceAll("/{2,}", "/");
+        if(routeToClean.startsWith("/")) {
+            routeToClean = routeToClean.substring(1);
+        }
+        if(routeToClean.endsWith("/")) {
+            routeToClean = routeToClean.substring(0, routeToClean.length()-1);
+        }
+        return routeToClean;
     }
 }
