@@ -35,10 +35,11 @@ import org.springframework.stereotype.Component;
 public class RateLimitFilter extends ZuulFilter {
 
 	private final RateLimiter limiter;
+
 	private RateLimitProperties properties;
 
 	@Autowired
-	public RateLimitFilter(RateLimiter limiter, RateLimitProperties properties){
+	public RateLimitFilter(RateLimiter limiter, RateLimitProperties properties) {
 		this.limiter = limiter;
 		this.properties = properties;
 	}
@@ -61,33 +62,35 @@ public class RateLimitFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		HttpServletResponse response  = ctx.getResponse();
+		HttpServletResponse response = ctx.getResponse();
 		HttpServletRequest request = ctx.getRequest();
 		Policy policy = findRequestPolicy(request);
 		String key = findKey(request);
-		Rate rate = limiter.consume(policy,key);
-		response.setHeader(Headers.LIMIT,rate.getLimit().toString());
-		response.setHeader(Headers.REMAINING,Math.max(rate.getRemaining(),0)+"");
-		response.setHeader(Headers.RESET,rate.getReset().toString());
-		if(rate.getRemaining() <= 0){
+		Rate rate = limiter.consume(policy, key);
+		response.setHeader(Headers.LIMIT, rate.getLimit().toString());
+		response.setHeader(Headers.REMAINING, Math.max(rate.getRemaining(), 0) + "");
+		response.setHeader(Headers.RESET, rate.getReset().toString());
+		if (rate.getRemaining() <= 0) {
 			ctx.put("error.status_code", 429);
 		}
 		return null;
 	}
 
-	private Policy findRequestPolicy(HttpServletRequest request){
+	private Policy findRequestPolicy(HttpServletRequest request) {
 		Policy policy = (request.getUserPrincipal() == null) ? properties.getPolicies().get(Policy.PolicyType.ANONYMOUS) : properties.getPolicies().get(Policy.PolicyType.AUTHENTICATED);
 		return policy;
 	}
 
-	private String findKey(HttpServletRequest request){
+	private String findKey(HttpServletRequest request) {
 		String key = (request.getUserPrincipal() == null) ? request.getRemoteAddr() : request.getUserPrincipal().getName();
 		return key;
 	}
 
 	public static interface Headers {
 		String LIMIT = "X-RateLimit-Limit";
+
 		String REMAINING = "X-RateLimit-Remaining";
+
 		String RESET = "X-RateLimit-Reset";
 	}
 }

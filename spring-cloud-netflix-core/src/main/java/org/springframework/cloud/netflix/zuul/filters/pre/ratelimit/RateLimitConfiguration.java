@@ -17,10 +17,8 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre.ratelimit;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.redis.RedisRateLimiter;
 import org.springframework.context.annotation.Bean;
@@ -31,23 +29,30 @@ import org.springframework.data.redis.core.RedisTemplate;
  * @author Vinicius Carvalho
  */
 @Configuration
-@AutoConfigureAfter(RedisAutoConfiguration.class)
 @EnableConfigurationProperties(RateLimitProperties.class)
 public class RateLimitConfiguration {
 
-	@Bean
-	@ConditionalOnBean(name = {"redisTemplate"})
-	public RateLimiter redisRateLimiter(RedisTemplate redisTemplate){
-		RedisRateLimiter rateLimiter = new RedisRateLimiter(redisTemplate);
-		return rateLimiter;
+
+	@ConditionalOnMissingBean(name = {"redisTemplate"})
+	static class InMemoryRateLimitConfiguration {
+
+		@Bean
+		public RateLimiter inMemoryRateLimiter() {
+			InMemoryRateLimiter rateLimiter = new InMemoryRateLimiter();
+			return rateLimiter;
+		}
+
 	}
 
 
-	@Bean
-	@ConditionalOnMissingBean
-	public RateLimiter inMemoryRateLimiter(){
-		InMemoryRateLimiter rateLimiter = new InMemoryRateLimiter();
-		return rateLimiter;
+	@ConditionalOnBean(name = {"redisTemplate"})
+	static class RedisRateLimiterConfiguration {
+
+		@Bean
+		public RateLimiter redisRateLimiter(RedisTemplate redisTemplate) {
+			RedisRateLimiter rateLimiter = new RedisRateLimiter(redisTemplate);
+			return rateLimiter;
+		}
 	}
 
 }

@@ -28,14 +28,15 @@ import lombok.Data;
 public class Policy {
 
 	private Long refreshInterval;
+
 	private Long limit;
 
 	public Policy() {
 	}
 
 	public Policy(Long refreshInterval, Long limit) {
-	this.refreshInterval = refreshInterval;
-	this.limit = limit;
+		this.refreshInterval = refreshInterval;
+		this.limit = limit;
 	}
 
 	public static interface PolicyType {

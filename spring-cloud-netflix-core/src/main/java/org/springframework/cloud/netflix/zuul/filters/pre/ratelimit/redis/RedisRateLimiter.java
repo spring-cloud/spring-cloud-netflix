@@ -41,12 +41,12 @@ public class RedisRateLimiter implements RateLimiter {
 	@Override
 	public Rate consume(final Policy policy, final String key) {
 		Long now = System.currentTimeMillis();
-		Long time = (Long)(now/(1000*policy.getRefreshInterval()));
-		final String tempKey = key+":"+time;
+		Long time = (Long) (now / (1000 * policy.getRefreshInterval()));
+		final String tempKey = key + ":" + time;
 		List results = (List) template.execute(new SessionCallback() {
 
 			@Override
-			public  List<Object> execute(RedisOperations ops) throws DataAccessException {
+			public List<Object> execute(RedisOperations ops) throws DataAccessException {
 				ops.multi();
 				ops.boundValueOps(tempKey).increment(1L);
 				ops.expire(tempKey, policy.getRefreshInterval(), TimeUnit.SECONDS);
@@ -54,7 +54,7 @@ public class RedisRateLimiter implements RateLimiter {
 				return ops.exec();
 			}
 		});
-		Long current = (Long)results.get(0);
-		return new Rate(policy.getLimit(),Math.max(0,policy.getLimit()-current),time*(policy.getRefreshInterval()*1000));
+		Long current = (Long) results.get(0);
+		return new Rate(policy.getLimit(), Math.max(0, policy.getLimit() - current), time * (policy.getRefreshInterval() * 1000));
 	}
 }

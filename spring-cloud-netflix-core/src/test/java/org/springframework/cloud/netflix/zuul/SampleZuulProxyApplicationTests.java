@@ -274,7 +274,7 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 				HttpRequest.Verb verb, String uri, Boolean retryable,
 				MultiValueMap<String, String> headers,
 				MultiValueMap<String, String> params, InputStream requestEntity)
-						throws URISyntaxException {
+				throws URISyntaxException {
 			super(commandKey, restClient, verb, uri, retryable, headers, params,
 					requestEntity);
 			this.errorCode = errorCode;
