@@ -91,6 +91,8 @@ public class ServletPathZuulProxyApplicationTests {
 @EnableZuulProxy
 class ServletPathZuulProxyApplication {
 
+
+
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
 	public String get(@PathVariable String id) {
 		return "Gotten " + id + "!";

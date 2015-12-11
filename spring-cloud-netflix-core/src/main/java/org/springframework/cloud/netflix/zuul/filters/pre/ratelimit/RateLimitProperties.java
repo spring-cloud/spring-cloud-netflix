@@ -34,6 +34,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class RateLimitProperties {
 
 	private Map<String, Policy> policies = new LinkedHashMap<>();
+
 	private boolean enabled;
 
 	@PostConstruct
@@ -42,7 +43,5 @@ public class RateLimitProperties {
 			policies.put(Policy.PolicyType.ANONYMOUS, new Policy(60L, 60L));
 		}
 	}
-
-
 
 }

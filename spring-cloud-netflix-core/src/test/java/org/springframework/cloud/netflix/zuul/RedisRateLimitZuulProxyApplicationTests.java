@@ -19,8 +19,12 @@ package org.springframework.cloud.netflix.zuul;
 
 import static org.junit.Assert.*;
 
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import redis.embedded.RedisServer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +36,13 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitConfiguration;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimiter;
+import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.redis.RedisRateLimiter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -48,21 +57,38 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@SpringApplicationConfiguration(classes = RateLimitZuulApplication.class)
+@SpringApplicationConfiguration(classes = {RedisTemplateConfiguration.class, RedisRateLimitZuulApplication.class})
 @IntegrationTest({"server.port: 0",
 
 		"zuul.ratelimit.enabled: true"
 })
 @DirtiesContext
-public class RateLimitZuulProxyApplicationTests {
+public class RedisRateLimitZuulProxyApplicationTests {
+
+	static RedisServer redisServer;
+
 	@Value("${local.server.port}")
 	private int port;
+
+	@Autowired
+	private RateLimiter rateLimiter;
 
 	@Autowired
 	private ProxyRouteLocator routes;
 
 	@Autowired
 	private RoutesEndpoint endpoint;
+
+	@BeforeClass
+	public static void setup() throws Exception {
+		redisServer = new RedisServer(6767);
+		redisServer.start();
+	}
+
+	@AfterClass
+	public static void shutdown() throws Exception {
+		redisServer.stop();
+	}
 
 	@Test
 	public void getUnauthenticated() {
@@ -73,6 +99,33 @@ public class RateLimitZuulProxyApplicationTests {
 		assertNotNull(response.getHeaders().get(RateLimitFilter.Headers.REMAINING));
 		assertNotNull(response.getHeaders().get(RateLimitFilter.Headers.RESET));
 	}
+
+	@Test
+	public void contextLoads() throws Exception {
+		Assert.assertTrue(rateLimiter.getClass().isAssignableFrom(RedisRateLimiter.class));
+	}
+
+}
+
+@Configuration
+class RedisTemplateConfiguration {
+	@Bean
+	public RedisTemplate redisTemplate(JedisConnectionFactory cf) {
+		RedisTemplate redisTemplate = new RedisTemplate();
+		redisTemplate.setConnectionFactory(cf);
+		redisTemplate.afterPropertiesSet();
+		return redisTemplate;
+	}
+
+	@Bean
+	JedisConnectionFactory jedisConnectionFactory() {
+		JedisConnectionFactory factory = new JedisConnectionFactory();
+		factory.setHostName("localhost");
+		factory.setPort(6767);
+		factory.setUsePool(true);
+		return factory;
+	}
+
 }
 
 @Configuration
@@ -80,7 +133,8 @@ public class RateLimitZuulProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @ComponentScan(basePackageClasses = RateLimitConfiguration.class)
-class RateLimitZuulApplication {
+class RedisRateLimitZuulApplication {
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(RateLimitZuulApplication.class);

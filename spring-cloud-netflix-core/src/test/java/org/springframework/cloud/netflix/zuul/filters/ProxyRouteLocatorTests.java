@@ -154,7 +154,7 @@ public class ProxyRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
-	
+
 	@Test
 	public void testGetMatchingPathWithoutMatchingIgnoredPattern() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
@@ -167,7 +167,7 @@ public class ProxyRouteLocatorTests {
 		assertEquals("bar", route.getLocation());
 		assertEquals("bar", route.getId());
 	}
-	
+
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPattern() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
@@ -248,7 +248,7 @@ public class ProxyRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/1", route.getPath());
 	}
-	
+
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithLocalPrefixStripping() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
@@ -275,7 +275,7 @@ public class ProxyRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
-	
+
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithGlobalPrefixStripping() throws Exception {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
@@ -302,7 +302,7 @@ public class ProxyRouteLocatorTests {
 		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
-	
+
 	@Test
 	public void testGetRoutes() {
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,

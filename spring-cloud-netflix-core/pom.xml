@@ -223,5 +223,11 @@
 			<artifactId>spring-boot-starter-redis</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>com.github.kstyrc</groupId>
+			<artifactId>embedded-redis</artifactId>
+			<version>0.6</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

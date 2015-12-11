@@ -31,7 +31,9 @@ import lombok.Data;
 @Data
 public class Rate {
 	private Long limit;
+
 	private Long remaining;
+
 	private Long reset;
 
 	public Rate(Long limit, Long remaining, Long reset) {

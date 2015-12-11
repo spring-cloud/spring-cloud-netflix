@@ -233,7 +233,7 @@ class SampleZuulProxyApplication {
 
 	@RequestMapping(value = "/qstring")
 	public String qstring(@RequestParam MultiValueMap<String,String> params) {
-		return "Received "+params.toString();	
+		return "Received "+params.toString();
 	}
 
 	@RequestMapping("/")
