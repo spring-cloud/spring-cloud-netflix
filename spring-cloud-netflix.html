@@ -2099,10 +2099,329 @@ info:
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_metrics_spectator_servo_and_atlas">Metrics: Spectator, Servo, and Atlas</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When used together, Spectator/Servo and Atlas provide a near real-time operational insight platform.</p>
+</div>
+<div class="paragraph">
+<p>Spectator and Servo are Netflix&#8217;s metrics collection libraries. Atlas is a Netflix metrics backend to manage dimensional time series data.</p>
+</div>
+<div class="paragraph">
+<p>Servo served Netflix for several years and is still usable, but is gradually being phased out in favor of Spectator, which is only designed to work with Java 8.  Spring Cloud Netflix provides support for both, but Java 8 based applications are encouraged to use Spectator.</p>
+</div>
+<div class="sect2">
+<h3 id="_dimensional_vs_hierarchical_metrics">Dimensional vs. Hierarchical Metrics</h3>
+<div class="paragraph">
+<p>Spring Boot Actuator metrics are hierarchical and metrics are separated only by name. These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name separated by periods. Consider the following metrics for two endpoints, root and star-star:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "counter.status.200.root": 20,
+    "counter.status.400.root": 3,
+    "counter.status.200.star-star": 5,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first metric gives us a normalized count of successful requests against the root endpoint per unit of time. But what if the system had 20 endpoints and you want to get a count of successful requests against all the endpoints? Some hierarchical metrics backends would allow you to specify a wild card such as <code>counter.status.200.<strong></code> that would read all 20 metrics and aggregate the results. Alternatively, you could provide a <code>HandlerInterceptorAdapter</code> that intercepts and records a metric like <code>counter.status.200.all</code> for all successful requests irrespective of the endpoint, but now you must write 20+1 different metrics. Similarly if you want to know the total number of successful requests for all endpoints in the service, you could specify a wild card such as <code>counter.status.2</strong>.*</code>.</p>
+</div>
+<div class="paragraph">
+<p>Even in the presence of wildcarding support on a hierarchical metrics backend, naming consistency can be difficult. Specifically the position of these tags in the name string can slip with time, breaking queries. For example, suppose we add an additional dimension to the hierarchical metrics above for HTTP method. Then <code>counter.status.200.root</code> becomes <code>counter.status.200.method.get.root</code>, etc. Our <code>counter.status.200.*</code> suddenly no longer has the same semantic meaning.  Furthermore, if the new dimension is not applied uniformly across the codebase, certain queries may become impossible. This can quickly get out of hand.</p>
+</div>
+<div class="paragraph">
+<p>Netflix metrics are tagged (a.k.a. dimensional). Each metric has a name, but this single named metric can contain multiple statistics and 'tag' key/value pairs that allows more querying flexibility. In fact, the statistics themselves are recorded in a special tag.</p>
+</div>
+<div class="paragraph">
+<p>Recorded with Netflix Servo or Spectator, a timer for the root endpoint described above contains 4 statistics per status code, where the count statistic is identical to Spring Boot Actuator&#8217;s counter. In the event that we have encountered an HTTP 200 and 400 thus far, there will be 8 available data points:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "root(status=200,stastic=count)": 20,
+    "root(status=200,stastic=max)": 0.7265630630000001,
+    "root(status=200,stastic=totalOfSquares)": 0.04759702862580789,
+    "root(status=200,stastic=totalTime)": 0.2093076914666667,
+    "root(status=400,stastic=count)": 1,
+    "root(status=400,stastic=max)": 0,
+    "root(status=400,stastic=totalOfSquares)": 0,
+    "root(status=400,stastic=totalTime)": 0,
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_default_metrics_collection">Default Metrics Collection</h3>
+<div class="paragraph">
+<p>Without any additional dependencies or configuration, a Spring Cloud based service will autoconfigure a Servo <code>MonitorRegistry</code> and begin collecting metrics on every Spring MVC request. By default, a Servo timer with the name <code>rest</code> will be recorded for each MVC request which is tagged with:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>HTTP method</p>
+</li>
+<li>
+<p>HTTP status (e.g. 200, 400, 500)</p>
+</li>
+<li>
+<p>URI (or "root" if the URI is empty), sanitized for Atlas</p>
+</li>
+<li>
+<p>The exception class name, if the request handler threw an exception</p>
+</li>
+<li>
+<p>The caller, if a request header with a key matching <code>netflix.metrics.rest.callerHeader</code> is set on the request. There is no default key for <code>netflix.metrics.rest.callerHeader</code>. You must add it to your application properties if you wish to collect caller information.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Set the <code>netflix.metrics.rest.metricName</code> property to change the name of the metric from <code>rest</code> to a name you provide.</p>
+</div>
+<div class="paragraph">
+<p>If Spring AOP is enabled and <code>org.aspectj:aspectjweaver</code> is present on your runtime classpath, Spring Cloud will also collect metrics on every client call made with <code>RestTemplate</code>. A Servo timer with the name of <code>restclient</code> will be recorded for each MVC request which is tagged with:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>HTTP method</p>
+</li>
+<li>
+<p>HTTP status (e.g. 200, 400, 500), "CLIENT_ERROR" if the response returned null, or "IO_ERROR" if an <code>IOException</code> occurred during the execution of the <code>RestTemplate</code> method</p>
+</li>
+<li>
+<p>URI, sanitized for Atlas</p>
+</li>
+<li>
+<p>Client name</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_metrics_collection_spectator">Metrics Collection: Spectator</h3>
+<div class="paragraph">
+<p>To enable Spectator metrics, include a dependency on <code>spring-boot-starter-spectator</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-spectator&lt;/artifactId&gt;
+    &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In Spectator parlance, a meter is a named, typed, and tagged configuration and a metric represents the value of a given meter at a point in time. Spectator meters are created and controlled by a registry, which currently has several different implementations. Spectator provides 4 meter types: counter, timer, gauge, and distribution summary.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Spectator integration configures an injectable <code>com.netflix.spectator.api.Registry</code> instance for you. Specifically, it configures a <code>ServoRegistry</code> instance in order to unify the collection of REST metrics and the exporting of metrics to the Atlas backend under a single Servo API. Practically, this means that your code may use a mixture of Servo monitors and Spectator meters and both will be scooped up by Spring Boot Actuator <code>MetricReader</code> instances and both will be shipped to the Atlas backend.</p>
+</div>
+<div class="sect3">
+<h4 id="_spectator_counter">Spectator Counter</h4>
+<div class="paragraph">
+<p>A counter is used to measure the rate at which some event is occurring.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// create a counter with a name and a set of tags
+Counter counter = registry.counter("counterName", "tagKey1", "tagValue1", ...);
+counter.increment(); // increment when an event occurs
+counter.increment(10); // increment by a discrete amount</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The counter records a single time-normalized statistic.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spectator_timer">Spectator Timer</h4>
+<div class="paragraph">
+<p>A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally <code>RestTemplate</code> requests, which can later be used to create dashboards for request related metrics like latency:</p>
+</div>
+<div class="paragraph">
+<div class="title">Request Latency</div>
+<p>image::RequestLatency.png []</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// create a timer with a name and a set of tags
+Timer timer = registry.timer("timerName", "tagKey1", "tagValue1", ...);
+
+// execute an operation and time it at the same time
+T result = timer.record(() -&gt; fooReturnsT());
+
+// alternatively, if you must manually record the time
+Long start = System.nanoTime();
+T result = fooReturnsT();
+timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The timer simultaneously records 4 statistics: count, max, totalOfSquares, and totalTime.  The count statistic will always match the single normalized value provided by a counter if you had called <code>increment()</code> once on the counter for each time you recorded a timing, so it is rarely necessary to count and time separately for a single operation.</p>
+</div>
+<div class="paragraph">
+<p>For <a href="https://github.com/Netflix/spectator/wiki/Timer-Usage#longtasktimer">long running operations</a>, Spectator provides a special <code>LongTaskTimer</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spectator_gauge">Spectator Gauge</h4>
+<div class="paragraph">
+<p>Gauges are used to determine some current value like the size of a queue or number of threads in a running state. Since gauges are sampled, they provide no information about how these values fluctuate between samples.</p>
+</div>
+<div class="paragraph">
+<p>The normal use of a gauge involves registering the gauge once in initialization with an id, a reference to the object to be sampled, and a function to get or compute a numeric value based on the object. The reference to the object is passed in separately and the Spectator registry will keep a weak reference to the object. If the object is garbage collected, then Spectator will automatically drop the registration. See <a href="https://github.com/Netflix/spectator/wiki/Gauge-Usage#using-lambda">the note</a> in Spectator&#8217;s documentation about potential memory leaks if this API is misused.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
+registry.gauge("gaugeName", pool, Pool::numberOfRunningThreads);
+
+// manually sample a value in code at periodic intervals -- last resort!
+registry.gauge("gaugeName", Arrays.asList("tagKey1", "tagValue1", ...), 1000);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spectator_distribution_summaries">Spectator Distribution Summaries</h4>
+<div class="paragraph">
+<p>A distribution summary is used to track the distribution of events. It is similar to a timer, but more general in that the size does not have to be a period of time. For example, a distribution summary could be used to measure the payload sizes of requests hitting a server.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
+DistributionSummary ds = registry.distributionSummary("dsName", "tagKey1", "tagValue1", ...);
+ds.record(request.sizeInBytes());</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_metrics_collection_servo">Metrics Collection: Servo</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+If your code is compiled on Java 8, please use Spectator instead of Servo as Spectator is destined to replace Servo entirely in the long term.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In Servo parlance, a monitor is a named, typed, and tagged configuration and a metric represents the value of a given monitor at a point in time. Servo monitors are logically equivalent to Spectator meters. Servo monitors are created and controlled by a <code>MonitorRegistry</code>. In spite of the above warning, Servo does have a <a href="https://github.com/Netflix/servo/wiki/Getting-Started">wider array</a> of monitor options than Spectator has meters.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud integration configures an injectable <code>com.netflix.servo.MonitorRegistry</code> instance for you. Once you have created the appropriate <code>Monitor</code> type in Servo, the process of recording data is wholly similar to Spectator.</p>
+</div>
+<div class="sect3">
+<h4 id="_creating_servo_monitors">Creating Servo Monitors</h4>
+<div class="paragraph">
+<p>If you are using the Servo <code>MonitorRegistry</code> instance provided by Spring Cloud (specifically, an instance of <code>DefaultMonitorRegistry</code>), Servo provides convenience classes for retrieving <a href="https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamiccounter">counters</a> and <a href="https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamictimer">timers</a>.  These convenience classes ensure that only one <code>Monitor</code> is registered for each unique combination of name and tags.</p>
+</div>
+<div class="paragraph">
+<p>To manually create a Monitor type in Servo, especially for the more exotic monitor types for which convenience methods are not provided, instantiate the appropriate type by providing a <code>MonitorConfig</code> instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">MonitorConfig config = MonitorConfig.builder("timerName").withTag("tagKey1", "tagValue1").build();
+
+// somewhere we should cache this Monitor by MonitorConfig
+Timer timer = new BasicTimer(config);
+monitorRegistry.register(timer);</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_metrics_backend_atlas">Metrics Backend: Atlas</h3>
+<div class="paragraph">
+<p>Atlas was developed by Netflix to manage dimensional time series data for near real-time operational insight. Atlas features in-memory data storage, allowing it to gather and report very large numbers of metrics, very quickly.</p>
+</div>
+<div class="paragraph">
+<p>Atlas captures operational intelligence. Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.</p>
+</div>
+<div class="paragraph">
+<p>No additional dependencies are necessary to send Spring Boot Actuator, Servo, and Spectator metrics to Atlas. Just annotate your Spring Boot application with <code>@EnableAtlas</code> and provide a location for your running Atlas server with the <code>netflix.atlas.uri</code> property.</p>
+</div>
+<div class="sect3">
+<h4 id="_global_tags">Global tags</h4>
+<div class="paragraph">
+<p>Spring Cloud enables you to add tags to every metric sent to the Atlas backend. Global tags can be used to separate metrics by application name, environment, region, etc.</p>
+</div>
+<div class="paragraph">
+<p>Each bean implementing <code>AtlasTagProvider</code> will contribute to the global tag list:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+AtlasTagProvider atlasCommonTags(
+    @Value("${spring.application.name}") String appName) {
+  return () -&gt; Collections.singletonMap("app", appName);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_atlas">Using Atlas</h4>
+<div class="paragraph">
+<p>To bootstrap a in-memory standalone Atlas instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl -LO https://github.com/Netflix/atlas/releases/download/v1.4.2/atlas-1.4.2-standalone.jar
+$ java -jar atlas-1.4.2-standalone.jar</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+An Atlas standalone node running on an r3.2xlarge (61GB RAM) can handle roughly 2 million metrics per minute for a given 6 hour window.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Once running and you have collected a handful of metrics, verify that your setup is correct by listing tags on the Atlas server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl http://ATLAS/api/v1/tags</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+After executing several requests against your service, you can gather some very basic information on the request latency of every request by pasting the following url in your browser: <code><a href="http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg" class="bare">http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg</a></code>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The Atlas wiki contains a <a href="https://github.com/Netflix/atlas/wiki/Single-Line">compilation of sample queries</a> for various scenarios.</p>
+</div>
+<div class="paragraph">
+<p>Make sure to check out the <a href="https://github.com/Netflix/atlas/wiki/Alerting-Philosophy">alerting philosophy</a> and docs on using <a href="https://github.com/Netflix/atlas/wiki/DES">double exponential smoothing</a> to generate dynamic alert thresholds.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-12-03 18:00:35 UTC
+Last updated 2015-12-12 18:23:12 UTC
 </div>
 </div>
 </body>
