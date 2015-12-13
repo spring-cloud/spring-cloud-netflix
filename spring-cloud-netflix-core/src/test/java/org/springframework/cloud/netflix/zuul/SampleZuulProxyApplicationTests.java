@@ -64,6 +64,8 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
 @WebAppConfiguration
@@ -189,6 +191,17 @@ public class SampleZuulProxyApplicationTests {
 	}
 
 	@Test
+	public void simpleHostRouteWithTrailingSlash() {
+		routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/trailing-slash",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("/trailing-slash", result.getBody());
+	}
+
+	@Test
 	public void ribbonCommandFactoryOverridden() {
 		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
 				ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
@@ -244,6 +257,11 @@ class SampleZuulProxyApplication {
 	@RequestMapping("/spa ce")
 	public String space() {
 		return "Hello space";
+	}
+
+	@RequestMapping(value = "/trailing-slash")
+	public String trailingSlash(HttpServletRequest request) {
+		return request.getRequestURI();
 	}
 
 	@Bean
