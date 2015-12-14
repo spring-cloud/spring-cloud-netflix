@@ -1458,6 +1458,9 @@ public interface StoreClient {
 <li>
 <p><code>Contract</code> feignContract: <code>SpringMvcContract</code></p>
 </li>
+<li>
+<p><code>Feign.Builder</code> feignBuilder: <code>HystrixFeign.Builder</code></p>
+</li>
 </ul>
 </div>
 <div class="paragraph">
@@ -1506,6 +1509,30 @@ public class FooConfiguration {
 </div>
 <div class="paragraph">
 <p>Default configurations can be specified in the <code>@EnableFeignClients</code> attribute <code>defaultConfiguration</code> in a similar manner as described above. The difference is that this configuration will apply to <em>all</em> feign clients.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-hystrix">Feign Hystrix Support</h3>
+<div class="paragraph">
+<p>If Hystrix is on the classpath, by default Feign will wrap all methods with a circuit breaker. Returning a <code>com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code>.toObservable()</code> or <code>.observe()</code> or asynchronous use (with a call to <code>.queue()</code>).</p>
+</div>
+<div class="paragraph">
+<p>To disable Hystrix support for Feign, set <code>feign.hystrix.enabled=false</code>.</p>
+</div>
+<div class="paragraph">
+<p>To disable Hystrix support on a per-client basis create a vanilla <code>Feign.Builder</code> with the "prototype" scope, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+	@Scope("prototype")
+	public Feign.Builder feignBuilder() {
+		return Feign.builder();
+	}
+}</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -2421,7 +2448,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-12-12 18:23:12 UTC
+Last updated 2015-12-14 21:40:23 UTC
 </div>
 </div>
 </body>
