@@ -17,9 +17,11 @@
 package org.springframework.cloud.netflix.feign;
 
 import feign.Contract;
+import feign.Feign;
 import feign.Logger;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
+import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,6 +70,11 @@ public class EnableFeignClientsTests {
 	@Test
 	public void contractDefaultCorrect() {
 		SpringMvcContract.class.cast(this.factory.getInstance("foo", Contract.class));
+	}
+
+	@Test
+	public void builderDefaultCorrect() {
+		HystrixFeign.Builder.class.cast(this.factory.getInstance("foo", Feign.Builder.class));
 	}
 
 	@Configuration

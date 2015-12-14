@@ -62,7 +62,8 @@ import lombok.NoArgsConstructor;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignHttpClientTests.Application.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest" })
+@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest",
+		"feign.hystrix.enabled=false" })
 @DirtiesContext
 public class FeignHttpClientTests {
 

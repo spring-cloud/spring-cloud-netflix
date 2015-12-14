@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign;
 import static org.junit.Assert.*;
 
 import feign.Contract;
+import feign.Feign;
 import feign.Logger;
 import feign.Request;
 import feign.RequestInterceptor;
@@ -27,6 +28,7 @@ import feign.auth.BasicAuthRequestInterceptor;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
+import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,6 +100,12 @@ public class FeignClientOverrideDefaultsTests {
 	}
 
 	@Test
+	public void overrideBuilder() {
+		Feign.Builder.class.cast(factory.getInstance("foo", Feign.Builder.class));
+		HystrixFeign.Builder.class.cast(factory.getInstance("bar", Feign.Builder.class));
+	}
+
+	@Test
 	public void overrideRequestOptions() {
 		assertNull(factory.getInstance("foo", Request.Options.class));
 		Request.Options options = factory.getInstance("bar", Request.Options.class);
@@ -144,6 +152,11 @@ public class FeignClientOverrideDefaultsTests {
 		@Bean
 		public Contract feignContract() {
 			return new Contract.Default();
+		}
+
+		@Bean
+		public Feign.Builder feignBuilder() {
+			return Feign.builder();
 		}
 	}
 

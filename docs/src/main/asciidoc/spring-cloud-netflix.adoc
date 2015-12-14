@@ -806,6 +806,7 @@ Spring Cloud Netflix provides the following beans by default for feign (`BeanTyp
 * `Encoder` feignEncoder: `SpringEncoder`
 * `Logger` feignLogger: `Slf4jLogger`
 * `Contract` feignContract: `SpringMvcContract`
+* `Feign.Builder` feignBuilder: `HystrixFeign.Builder`
 
 Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
 
@@ -836,6 +837,27 @@ public class FooConfiguration {
 This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `RequestInterceptor` to the collection of `RequestInterceptor`.
 
 Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
+
+[[spring-cloud-feign-hystrix]]
+=== Feign Hystrix Support
+
+If Hystrix is on the classpath, by default Feign will wrap all methods with a circuit breaker. Returning a `com.netflix.hystrix.HystrixCommand` is also available. This lets you use reactive patterns (with a call to `.toObservable()` or `.observe()` or asynchronous use (with a call to `.queue()`).
+
+To disable Hystrix support for Feign, set `feign.hystrix.enabled=false`.
+
+To disable Hystrix support on a per-client basis create a vanilla `Feign.Builder` with the "prototype" scope, e.g.:
+
+[source,java,indent=0]
+----
+@Configuration
+public class FooConfiguration {
+    @Bean
+	@Scope("prototype")
+	public Feign.Builder feignBuilder() {
+		return Feign.builder();
+	}
+}
+----
 
 [[spring-cloud-feign-inheritance]]
 === Feign Inheritance Support

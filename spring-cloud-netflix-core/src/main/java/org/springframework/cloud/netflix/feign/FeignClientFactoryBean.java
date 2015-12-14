@@ -75,7 +75,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		}
 
 		// @formatter:off
-		Feign.Builder builder = HystrixFeign.builder()
+		Feign.Builder builder = get(factory, Feign.Builder.class)
 				// required values
 				.logger(logger)
 				.encoder(get(factory, Encoder.class))
