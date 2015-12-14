@@ -18,9 +18,6 @@ package org.springframework.cloud.netflix.feign;
 
 import java.util.Map;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -36,11 +33,14 @@ import feign.Logger;
 import feign.Request;
 import feign.RequestInterceptor;
 import feign.Retryer;
+import feign.Target;
+import feign.Target.HardCodedTarget;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author Spencer Gibb
@@ -120,10 +120,10 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		return factory.getInstance(this.name, type);
 	}
 
-	protected <T> T loadBalance(Feign.Builder builder, FeignClientFactory factory, Class<T> type, String url) {
+	protected <T> T loadBalance(Feign.Builder builder, FeignClientFactory factory, Target<T> target) {
 		Client client = getOptional(factory, Client.class);
 		if (client != null) {
-			return builder.client(client).target(type, url);
+			return builder.client(client).target(target);
 		}
 
 		throw new IllegalStateException("No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-ribbon?");
@@ -140,12 +140,12 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 			} else {
 				url = this.name;
 			}
-			return loadBalance(feign(factory), factory, this.type, url);
+			return loadBalance(feign(factory), factory, new HardCodedTarget<>(this.type, this.name, url));
 		}
 		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
 			this.url = "http://" + this.url;
 		}
-		return feign(factory).target(this.type, this.url);
+		return feign(factory).target(new HardCodedTarget<>(this.type, this.name, this.url));
 	}
 
 	@Override
