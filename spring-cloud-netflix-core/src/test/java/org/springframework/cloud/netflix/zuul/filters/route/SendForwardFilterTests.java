@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters.post;
+package org.springframework.cloud.netflix.zuul.filters.route;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
