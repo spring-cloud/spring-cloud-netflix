@@ -18,6 +18,11 @@ package org.springframework.cloud.netflix.feign;
 
 import java.util.Map;
 
+import feign.Target;
+import feign.Target.HardCodedTarget;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,14 +38,11 @@ import feign.Logger;
 import feign.Request;
 import feign.RequestInterceptor;
 import feign.Retryer;
-import feign.Target;
-import feign.Target.HardCodedTarget;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
+import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author Spencer Gibb
