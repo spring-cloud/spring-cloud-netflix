@@ -64,6 +64,11 @@ public @interface FeignClient {
 	String url() default "";
 
 	/**
+	 * Whether 404s should be decoded instead of throwing FeignExceptions
+	 */
+	boolean decode404() default false;
+
+	/**
 	 * A custom <code>@Configuration</code> for the feign client. Can contain override
 	 * <code>@Bean</code> definition for the pieces that make up the client, for instance
 	 * {@link feign.codec.Decoder}, {@link feign.codec.Encoder}, {@link feign.Contract}.
