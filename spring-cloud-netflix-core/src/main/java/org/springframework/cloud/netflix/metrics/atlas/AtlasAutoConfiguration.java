@@ -20,11 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
+import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.publish.MetricPoller;
+import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.tag.BasicTagList;
 
 /**
@@ -34,6 +38,7 @@ import com.netflix.servo.tag.BasicTagList;
  */
 @Configuration
 @ConditionalOnClass(AtlasMetricObserver.class)
+@Import(ServoMetricsAutoConfiguration.class)
 public class AtlasAutoConfiguration {
 	@Autowired(required = false)
 	private Collection<AtlasTagProvider> tagProviders;
@@ -56,6 +61,12 @@ public class AtlasAutoConfiguration {
 			}
 		}
 		return new AtlasMetricObserver(atlasObserverConfig, restTemplate, tags);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public MetricPoller metricPoller(MonitorRegistry monitorRegistry) {
+		return new MonitorRegistryMetricPoller(monitorRegistry);
 	}
 
 	@Bean
