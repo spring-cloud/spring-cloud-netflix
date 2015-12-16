@@ -95,9 +95,14 @@ public class AtlasMetricObserver implements MetricObserver {
 	}
 
 	protected static String normalizeAtlasUri(String uri) {
-		Matcher matcher = Pattern.compile("(.+?)(/api/v1/publish)?/?").matcher(uri);
-		matcher.matches();
-		return matcher.group(1) + "/api/v1/publish";
+		if (uri != null) {
+			Matcher matcher = Pattern.compile("(.+?)(/api/v1/publish)?/?").matcher(uri);
+			if (matcher.matches())
+				return matcher.group(1) + "/api/v1/publish";
+			else
+				throw new IllegalStateException("netflix.atlas.uri is not a valid uri");
+		}
+		throw new IllegalStateException("netflix.atlas.uri was not found in your properties and is required to communicate with Atlas");
 	}
 
 	@Override

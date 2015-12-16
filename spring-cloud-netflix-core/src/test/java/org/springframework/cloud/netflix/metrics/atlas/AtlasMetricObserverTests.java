@@ -53,6 +53,16 @@ public class AtlasMetricObserverTests {
 		assertEquals(normalized, AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/api/v1/publish/"));
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void emptyAtlasUriThrowsException() {
+		AtlasMetricObserver.normalizeAtlasUri("");
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void missingAtlasUriThrowsException() {
+		AtlasMetricObserver.normalizeAtlasUri(null);
+	}
+
 	@Test
 	public void checkValidityOfTags() {
 		assertTrue(AtlasMetricObserver.validTags(BasicTagList.of("foo", "bar")));
