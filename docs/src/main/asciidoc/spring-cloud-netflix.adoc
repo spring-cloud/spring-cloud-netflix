@@ -1537,7 +1537,7 @@ Atlas was developed by Netflix to manage dimensional time series data for near r
 
 Atlas captures operational intelligence. Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.
 
-No additional dependencies are necessary to send Spring Boot Actuator, Servo, and Spectator metrics to Atlas. Just annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server with the `netflix.atlas.uri` property.
+Spring Cloud provides a `spring-cloud-starter-atlas` that has all the dependencies you need. Then just annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server with the `netflix.atlas.uri` property.
 
 ==== Global tags
 
