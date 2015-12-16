@@ -73,12 +73,6 @@ public class SpectatorMetricsAutoConfiguration {
     }
 
 	@Bean
-	@ConditionalOnMissingBean(MetricPoller.class)
-	MetricPoller metricPoller() {
-		return new MonitorRegistryMetricPoller();
-	}
-
-	@Bean
 	@ConditionalOnMissingBean
 	public SpectatorMetricServices spectatorMetricServices(Registry metricRegistry) {
 		return new SpectatorMetricServices(metricRegistry);
