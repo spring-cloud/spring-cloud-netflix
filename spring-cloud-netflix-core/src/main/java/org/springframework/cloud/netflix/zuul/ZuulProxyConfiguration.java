@@ -30,10 +30,9 @@ import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.*;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
+import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
@@ -74,8 +73,15 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	@Override
 	public ProxyRouteLocator routeLocator() {
+		ServiceRouteMapper serviceRouteMapper;
+		if(zuulProperties.getRegexMapper().isEnable()) {
+			serviceRouteMapper = new RegExServiceRouteMapper(zuulProperties.getRegexMapper().getServicePattern(),
+					zuulProperties.getRegexMapper().getRoutePattern());
+		} else {
+			serviceRouteMapper = new SimpleServiceRouteMapper();
+		}
 		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
-				this.zuulProperties);
+				this.zuulProperties, serviceRouteMapper);
 	}
 
 	@Bean
