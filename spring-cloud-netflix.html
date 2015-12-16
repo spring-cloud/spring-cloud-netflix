@@ -1832,6 +1832,28 @@ users:
 </div>
 </div>
 <div class="paragraph">
+<p>You can provide convention between serviceId and routes using regexmapper.
+It uses regular expression named group to extract variables from serviceId and inject them
+into a route pattern.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  regexMapper:
+   enabled: true
+   servicePattern: "(?&lt;name&gt;^.+)-(?&lt;version&gt;v.+$)"
+   routePattern: "${version}/${name}"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that a serviceId "myusers-v1" will be mapped to route "/v1/myusers/<strong>".
+Any regular expression is accepted but all named group must be present in both servicePattern and routePattern.
+If servicePattern do not match a serviceId, the default behavior is used. In exemple above,
+a serviceId "myusers" will be mapped to route "/myusers/</strong>" (no version detected)
+These feature is disable by default and is only applied to discovered services.</p>
+</div>
+<div class="paragraph">
 <p>To add a prefix to all mappings, set <code>zuul.prefix</code> to a value, such as
 <code>/api</code>. The proxy prefix is stripped from the request before the
 request is forwarded by default (switch this behaviour off with
@@ -2448,7 +2470,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-12-16 17:23:54 UTC
+Last updated 2015-12-16 19:11:50 UTC
 </div>
 </div>
 </body>
