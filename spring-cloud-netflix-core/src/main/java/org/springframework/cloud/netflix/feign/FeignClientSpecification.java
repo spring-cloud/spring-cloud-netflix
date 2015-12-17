@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import org.springframework.cloud.context.named.NamedContextFactory;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FeignClientSpecification {
+public class FeignClientSpecification implements NamedContextFactory.Specification {
 
 	private String name;
 

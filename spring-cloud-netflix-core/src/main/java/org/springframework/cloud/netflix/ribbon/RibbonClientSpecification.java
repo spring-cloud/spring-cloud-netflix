@@ -16,15 +16,19 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import org.springframework.cloud.context.named.NamedContextFactory;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Dave Syer
  */
 @Data
 @AllArgsConstructor
-public class RibbonClientSpecification {
+@NoArgsConstructor
+public class RibbonClientSpecification implements NamedContextFactory.Specification {
 
 	private String name;
 
