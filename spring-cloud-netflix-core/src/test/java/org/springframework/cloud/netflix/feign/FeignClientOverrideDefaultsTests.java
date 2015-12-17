@@ -16,20 +16,6 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import static org.junit.Assert.*;
-
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
-import feign.Request;
-import feign.RequestInterceptor;
-import feign.Retryer;
-import feign.auth.BasicAuthRequestInterceptor;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.codec.ErrorDecoder;
-import feign.hystrix.HystrixFeign;
-import feign.slf4j.Slf4jLogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +32,23 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import feign.Contract;
+import feign.Feign;
+import feign.Logger;
+import feign.Request;
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+import feign.Retryer;
+import feign.auth.BasicAuthRequestInterceptor;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.codec.ErrorDecoder;
+import feign.hystrix.HystrixFeign;
+import feign.slf4j.Slf4jLogger;
+
 /**
  * @author Spencer Gibb
  */
@@ -59,75 +62,88 @@ public class FeignClientOverrideDefaultsTests {
 
 	@Test
 	public void overrideDecoder() {
-		Decoder.Default.class.cast(factory.getInstance("foo", Decoder.class));
-		ResponseEntityDecoder.class.cast(factory.getInstance("bar", Decoder.class));
+		Decoder.Default.class.cast(this.factory.getInstance("foo", Decoder.class));
+		ResponseEntityDecoder.class.cast(this.factory.getInstance("bar", Decoder.class));
 	}
 
 	@Test
 	public void overrideEncoder() {
-		Encoder.Default.class.cast(factory.getInstance("foo", Encoder.class));
-		SpringEncoder.class.cast(factory.getInstance("bar", Encoder.class));
+		Encoder.Default.class.cast(this.factory.getInstance("foo", Encoder.class));
+		SpringEncoder.class.cast(this.factory.getInstance("bar", Encoder.class));
 	}
 
 	@Test
 	public void overrideLogger() {
-		Logger.JavaLogger.class.cast(factory.getInstance("foo", Logger.class));
-		Slf4jLogger.class.cast(factory.getInstance("bar", Logger.class));
+		Logger.JavaLogger.class.cast(this.factory.getInstance("foo", Logger.class));
+		Slf4jLogger.class.cast(this.factory.getInstance("bar", Logger.class));
 	}
 
 	@Test
 	public void overrideContract() {
-		Contract.Default.class.cast(factory.getInstance("foo", Contract.class));
-		SpringMvcContract.class.cast(factory.getInstance("bar", Contract.class));
+		Contract.Default.class.cast(this.factory.getInstance("foo", Contract.class));
+		SpringMvcContract.class.cast(this.factory.getInstance("bar", Contract.class));
 	}
 
 	@Test
 	public void overrideLoggerLevel() {
-		assertNull(factory.getInstance("foo", Logger.Level.class));
-		assertEquals(Logger.Level.HEADERS, factory.getInstance("bar", Logger.Level.class));
+		assertNull(this.factory.getInstance("foo", Logger.Level.class));
+		assertEquals(Logger.Level.HEADERS,
+				this.factory.getInstance("bar", Logger.Level.class));
 	}
 
 	@Test
 	public void overrideRetryer() {
-		assertNull(factory.getInstance("foo", Retryer.class));
-		Retryer.Default.class.cast(factory.getInstance("bar", Retryer.class));
+		assertNull(this.factory.getInstance("foo", Retryer.class));
+		Retryer.Default.class.cast(this.factory.getInstance("bar", Retryer.class));
 	}
 
 	@Test
 	public void overrideErrorDecoder() {
-		assertNull(factory.getInstance("foo", ErrorDecoder.class));
-		ErrorDecoder.Default.class.cast(factory.getInstance("bar", ErrorDecoder.class));
+		assertNull(this.factory.getInstance("foo", ErrorDecoder.class));
+		ErrorDecoder.Default.class
+				.cast(this.factory.getInstance("bar", ErrorDecoder.class));
 	}
 
 	@Test
 	public void overrideBuilder() {
-		Feign.Builder.class.cast(factory.getInstance("foo", Feign.Builder.class));
-		HystrixFeign.Builder.class.cast(factory.getInstance("bar", Feign.Builder.class));
+		Feign.Builder.class.cast(this.factory.getInstance("foo", Feign.Builder.class));
+		HystrixFeign.Builder.class
+				.cast(this.factory.getInstance("bar", Feign.Builder.class));
 	}
 
 	@Test
 	public void overrideRequestOptions() {
-		assertNull(factory.getInstance("foo", Request.Options.class));
-		Request.Options options = factory.getInstance("bar", Request.Options.class);
+		assertNull(this.factory.getInstance("foo", Request.Options.class));
+		Request.Options options = this.factory.getInstance("bar", Request.Options.class);
 		assertEquals(1, options.connectTimeoutMillis());
 		assertEquals(1, options.readTimeoutMillis());
 	}
 
 	@Test
 	public void addRequestInterceptor() {
-		assertNull(factory.getInstance("foo", RequestInterceptor.class));
-		BasicAuthRequestInterceptor.class.cast(factory.getInstance("bar", RequestInterceptor.class));
+		assertEquals(1,
+				this.factory.getInstances("foo", RequestInterceptor.class).size());
+		assertEquals(2,
+				this.factory.getInstances("bar", RequestInterceptor.class).size());
 	}
 
 	@Configuration
-	@EnableFeignClients(clients = {FooClient.class, BarClient.class})
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, FeignAutoConfiguration.class})
+	@EnableFeignClients(clients = { FooClient.class, BarClient.class })
+	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+			FeignAutoConfiguration.class })
 	protected static class TestConfiguration {
+		@Bean
+		RequestInterceptor defaultRequestInterceptor() {
+			return new RequestInterceptor() {
+				@Override
+				public void apply(RequestTemplate template) {
+				}
+			};
+		}
 	}
 
 	@FeignClient(value = "foo", configuration = FooConfiguration.class)
-	interface FooClient{
+	interface FooClient {
 		@RequestMapping("/")
 		String get();
 
@@ -161,7 +177,7 @@ public class FeignClientOverrideDefaultsTests {
 	}
 
 	@FeignClient(value = "bar", configuration = BarConfiguration.class)
-	interface BarClient{
+	interface BarClient {
 		@RequestMapping("/")
 		String get();
 	}

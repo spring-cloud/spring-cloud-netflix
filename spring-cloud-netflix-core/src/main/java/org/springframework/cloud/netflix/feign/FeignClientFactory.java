@@ -97,10 +97,9 @@ public class FeignClientFactory implements DisposableBean, ApplicationContextAwa
 		}
 		context.register(PropertyPlaceholderAutoConfiguration.class,
 				FeignClientsConfiguration.class);
-		context.getEnvironment().getPropertySources()
-				.addFirst(new MapPropertySource("feign",
-								Collections.<String, Object> singletonMap(
-										"feign.client.name", name)));
+		context.getEnvironment().getPropertySources().addFirst(new MapPropertySource(
+				"feign",
+				Collections.<String, Object> singletonMap("feign.client.name", name)));
 		if (this.parent != null) {
 			// Uses Environment from parent as well as beans
 			context.setParent(this.parent);
@@ -111,17 +110,18 @@ public class FeignClientFactory implements DisposableBean, ApplicationContextAwa
 
 	public <C> C getInstance(String name, Class<C> type) {
 		AnnotationConfigApplicationContext context = getContext(name);
-		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, type).length > 0) {
+		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context,
+				type).length > 0) {
 			return context.getBean(type);
 		}
 		return null;
 	}
 
-
 	public <C> Map<String, C> getInstances(String name, Class<C> type) {
 		AnnotationConfigApplicationContext context = getContext(name);
-		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, type).length > 0) {
-			return context.getBeansOfType(type);
+		if (BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context,
+				type).length > 0) {
+			return BeanFactoryUtils.beansOfTypeIncludingAncestors(context, type);
 		}
 		return null;
 	}
