@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.publish.MetricPoller;
 import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.servo.tag.BasicTagList;
 
@@ -65,13 +64,7 @@ public class AtlasAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public MetricPoller metricPoller(MonitorRegistry monitorRegistry) {
-		return new MonitorRegistryMetricPoller(monitorRegistry);
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	public Exporter exporter(AtlasMetricObserver observer, MetricPoller poller) {
-		return new AtlasExporter(observer, poller);
+	public Exporter exporter(AtlasMetricObserver observer, MonitorRegistry monitorRegistry) {
+		return new AtlasExporter(observer, new MonitorRegistryMetricPoller(monitorRegistry));
 	}
 }

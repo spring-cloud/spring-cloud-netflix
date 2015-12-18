@@ -14,7 +14,7 @@
 package org.springframework.cloud.netflix.metrics.spectator;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
 import org.springframework.boot.actuate.endpoint.MetricReaderPublicMetrics;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -30,8 +30,6 @@ import org.springframework.context.annotation.Import;
 
 import com.netflix.servo.DefaultMonitorRegistry;
 import com.netflix.servo.MonitorRegistry;
-import com.netflix.servo.publish.MetricPoller;
-import com.netflix.servo.publish.MonitorRegistryMetricPoller;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.servo.ServoRegistry;
 
@@ -46,7 +44,7 @@ import com.netflix.spectator.servo.ServoRegistry;
  * @author Jon Schneider
  */
 @Configuration
-@AutoConfigureBefore(EndpointAutoConfiguration.class)
+@AutoConfigureBefore(MetricRepositoryAutoConfiguration.class)
 @ConditionalOnClass({ Registry.class, MetricReader.class })
 @Import(MetricsInterceptorConfiguration.class)
 public class SpectatorMetricsAutoConfiguration {
@@ -73,7 +71,6 @@ public class SpectatorMetricsAutoConfiguration {
     }
 
 	@Bean
-	@ConditionalOnMissingBean
 	public SpectatorMetricServices spectatorMetricServices(Registry metricRegistry) {
 		return new SpectatorMetricServices(metricRegistry);
 	}

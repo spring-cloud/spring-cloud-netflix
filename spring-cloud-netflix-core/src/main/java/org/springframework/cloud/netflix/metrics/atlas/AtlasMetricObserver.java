@@ -81,12 +81,12 @@ public class AtlasMetricObserver implements MetricObserver {
 	protected static boolean validTags(TagList tags) {
 		for (Tag tag : tags) {
 			if (!validAtlasTag.matcher(tag.getKey()).matches()) {
-				logger.error("Invalid tag key " + tag.getKey());
+				logger.debug("Invalid tag key " + tag.getKey());
 				return false;
 			}
 
 			if (!validAtlasTag.matcher(tag.getValue()).matches()) {
-				logger.error("Invalid tag value " + tag.getValue());
+				logger.debug("Invalid tag value " + tag.getValue());
 				return false;
 			}
 		}
