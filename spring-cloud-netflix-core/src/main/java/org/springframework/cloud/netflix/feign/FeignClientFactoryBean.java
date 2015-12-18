@@ -55,6 +55,8 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 
 	private String url;
 
+	private boolean decode404;
+
 	private ApplicationContext context;
 
 	@Override
@@ -103,6 +105,10 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		Map<String, RequestInterceptor> requestInterceptors = factory.getInstances(this.name, RequestInterceptor.class);
 		if (requestInterceptors != null) {
 			builder.requestInterceptors(requestInterceptors.values());
+		}
+
+		if (decode404) {
+			builder.decode404();
 		}
 
 		return builder;

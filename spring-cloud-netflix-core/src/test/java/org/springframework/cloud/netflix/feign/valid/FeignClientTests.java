@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -91,6 +92,9 @@ public class FeignClientTests {
 	private TestClientServiceId testClientServiceId;
 
 	@Autowired
+	private DecodingTestClient decodingTestClient;
+
+	@Autowired
 	private Client feignClient;
 
 	@FeignClient(value = "localapp", configuration = TestClientConfig.class)
@@ -149,14 +153,21 @@ public class FeignClientTests {
 		Hello getHello();
 	}
 
+	@FeignClient(name = "localapp2", decode404 = true)
+	protected interface DecodingTestClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/notFound")
+		ResponseEntity<String> notFound();
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class},
+	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class, DecodingTestClient.class},
 			defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClients({
 			@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class)
+			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class),
+			@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class)
 	})
 	protected static class Application {
 
@@ -202,6 +213,11 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
 		ResponseEntity head() {
 			return ResponseEntity.ok().build();
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/notFound")
+		ResponseEntity notFound() {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
 		}
 
 		public static void main(String[] args) {
@@ -297,6 +313,14 @@ public class FeignClientTests {
 		ResponseEntity response = testClient.head();
 		assertNotNull("response was null", response);
 		assertEquals("status code was wrong", HttpStatus.OK, response.getStatusCode());
+	}
+
+	@Test
+	public void testDecodeNotFound() {
+		ResponseEntity response = decodingTestClient.notFound();
+		assertNotNull("response was null", response);
+		assertEquals("status code was wrong", HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertNull("response body was not null", response.getBody());
 	}
 
 	@Data

@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Spencer Gibb
@@ -66,7 +67,12 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	}
 
 	public TestClient testClient() {
+		return testClient(false);
+	}
+
+	public TestClient testClient(boolean decode404) {
 		setType(this.getClass());
+		setDecode404(decode404);
 		return feign(factory).target(TestClient.class, "http://localhost:" + this.port);
 	}
 
@@ -118,6 +124,13 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	@Test(expected = RuntimeException.class)
 	public void test404() {
 		testClient().getNotFound();
+	}
+
+	@Test
+	public void testDecodes404() {
+		final ResponseEntity<String> response = testClient(true).getNotFound();
+		assertNotNull("response was null", response);
+		assertNull("response body was not null", response.getBody());
 	}
 
 	@Data

@@ -173,6 +173,7 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		definition.addPropertyValue("url", getUrl(attributes));
 		definition.addPropertyValue("name", getServiceId(attributes));
 		definition.addPropertyValue("type", className);
+		definition.addPropertyValue("decode404", attributes.get("decode404"));
 		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
 		String beanName = StringUtils
