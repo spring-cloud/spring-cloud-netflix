@@ -65,10 +65,10 @@ public class SpectatorMetricsAutoConfiguration {
 		return new ServoRegistry();
 	}
 
-    @Bean
-    public ServoMonitorCache monitorCache() {
-        return new ServoMonitorCache(monitorRegistry());
-    }
+	@Bean
+	public ServoMonitorCache monitorCache() {
+		return new ServoMonitorCache(monitorRegistry());
+	}
 
 	@Bean
 	public SpectatorMetricServices spectatorMetricServices(Registry metricRegistry) {
