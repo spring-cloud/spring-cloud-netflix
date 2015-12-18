@@ -35,10 +35,13 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
  */
+@CommonsLog
 public class SendResponseFilter extends ZuulFilter {
 
 	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
@@ -101,7 +104,8 @@ public class SendResponseFilter extends ZuulFilter {
 			boolean isGzipRequested = false;
 			final String requestEncoding = context.getRequest().getHeader(
 					ZuulHeaders.ACCEPT_ENCODING);
-			if (requestEncoding != null && requestEncoding.equals("gzip")) {
+
+			if (requestEncoding != null && HTTPRequestUtils.getInstance().isGzipped(requestEncoding)) {
 				isGzipRequested = true;
 			}
 			is = context.getResponseDataStream();
@@ -117,14 +121,13 @@ public class SendResponseFilter extends ZuulFilter {
 							inputStream = new GZIPInputStream(is);
 						}
 						catch (java.util.zip.ZipException ex) {
-							System.out.println("gzip expected but not "
-									+ "received assuming unencoded response"
+							log.debug("gzip expected but not "
+									+ "received assuming unencoded response "
 									+ RequestContext.getCurrentContext().getRequest()
-											.getRequestURL().toString());
+									.getRequestURL().toString());
 							inputStream = is;
 						}
-					}
-					else if (context.getResponseGZipped() && isGzipRequested) {
+					} else if (context.getResponseGZipped() && isGzipRequested) {
 						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
 					}
 					writeResponse(inputStream, outStream);
