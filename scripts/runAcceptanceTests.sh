@@ -6,7 +6,6 @@ mkdir -p target
 
 SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/brewery/master/acceptance-tests/scripts/runDockerAcceptanceTests.sh"
 AT_WHAT_TO_TEST="EUREKA"
-TEST_OPTS="-Dpresenting.poll.interval=5"
 
 cd target
 
@@ -14,7 +13,7 @@ curl "${SCRIPT_URL}" --output runDockerAcceptanceTests.sh
 
 chmod +x runDockerAcceptanceTests.sh
 
-./runDockerAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}" -o "${TEST_OPTS}"
+./runDockerAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}"
 
 SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/tests/master/scripts/runTests.sh"
 
