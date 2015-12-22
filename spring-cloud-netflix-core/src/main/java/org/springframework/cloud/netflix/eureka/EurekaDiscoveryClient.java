@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
@@ -79,6 +80,11 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 			public URI getUri() {
 				return DefaultServiceInstance.getUri(this);
 			}
+
+			@Override
+			public Map<String, String> getMetadata() {
+				return EurekaDiscoveryClient.this.config.getMetadataMap();
+			}
 		};
 	}
 
@@ -131,6 +137,11 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		@Override
 		public URI getUri() {
 			return DefaultServiceInstance.getUri(this);
+		}
+
+		@Override
+		public Map<String, String> getMetadata() {
+			return this.instance.getMetadata();
 		}
 	}
 

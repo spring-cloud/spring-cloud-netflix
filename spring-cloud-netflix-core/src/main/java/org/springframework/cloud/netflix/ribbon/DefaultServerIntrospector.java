@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.util.Collections;
+import java.util.Map;
+
 import com.netflix.loadbalancer.Server;
 
 /**
@@ -26,5 +29,10 @@ public class DefaultServerIntrospector implements ServerIntrospector {
 	public boolean isSecure(Server server) {
 		// Can we do better?
 		return (""+server.getPort()).endsWith("443");
+	}
+
+	@Override
+	public Map<String, String> getMetadata(Server server) {
+		return Collections.emptyMap();
 	}
 }

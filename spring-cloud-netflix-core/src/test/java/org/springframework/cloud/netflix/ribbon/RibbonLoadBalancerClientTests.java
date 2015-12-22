@@ -16,22 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.net.URI;
 import java.net.URL;
-
-import lombok.SneakyThrows;
+import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +35,21 @@ import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
+
+import lombok.SneakyThrows;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -70,6 +73,13 @@ public class RibbonLoadBalancerClientTests {
 		MockitoAnnotations.initMocks(this);
 		given(this.clientFactory.getLoadBalancerContext(anyString())).willReturn(
 				new RibbonLoadBalancerContext(this.loadBalancer));
+		given(this.clientFactory.getInstance(anyString(), eq(ServerIntrospector.class)))
+				.willReturn(new DefaultServerIntrospector() {
+					@Override
+					public Map<String, String> getMetadata(Server server) {
+						return Collections.singletonMap("mykey", "myvalue");
+					}
+				});
 	}
 
 	@Test
@@ -167,7 +177,8 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	protected RibbonServer getRibbonServer() {
-		return new RibbonServer("testService", new Server("myhost", 9080));
+		return new RibbonServer("testService", new Server("myhost", 9080), false,
+				Collections.singletonMap("mykey", "myvalue"));
 	}
 
 	protected void verifyServerStats() {
@@ -184,6 +195,8 @@ public class RibbonLoadBalancerClientTests {
 				instance.getServiceId());
 		assertEquals("host was wrong", ribbonServer.getHost(), instance.getHost());
 		assertEquals("port was wrong", ribbonServer.getPort(), instance.getPort());
+		assertEquals("missing metadata", ribbonServer.getMetadata().get("mykey"),
+				instance.getMetadata().get("mykey"));
 	}
 
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(
