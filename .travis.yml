@@ -1,12 +1,15 @@
 sudo: false
-cache:
-  directories:
-    - $HOME/.m2
+#cache:
+#  directories:
+#    - $HOME/.m2
 language: java
+sudo: required
+dist: trusty
 jdk:
   - oraclejdk8
 services:
   - rabbitmq
+  - docker
 before_install:
   - git config user.name "$GIT_NAME"
   - git config user.email "$GIT_EMAIL"
@@ -22,7 +25,9 @@ env:
   - GIT_EMAIL=dsyer@pivotal.io
   - CI_DEPLOY_USERNAME=buildmaster
   - secure: aeLXRC5oFSddwnZt1/7G2/OHr7jDbxz0ET7sej3I+eSbe3N5vbzQ6FC08es4l89l54ciXd90I1g2BMw7DTYKOO373FP78XPdAEbifJTU4DGd6fCELmoTtUPhjunBIk7E49hisPbv82892IYYA7qi/hzG548cPyZ1IgiJjq0NCsc=
-script: |
+  - TERM=dumb
+script: 
+- |
   echo "Current Branch: ${TRAVIS_BRANCH}"
   echo "Pull Request: ${TRAVIS_PULL_REQUEST}"
   if [ "${TRAVIS_BRANCH}" = master ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
@@ -32,3 +37,4 @@ script: |
     echo "[Installing] Intalling snapshot to local maven repo"
     ./mvnw install -nsu -Dmaven.test.redirectTestOutputToFile=true
   fi
+- jdk_switcher use oraclejdk8 && sh -e scripts/runAcceptanceTests.sh
