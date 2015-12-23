@@ -16,25 +16,28 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
-import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.util.InetUtils;
+import org.springframework.cloud.util.InetUtilsProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+
 /**
  * @author Dave Syer
+ * @author Spencer Gibb
  */
 public class EurekaInstanceConfigBeanTests {
 
@@ -43,7 +46,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Before
 	public void init() {
-		this.hostName = getFirstNonLoopbackHostInfo().getHostname();
+		this.hostName = new InetUtils(new InetUtilsProperties())
+				.findFirstNonLoopbackHostInfo().getHostname();
 	}
 
 	@After
@@ -148,8 +152,12 @@ public class EurekaInstanceConfigBeanTests {
 	}
 
 	@Configuration
-	@EnableConfigurationProperties(EurekaInstanceConfigBean.class)
+	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+		@Bean
+		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
+			return new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
+		}
 
 	}
 

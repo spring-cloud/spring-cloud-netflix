@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +28,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
 import org.springframework.cloud.netflix.ribbon.eureka.RibbonClientPreprocessorIntegrationTests.TestConfiguration;
+import org.springframework.cloud.util.InetUtils;
+import org.springframework.cloud.util.InetUtilsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -39,6 +39,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
@@ -87,7 +89,8 @@ public class RibbonClientPreprocessorIntegrationTests {
 	@Configuration
 	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
 	@Import({ PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
+			RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}
 
@@ -99,10 +102,11 @@ public class RibbonClientPreprocessorIntegrationTests {
 			filter.setZone("myTestZone");
 			return filter;
 		}
-		
+
 		@Bean
 		public EurekaInstanceConfigBean getEurekaInstanceConfigBean() {
-			EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean();
+			EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(new InetUtils(
+					new InetUtilsProperties()));
 			return bean;
 		}
 	}

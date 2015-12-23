@@ -21,13 +21,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.util.InetUtils;
 import org.springframework.cloud.util.InetUtils.HostInfo;
 
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.appinfo.MyDataCenterInfo;
-
-import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -44,7 +43,11 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 
 	@Getter(AccessLevel.PRIVATE)
 	@Setter(AccessLevel.PRIVATE)
-	private HostInfo hostInfo = getFirstNonLoopbackHostInfo();
+	private HostInfo hostInfo;
+
+	@Getter(AccessLevel.PRIVATE)
+	@Setter(AccessLevel.PRIVATE)
+	private InetUtils inetUtils;
 
 	@Value("${spring.application.name:unknown}")
 	private String appname = "unknown";
@@ -79,7 +82,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	private DataCenterInfo dataCenterInfo = new MyDataCenterInfo(
 			DataCenterInfo.Name.MyOwn);
 
-	private String ipAddress = this.hostInfo.getIpAddress();
+	private String ipAddress;
 
 	private String statusPageUrlPath = "/info";
 
@@ -97,7 +100,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 
 	private String namespace = "eureka";
 
-	private String hostname = this.hostInfo.getHostname();
+	private String hostname;
 
 	private boolean preferIpAddress = false;
 
@@ -105,6 +108,15 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 
 	public String getHostname() {
 		return getHostName(false);
+	}
+
+	private EurekaInstanceConfigBean() {}
+
+	public EurekaInstanceConfigBean(InetUtils inetUtils) {
+		this.inetUtils = inetUtils;
+		this.hostInfo = this.inetUtils.findFirstNonLoopbackHostInfo();
+		this.ipAddress = this.hostInfo.getIpAddress();
+		this.hostname = this.hostInfo.getHostname();
 	}
 
 	@Override
@@ -129,7 +141,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	public String getHostName(boolean refresh) {
 		if (refresh) {
 			boolean originalOverride = this.hostInfo.override;
-			this.hostInfo = getFirstNonLoopbackHostInfo();
+			this.hostInfo = this.inetUtils.findFirstNonLoopbackHostInfo();
 			this.hostInfo.setOverride(originalOverride);
 			this.ipAddress = this.hostInfo.getIpAddress();
 			if (!this.hostInfo.override) {

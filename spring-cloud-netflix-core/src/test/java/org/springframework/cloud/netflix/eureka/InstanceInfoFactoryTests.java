@@ -1,17 +1,19 @@
 package org.springframework.cloud.netflix.eureka;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
-import static org.springframework.cloud.util.InetUtils.getFirstNonLoopbackHostInfo;
-
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.util.InetUtils;
+import org.springframework.cloud.util.InetUtilsProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.appinfo.InstanceInfo;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
 
 public class InstanceInfoFactoryTests {
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
@@ -19,15 +21,14 @@ public class InstanceInfoFactoryTests {
 	@Test
 	public void instanceIdIsHostNameByDefault() {
 		InstanceInfo instanceInfo = setupInstance();
-		assertEquals(getFirstNonLoopbackHostInfo().getHostname(),
-				instanceInfo.getId());
+		assertEquals(new InetUtils(new InetUtilsProperties())
+				.findFirstNonLoopbackHostInfo().getHostname(), instanceInfo.getId());
 	}
 
 	@Test
 	public void instanceIdIsIpWhenIpPreferred() throws Exception {
 		InstanceInfo instanceInfo = setupInstance("eureka.instance.preferIpAddress:true");
-		assertTrue(instanceInfo.getId().matches(
-				"(\\d+\\.){3}\\d+"));
+		assertTrue(instanceInfo.getId().matches("(\\d+\\.){3}\\d+"));
 	}
 
 	@Test
@@ -53,7 +54,11 @@ public class InstanceInfoFactoryTests {
 	}
 
 	@Configuration
-	@EnableConfigurationProperties(EurekaInstanceConfigBean.class)
+	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+		@Bean
+		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
+			return new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
+		}
 	}
 }

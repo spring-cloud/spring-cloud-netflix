@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
+import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -66,8 +67,8 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void nonSecurePort() {
 		testNonSecurePort("PORT");
-		assertEquals("eurekaClient",
-				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+		assertEquals("eurekaClient", this.context.getBeanDefinition("eurekaClient")
+				.getFactoryMethodName());
 	}
 
 	@Test
@@ -77,8 +78,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("9999"));
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(), instance
+				.getStatusPageUrl().contains("9999"));
 	}
 
 	@Test
@@ -88,15 +89,15 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("foo"));
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(), instance
+				.getStatusPageUrl().contains("foo"));
 	}
 
 	@Test
 	public void refreshScopedBeans() {
 		setupContext(RefreshAutoConfiguration.class);
-		assertEquals(ScopedProxyFactoryBean.class.getName(),
-				this.context.getBeanDefinition("eurekaClient").getBeanClassName());
+		assertEquals(ScopedProxyFactoryBean.class.getName(), this.context
+				.getBeanDefinition("eurekaClient").getBeanClassName());
 		assertEquals(ScopedProxyFactoryBean.class.getName(), this.context
 				.getBeanDefinition("eurekaApplicationInfoManager").getBeanClassName());
 	}
@@ -113,7 +114,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Configuration
 	@EnableConfigurationProperties
-	@Import(EurekaClientAutoConfiguration.class)
+	@Import({ UtilAutoConfiguration.class, EurekaClientAutoConfiguration.class })
 	protected static class TestConfiguration {
 
 	}

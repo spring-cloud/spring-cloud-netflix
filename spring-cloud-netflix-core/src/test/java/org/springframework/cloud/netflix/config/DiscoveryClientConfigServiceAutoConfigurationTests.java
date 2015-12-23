@@ -24,6 +24,7 @@ import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
+import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -75,7 +76,8 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 	private void setup(String... env) {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(parent, env);
-		parent.register(PropertyPlaceholderAutoConfiguration.class,
+		parent.register(UtilAutoConfiguration.class,
+				PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				EnvironmentKnobbler.class, ConfigClientProperties.class);
 		parent.refresh();

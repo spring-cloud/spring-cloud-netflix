@@ -41,6 +41,7 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
+import org.springframework.cloud.util.InetUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -96,8 +97,8 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
-	public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
-		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean();
+	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
+		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {

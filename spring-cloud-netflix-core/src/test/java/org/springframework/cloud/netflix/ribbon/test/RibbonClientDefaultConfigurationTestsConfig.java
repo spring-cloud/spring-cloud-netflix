@@ -16,6 +16,17 @@
 
 package org.springframework.cloud.netflix.ribbon.test;
 
+import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
+import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClients;
+import org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration;
+import org.springframework.cloud.util.UtilAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.BestAvailableRule;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -25,23 +36,14 @@ import com.netflix.loadbalancer.PingUrl;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListSubsetFilter;
-import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 /**
  * @author Spencer Gibb
  */
 @Configuration
-@Import({ PropertyPlaceholderAutoConfiguration.class,
-		ArchaiusAutoConfiguration.class, EurekaClientAutoConfiguration.class,
-		RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class})
+@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+		UtilAutoConfiguration.class, EurekaClientAutoConfiguration.class,
+		RibbonAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
 @RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
 public class RibbonClientDefaultConfigurationTestsConfig {
 
@@ -51,7 +53,6 @@ public class RibbonClientDefaultConfigurationTestsConfig {
 		}
 	}
 }
-
 
 @Configuration
 class DefaultRibbonConfig {

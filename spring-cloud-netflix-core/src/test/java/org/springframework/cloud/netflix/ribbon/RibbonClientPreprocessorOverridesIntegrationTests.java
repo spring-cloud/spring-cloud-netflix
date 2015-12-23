@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfigurati
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
+import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -80,7 +81,7 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
         @RibbonClient(name = "foo", configuration = FooConfiguration.class),
         @RibbonClient(name = "bar", configuration = BarConfiguration.class)
     })
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
+	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, EurekaClientAutoConfiguration.class,
 			RibbonAutoConfiguration.class})
 	protected static class TestConfiguration {

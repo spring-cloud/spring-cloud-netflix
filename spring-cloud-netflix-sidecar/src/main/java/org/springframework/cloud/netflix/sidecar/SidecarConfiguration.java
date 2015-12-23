@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.util.InetUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -53,6 +54,9 @@ public class SidecarConfiguration {
 		@Autowired
 		private SidecarProperties sidecarProperties;
 
+		@Autowired
+		private InetUtils inetUtils;
+
 		@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 		private int serverPort = 8080;
 
@@ -61,7 +65,7 @@ public class SidecarConfiguration {
 
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
-			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean();
+			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
 			int port = this.sidecarProperties.getPort();
 			config.setNonSecurePort(port);
 			String scheme = config.getSecurePortEnabled() ? "https" : "http";

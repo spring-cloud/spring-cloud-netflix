@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.util.InetUtils;
+import org.springframework.cloud.util.InetUtilsProperties;
 
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -52,7 +54,7 @@ public class EurekaRibbonClientConfigurationTests {
 	@Ignore
 	public void basicConfigurationCreatedForLoadBalancer() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean();
+		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
 		SpringClientFactory clientFactory = new SpringClientFactory();
 		EurekaRibbonClientConfiguration clientPreprocessor = new EurekaRibbonClientConfiguration(
@@ -67,10 +69,14 @@ public class EurekaRibbonClientConfigurationTests {
 				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
 	}
 
+	private EurekaInstanceConfigBean getEurekaInstanceConfigBean() {
+		return new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
+	}
+
 	@Test
 	public void testSetProp() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean();
+		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, false);
 		String serviceId = "myService";
@@ -88,7 +94,7 @@ public class EurekaRibbonClientConfigurationTests {
 	@Test
 	public void testDefaultZone() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean();
+		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, false);
 		preprocessor.preprocess();
@@ -98,7 +104,7 @@ public class EurekaRibbonClientConfigurationTests {
 	@Test
 	public void testApproximateZone() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean();
+		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		configBean.setHostname("this.is.a.test.com");
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, true);

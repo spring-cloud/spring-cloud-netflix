@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.appinfo.InstanceInfo;
@@ -124,7 +125,8 @@ public class DiscoveryClientConfigServiceBootstrapConfigurationTests {
 		EnvironmentTestUtils.addEnvironment(this.context, env);
 		this.context.getDefaultListableBeanFactory().registerSingleton(
 				"eurekaClient", this.client);
-		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+		this.context.register(UtilAutoConfiguration.class,
+				PropertyPlaceholderAutoConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
 				ConfigClientProperties.class);
 		this.context.refresh();

@@ -28,6 +28,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientPreprocessorIntegrationTests.TestConfiguration;
+import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
@@ -77,7 +78,7 @@ public class EurekaRibbonClientPreprocessorIntegrationTests {
 
 	@Configuration
 	@RibbonClient("foo")
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
+	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			EurekaClientAutoConfiguration.class, RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
