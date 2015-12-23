@@ -1,23 +1,13 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration,\
-org.springframework.cloud.netflix.config.EurekaClientConfigServerAutoConfiguration,\
-org.springframework.cloud.netflix.config.DiscoveryClientConfigServiceAutoConfiguration,\
 org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration,\
 org.springframework.cloud.netflix.feign.FeignAutoConfiguration,\
 org.springframework.cloud.netflix.feign.encoding.FeignAcceptGzipEncodingAutoConfiguration,\
 org.springframework.cloud.netflix.feign.encoding.FeignContentGzipEncodingAutoConfiguration,\
 org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
-org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration,\
-org.springframework.cloud.netflix.ribbon.eureka.RibbonEurekaAutoConfiguration,\
 org.springframework.cloud.netflix.rx.RxJavaAutoConfiguration,\
 org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration
-
-org.springframework.cloud.bootstrap.BootstrapConfiguration=\
-org.springframework.cloud.netflix.config.DiscoveryClientConfigServiceBootstrapConfiguration
-
-org.springframework.cloud.client.discovery.EnableDiscoveryClient=\
-org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration
 
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration

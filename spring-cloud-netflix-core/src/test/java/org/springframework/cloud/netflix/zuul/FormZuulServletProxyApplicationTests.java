@@ -56,7 +56,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
@@ -224,9 +223,12 @@ class FormZuulServletProxyApplication {
 @Configuration
 class ServletFormRibbonClientConfiguration {
 
+	@Value("${local.server.port}")
+	private int port;
+
 	@Bean
-	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
-		return new StaticServerList<>(new Server("localhost", instance.getNonSecurePort()));
+	public ServerList<Server> ribbonServerList() {
+		return new StaticServerList<>(new Server("localhost", port));
 	}
 
 }

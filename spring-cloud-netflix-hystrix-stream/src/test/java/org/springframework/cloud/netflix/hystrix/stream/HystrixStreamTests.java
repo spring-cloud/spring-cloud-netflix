@@ -23,7 +23,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -43,7 +42,6 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 public class HystrixStreamTests {
 
 	@EnableAutoConfiguration
-	@EnableDiscoveryClient
 	@EnableCircuitBreaker
 	@RestController
 	public static class Application {

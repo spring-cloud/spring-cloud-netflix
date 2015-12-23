@@ -29,7 +29,6 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
-import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -47,7 +46,7 @@ import com.netflix.ribbon.Ribbon;
 @Configuration
 @ConditionalOnClass({ IClient.class, RestTemplate.class })
 @RibbonClients
-@AutoConfigureAfter(EurekaClientAutoConfiguration.class)
+@AutoConfigureAfter(name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
 @AutoConfigureBefore(LoadBalancerAutoConfiguration.class)
 public class RibbonAutoConfiguration {
 

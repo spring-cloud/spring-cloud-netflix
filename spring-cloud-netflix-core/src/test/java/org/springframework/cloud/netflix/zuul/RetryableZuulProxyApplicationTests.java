@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
@@ -119,11 +118,15 @@ class RetryableZuulProxyApplication {
 //Load balancer with fixed server list for "simple" pointing to localhost
 @Configuration
 class RetryableRibbonClientConfiguration {
+
+	@Value("${local.server.port}")
+	private int port;
+
 	@Bean
-	public ServerList<Server> ribbonServerList(EurekaInstanceConfig instance) {
+	public ServerList<Server> ribbonServerList() {
 		return new StaticServerList<>(
-				new Server("localhost", instance.getNonSecurePort()),
-				new Server("failed-localhost", instance.getNonSecurePort())
+				new Server("localhost", port),
+				new Server("failed-localhost", port)
 		);
 	}
 }
