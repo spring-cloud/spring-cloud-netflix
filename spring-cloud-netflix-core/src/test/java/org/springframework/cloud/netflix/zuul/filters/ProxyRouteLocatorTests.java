@@ -16,19 +16,18 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.core.env.ConfigurableEnvironment;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -58,17 +57,23 @@ public class ProxyRouteLocatorTests {
 	@Mock
 	private DiscoveryClient discovery;
 
-	private ZuulProperties properties = new ZuulProperties();
+	private ZuulProperties properties;
+
+	private ZuulRouteStore routeStore;
+
+	private ProxyRouteLocator routeLocator;
 
 	@Before
 	public void init() {
 		initMocks(this);
+
+		properties = new ZuulProperties();
+		routeStore = new PropertiesZuulRouteStore(properties);
+		routeLocator = createProxyRouteLocator("/");
 	}
 
 	@Test
 	public void testGetMatchingPath() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
@@ -79,8 +84,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithPrefix() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.setPrefix("/proxy");
 		this.properties.init();
@@ -92,8 +95,7 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithServletPath() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/app", this.discovery,
-				this.properties);
+		ProxyRouteLocator routeLocator = createProxyRouteLocator("/app");
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
@@ -104,8 +106,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithNoPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setStripPrefix(false);
@@ -118,8 +118,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithLocalPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
@@ -131,8 +129,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithGlobalPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
@@ -144,8 +140,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithRoutePrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		ZuulRoute zuulRoute = new ZuulRoute("/foo/**");
 		zuulRoute.setStripPrefix(true);
 		this.properties.getRoutes().put("foo", zuulRoute);
@@ -158,8 +152,6 @@ public class ProxyRouteLocatorTests {
 	
 	@Test
 	public void testGetMatchingPathWithoutMatchingIgnoredPattern() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**"));
 		this.properties.init();
@@ -171,8 +163,6 @@ public class ProxyRouteLocatorTests {
 	
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPattern() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
@@ -183,8 +173,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithPrefix() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.setPrefix("/proxy");
@@ -197,8 +185,7 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithServletPath() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/app", this.discovery,
-				this.properties);
+		ProxyRouteLocator routeLocator = createProxyRouteLocator("/app");
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
@@ -209,8 +196,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithoutMatchingIgnoredPatternWithNoPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
@@ -224,8 +209,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithNoPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
@@ -238,8 +221,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithoutMatchingIgnoredPatternWithLocalPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.setStripPrefix(false);
@@ -252,8 +233,6 @@ public class ProxyRouteLocatorTests {
 	
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithLocalPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.setStripPrefix(false);
@@ -265,8 +244,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithoutMatchingIgnoredPatternWithGlobalPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
@@ -279,8 +256,6 @@ public class ProxyRouteLocatorTests {
 	
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithGlobalPrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
@@ -292,8 +267,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithMatchingIgnoredPatternWithRoutePrefixStripping() throws Exception {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		ZuulRoute zuulRoute = new ZuulRoute("/foo/**");
 		zuulRoute.setStripPrefix(true);
 		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
@@ -306,8 +279,6 @@ public class ProxyRouteLocatorTests {
 	
 	@Test
 	public void testGetRoutes() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/" + ASERVICE + "/**"));
 		this.properties.init();
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -318,8 +289,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetRoutesWithMapping() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/" + ASERVICE + "/**", ASERVICE));
 		this.properties.setPrefix("/foo");
@@ -330,8 +299,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetPhysicalRoutes() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/" + ASERVICE + "/**", "http://" + ASERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -342,8 +309,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetDefaultRoute() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put(ASERVICE, new ZuulRoute("/**", ASERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
@@ -353,8 +318,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testGetDefaultPhysicalRoute() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.getRoutes().put(ASERVICE,
 				new ZuulRoute("/**", "http://" + ASERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -365,8 +328,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testIgnoreRoutes() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList(IGNOREDSERVICE));
 		given(this.discovery.getServices()).willReturn(
 				Collections.singletonList(IGNOREDSERVICE));
@@ -377,8 +338,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testIgnoreRoutesWithPattern() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("ignore*"));
 		given(this.discovery.getServices()).willReturn(
 				Collections.singletonList(IGNOREDSERVICE));
@@ -389,8 +348,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testIgnoreAllRoutes() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("*"));
 		given(this.discovery.getServices()).willReturn(
 				Collections.singletonList(IGNOREDSERVICE));
@@ -402,8 +359,6 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testIgnoredRouteIncludedIfConfiguredAndDiscovered() {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -417,8 +372,6 @@ public class ProxyRouteLocatorTests {
 		route.setStripPrefix(true);
 		route.setRetryable(Boolean.TRUE);
 		this.properties.getRoutes().put("foo", route);
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
@@ -435,8 +388,6 @@ public class ProxyRouteLocatorTests {
 		route.setId("foo");
 
 		this.properties.getRoutes().put("foo", route);
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
@@ -451,8 +402,6 @@ public class ProxyRouteLocatorTests {
 	public void testIgnoredRouteIncludedIfConfiguredAndNotDiscovered() {
 		this.properties.getRoutes()
 				.put("foo", new ZuulRoute("/foo/**", "http://foo.com"));
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		this.properties.setIgnoredServices(Collections.singletonList("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("bar"));
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -462,8 +411,6 @@ public class ProxyRouteLocatorTests {
 
 	@Test
 	public void testAutoRoutes() {
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		given(this.discovery.getServices()).willReturn(
 				Collections.singletonList(MYSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -477,8 +424,6 @@ public class ProxyRouteLocatorTests {
 		ZuulRoute route = new ZuulRoute("/" + MYSERVICE + "/**", "http://example.com/"
 				+ MYSERVICE);
 		this.properties.getRoutes().put(MYSERVICE, route);
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 		given(this.discovery.getServices()).willReturn(
 				Collections.singletonList(MYSERVICE));
 		Map<String, String> routesMap = routeLocator.getRoutes();
@@ -493,7 +438,7 @@ public class ProxyRouteLocatorTests {
 		given(this.discovery.getLocalServiceInstance()).willReturn(new DefaultServiceInstance(MYSERVICE, "localhost", 80, false));
 
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
+				this.properties, this.routeStore);
 
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/**");
@@ -507,11 +452,7 @@ public class ProxyRouteLocatorTests {
 	@Test
 	public void testIgnoredLocalServiceFalse() {
 		this.properties.setIgnoreLocalService(false);
-
 		given(this.discovery.getServices()).willReturn(Collections.singletonList(MYSERVICE));
-
-		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
 
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
@@ -526,7 +467,7 @@ public class ProxyRouteLocatorTests {
 		RegExServiceRouteMapper regExServiceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMapper().getServicePattern(),
 				properties.getRegexMapper().getRoutePattern());
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties, regExServiceRouteMapper);
+				this.properties, this.routeStore, regExServiceRouteMapper);
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
@@ -540,7 +481,7 @@ public class ProxyRouteLocatorTests {
 		RegExServiceRouteMapper regExServiceRouteMapper = new RegExServiceRouteMapper(properties.getRegexMapper().getServicePattern(),
 				properties.getRegexMapper().getRoutePattern());
 		ProxyRouteLocator routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties, regExServiceRouteMapper);
+				this.properties, this.routeStore, regExServiceRouteMapper);
 		Map<String, String> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
@@ -568,5 +509,10 @@ public class ProxyRouteLocatorTests {
 		String mapping = "/**";
 		String route = routesMap.get(mapping);
 		assertEquals("routesMap had wrong value for " + mapping, expectedRoute, route);
+	}
+
+	private ProxyRouteLocator createProxyRouteLocator(String path) {
+		return new ProxyRouteLocator(path, this.discovery,
+				this.properties, this.routeStore);
 	}
 }

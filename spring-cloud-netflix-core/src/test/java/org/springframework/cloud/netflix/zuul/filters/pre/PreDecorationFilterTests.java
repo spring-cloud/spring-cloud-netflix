@@ -16,22 +16,23 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import java.util.List;
-
+import com.netflix.util.Pair;
+import com.netflix.zuul.context.RequestContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.PropertiesZuulRouteStore;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.ZuulRouteStore;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import com.netflix.util.Pair;
-import com.netflix.zuul.context.RequestContext;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Dave Syer
@@ -45,6 +46,8 @@ public class PreDecorationFilterTests {
 
 	private ZuulProperties properties = new ZuulProperties();
 
+	private ZuulRouteStore zuulRouteStore = new PropertiesZuulRouteStore(properties);
+
 	private ProxyRouteLocator routeLocator;
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
@@ -53,7 +56,7 @@ public class PreDecorationFilterTests {
 	public void init() {
 		initMocks(this);
 		this.routeLocator = new ProxyRouteLocator("/", this.discovery,
-				this.properties);
+				this.properties, this.zuulRouteStore);
 		this.filter = new PreDecorationFilter(this.routeLocator, true);
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.clear();
