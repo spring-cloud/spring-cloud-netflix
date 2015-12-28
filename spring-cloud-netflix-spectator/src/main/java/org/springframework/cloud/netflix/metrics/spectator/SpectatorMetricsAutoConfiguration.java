@@ -16,6 +16,8 @@ package org.springframework.cloud.netflix.metrics.spectator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
 import org.springframework.boot.actuate.endpoint.MetricReaderPublicMetrics;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -71,6 +73,7 @@ public class SpectatorMetricsAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean({ CounterService.class, GaugeService.class })
 	public SpectatorMetricServices spectatorMetricServices(Registry metricRegistry) {
 		return new SpectatorMetricServices(metricRegistry);
 	}
