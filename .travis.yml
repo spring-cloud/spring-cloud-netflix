@@ -31,9 +31,9 @@ script:
   echo "Pull Request: ${TRAVIS_PULL_REQUEST}"
   if [ "${TRAVIS_BRANCH}" = master ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
     echo "[Publishing] Pushing snapshot to Sonatype"
-    ./mvnw -s .settings.xml deploy -P release -nsu --debug
+    ./mvnw -s .settings.xml deploy -P release -nsu -X
   else
     echo "[Installing] Intalling snapshot to local maven repo"
-    ./mvnw install -nsu --debug
+    ./mvnw install -nsu -X
   fi
 - jdk_switcher use oraclejdk8 && sh -e scripts/runAcceptanceTests.sh
