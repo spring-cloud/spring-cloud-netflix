@@ -44,13 +44,16 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	@Autowired(required = false)
 	PropertyResolver propertyResolver;
 
-	public static final String DEFAULT_URL = "http://localhost:8761"
-			+ DEFAULT_PREFIX + "/";
+	public static final String DEFAULT_URL = "http://localhost:8761" + DEFAULT_PREFIX
+			+ "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
 
 	private static final int MINUTES = 60;
 
+	/**
+	 * Flag to indicate that the Eureka client is enabled.
+	 */
 	private boolean enabled = true;
 
 	private EurekaTransportConfig transport = new CloudEurkeaTransportConfig();
@@ -102,6 +105,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
 	private Map<String, String> serviceUrl = new HashMap<>();
+
 	{
 		this.serviceUrl.put(DEFAULT_ZONE, DEFAULT_URL);
 	}
@@ -219,8 +223,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 
 	@Override
 	public String getExperimental(String name) {
-		if (propertyResolver != null) {
-			return propertyResolver.getProperty(PREFIX + ".experimental." + name,
+		if (this.propertyResolver != null) {
+			return this.propertyResolver.getProperty(PREFIX + ".experimental." + name,
 					String.class, null);
 		}
 		return null;
