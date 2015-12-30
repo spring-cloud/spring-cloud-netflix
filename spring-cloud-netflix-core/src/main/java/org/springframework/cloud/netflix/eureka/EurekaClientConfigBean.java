@@ -56,7 +56,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	 */
 	private boolean enabled = true;
 
-	private EurekaTransportConfig transport = new CloudEurkeaTransportConfig();
+	private EurekaTransportConfig transport = new CloudEurekaTransportConfig();
 
 	private int registryFetchIntervalSeconds = 30;
 

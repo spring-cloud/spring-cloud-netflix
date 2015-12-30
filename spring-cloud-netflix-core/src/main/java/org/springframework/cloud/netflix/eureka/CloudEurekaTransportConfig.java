@@ -24,7 +24,7 @@ import lombok.Data;
  * @author Spencer Gibb
  */
 @Data
-public class CloudEurkeaTransportConfig implements EurekaTransportConfig {
+public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 
 	private int sessionedClientReconnectIntervalSeconds = 20 * 60;
 
