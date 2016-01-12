@@ -10,4 +10,5 @@ target/
 _site/
 .idea
 *.iml
+*.ipr
 .factorypath
