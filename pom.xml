@@ -79,6 +79,7 @@
 		<module>spring-cloud-netflix-turbine</module>
 		<module>spring-cloud-netflix-turbine-stream</module>
 		<module>spring-cloud-netflix-sidecar</module>
+		<module>spring-cloud-starter-archaius</module>
 		<module>spring-cloud-starter-atlas</module>
 		<module>spring-cloud-starter-eureka</module>
 		<module>spring-cloud-starter-eureka-server</module>

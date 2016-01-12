@@ -72,6 +72,13 @@
 			<groupId>com.netflix.archaius</groupId>
 			<artifactId>archaius-core</artifactId>
 		</dependency>
+		<!-- archaius dependencies that are now runtime -->
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- end archaius deps -->
 		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
