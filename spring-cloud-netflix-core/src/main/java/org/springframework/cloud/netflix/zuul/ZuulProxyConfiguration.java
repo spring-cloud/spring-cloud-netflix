@@ -31,11 +31,13 @@ import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.zuul.filters.AntPathZuulRouteMatcher;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.SimpleServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulRouteMatcher;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
@@ -71,6 +73,9 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	private ServerProperties server;
 
 	@Autowired
+	private ZuulRouteMatcher routeMatcher;
+
+	@Autowired
 	private ServiceRouteMapper serviceRouteMapper;
 
 	@Override
@@ -82,7 +87,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Override
 	public ProxyRouteLocator routeLocator() {
 		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
-				this.zuulProperties, serviceRouteMapper);
+				this.zuulProperties, this.routeMatcher, this.serviceRouteMapper);
 	}
 
 	@Bean
@@ -133,6 +138,12 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 			return new RegExServiceRouteMapper(props.getRegexMapper().getServicePattern(),
 					props.getRegexMapper().getRoutePattern());
 		}
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ZuulRouteMatcher antPathZuulRouteMatcher() {
+		return new AntPathZuulRouteMatcher();
 	}
 
 	@Configuration
