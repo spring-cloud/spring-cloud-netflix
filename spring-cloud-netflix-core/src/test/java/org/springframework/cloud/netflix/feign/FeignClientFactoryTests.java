@@ -34,18 +34,18 @@ public class FeignClientFactoryTests {
 	public void testChildContexts() {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		parent.refresh();
-		FeignClientFactory factory = new FeignClientFactory();
-		factory.setApplicationContext(parent);
-		factory.setConfigurations(Arrays.asList(getSpec("foo", FooConfig.class),
+		FeignContext context = new FeignContext();
+		context.setApplicationContext(parent);
+		context.setConfigurations(Arrays.asList(getSpec("foo", FooConfig.class),
 				getSpec("bar", BarConfig.class)));
 
-		Foo foo = factory.getInstance("foo", Foo.class);
+		Foo foo = context.getInstance("foo", Foo.class);
 		assertThat("foo was null", foo, is(notNullValue()));
 
-		Bar bar = factory.getInstance("bar", Bar.class);
+		Bar bar = context.getInstance("bar", Bar.class);
 		assertThat("bar was null", bar, is(notNullValue()));
 
-		Bar foobar = factory.getInstance("foo", Bar.class);
+		Bar foobar = context.getInstance("foo", Bar.class);
 		assertThat("bar was not null", foobar, is(nullValue()));
 	}
 

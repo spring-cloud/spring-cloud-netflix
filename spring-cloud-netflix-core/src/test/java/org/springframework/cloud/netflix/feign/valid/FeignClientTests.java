@@ -29,11 +29,14 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.support.FallbackCommand;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -68,6 +72,7 @@ import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import rx.Observable;
 
 /**
  * @author Spencer Gibb
@@ -96,6 +101,9 @@ public class FeignClientTests {
 
 	@Autowired
 	private Client feignClient;
+
+	@Autowired
+	HystrixClient hystrixClient;
 
 	@FeignClient(value = "localapp", configuration = TestClientConfig.class)
 	protected interface TestClient {
@@ -159,15 +167,53 @@ public class FeignClientTests {
 		ResponseEntity<String> notFound();
 	}
 
+	@FeignClient(name = "localapp3", fallback = HystrixClientFallback.class)
+	protected interface HystrixClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		Hello fail();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		HystrixCommand<Hello> failCommand();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		Observable<Hello> failObservable();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		Future<Hello> failFuture();
+	}
+
+	static class HystrixClientFallback implements HystrixClient {
+		@Override
+		public Hello fail() {
+			return new Hello("fallback");
+		}
+
+		@Override
+		public HystrixCommand<Hello> failCommand() {
+			return new FallbackCommand<>(new Hello("fallbackcommand"));
+		}
+
+		@Override
+		public Observable<Hello> failObservable() {
+			return new FallbackCommand<>(new Hello("fallbackobservable")).observe();
+		}
+
+		@Override
+		public Future<Hello> failFuture() {
+			return new FallbackCommand<>(new Hello("fallbackfuture")).queue();
+		}
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class, DecodingTestClient.class},
+	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class, DecodingTestClient.class, HystrixClient.class},
 			defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClients({
 			@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
 			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class)
+			@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class),
+			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
 	})
 	protected static class Application {
 
@@ -215,10 +261,16 @@ public class FeignClientTests {
 			return ResponseEntity.ok().build();
 		}
 
+		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		String fail() {
+			throw new RuntimeException("always fails");
+		}
+
 		@RequestMapping(method = RequestMethod.GET, value = "/notFound")
 		ResponseEntity notFound() {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
 		}
+
 
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
@@ -323,6 +375,42 @@ public class FeignClientTests {
 		assertNull("response body was not null", response.getBody());
 	}
 
+	@Test
+	public void testHystrixFallbackWorks() {
+		Hello hello = hystrixClient.fail();
+		assertNotNull("hello was null", hello);
+		assertEquals("message was wrong", "fallback", hello.getMessage());
+	}
+
+	@Test
+	@Ignore("Until HystrixCommand works in fallback")
+	public void testHystrixFallbackCommand() {
+		HystrixCommand<Hello> command = hystrixClient.failCommand();
+		assertNotNull("command was null", command);
+		Hello hello = command.execute();
+		assertNotNull("hello was null", hello);
+		assertEquals("message was wrong", "fallbackcommand", hello.getMessage());
+	}
+
+	@Test
+	@Ignore("Until Observable works in fallback")
+	public void testHystrixFallbackObservable() {
+		Observable<Hello> observable = hystrixClient.failObservable();
+		assertNotNull("observable was null", observable);
+		Hello hello = observable.toBlocking().first();
+		assertNotNull("hello was null", hello);
+		assertEquals("message was wrong", "fallbackobservable", hello.getMessage());
+	}
+
+	@Test
+	public void testHystrixFallbackFuture() throws Exception {
+		Future<Hello> future = hystrixClient.failFuture();
+		assertNotNull("future was null", future);
+		Hello hello = future.get(1, TimeUnit.SECONDS);
+		assertNotNull("hello was null", hello);
+		assertEquals("message was wrong", "fallbackfuture", hello.getMessage());
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -335,6 +423,11 @@ public class FeignClientTests {
 		@Bean
 		Logger.Level feignLoggerLevel() {
 			return Logger.Level.FULL;
+		}
+
+		@Bean
+		public HystrixClientFallback hystrixClientFallback() {
+			return new HystrixClientFallback();
 		}
 	}
 

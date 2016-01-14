@@ -860,6 +860,29 @@ public class FooConfiguration {
 }
 ----
 
+[[spring-cloud-feign-hystrix-fallback]]
+=== Feign Hystrix Fallbacks
+
+Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given `@FeignClient` set the `fallback` attribute to the class name that implements the fallback.
+
+[source,java,indent=0]
+----
+@FeignClient(name = "hello", fallback = HystrixClientFallback.class)
+protected interface HystrixClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/hello")
+    Hello iFailSometimes();
+}
+
+static class HystrixClientFallback implements HystrixClient {
+    @Override
+    public Hello iFailSometimes() {
+        return new Hello("fallback");
+    }
+}
+----
+
+WARNING: There is a limitation with the implementation of fallbacks in Feign and how Hystrix fallbacks work. Fallbacks are currently not supported for methods that return `com.netflix.hystrix.HystrixCommand` and `rx.Observable`.
+
 [[spring-cloud-feign-inheritance]]
 === Feign Inheritance Support
 

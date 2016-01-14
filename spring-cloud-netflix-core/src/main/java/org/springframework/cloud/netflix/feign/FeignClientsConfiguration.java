@@ -74,19 +74,21 @@ public class FeignClientsConfiguration {
 		return new SpringMvcContract(parameterProcessors);
 	}
 
-	@Bean
-	@Scope("prototype")
-	@ConditionalOnMissingBean
-	@ConditionalOnClass(HystrixCommand.class)
-	@ConditionalOnProperty(name = "feign.hystrix.enabled", matchIfMissing = true)
-	public Feign.Builder feignHystrixBuilder() {
-		return HystrixFeign.builder();
+	@Configuration
+	@ConditionalOnClass({ HystrixCommand.class, HystrixFeign.class })
+	protected static class HystrixFeignConfiguration {
+		@Bean
+		@Scope("prototype")
+		@ConditionalOnMissingBean
+		@ConditionalOnProperty(name = "feign.hystrix.enabled", matchIfMissing = true)
+		public Feign.Builder feignHystrixBuilder() {
+			return HystrixFeign.builder();
+		}
 	}
 
 	@Bean
 	@Scope("prototype")
 	@ConditionalOnMissingBean
-	@ConditionalOnProperty(name = "feign.hystrix.enabled", matchIfMissing = false, havingValue = "false")
 	public Feign.Builder feignBuilder() {
 		return Feign.builder();
 	}

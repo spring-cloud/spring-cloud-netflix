@@ -26,9 +26,9 @@ import org.springframework.cloud.context.named.NamedContextFactory;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-public class FeignClientFactory extends NamedContextFactory<FeignClientSpecification> {
+public class FeignContext extends NamedContextFactory<FeignClientSpecification> {
 
-	public FeignClientFactory() {
+	public FeignContext() {
 		super(FeignClientsConfiguration.class, "feign", "feign.client.name");
 	}
 

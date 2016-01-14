@@ -76,4 +76,10 @@ public @interface FeignClient {
 	 * @see FeignClientsConfiguration for the defaults
 	 */
 	Class<?>[] configuration() default {};
+
+	/**
+	 * Fallback class for the specified Feign client interface. The fallback class must
+	 * implement the interface annotated by this annotation and be a valid spring bean.
+	 */
+	Class<?> fallback() default void.class;
 }

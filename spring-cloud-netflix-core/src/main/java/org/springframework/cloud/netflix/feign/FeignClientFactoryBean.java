@@ -24,6 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import feign.Client;
@@ -33,7 +34,6 @@ import feign.Logger;
 import feign.Request;
 import feign.RequestInterceptor;
 import feign.Retryer;
-import feign.Target;
 import feign.Target.HardCodedTarget;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
@@ -47,7 +47,22 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, ApplicationContextAware {
+class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
+		ApplicationContextAware {
+
+	private static final Targeter targeter;
+
+	static {
+		Targeter targeterToUse;
+		if (ClassUtils.isPresent("feign.hystrix.HystrixFeign",
+				FeignClientFactoryBean.class.getClassLoader())) {
+			targeterToUse = new HystrixTargeter();
+		}
+		else {
+			targeterToUse = new DefaultTargeter();
+		}
+		targeter = targeterToUse;
+	}
 
 	private Class<?> type;
 
@@ -57,7 +72,9 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 
 	private boolean decode404;
 
-	private ApplicationContext context;
+	private ApplicationContext applicationContext;
+
+	private Class<?> fallback = void.class;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -66,43 +83,44 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.context = context;
+		this.applicationContext = context;
 	}
 
-	protected Feign.Builder feign(FeignClientFactory factory) {
-		Logger logger = getOptional(factory, Logger.class);
+	protected Feign.Builder feign(FeignContext context) {
+		Logger logger = getOptional(context, Logger.class);
 
 		if (logger == null) {
 			logger = new Slf4jLogger(this.type);
 		}
 
 		// @formatter:off
-		Feign.Builder builder = get(factory, Feign.Builder.class)
+		Feign.Builder builder = get(context, Feign.Builder.class)
 				// required values
 				.logger(logger)
-				.encoder(get(factory, Encoder.class))
-				.decoder(get(factory, Decoder.class))
-				.contract(get(factory, Contract.class));
+				.encoder(get(context, Encoder.class))
+				.decoder(get(context, Decoder.class))
+				.contract(get(context, Contract.class));
 		// @formatter:on
 
 		// optional values
-		Logger.Level level = getOptional(factory, Logger.Level.class);
+		Logger.Level level = getOptional(context, Logger.Level.class);
 		if (level != null) {
 			builder.logLevel(level);
 		}
-		Retryer retryer = getOptional(factory, Retryer.class);
+		Retryer retryer = getOptional(context, Retryer.class);
 		if (retryer != null) {
 			builder.retryer(retryer);
 		}
-		ErrorDecoder errorDecoder = getOptional(factory, ErrorDecoder.class);
+		ErrorDecoder errorDecoder = getOptional(context, ErrorDecoder.class);
 		if (errorDecoder != null) {
 			builder.errorDecoder(errorDecoder);
 		}
-		Request.Options options = getOptional(factory, Request.Options.class);
+		Request.Options options = getOptional(context, Request.Options.class);
 		if (options != null) {
 			builder.options(options);
 		}
-		Map<String, RequestInterceptor> requestInterceptors = factory.getInstances(this.name, RequestInterceptor.class);
+		Map<String, RequestInterceptor> requestInterceptors = context.getInstances(
+				this.name, RequestInterceptor.class);
 		if (requestInterceptors != null) {
 			builder.requestInterceptors(requestInterceptors.values());
 		}
@@ -114,44 +132,52 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 		return builder;
 	}
 
-	protected <T> T get(FeignClientFactory factory, Class<T> type) {
-		T instance = factory.getInstance(this.name, type);
+	protected <T> T get(FeignContext context, Class<T> type) {
+		T instance = context.getInstance(this.name, type);
 		if (instance == null) {
-			throw new IllegalStateException("No bean found of type " + type + " for " + this.name);
+			throw new IllegalStateException("No bean found of type " + type + " for "
+					+ this.name);
 		}
 		return instance;
 	}
 
-	protected <T> T getOptional(FeignClientFactory factory, Class<T> type) {
-		return factory.getInstance(this.name, type);
+	protected <T> T getOptional(FeignContext context, Class<T> type) {
+		return context.getInstance(this.name, type);
 	}
 
-	protected <T> T loadBalance(Feign.Builder builder, FeignClientFactory factory, Target<T> target) {
-		Client client = getOptional(factory, Client.class);
+	protected <T> T loadBalance(Feign.Builder builder, FeignContext context,
+			HardCodedTarget<T> target) {
+		Client client = getOptional(context, Client.class);
 		if (client != null) {
-			return builder.client(client).target(target);
+			builder.client(client);
+			return targeter.target(this, builder, context, target);
 		}
 
-		throw new IllegalStateException("No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-ribbon?");
+		throw new IllegalStateException(
+				"No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-ribbon?");
 	}
 
 	@Override
 	public Object getObject() throws Exception {
-		FeignClientFactory factory = context.getBean(FeignClientFactory.class);
+		FeignContext context = applicationContext.getBean(FeignContext.class);
+		Feign.Builder builder = feign(context);
 
 		if (!StringUtils.hasText(this.url)) {
 			String url;
 			if (!this.name.startsWith("http")) {
 				url = "http://" + this.name;
-			} else {
+			}
+			else {
 				url = this.name;
 			}
-			return loadBalance(feign(factory), factory, new HardCodedTarget<>(this.type, this.name, url));
+			return loadBalance(builder, context, new HardCodedTarget<>(this.type,
+					this.name, url));
 		}
 		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
 			this.url = "http://" + this.url;
 		}
-		return feign(factory).target(new HardCodedTarget<>(this.type, this.name, this.url));
+		return targeter.target(this, builder, context, new HardCodedTarget<>(
+				this.type, this.name, this.url));
 	}
 
 	@Override
@@ -162,6 +188,50 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean, A
 	@Override
 	public boolean isSingleton() {
 		return true;
+	}
+
+	interface Targeter {
+		<T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
+				HardCodedTarget<T> target);
+	}
+
+	static class DefaultTargeter implements Targeter {
+
+		@Override
+		public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
+							HardCodedTarget<T> target) {
+			return feign.target(target);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	static class HystrixTargeter implements Targeter {
+
+		@Override
+		public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
+							HardCodedTarget<T> target) {
+			if (factory.fallback == void.class
+					|| !(feign instanceof feign.hystrix.HystrixFeign.Builder)) {
+				return feign.target(target);
+			}
+
+			Object fallbackInstance = context.getInstance(factory.name, factory.fallback);
+			if (fallbackInstance == null) {
+				throw new IllegalStateException(String.format(
+						"No fallback instance of type %s found for feign client %s",
+						factory.fallback, factory.name));
+			}
+
+			if (!target.type().isAssignableFrom(factory.fallback)) {
+				throw new IllegalStateException(
+						String.format(
+								"Incompatible fallback instance. Fallback of type %s is not assignable to %s for feign client %s",
+								factory.fallback, target.type(), factory.name));
+			}
+
+			feign.hystrix.HystrixFeign.Builder builder = (feign.hystrix.HystrixFeign.Builder) feign;
+			return builder.target(target, (T) fallbackInstance);
+		}
 	}
 
 }

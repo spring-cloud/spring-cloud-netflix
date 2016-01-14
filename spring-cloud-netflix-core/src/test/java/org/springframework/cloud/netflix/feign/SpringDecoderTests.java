@@ -57,7 +57,7 @@ import static org.junit.Assert.assertNull;
 public class SpringDecoderTests extends FeignClientFactoryBean {
 
 	@Autowired
-	FeignClientFactory factory;
+	FeignContext context;
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -73,7 +73,7 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	public TestClient testClient(boolean decode404) {
 		setType(this.getClass());
 		setDecode404(decode404);
-		return feign(factory).target(TestClient.class, "http://localhost:" + this.port);
+		return feign(context).target(TestClient.class, "http://localhost:" + this.port);
 	}
 
 	@Test

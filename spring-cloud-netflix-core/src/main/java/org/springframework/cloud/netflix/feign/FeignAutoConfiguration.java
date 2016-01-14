@@ -44,9 +44,9 @@ public class FeignAutoConfiguration {
 	}
 
 	@Bean
-	public FeignClientFactory feignClientFactory() {
-		FeignClientFactory factory = new FeignClientFactory();
-		factory.setConfigurations(this.configurations);
-		return factory;
+	public FeignContext feignContext() {
+		FeignContext context = new FeignContext();
+		context.setConfigurations(this.configurations);
+		return context;
 	}
 }

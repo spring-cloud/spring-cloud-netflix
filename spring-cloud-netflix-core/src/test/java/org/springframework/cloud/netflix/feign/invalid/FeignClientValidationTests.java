@@ -23,6 +23,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,18 +40,18 @@ public class FeignClientValidationTests {
 	public ExpectedException expected = ExpectedException.none();
 
 	@Test
-	public void invalid() {
+	public void testNotLegalHostname() {
 		this.expected.expectMessage("not legal hostname (foo_bar)");
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				BadConfiguration.class);
-		assertNotNull(context.getBean(BadConfiguration.Client.class));
+				BadHostnameConfiguration.class);
+		assertNotNull(context.getBean(BadHostnameConfiguration.Client.class));
 		context.close();
 	}
 
 	@Configuration
 	@Import(FeignAutoConfiguration.class)
-	@EnableFeignClients(clients = BadConfiguration.Client.class)
-	protected static class BadConfiguration {
+	@EnableFeignClients(clients = BadHostnameConfiguration.Client.class)
+	protected static class BadHostnameConfiguration {
 
 		@FeignClient("foo_bar")
 		interface Client {
@@ -60,4 +61,61 @@ public class FeignClientValidationTests {
 
 	}
 
+	@Test
+	public void testMissingFallback() {
+		this.expected.expectMessage("No fallback instance of type");
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				MissingFallbackConfiguration.class);
+		assertNotNull(context.getBean(MissingFallbackConfiguration.Client.class));
+		context.close();
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = MissingFallbackConfiguration.Client.class)
+	protected static class MissingFallbackConfiguration {
+
+		@FeignClient(name = "foobar", url = "http://localhost", fallback = ClientFallback.class)
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+		class ClientFallback implements Client {
+			@Override
+			public String get() {
+				return null;
+			}
+		}
+
+	}
+
+	@Test
+	public void testWrongFallbackType() {
+		this.expected.expectMessage("Incompatible fallback instance");
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				WrongFallbackTypeConfiguration.class);
+		assertNotNull(context.getBean(WrongFallbackTypeConfiguration.Client.class));
+		context.close();
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = WrongFallbackTypeConfiguration.Client.class)
+	protected static class WrongFallbackTypeConfiguration {
+
+		@FeignClient(name = "foobar", url = "http://localhost", fallback = Dummy.class)
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+		@Bean
+		Dummy dummy() {
+			return new Dummy();
+		}
+
+		class Dummy { }
+
+	}
 }

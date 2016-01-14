@@ -47,34 +47,34 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class EnableFeignClientsTests {
 
 	@Autowired
-	private FeignClientFactory factory;
+	private FeignContext feignContext;
 
 	@Autowired
 	private ApplicationContext context;
 
 	@Test
 	public void decoderDefaultCorrect() {
-		ResponseEntityDecoder.class.cast(this.factory.getInstance("foo", Decoder.class));
+		ResponseEntityDecoder.class.cast(this.feignContext.getInstance("foo", Decoder.class));
 	}
 
 	@Test
 	public void encoderDefaultCorrect() {
-		SpringEncoder.class.cast(this.factory.getInstance("foo", Encoder.class));
+		SpringEncoder.class.cast(this.feignContext.getInstance("foo", Encoder.class));
 	}
 
 	@Test
 	public void loggerDefaultCorrect() {
-		Slf4jLogger.class.cast(this.factory.getInstance("foo", Logger.class));
+		Slf4jLogger.class.cast(this.feignContext.getInstance("foo", Logger.class));
 	}
 
 	@Test
 	public void contractDefaultCorrect() {
-		SpringMvcContract.class.cast(this.factory.getInstance("foo", Contract.class));
+		SpringMvcContract.class.cast(this.feignContext.getInstance("foo", Contract.class));
 	}
 
 	@Test
 	public void builderDefaultCorrect() {
-		HystrixFeign.Builder.class.cast(this.factory.getInstance("foo", Feign.Builder.class));
+		HystrixFeign.Builder.class.cast(this.feignContext.getInstance("foo", Feign.Builder.class));
 	}
 
 	@Configuration

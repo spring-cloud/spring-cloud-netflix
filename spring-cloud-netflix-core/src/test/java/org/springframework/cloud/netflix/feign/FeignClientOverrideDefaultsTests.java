@@ -58,63 +58,63 @@ import feign.slf4j.Slf4jLogger;
 public class FeignClientOverrideDefaultsTests {
 
 	@Autowired
-	private FeignClientFactory factory;
+	private FeignContext context;
 
 	@Test
 	public void overrideDecoder() {
-		Decoder.Default.class.cast(this.factory.getInstance("foo", Decoder.class));
-		ResponseEntityDecoder.class.cast(this.factory.getInstance("bar", Decoder.class));
+		Decoder.Default.class.cast(this.context.getInstance("foo", Decoder.class));
+		ResponseEntityDecoder.class.cast(this.context.getInstance("bar", Decoder.class));
 	}
 
 	@Test
 	public void overrideEncoder() {
-		Encoder.Default.class.cast(this.factory.getInstance("foo", Encoder.class));
-		SpringEncoder.class.cast(this.factory.getInstance("bar", Encoder.class));
+		Encoder.Default.class.cast(this.context.getInstance("foo", Encoder.class));
+		SpringEncoder.class.cast(this.context.getInstance("bar", Encoder.class));
 	}
 
 	@Test
 	public void overrideLogger() {
-		Logger.JavaLogger.class.cast(this.factory.getInstance("foo", Logger.class));
-		Slf4jLogger.class.cast(this.factory.getInstance("bar", Logger.class));
+		Logger.JavaLogger.class.cast(this.context.getInstance("foo", Logger.class));
+		Slf4jLogger.class.cast(this.context.getInstance("bar", Logger.class));
 	}
 
 	@Test
 	public void overrideContract() {
-		Contract.Default.class.cast(this.factory.getInstance("foo", Contract.class));
-		SpringMvcContract.class.cast(this.factory.getInstance("bar", Contract.class));
+		Contract.Default.class.cast(this.context.getInstance("foo", Contract.class));
+		SpringMvcContract.class.cast(this.context.getInstance("bar", Contract.class));
 	}
 
 	@Test
 	public void overrideLoggerLevel() {
-		assertNull(this.factory.getInstance("foo", Logger.Level.class));
+		assertNull(this.context.getInstance("foo", Logger.Level.class));
 		assertEquals(Logger.Level.HEADERS,
-				this.factory.getInstance("bar", Logger.Level.class));
+				this.context.getInstance("bar", Logger.Level.class));
 	}
 
 	@Test
 	public void overrideRetryer() {
-		assertNull(this.factory.getInstance("foo", Retryer.class));
-		Retryer.Default.class.cast(this.factory.getInstance("bar", Retryer.class));
+		assertNull(this.context.getInstance("foo", Retryer.class));
+		Retryer.Default.class.cast(this.context.getInstance("bar", Retryer.class));
 	}
 
 	@Test
 	public void overrideErrorDecoder() {
-		assertNull(this.factory.getInstance("foo", ErrorDecoder.class));
+		assertNull(this.context.getInstance("foo", ErrorDecoder.class));
 		ErrorDecoder.Default.class
-				.cast(this.factory.getInstance("bar", ErrorDecoder.class));
+				.cast(this.context.getInstance("bar", ErrorDecoder.class));
 	}
 
 	@Test
 	public void overrideBuilder() {
-		Feign.Builder.class.cast(this.factory.getInstance("foo", Feign.Builder.class));
+		Feign.Builder.class.cast(this.context.getInstance("foo", Feign.Builder.class));
 		HystrixFeign.Builder.class
-				.cast(this.factory.getInstance("bar", Feign.Builder.class));
+				.cast(this.context.getInstance("bar", Feign.Builder.class));
 	}
 
 	@Test
 	public void overrideRequestOptions() {
-		assertNull(this.factory.getInstance("foo", Request.Options.class));
-		Request.Options options = this.factory.getInstance("bar", Request.Options.class);
+		assertNull(this.context.getInstance("foo", Request.Options.class));
+		Request.Options options = this.context.getInstance("bar", Request.Options.class);
 		assertEquals(1, options.connectTimeoutMillis());
 		assertEquals(1, options.readTimeoutMillis());
 	}
@@ -122,9 +122,9 @@ public class FeignClientOverrideDefaultsTests {
 	@Test
 	public void addRequestInterceptor() {
 		assertEquals(1,
-				this.factory.getInstances("foo", RequestInterceptor.class).size());
+				this.context.getInstances("foo", RequestInterceptor.class).size());
 		assertEquals(2,
-				this.factory.getInstances("bar", RequestInterceptor.class).size());
+				this.context.getInstances("bar", RequestInterceptor.class).size());
 	}
 
 	@Configuration
