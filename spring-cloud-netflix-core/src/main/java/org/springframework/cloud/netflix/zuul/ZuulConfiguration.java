@@ -20,14 +20,17 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.cloud.netflix.zuul.filters.PropertiesZuulRouteStore;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulRouteStore;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
@@ -57,6 +60,9 @@ public class ZuulConfiguration {
 	@Autowired
 	private ZuulProperties zuulProperties;
 
+	@Autowired
+	private ZuulRouteStore routeStore;
+
 	@Autowired(required = false)
 	private ErrorController errorController;
 
@@ -67,7 +73,7 @@ public class ZuulConfiguration {
 
 	@Bean
 	public RouteLocator routeLocator() {
-		return new SimpleRouteLocator(this.zuulProperties);
+		return new SimpleRouteLocator(this.zuulProperties, this.routeStore);
 	}
 
 	@Bean
@@ -138,6 +144,12 @@ public class ZuulConfiguration {
 			return new ZuulFilterInitializer(this.filters);
 		}
 
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ZuulRouteStore zuulRouteStore(ZuulProperties properties) {
+		return new PropertiesZuulRouteStore(properties);
 	}
 
 	private static class ZuulRefreshListener implements

@@ -36,6 +36,7 @@ import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.SimpleServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulRouteStore;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
@@ -73,6 +74,9 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Autowired
 	private ServiceRouteMapper serviceRouteMapper;
 
+	@Autowired
+	private ZuulRouteStore zuulRouteStore;
+
 	@Override
 	public HasFeatures zuulFeature() {
 		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyConfiguration.class);
@@ -82,7 +86,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Override
 	public ProxyRouteLocator routeLocator() {
 		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
-				this.zuulProperties, serviceRouteMapper);
+				this.zuulProperties, this.zuulRouteStore, this.serviceRouteMapper);
 	}
 
 	@Bean

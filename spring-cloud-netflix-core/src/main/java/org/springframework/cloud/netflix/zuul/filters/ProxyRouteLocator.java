@@ -16,24 +16,22 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+import org.springframework.util.PatternMatchUtils;
+import org.springframework.util.StringUtils;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-import org.springframework.util.PatternMatchUtils;
-import org.springframework.util.StringUtils;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -43,22 +41,24 @@ public class ProxyRouteLocator implements RouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/**";
 
-	private DiscoveryClient discovery;
+	private final DiscoveryClient discovery;
 
-	private ZuulProperties properties;
+	private final ZuulProperties properties;
 
-	private PathMatcher pathMatcher = new AntPathMatcher();
+	private final ZuulRouteStore routeStore;
 
-	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
+	private final PathMatcher pathMatcher = new AntPathMatcher();
 
-	private Map<String, ZuulRoute> staticRoutes = new LinkedHashMap<>();
+	private final AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
+
+	private final Map<String, ZuulRoute> staticRoutes = new LinkedHashMap<>();
 
 	private String servletPath;
 
 	private ServiceRouteMapper serviceRouteMapper;
 
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
-			ZuulProperties properties) {
+			ZuulProperties properties, ZuulRouteStore routeStore) {
 		if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
 			this.servletPath = servletPath;
 		}
@@ -80,17 +80,18 @@ public class ProxyRouteLocator implements RouteLocator {
 		this.serviceRouteMapper = new SimpleServiceRouteMapper();
 		this.discovery = discovery;
 		this.properties = properties;
+		this.routeStore = routeStore;
 	}
 
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
-							 ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
-		this(servletPath, discovery, properties);
+							 ZuulProperties properties, ZuulRouteStore routeStore,
+							 ServiceRouteMapper serviceRouteMapper) {
+		this(servletPath, discovery, properties, routeStore);
 		this.serviceRouteMapper = serviceRouteMapper;
 	}
 
 	public void addRoute(String path, String location) {
-		this.staticRoutes.put(path, new ZuulRoute(path, location));
-		resetRoutes();
+		addRoute(new ZuulRoute(path, location));
 	}
 
 	public void addRoute(ZuulRoute route) {
@@ -251,7 +252,7 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {
-		Map<String, ZuulRoute> routeEntries = this.properties.getRoutes();
+		Map<String, ZuulRoute> routeEntries = routeStore.getRoutes();
 		for (ZuulRoute entry : routeEntries.values()) {
 			String route = entry.getPath();
 			if (routes.containsKey(route)) {

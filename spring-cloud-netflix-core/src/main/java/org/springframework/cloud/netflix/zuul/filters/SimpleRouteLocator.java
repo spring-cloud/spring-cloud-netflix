@@ -19,23 +19,24 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-
 /**
  * @author Dave Syer
  */
 public class SimpleRouteLocator implements RouteLocator {
 
-	private ZuulProperties properties;
+	private final ZuulProperties properties;
 
-	public SimpleRouteLocator(ZuulProperties properties) {
+	private final ZuulRouteStore routeStore;
+
+	public SimpleRouteLocator(ZuulProperties properties, ZuulRouteStore routeStore) {
 		this.properties = properties;
+		this.routeStore = routeStore;
 	}
 
 	@Override
 	public Collection<String> getRoutePaths() {
 		Collection<String> paths = new LinkedHashSet<String>();
-		for (ZuulRoute route : this.properties.getRoutes().values()) {
+		for (ZuulRoute route : routeStore.getRoutes().values()) {
 			paths.add(route.getPath());
 		}
 		return paths;

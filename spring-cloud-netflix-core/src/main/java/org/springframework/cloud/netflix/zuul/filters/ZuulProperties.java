@@ -16,19 +16,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.PostConstruct;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.StringUtils;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -44,6 +44,7 @@ public class ZuulProperties {
 
 	private Boolean retryable;
 
+	@NestedConfigurationProperty
 	private Map<String, ZuulRoute> routes = new LinkedHashMap<>();
 
 	private boolean addProxyHeaders = true;
@@ -63,13 +64,13 @@ public class ZuulProperties {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {
 			ZuulRoute value = entry.getValue();
 			if (!StringUtils.hasText(value.getLocation())) {
-				value.serviceId = entry.getKey();
+				value.setServiceId(entry.getKey());
 			}
 			if (!StringUtils.hasText(value.getId())) {
-				value.id = entry.getKey();
+				value.setId(entry.getKey());
 			}
 			if (!StringUtils.hasText(value.getPath())) {
-				value.path = "/" + entry.getKey() + "/**";
+				value.setPath("/" + entry.getKey() + "/**");
 			}
 		}
 	}
@@ -83,71 +84,6 @@ public class ZuulProperties {
 		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
 
 		private String routePattern = "${version}/${name}";
-	}
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class ZuulRoute {
-
-		private String id;
-
-		private String path;
-
-		private String serviceId;
-
-		private String url;
-
-		private boolean stripPrefix = true;
-
-		private Boolean retryable;
-
-		public ZuulRoute(String text) {
-			String location = null;
-			String path = text;
-			if (text.contains("=")) {
-				String[] values = StringUtils.trimArrayElements(StringUtils.split(text,
-						"="));
-				location = values[1];
-				path = values[0];
-			}
-			this.id = extractId(path);
-			if (!path.startsWith("/")) {
-				path = "/" + path;
-			}
-			setLocation(location);
-			this.path = path;
-		}
-
-		public ZuulRoute(String path, String location) {
-			this.id = extractId(path);
-			this.path = path;
-			setLocation(location);
-		}
-
-		public String getLocation() {
-			if (StringUtils.hasText(this.url)) {
-				return this.url;
-			}
-			return this.serviceId;
-		}
-
-		public void setLocation(String location) {
-			if (location != null
-					&& (location.startsWith("http:") || location.startsWith("https:"))) {
-				this.url = location;
-			}
-			else {
-				this.serviceId = location;
-			}
-		}
-
-		private String extractId(String path) {
-			path = path.startsWith("/") ? path.substring(1) : path;
-			path = path.replace("/*", "").replace("*", "");
-			return path;
-		}
-
 	}
 
 	public String getServletPattern() {
