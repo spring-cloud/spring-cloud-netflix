@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul;
-
-import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+package org.springframework.cloud.netflix.zuul.filters;
 
 /**
  * Interface for a route locator that can be refreshed if routes change.

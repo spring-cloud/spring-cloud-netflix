@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.zuul.filters.regex;
+package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,6 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -38,7 +37,7 @@ import com.netflix.loadbalancer.ServerList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapperIntegrationTests.SERVICE_ID;
+import static org.springframework.cloud.netflix.zuul.filters.discovery.PatternServiceRouteMapperIntegrationTests.SERVICE_ID;
 
 /**
  * @author Stéphane Leroy
@@ -47,12 +46,9 @@ import static org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceR
 @SpringApplicationConfiguration(classes = SampleCustomZuulProxyApplication.class)
 @WebIntegrationTest(value = { "spring.application.name=regex-test-application",
 		"spring.jmx.enabled=true" }, randomPort = true)
-@TestPropertySource(properties = { "eureka.client.enabled=false",
-		"zuul.regexMapper.enabled=true",
-		"zuul.regexMapper.servicePattern=(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
-		"zuul.regexMapper.routePattern=${version}/${domain}/${name}" })
+@TestPropertySource(properties = "eureka.client.enabled=false")
 @DirtiesContext
-public class RegExServiceRouteMapperIntegrationTests {
+public class PatternServiceRouteMapperIntegrationTests {
 
 	protected static final String SERVICE_ID = "domain-service-v1";
 
@@ -60,14 +56,14 @@ public class RegExServiceRouteMapperIntegrationTests {
 	private int port;
 
 	@Autowired
-	private ProxyRouteLocator routes;
+	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
 	private RoutesEndpoint endpoint;
 
 	@Test
 	public void getRegexMappedService() {
-		endpoint.reset();
+		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/v1/domain/service/get/1",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
@@ -78,7 +74,7 @@ public class RegExServiceRouteMapperIntegrationTests {
 	@Test
 	public void getStaticRoute() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		endpoint.reset();
+		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/get/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -107,6 +103,13 @@ class SampleCustomZuulProxyApplication {
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public String get(@PathVariable String id) {
 		return "Get " + id;
+	}
+
+	@Bean
+	public PatternServiceRouteMapper serviceRouteMapper() {
+		return new PatternServiceRouteMapper(
+				"(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
+				"${version}/${domain}/${name}");
 	}
 
 	public static void main(String[] args) {

@@ -33,8 +33,8 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
@@ -73,7 +73,7 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 	private int port;
 
 	@Autowired
-	private ProxyRouteLocator routes;
+	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
 	private RoutesEndpoint endpoint;

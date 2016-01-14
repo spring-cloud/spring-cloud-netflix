@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.netflix.util.Pair;
@@ -45,14 +45,14 @@ public class PreDecorationFilterTests {
 
 	private ZuulProperties properties = new ZuulProperties();
 
-	private ProxyRouteLocator routeLocator;
+	private DiscoveryClientRouteLocator routeLocator;
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
 
 	@Before
 	public void init() {
 		initMocks(this);
-		this.routeLocator = new ProxyRouteLocator("/", this.discovery,
+		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
 				this.properties);
 		this.filter = new PreDecorationFilter(this.routeLocator, true);
 		RequestContext ctx = RequestContext.getCurrentContext();

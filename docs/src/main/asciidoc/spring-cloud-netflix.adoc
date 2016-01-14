@@ -2,6 +2,7 @@
 :github-repo: spring-cloud/spring-cloud-netflix
 :github-raw: http://raw.github.com/{github-repo}/{github-tag}
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
+:all: {asterisk}{asterisk}
 = Spring Cloud Netflix
 
 include::intro.adoc[]
@@ -1055,7 +1056,7 @@ and the serviceId independently:
 This means that http calls to "/myusers" get forwarded to the
 "users_service" service.  The route has to have a "path" which can be
 specified as an ant-style pattern, so "/myusers/\*" only matches one
-level, but "/myusers/**" matches hierarchically.
+level, but "/myusers/{all}" matches hierarchically.
 
 The location of the backend can be specified as either a "serviceId"
 (for a Eureka service) or a "url" (for a physical location), e.g.
@@ -1093,25 +1094,28 @@ users:
     listOfServers: example.com,google.com
 ----
 
-You can provide convention between serviceId and routes using regexmapper.
-It uses regular expression named group to extract variables from serviceId and inject them
-into a route pattern.
+You can provide convention between serviceId and routes using
+regexmapper.  It uses regular expression named group to extract
+variables from serviceId and inject them into a route pattern.
 
-.application.yml
-[source,yaml]
+.ApplicationConfiguration.java
+[source,java]
 ----
- zuul:
-  regexMapper:
-   enabled: true
-   servicePattern: "(?<name>^.+)-(?<version>v.+$)"
-   routePattern: "${version}/${name}"
+@Bean
+public PatternServiceRouteMapper serviceRouteMapper() {
+    retuen new PatternServiceRouteMapper(
+        "(?<name>^.+)-(?<version>v.+$)",
+        "${version}/${name}");
+}
 ----
 
-This means that a serviceId "myusers-v1" will be mapped to route "/v1/myusers/**".
-Any regular expression is accepted but all named group must be present in both servicePattern and routePattern.
-If servicePattern do not match a serviceId, the default behavior is used. In exemple above,
-a serviceId "myusers" will be mapped to route "/myusers/**" (no version detected)
-These feature is disable by default and is only applied to discovered services.
+This means that a serviceId "myusers-v1" will be mapped to route
+"/v1/myusers/{all}".  Any regular expression is accepted but all named
+group must be present in both servicePattern and routePattern.  If
+servicePattern do not match a serviceId, the default behavior is
+used. In exemple above, a serviceId "myusers" will be mapped to route
+"/myusers/{all}" (no version detected) These feature is disable by
+default and is only applied to discovered services.
 
 To add a prefix to all mappings, set `zuul.prefix` to a value, such as
 `/api`. The proxy prefix is stripped from the request before the
@@ -1145,7 +1149,7 @@ above).
 
 An application with the `@EnableZuulProxy` could act as a standalone
 server if you set a default route ("/"), for example `zuul.route.home:
-/` would route all traffic (i.e. "/**") to the "home" service.
+/` would route all traffic (i.e. "/{all}") to the "home" service.
 
 If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
 These patterns are being evaluated at the start of the route location process, which
@@ -1195,10 +1199,10 @@ Example configuration:
 
 In this example we are strangling the "legacy" app which is mapped to
 all requests that do not match one of the other patterns. Paths in
-`/first/**` have been extracted into a new service with an external
-URL. And paths in `/second/**` are forwared so they can be handled
+`/first/{all}` have been extracted into a new service with an external
+URL. And paths in `/second/{all}` are forwared so they can be handled
 locally, e.g. with a normal Spring `@RequestMapping`. Paths in
-`/third/**` are also forwarded, but with a different prefix
+`/third/{all}` are also forwarded, but with a different prefix
 (i.e. `/third/foo` is forwarded to `/3rd/foo`).
 
 NOTE: The ignored pattterns aren't completely ignored, they just
@@ -1211,8 +1215,8 @@ If you `@EnableZuulProxy` you can use the proxy paths to
 upload files and it should just work as long as the files
 are small. For large files there is an alternative path
 which bypasses the Spring `DispatcherServlet` (to
-avoid multipart processing) in "/zuul/*". I.e. if
-`zuul.routes.customers=/customers/**` then you can
+avoid multipart processing) in "/zuul/{asterisk}". I.e. if
+`zuul.routes.customers=/customers/{all}` then you can
 POST large files to "/zuul/customers/*". The servlet
 path is externalized via `zuul.servletPath`. Extremely
 large files will also require elevated timeout settings
@@ -1243,9 +1247,10 @@ use `@EnableZuulServer` (instead of `@EnableZuulProxy`). Any beans that you add 
 will be installed automatically, as they are with `@EnableZuulProxy`, but without any of the proxy filters being added
 automatically.
 
-In this case the routes into the Zuul server are
-still specified by configuring "zuul.routes.*", but there is no service discovery and no proxying, so the
-"serviceId" and "url" settings are ignored. For example:
+In this case the routes into the Zuul server are still specified by
+configuring "zuul.routes.{asterisk}", but there is no service
+discovery and no proxying, so the "serviceId" and "url" settings are
+ignored. For example:
 
 .application.yml
 [source,yaml]
@@ -1255,7 +1260,7 @@ still specified by configuring "zuul.routes.*", but there is no service discover
     api: /api/**
 ----
 
-maps all paths in "/api/**" to the Zuul filter chain.
+maps all paths in "/api/{all}" to the Zuul filter chain.
 
 === Disable Zuul Filters
 

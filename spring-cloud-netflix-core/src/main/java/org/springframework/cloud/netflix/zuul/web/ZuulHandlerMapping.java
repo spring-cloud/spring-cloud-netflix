@@ -21,7 +21,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
-import org.springframework.cloud.netflix.zuul.RefreshableRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;

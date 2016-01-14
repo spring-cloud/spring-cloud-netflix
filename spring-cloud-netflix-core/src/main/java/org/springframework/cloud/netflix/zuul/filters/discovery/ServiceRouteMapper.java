@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.zuul.filters;
+package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 /**
  * Provide a way to apply convention between routes and discovered services name.

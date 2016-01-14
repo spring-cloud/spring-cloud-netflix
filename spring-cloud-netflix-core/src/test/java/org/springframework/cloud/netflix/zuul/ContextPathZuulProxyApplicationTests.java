@@ -25,8 +25,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -53,7 +53,7 @@ public class ContextPathZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
-	private ProxyRouteLocator routes;
+	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
 	private RoutesEndpoint endpoint;

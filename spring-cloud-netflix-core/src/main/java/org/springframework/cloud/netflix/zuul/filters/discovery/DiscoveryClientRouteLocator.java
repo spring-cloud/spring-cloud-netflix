@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters;
+package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -25,7 +25,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.RefreshableRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.Route;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -35,10 +38,14 @@ import org.springframework.util.StringUtils;
 import lombok.extern.apachecommons.CommonsLog;
 
 /**
+ * A {@link RouteLocator} that combines static, configured routes with those from a
+ * {@link DiscoveryClient}. The discovery client takes precedence.
+ *
  * @author Spencer Gibb
+ * @author Dave Syer
  */
 @CommonsLog
-public class ProxyRouteLocator implements RefreshableRouteLocator {
+public class DiscoveryClientRouteLocator implements RefreshableRouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/**";
 
@@ -56,7 +63,7 @@ public class ProxyRouteLocator implements RefreshableRouteLocator {
 
 	private ServiceRouteMapper serviceRouteMapper;
 
-	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
+	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties) {
 		if (StringUtils.hasText(servletPath)) { // a servletPath is passed explicitly
 			this.servletPath = servletPath;
@@ -81,7 +88,7 @@ public class ProxyRouteLocator implements RefreshableRouteLocator {
 		this.properties = properties;
 	}
 
-	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
+	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
 		this(servletPath, discovery, properties);
 		this.serviceRouteMapper = serviceRouteMapper;

@@ -1,13 +1,14 @@
-package org.springframework.cloud.netflix.zuul.filters.regex;
+package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.discovery.PatternServiceRouteMapper;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Stéphane Leroy
  */
-public class RegExServiceRouteMapperTests {
+public class PatternServiceRouteMapperTests {
 
 	/**
 	 * Service pattern that follow convention {domain}-{name}-{version}. The name is
@@ -18,7 +19,7 @@ public class RegExServiceRouteMapperTests {
 
 	@Test
 	public void test_return_mapped_route_if_serviceid_matches() {
-		RegExServiceRouteMapper toTest = new RegExServiceRouteMapper(SERVICE_PATTERN,
+		PatternServiceRouteMapper toTest = new PatternServiceRouteMapper(SERVICE_PATTERN,
 				ROUTE_PATTERN);
 
 		assertEquals("service version convention", "v1/rest/service",
@@ -27,7 +28,7 @@ public class RegExServiceRouteMapperTests {
 
 	@Test
 	public void test_return_serviceid_if_no_matches() {
-		RegExServiceRouteMapper toTest = new RegExServiceRouteMapper(SERVICE_PATTERN,
+		PatternServiceRouteMapper toTest = new PatternServiceRouteMapper(SERVICE_PATTERN,
 				ROUTE_PATTERN);
 
 		// No version here
@@ -38,7 +39,7 @@ public class RegExServiceRouteMapperTests {
 	@Test
 	public void test_route_should_be_cleaned_before_returned() {
 		// Messy patterns
-		RegExServiceRouteMapper toTest = new RegExServiceRouteMapper(SERVICE_PATTERN
+		PatternServiceRouteMapper toTest = new PatternServiceRouteMapper(SERVICE_PATTERN
 				+ "(?<nevermatch>.)?", "/${version}/${nevermatch}/${domain}/${name}/");
 		assertEquals("No matches for this service id", "v1/domain/service",
 				toTest.apply("domain-service-v1"));

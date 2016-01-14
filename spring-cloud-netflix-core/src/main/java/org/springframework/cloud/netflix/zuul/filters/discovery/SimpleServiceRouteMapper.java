@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.zuul.filters;
+package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 /**
  * @author Stéphane Leroy

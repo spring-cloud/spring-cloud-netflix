@@ -1,9 +1,8 @@
-package org.springframework.cloud.netflix.zuul.filters.regex;
+package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.cloud.netflix.zuul.filters.ServiceRouteMapper;
 import org.springframework.util.StringUtils;
 
 /**
@@ -12,12 +11,15 @@ import org.springframework.util.StringUtils;
  * This service route mapper use Java 7 RegEx named group feature to rewrite a discovered
  * service Id into a route.
  *
- * Ex : If we want to map service Id [rest-service-v1] to /v1/rest-service/** route
- * service pattern : "(?<name>.*)-(?<version>v.*$)" route pattern : "${version}/${name}"
+ * Ex : If we want to map service Id <code>[rest-service-v1]</code> to
+ * <code>/v1/rest-service/**</code> route service pattern :
+ * <code>"(?<name>.*)-(?<version>v.*$)"</code> route pattern :
+ * <code>"${version}/${name}"</code>
  *
- * /!\ This implementation use Matcher.replaceFirst so only one match will be replace.
+ * This implementation uses <code>Matcher.replaceFirst</code> so only one match will be
+ * replaced.
  */
-public class RegExServiceRouteMapper implements ServiceRouteMapper {
+public class PatternServiceRouteMapper implements ServiceRouteMapper {
 
 	/**
 	 * A RegExp Pattern that extract needed information from a service ID. Ex :
@@ -30,7 +32,7 @@ public class RegExServiceRouteMapper implements ServiceRouteMapper {
 	 */
 	private String routePattern;
 
-	public RegExServiceRouteMapper(String servicePattern, String routePattern) {
+	public PatternServiceRouteMapper(String servicePattern, String routePattern) {
 		this.servicePattern = Pattern.compile(servicePattern);
 		this.routePattern = routePattern;
 	}
@@ -45,8 +47,8 @@ public class RegExServiceRouteMapper implements ServiceRouteMapper {
 	 */
 	@Override
 	public String apply(String serviceId) {
-		Matcher matcher = servicePattern.matcher(serviceId);
-		String route = matcher.replaceFirst(routePattern);
+		Matcher matcher = this.servicePattern.matcher(serviceId);
+		String route = matcher.replaceFirst(this.routePattern);
 		route = cleanRoute(route);
 		return (StringUtils.hasText(route) ? route : serviceId);
 	}

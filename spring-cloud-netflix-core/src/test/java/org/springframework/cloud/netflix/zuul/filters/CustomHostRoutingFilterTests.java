@@ -17,6 +17,7 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.ZuulProxyConfiguration;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +55,7 @@ public class CustomHostRoutingFilterTests {
     private int port;
 
     @Autowired
-    private ProxyRouteLocator routes;
+    private DiscoveryClientRouteLocator routes;
 
     @Autowired
     private RoutesEndpoint endpoint;
