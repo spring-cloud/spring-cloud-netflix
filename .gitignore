@@ -11,4 +11,5 @@ _site/
 .idea
 *.iml
 *.ipr
+*.iws
 .factorypath
