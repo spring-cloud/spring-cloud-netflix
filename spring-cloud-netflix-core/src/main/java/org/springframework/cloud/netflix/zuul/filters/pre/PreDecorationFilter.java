@@ -19,8 +19,8 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
+import org.springframework.cloud.netflix.zuul.filters.Route;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -33,13 +33,13 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class PreDecorationFilter extends ZuulFilter {
 
-	private ProxyRouteLocator routeLocator;
+	private RouteLocator routeLocator;
 
 	private boolean addProxyHeaders;
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
-	public PreDecorationFilter(ProxyRouteLocator routeLocator, boolean addProxyHeaders) {
+	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders) {
 		this.routeLocator = routeLocator;
 		this.addProxyHeaders = addProxyHeaders;
 	}
@@ -65,7 +65,7 @@ public class PreDecorationFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		final String requestURI = this.urlPathHelper
 				.getPathWithinApplication(ctx.getRequest());
-		ProxyRouteSpec route = this.routeLocator.getMatchingRoute(requestURI);
+		Route route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
 			if (location != null) {

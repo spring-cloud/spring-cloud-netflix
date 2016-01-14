@@ -1,9 +1,9 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 /**
- * @author Stéphane LEROY
- *
  * Provide a way to apply convention between routes and discovered services name.
+ *
+ * @author Stéphane LEROY
  *
  */
 public interface ServiceRouteMapper {

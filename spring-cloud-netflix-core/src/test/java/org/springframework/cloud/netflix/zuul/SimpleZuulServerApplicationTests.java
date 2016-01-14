@@ -58,7 +58,7 @@ public class SimpleZuulServerApplicationTests {
 
 	@Test
 	public void bindRoute() {
-		assertTrue(this.routes.getRoutePaths().contains("/testing123/**"));
+		assertTrue(this.routes.getRoutes().keySet().contains("/testing123/**"));
 	}
 
 	@Test

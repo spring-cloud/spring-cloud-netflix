@@ -16,10 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.web;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +26,9 @@ import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.netflix.zuul.context.RequestContext;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Dave Syer
@@ -53,25 +53,29 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void mappedPath() throws Exception {
-		Mockito.when(this.locator.getRoutePaths()).thenReturn(Arrays.asList("/foo/**"));
+		Mockito.when(this.locator.getRoutes())
+				.thenReturn(Collections.singletonMap("/foo/**", "foo"));
 		this.request.setServletPath("/foo/");
-		this.mapping.registerHandlers();
+		this.mapping.setDirty(true);
 		assertNotNull(this.mapping.getHandler(this.request));
 	}
 
 	@Test
 	public void defaultPath() throws Exception {
-		Mockito.when(this.locator.getRoutePaths()).thenReturn(Arrays.asList("/**"));
+		Mockito.when(this.locator.getRoutes())
+				.thenReturn(Collections.singletonMap("/**", "default"));
+		;
 		this.request.setServletPath("/");
-		this.mapping.registerHandlers();
+		this.mapping.setDirty(true);
 		assertNotNull(this.mapping.getHandler(this.request));
 	}
 
 	@Test
 	public void errorPath() throws Exception {
-		Mockito.when(this.locator.getRoutePaths()).thenReturn(Arrays.asList("/**"));
+		Mockito.when(this.locator.getRoutes())
+				.thenReturn(Collections.singletonMap("/**", "default"));
 		this.request.setServletPath("/error");
-		this.mapping.registerHandlers();
+		this.mapping.setDirty(true);
 		assertNull(this.mapping.getHandler(this.request));
 	}
 

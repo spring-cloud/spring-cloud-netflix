@@ -21,7 +21,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.endpoint.mvc.MvcEndpoint;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ManagedResource(description = "Can be used to list and reset the reverse proxy routes")
 public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAware {
 
-	private ProxyRouteLocator routes;
+	private RouteLocator routes;
 
 	private ApplicationEventPublisher publisher;
 
@@ -50,7 +50,7 @@ public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAwa
 	}
 
 	@Autowired
-	public RoutesEndpoint(ProxyRouteLocator routes) {
+	public RoutesEndpoint(RouteLocator routes) {
 		this.routes = routes;
 	}
 

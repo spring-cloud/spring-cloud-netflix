@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator.ProxyRouteSpec;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.regex.RegExServiceRouteMapper;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -72,7 +71,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute("/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("foo", route.getId());
 	}
@@ -85,7 +84,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -97,7 +96,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/app/foo/1");
+		Route route = routeLocator.getMatchingRoute("/app/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -111,7 +110,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/foo/1", route.getPath());
 	}
@@ -124,7 +123,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/1", route.getPath());
 	}
@@ -137,7 +136,7 @@ public class ProxyRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
@@ -151,7 +150,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("foo", zuulRoute);
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute("/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -164,7 +163,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/bar/1");
+		Route route = routeLocator.getMatchingRoute("/bar/1");
 		assertEquals("bar", route.getLocation());
 		assertEquals("bar", route.getId());
 	}
@@ -177,7 +176,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute("/foo/1");
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
 
@@ -190,7 +189,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -203,7 +202,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/app/foo/1");
+		Route route = routeLocator.getMatchingRoute("/app/foo/1");
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
 
@@ -217,7 +216,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/foo/1", route.getPath());
 	}
@@ -232,7 +231,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
 	}
 
@@ -245,7 +244,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/1", route.getPath());
 	}
@@ -259,7 +258,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
 	}
 
@@ -272,7 +271,7 @@ public class ProxyRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
@@ -286,7 +285,7 @@ public class ProxyRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
 		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
 	}
 
@@ -300,7 +299,7 @@ public class ProxyRouteLocatorTests {
 		this.properties.getRoutes().put("foo", zuulRoute);
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		ProxyRouteSpec route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute("/foo/1");
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
 	

@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -106,8 +107,8 @@ public class ZuulProperties {
 			String location = null;
 			String path = text;
 			if (text.contains("=")) {
-				String[] values = StringUtils.trimArrayElements(StringUtils.split(text,
-						"="));
+				String[] values = StringUtils
+						.trimArrayElements(StringUtils.split(text, "="));
 				location = values[1];
 				path = values[0];
 			}
@@ -146,6 +147,10 @@ public class ZuulProperties {
 			path = path.startsWith("/") ? path.substring(1) : path;
 			path = path.replace("/*", "").replace("*", "");
 			return path;
+		}
+
+		public Route getRoute(String prefix) {
+			return new Route(this.id, this.path, getLocation(), prefix, this.retryable);
 		}
 
 	}

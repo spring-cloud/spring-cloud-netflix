@@ -79,7 +79,7 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 	private RoutesEndpoint endpoint;
 
 	@Autowired
-	private RibbonCommandFactory ribbonCommandFactory;
+	private RibbonCommandFactory<?> ribbonCommandFactory;
 
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
@@ -195,7 +195,7 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 
 	@Test
 	public void simpleHostRouteWithSpace() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
@@ -207,7 +207,7 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 
 	@Test
 	public void simpleHostRouteWithOriginalQString() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
@@ -220,13 +220,13 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 
 	@Test
 	public void simpleHostRouteWithOverriddenQString() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port
-						+ "/self/qstring?override=true&different=key", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+						+ "/self/qstring?override=true&different=key",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Received {key=[overridden]}", result.getBody());
 	}
@@ -234,7 +234,7 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 	@Test
 	public void ribbonCommandFactoryOverridden() {
 		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
-				ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
+				this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
 	}
 
 }
@@ -299,7 +299,7 @@ class SampleHttpClientZuulProxyApplication {
 	}
 
 	@Bean
-	public RibbonCommandFactory ribbonCommandFactory(
+	public RibbonCommandFactory<?> ribbonCommandFactory(
 			final SpringClientFactory clientFactory) {
 		return new HttpClientRibbonCommandFactory(clientFactory);
 	}

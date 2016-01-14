@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,21 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.Collection;
-import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-/**
- * @author Dave Syer
- */
-public interface RouteLocator {
+@Data
+@AllArgsConstructor
+public class Route {
 
-	/**
-	 * Ignored route paths (or patterns), if any.
-	 */
-	Collection<String> getIgnoredPaths();
+	private String id;
 
-	/**
-	 * A map of route path (pattern) to location (e.g. service id or URL).
-	 */
-	Map<String, String> getRoutes();
+	private String path;
 
-	/**
-	 * Maps a path to an actual route with full metadata.
-	 */
-	Route getMatchingRoute(String path);
+	private String location;
+
+	private String prefix;
+
+	private Boolean retryable;
 
 }

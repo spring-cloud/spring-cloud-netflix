@@ -25,21 +25,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
  */
 @CommonsLog
-public class ProxyRouteLocator implements RouteLocator {
+public class ProxyRouteLocator implements RefreshableRouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/**";
 
@@ -83,7 +82,7 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	public ProxyRouteLocator(String servletPath, DiscoveryClient discovery,
-							 ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
+			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
 		this(servletPath, discovery, properties);
 		this.serviceRouteMapper = serviceRouteMapper;
 	}
@@ -99,15 +98,11 @@ public class ProxyRouteLocator implements RouteLocator {
 	}
 
 	@Override
-	public Collection<String> getRoutePaths() {
-		return getRoutes().keySet();
-	}
-
-	@Override
 	public Collection<String> getIgnoredPaths() {
 		return this.properties.getIgnoredPatterns();
 	}
 
+	@Override
 	public Map<String, String> getRoutes() {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
@@ -120,9 +115,14 @@ public class ProxyRouteLocator implements RouteLocator {
 		return values;
 	}
 
-	public ProxyRouteSpec getMatchingRoute(String path) {
+	@Override
+	public Route getMatchingRoute(String path) {
 		if (log.isDebugEnabled()) {
 			log.debug("Finding route for path: " + path);
+		}
+
+		if (this.routes.get() == null) {
+			this.routes.set(locateRoutes());
 		}
 
 		String location = null;
@@ -164,7 +164,12 @@ public class ProxyRouteLocator implements RouteLocator {
 			}
 		}
 		return (location == null ? null
-				: new ProxyRouteSpec(id, targetPath, location, prefix, retryable));
+				: new Route(id, targetPath, location, prefix, retryable));
+	}
+
+	@Override
+	public void refresh() {
+		resetRoutes();
 	}
 
 	protected boolean matchesIgnoredPatterns(String path) {
@@ -178,7 +183,7 @@ public class ProxyRouteLocator implements RouteLocator {
 		return false;
 	}
 
-	public void resetRoutes() {
+	private void resetRoutes() {
 		this.routes.set(locateRoutes());
 	}
 
@@ -260,28 +265,6 @@ public class ProxyRouteLocator implements RouteLocator {
 			}
 			routes.put(route, entry);
 		}
-	}
-
-	public String getTargetPath(String matchingRoute, String requestURI) {
-		String path = getRoutes().get(matchingRoute);
-		return (path != null ? path : requestURI);
-
-	}
-
-	@Data
-	@AllArgsConstructor
-	public static class ProxyRouteSpec {
-
-		private String id;
-
-		private String path;
-
-		private String location;
-
-		private String prefix;
-
-		private Boolean retryable;
-
 	}
 
 }

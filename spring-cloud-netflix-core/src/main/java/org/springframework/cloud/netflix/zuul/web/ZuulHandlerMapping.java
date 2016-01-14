@@ -21,6 +21,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.cloud.netflix.zuul.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
@@ -41,6 +42,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
 	private ErrorController errorController;
 
+	private volatile boolean dirty = true;
+
 	public ZuulHandlerMapping(RouteLocator routeLocator, ZuulController zuul) {
 		this.routeLocator = routeLocator;
 		this.zuul = zuul;
@@ -49,6 +52,13 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
 	public void setErrorController(ErrorController errorController) {
 		this.errorController = errorController;
+	}
+
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
+		if (this.routeLocator instanceof RefreshableRouteLocator) {
+			((RefreshableRouteLocator) this.routeLocator).refresh();
+		}
 	}
 
 	@Override
@@ -66,13 +76,21 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		if (ctx.containsKey("forward.to")) {
 			return null;
 		}
+		if (this.dirty) {
+			synchronized (this) {
+				if (this.dirty) {
+					registerHandlers();
+					this.dirty = false;
+				}
+			}
+		}
 		return super.lookupHandler(urlPath, request);
 	}
 
-	public void registerHandlers() {
-		Collection<String> routes = this.routeLocator.getRoutePaths();
+	private void registerHandlers() {
+		Collection<String> routes = this.routeLocator.getRoutes().keySet();
 		if (routes.isEmpty()) {
-			this.logger.warn("No routes found from ProxyRouteLocator");
+			this.logger.warn("No routes found from RouteLocator");
 		}
 		else {
 			for (String url : routes) {

@@ -17,9 +17,12 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 /**
  * @author Dave Syer
@@ -28,15 +31,17 @@ public class SimpleRouteLocator implements RouteLocator {
 
 	private ZuulProperties properties;
 
+	private PathMatcher pathMatcher = new AntPathMatcher();
+
 	public SimpleRouteLocator(ZuulProperties properties) {
 		this.properties = properties;
 	}
 
 	@Override
-	public Collection<String> getRoutePaths() {
-		Collection<String> paths = new LinkedHashSet<String>();
+	public Map<String, String> getRoutes() {
+		Map<String, String> paths = new LinkedHashMap<String, String>();
 		for (ZuulRoute route : this.properties.getRoutes().values()) {
-			paths.add(route.getPath());
+			paths.put(route.getPath(), route.getId());
 		}
 		return paths;
 	}
@@ -46,4 +51,13 @@ public class SimpleRouteLocator implements RouteLocator {
 		return this.properties.getIgnoredPatterns();
 	}
 
+	@Override
+	public Route getMatchingRoute(String path) {
+		for (ZuulRoute route : this.properties.getRoutes().values()) {
+			if (this.pathMatcher.match(route.getPath(), path)) {
+				return route.getRoute(this.properties.getPrefix());
+			}
+		}
+		return null;
+	}
 }

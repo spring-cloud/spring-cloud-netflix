@@ -29,10 +29,10 @@ import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
-import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.SimpleServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -80,32 +80,35 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Bean
 	@Override
+	@ConditionalOnMissingBean(RouteLocator.class)
 	public ProxyRouteLocator routeLocator() {
 		return new ProxyRouteLocator(this.server.getServletPrefix(), this.discovery,
-				this.zuulProperties, serviceRouteMapper);
+				this.zuulProperties, this.serviceRouteMapper);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RibbonCommandFactory ribbonCommandFactory() {
+	public RibbonCommandFactory<?> ribbonCommandFactory() {
 		return new RestClientRibbonCommandFactory(this.clientFactory);
 	}
 
 	// pre filters
 	@Bean
-	public PreDecorationFilter preDecorationFilter(ProxyRouteLocator routeLocator) {
+	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator) {
 		return new PreDecorationFilter(routeLocator,
 				this.zuulProperties.isAddProxyHeaders());
 	}
 
 	// route filters
 	@Bean
-	public RibbonRoutingFilter ribbonRoutingFilter(RibbonCommandFactory ribbonCommandFactory) {
+	public RibbonRoutingFilter ribbonRoutingFilter(
+			RibbonCommandFactory<?> ribbonCommandFactory) {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
 			helper.setTraces(this.traces);
 		}
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper,
+				ribbonCommandFactory);
 		return filter;
 	}
 
@@ -119,9 +122,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
-	@Override
-	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
-		return new ZuulRefreshListener();
+	public ApplicationListener<ApplicationEvent> zuulDiscoveryRefreshRoutesListener() {
+		return new ZuulDiscoveryRefreshListener();
 	}
 
 	@Configuration
@@ -144,38 +146,28 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		}
 	}
 
-
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
 	protected static class RoutesEndpointConfiguration {
 
-		@Autowired
-		private ProxyRouteLocator routeLocator;
-
 		@Bean
-		// @RefreshScope
-		public RoutesEndpoint zuulEndpoint() {
-			return new RoutesEndpoint(this.routeLocator);
+		public RoutesEndpoint zuulEndpoint(ProxyRouteLocator routeLocator) {
+			return new RoutesEndpoint(routeLocator);
 		}
 
 	}
 
-	private static class ZuulRefreshListener implements
-			ApplicationListener<ApplicationEvent> {
+	private static class ZuulDiscoveryRefreshListener
+			implements ApplicationListener<ApplicationEvent> {
 
 		private HeartbeatMonitor monitor = new HeartbeatMonitor();
-
-		@Autowired
-		private ProxyRouteLocator routeLocator;
 
 		@Autowired
 		private ZuulHandlerMapping zuulHandlerMapping;
 
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
-			if (event instanceof InstanceRegisteredEvent
-					|| event instanceof RefreshScopeRefreshedEvent
-					|| event instanceof RoutesRefreshedEvent) {
+			if (event instanceof InstanceRegisteredEvent) {
 				reset();
 			}
 			else if (event instanceof ParentHeartbeatEvent) {
@@ -196,8 +188,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		}
 
 		private void reset() {
-			this.routeLocator.resetRoutes();
-			this.zuulHandlerMapping.registerHandlers();
+			this.zuulHandlerMapping.setDirty(true);
 		}
 
 	}

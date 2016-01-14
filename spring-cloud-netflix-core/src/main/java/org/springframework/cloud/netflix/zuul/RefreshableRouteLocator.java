@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters;
+package org.springframework.cloud.netflix.zuul;
 
-import java.util.Collection;
-import java.util.Map;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 
 /**
+ * Interface for a route locator that can be refreshed if routes change.
+ *
  * @author Dave Syer
  */
-public interface RouteLocator {
+public interface RefreshableRouteLocator extends RouteLocator {
 
-	/**
-	 * Ignored route paths (or patterns), if any.
-	 */
-	Collection<String> getIgnoredPaths();
-
-	/**
-	 * A map of route path (pattern) to location (e.g. service id or URL).
-	 */
-	Map<String, String> getRoutes();
-
-	/**
-	 * Maps a path to an actual route with full metadata.
-	 */
-	Route getMatchingRoute(String path);
+	void refresh();
 
 }

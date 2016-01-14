@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -66,6 +67,7 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public RouteLocator routeLocator() {
 		return new SimpleRouteLocator(this.zuulProperties);
 	}
@@ -140,8 +142,8 @@ public class ZuulConfiguration {
 
 	}
 
-	private static class ZuulRefreshListener implements
-			ApplicationListener<ApplicationEvent> {
+	private static class ZuulRefreshListener
+			implements ApplicationListener<ApplicationEvent> {
 
 		@Autowired
 		private ZuulHandlerMapping zuulHandlerMapping;
@@ -149,8 +151,9 @@ public class ZuulConfiguration {
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
 			if (event instanceof ContextRefreshedEvent
-					|| event instanceof RefreshScopeRefreshedEvent) {
-				this.zuulHandlerMapping.registerHandlers();
+					|| event instanceof RefreshScopeRefreshedEvent
+					|| event instanceof RoutesRefreshedEvent) {
+				this.zuulHandlerMapping.setDirty(true);
 			}
 		}
 
