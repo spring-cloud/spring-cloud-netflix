@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -58,6 +59,9 @@ public class ZuulConfiguration {
 	@Autowired
 	private ZuulProperties zuulProperties;
 
+	@Autowired
+	private ServerProperties server;
+
 	@Autowired(required = false)
 	private ErrorController errorController;
 
@@ -69,7 +73,8 @@ public class ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RouteLocator routeLocator() {
-		return new SimpleRouteLocator(this.zuulProperties);
+		return new SimpleRouteLocator(this.server.getServletPrefix(),
+				this.zuulProperties);
 	}
 
 	@Bean

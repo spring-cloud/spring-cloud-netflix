@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
@@ -62,6 +63,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -83,17 +85,20 @@ public class SampleZuulProxyApplicationTests {
 	private RoutesEndpoint endpoint;
 
 	@Autowired
-	private RibbonCommandFactory ribbonCommandFactory;
+	private RibbonCommandFactory<?> ribbonCommandFactory;
+
+	private String getRoute(String path) {
+		return this.routes.getRoutes().get(path);
+	}
 
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
-		assertEquals("http://localhost:7777/local",
-				this.routes.getRoutes().get("/test/**"));
+		assertEquals("http://localhost:7777/local", getRoute("/test/**"));
 	}
 
 	@Test
 	public void bindRouteUsingOnlyPath() {
-		assertEquals("simple", this.routes.getRoutes().get("/simple/**"));
+		assertNotNull(getRoute("/simple/**"));
 	}
 
 	@Test
@@ -149,52 +154,54 @@ public class SampleZuulProxyApplicationTests {
 	@Test
 	public void ribbonRouteWithSpace() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/spa ce",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/simple/spa ce", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
 	}
 
 	@Test
 	public void simpleHostRouteWithSpace() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/spa ce",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/self/spa ce", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
 	}
 
 	@Test
 	public void simpleHostRouteWithOriginalQString() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/qstring?original=value1&original=value2", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port
+						+ "/self/qstring?original=value1&original=value2",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Received {original=[value1, value2]}", result.getBody());
 	}
 
 	@Test
 	public void simpleHostRouteWithOverriddenQString() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port);
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/qstring?override=true&different=key", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port
+						+ "/self/qstring?override=true&different=key",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Received {key=[overridden]}", result.getBody());
 	}
 
 	@Test
 	public void simpleHostRouteWithTrailingSlash() {
-		routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/trailing-slash",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/self/trailing-slash", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("/trailing-slash", result.getBody());
 	}
@@ -202,7 +209,7 @@ public class SampleZuulProxyApplicationTests {
 	@Test
 	public void ribbonCommandFactoryOverridden() {
 		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
-				ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
+				this.ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
 	}
 
 }
@@ -243,8 +250,8 @@ class SampleZuulProxyApplication {
 	}
 
 	@RequestMapping(value = "/qstring")
-	public String qstring(@RequestParam MultiValueMap<String,String> params) {
-		return "Received "+params.toString();	
+	public String qstring(@RequestParam MultiValueMap<String, String> params) {
+		return "Received " + params.toString();
 	}
 
 	@RequestMapping("/")
@@ -263,7 +270,8 @@ class SampleZuulProxyApplication {
 	}
 
 	@Bean
-	public RibbonCommandFactory ribbonCommandFactory(SpringClientFactory clientFactory) {
+	public RibbonCommandFactory<?> ribbonCommandFactory(
+			SpringClientFactory clientFactory) {
 		return new MyRibbonCommandFactory(clientFactory);
 	}
 
@@ -282,8 +290,9 @@ class SampleZuulProxyApplication {
 
 			@Override
 			public Object run() {
-				if (RequestContext.getCurrentContext().getRequest().getParameterMap().containsKey("override")) {
-					Map<String,List<String>> overridden=new HashMap<>();
+				if (RequestContext.getCurrentContext().getRequest().getParameterMap()
+						.containsKey("override")) {
+					Map<String, List<String>> overridden = new HashMap<>();
 					overridden.put("key", Arrays.asList("overridden"));
 					RequestContext.getCurrentContext().setRequestQueryParams(overridden);
 				}
@@ -319,7 +328,7 @@ class SimpleRibbonClientConfiguration {
 
 	@Bean
 	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", port));
+		return new StaticServerList<>(new Server("localhost", this.port));
 	}
 
 }
@@ -332,7 +341,7 @@ class AnotherRibbonClientConfiguration {
 
 	@Bean
 	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", port));
+		return new StaticServerList<>(new Server("localhost", this.port));
 	}
 
 }

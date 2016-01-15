@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.zuul.ZuulFilter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SimpleZuulServerApplication.class)
@@ -56,9 +56,13 @@ public class SimpleZuulServerApplicationTests {
 	@Autowired
 	private RouteLocator routes;
 
+	private String getRoute(String path) {
+		return this.routes.getRoutes().get(path);
+	}
+
 	@Test
 	public void bindRoute() {
-		assertTrue(this.routes.getRoutes().keySet().contains("/testing123/**"));
+		assertNotNull(getRoute("/testing123/**"));
 	}
 
 	@Test

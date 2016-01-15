@@ -81,15 +81,18 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 	@Autowired
 	private RibbonCommandFactory<?> ribbonCommandFactory;
 
+	private String getRoute(String path) {
+		return this.routes.getRoutes().get(path);
+	}
+
 	@Test
 	public void bindRouteUsingPhysicalRoute() {
-		assertEquals("http://localhost:7777/local",
-				this.routes.getRoutes().get("/test/**"));
+		assertEquals("http://localhost:7777/local", getRoute("/test/**"));
 	}
 
 	@Test
 	public void bindRouteUsingOnlyPath() {
-		assertEquals("simple", this.routes.getRoutes().get("/simple/**"));
+		assertEquals("simple", getRoute("/simple/**"));
 	}
 
 	@Test
