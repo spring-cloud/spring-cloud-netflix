@@ -29,7 +29,6 @@ import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.util.StringUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -590,10 +589,7 @@ public class DiscoveryClientRouteLocatorTests {
 
 	private Route getRoute(List<Route> routes, String path) {
 		for (Route route : routes) {
-			String pattern = route.getPath();
-			if (StringUtils.hasText(route.getPrefix())) {
-				pattern = route.getPrefix() + route.getPath();
-			}
+			String pattern = route.getFullPath();
 			if (path.equals(pattern)) {
 				return route;
 			}

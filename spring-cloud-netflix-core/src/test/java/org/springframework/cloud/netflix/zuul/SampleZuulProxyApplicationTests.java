@@ -90,7 +90,7 @@ public class SampleZuulProxyApplicationTests {
 
 	private String getRoute(String path) {
 		for (Route route : this.routes.getRoutes()) {
-			if (path.equals(route.getPrefix() + route.getPath())) {
+			if (path.equals(route.getFullPath())) {
 				return route.getLocation();
 			}
 		}

@@ -70,7 +70,7 @@ public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAwa
 	public Map<String, String> getRoutes() {
 		Map<String, String> map = new LinkedHashMap<>();
 		for (Route route : this.routes.getRoutes()) {
-			map.put(route.getPath(), route.getLocation());
+			map.put(route.getFullPath(), route.getLocation());
 		}
 		return map;
 	}

@@ -81,8 +81,9 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
 				}
 				else if (location.startsWith("forward:")) {
-					ctx.set("forward.to", StringUtils.cleanPath(
-							location.substring("forward:".length()) + route.getPath()));
+					ctx.set("forward.to",
+							StringUtils.cleanPath(location.substring("forward:".length())
+									+ route.getPath()));
 					ctx.setRouteHost(null);
 					return null;
 				}

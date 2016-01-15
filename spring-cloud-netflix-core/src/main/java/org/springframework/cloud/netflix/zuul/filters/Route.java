@@ -16,14 +16,27 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import lombok.AllArgsConstructor;
+import org.springframework.util.StringUtils;
+
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class Route {
 
+	public Route(String id, String path, String location, String prefix,
+			Boolean retryable) {
+		this.id = id;
+		this.prefix = StringUtils.hasText(prefix) ? prefix : "";
+		this.path = path;
+		this.fullPath = prefix + path;
+		this.location = location;
+		this.retryable = retryable;
+
+	}
+
 	private String id;
+
+	private String fullPath;
 
 	private String path;
 

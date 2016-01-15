@@ -95,7 +95,7 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		}
 		else {
 			for (Route route : routes) {
-				registerHandler(route.getPrefix() + route.getPath(), this.zuul);
+				registerHandler(route.getFullPath(), this.zuul);
 			}
 		}
 	}
