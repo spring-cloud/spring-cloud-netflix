@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -53,8 +54,8 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void mappedPath() throws Exception {
-		Mockito.when(this.locator.getRoutes())
-				.thenReturn(Collections.singletonMap("/foo/**", "foo"));
+		Mockito.when(this.locator.getRoutes()).thenReturn(
+				Collections.singletonList(new Route("foo", "/foo/**", "foo", "", null)));
 		this.request.setServletPath("/foo/");
 		this.mapping.setDirty(true);
 		assertNotNull(this.mapping.getHandler(this.request));
@@ -62,8 +63,8 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void defaultPath() throws Exception {
-		Mockito.when(this.locator.getRoutes())
-				.thenReturn(Collections.singletonMap("/**", "default"));
+		Mockito.when(this.locator.getRoutes()).thenReturn(
+				Collections.singletonList(new Route("default", "/**", "foo", "", null)));
 		;
 		this.request.setServletPath("/");
 		this.mapping.setDirty(true);
@@ -72,8 +73,8 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void errorPath() throws Exception {
-		Mockito.when(this.locator.getRoutes())
-				.thenReturn(Collections.singletonMap("/**", "default"));
+		Mockito.when(this.locator.getRoutes()).thenReturn(
+				Collections.singletonList(new Route("default", "/**", "foo", "", null)));
 		this.request.setServletPath("/error");
 		this.mapping.setDirty(true);
 		assertNull(this.mapping.getHandler(this.request));

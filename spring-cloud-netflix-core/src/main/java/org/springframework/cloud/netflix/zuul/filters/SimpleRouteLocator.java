@@ -16,8 +16,10 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,13 +60,15 @@ public class SimpleRouteLocator implements RouteLocator {
 	}
 
 	@Override
-	public Map<String, String> getRoutes() {
+	public List<Route> getRoutes() {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
 		}
-		Map<String, String> values = new LinkedHashMap<>();
+		List<Route> values = new ArrayList<>();
 		for (String url : this.routes.get().keySet()) {
-			values.put(url, this.routes.get().get(url).getLocation());
+			ZuulRoute route = this.routes.get().get(url);
+			String path = route.getPath();
+			values.add(getRoute(route, path));
 		}
 		return values;
 	}

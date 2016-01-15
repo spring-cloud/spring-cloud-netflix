@@ -17,7 +17,7 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Dave Syer
@@ -32,7 +32,7 @@ public interface RouteLocator {
 	/**
 	 * A map of route path (pattern) to location (e.g. service id or URL).
 	 */
-	Map<String, String> getRoutes();
+	List<Route> getRoutes();
 
 	/**
 	 * Maps a path to an actual route with full metadata.

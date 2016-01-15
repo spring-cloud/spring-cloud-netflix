@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
@@ -88,13 +89,13 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	private void registerHandlers() {
-		Collection<String> routes = this.routeLocator.getRoutes().keySet();
+		Collection<Route> routes = this.routeLocator.getRoutes();
 		if (routes.isEmpty()) {
 			this.logger.warn("No routes found from RouteLocator");
 		}
 		else {
-			for (String url : routes) {
-				registerHandler(url, this.zuul);
+			for (Route route : routes) {
+				registerHandler(route.getPrefix() + route.getPath(), this.zuul);
 			}
 		}
 	}

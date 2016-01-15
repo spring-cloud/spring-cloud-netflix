@@ -36,6 +36,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
@@ -88,7 +89,12 @@ public class SampleZuulProxyApplicationTests {
 	private RibbonCommandFactory<?> ribbonCommandFactory;
 
 	private String getRoute(String path) {
-		return this.routes.getRoutes().get(path);
+		for (Route route : this.routes.getRoutes()) {
+			if (path.equals(route.getPrefix() + route.getPath())) {
+				return route.getLocation();
+			}
+		}
+		return null;
 	}
 
 	@Test
