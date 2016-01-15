@@ -52,7 +52,7 @@ import com.netflix.zuul.http.ZuulServlet;
  * @author Dave Syer
  */
 @Configuration
-@EnableConfigurationProperties(ZuulProperties.class)
+@EnableConfigurationProperties({ ZuulProperties.class, ServerProperties.class })
 @ConditionalOnClass(ZuulServlet.class)
 public class ZuulConfiguration {
 
