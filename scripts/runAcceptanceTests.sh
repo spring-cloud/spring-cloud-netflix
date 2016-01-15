@@ -13,7 +13,7 @@ curl "${SCRIPT_URL}" --output runDockerAcceptanceTests.sh
 
 chmod +x runDockerAcceptanceTests.sh
 
-./runDockerAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}"
+./runDockerAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}" -k 1
 
 SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/tests/master/scripts/runTests.sh"
 
