@@ -1126,7 +1126,7 @@ variables from serviceId and inject them into a route pattern.
 ----
 @Bean
 public PatternServiceRouteMapper serviceRouteMapper() {
-    retuen new PatternServiceRouteMapper(
+    return new PatternServiceRouteMapper(
         "(?<name>^.+)-(?<version>v.+$)",
         "${version}/${name}");
 }
