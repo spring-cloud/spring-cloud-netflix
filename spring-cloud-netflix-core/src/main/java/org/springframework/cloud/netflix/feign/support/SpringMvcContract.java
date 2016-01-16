@@ -33,11 +33,12 @@ import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterP
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static feign.Util.checkState;
-import static feign.Util.emptyToNull;
-
 import feign.Contract;
 import feign.MethodMetadata;
+
+import static feign.Util.checkState;
+import static feign.Util.emptyToNull;
+import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
 /**
  * @author Spencer Gibb
@@ -73,7 +74,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
 
-		RequestMapping classAnnotation = targetType.getAnnotation(RequestMapping.class);
+		RequestMapping classAnnotation = findMergedAnnotation(targetType, RequestMapping.class);
 		if (classAnnotation != null) {
 			// Prepend path from class annotation if specified
 			if (classAnnotation.value().length > 0) {
@@ -111,7 +112,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 			return;
 		}
 
-		RequestMapping methodMapping = RequestMapping.class.cast(methodAnnotation);
+		RequestMapping methodMapping = findMergedAnnotation(method, RequestMapping.class);
 		// HTTP Method
 		checkOne(method, methodMapping.method(), "method");
 		data.template().method(methodMapping.method()[0].name());
