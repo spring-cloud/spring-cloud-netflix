@@ -1875,7 +1875,7 @@ variables from serviceId and inject them into a route pattern.</p>
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@Bean
 public PatternServiceRouteMapper serviceRouteMapper() {
-    retuen new PatternServiceRouteMapper(
+    return new PatternServiceRouteMapper(
         "(?&lt;name&gt;^.+)-(?&lt;version&gt;v.+$)",
         "${version}/${name}");
 }</code></pre>
@@ -2508,7 +2508,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-01-16 00:30:30 UTC
+Last updated 2016-01-16 09:47:02 UTC
 </div>
 </div>
 </body>
