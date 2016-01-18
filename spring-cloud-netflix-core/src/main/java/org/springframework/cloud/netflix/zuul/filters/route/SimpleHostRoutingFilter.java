@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLContext;
@@ -55,6 +56,7 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -80,12 +82,12 @@ import lombok.extern.apachecommons.CommonsLog;
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
-			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS,
-					10000);
+			.getInstance()
+			.getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS, 10000);
 
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
-			.getInstance().getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS,
-					2000);
+			.getInstance()
+			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
@@ -98,11 +100,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		@Override
 		public void run() {
 			try {
-				httpClient.close();
-			} catch (IOException ex) {
+				SimpleHostRoutingFilter.this.httpClient.close();
+			}
+			catch (IOException ex) {
 				log.error("error closing client", ex);
 			}
-			httpClient = newClient();
+			SimpleHostRoutingFilter.this.httpClient = newClient();
 		}
 	};
 
@@ -117,22 +120,22 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	@PostConstruct
 	private void initialize() {
 		this.httpClient = newClient();
-		SOCKET_TIMEOUT.addCallback(clientloader);
-		CONNECTION_TIMEOUT.addCallback(clientloader);
-		connectionManagerTimer.schedule(new TimerTask() {
+		SOCKET_TIMEOUT.addCallback(this.clientloader);
+		CONNECTION_TIMEOUT.addCallback(this.clientloader);
+		this.connectionManagerTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (connectionManager == null) {
+				if (SimpleHostRoutingFilter.this.connectionManager == null) {
 					return;
 				}
-				connectionManager.closeExpiredConnections();
+				SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
 			}
 		}, 30000, 5000);
 	}
 
 	@PreDestroy
 	public void stop() {
-		connectionManagerTimer.cancel();
+		this.connectionManagerTimer.cancel();
 	}
 
 	@Override
@@ -161,16 +164,20 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
+		if (request.getContentLength() < 0) {
+			context.setChunkedRequestBody();
+		}
 
 		String uri = this.helper.buildZuulRequestURI(request);
 
 		try {
-			HttpResponse response = forward(httpClient, verb, uri, request, headers,
+			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
 					params, requestEntity);
 			setResponse(response);
 		}
 		catch (Exception ex) {
-			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			context.set("error.status_code",
+					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			context.set("error.exception", ex);
 		}
 		return null;
@@ -179,31 +186,37 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	protected PoolingHttpClientConnectionManager newConnectionManager() {
 		try {
 			final SSLContext sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
 				@Override
-				public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+				public void checkClientTrusted(X509Certificate[] x509Certificates,
+						String s) throws CertificateException {
 				}
 
 				@Override
-				public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+				public void checkServerTrusted(X509Certificate[] x509Certificates,
+						String s) throws CertificateException {
 				}
 
 				@Override
 				public X509Certificate[] getAcceptedIssuers() {
 					return null;
 				}
-			}}, new SecureRandom());
+			} }, new SecureRandom());
 
-			final Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+			final Registry<ConnectionSocketFactory> registry = RegistryBuilder
+					.<ConnectionSocketFactory> create()
 					.register("http", PlainConnectionSocketFactory.INSTANCE)
 					.register("https", new SSLConnectionSocketFactory(sslContext))
 					.build();
 
-			connectionManager = new PoolingHttpClientConnectionManager(registry);
-			connectionManager.setMaxTotal(Integer.parseInt(System.getProperty("zuul.max.host.connections", "200")));
-			connectionManager.setDefaultMaxPerRoute(Integer.parseInt(System.getProperty("zuul.max.host.connections", "20")));
-			return connectionManager;
-		} catch (Exception ex) {
+			this.connectionManager = new PoolingHttpClientConnectionManager(registry);
+			this.connectionManager.setMaxTotal(Integer
+					.parseInt(System.getProperty("zuul.max.host.connections", "200")));
+			this.connectionManager.setDefaultMaxPerRoute(Integer
+					.parseInt(System.getProperty("zuul.max.host.connections", "20")));
+			return this.connectionManager;
+		}
+		catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
 	}
@@ -212,55 +225,56 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		final RequestConfig requestConfig = RequestConfig.custom()
 				.setSocketTimeout(SOCKET_TIMEOUT.get())
 				.setConnectTimeout(CONNECTION_TIMEOUT.get())
-				.setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-				.build();
+				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 
-		return HttpClients.custom()
-				.setConnectionManager(newConnectionManager())
+		return HttpClients.custom().setConnectionManager(newConnectionManager())
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
 				.setRedirectStrategy(new RedirectStrategy() {
 					@Override
-					public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
+					public boolean isRedirected(HttpRequest request,
+							HttpResponse response, HttpContext context)
+									throws ProtocolException {
 						return false;
 					}
 
 					@Override
-					public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
+					public HttpUriRequest getRedirect(HttpRequest request,
+							HttpResponse response, HttpContext context)
+									throws ProtocolException {
 						return null;
 					}
-				})
-				.build();
+				}).build();
 	}
 
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
-								 HttpServletRequest request, MultiValueMap<String, String> headers,
-								 MultiValueMap<String, String> params, InputStream requestEntity)
-			throws Exception {
+			HttpServletRequest request, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity)
+					throws Exception {
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
 		uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
 		HttpRequest httpRequest;
+		int contentLength = request.getContentLength();
+		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength,
+				ContentType.create(request.getContentType()));
 		switch (verb.toUpperCase()) {
 		case "POST":
 			HttpPost httpPost = new HttpPost(uri + getQueryString());
 			httpRequest = httpPost;
-			httpPost.setEntity(new InputStreamEntity(requestEntity, request
-					.getContentLength()));
+			httpPost.setEntity(entity);
 			break;
 		case "PUT":
 			HttpPut httpPut = new HttpPut(uri + getQueryString());
 			httpRequest = httpPut;
-			httpPut.setEntity(new InputStreamEntity(requestEntity, request
-					.getContentLength()));
+			httpPut.setEntity(entity);
 			break;
 		case "PATCH":
 			HttpPatch httpPatch = new HttpPatch(uri + getQueryString());
 			httpRequest = httpPatch;
-			httpPatch.setEntity(new InputStreamEntity(requestEntity, request
-					.getContentLength()));
+			httpPatch.setEntity(entity);
 			break;
 		default:
 			httpRequest = new BasicHttpRequest(verb, uri + getQueryString());
@@ -312,10 +326,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private String getQueryString() throws UnsupportedEncodingException {
 		HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-		MultiValueMap<String, String> params=helper.buildZuulRequestQueryParams(request);
-		StringBuilder query=new StringBuilder();
+		MultiValueMap<String, String> params = this.helper
+				.buildZuulRequestQueryParams(request);
+		StringBuilder query = new StringBuilder();
 		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
-			String key=URLEncoder.encode(entry.getKey(), "UTF-8");
+			String key = URLEncoder.encode(entry.getKey(), "UTF-8");
 			for (String value : entry.getValue()) {
 				query.append("&");
 				query.append(key);
@@ -323,7 +338,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				query.append(URLEncoder.encode(value, "UTF-8"));
 			}
 		}
-		return (query.length()>0) ? "?" + query.substring(1) : "";
+		return (query.length() > 0) ? "?" + query.substring(1) : "";
 	}
 
 	private HttpHost getHttpHost(URL host) {
@@ -359,7 +374,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	 * @param names
 	 */
 	protected void addIgnoredHeaders(String... names) {
-		helper.addIgnoredHeaders(names);
+		this.helper.addIgnoredHeaders(names);
 	}
 
 }

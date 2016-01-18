@@ -23,8 +23,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
@@ -34,6 +32,8 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 @CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
@@ -64,8 +64,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		return (ctx.getRouteHost() == null && ctx.get("serviceId") != null && ctx
-				.sendZuulResponse());
+		return (ctx.getRouteHost() == null && ctx.get("serviceId") != null
+				&& ctx.sendZuulResponse());
 	}
 
 	@Override
@@ -78,7 +78,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			return response;
 		}
 		catch (Exception ex) {
-			context.set("error.status_code", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			context.set("error.status_code",
+					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			context.set("error.exception", ex);
 		}
 		return null;
@@ -93,6 +94,9 @@ public class RibbonRoutingFilter extends ZuulFilter {
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
+		if (request.getContentLength() < 0) {
+			context.setChunkedRequestBody();
+		}
 
 		String serviceId = (String) context.get("serviceId");
 		Boolean retryable = (Boolean) context.get("retryable");
@@ -102,15 +106,15 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		// remove double slashes
 		uri = uri.replace("//", "/");
 
-		return new RibbonCommandContext(serviceId, verb, uri, retryable,
-				headers, params, requestEntity);
+		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
+				requestEntity);
 	}
 
 	private ClientHttpResponse forward(RibbonCommandContext context) throws Exception {
 		Map<String, Object> info = this.helper.debug(context.getVerb(), context.getUri(),
 				context.getHeaders(), context.getParams(), context.getRequestEntity());
 
-		RibbonCommand command = ribbonCommandFactory.create(context);
+		RibbonCommand command = this.ribbonCommandFactory.create(context);
 		try {
 			ClientHttpResponse response = command.execute();
 			this.helper.appendDebug(info, response.getStatusCode().value(),
@@ -124,11 +128,11 @@ public class RibbonRoutingFilter extends ZuulFilter {
 					&& ex.getFallbackException().getCause() instanceof ClientException) {
 				ClientException cause = (ClientException) ex.getFallbackException()
 						.getCause();
-				throw new ZuulException(cause, "Forwarding error", 500, cause
-						.getErrorType().toString());
+				throw new ZuulException(cause, "Forwarding error", 500,
+						cause.getErrorType().toString());
 			}
-			throw new ZuulException(ex, "Forwarding error", 500, ex.getFailureType()
-					.toString());
+			throw new ZuulException(ex, "Forwarding error", 500,
+					ex.getFailureType().toString());
 		}
 
 	}
@@ -140,8 +144,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			return null;
 		}
 		try {
-			requestEntity = (InputStream) RequestContext.getCurrentContext().get(
-					"requestEntity");
+			requestEntity = (InputStream) RequestContext.getCurrentContext()
+					.get("requestEntity");
 			if (requestEntity == null) {
 				requestEntity = request.getInputStream();
 			}
@@ -154,12 +158,14 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	private String getVerb(HttpServletRequest request) {
 		String method = request.getMethod();
-		if (method == null)
+		if (method == null) {
 			return "GET";
+		}
 		return method;
 	}
 
-	private void setResponse(ClientHttpResponse resp) throws ClientException, IOException {
+	private void setResponse(ClientHttpResponse resp)
+			throws ClientException, IOException {
 		this.helper.setResponse(resp.getStatusCode().value(),
 				resp.getBody() == null ? null : resp.getBody(), resp.getHeaders());
 	}

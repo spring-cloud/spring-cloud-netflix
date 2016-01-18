@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -37,7 +38,8 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 	public Servlet30WrapperFilter() {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
-		Assert.notNull(this.requestField, "HttpServletRequestWrapper.req field not found");
+		Assert.notNull(this.requestField,
+				"HttpServletRequestWrapper.req field not found");
 		this.requestField.setAccessible(true);
 	}
 
@@ -67,9 +69,18 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 		if (request instanceof HttpServletRequestWrapper) {
 			request = (HttpServletRequest) ReflectionUtils.getField(this.requestField,
 					request);
+			ctx.setRequest(new Servlet30RequestWrapper(request));
 		}
-		ctx.setRequest(new Servlet30RequestWrapper(request));
+		else if (isDispatcherServletRequest(request)) {
+			// If it's going through the dispatcher we need to buffer the body
+			ctx.setRequest(new Servlet30RequestWrapper(request));
+		}
 		return null;
+	}
+
+	private boolean isDispatcherServletRequest(HttpServletRequest request) {
+		return request.getAttribute(
+				DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
 	}
 
 }

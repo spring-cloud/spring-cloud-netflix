@@ -41,10 +41,10 @@ import org.springframework.web.util.WebUtils;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
@@ -123,7 +123,7 @@ public class ProxyRequestHelper {
 	}
 
 	public void setResponse(int status, InputStream entity,
-							MultiValueMap<String, String> headers) throws IOException {
+			MultiValueMap<String, String> headers) throws IOException {
 		RequestContext context = RequestContext.getCurrentContext();
 		context.setResponseStatusCode(status);
 		if (entity != null) {
@@ -185,21 +185,21 @@ public class ProxyRequestHelper {
 			}
 		}
 		switch (name) {
-			case "host":
-			case "connection":
-			case "content-length":
-			case "content-encoding":
-			case "server":
-			case "transfer-encoding":
-				return false;
-			default:
-				return true;
+		case "host":
+		case "connection":
+		case "content-length":
+		case "content-encoding":
+		case "server":
+		case "transfer-encoding":
+			return false;
+		default:
+			return true;
 		}
 	}
 
 	public Map<String, Object> debug(String verb, String uri,
-									 MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
-									 InputStream requestEntity) throws IOException {
+			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+			InputStream requestEntity) throws IOException {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
 		if (this.traces != null) {
 			RequestContext context = RequestContext.getCurrentContext();
@@ -230,7 +230,8 @@ public class ProxyRequestHelper {
 				input.put(entry.getKey(), value);
 			}
 			RequestContext ctx = RequestContext.getCurrentContext();
-			if (!ctx.isChunkedRequestBody()) {
+			if (shouldDebugBody(ctx)) {
+				// Prevent input stream from being read if it needs to go downstream
 				if (requestEntity != null) {
 					debugRequestEntity(info, ctx.getRequest().getInputStream());
 				}
@@ -241,8 +242,19 @@ public class ProxyRequestHelper {
 		return info;
 	}
 
+	private boolean shouldDebugBody(RequestContext ctx) {
+		HttpServletRequest request = ctx.getRequest();
+		if (ctx.isChunkedRequestBody()) {
+			return false;
+		}
+		if (request == null || request.getContentType() == null) {
+			return true;
+		}
+		return !request.getContentType().toLowerCase().contains("multipart");
+	}
+
 	public void appendDebug(Map<String, Object> info, int status,
-							MultiValueMap<String, String> headers) {
+			MultiValueMap<String, String> headers) {
 		if (this.traces != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
@@ -276,4 +288,3 @@ public class ProxyRequestHelper {
 	}
 
 }
-

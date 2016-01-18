@@ -95,9 +95,14 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(name = "zuulServlet")
 	public ServletRegistrationBean zuulServlet() {
-		return new ServletRegistrationBean(new ZuulServlet(),
+		ServletRegistrationBean servlet = new ServletRegistrationBean(new ZuulServlet(),
 				this.zuulProperties.getServletPattern());
+		// The whole point of exposing this servlet is to provide a route that doesn't
+		// buffer requests.
+		servlet.addInitParameter("buffer-requests", "false");
+		return servlet;
 	}
 
 	// pre filters
