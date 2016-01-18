@@ -23,7 +23,11 @@ import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Action1;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles return values of type {@link rx.Observable}.
@@ -50,22 +54,62 @@ public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnVal
 		}
 
 		Observable<?> observable = Observable.class.cast(returnValue);
-
+		final ValuesCollector collector = new ValuesCollector();
 		final DeferredResult<Object> deferredResult = new DeferredResult<>();
 
         observable.subscribe(new Action1<Object>() {
-            @Override
-            public void call(Object o) {
-                deferredResult.setResult(o);
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                deferredResult.setErrorResult(throwable);
-            }
-        });
+			@Override
+			public void call(Object o) {
+				collector.collect(o);
+			}
+		}, new Action1<Throwable>() {
+			@Override
+			public void call(Throwable throwable) {
+				deferredResult.setErrorResult(throwable);
+			}
+		}, new Action0() {
+			@Override
+			public void call() {
+				deferredResult.setResult(collector.getValue());
+			}
+		});
 
 		WebAsyncUtils.getAsyncManager(webRequest)
 				.startDeferredResultProcessing(deferredResult, mavContainer);
+	}
+
+	/**
+	 * Accumulates the values produced into a collection. Depending on whether a single value
+	 * has been collected or multiple, the values are going to be wrapped into an array when
+	 * {@link #getValue()} will be called. Otherwise the single collected value will be returned.
+	 */
+	@SuppressWarnings("unchecked")
+	private static class ValuesCollector {
+
+		private final List values = new ArrayList<>();
+
+		public void collect(Object value) {
+			values.add(value);
+		}
+
+		public Object getValue() {
+			if(isSingle()) {
+				return getFirst();
+			} else {
+				return getArray();
+			}
+		}
+
+		private boolean isSingle() {
+			return values.size() == 1;
+		}
+
+		private Object getFirst() {
+			return values.get(0);
+		}
+
+		private Object[] getArray() {
+			return values.toArray(new Object[values.size()]);
+		}
 	}
 }

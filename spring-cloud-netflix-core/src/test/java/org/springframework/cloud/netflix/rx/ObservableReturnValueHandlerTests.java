@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.rx;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,11 +29,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import rx.Observable;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Spencer Gibb
@@ -59,6 +61,26 @@ public class ObservableReturnValueHandlerTests {
 		public Observable<String> hi() {
 			return Observable.just("hello world");
 		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/many")
+		public Observable<String> many() {
+			return Observable.just("hello", "world", "from", "Observable");
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/error")
+		public Observable<String> error() {
+			return Observable.error(new RuntimeException());
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/processingError")
+		public Observable<String> dataAndError() {
+			return Observable.merge(
+					Arrays.asList(
+							Observable.just("hi"),
+							Observable.<String>error(new RuntimeException())
+					)
+			);
+		}
 	}
 
 	@Test
@@ -67,5 +89,27 @@ public class ObservableReturnValueHandlerTests {
 		assertNotNull("response was null", response);
 		assertEquals("response code was wrong", HttpStatus.OK, response.getStatusCode());
 		assertEquals("response was wrong", "hello world", response.getBody());
+	}
+
+	@Test
+	public void observableReturnsManyValues() {
+		ResponseEntity<String[]> response = new TestRestTemplate().getForEntity("http://localhost:" + port + "/many", String[].class);
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("hello world from Observable", StringUtils.arrayToDelimitedString(response.getBody(), " "));
+	}
+
+	@Test
+	public void observableProcessesException() {
+		ResponseEntity<String> response = new TestRestTemplate().getForEntity("http://localhost:" + port + "/error", String.class);
+		assertNotNull(response);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	}
+
+	@Test
+	public void observableProcessesExceptionWhenPartialResultsAlreadyProduced() {
+		ResponseEntity<String> response = new TestRestTemplate().getForEntity("http://localhost:" + port + "/processingError", String.class);
+		assertNotNull(response);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 	}
 }
