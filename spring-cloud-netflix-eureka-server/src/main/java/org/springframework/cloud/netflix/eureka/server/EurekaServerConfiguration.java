@@ -37,6 +37,7 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EurekaConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
@@ -72,9 +73,8 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server
 	 */
-	private static String[] EUREKA_PACKAGES = new String[] {
-		"com.netflix.discovery",
-		"com.netflix.eureka"};
+	private static String[] EUREKA_PACKAGES = new String[] { "com.netflix.discovery",
+			"com.netflix.eureka" };
 
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
@@ -105,13 +105,16 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		return HasFeatures.namedFeature("Eureka Server", EurekaServerConfiguration.class);
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
-	public EurekaServerConfig eurekaServerConfig() {
-		return new EurekaServerConfigBean();
+	@Configuration
+	protected static class EurekaServerConfigBeanConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public EurekaServerConfig eurekaServerConfig() {
+			return new EurekaServerConfigBean();
+		}
 	}
 
-	//TODO: is there a better way?
+	// TODO: is there a better way?
 	@Bean(name = "spring.http.encoding.CONFIGURATION_PROPERTIES")
 	public HttpEncodingProperties httpEncodingProperties() {
 		HttpEncodingProperties properties = new HttpEncodingProperties();
@@ -122,48 +125,47 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
 	public EurekaController eurekaController() {
-		return new EurekaController(applicationInfoManager);
+		return new EurekaController(this.applicationInfoManager);
 	}
 
 	@Bean
 	public ServerCodecs serverCodecs() {
-		return new DefaultServerCodecs(eurekaServerConfig);
+		return new DefaultServerCodecs(this.eurekaServerConfig);
 	}
 
 	@Bean
-	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(ServerCodecs serverCodecs) {
-		eurekaClient.getApplications(); // force initialization
-		return new InstanceRegistry(eurekaServerConfig, eurekaClientConfig, serverCodecs,
-				eurekaClient, expectedNumberOfRenewsPerMin, defaultOpenForTrafficCount);
+	public PeerAwareInstanceRegistry peerAwareInstanceRegistry(
+			ServerCodecs serverCodecs) {
+		this.eurekaClient.getApplications(); // force initialization
+		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig,
+				serverCodecs, this.eurekaClient, this.expectedNumberOfRenewsPerMin,
+				this.defaultOpenForTrafficCount);
 	}
 
 	@Bean
 	public PeerEurekaNodes peerEurekaNodes(PeerAwareInstanceRegistry registry,
-										   ServerCodecs serverCodecs) {
-		return new PeerEurekaNodes(registry, eurekaServerConfig, eurekaClientConfig,
-				serverCodecs, applicationInfoManager);
+			ServerCodecs serverCodecs) {
+		return new PeerEurekaNodes(registry, this.eurekaServerConfig,
+				this.eurekaClientConfig, serverCodecs, this.applicationInfoManager);
 	}
 
 	@Bean
 	public EurekaServerContext eurekaServerContext(ServerCodecs serverCodecs,
-												   PeerAwareInstanceRegistry registry,
-												   PeerEurekaNodes peerEurekaNodes) {
-		return new DefaultEurekaServerContext(eurekaServerConfig, serverCodecs, registry,
-				peerEurekaNodes, applicationInfoManager);
+			PeerAwareInstanceRegistry registry, PeerEurekaNodes peerEurekaNodes) {
+		return new DefaultEurekaServerContext(this.eurekaServerConfig, serverCodecs,
+				registry, peerEurekaNodes, this.applicationInfoManager);
 	}
 
 	@Bean
 	public EurekaServerBootstrap eurekaServerBootstrap(PeerAwareInstanceRegistry registry,
-													   EurekaServerContext serverContext) {
-		return new EurekaServerBootstrap(applicationInfoManager, eurekaClientConfig,
-				eurekaServerConfig, registry, serverContext);
+			EurekaServerContext serverContext) {
+		return new EurekaServerBootstrap(this.applicationInfoManager,
+				this.eurekaClientConfig, this.eurekaServerConfig, registry,
+				serverContext);
 	}
 
 	/**
 	 * Register the Jersey filter
-	 *
-	 * @param eurekaJerseyApp the jersey application
-	 * @return
 	 */
 	@Bean
 	public FilterRegistrationBean jerseyFilterRegistration(
@@ -171,8 +173,8 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(new ServletContainer(eurekaJerseyApp));
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-		bean.setUrlPatterns(Collections
-				.singletonList(EurekaServerConfigBean.DEFAULT_PREFIX + "/*"));
+		bean.setUrlPatterns(
+				Collections.singletonList(EurekaConstants.DEFAULT_PREFIX + "/*"));
 
 		return bean;
 	}
@@ -211,7 +213,7 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		propsAndFeatures.put(
 				// Skip static content used by the webapp
 				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX,
-				EurekaServerConfigBean.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*");
+				EurekaConstants.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*");
 
 		DefaultResourceConfig rc = new DefaultResourceConfig(classes);
 		rc.setPropertiesAndFeatures(propsAndFeatures);
