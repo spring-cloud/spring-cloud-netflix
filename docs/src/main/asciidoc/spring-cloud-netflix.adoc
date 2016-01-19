@@ -1078,7 +1078,7 @@ and the serviceId independently:
 
 This means that http calls to "/myusers" get forwarded to the
 "users_service" service.  The route has to have a "path" which can be
-specified as an ant-style pattern, so "/myusers/\*" only matches one
+specified as an ant-style pattern, so "/myusers/{asterisk}" only matches one
 level, but "/myusers/{all}" matches hierarchically.
 
 The location of the backend can be specified as either a "serviceId"

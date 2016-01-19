@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.config;
+package org.springframework.cloud.netflix.eureka.config;
 
 import java.util.List;
 

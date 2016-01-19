@@ -277,6 +277,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 		return getHostName(false);
 	}
 
+	@SuppressWarnings("unused")
 	private EurekaInstanceConfigBean() {
 	}
 

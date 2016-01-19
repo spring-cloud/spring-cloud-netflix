@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.config;
+package org.springframework.cloud.netflix.eureka.config;
 
 import org.junit.After;
 import org.junit.Test;
@@ -24,6 +24,8 @@ import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
+import org.springframework.cloud.netflix.eureka.config.DiscoveryClientConfigServiceAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.config.DiscoveryClientConfigServiceBootstrapConfiguration;
 import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
