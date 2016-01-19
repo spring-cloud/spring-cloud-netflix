@@ -75,7 +75,7 @@ public class EurekaClientAutoConfiguration {
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 	int nonSecurePort;
 
-	@Value("${management.port:${MANAGEMENT_PORT:${PORT:8080}}}")
+	@Value("${management.port:${MANAGEMENT_PORT:${server.port:${SERVER_PORT:${PORT:8080}}}}}")
 	int managementPort;
 
 	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
