@@ -86,6 +86,7 @@ public class HystrixCircuitBreakerConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnProperty(value = "hystrix.metrics.enabled", matchIfMissing = true)
 	@ConditionalOnClass({ HystrixMetricsPoller.class, GaugeService.class })
 	protected static class HystrixMetricsPollerConfiguration implements SmartLifecycle {
 
