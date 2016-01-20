@@ -273,6 +273,8 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	 */
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
+	private String[] defaultAddressResolutionOrder = new String[0];
+
 	public String getHostname() {
 		return getHostName(false);
 	}
