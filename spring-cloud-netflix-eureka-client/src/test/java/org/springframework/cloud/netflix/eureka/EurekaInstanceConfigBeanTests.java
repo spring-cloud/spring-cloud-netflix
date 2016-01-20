@@ -43,11 +43,14 @@ public class EurekaInstanceConfigBeanTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 	private String hostName;
+	private String ipAddress;
 
 	@Before
 	public void init() {
-		this.hostName = new InetUtils(new InetUtilsProperties())
-				.findFirstNonLoopbackHostInfo().getHostname();
+		InetUtils.HostInfo hostInfo = new InetUtils(new InetUtilsProperties())
+				.findFirstNonLoopbackHostInfo();
+		this.hostName = hostInfo.getHostname();
+		this.ipAddress = hostInfo.getIpAddress();
 	}
 
 	@After
@@ -108,6 +111,37 @@ public class EurekaInstanceConfigBeanTests {
 		assertEquals("marvin", getInstanceConfig().getHostname());
 		getInstanceConfig().getHostName(true);
 		assertEquals("marvin", getInstanceConfig().getHostname());
+	}
+
+	@Test
+	public void initialIpAddress() {
+		addEnvironment(this.context, "eureka.instance.appGroupName=mygroup");
+		setupContext();
+		if (this.ipAddress != null) {
+			assertEquals(this.ipAddress, getInstanceConfig().getIpAddress());
+		}
+	}
+
+	@Test
+	public void refreshIpAddress() {
+		addEnvironment(this.context, "eureka.instance.appGroupName=mygroup");
+		setupContext();
+		ReflectionTestUtils.setField(getInstanceConfig(), "ipAddress", "10.0.0.1");
+		assertEquals("10.0.0.1", getInstanceConfig().getIpAddress());
+		getInstanceConfig().getHostName(true);
+		if (this.ipAddress != null) {
+			assertEquals(this.ipAddress, getInstanceConfig().getIpAddress());
+		}
+	}
+
+	@Test
+	public void refreshIpAddressWhenSetByUser() {
+		addEnvironment(this.context, "eureka.instance.appGroupName=mygroup");
+		setupContext();
+		getInstanceConfig().setIpAddress("10.0.0.1");
+		assertEquals("10.0.0.1", getInstanceConfig().getIpAddress());
+		getInstanceConfig().getHostName(true);
+		assertEquals("10.0.0.1", getInstanceConfig().getIpAddress());
 	}
 
 	@Test

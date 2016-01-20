@@ -308,16 +308,16 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 		this.hostInfo.override = true;
 	}
 
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+		this.hostInfo.override = true;
+	}
+
 	@Override
 	public String getHostName(boolean refresh) {
-		if (refresh) {
-			boolean originalOverride = this.hostInfo.override;
-			this.hostInfo = this.inetUtils.findFirstNonLoopbackHostInfo();
-			this.hostInfo.setOverride(originalOverride);
+		if (refresh && !this.hostInfo.override) {
 			this.ipAddress = this.hostInfo.getIpAddress();
-			if (!this.hostInfo.override) {
-				this.hostname = this.hostInfo.getHostname();
-			}
+			this.hostname = this.hostInfo.getHostname();
 		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
 	}
