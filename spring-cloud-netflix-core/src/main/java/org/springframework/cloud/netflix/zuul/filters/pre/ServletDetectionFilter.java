@@ -21,61 +21,63 @@ import java.lang.reflect.Field;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
-import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
+import com.netflix.zuul.http.ZuulServlet;
 
 /**
- * @author Spencer Gibb
+ * Detects whether a request is ran through the {@link DispatcherServlet} or {@link ZuulServlet}.
+ * The purpose was to detect this up-front at the very beginning of Zuul filter processing
+ *  and rely on this information in all filters.
+ *  RequestContext is used such that the information is accessible to classes 
+ *  which do not have a request reference.
+ * @author Adrian Ivan
  */
-public class Servlet30WrapperFilter extends ZuulFilter {
+public class ServletDetectionFilter extends ZuulFilter {
 
-	private Field requestField = null;
 
-	public Servlet30WrapperFilter() {
-		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
-				"req", HttpServletRequest.class);
-		Assert.notNull(this.requestField,
-				"HttpServletRequestWrapper.req field not found");
-		this.requestField.setAccessible(true);
+	public ServletDetectionFilter() {
 	}
 
-	protected Field getRequestField() {
-		return this.requestField;
-	}
 
 	@Override
 	public String filterType() {
 		return "pre";
 	}
 
+	/**
+	 * Must run before other filters that rely on the difference between 
+	 * DispatcherServlet and ZuulServlet.
+	 */
 	@Override
 	public int filterOrder() {
-		return -2;
+		return -3;
 	}
 
 	@Override
 	public boolean shouldFilter() {
-		return true; // TODO: only if in servlet 3.0 env
+		return true; 
 	}
 
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
-		if (request instanceof HttpServletRequestWrapper) {
-			request = (HttpServletRequest) ReflectionUtils.getField(this.requestField,
-					request);
-			ctx.setRequest(new Servlet30RequestWrapper(request));
+		if (!(request instanceof HttpServletRequestWrapper) 
+		        && isDispatcherServletRequest(request)) {
+		    ctx.set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, true);
+		} else {
+		    ctx.set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, false);
 		}
-		else if (RequestUtils.isDispatcherServletRequest()) {
-			// If it's going through the dispatcher we need to buffer the body
-			ctx.setRequest(new Servlet30RequestWrapper(request));
-		}
+
 		return null;
 	}
+	
+    private boolean isDispatcherServletRequest(HttpServletRequest request) {
+        return request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
+    }     	
 
 }

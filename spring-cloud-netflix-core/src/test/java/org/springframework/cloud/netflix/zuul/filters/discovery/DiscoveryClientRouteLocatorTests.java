@@ -28,7 +28,12 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -92,6 +97,8 @@ public class DiscoveryClientRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithServletPath() throws Exception {
+	    setTestRequestcontext();
+	    RequestContext.getCurrentContext().set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, true);
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
@@ -101,6 +108,21 @@ public class DiscoveryClientRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
+	
+    @Test
+    public void testGetMatchingPathWithZuulServletPath() throws Exception {
+        setTestRequestcontext();
+        RequestContext.getCurrentContext().setZuulEngineRan();
+        DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
+                this.discovery, this.properties);
+        this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+        this.properties.init();
+        routeLocator.getRoutes(); // force refresh
+        Route route = routeLocator.getMatchingRoute("/zuul/foo/1");
+        assertEquals("foo", route.getLocation());
+        assertEquals("/1", route.getPath());
+                
+    }	
 
 	@Test
 	public void testGetMatchingPathWithNoPrefixStripping() throws Exception {
@@ -595,5 +617,11 @@ public class DiscoveryClientRouteLocatorTests {
 			}
 		}
 		return null;
+	}
+	
+	private void setTestRequestcontext() {
+	    RequestContext context = new RequestContext();
+        RequestContext.testSetCurrentContext(context);
+	    
 	}
 }
