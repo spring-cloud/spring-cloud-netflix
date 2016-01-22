@@ -92,10 +92,10 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	// pre filters
-    @Bean
-    public ServletDetectionFilter servletDetectionFilter() {
-        return new ServletDetectionFilter();
-    }	
+	@Bean
+	public ServletDetectionFilter servletDetectionFilter() {
+		return new ServletDetectionFilter();
+	}	
 	
 	@Bean
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator) {
