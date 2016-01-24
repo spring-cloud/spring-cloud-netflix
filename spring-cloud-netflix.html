@@ -539,9 +539,29 @@ respectively. This will make Eureka publish instance information
 showing an explicit preference for secure communication. The Spring
 Cloud <code>DiscoveryClient</code> will always return an <code><a href="https://&#8230;&#8203" class="bare">https://&#8230;&#8203</a>;</code> URI for a
 service configured this way, and the Eureka (native) instance
-information will have a secure health check URL. Because of the way
+information will have a secure health check URL.</p>
+</div>
+<div class="paragraph">
+<p>Because of the way
 Eureka works internally, it will still publish a non-secure URL for
-status and home page unless you also override those explicitly.</p>
+status and home page unless you also override those explicitly.
+You can use placeholders to configure the eureka instance urls,
+e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    statusPageUrl: https://${eureka.hostname}/info
+    healthCheckUrl: https://${eureka.hostname}/health
+    homePageUrl: https://${eureka.hostname}/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>(Note that <code>${eureka.hostname}</code> is a native placeholder only available
+in later versions of Eureka. You could achieve the same thing with
+Spring placeholders as well, e.g. using <code>${eureka.instance.hostName}</code>.)</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2508,7 +2528,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-01-20 21:07:12 UTC
+Last updated 2016-01-24 08:31:34 UTC
 </div>
 </div>
 </body>
