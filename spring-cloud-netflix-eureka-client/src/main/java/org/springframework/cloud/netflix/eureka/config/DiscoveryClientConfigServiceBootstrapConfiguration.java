@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,7 +30,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
-import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 
 import lombok.extern.apachecommons.CommonsLog;
@@ -56,21 +53,16 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration {
 	@Autowired
 	private DiscoveryClient client;
 
-	@Autowired
-	private EurekaClient eurekaClient;
-
 	@EventListener(ContextRefreshedEvent.class)
 	public void onApplicationEvent(ContextRefreshedEvent event) {
 		refresh();
 	}
 
-	// TODO: re-instate heart beat (maybe? isn't it handled in the child context?)
-
 	private void refresh() {
 		try {
 			log.debug("Locating configserver via discovery");
-			InstanceInfo server = this.eurekaClient.getNextServerFromEureka(
-					this.config.getDiscovery().getServiceId(), false);
+			ServiceInstance server = this.client
+					.getInstances(this.config.getDiscovery().getServiceId()).get(0);
 			String url = getHomePage(server);
 			if (server.getMetadata().containsKey("password")) {
 				String user = server.getMetadata().get("user");
@@ -93,13 +85,8 @@ public class DiscoveryClientConfigServiceBootstrapConfiguration {
 		}
 	}
 
-	private String getHomePage(InstanceInfo server) {
-		List<ServiceInstance> instances = this.client
-				.getInstances(this.config.getDiscovery().getServiceId());
-		if (instances == null || instances.isEmpty()) {
-			return server.getHomePageUrl();
-		}
-		return instances.get(0).getUri().toString() + "/";
+	private String getHomePage(ServiceInstance server) {
+		return server.getUri().toString() + "/";
 	}
 
 }

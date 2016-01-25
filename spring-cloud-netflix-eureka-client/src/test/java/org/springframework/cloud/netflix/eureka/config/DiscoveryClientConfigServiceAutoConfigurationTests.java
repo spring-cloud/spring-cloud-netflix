@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,8 +26,6 @@ import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
-import org.springframework.cloud.netflix.eureka.config.DiscoveryClientConfigServiceAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.config.DiscoveryClientConfigServiceBootstrapConfiguration;
 import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -64,7 +64,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		assertEquals(1, this.context.getBeanNamesForType(
 				DiscoveryClientConfigServiceAutoConfiguration.class).length);
 		EurekaClient eurekaClient = this.context.getParent().getBean(EurekaClient.class);
-		Mockito.verify(eurekaClient, times(2)).getNextServerFromEureka("CONFIGSERVER",
+		Mockito.verify(eurekaClient, times(2)).getInstancesByVipAddress("CONFIGSERVER",
 				false);
 		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
@@ -99,7 +99,8 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		public EurekaClient eurekaClient(ApplicationInfoManager manager) {
 			InstanceInfo info = manager.getInfo();
 			EurekaClient client = Mockito.mock(EurekaClient.class);
-			given(client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(info);
+			given(client.getInstancesByVipAddress("CONFIGSERVER", false))
+					.willReturn(Arrays.asList(info));
 			return client;
 		}
 
