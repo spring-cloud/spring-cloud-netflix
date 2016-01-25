@@ -23,7 +23,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Configuration;
 
 import com.netflix.discovery.EurekaClient;
 
@@ -35,8 +34,7 @@ import com.netflix.discovery.EurekaClient;
  */
 @ConditionalOnBean({ EurekaDiscoveryClientConfiguration.class })
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
-@Configuration(value = "DiscoveryClientConfigServiceAutoConfiguration")
-public class DiscoveryClientConfigServiceAutoConfiguration {
+public class EurekaDiscoveryClientConfigServiceAutoConfiguration {
 
 	@Autowired
 	private ConfigurableApplicationContext context;
