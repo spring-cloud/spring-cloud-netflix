@@ -64,6 +64,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -91,6 +93,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
 
 	private ProxyRequestHelper helper;
+	private Host hostProperties;
 	private PoolingHttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
 
@@ -107,12 +110,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	};
 
-	public SimpleHostRoutingFilter() {
-		this(new ProxyRequestHelper());
-	}
-
-	public SimpleHostRoutingFilter(ProxyRequestHelper helper) {
+	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties) {
 		this.helper = helper;
+		this.hostProperties = properties.getHost();
 	}
 
 	@PostConstruct
@@ -209,10 +209,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					.build();
 
 			this.connectionManager = new PoolingHttpClientConnectionManager(registry);
-			this.connectionManager.setMaxTotal(Integer
-					.parseInt(System.getProperty("zuul.max.host.connections", "200")));
-			this.connectionManager.setDefaultMaxPerRoute(Integer
-					.parseInt(System.getProperty("zuul.max.host.connections", "20")));
+			this.connectionManager.setMaxTotal(hostProperties.getMaxTotalConnections());
+			this.connectionManager
+					.setDefaultMaxPerRoute(hostProperties.getMaxPerRouteConnections());
 			return this.connectionManager;
 		}
 		catch (Exception ex) {

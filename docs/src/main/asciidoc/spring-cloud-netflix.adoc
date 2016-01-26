@@ -1033,6 +1033,8 @@ http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-confe
 
 Zuul's rule engine allows rules and filters to be written in essentially any JVM language, with built in support for Java and Groovy.
 
+NOTE: The configuration property `zuul.max.host.connections` has been replaced by two new properties, `zuul.host.maxTotalConnections` and `zuul.host.maxPerRouteConnections` which default to 200 and 20 respectively.
+
 [[netflix-zuul-reverse-proxy]]
 === Embedded Zuul Reverse Proxy
 
