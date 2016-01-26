@@ -81,6 +81,9 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
+	private static final String MAX_HOST_CONNECTIONS = "zuul.max.host.connections";
+	private static final String MAX_ROUTE_CONNECTIONS = "zuul.max.route.connections";
+
 	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS, 10000);
@@ -210,15 +213,26 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					.build();
 
 			this.connectionManager = new PoolingHttpClientConnectionManager(registry);
-			this.connectionManager.setMaxTotal(Integer
-					.parseInt(System.getProperty("zuul.max.host.connections", "200")));
-			this.connectionManager.setDefaultMaxPerRoute(Integer
-					.parseInt(System.getProperty("zuul.max.host.connections", "20")));
+			this.connectionManager.setMaxTotal(getMaxPerHostProperty());
+			this.connectionManager.setDefaultMaxPerRoute(getMaxPerRouteProperty());
 			return this.connectionManager;
 		}
 		catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	private int getMaxPerHostProperty() {
+		return Integer.parseInt(System.getProperty(MAX_HOST_CONNECTIONS, "200"));
+	}
+
+	private int getMaxPerRouteProperty() {
+		if (System.getProperty(MAX_ROUTE_CONNECTIONS) != null) {
+			return Integer.parseInt(System.getProperty(MAX_ROUTE_CONNECTIONS));
+		}
+		// To be compatible with previous releases the MAX_HOST_CONNECTIONS is
+		// used as a fallback.
+		return Integer.parseInt(System.getProperty(MAX_HOST_CONNECTIONS, "20"));
 	}
 
 	protected CloseableHttpClient newClient() {
