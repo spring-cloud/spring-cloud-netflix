@@ -22,6 +22,7 @@
 	<properties>
 		<bintray.package>netflix</bintray.package>
 		<main.basedir>${basedir}</main.basedir>
+        <netty.version>4.0.27.Final</netty.version>
 	</properties>
 	<build>
 		<plugins>
@@ -59,6 +60,16 @@
 				<version>${project.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-codec-http</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-transport-native-epoll</artifactId>
+				<version>${netty.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.dataformat</groupId>
