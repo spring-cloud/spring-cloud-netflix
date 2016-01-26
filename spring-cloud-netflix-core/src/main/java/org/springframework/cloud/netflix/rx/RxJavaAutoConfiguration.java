@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import rx.Observable;
+import rx.Single;
 
 /**
  * @author Spencer Gibb
@@ -39,25 +40,25 @@ public class RxJavaAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(AsyncHandlerMethodReturnValueHandler.class)
-	protected static class ObservableReturnValueHandlerConfig {
+	protected static class RxJavaReturnValueHandlerConfig {
 		@Bean
-		public ObservableReturnValueHandler observableReturnValueHandler() {
-			return new ObservableReturnValueHandler();
+		public SingleReturnValueHandler singleReturnValueHandler() {
+			return new SingleReturnValueHandler();
 		}
 
 		@Bean
-		public WebMvcConfigurerAdapter observableMVCConfiguration() {
+		public WebMvcConfigurerAdapter observableMVCConfiguration(final SingleReturnValueHandler singleReturnValueHandler) {
 			return new WebMvcConfigurerAdapter() {
 				@Override
 				public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-					returnValueHandlers.add(observableReturnValueHandler());
+					returnValueHandlers.add(singleReturnValueHandler);
 				}
 			};
 		}
 
 		@Bean
 		public HasFeatures rxFeature() {
-			return HasFeatures.namedFeature("MVC Observable", Observable.class);
+			return HasFeatures.namedFeatures("MVC Observable", Observable.class, "MVC Single", Single.class);
 		}
 	}
 }
