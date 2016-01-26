@@ -30,8 +30,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.netflix.zuul.context.RequestContext;
 
@@ -68,6 +66,7 @@ public class DiscoveryClientRouteLocatorTests {
 	@Before
 	public void init() {
 		initMocks(this);
+		setTestRequestcontext(); //re-initialize Zuul context for each test
 	}
 
 	@Test
@@ -110,8 +109,7 @@ public class DiscoveryClientRouteLocatorTests {
 	}
 	
     @Test
-    public void testGetMatchingPathWithZuulServletPath() throws Exception {
-        setTestRequestcontext();
+    public void testGetMatchingPathWithZuulServletPath() throws Exception {        
         RequestContext.getCurrentContext().setZuulEngineRan();
         DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
                 this.discovery, this.properties);
@@ -163,6 +161,34 @@ public class DiscoveryClientRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
+	
+	@Test
+	public void testGetMatchingPathWithGlobalPrefixStrippingAndServletPath() throws Exception {
+		RequestContext.getCurrentContext().set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, true);
+		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
+				this.discovery, this.properties);
+		this.properties.getRoutes().put("foo",
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		Route route = routeLocator.getMatchingRoute("/app/proxy/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/foo/1", route.getPath());
+	}	
+	
+	@Test
+	public void testGetMatchingPathWithGlobalPrefixStrippingAndZuulServletPath() throws Exception {
+		RequestContext.getCurrentContext().setZuulEngineRan();
+		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
+				this.discovery, this.properties);
+		this.properties.getRoutes().put("foo",
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+		this.properties.setPrefix("/proxy");
+		routeLocator.getRoutes(); // force refresh
+		Route route = routeLocator.getMatchingRoute("/zuul/proxy/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/foo/1", route.getPath());
+	}	
 
 	@Test
 	public void testGetMatchingPathWithRoutePrefixStripping() throws Exception {
