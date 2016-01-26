@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.feign;
+package org.springframework.cloud.netflix.feign.beans.extra;
 
-import org.springframework.cloud.context.named.NamedContextFactory;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.beans.FeignClientTests.Hello;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-/**
- * A factory that creates instances of feign classes. It creates a Spring
- * ApplicationContext per client name, and extracts the beans that it needs from there.
- *
- * @author Spencer Gibb
- * @author Dave Syer
- */
-public class FeignContext extends NamedContextFactory<FeignClientSpecification> {
-
-	public FeignContext() {
-		super(FeignClientsConfiguration.class, "feign", "feign.client.name");
-	}
-
+@FeignClient(value = "otherapp")
+public interface TestClient {
+	@RequestMapping(method = RequestMethod.GET, value = "/hello")
+	Hello getHello();
 }
