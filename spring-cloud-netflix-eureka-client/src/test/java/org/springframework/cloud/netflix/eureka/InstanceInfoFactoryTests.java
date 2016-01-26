@@ -1,5 +1,7 @@
 package org.springframework.cloud.netflix.eureka;
 
+import java.io.IOException;
+
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,10 +21,12 @@ public class InstanceInfoFactoryTests {
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@Test
-	public void instanceIdIsHostNameByDefault() {
+	public void instanceIdIsHostNameByDefault() throws IOException {
 		InstanceInfo instanceInfo = setupInstance();
-		assertEquals(new InetUtils(new InetUtilsProperties())
-				.findFirstNonLoopbackHostInfo().getHostname(), instanceInfo.getId());
+		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
+			assertEquals(utils.findFirstNonLoopbackHostInfo().getHostname(),
+					instanceInfo.getId());
+		}
 	}
 
 	@Test
@@ -38,8 +42,9 @@ public class InstanceInfoFactoryTests {
 	}
 
 	private InstanceInfo setupInstance(String... pairs) {
-		for (String pair : pairs)
+		for (String pair : pairs) {
 			addEnvironment(this.context, pair);
+		}
 
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);

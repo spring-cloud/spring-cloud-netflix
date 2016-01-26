@@ -105,9 +105,26 @@ respectively. This will make Eureka publish instance information
 showing an explicit preference for secure communication. The Spring
 Cloud `DiscoveryClient` will always return an `https://...` URI for a
 service configured this way, and the Eureka (native) instance
-information will have a secure health check URL. Because of the way
+information will have a secure health check URL. 
+
+Because of the way
 Eureka works internally, it will still publish a non-secure URL for
 status and home page unless you also override those explicitly.
+You can use placeholders to configure the eureka instance urls,
+e.g.
+
+.application.yml
+----
+eureka:
+  instance:
+    statusPageUrl: https://${eureka.hostname}/info
+    healthCheckUrl: https://${eureka.hostname}/health
+    homePageUrl: https://${eureka.hostname}/
+----
+
+(Note that `${eureka.hostname}` is a native placeholder only available
+in later versions of Eureka. You could achieve the same thing with
+Spring placeholders as well, e.g. using `${eureka.instance.hostName}`.)
 
 NOTE: If your app is running behind a proxy, and the SSL termination
 is in the proxy (e.g. if you run in Cloud Foundry or other platforms

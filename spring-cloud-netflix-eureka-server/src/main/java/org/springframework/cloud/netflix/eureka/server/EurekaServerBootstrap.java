@@ -65,7 +65,9 @@ public class EurekaServerBootstrap {
 	protected volatile EurekaServerContext serverContext;
 	protected volatile AwsBinder awsBinder;
 
-	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager, EurekaClientConfig eurekaClientConfig, EurekaServerConfig eurekaServerConfig, PeerAwareInstanceRegistry registry, EurekaServerContext serverContext) {
+	public EurekaServerBootstrap(ApplicationInfoManager applicationInfoManager,
+			EurekaClientConfig eurekaClientConfig, EurekaServerConfig eurekaServerConfig,
+			PeerAwareInstanceRegistry registry, EurekaServerContext serverContext) {
 		this.applicationInfoManager = applicationInfoManager;
 		this.eurekaClientConfig = eurekaClientConfig;
 		this.eurekaServerConfig = eurekaServerConfig;
@@ -78,8 +80,9 @@ public class EurekaServerBootstrap {
 			initEurekaEnvironment();
 			initEurekaServerContext();
 
-			context.setAttribute(EurekaServerContext.class.getName(), serverContext);
-		} catch (Throwable e) {
+			context.setAttribute(EurekaServerContext.class.getName(), this.serverContext);
+		}
+		catch (Throwable e) {
 			log.error("Cannot bootstrap eureka server :", e);
 			throw new RuntimeException("Cannot bootstrap eureka server :", e);
 		}
@@ -93,7 +96,8 @@ public class EurekaServerBootstrap {
 			destroyEurekaServerContext();
 			destroyEurekaEnvironment();
 
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			log.error("Error shutting down eureka", e);
 		}
 		log.info("Eureka Service is now shutdown...");
@@ -102,37 +106,52 @@ public class EurekaServerBootstrap {
 	protected void initEurekaEnvironment() throws Exception {
 		log.info("Setting the eureka configuration..");
 
-		String dataCenter = ConfigurationManager.getConfigInstance().getString(EUREKA_DATACENTER);
+		String dataCenter = ConfigurationManager.getConfigInstance()
+				.getString(EUREKA_DATACENTER);
 		if (dataCenter == null) {
-			log.info("Eureka data center value eureka.datacenter is not set, defaulting to default");
-			ConfigurationManager.getConfigInstance().setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, DEFAULT);
-		} else {
-			ConfigurationManager.getConfigInstance().setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, dataCenter);
+			log.info(
+					"Eureka data center value eureka.datacenter is not set, defaulting to default");
+			ConfigurationManager.getConfigInstance()
+					.setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, DEFAULT);
 		}
-		String environment = ConfigurationManager.getConfigInstance().getString(EUREKA_ENVIRONMENT);
+		else {
+			ConfigurationManager.getConfigInstance()
+					.setProperty(ARCHAIUS_DEPLOYMENT_DATACENTER, dataCenter);
+		}
+		String environment = ConfigurationManager.getConfigInstance()
+				.getString(EUREKA_ENVIRONMENT);
 		if (environment == null) {
-			ConfigurationManager.getConfigInstance().setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, TEST);
-			log.info("Eureka environment value eureka.environment is not set, defaulting to test");
+			ConfigurationManager.getConfigInstance()
+					.setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, TEST);
+			log.info(
+					"Eureka environment value eureka.environment is not set, defaulting to test");
+		}
+		else {
+			ConfigurationManager.getConfigInstance()
+					.setProperty(ARCHAIUS_DEPLOYMENT_ENVIRONMENT, environment);
 		}
 	}
 
 	protected void initEurekaServerContext() throws Exception {
 		// For backward compatibility
-		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
-		XmlXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(), XStream.PRIORITY_VERY_HIGH);
+		JsonXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(),
+				XStream.PRIORITY_VERY_HIGH);
+		XmlXStream.getInstance().registerConverter(new V1AwareInstanceInfoConverter(),
+				XStream.PRIORITY_VERY_HIGH);
 
-		if (isAws(applicationInfoManager.getInfo())) {
-			awsBinder = new AwsBinderDelegate(eurekaServerConfig, eurekaClientConfig, registry, applicationInfoManager);
-			awsBinder.start();
+		if (isAws(this.applicationInfoManager.getInfo())) {
+			this.awsBinder = new AwsBinderDelegate(this.eurekaServerConfig,
+					this.eurekaClientConfig, this.registry, this.applicationInfoManager);
+			this.awsBinder.start();
 		}
 
-		EurekaServerContextHolder.initialize(serverContext);
+		EurekaServerContextHolder.initialize(this.serverContext);
 
 		log.info("Initialized server context");
 
 		// Copy registry from neighboring eureka node
-		int registryCount = registry.syncUp();
-		registry.openForTraffic(applicationInfoManager, registryCount);
+		int registryCount = this.registry.syncUp();
+		this.registry.openForTraffic(this.applicationInfoManager, registryCount);
 
 		// Register all monitoring statistics.
 		EurekaMonitors.registerAllStats();
@@ -143,21 +162,23 @@ public class EurekaServerBootstrap {
 	 */
 	protected void destroyEurekaServerContext() throws Exception {
 		EurekaMonitors.shutdown();
-		if (awsBinder != null) {
-			awsBinder.shutdown();
+		if (this.awsBinder != null) {
+			this.awsBinder.shutdown();
 		}
-		if (serverContext != null) {
-			serverContext.shutdown();
+		if (this.serverContext != null) {
+			this.serverContext.shutdown();
 		}
 	}
 
 	/**
 	 * Users can override to clean up the environment themselves.
 	 */
-	protected void destroyEurekaEnvironment() throws Exception { }
+	protected void destroyEurekaEnvironment() throws Exception {
+	}
 
 	protected boolean isAws(InstanceInfo selfInstanceInfo) {
-		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo.getDataCenterInfo().getName();
+		boolean result = DataCenterInfo.Name.Amazon == selfInstanceInfo
+				.getDataCenterInfo().getName();
 		log.info("isAws returned " + result);
 		return result;
 	}

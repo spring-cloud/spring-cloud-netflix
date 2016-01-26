@@ -16,16 +16,16 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.config.client.ConfigClientProperties;
+import org.springframework.cloud.config.client.DiscoveryClientConfigServiceBootstrapConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
-import org.springframework.cloud.netflix.eureka.config.DiscoveryClientConfigServiceAutoConfiguration;
-import org.springframework.cloud.netflix.eureka.config.DiscoveryClientConfigServiceBootstrapConfiguration;
 import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -62,9 +62,9 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 				"eureka.instance.metadataMap.foo:bar",
 				"eureka.instance.nonSecurePort:7001", "eureka.instance.hostname:foo");
 		assertEquals(1, this.context.getBeanNamesForType(
-				DiscoveryClientConfigServiceAutoConfiguration.class).length);
+				EurekaDiscoveryClientConfigServiceAutoConfiguration.class).length);
 		EurekaClient eurekaClient = this.context.getParent().getBean(EurekaClient.class);
-		Mockito.verify(eurekaClient, times(2)).getNextServerFromEureka("CONFIGSERVER",
+		Mockito.verify(eurekaClient, times(2)).getInstancesByVipAddress("CONFIGSERVER",
 				false);
 		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
@@ -79,16 +79,16 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(parent, env);
 		parent.register(UtilAutoConfiguration.class,
-				PropertyPlaceholderAutoConfiguration.class,
+				PropertyPlaceholderAutoConfiguration.class, EnvironmentKnobbler.class,
+				EurekaDiscoveryClientConfigServiceBootstrapConfiguration.class,
 				DiscoveryClientConfigServiceBootstrapConfiguration.class,
-				EnvironmentKnobbler.class, ConfigClientProperties.class);
+				ConfigClientProperties.class);
 		parent.refresh();
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.setParent(parent);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
-				DiscoveryClientConfigServiceAutoConfiguration.class,
-				EurekaClientAutoConfiguration.class,
-				EurekaDiscoveryClientConfiguration.class);
+				EurekaDiscoveryClientConfigServiceAutoConfiguration.class,
+				EurekaClientAutoConfiguration.class);
 		this.context.refresh();
 	}
 
@@ -99,7 +99,8 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		public EurekaClient eurekaClient(ApplicationInfoManager manager) {
 			InstanceInfo info = manager.getInfo();
 			EurekaClient client = Mockito.mock(EurekaClient.class);
-			given(client.getNextServerFromEureka("CONFIGSERVER", false)).willReturn(info);
+			given(client.getInstancesByVipAddress("CONFIGSERVER", false))
+					.willReturn(Arrays.asList(info));
 			return client;
 		}
 

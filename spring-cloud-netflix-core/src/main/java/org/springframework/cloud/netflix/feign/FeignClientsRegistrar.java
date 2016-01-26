@@ -177,10 +177,8 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		definition.addPropertyValue("fallback", attributes.get("fallback"));
 		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
-		String beanName = StringUtils
-				.uncapitalize(className.substring(className.lastIndexOf(".") + 1));
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(
-				definition.getBeanDefinition(), beanName);
+				definition.getBeanDefinition(), className);
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 	}
 
@@ -351,14 +349,6 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 			this.delegates = delegates;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.springframework.core.type.filter.TypeFilter#match(org.springframework.core.
-		 * type.classreading.MetadataReader,
-		 * org.springframework.core.type.classreading.MetadataReaderFactory)
-		 */
 		@Override
 		public boolean match(MetadataReader metadataReader,
 				MetadataReaderFactory metadataReaderFactory) throws IOException {

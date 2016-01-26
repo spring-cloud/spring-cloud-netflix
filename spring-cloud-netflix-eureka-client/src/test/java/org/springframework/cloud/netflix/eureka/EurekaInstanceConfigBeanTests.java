@@ -46,11 +46,12 @@ public class EurekaInstanceConfigBeanTests {
 	private String ipAddress;
 
 	@Before
-	public void init() {
-		InetUtils.HostInfo hostInfo = new InetUtils(new InetUtilsProperties())
-				.findFirstNonLoopbackHostInfo();
-		this.hostName = hostInfo.getHostname();
-		this.ipAddress = hostInfo.getIpAddress();
+	public void init() throws Exception {
+		try (InetUtils utils = new InetUtils(new InetUtilsProperties())) {
+			InetUtils.HostInfo hostInfo = utils.findFirstNonLoopbackHostInfo();
+			this.hostName = hostInfo.getHostname();
+			this.ipAddress = hostInfo.getIpAddress();
+		}
 	}
 
 	@After
@@ -147,8 +148,8 @@ public class EurekaInstanceConfigBeanTests {
 	@Test
 	public void testDefaultInitialStatus() {
 		setupContext();
-		assertEquals("initialStatus wrong", InstanceStatus.UP, getInstanceConfig()
-				.getInitialStatus());
+		assertEquals("initialStatus wrong", InstanceStatus.UP,
+				getInstanceConfig().getInitialStatus());
 	}
 
 	@Test(expected = BeanCreationException.class)
@@ -161,8 +162,8 @@ public class EurekaInstanceConfigBeanTests {
 	public void testCustomInitialStatus() {
 		addEnvironment(this.context, "eureka.instance.initial-status:STARTING");
 		setupContext();
-		assertEquals("initialStatus wrong", InstanceStatus.STARTING, getInstanceConfig()
-				.getInitialStatus());
+		assertEquals("initialStatus wrong", InstanceStatus.STARTING,
+				getInstanceConfig().getInitialStatus());
 	}
 
 	@Test
@@ -170,8 +171,8 @@ public class EurekaInstanceConfigBeanTests {
 		addEnvironment(this.context, "eureka.instance.preferIpAddress:true");
 		setupContext();
 		EurekaInstanceConfigBean instance = getInstanceConfig();
-		assertTrue("Wrong hostname: " + instance.getHostname(), getInstanceConfig()
-				.getHostname().equals(instance.getIpAddress()));
+		assertTrue("Wrong hostname: " + instance.getHostname(),
+				getInstanceConfig().getHostname().equals(instance.getIpAddress()));
 
 	}
 

@@ -18,11 +18,11 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.util.Map;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * See com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider
@@ -40,13 +40,15 @@ public class InstanceInfoFactory {
 		// server
 		InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder();
 
-		builder.setNamespace(config.getNamespace())
-				.setAppName(config.getAppname())
+		String namespace = config.getNamespace();
+		if (!namespace.endsWith(".")) {
+			namespace = namespace + ".";
+		}
+		builder.setNamespace(namespace).setAppName(config.getAppname())
 				.setInstanceId(config.getInstanceId())
 				.setAppGroupName(config.getAppGroupName())
 				.setDataCenterInfo(config.getDataCenterInfo())
-				.setIPAddr(config.getIpAddress())
-				.setHostName(config.getHostName(false))
+				.setIPAddr(config.getIpAddress()).setHostName(config.getHostName(false))
 				.setPort(config.getNonSecurePort())
 				.enablePort(InstanceInfo.PortType.UNSECURE,
 						config.isNonSecurePortEnabled())

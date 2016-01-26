@@ -16,13 +16,6 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.hystrix.HystrixFeign;
-import feign.slf4j.Slf4jLogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +25,18 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.feign.support.ResponseEntityDecoder;
 import org.springframework.cloud.netflix.feign.support.SpringEncoder;
 import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import feign.Contract;
+import feign.Feign;
+import feign.Logger;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.hystrix.HystrixFeign;
+import feign.slf4j.Slf4jLogger;
 
 /**
  * @author Spencer Gibb
@@ -49,12 +49,10 @@ public class EnableFeignClientsTests {
 	@Autowired
 	private FeignContext feignContext;
 
-	@Autowired
-	private ApplicationContext context;
-
 	@Test
 	public void decoderDefaultCorrect() {
-		ResponseEntityDecoder.class.cast(this.feignContext.getInstance("foo", Decoder.class));
+		ResponseEntityDecoder.class
+				.cast(this.feignContext.getInstance("foo", Decoder.class));
 	}
 
 	@Test
@@ -69,17 +67,19 @@ public class EnableFeignClientsTests {
 
 	@Test
 	public void contractDefaultCorrect() {
-		SpringMvcContract.class.cast(this.feignContext.getInstance("foo", Contract.class));
+		SpringMvcContract.class
+				.cast(this.feignContext.getInstance("foo", Contract.class));
 	}
 
 	@Test
 	public void builderDefaultCorrect() {
-		HystrixFeign.Builder.class.cast(this.feignContext.getInstance("foo", Feign.Builder.class));
+		HystrixFeign.Builder.class
+				.cast(this.feignContext.getInstance("foo", Feign.Builder.class));
 	}
 
 	@Configuration
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, FeignAutoConfiguration.class })
+	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+			FeignAutoConfiguration.class })
 	protected static class PlainConfiguration {
 	}
 
