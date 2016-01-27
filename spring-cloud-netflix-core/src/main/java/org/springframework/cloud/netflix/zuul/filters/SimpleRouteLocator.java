@@ -32,8 +32,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
-import com.netflix.zuul.http.ZuulServlet;
-
 /**
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
  *
@@ -54,7 +52,7 @@ public class SimpleRouteLocator implements RouteLocator {
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
 		this.properties = properties;
 		if (servletPath != null && StringUtils.hasText(servletPath)) {
-		    this.dispatcherServletPath = servletPath;
+			this.dispatcherServletPath = servletPath;
 		}
 		
 		this.zuulServletPath = properties.getServletPath();
@@ -169,24 +167,24 @@ public class SimpleRouteLocator implements RouteLocator {
 	}
 	
 	private String adjustPath(final String path) {
-	    String adjustedPath = path;
-	    
-	    if (RequestUtils.isDispatcherServletRequest()
-	            && StringUtils.hasText(dispatcherServletPath)) {
-	        if (!dispatcherServletPath.equals("/")) {
-	            adjustedPath = path.substring(this.dispatcherServletPath.length());
-	        }
-	    } else if (RequestUtils.isZuulServletRequest()){
-	        if (StringUtils.hasText(zuulServletPath)
-                && !zuulServletPath.equals("/")) {
-	          adjustedPath = path.substring(this.zuulServletPath.length());
-	        }
-	    } else {
-	        //do nothing
-	    }
-	    
-	    log.debug("adjustedPath=" + path);
-	    return adjustedPath;
+		String adjustedPath = path;
+		
+		if (RequestUtils.isDispatcherServletRequest()
+				&& StringUtils.hasText(dispatcherServletPath)) {
+			if (!dispatcherServletPath.equals("/")) {
+				adjustedPath = path.substring(this.dispatcherServletPath.length());
+			}
+		} else if (RequestUtils.isZuulServletRequest()){
+			if (StringUtils.hasText(zuulServletPath)
+					&& !zuulServletPath.equals("/")) {
+				adjustedPath = path.substring(this.zuulServletPath.length());
+			}
+		} else {
+			//do nothing
+		}
+		
+		log.debug("adjustedPath=" + path);
+		return adjustedPath;
 	}
 	
 
