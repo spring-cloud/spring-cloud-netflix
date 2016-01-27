@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>1.0.4.RELEASE</version>
+		<version>1.0.5.BUILD-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>1.0.7.RELEASE</version>
+	<version>1.0.8.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
@@ -30,7 +30,7 @@
 		<zuul.version>1.0.28</zuul.version>
 		<rxjava.version>1.0.11</rxjava.version>
 		<java.version>1.7</java.version>
-        <spring-cloud-netflix.version>1.0.7.RELEASE</spring-cloud-netflix.version>
+        <spring-cloud-netflix.version>1.0.8.BUILD-SNAPSHOT</spring-cloud-netflix.version>
 		<spring-integration-dsl.version>1.0.0.RELEASE</spring-integration-dsl.version>
 		<cloud-connectors.version>1.1.1.RELEASE</cloud-connectors.version>
 	</properties>
