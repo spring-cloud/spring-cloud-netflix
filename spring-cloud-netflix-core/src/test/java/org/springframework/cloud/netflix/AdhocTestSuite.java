@@ -20,8 +20,7 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.springframework.cloud.netflix.zuul.SampleZuulProxyApplicationTests;
-import org.springframework.cloud.netflix.zuul.SimpleZuulServerApplicationTests;
+import org.springframework.cloud.netflix.feign.valid.FeignHttpClientTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -29,8 +28,7 @@ import org.springframework.cloud.netflix.zuul.SimpleZuulServerApplicationTests;
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SimpleZuulServerApplicationTests.class,
-		SampleZuulProxyApplicationTests.class })
+@SuiteClasses({ FeignHttpClientTests.class })
 @Ignore
 public class AdhocTestSuite {
 

@@ -56,12 +56,14 @@ public class FeignRibbonClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory) {
-		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory);
+		return new LoadBalancerFeignClient(new Client.Default(null, null),
+				cachingFactory);
 	}
 
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
+	@ConditionalOnMissingBean(Client.class)
 	protected static class HttpClientConfiguration {
 
 		@Autowired(required = false)
@@ -86,6 +88,7 @@ public class FeignRibbonClientAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(OkHttpClient.class)
 	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
+	@ConditionalOnMissingBean(Client.class)
 	protected static class OkHttpConfiguration {
 
 		@Autowired(required = false)

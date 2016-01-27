@@ -16,14 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +43,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import feign.Client;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -63,7 +63,7 @@ import lombok.NoArgsConstructor;
 @SpringApplicationConfiguration(classes = FeignHttpClientTests.Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest",
-		"feign.hystrix.enabled=false" })
+		"feign.hystrix.enabled=false", "feign.okhttp.enabled=false" })
 @DirtiesContext
 public class FeignHttpClientTests {
 
@@ -80,28 +80,30 @@ public class FeignHttpClientTests {
 	private UserClient userClient;
 
 	@FeignClient("localapp")
-	protected interface TestClient extends BaseTestClient { }
+	protected interface TestClient extends BaseTestClient {
+	}
 
 	protected interface BaseTestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
-		ResponseEntity<Void> patchHello();
+		ResponseEntity<Void> patchHello(Hello hello);
 	}
 
 	protected interface UserService {
-		@RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+		@RequestMapping(method = RequestMethod.GET, value = "/users/{id}")
 		User getUser(@PathVariable("id") long id);
 	}
 
 	@FeignClient("localapp")
-	protected interface UserClient extends UserService { }
+	protected interface UserClient extends UserService {
+	}
 
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = {TestClient.class, UserClient.class})
+	@EnableFeignClients(clients = { TestClient.class, UserClient.class })
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application implements UserService {
 
@@ -121,9 +123,10 @@ public class FeignHttpClientTests {
 		}
 
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclienttest",
-					"management.contextPath=/admin").run(args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=feignclienttest",
+							"management.contextPath=/admin")
+					.run(args);
 		}
 	}
 
@@ -136,7 +139,7 @@ public class FeignHttpClientTests {
 
 	@Test
 	public void testPatch() {
-		ResponseEntity<Void> response = this.testClient.patchHello();
+		ResponseEntity<Void> response = this.testClient.patchHello(new Hello("foo"));
 		assertThat(response, is(notNullValue()));
 		String header = response.getHeaders().getFirst("X-Hello");
 		assertThat(header, equalTo("hello world patch"));
