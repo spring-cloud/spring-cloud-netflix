@@ -5,18 +5,18 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-dependencies-parent</artifactId>
-		<version>1.0.5.BUILD-SNAPSHOT</version>
+		<version>1.0.4.RELEASE</version>
 		<relativePath />
 	</parent>
 	<artifactId>spring-cloud-netflix-dependencies</artifactId>
-	<version>1.0.7.BUILD-SNAPSHOT</version>
+	<version>1.0.7.RELEASE</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
 	<properties>
         <bintray.package>netflix</bintray.package>
-        <spring-cloud-commons.version>1.0.5.BUILD-SNAPSHOT</spring-cloud-commons.version>
-        <spring-cloud-config.version>1.0.5.BUILD-SNAPSHOT</spring-cloud-config.version>
+        <spring-cloud-commons.version>1.0.5.RELEASE</spring-cloud-commons.version>
+        <spring-cloud-config.version>1.0.4.RELEASE</spring-cloud-config.version>
 		<main.basedir>${basedir}</main.basedir>
 		<archaius.version>0.6.5</archaius.version>
 		<eureka.version>1.1.147</eureka.version>
@@ -48,87 +48,87 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-eureka</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-eureka-server</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-feign</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-hystrix</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-ribbon</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-turbine</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-turbine-amqp</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-zuul</artifactId>
-				<version>1.0.6.BUILD-SNAPSHOT</version>
+				<version>1.0.6.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-core</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-eureka-server</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-hystrix-dashboard</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-hystrix-amqp</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-sidecar</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-turbine</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-turbine-amqp</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-zuul-server</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.7.RELEASE</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.archaius</groupId>
