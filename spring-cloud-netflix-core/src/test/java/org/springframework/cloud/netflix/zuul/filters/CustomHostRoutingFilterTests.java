@@ -189,13 +189,21 @@ class SampleCustomZuulProxyApplication {
 	@Configuration
 	@EnableZuulProxy
 	protected static class CustomZuulProxyConfig extends ZuulProxyConfiguration {
+
+		@Autowired
+		private ZuulProperties zuulProperties;
+
 		@Bean
 		@Override
 		public SimpleHostRoutingFilter simpleHostRoutingFilter() {
-			return new CustomHostRoutingFilter();
+			return new CustomHostRoutingFilter(zuulProperties);
 		}
 
 		private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
+
+			public CustomHostRoutingFilter(ZuulProperties properties) {
+				super(new ProxyRequestHelper(), properties);
+			}
 
 			@Override
 			public Object run() {
