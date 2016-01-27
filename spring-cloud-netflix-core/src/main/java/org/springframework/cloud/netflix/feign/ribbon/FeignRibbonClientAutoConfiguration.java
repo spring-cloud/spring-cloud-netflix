@@ -63,7 +63,6 @@ public class FeignRibbonClientAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
-	@ConditionalOnMissingBean(Client.class)
 	protected static class HttpClientConfiguration {
 
 		@Autowired(required = false)
@@ -73,6 +72,7 @@ public class FeignRibbonClientAutoConfiguration {
 		CachingSpringLoadBalancerFactory cachingFactory;
 
 		@Bean
+		@ConditionalOnMissingBean(Client.class)
 		public Client feignClient() {
 			ApacheHttpClient delegate;
 			if (this.httpClient != null) {
@@ -88,7 +88,6 @@ public class FeignRibbonClientAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(OkHttpClient.class)
 	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
-	@ConditionalOnMissingBean(Client.class)
 	protected static class OkHttpConfiguration {
 
 		@Autowired(required = false)
@@ -98,6 +97,7 @@ public class FeignRibbonClientAutoConfiguration {
 		CachingSpringLoadBalancerFactory cachingFactory;
 
 		@Bean
+		@ConditionalOnMissingBean(Client.class)
 		public Client feignClient() {
 			OkHttpClient delegate;
 			if (this.okHttpClient != null) {

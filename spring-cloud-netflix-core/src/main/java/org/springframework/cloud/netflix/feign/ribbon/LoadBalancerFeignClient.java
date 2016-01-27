@@ -36,7 +36,8 @@ public class LoadBalancerFeignClient implements Client {
 	private final Client delegate;
 	private CachingSpringLoadBalancerFactory lbClientFactory;
 
-	public LoadBalancerFeignClient(Client delegate, CachingSpringLoadBalancerFactory lbClientFactory) {
+	public LoadBalancerFeignClient(Client delegate,
+			CachingSpringLoadBalancerFactory lbClientFactory) {
 		this.delegate = delegate;
 		this.lbClientFactory = lbClientFactory;
 	}
@@ -47,8 +48,8 @@ public class LoadBalancerFeignClient implements Client {
 			URI asUri = URI.create(request.url());
 			String clientName = asUri.getHost();
 			URI uriWithoutHost = cleanUrl(request.url(), clientName);
-			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(this.delegate,
-					request, uriWithoutHost);
+			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(
+					this.delegate, request, uriWithoutHost);
 			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest,
 					new FeignOptionsClientConfig(options)).toResponse();
 		}

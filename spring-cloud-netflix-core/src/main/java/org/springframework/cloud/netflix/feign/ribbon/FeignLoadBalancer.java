@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
@@ -39,6 +40,7 @@ import feign.Client;
 import feign.Request;
 import feign.RequestTemplate;
 import feign.Response;
+import feign.Util;
 
 public class FeignLoadBalancer extends
 		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
@@ -112,14 +114,22 @@ public class FeignLoadBalancer extends
 
 		RibbonRequest(Client client, Request request, URI uri) {
 			this.client = client;
-			this.request = request;
 			setUri(uri);
+			this.request = toRequest(request);
+		}
+
+		private Request toRequest(Request request) {
+			Map<String, Collection<String>> headers = new LinkedHashMap<>(
+					request.headers());
+			// Apache client barfs if you set the content length
+			headers.remove(Util.CONTENT_LENGTH);
+			return new RequestTemplate().method(request.method())
+					.append(getUri().toASCIIString())
+					.body(request.body(), request.charset()).headers(headers).request();
 		}
 
 		Request toRequest() {
-			return new RequestTemplate().method(this.request.method())
-					.append(getUri().toASCIIString()).headers(this.request.headers())
-					.body(this.request.body(), this.request.charset()).request();
+			return toRequest(this.request);
 		}
 
 		Client client() {

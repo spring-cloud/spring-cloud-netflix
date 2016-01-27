@@ -59,19 +59,19 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
-		return new ResponseEntityDecoder(new SpringDecoder(messageConverters));
+		return new ResponseEntityDecoder(new SpringDecoder(this.messageConverters));
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
-		return new SpringEncoder(messageConverters);
+		return new SpringEncoder(this.messageConverters);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	public Contract feignContract() {
-		return new SpringMvcContract(parameterProcessors);
+		return new SpringMvcContract(this.parameterProcessors);
 	}
 
 	@Configuration
@@ -101,9 +101,10 @@ public class FeignClientsConfiguration {
 		private HttpClient httpClient;
 
 		@ConditionalOnMissingBean
+		@Bean
 		public Client feignClient() {
-			if (httpClient != null) {
-				return new ApacheHttpClient(httpClient);
+			if (this.httpClient != null) {
+				return new ApacheHttpClient(this.httpClient);
 			}
 			return new ApacheHttpClient();
 		}
