@@ -48,47 +48,47 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-eureka</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-eureka-server</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-feign</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-hystrix</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-ribbon</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-turbine</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-turbine-amqp</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-zuul</artifactId>
-				<version>1.0.7.BUILD-SNAPSHOT</version>
+				<version>1.0.6.BUILD-SNAPSHOT</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
