@@ -66,7 +66,7 @@ public class DiscoveryClientRouteLocatorTests {
 	@Before
 	public void init() {
 		initMocks(this);
-		setTestRequestcontext(); //re-initialize Zuul context for each test
+		setTestRequestcontext(); // re-initialize Zuul context for each test
 	}
 
 	@Test
@@ -96,8 +96,9 @@ public class DiscoveryClientRouteLocatorTests {
 
 	@Test
 	public void testGetMatchingPathWithServletPath() throws Exception {
-	    setTestRequestcontext();
-	    RequestContext.getCurrentContext().set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, true);
+		setTestRequestcontext();
+		RequestContext.getCurrentContext().set(RequestUtils.IS_DISPATCHERSERVLETREQUEST,
+				true);
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
@@ -107,20 +108,20 @@ public class DiscoveryClientRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
-	
-    @Test
-    public void testGetMatchingPathWithZuulServletPath() throws Exception {        
-        RequestContext.getCurrentContext().setZuulEngineRan();
-        DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
-                this.discovery, this.properties);
-        this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
-        this.properties.init();
-        routeLocator.getRoutes(); // force refresh
-        Route route = routeLocator.getMatchingRoute("/zuul/foo/1");
-        assertEquals("foo", route.getLocation());
-        assertEquals("/1", route.getPath());
-                
-    }	
+
+	@Test
+	public void testGetMatchingPathWithZuulServletPath() throws Exception {
+		RequestContext.getCurrentContext().setZuulEngineRan();
+		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
+				this.discovery, this.properties);
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
+		this.properties.init();
+		routeLocator.getRoutes(); // force refresh
+		Route route = routeLocator.getMatchingRoute("/zuul/foo/1");
+		assertEquals("foo", route.getLocation());
+		assertEquals("/1", route.getPath());
+
+	}
 
 	@Test
 	public void testGetMatchingPathWithNoPrefixStripping() throws Exception {
@@ -161,10 +162,12 @@ public class DiscoveryClientRouteLocatorTests {
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
-	
+
 	@Test
-	public void testGetMatchingPathWithGlobalPrefixStrippingAndServletPath() throws Exception {
-		RequestContext.getCurrentContext().set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, true);
+	public void testGetMatchingPathWithGlobalPrefixStrippingAndServletPath()
+			throws Exception {
+		RequestContext.getCurrentContext().set(RequestUtils.IS_DISPATCHERSERVLETREQUEST,
+				true);
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo",
@@ -174,10 +177,11 @@ public class DiscoveryClientRouteLocatorTests {
 		Route route = routeLocator.getMatchingRoute("/app/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
-	}	
-	
+	}
+
 	@Test
-	public void testGetMatchingPathWithGlobalPrefixStrippingAndZuulServletPath() throws Exception {
+	public void testGetMatchingPathWithGlobalPrefixStrippingAndZuulServletPath()
+			throws Exception {
 		RequestContext.getCurrentContext().setZuulEngineRan();
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
@@ -188,7 +192,7 @@ public class DiscoveryClientRouteLocatorTests {
 		Route route = routeLocator.getMatchingRoute("/zuul/proxy/foo/1");
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
-	}	
+	}
 
 	@Test
 	public void testGetMatchingPathWithRoutePrefixStripping() throws Exception {
@@ -644,10 +648,10 @@ public class DiscoveryClientRouteLocatorTests {
 		}
 		return null;
 	}
-	
+
 	private void setTestRequestcontext() {
-	    RequestContext context = new RequestContext();
-        RequestContext.testSetCurrentContext(context);
-	    
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+
 	}
 }

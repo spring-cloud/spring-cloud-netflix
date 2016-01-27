@@ -56,6 +56,12 @@ public class ProxyRequestHelperTests {
 		initMocks(this);
 	}
 
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
+
 	@Test
 	public void debug() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
@@ -130,10 +136,7 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> headers = new HttpHeaders();
 		headers.add(HttpHeaders.CONTENT_ENCODING.toLowerCase(), "gzip");
 
-		helper.setResponse(
-				200,
-				request.getInputStream(),
-				headers);
+		helper.setResponse(200, request.getInputStream(), headers);
 		assertTrue(context.getResponseGZipped());
 	}
 
@@ -151,10 +154,7 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> headers = new HttpHeaders();
 		headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
 
-		helper.setResponse(
-				200,
-				request.getInputStream(),
-				headers);
+		helper.setResponse(200, request.getInputStream(), headers);
 		assertTrue(context.getResponseGZipped());
 	}
 }

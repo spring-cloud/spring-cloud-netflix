@@ -1,10 +1,14 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import com.netflix.zuul.context.RequestContext;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -47,92 +50,98 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleCustomZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port: 0", "server.contextPath: /app"})
+@IntegrationTest({ "server.port: 0", "server.contextPath: /app" })
 @DirtiesContext
 public class CustomHostRoutingFilterTests {
 
-    @Value("${local.server.port}")
-    private int port;
+	@Value("${local.server.port}")
+	private int port;
 
-    @Autowired
-    private DiscoveryClientRouteLocator routes;
+	@Autowired
+	private DiscoveryClientRouteLocator routes;
 
-    @Autowired
-    private RoutesEndpoint endpoint;
+	@Autowired
+	private RoutesEndpoint endpoint;
 
-    @Test
-    public void getOnSelfViaCustomHostRoutingFilter() {
-        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-        this.endpoint.reset();
-        ResponseEntity<String> result = new TestRestTemplate().getForEntity(
-                "http://localhost:" + this.port + "/app/self/get/1", String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Get 1", result.getBody());
-    }
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
-    @Test
-    public void postOnSelfViaCustomHostRoutingFilter() {
-        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-        this.endpoint.reset();
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("id", "2");
-        ResponseEntity<String> result = new TestRestTemplate().postForEntity(
-                "http://localhost:" + this.port + "/app/self/post", params, String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Post 2", result.getBody());
-    }
+	@Test
+	public void getOnSelfViaCustomHostRoutingFilter() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/app/self/get/1", String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Get 1", result.getBody());
+	}
 
-    @Test
-    public void putOnSelfViaCustomHostRoutingFilter() {
-        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-        this.endpoint.reset();
-        ResponseEntity<String> result = new TestRestTemplate().exchange(
-                "http://localhost:" + this.port + "/app/self/put/3", HttpMethod.PUT,
-                new HttpEntity<>((Void) null), String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Put 3", result.getBody());
-    }
+	@Test
+	public void postOnSelfViaCustomHostRoutingFilter() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+		params.add("id", "2");
+		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
+				"http://localhost:" + this.port + "/app/self/post", params, String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Post 2", result.getBody());
+	}
 
-    @Test
-    public void patchOnSelfViaCustomHostRoutingFilter() {
-        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-        this.endpoint.reset();
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("patch", "5");
-        ResponseEntity<String> result = new TestRestTemplate().exchange(
-                "http://localhost:" + this.port + "/app/self/patch/4", HttpMethod.PATCH,
-                new HttpEntity<>(params), String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Patch 45", result.getBody());
-    }
+	@Test
+	public void putOnSelfViaCustomHostRoutingFilter() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/app/self/put/3", HttpMethod.PUT,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Put 3", result.getBody());
+	}
 
-    @Test
-    public void getOnSelfIgnoredHeaders() {
-        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-        this.endpoint.reset();
-        ResponseEntity<String> result = new TestRestTemplate().getForEntity(
-                "http://localhost:" + this.port + "/app/self/get/1", String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertTrue(result.getHeaders().containsKey("X-NotIgnored"));
-        assertFalse(result.getHeaders().containsKey("X-Ignored"));
-    }
+	@Test
+	public void patchOnSelfViaCustomHostRoutingFilter() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+		params.add("patch", "5");
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/app/self/patch/4", HttpMethod.PATCH,
+				new HttpEntity<>(params), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Patch 45", result.getBody());
+	}
 
-    @Test
-    public void getOnSelfWithSessionCookie() {
-        this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-        this.endpoint.reset();
+	@Test
+	public void getOnSelfIgnoredHeaders() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/app/self/get/1", String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertTrue(result.getHeaders().containsKey("X-NotIgnored"));
+		assertFalse(result.getHeaders().containsKey("X-Ignored"));
+	}
 
-        RestTemplate restTemplate = new RestTemplate();
+	@Test
+	public void getOnSelfWithSessionCookie() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
 
-        ResponseEntity<String> result1 = restTemplate.getForEntity(
-                "http://localhost:" + this.port + "/app/self/cookie/1", String.class);
+		RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<String> result2 = restTemplate.getForEntity(
-                "http://localhost:" + this.port + "/app/self/cookie/2", String.class);
+		ResponseEntity<String> result1 = restTemplate.getForEntity(
+				"http://localhost:" + this.port + "/app/self/cookie/1", String.class);
 
-        assertEquals("SetCookie 1", result1.getBody());
-        assertEquals("GetCookie 1", result2.getBody());
-    }
+		ResponseEntity<String> result2 = restTemplate.getForEntity(
+				"http://localhost:" + this.port + "/app/self/cookie/2", String.class);
+
+		assertEquals("SetCookie 1", result1.getBody());
+		assertEquals("GetCookie 1", result2.getBody());
+	}
 
 }
 
@@ -141,72 +150,71 @@ public class CustomHostRoutingFilterTests {
 @RestController
 class SampleCustomZuulProxyApplication {
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public String get(@PathVariable String id, HttpServletResponse response) {
-        response.setHeader("X-Ignored", "foo");
-        response.setHeader("X-NotIgnored", "bar");
-        return "Get " + id;
-    }
+	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+	public String get(@PathVariable String id, HttpServletResponse response) {
+		response.setHeader("X-Ignored", "foo");
+		response.setHeader("X-NotIgnored", "bar");
+		return "Get " + id;
+	}
 
-    @RequestMapping(value = "/cookie/{id}", method = RequestMethod.GET)
-    public String getWithCookie(@PathVariable String id, HttpSession session) {
-        Object testCookie = session.getAttribute("testCookie");
-        if (testCookie != null) {
-            return "GetCookie " + testCookie;
-        }
-        session.setAttribute("testCookie", id);
-        return "SetCookie " + id;
-    }
+	@RequestMapping(value = "/cookie/{id}", method = RequestMethod.GET)
+	public String getWithCookie(@PathVariable String id, HttpSession session) {
+		Object testCookie = session.getAttribute("testCookie");
+		if (testCookie != null) {
+			return "GetCookie " + testCookie;
+		}
+		session.setAttribute("testCookie", id);
+		return "SetCookie " + id;
+	}
 
-    @RequestMapping(value = "/post", method = RequestMethod.POST)
-    public String post(@RequestParam("id") String id) {
-        return "Post " + id;
-    }
+	@RequestMapping(value = "/post", method = RequestMethod.POST)
+	public String post(@RequestParam("id") String id) {
+		return "Post " + id;
+	}
 
-    @RequestMapping(value = "/put/{id}", method = RequestMethod.PUT)
-    public String put(@PathVariable String id) {
-        return "Put " + id;
-    }
+	@RequestMapping(value = "/put/{id}", method = RequestMethod.PUT)
+	public String put(@PathVariable String id) {
+		return "Put " + id;
+	}
 
-    @RequestMapping(value = "/patch/{id}", method = RequestMethod.PATCH)
-    public String patch(@PathVariable String id, @RequestParam("patch") String patch) {
-        return "Patch " + id + patch;
-    }
+	@RequestMapping(value = "/patch/{id}", method = RequestMethod.PATCH)
+	public String patch(@PathVariable String id, @RequestParam("patch") String patch) {
+		return "Patch " + id + patch;
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(SampleCustomZuulProxyApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(SampleCustomZuulProxyApplication.class, args);
+	}
 
-    @Configuration
-    @EnableZuulProxy
-    protected static class CustomZuulProxyConfig extends ZuulProxyConfiguration {
-        @Bean
-        @Override
-        public SimpleHostRoutingFilter simpleHostRoutingFilter() {
-            return new CustomHostRoutingFilter();
-        }
+	@Configuration
+	@EnableZuulProxy
+	protected static class CustomZuulProxyConfig extends ZuulProxyConfiguration {
+		@Bean
+		@Override
+		public SimpleHostRoutingFilter simpleHostRoutingFilter() {
+			return new CustomHostRoutingFilter();
+		}
 
-        private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
+		private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
 
-	        @Override
-	        public Object run() {
-		        super.addIgnoredHeaders("X-Ignored");
-		        return super.run();
-	        }
+			@Override
+			public Object run() {
+				super.addIgnoredHeaders("X-Ignored");
+				return super.run();
+			}
 
-	        @Override
-            protected CloseableHttpClient newClient() {
-                // Custom client with cookie support.
-                // In practice, we would want a custom cookie store using a multimap with a user key.
-                return HttpClients.custom()
-                        .setConnectionManager(newConnectionManager())
-                        .setDefaultCookieStore(new BasicCookieStore())
-                        .setDefaultRequestConfig(RequestConfig.custom()
-                                .setCookieSpec(CookieSpecs.DEFAULT)
-                                .build())
-                        .build();
-            }
-        }
-    }
+			@Override
+			protected CloseableHttpClient newClient() {
+				// Custom client with cookie support.
+				// In practice, we would want a custom cookie store using a multimap with
+				// a user key.
+				return HttpClients.custom().setConnectionManager(newConnectionManager())
+						.setDefaultCookieStore(new BasicCookieStore())
+						.setDefaultRequestConfig(RequestConfig.custom()
+								.setCookieSpec(CookieSpecs.DEFAULT).build())
+						.build();
+			}
+		}
+	}
 
 }

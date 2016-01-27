@@ -20,7 +20,9 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.springframework.cloud.netflix.feign.valid.FeignHttpClientTests;
+import org.springframework.cloud.netflix.zuul.filters.CustomHostRoutingFilterTests;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelperTests;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocatorTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -28,7 +30,8 @@ import org.springframework.cloud.netflix.feign.valid.FeignHttpClientTests;
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ FeignHttpClientTests.class })
+@SuiteClasses({ DiscoveryClientRouteLocatorTests.class,
+		CustomHostRoutingFilterTests.class, ProxyRequestHelperTests.class })
 @Ignore
 public class AdhocTestSuite {
 
