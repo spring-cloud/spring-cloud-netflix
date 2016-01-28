@@ -16,14 +16,11 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import lombok.extern.slf4j.Slf4j;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +56,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+import static org.junit.Assert.assertEquals;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FormZuulProxyApplication.class)
@@ -69,6 +71,12 @@ public class FormZuulProxyApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
+
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	@Test
 	public void postWithForm() {
@@ -120,8 +128,8 @@ public class FormZuulProxyApplicationTests {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType
-				.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
+		headers.setContentType(MediaType.valueOf(
+				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/form", HttpMethod.POST,
 				new HttpEntity<MultiValueMap<String, String>>(form, headers),
@@ -211,11 +219,11 @@ class FormZuulProxyApplication {
 	}
 
 	public static void main(String[] args) {
-		new SpringApplicationBuilder(FormZuulProxyApplication.class).properties(
-				"zuul.routes.simple:/simple/**",
-				"zuul.routes.direct.url:http://localhost:9999",
-				"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB").run(
-				args);
+		new SpringApplicationBuilder(FormZuulProxyApplication.class)
+				.properties("zuul.routes.simple:/simple/**",
+						"zuul.routes.direct.url:http://localhost:9999",
+						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
+				.run(args);
 	}
 
 }
@@ -229,7 +237,7 @@ class FormRibbonClientConfiguration {
 
 	@Bean
 	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", port));
+		return new StaticServerList<>(new Server("localhost", this.port));
 	}
 
 }
