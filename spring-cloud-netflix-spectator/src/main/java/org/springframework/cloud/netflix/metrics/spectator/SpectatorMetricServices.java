@@ -13,7 +13,6 @@
 
 package org.springframework.cloud.netflix.metrics.spectator;
 
-import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -22,10 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 
-import com.netflix.spectator.api.AbstractMeter;
-import com.netflix.spectator.api.Gauge;
 import com.netflix.spectator.api.Id;
-import com.netflix.spectator.api.Measurement;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spectator.impl.AtomicDouble;
 
@@ -74,7 +70,6 @@ public class SpectatorMetricServices implements CounterService, GaugeService {
 			final Id id = registry.createId(name);
 			final AtomicLong gauge = getCounterStorage(id);
 			gauge.addAndGet(value);
-			registry.register(new NumericGauge(id, gauge));
 		}
 	}
 
@@ -87,48 +82,31 @@ public class SpectatorMetricServices implements CounterService, GaugeService {
 
 	@Override
 	public void submit(String name, double dValue) {
-		long value = ((Double) dValue).longValue();
 		if (name.startsWith("histogram.")) {
-			registry.distributionSummary(stripMetricName(name)).record(value);
+			registry.distributionSummary(stripMetricName(name)).record((long) dValue);
 		}
 		else if (name.startsWith("timer.")) {
-			registry.timer(stripMetricName(name)).record(value, TimeUnit.MILLISECONDS);
+			// Input is in milliseconds. Convert to nanos before casting to long to allow
+			// sub-millisecond durations to be recorded correctly.
+			long value = (long) (dValue * 1e6);
+			registry.timer(stripMetricName(name)).record(value, TimeUnit.NANOSECONDS);
 		}
 		else {
 			final Id id = registry.createId(name);
 			final AtomicDouble gauge = getGaugeStorage(id);
 			gauge.set(dValue);
-			registry.register(new NumericGauge(id, gauge));
 		}
 	}
 
 	private AtomicDouble getGaugeStorage(Id id) {
 		final AtomicDouble newGauge = new AtomicDouble(0);
 		final AtomicDouble existingGauge = gauges.putIfAbsent(id, newGauge);
-		return existingGauge == null ? newGauge : existingGauge;
+		return existingGauge == null ? registry.gauge(id, newGauge) : existingGauge;
 	}
 
 	private AtomicLong getCounterStorage(Id id) {
 		final AtomicLong newCounter = new AtomicLong(0);
 		final AtomicLong existingCounter = counters.putIfAbsent(id, newCounter);
-		return existingCounter == null ? newCounter : existingCounter;
-	}
-
-	private class NumericGauge extends AbstractMeter<Number> implements Gauge {
-		NumericGauge(Id id, Number val) {
-			super(registry.clock(), id, val);
-		}
-
-		@Override
-		public Iterable<Measurement> measure() {
-			return Collections.singleton(new Measurement(this.id, this.clock.wallTime(),
-					this.value()));
-		}
-
-		@SuppressWarnings("ConstantConditions")
-		@Override
-		public double value() {
-			return this.ref.get().doubleValue();
-		}
+		return existingCounter == null ? registry.gauge(id, newCounter) : existingCounter;
 	}
 }
