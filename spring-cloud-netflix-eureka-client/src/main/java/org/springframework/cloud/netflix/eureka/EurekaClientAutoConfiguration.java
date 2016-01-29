@@ -46,6 +46,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
 
@@ -161,6 +162,7 @@ public class EurekaClientAutoConfiguration {
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@Lazy
 		public EurekaClient eurekaClient(ApplicationInfoManager applicationInfoManager,
 				EurekaClientConfig config, EurekaInstanceConfig instance) {
 			applicationInfoManager.getInfo(); // force initialization
@@ -171,6 +173,7 @@ public class EurekaClientAutoConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(value = ApplicationInfoManager.class, search = SearchStrategy.CURRENT)
 		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@Lazy
 		public ApplicationInfoManager eurekaApplicationInfoManager(
 				EurekaInstanceConfig config) {
 			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
