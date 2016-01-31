@@ -57,8 +57,6 @@ public class ZuulProperties {
 
 	private boolean ignoreLocalService = true;
 
-	private RegexMapper regexMapper = new RegexMapper();
-
 	@PostConstruct
 	public void init() {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {
@@ -73,17 +71,6 @@ public class ZuulProperties {
 				value.path = "/" + entry.getKey() + "/**";
 			}
 		}
-	}
-
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
-	public static class RegexMapper {
-		private boolean enabled = false;
-
-		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
-
-		private String routePattern = "${version}/${name}";
 	}
 
 	@Data

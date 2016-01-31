@@ -41,6 +41,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * @author Spencer Gibb
  * @author Dave Syer
@@ -62,6 +66,19 @@ public class DiscoveryClientRouteLocatorTests {
 	private DiscoveryClient discovery;
 
 	private ZuulProperties properties = new ZuulProperties();
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class RegexMapper {
+		private boolean enabled = false;
+
+		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
+
+		private String routePattern = "${version}/${name}";
+	}
+
+	private RegexMapper regexMapper = new RegexMapper();
 
 	@Before
 	public void init() {
@@ -590,8 +607,7 @@ public class DiscoveryClientRouteLocatorTests {
 				.willReturn(Collections.singletonList(MYSERVICE));
 
 		PatternServiceRouteMapper regExServiceRouteMapper = new PatternServiceRouteMapper(
-				this.properties.getRegexMapper().getServicePattern(),
-				this.properties.getRegexMapper().getRoutePattern());
+				this.regexMapper.getServicePattern(), this.regexMapper.getRoutePattern());
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties, regExServiceRouteMapper);
 		List<Route> routesMap = routeLocator.getRoutes();
@@ -606,8 +622,7 @@ public class DiscoveryClientRouteLocatorTests {
 				.willReturn(Collections.singletonList("rest-service-v1"));
 
 		PatternServiceRouteMapper regExServiceRouteMapper = new PatternServiceRouteMapper(
-				this.properties.getRegexMapper().getServicePattern(),
-				this.properties.getRegexMapper().getRoutePattern());
+				this.regexMapper.getServicePattern(), this.regexMapper.getRoutePattern());
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties, regExServiceRouteMapper);
 		List<Route> routesMap = routeLocator.getRoutes();
