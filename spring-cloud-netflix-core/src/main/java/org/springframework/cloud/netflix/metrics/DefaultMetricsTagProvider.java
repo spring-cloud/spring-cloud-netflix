@@ -16,6 +16,7 @@ package org.springframework.cloud.netflix.metrics;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,13 +34,14 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 	public Map<String, String> clientHttpRequestTags(HttpRequest request,
 			ClientHttpResponse response) {
 		String urlTemplate = RestTemplateUrlTemplateHolder.getRestTemplateUrlTemplate();
-		if (urlTemplate == null)
+		if (urlTemplate == null) {
 			urlTemplate = "none";
+		}
 
 		String status;
 		try {
-			status = (response == null) ? "CLIENT_ERROR" : ((Integer) response
-					.getRawStatusCode()).toString();
+			status = (response == null) ? "CLIENT_ERROR"
+					: ((Integer) response.getRawStatusCode()).toString();
 		}
 		catch (IOException e) {
 			status = "IO_ERROR";
@@ -60,17 +62,22 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 		tags.put("method", request.getMethod());
 		tags.put("status", ((Integer) response.getStatus()).toString());
 
-		String uri = sanitizeUrlTemplate(request
-				.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE).toString()
-				.substring(1));
+		String uri = (String) request
+				.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+		if (uri == null) {
+			uri = request.getPathInfo();
+		}
+		uri = sanitizeUrlTemplate(uri.substring(1));
 		tags.put("uri", uri.isEmpty() ? "root" : uri);
 
 		Object exception = request.getAttribute("exception");
-		if (exception != null)
+		if (exception != null) {
 			tags.put("exception", exception.getClass().getSimpleName());
+		}
 
-		if (caller != null)
+		if (caller != null) {
 			tags.put("caller", caller);
+		}
 
 		return tags;
 	}
