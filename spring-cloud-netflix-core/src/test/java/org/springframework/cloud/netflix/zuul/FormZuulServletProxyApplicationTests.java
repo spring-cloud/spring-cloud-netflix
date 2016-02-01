@@ -20,7 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.junit.Ignore;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +33,9 @@ import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -44,7 +49,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,83 +57,79 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
+import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.Assert.assertEquals;
 
-import lombok.extern.slf4j.Slf4j;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FormZuulServletProxyApplication.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port:0", "zuul.routes.simple:/simple/**" })
+@WebIntegrationTest(value = "zuul.routes.simple:/simple/**", randomPort = true)
 @DirtiesContext
-@Ignore
 public class FormZuulServletProxyApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
 
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
+
 	@Test
 	public void postWithForm() {
-		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String, String>>(form, headers),
-				String.class);
+				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
 
 	@Test
 	public void postWithMultipartForm() {
-		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String, String>>(form, headers),
-				String.class);
+				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
 
 	@Test
 	public void postWithMultipartFile() {
-		MultiValueMap<String, Object> form = new LinkedMultiValueMap<String, Object>();
+		MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 		HttpHeaders part = new HttpHeaders();
 		part.setContentType(MediaType.TEXT_PLAIN);
 		part.setContentDispositionFormData("file", "foo.txt");
-		form.set("foo", new HttpEntity<byte[]>("bar".getBytes(), part));
+		form.set("foo", new HttpEntity<>("bar".getBytes(), part));
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		headers.set("Transfer-Encoding", "chunked");
 		headers.setContentLength(-1);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/zuul/simple/file", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String, Object>>(form, headers),
-				String.class);
+				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! bar", result.getBody());
 	}
 
 	@Test
 	public void postWithUTF8Form() {
-		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String, String>>(form, headers),
-				String.class);
+				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}

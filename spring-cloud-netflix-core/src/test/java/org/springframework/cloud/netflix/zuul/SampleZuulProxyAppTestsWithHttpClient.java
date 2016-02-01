@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +82,12 @@ public class SampleZuulProxyAppTestsWithHttpClient {
 
 	@Autowired
 	private RibbonCommandFactory<?> ribbonCommandFactory;
+
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	private String getRoute(String path) {
 		for (Route route : this.routes.getRoutes()) {
