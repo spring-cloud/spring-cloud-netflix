@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +66,7 @@ import lombok.extern.slf4j.Slf4j;
 @WebAppConfiguration
 @IntegrationTest({ "server.port:0", "zuul.routes.simple:/simple/**" })
 @DirtiesContext
+@Ignore
 public class FormZuulServletProxyApplicationTests {
 
 	@Value("${local.server.port}")
