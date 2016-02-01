@@ -1,1 +1,1 @@
-provides: spring-platform-netflix-core, zule-core
+provides: spring-platform-netflix-core, zuul-core
