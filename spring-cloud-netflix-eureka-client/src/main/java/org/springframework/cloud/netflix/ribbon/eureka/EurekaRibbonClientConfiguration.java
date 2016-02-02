@@ -16,20 +16,7 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
-
 import javax.annotation.PostConstruct;
-
-import lombok.extern.apachecommons.CommonsLog;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.client.config.IClientConfig;
@@ -43,6 +30,18 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
+import org.apache.commons.logging.Log;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
+
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
+
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
  * <code>@zone</code>, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
@@ -52,10 +51,10 @@ import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
  * @author Dave Syer
  * @author Ryan Baxter
  */
-@Configuration
-@CommonsLog
-public class EurekaRibbonClientConfiguration {
+@Configuration public class EurekaRibbonClientConfiguration {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(EurekaRibbonClientConfiguration.class);
 	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
 	private boolean approximateZoneFromHostname = false;
 

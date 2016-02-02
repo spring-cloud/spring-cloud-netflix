@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -26,7 +24,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Dave Syer
  */
 @ConfigurationProperties("eureka.dashboard")
-@Data
 public class EurekaDashboardProperties {
 
 	/**
@@ -39,4 +36,57 @@ public class EurekaDashboardProperties {
 	 */
 	private boolean enabled = true;
 
+	public EurekaDashboardProperties() {
+	}
+
+	public String getPath() {
+		return this.path;
+	}
+
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof EurekaDashboardProperties))
+			return false;
+		final EurekaDashboardProperties other = (EurekaDashboardProperties) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$path = this.path;
+		final Object other$path = other.path;
+		if (this$path == null ? other$path != null : !this$path.equals(other$path))
+			return false;
+		if (this.enabled != other.enabled)
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $path = this.path;
+		result = result * PRIME + ($path == null ? 0 : $path.hashCode());
+		result = result * PRIME + (this.enabled ? 79 : 97);
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof EurekaDashboardProperties;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.eureka.server.EurekaDashboardProperties(path="
+				+ this.path + ", enabled=" + this.enabled + ")";
+	}
 }

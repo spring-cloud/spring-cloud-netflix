@@ -35,12 +35,11 @@ import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.util.EurekaMonitors;
 import com.thoughtworks.xstream.XStream;
 
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
 
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class EurekaServerBootstrap {
 	private static final String TEST = "test";
 
@@ -53,6 +52,8 @@ public class EurekaServerBootstrap {
 	private static final String ARCHAIUS_DEPLOYMENT_DATACENTER = "archaius.deployment.datacenter";
 
 	private static final String EUREKA_DATACENTER = "eureka.datacenter";
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(EurekaServerBootstrap.class);
 
 	protected EurekaServerConfig eurekaServerConfig;
 

@@ -16,17 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.cloud.client.DefaultServiceInstance;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
@@ -34,12 +28,15 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.client.DefaultServiceInstance;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+
+import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
 /**
  * @author Spencer Gibb
  */
-@RequiredArgsConstructor
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
@@ -47,6 +44,11 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	private final EurekaInstanceConfig config;
 
 	private final EurekaClient eurekaClient;
+
+	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient) {
+		this.config = config;
+		this.eurekaClient = eurekaClient;
+	}
 
 	@Override
 	public String description() {

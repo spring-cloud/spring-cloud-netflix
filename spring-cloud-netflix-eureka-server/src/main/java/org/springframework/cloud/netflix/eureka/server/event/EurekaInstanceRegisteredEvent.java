@@ -16,18 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.netflix.appinfo.InstanceInfo;
 
 import org.springframework.context.ApplicationEvent;
-
-import com.netflix.appinfo.InstanceInfo;
 
 /**
  * @author Spencer Gibb
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
 public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
@@ -45,4 +40,68 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 		this.replication = replication;
 	}
 
+	public InstanceInfo getInstanceInfo() {
+		return this.instanceInfo;
+	}
+
+	public int getLeaseDuration() {
+		return this.leaseDuration;
+	}
+
+	public boolean isReplication() {
+		return this.replication;
+	}
+
+	public void setInstanceInfo(InstanceInfo instanceInfo) {
+		this.instanceInfo = instanceInfo;
+	}
+
+	public void setLeaseDuration(int leaseDuration) {
+		this.leaseDuration = leaseDuration;
+	}
+
+	public void setReplication(boolean replication) {
+		this.replication = replication;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent(instanceInfo="
+				+ this.instanceInfo + ", leaseDuration=" + this.leaseDuration
+				+ ", replication=" + this.replication + ")";
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof EurekaInstanceRegisteredEvent))
+			return false;
+		final EurekaInstanceRegisteredEvent other = (EurekaInstanceRegisteredEvent) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$instanceInfo = this.getInstanceInfo();
+		final Object other$instanceInfo = other.getInstanceInfo();
+		if (this$instanceInfo == null ?
+				other$instanceInfo != null :
+				!this$instanceInfo.equals(other$instanceInfo))
+			return false;
+		if (this.getLeaseDuration() != other.getLeaseDuration())
+			return false;
+		if (this.isReplication() != other.isReplication())
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $instanceInfo = this.getInstanceInfo();
+		result = result * PRIME + ($instanceInfo == null ? 0 : $instanceInfo.hashCode());
+		result = result * PRIME + this.getLeaseDuration();
+		result = result * PRIME + (this.isReplication() ? 79 : 97);
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof EurekaInstanceRegisteredEvent;
+	}
 }
