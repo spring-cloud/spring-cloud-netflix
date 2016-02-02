@@ -16,18 +16,16 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -37,7 +35,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
@@ -104,12 +101,13 @@ public class HystrixDashboardConfiguration {
 	 * not yet support CORS (https://bugs.webkit.org/show_bug.cgi?id=61862) so that a UI
 	 * can request a stream from a different server.
 	 */
-	@CommonsLog
 	public static class ProxyStreamServlet extends HttpServlet {
 
 		private static final long serialVersionUID = 1L;
 
 		private static final String CONNECTION_CLOSE_VALUE = "close";
+		private static final Log log = org.apache.commons.logging.LogFactory
+				.getLog(ProxyStreamServlet.class);
 
 		private boolean enableIgnoreConnectionCloseHeader = false;
 

@@ -31,18 +31,19 @@ import com.netflix.turbine.monitor.cluster.AggregateClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
 
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
 
 import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.AggregatorClusterMonitorConsole;
 
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFromCluster> {
 
 	private static final DynamicStringProperty aggClusters = DynamicPropertyFactory
 			.getInstance().getStringProperty("turbine.aggregator.clusterConfig", null);
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(SpringAggregatorFactory.class);
 
 	/**
 	 * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}<

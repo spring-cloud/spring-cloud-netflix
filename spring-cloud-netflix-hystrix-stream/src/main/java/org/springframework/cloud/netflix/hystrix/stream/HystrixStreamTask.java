@@ -22,8 +22,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import lombok.extern.apachecommons.CommonsLog;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.netflix.hystrix.HystrixCircuitBreaker;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandMetrics;
+import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.hystrix.HystrixThreadPoolKey;
+import com.netflix.hystrix.HystrixThreadPoolMetrics;
+import com.netflix.hystrix.util.HystrixRollingNumberEvent;
 
+import org.apache.commons.logging.Log;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -35,25 +44,16 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.netflix.hystrix.HystrixCircuitBreaker;
-import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixCommandMetrics;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.HystrixThreadPoolKey;
-import com.netflix.hystrix.HystrixThreadPoolMetrics;
-import com.netflix.hystrix.util.HystrixRollingNumberEvent;
-
 /**
  * @author Spencer Gibb
  *
  * @see com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller (nested
  * private class MetricsPoller)
  */
-@CommonsLog
 public class HystrixStreamTask implements ApplicationContextAware {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(HystrixStreamTask.class);
 	@Autowired
 	@Output(HystrixStreamClient.OUTPUT)
 	private MessageChannel outboundChannel;
