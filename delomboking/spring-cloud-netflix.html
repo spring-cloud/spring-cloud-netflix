@@ -1,0 +1,2535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.2">
+<title>Spring Cloud Netflix</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Remove the comments around the @import statement below when using this as a custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+[hidden],template{display:none}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+body{margin:0}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*:before,*:after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+#map_canvas img,#map_canvas embed,#map_canvas object,.map_canvas img,.map_canvas embed,.map_canvas object{max-width:none!important}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+.antialiased,body{-webkit-font-smoothing:antialiased}
+img{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+p.lead,.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{font-size:1.21875em;line-height:1.6}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol,ul.no-bullet,ol.no-bullet{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.no-bullet{list-style:none}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite:before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media only screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7;font-weight:bold}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix:before,.clearfix:after,.float-group:before,.float-group:after{content:" ";display:table}
+.clearfix:after,.float-group:after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{display:inline-block;color:rgba(0,0,0,.8);font-size:.75em;line-height:1.4;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:-.15em .15em 0 .15em;padding:.2em .6em .2em .5em;vertical-align:middle;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menu{color:rgba(0,0,0,.8)}
+b.button:before,b.button:after{position:relative;top:-1px;font-weight:400}
+b.button:before{content:"[";padding:0 3px 0 2px}
+b.button:after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header:before,#header:after,#content:before,#content:after,#footnotes:before,#footnotes:after,#footer:before,#footer:after{content:" ";display:table}
+#header:after,#content:after,#footnotes:after,#footer:after{clear:both}
+#content{margin-top:1.25em}
+#content:before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
+#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span:before{content:"\00a0\2013\00a0"}
+#header .details br+span.author:before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark:before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber:after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media only screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}@media only screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+.sect1{padding-bottom:.625em}
+@media only screen and (min-width:768px){.sect1{padding-bottom:1.25em}}.sect1+.sect1{border-top:1px solid #efefed}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor:before,h2>a.anchor:before,h3>a.anchor:before,#toctitle>a.anchor:before,.sidebarblock>.content>.title>a.anchor:before,h4>a.anchor:before,h5>a.anchor:before,h6>a.anchor:before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock>caption.title{white-space:nowrap;overflow:visible;max-width:0}
+.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>.paragraph:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+@media only screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}@media only screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]:before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]:before{display:block}
+.listingblock.terminal pre .command:before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt]):before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote:before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
+.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
+.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
+.quoteblock .quoteblock blockquote:before{display:none}
+.verseblock{margin:0 1em 1.25em 1em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.05em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract{margin:0 0 1.25em 0;display:block}
+.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{text-align:left;word-spacing:0}
+.quoteblock.abstract blockquote:before,.quoteblock.abstract blockquote p:first-of-type:before{display:none}
+table.tableblock{max-width:100%;border-collapse:separate}
+table.tableblock td>.paragraph:last-child p>p:last-child,table.tableblock th>p:last-child,table.tableblock td>p:last-child{margin-bottom:0}
+table.spread{width:100%}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all th.tableblock,table.grid-all td.tableblock{border-width:0 1px 1px 0}
+table.grid-all tfoot>tr>th.tableblock,table.grid-all tfoot>tr>td.tableblock{border-width:1px 1px 0 0}
+table.grid-cols th.tableblock,table.grid-cols td.tableblock{border-width:0 1px 0 0}
+table.grid-all *>tr>.tableblock:last-child,table.grid-cols *>tr>.tableblock:last-child{border-right-width:0}
+table.grid-rows th.tableblock,table.grid-rows td.tableblock{border-width:0 0 1px 0}
+table.grid-all tbody>tr:last-child>th.tableblock,table.grid-all tbody>tr:last-child>td.tableblock,table.grid-all thead:last-child>tr>th.tableblock,table.grid-rows tbody>tr:last-child>th.tableblock,table.grid-rows tbody>tr:last-child>td.tableblock,table.grid-rows thead:last-child>tr>th.tableblock{border-bottom-width:0}
+table.grid-rows tfoot>tr>th.tableblock,table.grid-rows tfoot>tr>td.tableblock{border-width:1px 0 0 0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot{border-width:1px 0}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.unstyled,ol.unnumbered,ul.checklist,ul.none{list-style-type:none}
+ul.unstyled,ol.unnumbered,ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1em;font-size:.85em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{width:1em;position:relative;top:1px}
+ul.inline{margin:0 auto .625em auto;margin-left:-1.375em;margin-right:0;padding:0;list-style:none;overflow:hidden}
+ul.inline>li{list-style:none;float:left;margin-left:1.375em;display:block}
+ul.inline>li>*{display:block}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1{padding-right:.75em;font-weight:bold}
+td.hdlist1,td.hdlist2{vertical-align:top}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist>table tr>td:first-of-type{padding:0 .75em;line-height:1}
+.colist>table tr>td:last-of-type{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
+.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none}
+span.footnote,span.footnoteref{vertical-align:super;font-size:.875em}
+span.footnote a,span.footnoteref a{text-decoration:none}
+span.footnote a:active,span.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em 0;border-width:1px 0 0 0}
+#footnotes .footnote{padding:0 .375em;line-height:1.3;font-size:.875em;margin-left:1.2em;text-indent:-1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]:after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+h1,h2{letter-spacing:-.01em}
+dt,th.tableblock,td.content{text-rendering:optimizeLegibility}
+p,td.content{letter-spacing:-.01em}
+p strong,td.content strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@media print{@page{margin:1.25cm .75cm}
+*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare):after,a[href^="https:"]:not(.bare):after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]:after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img{page-break-inside:avoid}
+thead{display:table-header-group}
+img{max-width:100%!important}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
+.sect1{padding-bottom:0!important}
+.sect1+.sect1{border:0!important}
+#header>h1:first-child{margin-top:1.25rem}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em 0}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span:before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]:before{display:block}
+#footer{background:none!important;padding:0 .9375em}
+#footer-text{color:rgba(0,0,0,.6)!important;font-size:.9em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+</style>
+</head>
+<body class="article">
+<div id="header">
+<h1>Spring Cloud Netflix</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This project provides Netflix OSS integrations for Spring Boot apps through autoconfiguration
+and binding to the Spring Environment and other Spring programming model idioms. With a few
+simple annotations you can quickly enable and configure the common patterns inside your
+application and build large distributed systems with battle-tested Netflix components. The
+patterns provided include Service Discovery (Eureka), Circuit Breaker (Hystrix),
+Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_service_discovery_eureka_clients">Service Discovery: Eureka Clients</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.</p>
+</div>
+<div class="sect2">
+<h3 id="_registering_with_eureka">Registering with Eureka</h3>
+<div class="paragraph">
+<p>When a client registers with Eureka, it provides meta-data about itself
+such as host and port, health indicator URL, home page etc.  Eureka
+receives heartbeat messages from each instance belonging to a service.
+If the heartbeat fails over a configurable timetable, the instance is
+normally removed from the registry.</p>
+</div>
+<div class="paragraph">
+<p>Example eureka client:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@ComponentScan
+@EnableAutoConfiguration
+@EnableEurekaClient
+@RestController
+public class Application {
+
+    @RequestMapping("/")
+    public String home() {
+        return "Hello world";
+    }
+
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>(i.e. utterly normal Spring Boot app). In this example we use
+<code>@EnableEurekaClient</code> explicitly, but with only Eureka available you
+could also use <code>@EnableDiscoveryClient</code>. Configuration is required to
+locate the Eureka server. Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>where "defaultZone" is a magic string fallback value that provides the
+service URL for any client that doesn&#8217;t express a preference
+(i.e. it&#8217;s a useful default).</p>
+</div>
+<div class="paragraph">
+<p>The default application name (service ID), virtual host and non-secure
+port, taken from the <code>Environment</code>, are <code>${spring.application.name}</code>,
+<code>${spring.application.name}</code> and <code>${server.port}</code> respectively.</p>
+</div>
+<div class="paragraph">
+<p><code>@EnableEurekaClient</code> makes the app into both a Eureka "instance"
+(i.e. it registers itself) and a "client" (i.e. it can query the
+registry to locate other services). The instance behaviour is driven
+by <code>eureka.instance.*</code> configuration keys, but the defaults will be
+fine if you ensure that your application has a
+<code>spring.application.name</code> (this is the default for the Eureka service
+ID, or VIP).</p>
+</div>
+<div class="paragraph">
+<p>See <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> and <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</a> for more details of the configurable options.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_status_page_and_health_indicator">Status Page and Health Indicator</h3>
+<div class="paragraph">
+<p>The status page and health indicators for a Eureka instance default to
+"/info" and "/health" respectively, which are the default locations of
+useful endpoints in a Spring Boot Actuator application. You need to
+change these, even for an Actuator application if you use a
+non-default context path or servlet path
+(e.g. <code>server.servletPath=/foo</code>) or management endpoint path
+(e.g. <code>management.contextPath=/admin</code>). Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    statusPageUrlPath: ${management.context-path}/info
+    healthCheckUrlPath: ${management.context-path}/health</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These links show up in the metadata that is consumed by clients, and
+used in some scenarios to decide whether to send requests to your
+application, so it&#8217;s helpful if they are accurate.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_registering_a_secure_application">Registering a Secure Application</h3>
+<div class="paragraph">
+<p>If your app wants to be contacted over HTTPS you can set two flags in
+the <code>EurekaInstanceConfig</code>, <em>viz</em>
+<code>eureka.instance.[nonSecurePortEnabled,securePortEnabled]=[false,true]</code>
+respectively. This will make Eureka publish instance information
+showing an explicit preference for secure communication. The Spring
+Cloud <code>DiscoveryClient</code> will always return an <code><a href="https://&#8230;&#8203" class="bare">https://&#8230;&#8203</a>;</code> URI for a
+service configured this way, and the Eureka (native) instance
+information will have a secure health check URL.</p>
+</div>
+<div class="paragraph">
+<p>Because of the way
+Eureka works internally, it will still publish a non-secure URL for
+status and home page unless you also override those explicitly.
+You can use placeholders to configure the eureka instance urls,
+e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    statusPageUrl: https://${eureka.hostname}/info
+    healthCheckUrl: https://${eureka.hostname}/health
+    homePageUrl: https://${eureka.hostname}/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>(Note that <code>${eureka.hostname}</code> is a native placeholder only available
+in later versions of Eureka. You could achieve the same thing with
+Spring placeholders as well, e.g. using <code>${eureka.instance.hostName}</code>.)</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+If your app is running behind a proxy, and the SSL termination
+is in the proxy (e.g. if you run in Cloud Foundry or other platforms
+as a service) then you will need to ensure that the proxy "forwarded"
+headers are intercepted and handled by the application. An embedded
+Tomcat container in a Spring Boot app does this automatically if it
+has explicit configuration for the 'X-Forwarded-\*` headers. A sign
+that you got this wrong will be that the links rendered by your app to
+itself will be wrong (the wrong host, port or protocol).
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_eureka_s_health_checks">Eureka&#8217;s Health Checks</h3>
+<div class="paragraph">
+<p>By default, Eureka uses the client heartbeat to determine if a client is up.
+Unless specified otherwise the Discovery Client will not propagate the
+current health check status of the application per the Spring Boot Actuator.  Which means
+that after successful registration Eureka will always announce that the
+application is in 'UP' state. This behaviour can be altered by enabling
+Eureka health checks, which results in propagating application status
+to Eureka. As a consequence every other application won&#8217;t be sending
+traffic to application in state other then 'UP'.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  client:
+    healthcheck:
+      enabled: true</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you require more control over the health checks, you may consider
+implementing your own <code>com.netflix.appinfo.HealthCheckHandler</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_eureka_metadata_for_instances_and_clients">Eureka Metadata for Instances and Clients</h3>
+<div class="paragraph">
+<p>It&#8217;s worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform. There is standard metadata for things like hostname, IP address, port numbers, status page and health check. These are published in the service registry and used by clients to contact the services in a straightforward way. Additional metadata can be added to the instance registration in the <code>eureka.instance.metadataMap</code>, and this will be accessible in the remote clients, but in general will not change the behaviour of the client, unless it is made aware of the meaning of the metadata. There are a couple of special cases described below where Spring Cloud already assigns meaning to the metadata map.</p>
+</div>
+<div class="sect3">
+<h4 id="_using_eureka_on_cloudfoundry">Using Eureka on Cloudfoundry</h4>
+<div class="paragraph">
+<p>Cloudfoundry has a global router so that all instances of the same app have the same hostname (it&#8217;s the same in other PaaS solutions with a similar architecture). This isn&#8217;t necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). By default, the <code>eureka.instance.instanceId</code> is <code>vcap.application.instance_id</code>. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    hostname: ${vcap.application.uris[0]}
+    nonSecurePort: 80</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (<a href="https://run.pivotal.io">PWS</a>).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_eureka_on_aws">Using Eureka on AWS</h4>
+<div class="paragraph">
+<p>If the application is planned to be deployed to an AWS cloud, then the Eureka instance will have to be configured to be Amazon aware and this can be done by customizing the <a href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</a> the following way:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+@Profile("!default")
+public EurekaInstanceConfigBean eurekaInstanceConfig() {
+  EurekaInstanceConfigBean b = new EurekaInstanceConfigBean();
+  AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
+  b.setDataCenterInfo(info);
+  return b;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_changing_the_eureka_instance_id">Changing the Eureka Instance ID</h4>
+<div class="paragraph">
+<p>A vanilla Netflix Eureka instance is registered with an ID that is equal to its host name (i.e. only one service per host). Spring Cloud Eureka provides a sensible default that looks like this: <code>${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${server.port}}}</code>. For example <code>myhost:myappname:8080</code>.</p>
+</div>
+<div class="paragraph">
+<p>Using Spring Cloud you can override this by providing a unique identifier in <code>eureka.instance.instanceId</code>. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>eureka:
+  instance:
+    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With this metadata, and multiple service instances deployed on
+localhost, the random value will kick in there to make the instance
+unique. In Cloudfoundry the <code>spring.application.instance_id</code> will be
+populated automatically in a Spring Boot Actuator application, so the
+random value will not be needed.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_the_eurekaclient">Using the EurekaClient</h3>
+<div class="paragraph">
+<p>Once you have an app that is <code>@EnableDiscoveryClient</code> (or <code>@EnableEurekaClient</code>) you can use it to
+discover service instances from the <a href="#spring-cloud-eureka-server">Eureka Server</a>. One way to do that is to use the native
+<code>com.netflix.discovery.EurekaClient</code> (as opposed to the Spring
+Cloud <code>DiscoveryClient</code>), e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>@Autowired
+private EurekaClient discoveryClient;
+
+public String serviceUrl() {
+    InstanceInfo instance = discoveryClient.getNextServerFromEureka("STORES", false);
+    return instance.getHomePageUrl();
+}</pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Don&#8217;t use the <code>EurekaClient</code> in <code>@PostConstruct</code> method or in a
+<code>@Scheduled</code> method (or anywhere where the <code>ApplicationContext</code> might
+not be started yet). It is initialized in a <code>SmartLifecycle</code> (with
+<code>phase=0</code>) so the earliest you can rely on it being available is in
+another <code>SmartLifecycle</code> with higher phase.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_alternatives_to_the_native_netflix_eurekaclient">Alternatives to the native Netflix EurekaClient</h3>
+<div class="paragraph">
+<p>You don&#8217;t have to use the raw Netflix <code>EurekaClient</code> and usually it
+is more convenient to use it behind a wrapper of some sort. Spring
+Cloud has support for <a href="#spring-cloud-feign">Feign</a> (a REST client
+builder) and also <a href="#spring-cloud-ribbon">Spring <code>RestTemplate</code></a> using
+the logical Eureka service identifiers (VIPs) instead of physical
+URLs. To configure Ribbon with a fixed list of physical servers you
+can simply set <code>&lt;client&gt;.ribbon.listOfServers</code> to a comma-separated
+list of physical addresses (or hostnames), where <code>&lt;client&gt;</code> is the ID
+of the client.</p>
+</div>
+<div class="paragraph">
+<p>You can also use the <code>org.springframework.cloud.client.discovery.DiscoveryClient</code>
+which provides a simple API for discovery clients that is not specific
+to Netflix, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>@Autowired
+private DiscoveryClient discoveryClient;
+
+public String serviceUrl() {
+    List&lt;ServiceInstance&gt; list = client.getInstances("STORES");
+    if (list != null &amp;&amp; list.size() &gt; 0 ) {
+        return list.get(0).getUri();
+    }
+    return null;
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_why_is_it_so_slow_to_register_a_service">Why is it so Slow to Register a Service?</h3>
+<div class="paragraph">
+<p>Being an instance also involves a periodic heartbeat to the registry
+(via the client&#8217;s <code>serviceUrl</code>) with default duration 30 seconds. A
+service is not available for discovery by clients until the instance,
+the server and the client all have the same metadata in their local
+cache (so it could take 3 hearbeats). You can change the period using
+<code>eureka.instance.leaseRenewalIntervalInSeconds</code> and this will speed up
+the process of getting clients connected to other services. In
+production it&#8217;s probably better to stick with the default because
+there are some computations internally in the server that make
+assumptions about the lease renewal period.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="spring-cloud-eureka-server">Service Discovery: Eureka Server</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Example eureka server (e.g. using spring-cloud-starter-eureka-server to set up the classpath):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@SpringBootApplication
+@EnableEurekaServer
+public class Application {
+
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The server has a home page with a UI, and HTTP API endpoints per the
+normal Eureka functionality under <code>/eureka/*</code>.</p>
+</div>
+<div class="paragraph">
+<p>Eureka background reading: see <a href="https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer">flux capacitor</a> and <a href="https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0">google group discussion</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring dependency management plugin must be added and the Spring cloud starter parent bom must be imported like so:</p>
+</div>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">buildscript {
+  dependencies {
+    classpath "io.spring.gradle:dependency-management-plugin:0.4.0.RELEASE"
+  }
+}
+
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+  imports {
+    mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.0.RELEASE'
+  }
+}</code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_high_availability_zones_and_regions">High Availability, Zones and Regions</h3>
+<div class="paragraph">
+<p>The Eureka server does not have a backend store, but the service
+instances in the registry all have to send heartbeats to keep their
+registrations up to date (so this can be done in memory). Clients also
+have an in-memory cache of eureka registrations (so they don&#8217;t have to
+go to the registry for every single request to a service).</p>
+</div>
+<div class="paragraph">
+<p>By default every Eureka server is also a Eureka client and requires
+(at least one) service URL to locate a peer. If you don&#8217;t provide it
+the service will run and work, but it will shower your logs with a lot
+of noise about not being able to register with the peer.</p>
+</div>
+<div class="paragraph">
+<p>See also <a href="#spring-cloud-ribbon">below for details of Ribbon
+support</a> on the client side for Zones and Regions.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_standalone_mode">Standalone Mode</h3>
+<div class="paragraph">
+<p>The combination of the two caches (client and server) and the
+heartbeats make a standalone Eureka server fairly resilient to
+failure, as long as there is some sort of monitor or elastic runtime
+keeping it alive (e.g. Cloud Foundry). In standalone mode, you might
+prefer to switch off the client side behaviour, so it doesn&#8217;t keep
+trying and failing to reach its peers. Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml (Standalone Eureka Server)</div>
+<div class="content">
+<pre>server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the <code>serviceUrl</code> is pointing to the same host as the local
+instance.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_peer_awareness">Peer Awareness</h3>
+<div class="paragraph">
+<p>Eureka can be made even more resilient and available by running
+multiple instances and asking them to register with each other. In
+fact, this is the default behaviour, so all you need to do to make it
+work is add a valid <code>serviceUrl</code> to a peer, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml (Two Peer Aware Eureka Servers)</div>
+<div class="content">
+<pre>---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+  client:
+    serviceUrl:
+      defaultZone: http://peer2/eureka/
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example we have a YAML file that can be used to run the same
+server on 2 hosts (peer1 and peer2), by running it in different
+Spring profiles. You could use this configuration to test the peer
+awareness on a single host (there&#8217;s not much value in doing that in
+production) by manipulating <code>/etc/hosts</code> to resolve the host names. In
+fact, the <code>eureka.instance.hostname</code> is not needed if you are running
+on a machine that knows its own hostname (it is looked up using
+<code>java.net.InetAddress</code> by default).</p>
+</div>
+<div class="paragraph">
+<p>You can add multiple peers to a system, and as long as they are all
+connected to each other by at least one edge, they will synchronize
+the registrations amongst themselves. If the peers are physically
+separated (inside a data centre or between multiple data centres) then
+the system can in principle survive split-brain type failures.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_prefer_ip_address">Prefer IP Address</h3>
+<div class="paragraph">
+<p>In some cases, it is preferable for Eureka to advertise the IP Adresses
+of services rather than the hostname.  Set <code>eureka.instance.preferIpAddress</code>
+to <code>true</code> and when the application registers with eureka, it will use its
+IP Address rather than its hostname.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_circuit_breaker_hystrix_clients">Circuit Breaker: Hystrix Clients</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Netflix has created a library called <a href="https://github.com/Netflix/Hystrix">Hystrix</a> that implements the <a href="http://martinfowler.com/bliki/CircuitBreaker.html">circuit breaker pattern</a>.  In a microservice architecture it is common to have multiple layers of service calls.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/HystrixGraph.png" alt="HystrixGraph">
+</div>
+<div class="title">Figure 1. Microservice Graph</div>
+</div>
+<div class="paragraph">
+<p>A service failure in the lower level of services can cause cascading failure all the way up to the user.  When calls to a particular service reach a certain threshold (20 failures in 5 seconds is the default in Hystrix), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/HystrixFallback.png" alt="HystrixFallback">
+</div>
+<div class="title">Figure 2. Hystrix fallback prevents cascading failures</div>
+</div>
+<div class="paragraph">
+<p>Having an open circuit stops cascading failures and allows overwhelmed or failing services time to heal.  The fallback can be another Hystrix protected call, static data or a sane empty value.  Fallbacks may be chained so the first fallback makes some other business call which in turn falls back to static data.</p>
+</div>
+<div class="paragraph">
+<p>Example boot app:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>@SpringBootApplication
+@EnableCircuitBreaker
+public class Application {
+
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
+
+}
+
+@Component
+public class StoreIntegration {
+
+    @HystrixCommand(fallbackMethod = "defaultStores")
+    public Object getStores(Map&lt;String, Object&gt; parameters) {
+        //do stuff that might fail
+    }
+
+    public Object defaultStores(Map&lt;String, Object&gt; parameters) {
+        return /* something useful */;
+    }
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>@HystrixCommand</code> is provided by a Netflix contrib library called
+<a href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica">"javanica"</a>.
+Spring Cloud automatically wraps Spring beans with that
+annotation in a proxy that is connected to the Hystrix circuit
+breaker. The circuit breaker calculates when to open and close the
+circuit, and what to do in case of a failure.</p>
+</div>
+<div class="paragraph">
+<p>To configure the <code>@HystrixCommand</code> you can use the <code>commandProperties</code>
+attribute with a list of <code>@HystrixProperty</code> annotations.  See
+<a href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica#configuration">here</a>
+for more details.  See the <a href="https://github.com/Netflix/Hystrix/wiki/Configuration">Hystrix wiki</a>
+for details on the properties available.</p>
+</div>
+<div class="sect2">
+<h3 id="_propagating_the_security_context_or_using_spring_scopes">Propagating the Security Context or using Spring Scopes</h3>
+<div class="paragraph">
+<p>If you want some thread local context to propagate into a <code>@HystrixCommand</code> the default declaration will not work because it executes the command in a thread pool (in case of timeouts). You can switch Hystrix to use the same thread as the caller using some configuration, or directly in the annotation, by asking it to use a different "Isolation Strategy". For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@HystrixCommand(fallbackMethod = "stubMyService",
+    commandProperties = {
+      @HystrixProperty(name="execution.isolation.strategy", value="SEMAPHORE")
+    }
+)
+...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The same thing applies if you are using <code>@SessionScope</code> or <code>@RequestScope</code>. You will know when you need to do this because of a runtime exception that says it can&#8217;t find the scoped context.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_health_indicator">Health Indicator</h3>
+<div class="paragraph">
+<p>The state of the connected circuit breakers are also exposed in the
+<code>/health</code> endpoint of the calling application.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "hystrix": {
+        "openCircuitBreakers": [
+            "StoreIntegration::getStoresByLocationLink"
+        ],
+        "status": "CIRCUIT_OPEN"
+    },
+    "status": "UP"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hystrix_metrics_stream">Hystrix Metrics Stream</h3>
+<div class="paragraph">
+<p>To enable the Hystrix metrics stream include a dependency on <code>spring-boot-starter-actuator</code>.  This will expose the <code>/hystrix.stream</code> as a management endpoint.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+    &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_circuit_breaker_hystrix_dashboard">Circuit Breaker: Hystrix Dashboard</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.  The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/Hystrix.png" alt="Hystrix">
+</div>
+<div class="title">Figure 3. Hystrix Dashboard</div>
+</div>
+<div class="paragraph">
+<p>To run the Hystrix Dashboard annotate your Spring Boot main class with <code>@EnableHystrixDashboard</code>.  You then visit <code>/hystrix</code> and point the dashboard to an individual instances <code>/hystrix.stream</code> endpoint in a Hystrix client application.</p>
+</div>
+<div class="sect2">
+<h3 id="_turbine">Turbine</h3>
+<div class="paragraph">
+<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation  (e.g. using spring-cloud-starter-turbine to set up the classpath).  All of the documented configuration properties from <a href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</a> apply.  The only difference is that the <code>turbine.instanceUrlSuffix</code> does not need the port prepended as this is handled automatically unless <code>turbine.instanceInsertPort=false</code>.</p>
+</div>
+<div class="paragraph">
+<p>The configuration key <code>turbine.appConfig</code> is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: <code><a href="http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt" class="bare">http://my.turbine.sever:8080/turbine.stream?cluster=&lt;CLUSTERNAME&gt</a>;</code> (the cluster parameter can be omitted if the name is "default"). The <code>cluster</code> parameter must match an entry in <code>turbine.aggregator.clusterConfig</code>. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>turbine:
+  aggregator:
+    clusterConfig: CUSTOMERS
+  appConfig: customers</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>clusterName</code> can be customized by a SPEL expression in <code>turbine.clusterNameExpression</code> with root an instance of <code>InstanceInfo</code>. The default value is <code>appName</code>, which means that the Eureka serviceId ends up as the cluster key (i.e. the <code>InstanceInfo</code> for customers has an <code>appName</code> of "CUSTOMERS").  A different example would be <code>turbine.clusterNameExpression=aSGName</code>, which would get the cluster name from the AWS ASG name. Another example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>turbine:
+  aggregator:
+    clusterConfig: SYSTEM,USER
+  appConfig: customers,stores,ui,admin
+  clusterNameExpression: metadata['cluster']</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".</p>
+</div>
+<div class="paragraph">
+<p>To use the "default" cluster for all apps you need a string literal expression (with single quotes):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>turbine:
+  appConfig: customers,stores
+  clusterNameExpression: 'default'</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Spring Cloud provides a <code>spring-cloud-starter-turbine</code> that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with <code>@EnableTurbine</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_turbine_amqp">Turbine AMQP</h3>
+<div class="paragraph">
+<p>In some environments (e.g. in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands doesn&#8217;t work. In that case you might want to have your Hystrix commands push metrics to Turbine, and Spring Cloud enables that with AMQP messaging. All you need to do on the client is add a dependency to <code>spring-cloud-netflix-hystrix-amqp</code> and make sure there is a Rabbit broker available (see Spring Boot documentation for details on how to configure the client credentials, but it should work out of the box for a local broker or in Cloud Foundry).</p>
+</div>
+<div class="paragraph">
+<p>On the server side Just create a Spring Boot application and annotate it with <code>@EnableTurbineAmqp</code> and by default it will come up on port 8989 (point your Hystrix dashboard to that port, any path). You can customize the port using either <code>server.port</code> or <code>turbine.amqp.port</code>. If you have <code>spring-boot-starter-web</code> and <code>spring-boot-starter-actuator</code> on the classpath as well, then you can open up the Actuator endpoints on a separate port (with Tomcat by default) by providing a <code>management.port</code> which is different.</p>
+</div>
+<div class="paragraph">
+<p>You can then point the Hystrix Dashboard to the Turbine AMQP Server instead of individual Hystrix streams.  If Turbine AMQP is running on port 8989 on myhost, then put <code><a href="http://myhost:8989" class="bare">http://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-amqp</code> that has all the dependencies you need to get a Turbine AMQP server running. You need Java 8 to run the app because it is Netty-based.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_customizing_the_amqp_connectionfactory">Customizing the AMQP ConnectionFactory</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you are using AMQP there needs to be a <code>ConnectionFactory</code> (from
+Spring Rabbit) in the application context. If there is a single
+<code>ConnectionFactory</code> it will be used, or if there is a one qualified as
+<code>@HystrixConnectionFactory</code> (on the client) and
+<code>@TurbineConnectionFactory</code> (on the server) it will be preferred over
+others, otherwise the <code>@Primary</code> one will be used. If there are
+multiple unqualified connection factories there will be an error.</p>
+</div>
+<div class="paragraph">
+<p>Note that Spring Boot (as of 1.2.2) creates a <code>ConnectionFactory</code> that
+is <em>not</em> <code>@Primary</code>, so if you want to use one connection factory for
+the bus and another for business messages, you need to create both,
+and annotate them <code>@*ConnectionFactory</code> and <code>@Primary</code> respectively.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="spring-cloud-ribbon">Client Side Load Balancer: Ribbon</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Ribbon is a client side load balancer which gives you a lot of control
+over the behaviour of HTTP and TCP clients. Feign already uses Ribbon,
+so if you are using <code>@FeignClient</code> then this section also applies.</p>
+</div>
+<div class="paragraph">
+<p>A central concept in Ribbon is that of the named client. Each load
+balancer is part of an ensemble of components that work together to
+contact a remote server on demand, and the ensemble has a name that
+you give it as an application developer (e.g. using the <code>@FeignClient</code>
+annotation). Spring Cloud creates a new ensemble as an
+<code>ApplicationContext</code> on demand for each named client using
+<code>RibbonClientConfiguration</code>. This contains (amongst other things) an
+<code>ILoadBalancer</code>, a <code>RestClient</code>, and a <code>ServerListFilter</code>.</p>
+</div>
+<div class="sect2">
+<h3 id="_customizing_the_ribbon_client">Customizing the Ribbon Client</h3>
+<div class="paragraph">
+<p>You can configure some bits of a Ribbon client using external
+properties in <code>&lt;client&gt;.ribbon.*</code>, which is no different than using
+the Netflix APIs natively, except that you can use Spring Boot
+configuration files. The native options can
+be inspected as static fields in <code>CommonClientConfigKey</code> (part of
+ribbon-core).</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud also lets you take full control of the client by
+declaring additional configuration (on top of the
+<code>RibbonClientConfiguration</code>) using <code>@RibbonClient</code>. Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@RibbonClient(name = "foo", configuration = FooConfiguration.class)
+public class TestConfiguration {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case the client is composed from the components already in
+<code>RibbonClientConfiguration</code> together with any in <code>FooConfiguration</code>
+(where the latter generally will override the former).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+The <code>FooConfiguration</code> has to be <code>@Configuration</code> but take
+care that it is not in a <code>@ComponentScan</code> for the main application
+context, otherwise it will be shared by all the <code>@RibbonClients</code>. If
+you use <code>@ComponentScan</code> (or <code>@SpringBootApplication</code>) you need to
+take steps to avoid it being included (for instance put it in a
+separate, non-overlapping package, or specify the packages to scan
+explicitly in the <code>@ComponentScan</code>).
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Netflix provides the following beans by default for ribbon
+(<code>BeanType</code> beanName: <code>ClassName</code>):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>IClientConfig</code> ribbonClientConfig: <code>DefaultClientConfigImpl</code></p>
+</li>
+<li>
+<p><code>IRule</code> ribbonRule: <code>ZoneAvoidanceRule</code></p>
+</li>
+<li>
+<p><code>IPing</code> ribbonPing: <code>NoOpPing</code></p>
+</li>
+<li>
+<p><code>ServerList&lt;Server&gt;</code> ribbonServerList: <code>ConfigurationBasedServerList</code></p>
+</li>
+<li>
+<p><code>ServerListFilter&lt;Server&gt;</code> ribbonServerListFilter: <code>ZonePreferenceServerListFilter</code></p>
+</li>
+<li>
+<p><code>ILoadBalancer</code> ribbonLoadBalancer: <code>ZoneAwareLoadBalancer</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Creating a bean of one of those type and placing it in a <code>@RibbonClient</code>
+configuration (such as <code>FooConfiguration</code> above) allows you to override each
+one of the beans described.  Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+    public IPing ribbonPing(IClientConfig config) {
+        return new PingUrl();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This replaces the <code>NoOpPing</code> with <code>PingUrl</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_ribbon_with_eureka">Using Ribbon with Eureka</h3>
+<div class="paragraph">
+<p>When Eureka is used in conjunction with Ribbon the <code>ribbonServerList</code>
+is overridden with an extension of <code>DiscoveryEnabledNIWSServerList</code>
+which populates the list of servers from Eureka.  It also replaces the
+<code>IPing</code> interface with <code>NIWSDiscoveryPing</code> which delegates to Eureka
+to determine if a server is up. The <code>ServerList</code> that is installed by
+default is a <code>DomainExtractingServerList</code> and the purpose of this is
+to make physical metadata available to the load balancer without using
+AWS AMI metadata (which is what Netflix relies on). By default the
+server list will be constructed with "zone" information as provided in
+the instance metadata (so on the client set
+<code>eureka.instance.metadataMap.zone</code>), and if that is missing it can use
+the domain name from the server hostname as a proxy for zone (if the
+flag <code>approximateZoneFromHostname</code> is set). Once the zone information is
+available it can be used in a <code>ServerListFilter</code> (by default it will
+be used to locate a server in the same zone as the client because the
+default is a <code>ZonePreferenceServerListFilter</code>).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-ribbon-without-eureka">Example: How to Use Ribbon Without Eureka</h3>
+<div class="paragraph">
+<p>Eureka is a convenient way to abstract the discovery of remote servers
+so you don&#8217;t have to hard code their URLs in clients, but if you
+prefer not to use it, Ribbon and Feign are still quite
+amenable. Suppose you have declared a <code>@RibbonClient</code> for "stores",
+and Eureka is not in use (and not even on the classpath). The Ribbon
+client defaults to a configured server list, and you can supply the
+configuration like this</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>stores:
+  ribbon:
+    listOfServers: example.com,google.com</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example_disable_eureka_use_in_ribbon">Example: Disable Eureka use in Ribbon</h3>
+<div class="paragraph">
+<p>Setting the property <code>ribbon.eureka.enabled = false</code> will explicitly
+disable the use of Eureka in Ribbon.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>ribbon:
+  eureka:
+   enabled: false</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_the_ribbon_api_directly">Using the Ribbon API Directly</h3>
+<div class="paragraph">
+<p>You can also use the <code>LoadBalancerClient</code> directly. Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public class MyClass {
+    @Autowired
+    private LoadBalancerClient loadBalancer;
+
+    public void doStuff() {
+        ServiceInstance instance = loadBalancer.choose("stores");
+        URI storesUri = URI.create(String.format("http://%s:%s", instance.getHost(), instance.getPort()));
+        // ... do something with the URI
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="spring-cloud-feign">Declarative REST Client: Feign</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://github.com/Netflix/feign">Feign</a> is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same <code>HttpMessageConverters</code> used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.</p>
+</div>
+<div class="paragraph">
+<p>Example spring boot app</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+@ComponentScan
+@EnableAutoConfiguration
+@EnableEurekaClient
+@EnableFeignClients
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">StoreClient.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("stores")
+public interface StoreClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/stores")
+    List&lt;Store&gt; getStores();
+
+    @RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")
+    Store update(@PathVariable("storeId") Long storeId, Store store);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <code>@FeignClient</code> annotation the String value ("stores" above) is
+an arbitrary client name, which is used to create a Ribbon load
+balancer (see <a href="#spring-cloud-ribbon">below for details of Ribbon
+support</a>). You can also specify a URL using the <code>url</code> attribute
+(absolute value or just a hostname).</p>
+</div>
+<div class="paragraph">
+<p>The Ribbon client above will want to discover the physical addresses
+for the "stores" service. If your application is a Eureka client then
+it will resolve the service in the Eureka service registry. If you
+don&#8217;t want to use Eureka, you can simply configure a list of servers
+in your external configuration (see
+<a href="#spring-cloud-ribbon-without-eureka">above for example</a>).</p>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-overriding-defaults">Overriding Feign Defaults</h3>
+<div class="paragraph">
+<p>A central concept in Spring Cloud&#8217;s Feign support is that of the named client. Each feign client is part of an ensemble of components that work together to contact a remote server on demand, and the ensemble has a name that you give it as an application developer using the <code>@FeignClient</code> annotation. Spring Cloud creates a new ensemble as an
+<code>ApplicationContext</code> on demand for each named client using <code>FeignClientsConfiguration</code>. This contains (amongst other things) an <code>feign.Decoder</code>, a <code>feign.Encoder</code>, and a <code>feign.Contract</code>.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud lets you take full control of the feign client by declaring additional configuration (on top of the <code>FeignClientsConfiguration</code>) using <code>@FeignClient</code>. Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "stores", configuration = FooConfiguration.class)
+public interface StoreClient {
+    //..
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this case the client is composed from the components already in <code>FeignClientsConfiguration</code> together with any in <code>FooConfiguration</code> (where the latter will override the former).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+The <code>FooConfiguration</code> has to be <code>@Configuration</code> but take care that it is not in a <code>@ComponentScan</code> for the main application context, otherwise it will be used for every <code>@FeignClient</code>. If you use <code>@ComponentScan</code> (or <code>@SpringBootApplication</code>) you need to take steps to avoid it being included (for instance put it in a separate, non-overlapping package, or specify the packages to scan explicitly in the <code>@ComponentScan</code>).
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The <code>serviceId</code> attribute is now deprecated in favor of the <code>name</code> attribute.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Previously, using the <code>url</code> attribute, did not require the <code>name</code> attribute. Using <code>name</code> is now required.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Placeholders are supported in the <code>name</code> and <code>url</code> attributes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "${feign.name}", url = "${feign.url}")
+public interface StoreClient {
+    //..
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Netflix provides the following beans by default for feign (<code>BeanType</code> beanName: <code>ClassName</code>):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Decoder</code> feignDecoder: <code>ResponseEntityDecoder</code> (which wraps a <code>SpringDecoder</code>)</p>
+</li>
+<li>
+<p><code>Encoder</code> feignEncoder: <code>SpringEncoder</code></p>
+</li>
+<li>
+<p><code>Logger</code> feignLogger: <code>Slf4jLogger</code></p>
+</li>
+<li>
+<p><code>Contract</code> feignContract: <code>SpringMvcContract</code></p>
+</li>
+<li>
+<p><code>Feign.Builder</code> feignBuilder: <code>HystrixFeign.Builder</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Netflix <em>does not</em> provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Logger.Level</code></p>
+</li>
+<li>
+<p><code>Retryer</code></p>
+</li>
+<li>
+<p><code>ErrorDecoder</code></p>
+</li>
+<li>
+<p><code>Request.Options</code></p>
+</li>
+<li>
+<p><code>Collection&lt;RequestInterceptor&gt;</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Creating a bean of one of those type and placing it in a <code>@FeignClient</code> configuration (such as <code>FooConfiguration</code> above) allows you to override each one of the beans described.  Example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+    public Contract feignContractg() {
+        return new feign.Contract.Default();
+    }
+
+    @Bean
+    public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+        return new BasicAuthRequestInterceptor("user", "password");
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This replaces the <code>SpringMvcContract</code> with <code>feign.Contract.Default</code> and adds a <code>RequestInterceptor</code> to the collection of <code>RequestInterceptor</code>.</p>
+</div>
+<div class="paragraph">
+<p>Default configurations can be specified in the <code>@EnableFeignClients</code> attribute <code>defaultConfiguration</code> in a similar manner as described above. The difference is that this configuration will apply to <em>all</em> feign clients.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-hystrix">Feign Hystrix Support</h3>
+<div class="paragraph">
+<p>If Hystrix is on the classpath, by default Feign will wrap all methods with a circuit breaker. Returning a <code>com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code>.toObservable()</code> or <code>.observe()</code> or asynchronous use (with a call to <code>.queue()</code>).</p>
+</div>
+<div class="paragraph">
+<p>To disable Hystrix support for Feign, set <code>feign.hystrix.enabled=false</code>.</p>
+</div>
+<div class="paragraph">
+<p>To disable Hystrix support on a per-client basis create a vanilla <code>Feign.Builder</code> with the "prototype" scope, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+	@Scope("prototype")
+	public Feign.Builder feignBuilder() {
+		return Feign.builder();
+	}
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-hystrix-fallback">Feign Hystrix Fallbacks</h3>
+<div class="paragraph">
+<p>Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given <code>@FeignClient</code> set the <code>fallback</code> attribute to the class name that implements the fallback.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", fallback = HystrixClientFallback.class)
+protected interface HystrixClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/hello")
+    Hello iFailSometimes();
+}
+
+static class HystrixClientFallback implements HystrixClient {
+    @Override
+    public Hello iFailSometimes() {
+        return new Hello("fallback");
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+There is a limitation with the implementation of fallbacks in Feign and how Hystrix fallbacks work. Fallbacks are currently not supported for methods that return <code>com.netflix.hystrix.HystrixCommand</code> and <code>rx.Observable</code>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-feign-inheritance">Feign Inheritance Support</h3>
+<div class="paragraph">
+<p>Feign supports boilerplate apis via single-inheritance interfaces.
+This allows grouping common operations into convenient base interfaces.
+Together with Spring MVC you can share the same contract for your
+REST endpoint and Feign client.</p>
+</div>
+<div class="listingblock">
+<div class="title">UserService.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public interface UserService {
+
+    @RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
+    User getUser(@PathVariable("id") long id);
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">UserResource.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@RestController
+public class UserResource implements UserService {
+
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">UserClient.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">package project.user;
+
+@FeignClient("users")
+public interface UserClient extends UserService {
+
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_feign_request_response_compression">Feign request/response compression</h3>
+<div class="paragraph">
+<p>You may consider enabling the request or response GZIP compression for your
+Feign requests. You can do this by enabling one of the properties:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
+feign.compression.response.enabled=true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Feign request compression gives you settings similar to what you may set for your web server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
+feign.compression.request.mime-types=text/xml,application/xml,application/json
+feign.compression.request.min-request-size=2048</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These properties allow you to be selective about the compressed media types and minimum request threshold length.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_feign_logging">Feign logging</h3>
+<div class="paragraph">
+<p>A logger is created for each Feign client created. By default the name of the logger is the full class name of the interface used to create the Feign client. Feign logging only responds to the <code>DEBUG</code> level.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">logging.level.project.user.UserClient: DEBUG</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>Logger.Level</code> object that you may configure per client, tells Feign how much to log. Choices are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>NONE</code>, No logging (<strong>DEFAULT</strong>).</p>
+</li>
+<li>
+<p><code>BASIC</code>, Log only the request method and URL and the response status code and execution time.</p>
+</li>
+<li>
+<p><code>HEADERS</code>, Log the basic information along with request and response headers.</p>
+</li>
+<li>
+<p><code>FULL</code>, Log the headers, body, and metadata for both requests and responses.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For example, the following would set the <code>Logger.Level</code> to <code>FULL</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+public class FooConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_external_configuration_archaius">External Configuration: Archaius</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://github.com/Netflix/archaius">Archaius</a> is the Netflix client side configuration library.  It is the library used by all of the Netflix OSS components for configuration.  Archaius is an extension of the <a href="http://commons.apache.org/proper/commons-configuration">Apache Commons Configuration</a> project.  It allows updates to configuration by either polling a source for changes or for a source to push changes to the client.  Archaius uses Dynamic&lt;Type&gt;Property classes as handles to properties.</p>
+</div>
+<div class="listingblock">
+<div class="title">Archaius Example</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">class ArchaiusTest {
+    DynamicStringProperty myprop = DynamicPropertyFactory
+            .getInstance()
+            .getStringProperty("my.prop");
+
+    void doSomething() {
+        OtherClass.someMethod(myprop.get());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Archaius has its own set of configuration files and loading priorities.  Spring applications should generally not use Archaius directly, but the need to configure the Netflix tools natively remains.  Spring Cloud has a Spring Environment Bridge so Archaius can read properties from the Spring Environment.  This allows Spring Boot projects to use the normal configuration toolchain, while allowing them to configure the Netflix tools, for the most part, as documented.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_router_and_filter_zuul">Router and Filter: Zuul</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Routing in an integral part of a microservice architecture.  For example, <code>/</code> may be mapped to your web application, <code>/api/users</code> is mapped to the user service and <code>/api/shop</code> is mapped to the shop service.  <a href="https://github.com/Netflix/zuul">Zuul</a> is a JVM based router and server side load balancer by Netflix.</p>
+</div>
+<div class="paragraph">
+<p><a href="http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27">Netflix uses Zuul</a> for the following:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Authentication</p>
+</li>
+<li>
+<p>Insights</p>
+</li>
+<li>
+<p>Stress Testing</p>
+</li>
+<li>
+<p>Canary Testing</p>
+</li>
+<li>
+<p>Dynamic Routing</p>
+</li>
+<li>
+<p>Service Migration</p>
+</li>
+<li>
+<p>Load Shedding</p>
+</li>
+<li>
+<p>Security</p>
+</li>
+<li>
+<p>Static Response handling</p>
+</li>
+<li>
+<p>Active/Active traffic management</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Zuul&#8217;s rule engine allows rules and filters to be written in essentially any JVM language, with built in support for Java and Groovy.</p>
+</div>
+<div class="sect2">
+<h3 id="netflix-zuul-reverse-proxy">Embedded Zuul Reverse Proxy</h3>
+<div class="paragraph">
+<p>Spring Cloud has created an embedded Zuul proxy to ease the
+development of a very common use case where a UI application wants to
+proxy calls to one or more back end services.  This feature is useful
+for a user interface to proxy to the backend services it requires,
+avoiding the need to manage CORS and authentication concerns
+independently for all the backends.</p>
+</div>
+<div class="paragraph">
+<p>To enable it, annotate a Spring Boot main class with
+<code>@EnableZuulProxy</code>, and this forwards local calls to the appropriate
+service.  By convention, a service with the Eureka ID "users", will
+receive requests from the proxy located at <code>/users</code> (with the prefix
+stripped). The proxy uses Ribbon to locate an instance to forward to
+via Eureka, and all requests are executed in a hystrix command, so
+failures will show up in Hystrix metrics, and once the circuit is open
+the proxy will not try to contact the service.</p>
+</div>
+<div class="paragraph">
+<p>To skip having a service automatically added, set
+<code>zuul.ignored-services</code> to a list of service id patterns. If a service
+matches a pattern that is ignored, but also included in the explicitly
+configured routes map, then it will be unignored. Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  ignoredServices: '*'
+  routes:
+    users: /myusers/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example, all services are ignored <strong>except</strong> "users".</p>
+</div>
+<div class="paragraph">
+<p>To augment or change
+the proxy routes, you can add external configuration like the
+following:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users: /myusers/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that http calls to "/myusers" get forwarded to the "users"
+service (for example "/myusers/101" is forwarded to "/101").</p>
+</div>
+<div class="paragraph">
+<p>To get more fine-grained control over a route you can specify the path
+and the serviceId independently:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      serviceId: users_service</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that http calls to "/myusers" get forwarded to the
+"users_service" service.  The route has to have a "path" which can be
+specified as an ant-style pattern, so "/myusers/*" only matches one
+level, but "/myusers/**" matches hierarchically.</p>
+</div>
+<div class="paragraph">
+<p>The location of the backend can be specified as either a "serviceId"
+(for a Eureka service) or a "url" (for a physical location), e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      url: http://example.com/users_service</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These simple url-routes doesn&#8217;t get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
+To achieve this specify a service-route and configure a Ribbon client for the
+serviceId (this currently requires disabling Eureka support in Ribbon:
+see <a href="#spring-cloud-ribbon-without-eureka">above for more information</a>), e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">zuul:
+  routes:
+    users:
+      path: /myusers/**
+      serviceId: users
+
+ribbon:
+  eureka:
+    enabled: false
+
+users:
+  ribbon:
+    listOfServers: example.com,google.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can provide convention between serviceId and routes using
+regexmapper.  It uses regular expression named group to extract
+variables from serviceId and inject them into a route pattern.</p>
+</div>
+<div class="listingblock">
+<div class="title">ApplicationConfiguration.java</div>
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+public PatternServiceRouteMapper serviceRouteMapper() {
+    return new PatternServiceRouteMapper(
+        "(?&lt;name&gt;^.+)-(?&lt;version&gt;v.+$)",
+        "${version}/${name}");
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that a serviceId "myusers-v1" will be mapped to route
+"/v1/myusers/**".  Any regular expression is accepted but all named
+group must be present in both servicePattern and routePattern.  If
+servicePattern do not match a serviceId, the default behavior is
+used. In exemple above, a serviceId "myusers" will be mapped to route
+"/myusers/**" (no version detected) These feature is disable by
+default and is only applied to discovered services.</p>
+</div>
+<div class="paragraph">
+<p>To add a prefix to all mappings, set <code>zuul.prefix</code> to a value, such as
+<code>/api</code>. The proxy prefix is stripped from the request before the
+request is forwarded by default (switch this behaviour off with
+<code>zuul.stripPrefix=false</code>). You can also switch off the stripping of
+the service-specific prefix from individual routes, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      stripPrefix: false</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.</p>
+</div>
+<div class="paragraph">
+<p>The <code>zuul.routes</code> entries actually bind to an object of type <code>ProxyRouteLocator</code>. If you
+look at the properties of that object you will see that it also has a "retryable" flag.
+Set that flag to "true" to have the Ribbon client automatically retry failed requests
+(and if you need to you can modify the parameters of the retry operations using
+the Ribbon client configuration).</p>
+</div>
+<div class="paragraph">
+<p>The <code>X-Forwarded-Host</code> header is added to the forwarded requests by
+default.  To turn it off set <code>zuul.addProxyHeaders = false</code>.  The
+prefix path is stripped by default, and the request to the backend
+picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
+above).</p>
+</div>
+<div class="paragraph">
+<p>An application with the <code>@EnableZuulProxy</code> could act as a standalone
+server if you set a default route ("/"), for example <code>zuul.route.home:
+/</code> would route all traffic (i.e. "/**") to the "home" service.</p>
+</div>
+<div class="paragraph">
+<p>If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
+These patterns are being evaluated at the start of the route location process, which
+means prefixes should be included in the pattern to warrant a match. Ignored patterns
+span all services and supersede any other route specification.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  ignoredPatterns: /**/admin/**
+  routes:
+    users: /myusers/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
+But calls including "/admin/" will not resolve.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_strangulation_patterns_and_local_forwards">Strangulation Patterns and Local Forwards</h3>
+<div class="paragraph">
+<p>A common pattern when migrating an existing application or API is to
+"strangle" old endpoints, slowly replacing them with different
+implementations. The Zuul proxy is a useful tool for this because you
+can use it to handle all traffic from clients of the old endpoints,
+but redirect some of the requests to new ones.</p>
+</div>
+<div class="paragraph">
+<p>Example configuration:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    first:
+      path: /first/**
+      url: http://first.example.com
+    second:
+      path: /second/**
+      url: forward:/second
+    third:
+      path: /third/**
+      url: forward:/3rd
+    legacy:
+      path: /**
+      url: http://legacy.example.com</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this example we are strangling the "legacy" app which is mapped to
+all requests that do not match one of the other patterns. Paths in
+<code>/first/**</code> have been extracted into a new service with an external
+URL. And paths in <code>/second/**</code> are forwared so they can be handled
+locally, e.g. with a normal Spring <code>@RequestMapping</code>. Paths in
+<code>/third/**</code> are also forwarded, but with a different prefix
+(i.e. <code>/third/foo</code> is forwarded to <code>/3rd/foo</code>).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The ignored pattterns aren&#8217;t completely ignored, they just
+aren&#8217;t handled by the proxy (so they are also effectively forwarded
+locally).
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_uploading_files_through_zuul">Uploading Files through Zuul</h3>
+<div class="paragraph">
+<p>If you <code>@EnableZuulProxy</code> you can use the proxy paths to
+upload files and it should just work as long as the files
+are small. For large files there is an alternative path
+which bypasses the Spring <code>DispatcherServlet</code> (to
+avoid multipart processing) in "/zuul/*". I.e. if
+<code>zuul.routes.customers=/customers/**</code> then you can
+POST large files to "/zuul/customers/*". The servlet
+path is externalized via <code>zuul.servletPath</code>. Extremely
+large files will also require elevated timeout settings
+if the proxy route takes you through a Ribbon load
+balancer, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 60000</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that for streaming to work with large files, you need to use chunked encoding in the request (which some browsers
+do not do by default). E.g. on the command line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ curl -v -H "Transfer-Encoding: chunked" \
+    -F "file=@mylarge.iso" localhost:9999/zuul/simple/file</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_plain_embedded_zuul">Plain Embedded Zuul</h3>
+<div class="paragraph">
+<p>You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
+use <code>@EnableZuulServer</code> (instead of <code>@EnableZuulProxy</code>). Any beans that you add to the application of type <code>ZuulFilter</code>
+will be installed automatically, as they are with <code>@EnableZuulProxy</code>, but without any of the proxy filters being added
+automatically.</p>
+</div>
+<div class="paragraph">
+<p>In this case the routes into the Zuul server are still specified by
+configuring "zuul.routes.*", but there is no service
+discovery and no proxying, so the "serviceId" and "url" settings are
+ignored. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    api: /api/**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>maps all paths in "/api/**" to the Zuul filter chain.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_disable_zuul_filters">Disable Zuul Filters</h3>
+<div class="paragraph">
+<p>Zuul for Spring Cloud comes with a number of <code>ZuulFilter</code> beans enabled by default
+in both proxy and server mode.  See <a href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters">the zuul filters package</a> for the
+possible filters that are enabled.  If you want to disable one, simply set
+<code>zuul.&lt;SimpleClassName&gt;.&lt;filterType&gt;.disable=true</code>. By convention, the package after
+<code>filters</code> is the Zuul filter type. For example to disable
+<code>org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter</code> set
+<code>zuul.SendResponseFilter.post.disable=true</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_polyglot_support_with_sidecar">Polyglot support with Sidecar</h3>
+<div class="paragraph">
+<p>Do you have non-jvm languages you want to take advantage of Eureka, Ribbon and
+Config Server?  The Spring Cloud Netflix Sidecar was inspired by
+<a href="https://github.com/Netflix/Prana">Netflix Prana</a>.  It includes a simple http api
+to get all of the instances (ie host and port) for a given service.  You can
+also proxy service calls through an embedded Zuul proxy which gets its route
+entries from Eureka.  The Spring Cloud Config Server can be accessed directly
+via host lookup or through the Zuul Proxy.  The non-jvm app should implement
+a health check so the Sidecar can report to eureka if the app is up or down.</p>
+</div>
+<div class="paragraph">
+<p>To enable the Sidecar, create a Spring Boot application with <code>@EnableSidecar</code>.
+This annotation includes <code>@EnableCircuitBreaker</code>, <code>@EnableDiscoveryClient</code>,
+and <code>@EnableZuulProxy</code>.  Run the resulting application on the same host as the
+non-jvm application.</p>
+</div>
+<div class="paragraph">
+<p>To configure the side car add <code>sidecar.port</code> and <code>sidecar.health-uri</code> to <code>application.yml</code>.
+The <code>sidecar.port</code> property is the port the non-jvm app is listening on.  This
+is so the Sidecar can properly register the app with Eureka.  The <code>sidecar.health-uri</code>
+is a uri accessible on the non-jvm app that mimicks a Spring Boot health
+indicator.  It should return a json document like the following:</p>
+</div>
+<div class="listingblock">
+<div class="title">health-uri-document</div>
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "status":"UP"
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is an example application.yml for a Sidecar application:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">server:
+  port: 5678
+spring:
+  application:
+    name: sidecar
+
+sidecar:
+  port: 8000
+  health-uri: http://localhost:8000/health.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The api for the <code>DiscoveryClient.getInstances()</code> method is <code>/hosts/{serviceId}</code>.
+Here is an example response for <code>/hosts/customers</code> that returns two instances on
+different hosts.  This api is accessible to the non-jvm app (if the sidecar is
+on port 5678) at <code><a href="http://localhost:5678/hosts/{serviceId}" class="bare">http://localhost:5678/hosts/{serviceId}</a></code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">/hosts/customers</div>
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">[
+    {
+        "host": "myhost",
+        "port": 9000,
+        "uri": "http://myhost:9000",
+        "serviceId": "CUSTOMERS",
+        "secure": false
+    },
+    {
+        "host": "myhost2",
+        "port": 9000,
+        "uri": "http://myhost2:9000",
+        "serviceId": "CUSTOMERS",
+        "secure": false
+    }
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The Zuul proxy automatically adds routes for each service known in eureka to
+<code>/&lt;serviceId&gt;</code>, so the customers service is available at <code>/customers</code>.  The
+Non-jvm app can access the customer service via <code><a href="http://localhost:5678/customers" class="bare">http://localhost:5678/customers</a></code>
+(assuming the sidecar is listening on port 5678).</p>
+</div>
+<div class="paragraph">
+<p>If the Config Server is registered with Eureka, non-jvm application can access
+it via the Zuul proxy.  If the serviceId of the ConfigServer is <code>configserver</code>
+and the Sidecar is on port 5678, then it can be accessed at
+<a href="http://localhost:5678/configserver" class="bare">http://localhost:5678/configserver</a></p>
+</div>
+<div class="paragraph">
+<p>Non-jvm app can take advantage of the Config Server&#8217;s ability to return YAML
+documents.  For example, a call to <a href="http://sidecar.local.spring.io:5678/configserver/default-master.yml" class="bare">http://sidecar.local.spring.io:5678/configserver/default-master.yml</a>
+might result in a YAML document like the following</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  password: password
+info:
+  description: Spring Cloud Samples
+  url: https://github.com/spring-cloud-samples</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_metrics_spectator_servo_and_atlas">Metrics: Spectator, Servo, and Atlas</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When used together, Spectator/Servo and Atlas provide a near real-time operational insight platform.</p>
+</div>
+<div class="paragraph">
+<p>Spectator and Servo are Netflix&#8217;s metrics collection libraries. Atlas is a Netflix metrics backend to manage dimensional time series data.</p>
+</div>
+<div class="paragraph">
+<p>Servo served Netflix for several years and is still usable, but is gradually being phased out in favor of Spectator, which is only designed to work with Java 8.  Spring Cloud Netflix provides support for both, but Java 8 based applications are encouraged to use Spectator.</p>
+</div>
+<div class="sect2">
+<h3 id="_dimensional_vs_hierarchical_metrics">Dimensional vs. Hierarchical Metrics</h3>
+<div class="paragraph">
+<p>Spring Boot Actuator metrics are hierarchical and metrics are separated only by name. These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name separated by periods. Consider the following metrics for two endpoints, root and star-star:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "counter.status.200.root": 20,
+    "counter.status.400.root": 3,
+    "counter.status.200.star-star": 5,
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first metric gives us a normalized count of successful requests against the root endpoint per unit of time. But what if the system had 20 endpoints and you want to get a count of successful requests against all the endpoints? Some hierarchical metrics backends would allow you to specify a wild card such as <code>counter.status.200.<strong></code> that would read all 20 metrics and aggregate the results. Alternatively, you could provide a <code>HandlerInterceptorAdapter</code> that intercepts and records a metric like <code>counter.status.200.all</code> for all successful requests irrespective of the endpoint, but now you must write 20+1 different metrics. Similarly if you want to know the total number of successful requests for all endpoints in the service, you could specify a wild card such as <code>counter.status.2</strong>.*</code>.</p>
+</div>
+<div class="paragraph">
+<p>Even in the presence of wildcarding support on a hierarchical metrics backend, naming consistency can be difficult. Specifically the position of these tags in the name string can slip with time, breaking queries. For example, suppose we add an additional dimension to the hierarchical metrics above for HTTP method. Then <code>counter.status.200.root</code> becomes <code>counter.status.200.method.get.root</code>, etc. Our <code>counter.status.200.*</code> suddenly no longer has the same semantic meaning.  Furthermore, if the new dimension is not applied uniformly across the codebase, certain queries may become impossible. This can quickly get out of hand.</p>
+</div>
+<div class="paragraph">
+<p>Netflix metrics are tagged (a.k.a. dimensional). Each metric has a name, but this single named metric can contain multiple statistics and 'tag' key/value pairs that allows more querying flexibility. In fact, the statistics themselves are recorded in a special tag.</p>
+</div>
+<div class="paragraph">
+<p>Recorded with Netflix Servo or Spectator, a timer for the root endpoint described above contains 4 statistics per status code, where the count statistic is identical to Spring Boot Actuator&#8217;s counter. In the event that we have encountered an HTTP 200 and 400 thus far, there will be 8 available data points:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+    "root(status=200,stastic=count)": 20,
+    "root(status=200,stastic=max)": 0.7265630630000001,
+    "root(status=200,stastic=totalOfSquares)": 0.04759702862580789,
+    "root(status=200,stastic=totalTime)": 0.2093076914666667,
+    "root(status=400,stastic=count)": 1,
+    "root(status=400,stastic=max)": 0,
+    "root(status=400,stastic=totalOfSquares)": 0,
+    "root(status=400,stastic=totalTime)": 0,
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_default_metrics_collection">Default Metrics Collection</h3>
+<div class="paragraph">
+<p>Without any additional dependencies or configuration, a Spring Cloud based service will autoconfigure a Servo <code>MonitorRegistry</code> and begin collecting metrics on every Spring MVC request. By default, a Servo timer with the name <code>rest</code> will be recorded for each MVC request which is tagged with:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>HTTP method</p>
+</li>
+<li>
+<p>HTTP status (e.g. 200, 400, 500)</p>
+</li>
+<li>
+<p>URI (or "root" if the URI is empty), sanitized for Atlas</p>
+</li>
+<li>
+<p>The exception class name, if the request handler threw an exception</p>
+</li>
+<li>
+<p>The caller, if a request header with a key matching <code>netflix.metrics.rest.callerHeader</code> is set on the request. There is no default key for <code>netflix.metrics.rest.callerHeader</code>. You must add it to your application properties if you wish to collect caller information.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Set the <code>netflix.metrics.rest.metricName</code> property to change the name of the metric from <code>rest</code> to a name you provide.</p>
+</div>
+<div class="paragraph">
+<p>If Spring AOP is enabled and <code>org.aspectj:aspectjweaver</code> is present on your runtime classpath, Spring Cloud will also collect metrics on every client call made with <code>RestTemplate</code>. A Servo timer with the name of <code>restclient</code> will be recorded for each MVC request which is tagged with:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>HTTP method</p>
+</li>
+<li>
+<p>HTTP status (e.g. 200, 400, 500), "CLIENT_ERROR" if the response returned null, or "IO_ERROR" if an <code>IOException</code> occurred during the execution of the <code>RestTemplate</code> method</p>
+</li>
+<li>
+<p>URI, sanitized for Atlas</p>
+</li>
+<li>
+<p>Client name</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_metrics_collection_spectator">Metrics Collection: Spectator</h3>
+<div class="paragraph">
+<p>To enable Spectator metrics, include a dependency on <code>spring-boot-starter-spectator</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-spectator&lt;/artifactId&gt;
+    &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In Spectator parlance, a meter is a named, typed, and tagged configuration and a metric represents the value of a given meter at a point in time. Spectator meters are created and controlled by a registry, which currently has several different implementations. Spectator provides 4 meter types: counter, timer, gauge, and distribution summary.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud Spectator integration configures an injectable <code>com.netflix.spectator.api.Registry</code> instance for you. Specifically, it configures a <code>ServoRegistry</code> instance in order to unify the collection of REST metrics and the exporting of metrics to the Atlas backend under a single Servo API. Practically, this means that your code may use a mixture of Servo monitors and Spectator meters and both will be scooped up by Spring Boot Actuator <code>MetricReader</code> instances and both will be shipped to the Atlas backend.</p>
+</div>
+<div class="sect3">
+<h4 id="_spectator_counter">Spectator Counter</h4>
+<div class="paragraph">
+<p>A counter is used to measure the rate at which some event is occurring.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// create a counter with a name and a set of tags
+Counter counter = registry.counter("counterName", "tagKey1", "tagValue1", ...);
+counter.increment(); // increment when an event occurs
+counter.increment(10); // increment by a discrete amount</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The counter records a single time-normalized statistic.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spectator_timer">Spectator Timer</h4>
+<div class="paragraph">
+<p>A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally <code>RestTemplate</code> requests, which can later be used to create dashboards for request related metrics like latency:</p>
+</div>
+<div class="paragraph">
+<div class="title">Request Latency</div>
+<p>image::RequestLatency.png []</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// create a timer with a name and a set of tags
+Timer timer = registry.timer("timerName", "tagKey1", "tagValue1", ...);
+
+// execute an operation and time it at the same time
+T result = timer.record(() -&gt; fooReturnsT());
+
+// alternatively, if you must manually record the time
+Long start = System.nanoTime();
+T result = fooReturnsT();
+timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The timer simultaneously records 4 statistics: count, max, totalOfSquares, and totalTime.  The count statistic will always match the single normalized value provided by a counter if you had called <code>increment()</code> once on the counter for each time you recorded a timing, so it is rarely necessary to count and time separately for a single operation.</p>
+</div>
+<div class="paragraph">
+<p>For <a href="https://github.com/Netflix/spectator/wiki/Timer-Usage#longtasktimer">long running operations</a>, Spectator provides a special <code>LongTaskTimer</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spectator_gauge">Spectator Gauge</h4>
+<div class="paragraph">
+<p>Gauges are used to determine some current value like the size of a queue or number of threads in a running state. Since gauges are sampled, they provide no information about how these values fluctuate between samples.</p>
+</div>
+<div class="paragraph">
+<p>The normal use of a gauge involves registering the gauge once in initialization with an id, a reference to the object to be sampled, and a function to get or compute a numeric value based on the object. The reference to the object is passed in separately and the Spectator registry will keep a weak reference to the object. If the object is garbage collected, then Spectator will automatically drop the registration. See <a href="https://github.com/Netflix/spectator/wiki/Gauge-Usage#using-lambda">the note</a> in Spectator&#8217;s documentation about potential memory leaks if this API is misused.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
+registry.gauge("gaugeName", pool, Pool::numberOfRunningThreads);
+
+// manually sample a value in code at periodic intervals -- last resort!
+registry.gauge("gaugeName", Arrays.asList("tagKey1", "tagValue1", ...), 1000);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_spectator_distribution_summaries">Spectator Distribution Summaries</h4>
+<div class="paragraph">
+<p>A distribution summary is used to track the distribution of events. It is similar to a timer, but more general in that the size does not have to be a period of time. For example, a distribution summary could be used to measure the payload sizes of requests hitting a server.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
+DistributionSummary ds = registry.distributionSummary("dsName", "tagKey1", "tagValue1", ...);
+ds.record(request.sizeInBytes());</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_metrics_collection_servo">Metrics Collection: Servo</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+If your code is compiled on Java 8, please use Spectator instead of Servo as Spectator is destined to replace Servo entirely in the long term.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In Servo parlance, a monitor is a named, typed, and tagged configuration and a metric represents the value of a given monitor at a point in time. Servo monitors are logically equivalent to Spectator meters. Servo monitors are created and controlled by a <code>MonitorRegistry</code>. In spite of the above warning, Servo does have a <a href="https://github.com/Netflix/servo/wiki/Getting-Started">wider array</a> of monitor options than Spectator has meters.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud integration configures an injectable <code>com.netflix.servo.MonitorRegistry</code> instance for you. Once you have created the appropriate <code>Monitor</code> type in Servo, the process of recording data is wholly similar to Spectator.</p>
+</div>
+<div class="sect3">
+<h4 id="_creating_servo_monitors">Creating Servo Monitors</h4>
+<div class="paragraph">
+<p>If you are using the Servo <code>MonitorRegistry</code> instance provided by Spring Cloud (specifically, an instance of <code>DefaultMonitorRegistry</code>), Servo provides convenience classes for retrieving <a href="https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamiccounter">counters</a> and <a href="https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamictimer">timers</a>.  These convenience classes ensure that only one <code>Monitor</code> is registered for each unique combination of name and tags.</p>
+</div>
+<div class="paragraph">
+<p>To manually create a Monitor type in Servo, especially for the more exotic monitor types for which convenience methods are not provided, instantiate the appropriate type by providing a <code>MonitorConfig</code> instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">MonitorConfig config = MonitorConfig.builder("timerName").withTag("tagKey1", "tagValue1").build();
+
+// somewhere we should cache this Monitor by MonitorConfig
+Timer timer = new BasicTimer(config);
+monitorRegistry.register(timer);</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_metrics_backend_atlas">Metrics Backend: Atlas</h3>
+<div class="paragraph">
+<p>Atlas was developed by Netflix to manage dimensional time series data for near real-time operational insight. Atlas features in-memory data storage, allowing it to gather and report very large numbers of metrics, very quickly.</p>
+</div>
+<div class="paragraph">
+<p>Atlas captures operational intelligence. Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.</p>
+</div>
+<div class="paragraph">
+<p>Spring Cloud provides a <code>spring-cloud-starter-atlas</code> that has all the dependencies you need. Then just annotate your Spring Boot application with <code>@EnableAtlas</code> and provide a location for your running Atlas server with the <code>netflix.atlas.uri</code> property.</p>
+</div>
+<div class="sect3">
+<h4 id="_global_tags">Global tags</h4>
+<div class="paragraph">
+<p>Spring Cloud enables you to add tags to every metric sent to the Atlas backend. Global tags can be used to separate metrics by application name, environment, region, etc.</p>
+</div>
+<div class="paragraph">
+<p>Each bean implementing <code>AtlasTagProvider</code> will contribute to the global tag list:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+AtlasTagProvider atlasCommonTags(
+    @Value("${spring.application.name}") String appName) {
+  return () -&gt; Collections.singletonMap("app", appName);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_atlas">Using Atlas</h4>
+<div class="paragraph">
+<p>To bootstrap a in-memory standalone Atlas instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl -LO https://github.com/Netflix/atlas/releases/download/v1.4.2/atlas-1.4.2-standalone.jar
+$ java -jar atlas-1.4.2-standalone.jar</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+An Atlas standalone node running on an r3.2xlarge (61GB RAM) can handle roughly 2 million metrics per minute for a given 6 hour window.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Once running and you have collected a handful of metrics, verify that your setup is correct by listing tags on the Atlas server:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl http://ATLAS/api/v1/tags</code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+After executing several requests against your service, you can gather some very basic information on the request latency of every request by pasting the following url in your browser: <code><a href="http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg" class="bare">http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg</a></code>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The Atlas wiki contains a <a href="https://github.com/Netflix/atlas/wiki/Single-Line">compilation of sample queries</a> for various scenarios.</p>
+</div>
+<div class="paragraph">
+<p>Make sure to check out the <a href="https://github.com/Netflix/atlas/wiki/Alerting-Philosophy">alerting philosophy</a> and docs on using <a href="https://github.com/Netflix/atlas/wiki/DES">double exponential smoothing</a> to generate dynamic alert thresholds.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2016-02-02 16:10:23 UTC
+</div>
+</div>
+</body>
+</html>
