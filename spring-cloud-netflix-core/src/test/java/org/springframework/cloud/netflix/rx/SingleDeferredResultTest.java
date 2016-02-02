@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.cloud.netflix.rx.beans.EventDto;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import rx.Single;
 
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 /**
  * Tests the {@link SingleDeferredResult} class.
@@ -62,18 +66,24 @@ public class SingleDeferredResultTest {
 
         @RequestMapping(method = RequestMethod.GET, value = "/single")
         public SingleDeferredResult<String> single() {
-            return new SingleDeferredResult<String>(Single.just("single value"));
+            return new SingleDeferredResult<>(Single.just("single value"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")
         public SingleDeferredResult<ResponseEntity<String>> singleWithResponse() {
-            return new SingleDeferredResult<ResponseEntity<String>>(
-                    Single.just(new ResponseEntity<String>("single value", HttpStatus.NOT_FOUND)));
+            return new SingleDeferredResult<>(
+                    Single.just(new ResponseEntity<>("single value", HttpStatus.NOT_FOUND))
+            );
+        }
+
+        @RequestMapping(method = RequestMethod.GET, value = "/event", produces = APPLICATION_JSON_UTF8_VALUE)
+        public SingleDeferredResult<EventDto> event() {
+            return new SingleDeferredResult<>(Single.just(new EventDto("Spring.io", new Date())));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/throw")
         public SingleDeferredResult<Object> error() {
-            return new SingleDeferredResult<Object>(Single.error(new RuntimeException("Unexpected")));
+            return new SingleDeferredResult<>(Single.error(new RuntimeException("Unexpected")));
         }
     }
 
@@ -99,6 +109,18 @@ public class SingleDeferredResultTest {
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("single value", response.getBody());
+    }
+
+    @Test
+    public void shouldRetrieveJsonSerializedPojoValue() {
+
+        // when
+        ResponseEntity<EventDto> response = restTemplate.getForEntity(path("/event"), EventDto.class);
+
+        // then
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Spring.io", response.getBody().getName());
     }
 
     @Test

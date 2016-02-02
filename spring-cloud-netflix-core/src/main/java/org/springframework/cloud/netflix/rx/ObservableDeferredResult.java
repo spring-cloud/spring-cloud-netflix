@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,14 @@ import rx.Observable;
 import java.util.List;
 
 /**
- * A specialized {@link DeferredResult} that handles {@link Observable} type.
+ * A specialized {@link DeferredResult} that handles {@link Observable} type. It subscribes to the provided
+ * {@link Observable} and uses {@link Observable#toList()} to accumulate the results and return it as "single entity".
+ * As a result no value is going to produced until the entire {@link Observable} completes processing.
+ * This isn't going to work well for long running or potentially infinitely running {@link Observable}, resulting in
+ * long response latencies and memory utilisation, while in the same time the connection could be closed on the client
+ * side due to connection timeout.
+ *
+ * In order to handle long running event driven tasks consider using {@link ObservableSseEmitter} instead.
  *
  * @author Jakub Narloch
  * @see DeferredResult

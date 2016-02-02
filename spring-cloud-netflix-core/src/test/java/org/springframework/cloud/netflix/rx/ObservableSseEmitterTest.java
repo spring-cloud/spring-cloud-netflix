@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.cloud.netflix.rx.beans.EventDto;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import rx.Observable;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
 /**
  * Tests the {@link ObservableSseEmitter} class.
@@ -62,12 +67,20 @@ public class ObservableSseEmitterTest {
 
         @RequestMapping(method = RequestMethod.GET, value = "/sse")
         public ObservableSseEmitter<String> single() {
-            return new ObservableSseEmitter<String>(Observable.just("single value"));
+            return new ObservableSseEmitter<>(Observable.just("single value"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/messages")
         public ObservableSseEmitter<String> messages() {
-            return new ObservableSseEmitter<String>(Observable.just("message 1", "message 2", "message 3"));
+            return new ObservableSseEmitter<>(Observable.just("message 1", "message 2", "message 3"));
+        }
+
+        @RequestMapping(method = RequestMethod.GET, value = "/events")
+        public ObservableSseEmitter<EventDto> event() {
+            return new ObservableSseEmitter<>(APPLICATION_JSON_UTF8, Observable.just(
+                    new EventDto("Spring.io", getDate(2016, 5, 11)),
+                    new EventDto("JavaOne", getDate(2016, 9, 22))
+            ));
         }
     }
 
@@ -95,7 +108,23 @@ public class ObservableSseEmitterTest {
         assertEquals("data:message 1\n\ndata:message 2\n\ndata:message 3\n\n", response.getBody());
     }
 
+    @Test
+    public void shouldRetrieveJsonOverSseWithMultipleMessages() {
+
+        // when
+        ResponseEntity<String> response = restTemplate.getForEntity(path("/events"), String.class);
+
+        // then
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("data:{\"name\":\"Spring.io\",\"date\":1465596000000}\n\ndata:{\"name\":\"JavaOne\",\"date\":1477087200000}\n\n", response.getBody());
+    }
+
     private String path(String context) {
         return String.format("http://localhost:%d%s", port, context);
+    }
+
+    private static Date getDate(int year, int month, int day) {
+        return new GregorianCalendar(year, month, day).getTime();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
 /**
  * Tests the {@link ObservableReturnValueHandler} class.
@@ -74,6 +77,15 @@ public class ObservableReturnValueHandlerTest {
         @RequestMapping(method = RequestMethod.GET, value = "/multiple")
         public Observable<String> multiple() {
             return Observable.just("multiple", "values");
+        }
+
+        @RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")
+        public ResponseEntity<Observable<String>> responseWithObservable() {
+
+            Observable<String> observable = Observable.just("single value");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(APPLICATION_JSON_UTF8);
+            return new ResponseEntity<>(observable, HttpStatus.CREATED);
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/throw")
@@ -114,6 +126,19 @@ public class ObservableReturnValueHandlerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(Arrays.asList("multiple", "values"), response.getBody());
+    }
+
+    @Test
+    public void shouldRetrieveSingleValueWithStatusCodeAndCustomHeader() {
+
+        // when
+        ResponseEntity<String> response = restTemplate.getForEntity(path("/responseWithObservable"), String.class);
+
+        // then
+        assertNotNull(response);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON_UTF8, response.getHeaders().getContentType());
+        assertEquals("[\"single value\"]", response.getBody());
     }
 
     @Test

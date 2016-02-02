@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.cloud.netflix.rx.beans.EventDto;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -37,11 +40,13 @@ import rx.functions.Func1;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 /**
  * Tests the {@link ObservableDeferredResult} class.
@@ -68,22 +73,32 @@ public class ObservableDeferredResultTest {
 
         @RequestMapping(method = RequestMethod.GET, value = "/single")
         public ObservableDeferredResult<String> single() {
-            return new ObservableDeferredResult<String>(Observable.just("single value"));
+            return new ObservableDeferredResult<>(Observable.just("single value"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/multiple")
         public ObservableDeferredResult<String> multiple() {
-            return new ObservableDeferredResult<String>(Observable.just("multiple", "values"));
+            return new ObservableDeferredResult<>(Observable.just("multiple", "values"));
+        }
+
+        @RequestMapping(method = RequestMethod.GET, value = "/events", produces = APPLICATION_JSON_UTF8_VALUE)
+        public ObservableDeferredResult<EventDto> events() {
+            return new ObservableDeferredResult<>(
+                    Observable.just(
+                            new EventDto("Spring.io", new Date()),
+                            new EventDto("JavaOne", new Date())
+                    )
+            );
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/throw")
         public ObservableDeferredResult<Object> error() {
-            return new ObservableDeferredResult<Object>(Observable.error(new RuntimeException("Unexpected")));
+            return new ObservableDeferredResult<>(Observable.error(new RuntimeException("Unexpected")));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/timeout")
         public ObservableDeferredResult<String> timeout() {
-            return new ObservableDeferredResult<String>(Observable.timer(1, TimeUnit.MINUTES).map(new Func1<Long, String>() {
+            return new ObservableDeferredResult<>(Observable.timer(1, TimeUnit.MINUTES).map(new Func1<Long, String>() {
                 @Override
                 public String call(Long aLong) {
                     return "single value";
@@ -114,6 +129,20 @@ public class ObservableDeferredResultTest {
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(Arrays.asList("multiple", "values"), response.getBody());
+    }
+
+    @Test
+    public void shouldRetrieveJsonSerializedListValues() {
+
+        // when
+        ResponseEntity<List<EventDto>> response = restTemplate.exchange(path("/events"), HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<EventDto>>() {});
+
+        // then
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+        assertEquals("JavaOne", response.getBody().get(1).getName());
     }
 
     @Test
