@@ -1,10 +1,13 @@
 package org.springframework.cloud.netflix.feign.support;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,15 +16,15 @@ import org.springframework.util.MultiValueMap;
 import feign.FeignException;
 import feign.Response;
 import feign.codec.Decoder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Decoder adds compatibility for Spring MVC's ResponseEntity to any other decoder via
  * composition.
  * @author chadjaros
  */
-@Slf4j
 public class ResponseEntityDecoder implements Decoder {
+
+	private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private Decoder decoder;
 
