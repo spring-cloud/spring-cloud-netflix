@@ -24,24 +24,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
-import com.netflix.zuul.http.ZuulServlet;
-
 /**
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
  *
  * @author Dave Syer
  */
-@CommonsLog
 public class SimpleRouteLocator implements RouteLocator {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(SimpleRouteLocator.class);
 	private ZuulProperties properties;
 
 	private PathMatcher pathMatcher = new AntPathMatcher();

@@ -16,18 +16,16 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.RxNetty;
-import io.reactivex.netty.protocol.http.server.HttpServer;
-import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lombok.extern.apachecommons.CommonsLog;
+import com.netflix.turbine.aggregator.InstanceKey;
+import com.netflix.turbine.aggregator.StreamAggregator;
+import com.netflix.turbine.internal.JsonUtility;
 
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -36,23 +34,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.SocketUtils;
 
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.protocol.http.server.HttpServer;
+import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
 import rx.Observable;
 import rx.subjects.PublishSubject;
-
-import com.netflix.turbine.aggregator.InstanceKey;
-import com.netflix.turbine.aggregator.StreamAggregator;
-import com.netflix.turbine.internal.JsonUtility;
 
 import static io.reactivex.netty.pipeline.PipelineConfigurators.sseServerConfigurator;
 
 /**
  * @author Spencer Gibb
  */
-@Configuration
-@CommonsLog
-@EnableConfigurationProperties(TurbineStreamProperties.class)
+@Configuration @EnableConfigurationProperties(TurbineStreamProperties.class)
 public class TurbineStreamConfiguration implements SmartLifecycle {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(TurbineStreamConfiguration.class);
 	private AtomicBoolean running = new AtomicBoolean(false);
 
 	@Autowired

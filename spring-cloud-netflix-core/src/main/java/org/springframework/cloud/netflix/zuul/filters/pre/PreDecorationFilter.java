@@ -19,20 +19,20 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.constants.ZuulHeaders;
+import com.netflix.zuul.context.RequestContext;
+
+import org.apache.commons.logging.Log;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulHeaders;
-import com.netflix.zuul.context.RequestContext;
-
-import lombok.extern.apachecommons.CommonsLog;
-
-@CommonsLog
 public class PreDecorationFilter extends ZuulFilter {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(PreDecorationFilter.class);
 	private RouteLocator routeLocator;
 
 	private boolean addProxyHeaders;

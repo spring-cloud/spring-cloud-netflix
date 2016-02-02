@@ -38,10 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * @author Dave Syer
  */
@@ -82,11 +78,57 @@ public class FeignClientTests {
 		}
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public Hello() {
+		}
+
+		public String getMessage() {
+			return this.message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public boolean equals(Object o) {
+			if (o == this)
+				return true;
+			if (!(o instanceof Hello))
+				return false;
+			final Hello other = (Hello) o;
+			if (!other.canEqual((Object) this))
+				return false;
+			final Object this$message = this.message;
+			final Object other$message = other.message;
+			if (this$message == null ?
+					other$message != null :
+					!this$message.equals(other$message))
+				return false;
+			return true;
+		}
+
+		public int hashCode() {
+			final int PRIME = 59;
+			int result = 1;
+			final Object $message = this.message;
+			result = result * PRIME + ($message == null ? 0 : $message.hashCode());
+			return result;
+		}
+
+		protected boolean canEqual(Object other) {
+			return other instanceof Hello;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.feign.beans.FeignClientTests.Hello(message="
+					+ this.message + ")";
+		}
 	}
 
 	@Test

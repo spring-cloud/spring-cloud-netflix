@@ -22,20 +22,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.core.env.PropertyResolver;
-
 import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
-import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Dave Syer
  */
-@Data
 @ConfigurationProperties(EurekaClientConfigBean.PREFIX)
 public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstants {
 
@@ -378,6 +375,9 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	 */
 	private String clientDataAccept = EurekaAccept.full.name();
 
+	public EurekaClientConfigBean() {
+	}
+
 	@Override
 	public boolean shouldGZipContent() {
 		return this.gZipContent;
@@ -467,5 +467,707 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	@Override
 	public EurekaTransportConfig getTransportConfig() {
 		return getTransport();
+	}
+
+	public PropertyResolver getPropertyResolver() {
+		return this.propertyResolver;
+	}
+
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public EurekaTransportConfig getTransport() {
+		return this.transport;
+	}
+
+	public int getRegistryFetchIntervalSeconds() {
+		return this.registryFetchIntervalSeconds;
+	}
+
+	public int getInstanceInfoReplicationIntervalSeconds() {
+		return this.instanceInfoReplicationIntervalSeconds;
+	}
+
+	public int getInitialInstanceInfoReplicationIntervalSeconds() {
+		return this.initialInstanceInfoReplicationIntervalSeconds;
+	}
+
+	public int getEurekaServiceUrlPollIntervalSeconds() {
+		return this.eurekaServiceUrlPollIntervalSeconds;
+	}
+
+	public String getProxyPort() {
+		return this.proxyPort;
+	}
+
+	public String getProxyHost() {
+		return this.proxyHost;
+	}
+
+	public String getProxyUserName() {
+		return this.proxyUserName;
+	}
+
+	public String getProxyPassword() {
+		return this.proxyPassword;
+	}
+
+	public int getEurekaServerReadTimeoutSeconds() {
+		return this.eurekaServerReadTimeoutSeconds;
+	}
+
+	public int getEurekaServerConnectTimeoutSeconds() {
+		return this.eurekaServerConnectTimeoutSeconds;
+	}
+
+	public String getBackupRegistryImpl() {
+		return this.backupRegistryImpl;
+	}
+
+	public int getEurekaServerTotalConnections() {
+		return this.eurekaServerTotalConnections;
+	}
+
+	public int getEurekaServerTotalConnectionsPerHost() {
+		return this.eurekaServerTotalConnectionsPerHost;
+	}
+
+	public String getEurekaServerURLContext() {
+		return this.eurekaServerURLContext;
+	}
+
+	public String getEurekaServerPort() {
+		return this.eurekaServerPort;
+	}
+
+	public String getEurekaServerDNSName() {
+		return this.eurekaServerDNSName;
+	}
+
+	public String getRegion() {
+		return this.region;
+	}
+
+	public int getEurekaConnectionIdleTimeoutSeconds() {
+		return this.eurekaConnectionIdleTimeoutSeconds;
+	}
+
+	public String getRegistryRefreshSingleVipAddress() {
+		return this.registryRefreshSingleVipAddress;
+	}
+
+	public int getHeartbeatExecutorThreadPoolSize() {
+		return this.heartbeatExecutorThreadPoolSize;
+	}
+
+	public int getHeartbeatExecutorExponentialBackOffBound() {
+		return this.heartbeatExecutorExponentialBackOffBound;
+	}
+
+	public int getCacheRefreshExecutorThreadPoolSize() {
+		return this.cacheRefreshExecutorThreadPoolSize;
+	}
+
+	public int getCacheRefreshExecutorExponentialBackOffBound() {
+		return this.cacheRefreshExecutorExponentialBackOffBound;
+	}
+
+	public Map<String, String> getServiceUrl() {
+		return this.serviceUrl;
+	}
+
+	public boolean isGZipContent() {
+		return this.gZipContent;
+	}
+
+	public boolean isUseDnsForFetchingServiceUrls() {
+		return this.useDnsForFetchingServiceUrls;
+	}
+
+	public boolean isRegisterWithEureka() {
+		return this.registerWithEureka;
+	}
+
+	public boolean isPreferSameZoneEureka() {
+		return this.preferSameZoneEureka;
+	}
+
+	public boolean isLogDeltaDiff() {
+		return this.logDeltaDiff;
+	}
+
+	public boolean isDisableDelta() {
+		return this.disableDelta;
+	}
+
+	public String getFetchRemoteRegionsRegistry() {
+		return this.fetchRemoteRegionsRegistry;
+	}
+
+	public Map<String, String> getAvailabilityZones() {
+		return this.availabilityZones;
+	}
+
+	public boolean isFilterOnlyUpInstances() {
+		return this.filterOnlyUpInstances;
+	}
+
+	public boolean isFetchRegistry() {
+		return this.fetchRegistry;
+	}
+
+	public String getDollarReplacement() {
+		return this.dollarReplacement;
+	}
+
+	public String getEscapeCharReplacement() {
+		return this.escapeCharReplacement;
+	}
+
+	public boolean isAllowRedirects() {
+		return this.allowRedirects;
+	}
+
+	public boolean isOnDemandUpdateStatusChange() {
+		return this.onDemandUpdateStatusChange;
+	}
+
+	public String getEncoderName() {
+		return this.encoderName;
+	}
+
+	public String getDecoderName() {
+		return this.decoderName;
+	}
+
+	public String getClientDataAccept() {
+		return this.clientDataAccept;
+	}
+
+	public void setPropertyResolver(PropertyResolver propertyResolver) {
+		this.propertyResolver = propertyResolver;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public void setTransport(EurekaTransportConfig transport) {
+		this.transport = transport;
+	}
+
+	public void setRegistryFetchIntervalSeconds(int registryFetchIntervalSeconds) {
+		this.registryFetchIntervalSeconds = registryFetchIntervalSeconds;
+	}
+
+	public void setInstanceInfoReplicationIntervalSeconds(
+			int instanceInfoReplicationIntervalSeconds) {
+		this.instanceInfoReplicationIntervalSeconds = instanceInfoReplicationIntervalSeconds;
+	}
+
+	public void setInitialInstanceInfoReplicationIntervalSeconds(
+			int initialInstanceInfoReplicationIntervalSeconds) {
+		this.initialInstanceInfoReplicationIntervalSeconds = initialInstanceInfoReplicationIntervalSeconds;
+	}
+
+	public void setEurekaServiceUrlPollIntervalSeconds(
+			int eurekaServiceUrlPollIntervalSeconds) {
+		this.eurekaServiceUrlPollIntervalSeconds = eurekaServiceUrlPollIntervalSeconds;
+	}
+
+	public void setProxyPort(String proxyPort) {
+		this.proxyPort = proxyPort;
+	}
+
+	public void setProxyHost(String proxyHost) {
+		this.proxyHost = proxyHost;
+	}
+
+	public void setProxyUserName(String proxyUserName) {
+		this.proxyUserName = proxyUserName;
+	}
+
+	public void setProxyPassword(String proxyPassword) {
+		this.proxyPassword = proxyPassword;
+	}
+
+	public void setEurekaServerReadTimeoutSeconds(int eurekaServerReadTimeoutSeconds) {
+		this.eurekaServerReadTimeoutSeconds = eurekaServerReadTimeoutSeconds;
+	}
+
+	public void setEurekaServerConnectTimeoutSeconds(
+			int eurekaServerConnectTimeoutSeconds) {
+		this.eurekaServerConnectTimeoutSeconds = eurekaServerConnectTimeoutSeconds;
+	}
+
+	public void setBackupRegistryImpl(String backupRegistryImpl) {
+		this.backupRegistryImpl = backupRegistryImpl;
+	}
+
+	public void setEurekaServerTotalConnections(int eurekaServerTotalConnections) {
+		this.eurekaServerTotalConnections = eurekaServerTotalConnections;
+	}
+
+	public void setEurekaServerTotalConnectionsPerHost(
+			int eurekaServerTotalConnectionsPerHost) {
+		this.eurekaServerTotalConnectionsPerHost = eurekaServerTotalConnectionsPerHost;
+	}
+
+	public void setEurekaServerURLContext(String eurekaServerURLContext) {
+		this.eurekaServerURLContext = eurekaServerURLContext;
+	}
+
+	public void setEurekaServerPort(String eurekaServerPort) {
+		this.eurekaServerPort = eurekaServerPort;
+	}
+
+	public void setEurekaServerDNSName(String eurekaServerDNSName) {
+		this.eurekaServerDNSName = eurekaServerDNSName;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public void setEurekaConnectionIdleTimeoutSeconds(
+			int eurekaConnectionIdleTimeoutSeconds) {
+		this.eurekaConnectionIdleTimeoutSeconds = eurekaConnectionIdleTimeoutSeconds;
+	}
+
+	public void setRegistryRefreshSingleVipAddress(
+			String registryRefreshSingleVipAddress) {
+		this.registryRefreshSingleVipAddress = registryRefreshSingleVipAddress;
+	}
+
+	public void setHeartbeatExecutorThreadPoolSize(int heartbeatExecutorThreadPoolSize) {
+		this.heartbeatExecutorThreadPoolSize = heartbeatExecutorThreadPoolSize;
+	}
+
+	public void setHeartbeatExecutorExponentialBackOffBound(
+			int heartbeatExecutorExponentialBackOffBound) {
+		this.heartbeatExecutorExponentialBackOffBound = heartbeatExecutorExponentialBackOffBound;
+	}
+
+	public void setCacheRefreshExecutorThreadPoolSize(
+			int cacheRefreshExecutorThreadPoolSize) {
+		this.cacheRefreshExecutorThreadPoolSize = cacheRefreshExecutorThreadPoolSize;
+	}
+
+	public void setCacheRefreshExecutorExponentialBackOffBound(
+			int cacheRefreshExecutorExponentialBackOffBound) {
+		this.cacheRefreshExecutorExponentialBackOffBound = cacheRefreshExecutorExponentialBackOffBound;
+	}
+
+	public void setServiceUrl(Map<String, String> serviceUrl) {
+		this.serviceUrl = serviceUrl;
+	}
+
+	public void setGZipContent(boolean gZipContent) {
+		this.gZipContent = gZipContent;
+	}
+
+	public void setUseDnsForFetchingServiceUrls(boolean useDnsForFetchingServiceUrls) {
+		this.useDnsForFetchingServiceUrls = useDnsForFetchingServiceUrls;
+	}
+
+	public void setRegisterWithEureka(boolean registerWithEureka) {
+		this.registerWithEureka = registerWithEureka;
+	}
+
+	public void setPreferSameZoneEureka(boolean preferSameZoneEureka) {
+		this.preferSameZoneEureka = preferSameZoneEureka;
+	}
+
+	public void setLogDeltaDiff(boolean logDeltaDiff) {
+		this.logDeltaDiff = logDeltaDiff;
+	}
+
+	public void setDisableDelta(boolean disableDelta) {
+		this.disableDelta = disableDelta;
+	}
+
+	public void setFetchRemoteRegionsRegistry(String fetchRemoteRegionsRegistry) {
+		this.fetchRemoteRegionsRegistry = fetchRemoteRegionsRegistry;
+	}
+
+	public void setAvailabilityZones(Map<String, String> availabilityZones) {
+		this.availabilityZones = availabilityZones;
+	}
+
+	public void setFilterOnlyUpInstances(boolean filterOnlyUpInstances) {
+		this.filterOnlyUpInstances = filterOnlyUpInstances;
+	}
+
+	public void setFetchRegistry(boolean fetchRegistry) {
+		this.fetchRegistry = fetchRegistry;
+	}
+
+	public void setDollarReplacement(String dollarReplacement) {
+		this.dollarReplacement = dollarReplacement;
+	}
+
+	public void setEscapeCharReplacement(String escapeCharReplacement) {
+		this.escapeCharReplacement = escapeCharReplacement;
+	}
+
+	public void setAllowRedirects(boolean allowRedirects) {
+		this.allowRedirects = allowRedirects;
+	}
+
+	public void setOnDemandUpdateStatusChange(boolean onDemandUpdateStatusChange) {
+		this.onDemandUpdateStatusChange = onDemandUpdateStatusChange;
+	}
+
+	public void setEncoderName(String encoderName) {
+		this.encoderName = encoderName;
+	}
+
+	public void setDecoderName(String decoderName) {
+		this.decoderName = decoderName;
+	}
+
+	public void setClientDataAccept(String clientDataAccept) {
+		this.clientDataAccept = clientDataAccept;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof EurekaClientConfigBean))
+			return false;
+		final EurekaClientConfigBean other = (EurekaClientConfigBean) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$propertyResolver = this.propertyResolver;
+		final Object other$propertyResolver = other.propertyResolver;
+		if (this$propertyResolver == null ?
+				other$propertyResolver != null :
+				!this$propertyResolver.equals(other$propertyResolver))
+			return false;
+		if (this.enabled != other.enabled)
+			return false;
+		final Object this$transport = this.transport;
+		final Object other$transport = other.transport;
+		if (this$transport == null ?
+				other$transport != null :
+				!this$transport.equals(other$transport))
+			return false;
+		if (this.registryFetchIntervalSeconds != other.registryFetchIntervalSeconds)
+			return false;
+		if (this.instanceInfoReplicationIntervalSeconds
+				!= other.instanceInfoReplicationIntervalSeconds)
+			return false;
+		if (this.initialInstanceInfoReplicationIntervalSeconds
+				!= other.initialInstanceInfoReplicationIntervalSeconds)
+			return false;
+		if (this.eurekaServiceUrlPollIntervalSeconds
+				!= other.eurekaServiceUrlPollIntervalSeconds)
+			return false;
+		final Object this$proxyPort = this.proxyPort;
+		final Object other$proxyPort = other.proxyPort;
+		if (this$proxyPort == null ?
+				other$proxyPort != null :
+				!this$proxyPort.equals(other$proxyPort))
+			return false;
+		final Object this$proxyHost = this.proxyHost;
+		final Object other$proxyHost = other.proxyHost;
+		if (this$proxyHost == null ?
+				other$proxyHost != null :
+				!this$proxyHost.equals(other$proxyHost))
+			return false;
+		final Object this$proxyUserName = this.proxyUserName;
+		final Object other$proxyUserName = other.proxyUserName;
+		if (this$proxyUserName == null ?
+				other$proxyUserName != null :
+				!this$proxyUserName.equals(other$proxyUserName))
+			return false;
+		final Object this$proxyPassword = this.proxyPassword;
+		final Object other$proxyPassword = other.proxyPassword;
+		if (this$proxyPassword == null ?
+				other$proxyPassword != null :
+				!this$proxyPassword.equals(other$proxyPassword))
+			return false;
+		if (this.eurekaServerReadTimeoutSeconds != other.eurekaServerReadTimeoutSeconds)
+			return false;
+		if (this.eurekaServerConnectTimeoutSeconds
+				!= other.eurekaServerConnectTimeoutSeconds)
+			return false;
+		final Object this$backupRegistryImpl = this.backupRegistryImpl;
+		final Object other$backupRegistryImpl = other.backupRegistryImpl;
+		if (this$backupRegistryImpl == null ?
+				other$backupRegistryImpl != null :
+				!this$backupRegistryImpl.equals(other$backupRegistryImpl))
+			return false;
+		if (this.eurekaServerTotalConnections != other.eurekaServerTotalConnections)
+			return false;
+		if (this.eurekaServerTotalConnectionsPerHost
+				!= other.eurekaServerTotalConnectionsPerHost)
+			return false;
+		final Object this$eurekaServerURLContext = this.eurekaServerURLContext;
+		final Object other$eurekaServerURLContext = other.eurekaServerURLContext;
+		if (this$eurekaServerURLContext == null ?
+				other$eurekaServerURLContext != null :
+				!this$eurekaServerURLContext.equals(other$eurekaServerURLContext))
+			return false;
+		final Object this$eurekaServerPort = this.eurekaServerPort;
+		final Object other$eurekaServerPort = other.eurekaServerPort;
+		if (this$eurekaServerPort == null ?
+				other$eurekaServerPort != null :
+				!this$eurekaServerPort.equals(other$eurekaServerPort))
+			return false;
+		final Object this$eurekaServerDNSName = this.eurekaServerDNSName;
+		final Object other$eurekaServerDNSName = other.eurekaServerDNSName;
+		if (this$eurekaServerDNSName == null ?
+				other$eurekaServerDNSName != null :
+				!this$eurekaServerDNSName.equals(other$eurekaServerDNSName))
+			return false;
+		final Object this$region = this.region;
+		final Object other$region = other.region;
+		if (this$region == null ?
+				other$region != null :
+				!this$region.equals(other$region))
+			return false;
+		if (this.eurekaConnectionIdleTimeoutSeconds
+				!= other.eurekaConnectionIdleTimeoutSeconds)
+			return false;
+		final Object this$registryRefreshSingleVipAddress = this.registryRefreshSingleVipAddress;
+		final Object other$registryRefreshSingleVipAddress = other.registryRefreshSingleVipAddress;
+		if (this$registryRefreshSingleVipAddress == null ?
+				other$registryRefreshSingleVipAddress != null :
+				!this$registryRefreshSingleVipAddress
+						.equals(other$registryRefreshSingleVipAddress))
+			return false;
+		if (this.heartbeatExecutorThreadPoolSize != other.heartbeatExecutorThreadPoolSize)
+			return false;
+		if (this.heartbeatExecutorExponentialBackOffBound
+				!= other.heartbeatExecutorExponentialBackOffBound)
+			return false;
+		if (this.cacheRefreshExecutorThreadPoolSize
+				!= other.cacheRefreshExecutorThreadPoolSize)
+			return false;
+		if (this.cacheRefreshExecutorExponentialBackOffBound
+				!= other.cacheRefreshExecutorExponentialBackOffBound)
+			return false;
+		final Object this$serviceUrl = this.serviceUrl;
+		final Object other$serviceUrl = other.serviceUrl;
+		if (this$serviceUrl == null ?
+				other$serviceUrl != null :
+				!this$serviceUrl.equals(other$serviceUrl))
+			return false;
+		if (this.gZipContent != other.gZipContent)
+			return false;
+		if (this.useDnsForFetchingServiceUrls != other.useDnsForFetchingServiceUrls)
+			return false;
+		if (this.registerWithEureka != other.registerWithEureka)
+			return false;
+		if (this.preferSameZoneEureka != other.preferSameZoneEureka)
+			return false;
+		if (this.logDeltaDiff != other.logDeltaDiff)
+			return false;
+		if (this.disableDelta != other.disableDelta)
+			return false;
+		final Object this$fetchRemoteRegionsRegistry = this.fetchRemoteRegionsRegistry;
+		final Object other$fetchRemoteRegionsRegistry = other.fetchRemoteRegionsRegistry;
+		if (this$fetchRemoteRegionsRegistry == null ?
+				other$fetchRemoteRegionsRegistry != null :
+				!this$fetchRemoteRegionsRegistry.equals(other$fetchRemoteRegionsRegistry))
+			return false;
+		final Object this$availabilityZones = this.getAvailabilityZones();
+		final Object other$availabilityZones = other.getAvailabilityZones();
+		if (this$availabilityZones == null ?
+				other$availabilityZones != null :
+				!this$availabilityZones.equals(other$availabilityZones))
+			return false;
+		if (this.filterOnlyUpInstances != other.filterOnlyUpInstances)
+			return false;
+		if (this.fetchRegistry != other.fetchRegistry)
+			return false;
+		final Object this$dollarReplacement = this.dollarReplacement;
+		final Object other$dollarReplacement = other.dollarReplacement;
+		if (this$dollarReplacement == null ?
+				other$dollarReplacement != null :
+				!this$dollarReplacement.equals(other$dollarReplacement))
+			return false;
+		final Object this$escapeCharReplacement = this.escapeCharReplacement;
+		final Object other$escapeCharReplacement = other.escapeCharReplacement;
+		if (this$escapeCharReplacement == null ?
+				other$escapeCharReplacement != null :
+				!this$escapeCharReplacement.equals(other$escapeCharReplacement))
+			return false;
+		if (this.allowRedirects != other.allowRedirects)
+			return false;
+		if (this.onDemandUpdateStatusChange != other.onDemandUpdateStatusChange)
+			return false;
+		final Object this$encoderName = this.encoderName;
+		final Object other$encoderName = other.encoderName;
+		if (this$encoderName == null ?
+				other$encoderName != null :
+				!this$encoderName.equals(other$encoderName))
+			return false;
+		final Object this$decoderName = this.decoderName;
+		final Object other$decoderName = other.decoderName;
+		if (this$decoderName == null ?
+				other$decoderName != null :
+				!this$decoderName.equals(other$decoderName))
+			return false;
+		final Object this$clientDataAccept = this.clientDataAccept;
+		final Object other$clientDataAccept = other.clientDataAccept;
+		if (this$clientDataAccept == null ?
+				other$clientDataAccept != null :
+				!this$clientDataAccept.equals(other$clientDataAccept))
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $propertyResolver = this.propertyResolver;
+		result = result * PRIME + ($propertyResolver == null ?
+				0 :
+				$propertyResolver.hashCode());
+		result = result * PRIME + (this.enabled ? 79 : 97);
+		final Object $transport = this.transport;
+		result = result * PRIME + ($transport == null ? 0 : $transport.hashCode());
+		result = result * PRIME + this.registryFetchIntervalSeconds;
+		result = result * PRIME + this.instanceInfoReplicationIntervalSeconds;
+		result = result * PRIME + this.initialInstanceInfoReplicationIntervalSeconds;
+		result = result * PRIME + this.eurekaServiceUrlPollIntervalSeconds;
+		final Object $proxyPort = this.proxyPort;
+		result = result * PRIME + ($proxyPort == null ? 0 : $proxyPort.hashCode());
+		final Object $proxyHost = this.proxyHost;
+		result = result * PRIME + ($proxyHost == null ? 0 : $proxyHost.hashCode());
+		final Object $proxyUserName = this.proxyUserName;
+		result =
+				result * PRIME + ($proxyUserName == null ? 0 : $proxyUserName.hashCode());
+		final Object $proxyPassword = this.proxyPassword;
+		result =
+				result * PRIME + ($proxyPassword == null ? 0 : $proxyPassword.hashCode());
+		result = result * PRIME + this.eurekaServerReadTimeoutSeconds;
+		result = result * PRIME + this.eurekaServerConnectTimeoutSeconds;
+		final Object $backupRegistryImpl = this.backupRegistryImpl;
+		result = result * PRIME + ($backupRegistryImpl == null ?
+				0 :
+				$backupRegistryImpl.hashCode());
+		result = result * PRIME + this.eurekaServerTotalConnections;
+		result = result * PRIME + this.eurekaServerTotalConnectionsPerHost;
+		final Object $eurekaServerURLContext = this.eurekaServerURLContext;
+		result = result * PRIME + ($eurekaServerURLContext == null ?
+				0 :
+				$eurekaServerURLContext.hashCode());
+		final Object $eurekaServerPort = this.eurekaServerPort;
+		result = result * PRIME + ($eurekaServerPort == null ?
+				0 :
+				$eurekaServerPort.hashCode());
+		final Object $eurekaServerDNSName = this.eurekaServerDNSName;
+		result = result * PRIME + ($eurekaServerDNSName == null ?
+				0 :
+				$eurekaServerDNSName.hashCode());
+		final Object $region = this.region;
+		result = result * PRIME + ($region == null ? 0 : $region.hashCode());
+		result = result * PRIME + this.eurekaConnectionIdleTimeoutSeconds;
+		final Object $registryRefreshSingleVipAddress = this.registryRefreshSingleVipAddress;
+		result = result * PRIME + ($registryRefreshSingleVipAddress == null ?
+				0 :
+				$registryRefreshSingleVipAddress.hashCode());
+		result = result * PRIME + this.heartbeatExecutorThreadPoolSize;
+		result = result * PRIME + this.heartbeatExecutorExponentialBackOffBound;
+		result = result * PRIME + this.cacheRefreshExecutorThreadPoolSize;
+		result = result * PRIME + this.cacheRefreshExecutorExponentialBackOffBound;
+		final Object $serviceUrl = this.serviceUrl;
+		result = result * PRIME + ($serviceUrl == null ? 0 : $serviceUrl.hashCode());
+		result = result * PRIME + (this.gZipContent ? 79 : 97);
+		result = result * PRIME + (this.useDnsForFetchingServiceUrls ? 79 : 97);
+		result = result * PRIME + (this.registerWithEureka ? 79 : 97);
+		result = result * PRIME + (this.preferSameZoneEureka ? 79 : 97);
+		result = result * PRIME + (this.logDeltaDiff ? 79 : 97);
+		result = result * PRIME + (this.disableDelta ? 79 : 97);
+		final Object $fetchRemoteRegionsRegistry = this.fetchRemoteRegionsRegistry;
+		result = result * PRIME + ($fetchRemoteRegionsRegistry == null ?
+				0 :
+				$fetchRemoteRegionsRegistry.hashCode());
+		final Object $availabilityZones = this.getAvailabilityZones();
+		result = result * PRIME + ($availabilityZones == null ?
+				0 :
+				$availabilityZones.hashCode());
+		result = result * PRIME + (this.filterOnlyUpInstances ? 79 : 97);
+		result = result * PRIME + (this.fetchRegistry ? 79 : 97);
+		final Object $dollarReplacement = this.dollarReplacement;
+		result = result * PRIME + ($dollarReplacement == null ?
+				0 :
+				$dollarReplacement.hashCode());
+		final Object $escapeCharReplacement = this.escapeCharReplacement;
+		result = result * PRIME + ($escapeCharReplacement == null ?
+				0 :
+				$escapeCharReplacement.hashCode());
+		result = result * PRIME + (this.allowRedirects ? 79 : 97);
+		result = result * PRIME + (this.onDemandUpdateStatusChange ? 79 : 97);
+		final Object $encoderName = this.encoderName;
+		result = result * PRIME + ($encoderName == null ? 0 : $encoderName.hashCode());
+		final Object $decoderName = this.decoderName;
+		result = result * PRIME + ($decoderName == null ? 0 : $decoderName.hashCode());
+		final Object $clientDataAccept = this.clientDataAccept;
+		result = result * PRIME + ($clientDataAccept == null ?
+				0 :
+				$clientDataAccept.hashCode());
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof EurekaClientConfigBean;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.eureka.EurekaClientConfigBean(propertyResolver="
+				+ this.propertyResolver + ", enabled=" + this.enabled + ", transport="
+				+ this.transport + ", registryFetchIntervalSeconds="
+				+ this.registryFetchIntervalSeconds
+				+ ", instanceInfoReplicationIntervalSeconds="
+				+ this.instanceInfoReplicationIntervalSeconds
+				+ ", initialInstanceInfoReplicationIntervalSeconds="
+				+ this.initialInstanceInfoReplicationIntervalSeconds
+				+ ", eurekaServiceUrlPollIntervalSeconds="
+				+ this.eurekaServiceUrlPollIntervalSeconds + ", proxyPort="
+				+ this.proxyPort + ", proxyHost=" + this.proxyHost + ", proxyUserName="
+				+ this.proxyUserName + ", proxyPassword=" + this.proxyPassword
+				+ ", eurekaServerReadTimeoutSeconds="
+				+ this.eurekaServerReadTimeoutSeconds
+				+ ", eurekaServerConnectTimeoutSeconds="
+				+ this.eurekaServerConnectTimeoutSeconds + ", backupRegistryImpl="
+				+ this.backupRegistryImpl + ", eurekaServerTotalConnections="
+				+ this.eurekaServerTotalConnections
+				+ ", eurekaServerTotalConnectionsPerHost="
+				+ this.eurekaServerTotalConnectionsPerHost + ", eurekaServerURLContext="
+				+ this.eurekaServerURLContext + ", eurekaServerPort="
+				+ this.eurekaServerPort + ", eurekaServerDNSName="
+				+ this.eurekaServerDNSName + ", region=" + this.region
+				+ ", eurekaConnectionIdleTimeoutSeconds="
+				+ this.eurekaConnectionIdleTimeoutSeconds
+				+ ", registryRefreshSingleVipAddress="
+				+ this.registryRefreshSingleVipAddress
+				+ ", heartbeatExecutorThreadPoolSize="
+				+ this.heartbeatExecutorThreadPoolSize
+				+ ", heartbeatExecutorExponentialBackOffBound="
+				+ this.heartbeatExecutorExponentialBackOffBound
+				+ ", cacheRefreshExecutorThreadPoolSize="
+				+ this.cacheRefreshExecutorThreadPoolSize
+				+ ", cacheRefreshExecutorExponentialBackOffBound="
+				+ this.cacheRefreshExecutorExponentialBackOffBound + ", serviceUrl="
+				+ this.serviceUrl + ", gZipContent=" + this.gZipContent
+				+ ", useDnsForFetchingServiceUrls=" + this.useDnsForFetchingServiceUrls
+				+ ", registerWithEureka=" + this.registerWithEureka
+				+ ", preferSameZoneEureka=" + this.preferSameZoneEureka
+				+ ", logDeltaDiff=" + this.logDeltaDiff + ", disableDelta="
+				+ this.disableDelta + ", fetchRemoteRegionsRegistry="
+				+ this.fetchRemoteRegionsRegistry + ", availabilityZones=" + this
+				.getAvailabilityZones() + ", filterOnlyUpInstances="
+				+ this.filterOnlyUpInstances + ", fetchRegistry=" + this.fetchRegistry
+				+ ", dollarReplacement=" + this.dollarReplacement
+				+ ", escapeCharReplacement=" + this.escapeCharReplacement
+				+ ", allowRedirects=" + this.allowRedirects
+				+ ", onDemandUpdateStatusChange=" + this.onDemandUpdateStatusChange
+				+ ", encoderName=" + this.encoderName + ", decoderName="
+				+ this.decoderName + ", clientDataAccept=" + this.clientDataAccept + ")";
 	}
 }

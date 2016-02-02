@@ -18,21 +18,21 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.RequestDispatcher;
 
-import lombok.extern.apachecommons.CommonsLog;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+
+import org.apache.commons.logging.Log;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class SendErrorFilter extends ZuulFilter {
 
 	protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(SendErrorFilter.class);
 
 	@Value("${error.path:/error}")
 	private String errorPath;

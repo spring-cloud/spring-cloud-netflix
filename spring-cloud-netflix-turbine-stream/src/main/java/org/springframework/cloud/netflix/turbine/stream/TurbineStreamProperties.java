@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import lombok.Data;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
@@ -25,12 +23,66 @@ import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 /**
  * @author Dave Syer
  */
-@ConfigurationProperties("turbine.stream")
-@Data
-public class TurbineStreamProperties {
+@ConfigurationProperties("turbine.stream") public class TurbineStreamProperties {
 
 	@Value("${server.port:8989}")
 	private int port = 8989;
 
 	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
+
+	public TurbineStreamProperties() {
+	}
+
+	public int getPort() {
+		return this.port;
+	}
+
+	public String getDestination() {
+		return this.destination;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof TurbineStreamProperties))
+			return false;
+		final TurbineStreamProperties other = (TurbineStreamProperties) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		if (this.port != other.port)
+			return false;
+		final Object this$destination = this.destination;
+		final Object other$destination = other.destination;
+		if (this$destination == null ?
+				other$destination != null :
+				!this$destination.equals(other$destination))
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		result = result * PRIME + this.port;
+		final Object $destination = this.destination;
+		result = result * PRIME + ($destination == null ? 0 : $destination.hashCode());
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof TurbineStreamProperties;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.turbine.stream.TurbineStreamProperties(port="
+				+ this.port + ", destination=" + this.destination + ")";
+	}
 }

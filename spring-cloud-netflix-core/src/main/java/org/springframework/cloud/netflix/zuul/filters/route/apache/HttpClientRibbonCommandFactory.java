@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
@@ -26,11 +24,14 @@ import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory
 /**
  * @author Christian Lohmann
  */
-@RequiredArgsConstructor
 public class HttpClientRibbonCommandFactory implements
 		RibbonCommandFactory<HttpClientRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
+
+	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
+	}
 
 	@Override
 	public HttpClientRibbonCommand create(final RibbonCommandContext context) {

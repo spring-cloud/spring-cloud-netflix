@@ -16,6 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -30,14 +37,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.netflix.config.DynamicIntProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.constants.ZuulConstants;
+import com.netflix.zuul.context.RequestContext;
 
+import org.apache.commons.logging.Log;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -70,15 +76,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
-import com.netflix.zuul.context.RequestContext;
-
-import lombok.extern.apachecommons.CommonsLog;
-
-@CommonsLog
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
@@ -88,6 +85,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(SimpleHostRoutingFilter.class);
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);

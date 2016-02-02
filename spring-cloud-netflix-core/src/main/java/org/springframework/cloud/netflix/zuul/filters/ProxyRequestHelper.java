@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,8 +30,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
 
+import org.apache.commons.logging.Log;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -38,18 +41,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.util.HTTPRequestUtils;
-
 import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
  */
-@CommonsLog
 public class ProxyRequestHelper {
 
 	/**
@@ -57,6 +54,8 @@ public class ProxyRequestHelper {
 	 * Pre-filters can set this up as a set of lowercase strings.
 	 */
 	public static final String IGNORED_HEADERS = "ignoredHeaders";
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(ProxyRequestHelper.class);
 
 	private TraceRepository traces;
 

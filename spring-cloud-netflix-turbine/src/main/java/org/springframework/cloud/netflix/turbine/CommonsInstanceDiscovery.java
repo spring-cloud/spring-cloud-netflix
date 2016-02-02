@@ -20,16 +20,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.netflix.turbine.discovery.Instance;
+import com.netflix.turbine.discovery.InstanceDiscovery;
+
+import org.apache.commons.logging.Log;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-
-import com.netflix.turbine.discovery.Instance;
-import com.netflix.turbine.discovery.InstanceDiscovery;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Class that encapsulates an {@link InstanceDiscovery}
@@ -44,10 +43,11 @@ import lombok.extern.apachecommons.CommonsLog;
  *
  * @author Spencer Gibb
  */
-@CommonsLog
 public class CommonsInstanceDiscovery implements InstanceDiscovery {
 
 	private static final String DEFAULT_CLUSTER_NAME_EXPRESSION = "serviceId";
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(CommonsInstanceDiscovery.class);
 
 	private final Expression clusterNameExpression;
 	private DiscoveryClient discoveryClient;

@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,11 +46,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-
-import lombok.SneakyThrows;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -119,8 +117,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void requestWithHeaderWorks() {
+	public void requestWithHeaderWorks() throws Exception {
 		RequestEntity<Void> entity = RequestEntity.get(new URI("http://simple/header"))
 				.header("X-Param", "world")
 				.build();

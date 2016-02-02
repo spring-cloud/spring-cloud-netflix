@@ -19,15 +19,12 @@ package org.springframework.cloud.netflix.turbine;
 import java.util.Arrays;
 import java.util.List;
 
-import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Spencer Gibb
  */
-@Data
 @ConfigurationProperties("turbine")
 public class TurbineProperties {
 
@@ -36,6 +33,9 @@ public class TurbineProperties {
 	private String appConfig;
 
 	private boolean combineHostPort = false;
+
+	public TurbineProperties() {
+	}
 
 	public List<String> getAppConfigList() {
 		if (!StringUtils.hasText(appConfig)) {
@@ -46,5 +46,77 @@ public class TurbineProperties {
 			return Arrays.asList(parts);
 		}
 		return null;
+	}
+
+	public String getClusterNameExpression() {
+		return this.clusterNameExpression;
+	}
+
+	public String getAppConfig() {
+		return this.appConfig;
+	}
+
+	public boolean isCombineHostPort() {
+		return this.combineHostPort;
+	}
+
+	public void setClusterNameExpression(String clusterNameExpression) {
+		this.clusterNameExpression = clusterNameExpression;
+	}
+
+	public void setAppConfig(String appConfig) {
+		this.appConfig = appConfig;
+	}
+
+	public void setCombineHostPort(boolean combineHostPort) {
+		this.combineHostPort = combineHostPort;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof TurbineProperties))
+			return false;
+		final TurbineProperties other = (TurbineProperties) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$clusterNameExpression = this.clusterNameExpression;
+		final Object other$clusterNameExpression = other.clusterNameExpression;
+		if (this$clusterNameExpression == null ?
+				other$clusterNameExpression != null :
+				!this$clusterNameExpression.equals(other$clusterNameExpression))
+			return false;
+		final Object this$appConfig = this.appConfig;
+		final Object other$appConfig = other.appConfig;
+		if (this$appConfig == null ?
+				other$appConfig != null :
+				!this$appConfig.equals(other$appConfig))
+			return false;
+		if (this.combineHostPort != other.combineHostPort)
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $clusterNameExpression = this.clusterNameExpression;
+		result = result * PRIME + ($clusterNameExpression == null ?
+				0 :
+				$clusterNameExpression.hashCode());
+		final Object $appConfig = this.appConfig;
+		result = result * PRIME + ($appConfig == null ? 0 : $appConfig.hashCode());
+		result = result * PRIME + (this.combineHostPort ? 79 : 97);
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof TurbineProperties;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.turbine.TurbineProperties(clusterNameExpression="
+				+ this.clusterNameExpression + ", appConfig=" + this.appConfig
+				+ ", combineHostPort=" + this.combineHostPort + ")";
 	}
 }

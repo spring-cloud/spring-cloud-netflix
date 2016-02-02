@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.netflix.feign.encoding;
 
+import org.springframework.util.Assert;
+
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import lombok.AccessLevel;
-import lombok.Getter;
-import org.springframework.util.Assert;
 
 /**
  * The base request interceptor.
@@ -32,7 +31,6 @@ public abstract class BaseRequestInterceptor implements RequestInterceptor {
     /**
      * The encoding properties.
      */
-    @Getter(AccessLevel.PROTECTED)
     private final FeignClientEncodingProperties properties;
 
     /**
@@ -57,5 +55,9 @@ public abstract class BaseRequestInterceptor implements RequestInterceptor {
         if (!requestTemplate.headers().containsKey(name)) {
             requestTemplate.header(name, values);
         }
+    }
+
+    protected FeignClientEncodingProperties getProperties() {
+        return this.properties;
     }
 }

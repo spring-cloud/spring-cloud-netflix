@@ -16,16 +16,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.util.MultiValueMap;
 
 import com.netflix.client.ClientException;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -33,11 +28,15 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.MultiValueMap;
 
-@CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(RibbonRoutingFilter.class);
 	private ProxyRequestHelper helper;
 	private RibbonCommandFactory<?> ribbonCommandFactory;
 

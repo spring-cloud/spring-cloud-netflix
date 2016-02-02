@@ -19,8 +19,9 @@ package org.springframework.cloud.netflix.turbine.stream;
 import java.io.IOException;
 import java.util.Map;
 
-import lombok.extern.apachecommons.CommonsLog;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Component;
@@ -28,15 +29,14 @@ import org.springframework.util.StringUtils;
 
 import rx.subjects.PublishSubject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 @Component //needed for ServiceActivator to be picked up
 public class HystrixStreamAggregator {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(HystrixStreamAggregator.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 

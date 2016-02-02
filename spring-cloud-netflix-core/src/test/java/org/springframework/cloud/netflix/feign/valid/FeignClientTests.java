@@ -16,14 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -32,9 +24,9 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,9 +38,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.feign.support.FallbackCommand;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
+import org.springframework.cloud.netflix.feign.support.FallbackCommand;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -64,15 +56,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-
 import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import rx.Observable;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -411,11 +407,57 @@ public class FeignClientTests {
 		assertEquals("message was wrong", "fallbackfuture", hello.getMessage());
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public Hello() {
+		}
+
+		public String getMessage() {
+			return this.message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public boolean equals(Object o) {
+			if (o == this)
+				return true;
+			if (!(o instanceof Hello))
+				return false;
+			final Hello other = (Hello) o;
+			if (!other.canEqual((Object) this))
+				return false;
+			final Object this$message = this.message;
+			final Object other$message = other.message;
+			if (this$message == null ?
+					other$message != null :
+					!this$message.equals(other$message))
+				return false;
+			return true;
+		}
+
+		public int hashCode() {
+			final int PRIME = 59;
+			int result = 1;
+			final Object $message = this.message;
+			result = result * PRIME + ($message == null ? 0 : $message.hashCode());
+			return result;
+		}
+
+		protected boolean canEqual(Object other) {
+			return other instanceof Hello;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.feign.valid.FeignClientTests.Hello(message="
+					+ this.message + ")";
+		}
 	}
 
 	@Configuration

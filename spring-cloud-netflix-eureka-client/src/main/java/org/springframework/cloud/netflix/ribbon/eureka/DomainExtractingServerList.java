@@ -19,9 +19,6 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
@@ -78,8 +75,6 @@ public class DomainExtractingServerList implements ServerList<DiscoveryEnabledSe
 
 class DomainExtractingServer extends DiscoveryEnabledServer {
 
-	@Getter
-	@Setter
 	private String id;
 
 	public DomainExtractingServer(DiscoveryEnabledServer server, boolean useSecurePort,
@@ -109,5 +104,13 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 			}
 		}
 		return super.getId();
+	}
+
+	public String getId() {
+		return this.id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

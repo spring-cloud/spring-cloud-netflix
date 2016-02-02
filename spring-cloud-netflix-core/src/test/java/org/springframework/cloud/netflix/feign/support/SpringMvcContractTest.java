@@ -2,6 +2,8 @@ package org.springframework.cloud.netflix.feign.support;
 
 import java.lang.reflect.Method;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -14,14 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import feign.MethodMetadata;
 
 import static org.junit.Assert.assertEquals;
-
-import feign.MethodMetadata;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * @author chadjaros
@@ -170,14 +167,19 @@ public class SpringMvcContractTest {
 		TestObject getTest();
 	}
 
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@ToString
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
 	public class TestObject {
 
 		public String something;
 		public Double number;
+
+		public TestObject(String something, Double number) {
+			this.something = something;
+			this.number = number;
+		}
+
+		public TestObject() {
+		}
 
 		@Override
 		public boolean equals(Object o) {
@@ -207,6 +209,11 @@ public class SpringMvcContractTest {
 			int result = (this.something != null ? this.something.hashCode() : 0);
 			result = 31 * result + (this.number != null ? this.number.hashCode() : 0);
 			return result;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.feign.support.SpringMvcContractTest.TestObject(something="
+					+ this.something + ", number=" + this.number + ")";
 		}
 	}
 }

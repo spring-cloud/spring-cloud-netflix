@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.encoding;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -24,7 +23,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @author Jakub Narloch
  */
-@Data
 @ConfigurationProperties("feign.compression.request")
 public class FeignClientEncodingProperties {
 
@@ -37,4 +35,56 @@ public class FeignClientEncodingProperties {
      * The minimum threshold content size.
      */
     private int minRequestSize = 2048;
+
+    public FeignClientEncodingProperties() {
+    }
+
+    public String[] getMimeTypes() {
+        return this.mimeTypes;
+    }
+
+    public int getMinRequestSize() {
+        return this.minRequestSize;
+    }
+
+    public void setMimeTypes(String[] mimeTypes) {
+        this.mimeTypes = mimeTypes;
+    }
+
+    public void setMinRequestSize(int minRequestSize) {
+        this.minRequestSize = minRequestSize;
+    }
+
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof FeignClientEncodingProperties))
+            return false;
+        final FeignClientEncodingProperties other = (FeignClientEncodingProperties) o;
+        if (!other.canEqual((Object) this))
+            return false;
+        if (!java.util.Arrays.deepEquals(this.mimeTypes, other.mimeTypes))
+            return false;
+        if (this.minRequestSize != other.minRequestSize)
+            return false;
+        return true;
+    }
+
+    public int hashCode() {
+        final int PRIME = 59;
+        int result = 1;
+        result = result * PRIME + java.util.Arrays.deepHashCode(this.mimeTypes);
+        result = result * PRIME + this.minRequestSize;
+        return result;
+    }
+
+    protected boolean canEqual(Object other) {
+        return other instanceof FeignClientEncodingProperties;
+    }
+
+    public String toString() {
+        return "org.springframework.cloud.netflix.feign.encoding.FeignClientEncodingProperties(mimeTypes="
+                + java.util.Arrays.deepToString(this.mimeTypes) + ", minRequestSize="
+                + this.minRequestSize + ")";
+    }
 }

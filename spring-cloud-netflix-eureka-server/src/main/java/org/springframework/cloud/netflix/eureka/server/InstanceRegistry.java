@@ -18,8 +18,7 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import java.util.List;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceCanceledEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
@@ -40,9 +39,10 @@ import com.netflix.eureka.resources.ServerCodecs;
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements ApplicationContextAware {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(InstanceRegistry.class);
 	private ApplicationContext ctxt;
 	private int defaultOpenForTrafficCount;
 
