@@ -44,9 +44,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import feign.Client;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -214,11 +211,55 @@ public class FeignHttpClientTests {
 		}
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class User {
 		private String name;
+
+		public User(String name) {
+			this.name = name;
+		}
+
+		public User() {
+		}
+
+		public String getName() {
+			return this.name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public boolean equals(Object o) {
+			if (o == this)
+				return true;
+			if (!(o instanceof User))
+				return false;
+			final User other = (User) o;
+			if (!other.canEqual((Object) this))
+				return false;
+			final Object this$name = this.name;
+			final Object other$name = other.name;
+			if (this$name == null ? other$name != null : !this$name.equals(other$name))
+				return false;
+			return true;
+		}
+
+		public int hashCode() {
+			final int PRIME = 59;
+			int result = 1;
+			final Object $name = this.name;
+			result = result * PRIME + ($name == null ? 0 : $name.hashCode());
+			return result;
+		}
+
+		protected boolean canEqual(Object other) {
+			return other instanceof User;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.feign.valid.FeignHttpClientTests.User(name="
+					+ this.name + ")";
+		}
 	}
 
 	// Load balancer with fixed server list for "local" pointing to localhost

@@ -23,7 +23,6 @@ import feign.Request;
 import feign.Request.Options;
 import feign.RequestTemplate;
 import feign.Response;
-import lombok.SneakyThrows;
 
 import static com.netflix.client.config.CommonClientConfigKey.ConnectTimeout;
 import static com.netflix.client.config.CommonClientConfigKey.IsSecure;
@@ -89,8 +88,7 @@ public class RibbonLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testSecureUriFromClientConfig() {
+	public void testSecureUriFromClientConfig() throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(true);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
@@ -101,8 +99,7 @@ public class RibbonLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testSecureUriFromClientConfigOverride() {
+	public void testSecureUriFromClientConfigOverride() throws Exception {
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
 		Server server = Mockito.mock(Server.class);

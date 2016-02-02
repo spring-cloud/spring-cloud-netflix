@@ -36,8 +36,6 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 
-import lombok.SneakyThrows;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -83,7 +81,7 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	public void reconstructURI() {
+	public void reconstructURI() throws Exception {
 		testReconstructURI("http");
 	}
 
@@ -92,8 +90,7 @@ public class RibbonLoadBalancerClientTests {
 		testReconstructURI("https");
 	}
 
-	@SneakyThrows
-	private void testReconstructURI(String scheme) {
+	private void testReconstructURI(String scheme) throws Exception {
 		RibbonServer server = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
@@ -104,8 +101,7 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testReconstructUriWithSecureClientConfig() {
+	public void testReconstructUriWithSecureClientConfig() throws Exception {
 		RibbonServer server = getRibbonServer();
 		IClientConfig config = mock(IClientConfig.class);
 		when(config.get(CommonClientConfigKey.IsSecure, false)).thenReturn(true);
