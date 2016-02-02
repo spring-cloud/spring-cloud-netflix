@@ -19,11 +19,11 @@ package org.springframework.cloud.netflix.zuul.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.ServletWrappingController;
-
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.ZuulServlet;
+
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.ServletWrappingController;
 
 /**
  * @author Spencer Gibb

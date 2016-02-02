@@ -18,20 +18,72 @@ package org.springframework.cloud.netflix.ribbon;
 
 import org.springframework.cloud.context.named.NamedContextFactory;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * @author Dave Syer
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class RibbonClientSpecification implements NamedContextFactory.Specification {
 
 	private String name;
 
 	private Class<?>[] configuration;
 
+	public RibbonClientSpecification(String name, Class<?>[] configuration) {
+		this.name = name;
+		this.configuration = configuration;
+	}
+
+	public RibbonClientSpecification() {
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public Class<?>[] getConfiguration() {
+		return this.configuration;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setConfiguration(Class<?>[] configuration) {
+		this.configuration = configuration;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof RibbonClientSpecification))
+			return false;
+		final RibbonClientSpecification other = (RibbonClientSpecification) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$name = this.name;
+		final Object other$name = other.name;
+		if (this$name == null ? other$name != null : !this$name.equals(other$name))
+			return false;
+		if (!java.util.Arrays.deepEquals(this.configuration, other.configuration))
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $name = this.name;
+		result = result * PRIME + ($name == null ? 0 : $name.hashCode());
+		result = result * PRIME + java.util.Arrays.deepHashCode(this.configuration);
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof RibbonClientSpecification;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.ribbon.RibbonClientSpecification(name="
+				+ this.name + ", configuration=" + java.util.Arrays
+				.deepToString(this.configuration) + ")";
+	}
 }

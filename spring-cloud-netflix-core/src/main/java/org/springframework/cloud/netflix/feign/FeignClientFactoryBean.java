@@ -39,14 +39,10 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import feign.slf4j.Slf4jLogger;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author Spencer Gibb
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		ApplicationContextAware {
 
@@ -75,6 +71,9 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	private ApplicationContext applicationContext;
 
 	private Class<?> fallback = void.class;
+
+	public FeignClientFactoryBean() {
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -188,6 +187,117 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	@Override
 	public boolean isSingleton() {
 		return true;
+	}
+
+	public Class<?> getType() {
+		return this.type;
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public String getUrl() {
+		return this.url;
+	}
+
+	public boolean isDecode404() {
+		return this.decode404;
+	}
+
+	public ApplicationContext getApplicationContext() {
+		return this.applicationContext;
+	}
+
+	public Class<?> getFallback() {
+		return this.fallback;
+	}
+
+	public void setType(Class<?> type) {
+		this.type = type;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setDecode404(boolean decode404) {
+		this.decode404 = decode404;
+	}
+
+	public void setFallback(Class<?> fallback) {
+		this.fallback = fallback;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.feign.FeignClientFactoryBean(type="
+				+ this.type + ", name=" + this.name + ", url=" + this.url + ", decode404="
+				+ this.decode404 + ", applicationContext=" + this.applicationContext
+				+ ", fallback=" + this.fallback + ")";
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof FeignClientFactoryBean))
+			return false;
+		final FeignClientFactoryBean other = (FeignClientFactoryBean) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$type = this.getType();
+		final Object other$type = other.getType();
+		if (this$type == null ? other$type != null : !this$type.equals(other$type))
+			return false;
+		final Object this$name = this.getName();
+		final Object other$name = other.getName();
+		if (this$name == null ? other$name != null : !this$name.equals(other$name))
+			return false;
+		final Object this$url = this.getUrl();
+		final Object other$url = other.getUrl();
+		if (this$url == null ? other$url != null : !this$url.equals(other$url))
+			return false;
+		if (this.isDecode404() != other.isDecode404())
+			return false;
+		final Object this$applicationContext = this.getApplicationContext();
+		final Object other$applicationContext = other.getApplicationContext();
+		if (this$applicationContext == null ?
+				other$applicationContext != null :
+				!this$applicationContext.equals(other$applicationContext))
+			return false;
+		final Object this$fallback = this.getFallback();
+		final Object other$fallback = other.getFallback();
+		if (this$fallback == null ?
+				other$fallback != null :
+				!this$fallback.equals(other$fallback))
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $type = this.getType();
+		result = result * PRIME + ($type == null ? 0 : $type.hashCode());
+		final Object $name = this.getName();
+		result = result * PRIME + ($name == null ? 0 : $name.hashCode());
+		final Object $url = this.getUrl();
+		result = result * PRIME + ($url == null ? 0 : $url.hashCode());
+		result = result * PRIME + (this.isDecode404() ? 79 : 97);
+		final Object $applicationContext = this.getApplicationContext();
+		result = result * PRIME + ($applicationContext == null ?
+				0 :
+				$applicationContext.hashCode());
+		final Object $fallback = this.getFallback();
+		result = result * PRIME + ($fallback == null ? 0 : $fallback.hashCode());
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof FeignClientFactoryBean;
 	}
 
 	interface Targeter {

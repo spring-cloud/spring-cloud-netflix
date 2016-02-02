@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +43,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import feign.Client;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -50,11 +55,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-
-import feign.Client;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -161,11 +161,57 @@ public class FeignHttpClientTests {
 		assertEquals("Users were different", user, new User("John Smith"));
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public Hello() {
+		}
+
+		public String getMessage() {
+			return this.message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public boolean equals(Object o) {
+			if (o == this)
+				return true;
+			if (!(o instanceof Hello))
+				return false;
+			final Hello other = (Hello) o;
+			if (!other.canEqual((Object) this))
+				return false;
+			final Object this$message = this.message;
+			final Object other$message = other.message;
+			if (this$message == null ?
+					other$message != null :
+					!this$message.equals(other$message))
+				return false;
+			return true;
+		}
+
+		public int hashCode() {
+			final int PRIME = 59;
+			int result = 1;
+			final Object $message = this.message;
+			result = result * PRIME + ($message == null ? 0 : $message.hashCode());
+			return result;
+		}
+
+		protected boolean canEqual(Object other) {
+			return other instanceof Hello;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.feign.valid.FeignHttpClientTests.Hello(message="
+					+ this.message + ")";
+		}
 	}
 
 	@Data

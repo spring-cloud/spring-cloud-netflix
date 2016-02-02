@@ -16,17 +16,12 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,8 +44,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -128,11 +124,57 @@ public class FeignRibbonClientRetryTests {
 		// maybe the assertEquals above is enough because of the bogus servers
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public Hello() {
+		}
+
+		public String getMessage() {
+			return this.message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public boolean equals(Object o) {
+			if (o == this)
+				return true;
+			if (!(o instanceof Hello))
+				return false;
+			final Hello other = (Hello) o;
+			if (!other.canEqual((Object) this))
+				return false;
+			final Object this$message = this.message;
+			final Object other$message = other.message;
+			if (this$message == null ?
+					other$message != null :
+					!this$message.equals(other$message))
+				return false;
+			return true;
+		}
+
+		public int hashCode() {
+			final int PRIME = 59;
+			int result = 1;
+			final Object $message = this.message;
+			result = result * PRIME + ($message == null ? 0 : $message.hashCode());
+			return result;
+		}
+
+		protected boolean canEqual(Object other) {
+			return other instanceof Hello;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientRetryTests.Hello(message="
+					+ this.message + ")";
+		}
 	}
 }
 

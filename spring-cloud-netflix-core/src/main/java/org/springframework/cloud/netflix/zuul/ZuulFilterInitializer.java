@@ -16,28 +16,28 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import lombok.extern.apachecommons.CommonsLog;
-import org.springframework.util.ReflectionUtils;
+import java.lang.reflect.Field;
+import java.util.Map;
 
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.monitoring.MonitoringHelper;
 
+import org.apache.commons.logging.Log;
+import org.springframework.util.ReflectionUtils;
+
 /**
  * @author Spencer Gibb
  *
  * TODO: .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
  */
-@CommonsLog
 public class ZuulFilterInitializer implements ServletContextListener {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(ZuulFilterInitializer.class);
 	private Map<String, ZuulFilter> filters;
 
 	public ZuulFilterInitializer(Map<String, ZuulFilter> filters) {

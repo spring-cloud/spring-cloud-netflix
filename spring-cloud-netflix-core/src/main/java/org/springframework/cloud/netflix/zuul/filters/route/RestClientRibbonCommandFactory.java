@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import java.net.URISyntaxException;
 
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
 
-import lombok.SneakyThrows;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 /**
  * @author Spencer Gibb
@@ -36,14 +36,18 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 
 	@Override
 	@SuppressWarnings("deprecation")
-	@SneakyThrows
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
 		RestClient restClient = this.clientFactory.getClient(context.getServiceId(),
 				RestClient.class);
-		return new RestClientRibbonCommand(
-				context.getServiceId(), restClient, getVerb(context.getVerb()),
-				context.getUri(), context.getRetryable(), context.getHeaders(),
-				context.getParams(), context.getRequestEntity());
+		try {
+			return new RestClientRibbonCommand(
+					context.getServiceId(), restClient, getVerb(context.getVerb()),
+					context.getUri(), context.getRetryable(), context.getHeaders(),
+					context.getParams(), context.getRequestEntity());
+		}
+		catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	protected SpringClientFactory getClientFactory() {

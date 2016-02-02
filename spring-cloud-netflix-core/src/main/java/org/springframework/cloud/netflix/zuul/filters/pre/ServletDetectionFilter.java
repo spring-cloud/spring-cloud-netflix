@@ -16,17 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import java.lang.reflect.Field;
-
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.cloud.netflix.zuul.util.RequestUtils;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 import com.netflix.zuul.http.ZuulServlet;
+
+import org.springframework.cloud.netflix.zuul.util.RequestUtils;
+import org.springframework.web.servlet.DispatcherServlet;
 
 /**
  * Detects whether a request is ran through the {@link DispatcherServlet} or {@link ZuulServlet}.

@@ -16,9 +16,10 @@
 
 package org.springframework.cloud.netflix.zuul.web;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
-import javax.servlet.http.HttpServletRequest;
+import com.netflix.zuul.context.RequestContext;
 
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
@@ -26,8 +27,6 @@ import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
-
-import com.netflix.zuul.context.RequestContext;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.

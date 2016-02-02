@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import java.io.IOException;
-import java.util.Collection;
-
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
@@ -28,6 +25,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import java.io.IOException;
+import java.util.Collection;
 
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 

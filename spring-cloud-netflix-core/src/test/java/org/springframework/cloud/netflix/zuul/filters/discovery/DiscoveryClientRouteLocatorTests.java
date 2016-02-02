@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.netflix.zuul.context.RequestContext;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -31,8 +33,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import com.netflix.zuul.context.RequestContext;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,10 +40,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -67,15 +63,95 @@ public class DiscoveryClientRouteLocatorTests {
 
 	private ZuulProperties properties = new ZuulProperties();
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class RegexMapper {
 		private boolean enabled = false;
 
 		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
 
 		private String routePattern = "${version}/${name}";
+
+		public RegexMapper(boolean enabled, String servicePattern, String routePattern) {
+			this.enabled = enabled;
+			this.servicePattern = servicePattern;
+			this.routePattern = routePattern;
+		}
+
+		public RegexMapper() {
+		}
+
+		public boolean isEnabled() {
+			return this.enabled;
+		}
+
+		public String getServicePattern() {
+			return this.servicePattern;
+		}
+
+		public String getRoutePattern() {
+			return this.routePattern;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public void setServicePattern(String servicePattern) {
+			this.servicePattern = servicePattern;
+		}
+
+		public void setRoutePattern(String routePattern) {
+			this.routePattern = routePattern;
+		}
+
+		public boolean equals(Object o) {
+			if (o == this)
+				return true;
+			if (!(o instanceof RegexMapper))
+				return false;
+			final RegexMapper other = (RegexMapper) o;
+			if (!other.canEqual((Object) this))
+				return false;
+			if (this.enabled != other.enabled)
+				return false;
+			final Object this$servicePattern = this.servicePattern;
+			final Object other$servicePattern = other.servicePattern;
+			if (this$servicePattern == null ?
+					other$servicePattern != null :
+					!this$servicePattern.equals(other$servicePattern))
+				return false;
+			final Object this$routePattern = this.routePattern;
+			final Object other$routePattern = other.routePattern;
+			if (this$routePattern == null ?
+					other$routePattern != null :
+					!this$routePattern.equals(other$routePattern))
+				return false;
+			return true;
+		}
+
+		public int hashCode() {
+			final int PRIME = 59;
+			int result = 1;
+			result = result * PRIME + (this.enabled ? 79 : 97);
+			final Object $servicePattern = this.servicePattern;
+			result = result * PRIME + ($servicePattern == null ?
+					0 :
+					$servicePattern.hashCode());
+			final Object $routePattern = this.routePattern;
+			result = result * PRIME + ($routePattern == null ?
+					0 :
+					$routePattern.hashCode());
+			return result;
+		}
+
+		protected boolean canEqual(Object other) {
+			return other instanceof RegexMapper;
+		}
+
+		public String toString() {
+			return "org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocatorTests.RegexMapper(enabled="
+					+ this.enabled + ", servicePattern=" + this.servicePattern
+					+ ", routePattern=" + this.routePattern + ")";
+		}
 	}
 
 	private RegexMapper regexMapper = new RegexMapper();

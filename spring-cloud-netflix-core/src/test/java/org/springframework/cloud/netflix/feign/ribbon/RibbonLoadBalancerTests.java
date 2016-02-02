@@ -1,5 +1,30 @@
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonRequest;
+import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonResponse;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+
+import feign.Client;
+import feign.Request;
+import feign.Request.Options;
+import feign.RequestTemplate;
+import feign.Response;
+import lombok.SneakyThrows;
+
 import static com.netflix.client.config.CommonClientConfigKey.ConnectTimeout;
 import static com.netflix.client.config.CommonClientConfigKey.IsSecure;
 import static com.netflix.client.config.CommonClientConfigKey.MaxAutoRetries;
@@ -14,31 +39,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-
-import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonRequest;
-import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonResponse;
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-
-import feign.Client;
-import feign.Request;
-import feign.Request.Options;
-import feign.RequestTemplate;
-import feign.Response;
-import lombok.SneakyThrows;
 
 public class RibbonLoadBalancerTests {
 
@@ -69,8 +69,7 @@ public class RibbonLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testUriInsecure() {
+	public void testUriInsecure() throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);

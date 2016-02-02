@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
-import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,8 +23,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
@@ -38,12 +35,15 @@ import feign.RequestTemplate;
 import feign.codec.EncodeException;
 import feign.codec.Encoder;
 
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
+
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class SpringEncoder implements Encoder {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(SpringEncoder.class);
 	private ObjectFactory<HttpMessageConverters> messageConverters;
 
 	public SpringEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {

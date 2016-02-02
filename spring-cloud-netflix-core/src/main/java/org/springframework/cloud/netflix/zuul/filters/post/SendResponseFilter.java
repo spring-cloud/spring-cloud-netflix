@@ -16,15 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.util.ReflectionUtils;
 
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicIntProperty;
@@ -36,14 +34,16 @@ import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
 
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class SendResponseFilter extends ZuulFilter {
 
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(SendResponseFilter.class);
 	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
 			.getInstance().getBooleanProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER,
 					false);

@@ -20,20 +20,17 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import com.netflix.client.ClientRequest;
+
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.BasicHttpEntity;
 import org.springframework.util.MultiValueMap;
 
-import com.netflix.client.ClientRequest;
-
-import lombok.Getter;
-
 /**
  * @author Christian Lohmann
  */
-@Getter
 public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable {
 
 	private final String method;
@@ -89,4 +86,19 @@ public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable 
 				this.headers, this.params, this.requestEntity);
 	}
 
+	public String getMethod() {
+		return this.method;
+	}
+
+	public MultiValueMap<String, String> getHeaders() {
+		return this.headers;
+	}
+
+	public MultiValueMap<String, String> getParams() {
+		return this.params;
+	}
+
+	public InputStream getRequestEntity() {
+		return this.requestEntity;
+	}
 }

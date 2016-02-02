@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
@@ -31,8 +32,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * A {@link RouteLocator} that combines static, configured routes with those from a
  * {@link DiscoveryClient}. The discovery client takes precedence.
@@ -40,11 +39,12 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author Spencer Gibb
  * @author Dave Syer
  */
-@CommonsLog
 public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		implements RefreshableRouteLocator {
 
 	public static final String DEFAULT_ROUTE = "/**";
+	private static final Log log = org.apache.commons.logging.LogFactory
+			.getLog(DiscoveryClientRouteLocator.class);
 
 	private DiscoveryClient discovery;
 

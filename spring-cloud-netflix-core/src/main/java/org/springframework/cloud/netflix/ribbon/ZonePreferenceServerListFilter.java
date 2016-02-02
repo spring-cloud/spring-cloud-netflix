@@ -19,9 +19,6 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -34,11 +31,12 @@ import com.netflix.loadbalancer.ZoneAffinityServerListFilter;
  *
  * @author Dave Syer
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter<Server> {
 
 	private String zone;
+
+	public ZonePreferenceServerListFilter() {
+	}
 
 	@Override
 	public void initWithNiwsConfig(IClientConfig niwsClientConfig) {
@@ -66,4 +64,43 @@ public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter
 		return output;
 	}
 
+	public String getZone() {
+		return this.zone;
+	}
+
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+
+	public String toString() {
+		return "org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter(zone="
+				+ this.zone + ")";
+	}
+
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof ZonePreferenceServerListFilter))
+			return false;
+		final ZonePreferenceServerListFilter other = (ZonePreferenceServerListFilter) o;
+		if (!other.canEqual((Object) this))
+			return false;
+		final Object this$zone = this.getZone();
+		final Object other$zone = other.getZone();
+		if (this$zone == null ? other$zone != null : !this$zone.equals(other$zone))
+			return false;
+		return true;
+	}
+
+	public int hashCode() {
+		final int PRIME = 59;
+		int result = 1;
+		final Object $zone = this.getZone();
+		result = result * PRIME + ($zone == null ? 0 : $zone.hashCode());
+		return result;
+	}
+
+	protected boolean canEqual(Object other) {
+		return other instanceof ZonePreferenceServerListFilter;
+	}
 }
