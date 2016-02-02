@@ -165,6 +165,11 @@ repository, but it does mean that we can accept your contributions, and you will
 author credit if we do.  Active contributors might be asked to join the core team, and
 given the ability to merge pull requests.
 
+=== Code of Conduct
+This project adheres to the Contributor Covenant https://github.com/spring-cloud/spring-cloud-build/blob/master/docs/src/main/asciidoc/code-of-conduct.adoc[code of
+conduct]. By participating, you  are expected to uphold this code. Please report
+unacceptable behavior to spring-code-of-conduct@pivotal.io.
+
 === Code Conventions and Housekeeping
 None of these is essential for a pull request, but they will all help.  They can also be
 added after the original pull request but before a merge.
@@ -172,7 +177,7 @@ added after the original pull request but before a merge.
 * Use the Spring Framework code format conventions. If you use Eclipse
   you can import formatter settings using the
   `eclipse-code-formatter.xml` file from the
-  https://github.com/spring-cloud/spring-cloud-build/blob/master/spring-cloud-build/eclipse-code-formatter.xml[Spring
+  https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/spring-cloud-dependencies-parent/eclipse-code-formatter.xml[Spring
   Cloud Build] project. If using IntelliJ, you can use the
   http://plugins.jetbrains.com/plugin/6546[Eclipse Code Formatter
   Plugin] to import the same file.
