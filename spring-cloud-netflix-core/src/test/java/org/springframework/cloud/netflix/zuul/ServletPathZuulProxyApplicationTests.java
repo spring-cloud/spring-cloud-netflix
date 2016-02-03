@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netflix.zuul.context.RequestContext;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -57,6 +60,12 @@ public class ServletPathZuulProxyApplicationTests {
 
 	@Autowired
 	private RoutesEndpoint endpoint;
+
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	@Test
 	public void getOnSelfViaSimpleHostRoutingFilter() {

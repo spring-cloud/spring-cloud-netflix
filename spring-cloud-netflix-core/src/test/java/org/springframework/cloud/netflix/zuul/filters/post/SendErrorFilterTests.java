@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -35,9 +36,15 @@ import static org.mockito.Mockito.mock;
  */
 public class SendErrorFilterTests {
 
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
+
 	@After
 	public void reset() {
-		RequestContext.testSetCurrentContext(null);
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test

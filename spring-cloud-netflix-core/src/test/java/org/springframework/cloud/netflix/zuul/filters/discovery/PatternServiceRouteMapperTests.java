@@ -1,7 +1,9 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.springframework.cloud.netflix.zuul.filters.discovery.PatternServiceRouteMapper;
+
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,6 +18,12 @@ public class PatternServiceRouteMapperTests {
 	 */
 	public static final String SERVICE_PATTERN = "(?<domain>^\\w+)(-(?<name>\\w+)-|-)(?<version>v\\d+$)";
 	public static final String ROUTE_PATTERN = "${version}/${domain}/${name}";
+
+	@Before
+	public void setTestRequestcontext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	@Test
 	public void test_return_mapped_route_if_serviceid_matches() {
@@ -39,8 +47,9 @@ public class PatternServiceRouteMapperTests {
 	@Test
 	public void test_route_should_be_cleaned_before_returned() {
 		// Messy patterns
-		PatternServiceRouteMapper toTest = new PatternServiceRouteMapper(SERVICE_PATTERN
-				+ "(?<nevermatch>.)?", "/${version}/${nevermatch}/${domain}/${name}/");
+		PatternServiceRouteMapper toTest = new PatternServiceRouteMapper(
+				SERVICE_PATTERN + "(?<nevermatch>.)?",
+				"/${version}/${nevermatch}/${domain}/${name}/");
 		assertEquals("No matches for this service id", "v1/domain/service",
 				toTest.apply("domain-service-v1"));
 		assertEquals("No matches for this service id", "v1/domain",
