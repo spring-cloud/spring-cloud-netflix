@@ -36,7 +36,7 @@ public class ServoMetricReaderTests {
 				metricNames.get(0));
 		assertEquals("metricName(statistic=max,type=GAUGE,unit=MILLISECONDS)",
 				metricNames.get(1));
-		assertEquals("metricName(statistic=min,type=GAUGE,unit=MILLISECONDS)",
+		assertEquals("metricName(statistic=totalOfSquares,type=NORMALIZED,unit=MILLISECONDS)",
 				metricNames.get(2));
 		assertEquals("metricName(statistic=totalTime,type=NORMALIZED,unit=MILLISECONDS)",
 				metricNames.get(3));

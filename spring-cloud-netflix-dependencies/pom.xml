@@ -22,7 +22,7 @@
 		<feign.version>8.14.2</feign.version>
 		<hystrix.version>1.4.23</hystrix.version>
 		<ribbon.version>2.1.0</ribbon.version>
-		<servo.version>0.10.0</servo.version>
+		<servo.version>0.12.3</servo.version>
 		<zuul.version>1.1.0</zuul.version>
 		<rxjava.version>1.0.14</rxjava.version>
 		<java.version>1.7</java.version>
