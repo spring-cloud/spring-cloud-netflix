@@ -220,7 +220,9 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	private int cacheRefreshExecutorExponentialBackOffBound = 10;
 
 	/**
-	 * Map of availability zone to fully qualified URLs to communicate with eureka server.
+	 * Map of availability zone to list of fully qualified URLs to communicate with eureka
+	 * server. Each value can be a single URL or a comma separated list of alternative
+	 * locations.
 	 *
 	 * Typically the eureka server URLs carry protocol,host,port,context and version
 	 * information if any. Example:

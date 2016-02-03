@@ -16,14 +16,14 @@
 
 package org.springframework.cloud.netflix.feign.encoding.app.client;
 
+import java.util.List;
+
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.encoding.app.domain.Invoice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.List;
 
 /**
  * Simple Feign client for retrieving the invoice list.
@@ -33,10 +33,9 @@ import java.util.List;
 @FeignClient("local")
 public interface InvoiceClient {
 
-    @RequestMapping(value = "invoices", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<Invoice>> getInvoices();
+	@RequestMapping(value = "invoices", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	ResponseEntity<List<Invoice>> getInvoices();
 
-    @RequestMapping(value = "invoices", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<Invoice>> saveInvoices(List<Invoice> invoices);
+	@RequestMapping(value = "invoices", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	ResponseEntity<List<Invoice>> saveInvoices(List<Invoice> invoices);
 }

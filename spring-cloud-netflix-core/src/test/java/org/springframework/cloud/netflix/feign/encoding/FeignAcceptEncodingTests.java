@@ -16,14 +16,14 @@
 
 package org.springframework.cloud.netflix.feign.encoding;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -31,15 +31,15 @@ import org.springframework.cloud.netflix.feign.encoding.app.client.InvoiceClient
 import org.springframework.cloud.netflix.feign.encoding.app.domain.Invoice;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.Collections;
-import java.util.List;
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,47 +50,46 @@ import static org.junit.Assert.assertNotNull;
  * @author Jakub Narloch
  */
 @WebAppConfiguration
-@IntegrationTest({"server.port=0","feign.compression.response.enabled=true"})
-@SpringApplicationConfiguration(classes = {FeignAcceptEncodingTest.Application.class})
+@IntegrationTest({ "server.port=0", "feign.compression.response.enabled=true" })
+@SpringApplicationConfiguration(classes = { FeignAcceptEncodingTests.Application.class })
 @RunWith(SpringJUnit4ClassRunner.class)
-public class FeignAcceptEncodingTest {
+public class FeignAcceptEncodingTests {
 
-    @Autowired
-    private InvoiceClient invoiceClient;
+	@Autowired
+	private InvoiceClient invoiceClient;
 
-    @Test
-    public void compressedResponse() {
+	@Test
+	public void compressedResponse() {
 
-        // when
-        final ResponseEntity<List<Invoice>> invoices = invoiceClient.getInvoices();
+		// when
+		final ResponseEntity<List<Invoice>> invoices = this.invoiceClient.getInvoices();
 
-        // then
-        assertNotNull(invoices);
-        assertEquals(HttpStatus.OK, invoices.getStatusCode());
-        assertNotNull(invoices.getBody());
-        assertEquals(100, invoices.getBody().size());
+		// then
+		assertNotNull(invoices);
+		assertEquals(HttpStatus.OK, invoices.getStatusCode());
+		assertNotNull(invoices.getBody());
+		assertEquals(100, invoices.getBody().size());
 
-    }
+	}
 
-    @EnableFeignClients(clients = InvoiceClient.class)
-    @RibbonClient(name = "local", configuration = LocalRibbonClientConfiguration.class)
-    @ComponentScan("org.springframework.cloud.netflix.feign.encoding.app")
-    @EnableAutoConfiguration
-    @Configuration
-    public static class Application {
-    }
+	@EnableFeignClients(clients = InvoiceClient.class)
+	@RibbonClient(name = "local", configuration = LocalRibbonClientConfiguration.class)
+	@SpringBootApplication(scanBasePackages = "org.springframework.cloud.netflix.feign.encoding.app")
+	public static class Application {
+	}
 
-    @Configuration
-    static class LocalRibbonClientConfiguration {
+	@Configuration
+	static class LocalRibbonClientConfiguration {
 
-        @Value("${local.server.port}")
-        private int port = 0;
+		@Value("${local.server.port}")
+		private int port = 0;
 
-        @Bean
-        public ILoadBalancer ribbonLoadBalancer() {
-            BaseLoadBalancer balancer = new BaseLoadBalancer();
-            balancer.setServersList(Collections.singletonList(new Server("localhost", this.port)));
-            return balancer;
-        }
-    }
+		@Bean
+		public ILoadBalancer ribbonLoadBalancer() {
+			BaseLoadBalancer balancer = new BaseLoadBalancer();
+			balancer.setServersList(
+					Collections.singletonList(new Server("localhost", this.port)));
+			return balancer;
+		}
+	}
 }
