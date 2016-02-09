@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
 
@@ -38,8 +39,8 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
 
-	private ProxyRequestHelper helper;
-	private RibbonCommandFactory<?> ribbonCommandFactory;
+	protected ProxyRequestHelper helper;
+	protected RibbonCommandFactory<?> ribbonCommandFactory;
 
 	public RibbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory) {
@@ -90,7 +91,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return null;
 	}
 
-	private RibbonCommandContext buildCommandContext(RequestContext context) {
+	protected RibbonCommandContext buildCommandContext(RequestContext context) {
 		HttpServletRequest request = context.getRequest();
 
 		MultiValueMap<String, String> headers = this.helper
@@ -115,7 +116,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 				requestEntity);
 	}
 
-	private ClientHttpResponse forward(RibbonCommandContext context) throws Exception {
+	protected ClientHttpResponse forward(RibbonCommandContext context) throws Exception {
 		Map<String, Object> info = this.helper.debug(context.getVerb(), context.getUri(),
 				context.getHeaders(), context.getParams(), context.getRequestEntity());
 
@@ -127,36 +128,43 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			return response;
 		}
 		catch (HystrixRuntimeException ex) {
-			info.put("status", "500");
-			ClientException clientException = findClientException(ex);
-			if (clientException != null) {
-				int statusCode = 500;
-				if (clientException.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
-					statusCode = 503;
-				}
-				throw new ZuulException(clientException, "Forwarding error", statusCode,
-						clientException.getErrorType().toString());
+			return handleException(info, ex);
+		}
+
+	}
+
+	protected ClientHttpResponse handleException(Map<String, Object> info, HystrixRuntimeException ex) throws ZuulException {
+		int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		Throwable cause = ex;
+		String message = ex.getFailureType().toString();
+
+		ClientException clientException = findClientException(ex);
+		if (clientException == null) {
+			clientException = findClientException(ex.getFallbackException());
+		}
+
+		if (clientException != null) {
+			if (clientException.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
+				statusCode = HttpStatus.SERVICE_UNAVAILABLE.value();
 			}
-			throw new ZuulException(ex, "Forwarding error", 500,
-					ex.getFailureType().toString());
+			cause = clientException;
+			message = clientException.getErrorType().toString();
 		}
-
+		info.put("status", String.valueOf(statusCode));
+		throw new ZuulException(cause, "Forwarding error", statusCode, message);
 	}
 
-	protected ClientException findClientException(HystrixRuntimeException ex) {
-		if (ex.getCause() != null
-			&& ex.getCause() instanceof ClientException) {
-			return (ClientException) ex.getCause();
+	protected ClientException findClientException(Throwable t) {
+		if (t == null) {
+			return null;
 		}
-		if (ex.getFallbackException() != null
-				&& ex.getFallbackException().getCause() != null
-				&& ex.getFallbackException().getCause() instanceof ClientException) {
-			return (ClientException) ex.getFallbackException().getCause();
+		if (t instanceof ClientException) {
+			return (ClientException)t;
 		}
-		return null;
+		return findClientException(t.getCause());
 	}
 
-	private InputStream getRequestBody(HttpServletRequest request) {
+	protected InputStream getRequestBody(HttpServletRequest request) {
 		InputStream requestEntity = null;
 		// ApacheHttpClient4Handler does not support body in delete requests
 		if (request.getMethod().equals("DELETE")) {
@@ -175,7 +183,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return requestEntity;
 	}
 
-	private String getVerb(HttpServletRequest request) {
+	protected String getVerb(HttpServletRequest request) {
 		String method = request.getMethod();
 		if (method == null) {
 			return "GET";
@@ -183,7 +191,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		return method;
 	}
 
-	private void setResponse(ClientHttpResponse resp)
+	protected void setResponse(ClientHttpResponse resp)
 			throws ClientException, IOException {
 		this.helper.setResponse(resp.getStatusCode().value(),
 				resp.getBody() == null ? null : resp.getBody(), resp.getHeaders());
