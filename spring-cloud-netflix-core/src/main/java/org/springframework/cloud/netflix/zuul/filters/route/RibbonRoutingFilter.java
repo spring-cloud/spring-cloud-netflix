@@ -77,6 +77,10 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			setResponse(response);
 			return response;
 		}
+		catch (ZuulException ex) {
+			context.set("error.status_code", ex.nStatusCode);
+			context.set("error.exception", ex);
+		}
 		catch (Exception ex) {
 			context.set("error.status_code",
 					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

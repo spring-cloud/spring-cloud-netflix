@@ -16,18 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.exception.ZuulException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
@@ -37,10 +34,9 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.cloud.netflix.zuul.filters.Route;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,21 +47,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
+import lombok.SneakyThrows;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -73,140 +60,10 @@ import static org.junit.Assert.assertTrue;
 @WebAppConfiguration
 @IntegrationTest({ "server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
-		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**" })
+		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
+		"zuul.routes.badhost: /badhost/**" })
 @DirtiesContext
-public class SampleZuulProxyApplicationTests {
-
-	@Value("${local.server.port}")
-	private int port;
-
-	@Autowired
-	private DiscoveryClientRouteLocator routes;
-
-	@Autowired
-	private RoutesEndpoint endpoint;
-
-	@Autowired
-	private RibbonCommandFactory<?> ribbonCommandFactory;
-
-	@Before
-	public void setTestRequestcontext() {
-		RequestContext context = new RequestContext();
-		RequestContext.testSetCurrentContext(context);
-	}
-
-	private String getRoute(String path) {
-		for (Route route : this.routes.getRoutes()) {
-			if (path.equals(route.getFullPath())) {
-				return route.getLocation();
-			}
-		}
-		return null;
-	}
-
-	@Test
-	public void bindRouteUsingPhysicalRoute() {
-		assertEquals("http://localhost:7777/local", getRoute("/test/**"));
-	}
-
-	@Test
-	public void bindRouteUsingOnlyPath() {
-		assertNotNull(getRoute("/simple/**"));
-	}
-
-	@Test
-	public void getOnSelfViaRibbonRoutingFilter() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten 1!", result.getBody());
-	}
-
-	@Test
-	public void deleteOnSelfViaSimpleHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
-		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/1", HttpMethod.DELETE,
-				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Deleted 1!", result.getBody());
-	}
-
-	@Test
-	public void stripPrefixFalseAppendsPath() {
-		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/local", false, false));
-		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/strip", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		// Prefix not stripped to it goes to /local/strip
-		assertEquals("Gotten strip!", result.getBody());
-	}
-
-	@Test
-	public void testNotFound() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/myinvalidpath", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-	}
-
-	@Test
-	public void getSecondLevel() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/another/twolevel/local/1",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Gotten 1!", result.getBody());
-	}
-
-	@Test
-	public void ribbonRouteWithSpace() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/spa ce", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Hello space", result.getBody());
-	}
-
-	@Test
-	public void simpleHostRouteWithSpace() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/spa ce", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Hello space", result.getBody());
-	}
-
-	@Test
-	public void simpleHostRouteWithOriginalQString() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port
-						+ "/self/qstring?original=value1&original=value2",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Received {original=[value1, value2]}", result.getBody());
-	}
-
-	@Test
-	public void simpleHostRouteWithOverriddenQString() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port
-						+ "/self/qstring?override=true&different=key",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Received {key=[overridden]}", result.getBody());
-	}
+public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 
 	@Test
 	public void simpleHostRouteWithTrailingSlash() {
@@ -220,8 +77,25 @@ public class SampleZuulProxyApplicationTests {
 	}
 
 	@Test
+	public void ribbonCommandForbidden() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/throwexception/403",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+	}
+
+	@Test
+	public void ribbonCommandBadHost() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/badhost/1",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+	}
+
+	@Test
 	public void ribbonCommandFactoryOverridden() {
-		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
+		assertTrue(
+				"ribbonCommandFactory not a MyRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
 	}
 
@@ -233,49 +107,10 @@ public class SampleZuulProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @RibbonClients({
+		@RibbonClient(name = "badhost", configuration = SampleZuulProxyApplication.BadHostRibbonClientConfiguration.class),
 		@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
 		@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
-class SampleZuulProxyApplication {
-
-	@RequestMapping("/testing123")
-	public String testing123() {
-		throw new RuntimeException("myerror");
-	}
-
-	@RequestMapping("/local")
-	public String local() {
-		return "Hello local";
-	}
-
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.DELETE)
-	public String delete(@PathVariable String id) {
-		return "Deleted " + id + "!";
-	}
-
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
-	public String get(@PathVariable String id) {
-		return "Gotten " + id + "!";
-	}
-
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.POST)
-	public String post(@PathVariable String id, @RequestBody String body) {
-		return "Posted " + id + "!";
-	}
-
-	@RequestMapping(value = "/qstring")
-	public String qstring(@RequestParam MultiValueMap<String, String> params) {
-		return "Received " + params.toString();
-	}
-
-	@RequestMapping("/")
-	public String home() {
-		return "Hello world";
-	}
-
-	@RequestMapping("/spa ce")
-	public String space() {
-		return "Hello space";
-	}
+class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 	@RequestMapping(value = "/trailing-slash")
 	public String trailingSlash(HttpServletRequest request) {
@@ -283,40 +118,8 @@ class SampleZuulProxyApplication {
 	}
 
 	@Bean
-	public RibbonCommandFactory<?> ribbonCommandFactory(
-			SpringClientFactory clientFactory) {
+	public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
 		return new MyRibbonCommandFactory(clientFactory);
-	}
-
-	@Bean
-	public ZuulFilter sampleFilter() {
-		return new ZuulFilter() {
-			@Override
-			public String filterType() {
-				return "pre";
-			}
-
-			@Override
-			public boolean shouldFilter() {
-				return true;
-			}
-
-			@Override
-			public Object run() {
-				if (RequestContext.getCurrentContext().getRequest().getParameterMap()
-						.containsKey("override")) {
-					Map<String, List<String>> overridden = new HashMap<>();
-					overridden.put("key", Arrays.asList("overridden"));
-					RequestContext.getCurrentContext().setRequestQueryParams(overridden);
-				}
-				return null;
-			}
-
-			@Override
-			public int filterOrder() {
-				return 0;
-			}
-		};
 	}
 
 	public static void main(String[] args) {
@@ -328,33 +131,27 @@ class SampleZuulProxyApplication {
 		public MyRibbonCommandFactory(SpringClientFactory clientFactory) {
 			super(clientFactory);
 		}
+
+		@Override
+		@SneakyThrows
+		public RestClientRibbonCommand create(RibbonCommandContext context) {
+			String uri = context.getUri();
+			if (uri.startsWith("/throwexception/")) {
+				String code = uri.replace("/throwexception/", "");
+				throw new ZuulException(new RuntimeException(), Integer.parseInt(code),
+						"test error");
+			}
+			return super.create(context);
+		}
 	}
 
-}
+	// Load balancer with fixed server list for "simple" pointing to localhost
+	@Configuration
+	static class BadHostRibbonClientConfiguration {
+		@Bean
+		public ServerList<Server> ribbonServerList() {
+			return new StaticServerList<>(new Server(UUID.randomUUID().toString(), 4322));
+		}
 
-// Load balancer with fixed server list for "simple" pointing to localhost
-@Configuration
-class SimpleRibbonClientConfiguration {
-
-	@Value("${local.server.port}")
-	private int port;
-
-	@Bean
-	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", this.port));
 	}
-
-}
-
-@Configuration
-class AnotherRibbonClientConfiguration {
-
-	@Value("${local.server.port}")
-	private int port;
-
-	@Bean
-	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", this.port));
-	}
-
 }
