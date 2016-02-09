@@ -16,12 +16,16 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.client.ClientException;
+import com.netflix.client.http.HttpRequest;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.exception.ZuulException;
+import com.netflix.niws.client.http.RestClient;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,9 +48,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -82,6 +89,14 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 				"http://localhost:" + this.port + "/simple/throwexception/403",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+	}
+
+	@Test
+	public void ribbonCommandServiceUnavailable() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/throwexception/503",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.SERVICE_UNAVAILABLE, result.getStatusCode());
 	}
 
 	@Test
@@ -133,15 +148,38 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 		}
 
 		@Override
+		@SuppressWarnings("deprecation")
 		@SneakyThrows
 		public RestClientRibbonCommand create(RibbonCommandContext context) {
 			String uri = context.getUri();
 			if (uri.startsWith("/throwexception/")) {
 				String code = uri.replace("/throwexception/", "");
-				throw new ZuulException(new RuntimeException(), Integer.parseInt(code),
-						"test error");
+				RestClient restClient = getClientFactory().getClient(context.getServiceId(),
+						RestClient.class);
+				return new MyCommand(Integer.parseInt(code),
+						context.getServiceId(), restClient, getVerb(context.getVerb()),
+						context.getUri(), context.getRetryable(), context.getHeaders(),
+						context.getParams(), context.getRequestEntity());
 			}
 			return super.create(context);
+		}
+	}
+
+	static class MyCommand extends RestClientRibbonCommand {
+
+		private int errorCode;
+
+		public MyCommand(int errorCode, String commandKey, RestClient restClient, HttpRequest.Verb verb, String uri, Boolean retryable, MultiValueMap<String, String> headers, MultiValueMap<String, String> params, InputStream requestEntity) throws URISyntaxException {
+			super(commandKey, restClient, verb, uri, retryable, headers, params, requestEntity);
+			this.errorCode = errorCode;
+		}
+
+		@Override
+		protected ClientHttpResponse forward() throws Exception {
+			if (errorCode == 503) {
+				throw new ClientException(ClientException.ErrorType.SERVER_THROTTLED);
+			}
+			return new MockClientHttpResponse((byte[])null, HttpStatus.valueOf(this.errorCode));
 		}
 	}
 

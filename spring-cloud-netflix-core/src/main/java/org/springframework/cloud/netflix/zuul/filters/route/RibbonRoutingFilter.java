@@ -79,6 +79,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 		catch (ZuulException ex) {
 			context.set("error.status_code", ex.nStatusCode);
+			context.set("error.message", ex.errorCause);
 			context.set("error.exception", ex);
 		}
 		catch (Exception ex) {
@@ -127,18 +128,32 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 		catch (HystrixRuntimeException ex) {
 			info.put("status", "500");
-			if (ex.getFallbackException() != null
-					&& ex.getFallbackException().getCause() != null
-					&& ex.getFallbackException().getCause() instanceof ClientException) {
-				ClientException cause = (ClientException) ex.getFallbackException()
-						.getCause();
-				throw new ZuulException(cause, "Forwarding error", 500,
-						cause.getErrorType().toString());
+			ClientException clientException = findClientException(ex);
+			if (clientException != null) {
+				int statusCode = 500;
+				if (clientException.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
+					statusCode = 503;
+				}
+				throw new ZuulException(clientException, "Forwarding error", statusCode,
+						clientException.getErrorType().toString());
 			}
 			throw new ZuulException(ex, "Forwarding error", 500,
 					ex.getFailureType().toString());
 		}
 
+	}
+
+	protected ClientException findClientException(HystrixRuntimeException ex) {
+		if (ex.getCause() != null
+			&& ex.getCause() instanceof ClientException) {
+			return (ClientException) ex.getCause();
+		}
+		if (ex.getFallbackException() != null
+				&& ex.getFallbackException().getCause() != null
+				&& ex.getFallbackException().getCause() instanceof ClientException) {
+			return (ClientException) ex.getFallbackException().getCause();
+		}
+		return null;
 	}
 
 	private InputStream getRequestBody(HttpServletRequest request) {

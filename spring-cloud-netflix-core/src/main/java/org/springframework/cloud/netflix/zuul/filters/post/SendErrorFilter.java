@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -59,19 +60,28 @@ public class SendErrorFilter extends ZuulFilter {
 	public Object run() {
 		try {
 			RequestContext ctx = RequestContext.getCurrentContext();
+			HttpServletRequest request = ctx.getRequest();
+
 			int statusCode = (Integer) ctx.get("error.status_code");
+			request.setAttribute("javax.servlet.error.status_code", statusCode);
+
 			if (ctx.containsKey("error.exception")) {
 				Object e = ctx.get("error.exception");
 				log.warn("Error during filtering", Throwable.class.cast(e));
-				ctx.getRequest().setAttribute("javax.servlet.error.exception", e);
+				request.setAttribute("javax.servlet.error.exception", e);
 			}
-			ctx.getRequest().setAttribute("javax.servlet.error.status_code", statusCode);
-			RequestDispatcher dispatcher = ctx.getRequest().getRequestDispatcher(
+
+			if (ctx.containsKey("error.message")) {
+				String message = (String) ctx.get("error.message");
+				request.setAttribute("javax.servlet.error.message", message);
+			}
+
+			RequestDispatcher dispatcher = request.getRequestDispatcher(
 					this.errorPath);
 			if (dispatcher != null) {
 				ctx.set(SEND_ERROR_FILTER_RAN, true);
 				if (!ctx.getResponse().isCommitted()) {
-					dispatcher.forward(ctx.getRequest(), ctx.getResponse());
+					dispatcher.forward(request, ctx.getResponse());
 				}
 			}
 		}
