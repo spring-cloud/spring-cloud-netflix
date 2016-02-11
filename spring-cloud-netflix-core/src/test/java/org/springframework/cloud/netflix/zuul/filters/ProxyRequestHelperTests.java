@@ -17,7 +17,10 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +28,7 @@ import org.mockito.Mock;
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.Trace;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -156,5 +160,26 @@ public class ProxyRequestHelperTests {
 
 		helper.setResponse(200, request.getInputStream(), headers);
 		assertTrue(context.getResponseGZipped());
+	}
+
+	@Test
+	public void getQueryString(){
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("a", "1234");
+		params.add("b", "5678");
+
+		String queryString = new ProxyRequestHelper().getQueryString(params);
+
+		assertThat(queryString, is("?a=1234&b=5678"));
+	}
+
+	@Test
+	public void getQueryStringWithEmptyParam(){
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("wsdl", "");
+
+		String queryString = new ProxyRequestHelper().getQueryString(params);
+
+		assertThat(queryString, is("?wsdl"));
 	}
 }
