@@ -936,7 +936,7 @@ public interface UserClient extends UserService {
 }
 ----
 
-NOTE: It is gernarally not advisable to share an interface between a
+NOTE: It is generally not advisable to share an interface between a
 server and a client. It introduces tight coupling, and also actually
 doesn't work with Spring MVC in its current form (method parameter
 mapping is not inherited).
