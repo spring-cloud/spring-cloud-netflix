@@ -1593,9 +1593,7 @@ There is a limitation with the implementation of fallbacks in Feign and how Hyst
 <h3 id="spring-cloud-feign-inheritance">Feign Inheritance Support</h3>
 <div class="paragraph">
 <p>Feign supports boilerplate apis via single-inheritance interfaces.
-This allows grouping common operations into convenient base interfaces.
-Together with Spring MVC you can share the same contract for your
-REST endpoint and Feign client.</p>
+This allows grouping common operations into convenient base interfaces.</p>
 </div>
 <div class="listingblock">
 <div class="title">UserService.java</div>
@@ -1626,6 +1624,21 @@ public interface UserClient extends UserService {
 
 }</code></pre>
 </div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+It is gernarally not advisable to share an interface between a
+server and a client. It introduces tight coupling, and also actually
+doesn&#8217;t work with Spring MVC in its current form (method parameter
+mapping is not inherited).
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -2528,7 +2541,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-02-11 15:57:50 UTC
+Last updated 2016-02-11 22:10:22 UTC
 </div>
 </div>
 </body>
