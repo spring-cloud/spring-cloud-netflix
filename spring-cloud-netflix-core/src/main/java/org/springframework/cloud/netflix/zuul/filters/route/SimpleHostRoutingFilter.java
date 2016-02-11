@@ -262,23 +262,23 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				ContentType.create(request.getContentType()));
 		switch (verb.toUpperCase()) {
 		case "POST":
-			HttpPost httpPost = new HttpPost(uri + getQueryString());
+			HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
 			httpRequest = httpPost;
 			httpPost.setEntity(entity);
 			break;
 		case "PUT":
-			HttpPut httpPut = new HttpPut(uri + getQueryString());
+			HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
 			httpRequest = httpPut;
 			httpPut.setEntity(entity);
 			break;
 		case "PATCH":
-			HttpPatch httpPatch = new HttpPatch(uri + getQueryString());
+			HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
 			httpRequest = httpPatch;
 			httpPatch.setEntity(entity);
 			break;
 		default:
-			httpRequest = new BasicHttpRequest(verb, uri + getQueryString());
-			log.debug(uri + getQueryString());
+			httpRequest = new BasicHttpRequest(verb, uri + this.helper.getQueryString(params));
+			log.debug(uri + this.helper.getQueryString(params));
 		}
 		try {
 			httpRequest.setHeaders(convertHeaders(headers));
@@ -322,23 +322,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private HttpResponse forwardRequest(HttpClient httpclient, HttpHost httpHost,
 			HttpRequest httpRequest) throws IOException {
 		return httpclient.execute(httpHost, httpRequest);
-	}
-
-	private String getQueryString() throws UnsupportedEncodingException {
-		HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-		MultiValueMap<String, String> params = this.helper
-				.buildZuulRequestQueryParams(request);
-		StringBuilder query = new StringBuilder();
-		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
-			String key = URLEncoder.encode(entry.getKey(), "UTF-8");
-			for (String value : entry.getValue()) {
-				query.append("&");
-				query.append(key);
-				query.append("=");
-				query.append(URLEncoder.encode(value, "UTF-8"));
-			}
-		}
-		return (query.length() > 0) ? "?" + query.substring(1) : "";
 	}
 
 	private HttpHost getHttpHost(URL host) {

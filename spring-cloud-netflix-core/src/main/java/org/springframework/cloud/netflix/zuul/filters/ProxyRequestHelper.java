@@ -203,18 +203,9 @@ public class ProxyRequestHelper {
 		Map<String, Object> info = new LinkedHashMap<String, Object>();
 		if (this.traces != null) {
 			RequestContext context = RequestContext.getCurrentContext();
-			StringBuilder query = new StringBuilder();
-			for (String param : params.keySet()) {
-				for (String value : params.get(param)) {
-					query.append(param);
-					query.append("=");
-					query.append(value);
-					query.append("&");
-				}
-			}
 			info.put("method", verb);
 			info.put("path", uri);
-			info.put("query", query.toString());
+			info.put("query", getQueryString(params));
 			info.put("remote", true);
 			info.put("proxy", context.get("proxy"));
 			Map<String, Object> trace = new LinkedHashMap<String, Object>();
@@ -287,4 +278,18 @@ public class ProxyRequestHelper {
 		}
 	}
 
+	public String getQueryString(MultiValueMap<String, String> params) {
+		StringBuilder query = new StringBuilder();
+		for (String param : params.keySet()) {
+			for (String value : params.get(param)) {
+				query.append("&");
+				query.append(param);
+				if(!"".equals(value)) {
+					query.append("=");
+					query.append(value);
+				}
+			}
+		}
+		return (query.length() > 0) ? "?" + query.substring(1) : "";
+	}
 }
