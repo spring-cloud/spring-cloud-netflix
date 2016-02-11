@@ -905,8 +905,6 @@ WARNING: There is a limitation with the implementation of fallbacks in Feign and
 
 Feign supports boilerplate apis via single-inheritance interfaces.
 This allows grouping common operations into convenient base interfaces.
-Together with Spring MVC you can share the same contract for your
-REST endpoint and Feign client.
 
 .UserService.java
 [source,java,indent=0]
@@ -937,6 +935,11 @@ public interface UserClient extends UserService {
 
 }
 ----
+
+NOTE: It is gernarally not advisable to share an interface between a
+server and a client. It introduces tight coupling, and also actually
+doesn't work with Spring MVC in its current form (method parameter
+mapping is not inherited).
 
 === Feign request/response compression
 
