@@ -15,20 +15,17 @@ before_install:
   - gem install asciidoctor
 install:
 - ./mvnw install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
-- ./docs/src/main/asciidoc/ghpages.sh
+- '[ "${MVN_GOAL}" == "deploy" ] && ./docs/src/main/asciidoc/ghpages.sh'
+script:
+- './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -nsu -Dmaven.test.redirectTestOutputToFile=true'
 env:
   global:
   - GIT_NAME="Dave Syer"
   - GIT_EMAIL=dsyer@pivotal.io
   - CI_DEPLOY_USERNAME=buildmaster
+  - FEATURE_BRANCH=$(echo ${TRAVIS_BRANCH} | grep "^.*/.*$" && echo true || echo false)
+  - MVN_GOAL=$([ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_TAG}" == "" -a "${FEATURE_BRANCH}" == "false" ] && echo deploy || echo install)
+  - VERSION=$(mvn validate | grep Building | head -1 | sed -e 's/.* //')
+  - MILESTONE=$(echo ${VERSION} | egrep 'M|RC' && echo true || echo false)
+  - MVN_PROFILE=$([ "${MILESTONE}" == "true" ] && echo -P milestone)
   - secure: aeLXRC5oFSddwnZt1/7G2/OHr7jDbxz0ET7sej3I+eSbe3N5vbzQ6FC08es4l89l54ciXd90I1g2BMw7DTYKOO373FP78XPdAEbifJTU4DGd6fCELmoTtUPhjunBIk7E49hisPbv82892IYYA7qi/hzG548cPyZ1IgiJjq0NCsc=
-script: |
-  echo "Current Branch: ${TRAVIS_BRANCH}"
-  echo "Pull Request: ${TRAVIS_PULL_REQUEST}"
-  if [ "${TRAVIS_BRANCH}" = master ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
-    echo "[Publishing] Pushing snapshot to Sonatype"
-    ./mvnw -s .settings.xml deploy -P release -nsu -Dmaven.test.redirectTestOutputToFile=true
-  else
-    echo "[Installing] Intalling snapshot to local maven repo"
-    ./mvnw install -nsu -Dmaven.test.redirectTestOutputToFile=true
-  fi
