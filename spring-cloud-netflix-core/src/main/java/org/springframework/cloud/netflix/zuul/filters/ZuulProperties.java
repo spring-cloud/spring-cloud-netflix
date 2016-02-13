@@ -57,7 +57,7 @@ public class ZuulProperties {
 
 	private boolean ignoreLocalService = true;
 
-	private HostRoutingFilterProperties hostRoutingFilter = new HostRoutingFilterProperties();
+	private Host host = new Host();
 
 	@PostConstruct
 	public void init() {
@@ -147,7 +147,7 @@ public class ZuulProperties {
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
-	public static class HostRoutingFilterProperties {
+	public static class Host {
 		private int maxTotalConnections = 200;
 		private int maxPerRouteConnections = 20;
 	}
