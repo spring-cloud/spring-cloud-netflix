@@ -66,6 +66,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.HostRoutingFilterProperties;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -81,9 +83,6 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
-	private static final String MAX_HOST_CONNECTIONS = "zuul.max.host.connections";
-	private static final String MAX_ROUTE_CONNECTIONS = "zuul.max.route.connections";
-
 	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS, 10000);
@@ -96,6 +95,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
 
 	private ProxyRequestHelper helper;
+	private HostRoutingFilterProperties properties;
 	private PoolingHttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
 
@@ -112,12 +112,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	};
 
-	public SimpleHostRoutingFilter() {
-		this(new ProxyRequestHelper());
-	}
-
-	public SimpleHostRoutingFilter(ProxyRequestHelper helper) {
+	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties) {
 		this.helper = helper;
+		this.properties = properties.getHostRoutingFilter();
 	}
 
 	@PostConstruct
@@ -213,26 +210,14 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					.build();
 
 			this.connectionManager = new PoolingHttpClientConnectionManager(registry);
-			this.connectionManager.setMaxTotal(getMaxPerHostProperty());
-			this.connectionManager.setDefaultMaxPerRoute(getMaxPerRouteProperty());
+			this.connectionManager.setMaxTotal(properties.getMaxTotalConnections());
+			this.connectionManager
+					.setDefaultMaxPerRoute(properties.getMaxPerRouteConnections());
 			return this.connectionManager;
 		}
 		catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
-	}
-
-	private int getMaxPerHostProperty() {
-		return Integer.parseInt(System.getProperty(MAX_HOST_CONNECTIONS, "200"));
-	}
-
-	private int getMaxPerRouteProperty() {
-		if (System.getProperty(MAX_ROUTE_CONNECTIONS) != null) {
-			return Integer.parseInt(System.getProperty(MAX_ROUTE_CONNECTIONS));
-		}
-		// To be compatible with previous releases the MAX_HOST_CONNECTIONS is
-		// used as a fallback.
-		return Integer.parseInt(System.getProperty(MAX_HOST_CONNECTIONS, "20"));
 	}
 
 	protected CloseableHttpClient newClient() {
