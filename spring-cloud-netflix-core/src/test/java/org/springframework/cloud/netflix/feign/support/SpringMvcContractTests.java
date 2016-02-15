@@ -26,7 +26,7 @@ import lombok.ToString;
 /**
  * @author chadjaros
  */
-public class SpringMvcContractTest {
+public class SpringMvcContractTests {
 
 	private SpringMvcContract contract;
 
@@ -123,6 +123,27 @@ public class SpringMvcContractTest {
 	}
 
 	@Test
+	public void testProcessAnnotations_Aliased() throws Exception {
+		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest2",
+				String.class, Integer.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/advanced/test2", data.template().url());
+		assertEquals("PUT", data.template().method());
+		assertEquals(MediaType.APPLICATION_JSON_VALUE,
+				data.template().headers().get("Accept").iterator().next());
+
+		assertEquals("Authorization", data.indexToName().get(0).iterator().next());
+		assertEquals("amount", data.indexToName().get(1).iterator().next());
+
+		assertEquals("{Authorization}",
+				data.template().headers().get("Authorization").iterator().next());
+		assertEquals("{amount}",
+				data.template().queries().get("amount").iterator().next());
+	}
+
+	@Test
 	public void testProcessAnnotations_Advanced2() throws Exception {
 		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest");
 		MethodMetadata data = this.contract
@@ -165,6 +186,10 @@ public class SpringMvcContractTest {
 		@RequestMapping(path = "/test/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		ResponseEntity<TestObject> getTest(@RequestHeader("Authorization") String auth,
 				@PathVariable("id") String id, @RequestParam("amount") Integer amount);
+
+		@RequestMapping(path = "/test2", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+		ResponseEntity<TestObject> getTest2(@RequestHeader(name = "Authorization") String auth,
+				@RequestParam(name = "amount") Integer amount);
 
 		@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 		TestObject getTest();
