@@ -30,6 +30,7 @@ import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.PathVariableParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestHeaderParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterProcessor;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -166,7 +167,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 					.get(parameterAnnotation.annotationType());
 			if (processor != null) {
 				isHttpAnnotation |= processor.processArgument(context,
-						parameterAnnotation);
+						AnnotationUtils.synthesizeAnnotation(parameterAnnotation, null));
 			}
 		}
 		return isHttpAnnotation;
