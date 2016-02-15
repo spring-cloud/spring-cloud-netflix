@@ -23,6 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -42,6 +43,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.netflix.zuul.ZuulFilter;
@@ -52,8 +54,10 @@ import com.netflix.zuul.http.ZuulServlet;
  * @author Dave Syer
  */
 @Configuration
-@EnableConfigurationProperties({ ZuulProperties.class, ServerProperties.class })
+@EnableConfigurationProperties({ ZuulProperties.class })
 @ConditionalOnClass(ZuulServlet.class)
+// Make sure to get the ServerProperties from the same place as a normal web app would
+@Import(ServerPropertiesAutoConfiguration.class)
 public class ZuulConfiguration {
 
 	@Autowired
