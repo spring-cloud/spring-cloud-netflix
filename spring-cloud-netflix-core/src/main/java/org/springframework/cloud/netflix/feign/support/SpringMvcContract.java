@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,16 +34,19 @@ import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterP
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import static feign.Util.checkState;
-import static feign.Util.emptyToNull;
-import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
 import feign.Contract;
 import feign.Feign;
 import feign.MethodMetadata;
+import feign.Param;
+
+import static feign.Util.checkState;
+import static feign.Util.emptyToNull;
+import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
 /**
  * @author Spencer Gibb
@@ -58,14 +62,25 @@ public class SpringMvcContract extends Contract.BaseContract {
 	private final Map<Class<? extends Annotation>, AnnotatedParameterProcessor> annotatedArgumentProcessors;
 	private final Map<String, Method> processedMethods = new HashMap<>();
 
+	private final ConversionService conversionService;
+	private final Param.Expander expander;
+
 	public SpringMvcContract() {
 		this(Collections.<AnnotatedParameterProcessor> emptyList());
 	}
 
 	public SpringMvcContract(
 			List<AnnotatedParameterProcessor> annotatedParameterProcessors) {
+		this(annotatedParameterProcessors, new DefaultConversionService());
+	}
+
+	public SpringMvcContract(
+			List<AnnotatedParameterProcessor> annotatedParameterProcessors,
+			ConversionService conversionService) {
 		Assert.notNull(annotatedParameterProcessors,
 				"Parameter processors can not be null.");
+		Assert.notNull(conversionService,
+				"ConversionService can not be null.");
 
 		List<AnnotatedParameterProcessor> processors;
 		if (!annotatedParameterProcessors.isEmpty()) {
@@ -75,6 +90,8 @@ public class SpringMvcContract extends Contract.BaseContract {
 			processors = getDefaultAnnotatedArgumentsProcessors();
 		}
 		this.annotatedArgumentProcessors = toAnnotatedArgumentProcessorMap(processors);
+		this.conversionService = conversionService;
+		this.expander = new ConvertingExpander(conversionService);
 	}
 
 	@Override
@@ -148,6 +165,8 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 		// headers
 		parseHeaders(data, method, methodMapping);
+
+		data.indexToExpander(new LinkedHashMap<Integer, Param.Expander>());
 	}
 
 	private void checkAtMostOne(Method method, Object[] values, String fieldName) {
@@ -183,6 +202,11 @@ public class SpringMvcContract extends Contract.BaseContract {
 				isHttpAnnotation |= processor.processArgument(context,
 						processParameterAnnotation);
 			}
+		}
+		if (isHttpAnnotation && data.indexToExpander().get(paramIndex) == null
+				&& this.conversionService.canConvert(
+						method.getParameterTypes()[paramIndex], String.class)) {
+			data.indexToExpander().put(paramIndex, expander);
 		}
 		return isHttpAnnotation;
 	}
@@ -293,4 +317,18 @@ public class SpringMvcContract extends Contract.BaseContract {
 		}
 	}
 
+	public static class ConvertingExpander implements Param.Expander {
+
+		private final ConversionService conversionService;
+
+		public ConvertingExpander(ConversionService conversionService) {
+			this.conversionService = conversionService;
+		}
+
+		@Override
+		public String expand(Object value) {
+			return conversionService.convert(value, String.class);
+		}
+
+	}
 }

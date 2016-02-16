@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.format.support.FormattingConversionService;
 
 import com.netflix.hystrix.HystrixCommand;
 
@@ -56,6 +59,9 @@ public class FeignClientsConfiguration {
 	@Autowired(required = false)
 	private List<AnnotatedParameterProcessor> parameterProcessors = new ArrayList<>();
 
+	@Autowired(required = false)
+	private List<FeignFormatterRegistrar> feignFormatterRegistrars = new ArrayList<>();
+
 	@Bean
 	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
@@ -70,8 +76,17 @@ public class FeignClientsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Contract feignContract() {
-		return new SpringMvcContract(this.parameterProcessors);
+	public Contract feignContract(ConversionService feignConversionService) {
+		return new SpringMvcContract(this.parameterProcessors, feignConversionService);
+	}
+
+	@Bean
+	public FormattingConversionService feignConversionService() {
+		FormattingConversionService conversionService = new DefaultFormattingConversionService();
+		for (FeignFormatterRegistrar feignFormatterRegistrar : feignFormatterRegistrars) {
+			feignFormatterRegistrar.registerFormatters(conversionService);
+		}
+		return conversionService;
 	}
 
 	@Configuration
