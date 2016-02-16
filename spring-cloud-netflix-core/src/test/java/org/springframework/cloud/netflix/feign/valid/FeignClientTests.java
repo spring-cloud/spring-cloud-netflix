@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@ package org.springframework.cloud.netflix.feign.valid;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +36,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.FeignFormatterRegistrar;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.cloud.netflix.feign.support.FallbackCommand;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -41,6 +44,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.Formatter;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -110,6 +115,23 @@ public class FeignClientTests {
 	@Autowired
 	HystrixClient hystrixClient;
 
+	protected enum Arg {
+		A, B;
+
+		@Override
+		public String toString() {
+			return name().toLowerCase(Locale.ENGLISH);
+		}
+	}
+
+	protected static class OtherArg {
+		public final String value;
+
+		public OtherArg(String value) {
+			this.value = value;
+		}
+	}
+
 	@FeignClient(value = "localapp", configuration = TestClientConfig.class)
 	protected interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
@@ -147,6 +169,12 @@ public class FeignClientTests {
 				produces = "application/vnd.io.spring.cloud.test.v1+json",
 				value = "/complex")
 		String moreComplexContentType(String body);
+
+		@RequestMapping(method = RequestMethod.GET, value = "/tostring")
+		String getToString(@RequestParam("arg") Arg arg);
+
+		@RequestMapping(method = RequestMethod.GET, value = "/tostring2")
+		String getToString(@RequestParam("arg") OtherArg arg);
 	}
 
 	public static class TestClientConfig {
@@ -242,6 +270,28 @@ public class FeignClientTests {
 	})
 	protected static class Application {
 
+		@Bean
+		FeignFormatterRegistrar feignFormatterRegistrar() {
+			return new FeignFormatterRegistrar() {
+
+				@Override
+				public void registerFormatters(FormatterRegistry registry) {
+					registry.addFormatter(new Formatter<OtherArg>() {
+
+						@Override
+						public String print(OtherArg object, Locale locale) {
+							return object.value;
+						}
+
+						@Override
+						public OtherArg parse(String text, Locale locale)
+								throws ParseException {
+							return new OtherArg(text);
+						}
+					});
+				}
+			};
+		}
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
@@ -302,6 +352,16 @@ public class FeignClientTests {
 				value = "/complex")
 		String complex(String body) {
 			return "{\"value\":\"OK\"}";
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/tostring")
+		String getToString(@RequestParam("arg") Arg arg) {
+			return arg.toString();
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/tostring2")
+		String getToString(@RequestParam("arg") OtherArg arg) {
+			return arg.value;
 		}
 
 		public static void main(String[] args) {
@@ -430,6 +490,14 @@ public class FeignClientTests {
 		assertNotNull("response was null", response);
 		assertEquals("status code was wrong", HttpStatus.NOT_FOUND, response.getStatusCode());
 		assertNull("response body was not null", response.getBody());
+	}
+
+	@Test
+	public void testConvertingExpander() {
+		assertEquals(Arg.A.toString(), testClient.getToString(Arg.A));
+		assertEquals(Arg.B.toString(), testClient.getToString(Arg.B));
+
+		assertEquals("foo", testClient.getToString(new OtherArg("foo")));
 	}
 
 	@Test
