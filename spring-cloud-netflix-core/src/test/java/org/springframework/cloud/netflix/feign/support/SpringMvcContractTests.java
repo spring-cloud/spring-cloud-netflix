@@ -26,7 +26,7 @@ import lombok.ToString;
 /**
  * @author chadjaros
  */
-public class SpringMvcContractTest {
+public class SpringMvcContractTests {
 
 	private SpringMvcContract contract;
 
