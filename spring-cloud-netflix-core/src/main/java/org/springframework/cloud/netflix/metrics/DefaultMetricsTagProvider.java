@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerMapping;
 
 import com.google.common.collect.ImmutableMap;
@@ -66,6 +67,9 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 				.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
 		if (uri == null) {
 			uri = request.getPathInfo();
+		}
+		if (!StringUtils.hasText(uri)) {
+			uri = "/";
 		}
 		uri = sanitizeUrlTemplate(uri.substring(1));
 		tags.put("uri", uri.isEmpty() ? "root" : uri);
