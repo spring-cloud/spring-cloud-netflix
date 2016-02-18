@@ -22,15 +22,17 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
 import rx.Observable;
 import rx.functions.Action1;
 
 /**
- * Handles return values of type {@link rx.Observable}.
+ * MVC handler for return values of type {@link rx.Observable}.
  *
  * @author Spencer Gibb
  */
-public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
+public class ObservableReturnValueHandler
+		implements AsyncHandlerMethodReturnValueHandler {
 
 	@Override
 	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
@@ -43,7 +45,9 @@ public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnVal
 	}
 
 	@Override
-	public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+	public void handleReturnValue(Object returnValue, MethodParameter returnType,
+			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
+					throws Exception {
 		if (returnValue == null) {
 			mavContainer.setRequestHandled(true);
 			return;
@@ -53,17 +57,17 @@ public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnVal
 
 		final DeferredResult<Object> deferredResult = new DeferredResult<>();
 
-        observable.subscribe(new Action1<Object>() {
-            @Override
-            public void call(Object o) {
-                deferredResult.setResult(o);
-            }
-        }, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                deferredResult.setErrorResult(throwable);
-            }
-        });
+		observable.subscribe(new Action1<Object>() {
+			@Override
+			public void call(Object o) {
+				deferredResult.setResult(o);
+			}
+		}, new Action1<Throwable>() {
+			@Override
+			public void call(Throwable throwable) {
+				deferredResult.setErrorResult(throwable);
+			}
+		});
 
 		WebAsyncUtils.getAsyncManager(webRequest)
 				.startDeferredResultProcessing(deferredResult, mavContainer);
