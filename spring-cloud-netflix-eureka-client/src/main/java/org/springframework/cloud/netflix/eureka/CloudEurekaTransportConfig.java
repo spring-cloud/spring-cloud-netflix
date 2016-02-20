@@ -42,10 +42,21 @@ public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 
 	private String readClusterVip;
 
+	private String writeClusterVip;
+
 	private boolean bootstrapResolverForQuery = true;
+
+	private String bootstrapResolverStrategy;
+
+	private boolean applicationsResolverUseIp = false;
 
 	@Override
 	public boolean useBootstrapResolverForQuery() {
 		return this.bootstrapResolverForQuery;
+	}
+
+	@Override
+	public boolean applicationsResolverUseIp() {
+		return this.applicationsResolverUseIp;
 	}
 }

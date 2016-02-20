@@ -64,12 +64,6 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	private DiscoveryClient discovery;
 
 	@Autowired
-	private ZuulProperties zuulProperties;
-
-	@Autowired
-	private ServerProperties server;
-
-	@Autowired
 	private ServiceRouteMapper serviceRouteMapper;
 
 	@Override

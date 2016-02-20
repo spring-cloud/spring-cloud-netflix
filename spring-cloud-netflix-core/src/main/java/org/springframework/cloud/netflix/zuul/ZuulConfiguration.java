@@ -61,10 +61,10 @@ import com.netflix.zuul.http.ZuulServlet;
 public class ZuulConfiguration {
 
 	@Autowired
-	private ZuulProperties zuulProperties;
+	protected ZuulProperties zuulProperties;
 
 	@Autowired
-	private ServerProperties server;
+	protected ServerProperties server;
 
 	@Autowired(required = false)
 	private ErrorController errorController;
