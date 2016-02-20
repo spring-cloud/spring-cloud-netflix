@@ -26,7 +26,7 @@ import rx.Single;
  * @author Jakub Narloch
  * @see DeferredResult
  */
-public class SingleDeferredResult<T> extends DeferredResult<T> {
+class SingleDeferredResult<T> extends DeferredResult<T> {
 
     private static final Object EMPTY_RESULT = new Object();
 

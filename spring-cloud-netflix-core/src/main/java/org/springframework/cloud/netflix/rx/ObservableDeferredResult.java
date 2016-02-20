@@ -35,7 +35,7 @@ import java.util.List;
  * @author Jakub Narloch
  * @see DeferredResult
  */
-public class ObservableDeferredResult<T> extends DeferredResult<List<T>> {
+class ObservableDeferredResult<T> extends DeferredResult<List<T>> {
 
     private static final Object EMPTY_RESULT = new Object();
 

@@ -33,6 +33,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import rx.Observable;
 
 import java.util.Date;
@@ -66,18 +67,18 @@ public class ObservableSseEmitterTest {
     protected static class Application {
 
         @RequestMapping(method = RequestMethod.GET, value = "/sse")
-        public ObservableSseEmitter<String> single() {
-            return new ObservableSseEmitter<>(Observable.just("single value"));
+        public SseEmitter single() {
+            return RxResponse.sse(Observable.just("single value"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/messages")
-        public ObservableSseEmitter<String> messages() {
-            return new ObservableSseEmitter<>(Observable.just("message 1", "message 2", "message 3"));
+        public SseEmitter messages() {
+            return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/events")
-        public ObservableSseEmitter<EventDto> event() {
-            return new ObservableSseEmitter<>(APPLICATION_JSON_UTF8, Observable.just(
+        public SseEmitter event() {
+            return RxResponse.sse(APPLICATION_JSON_UTF8, Observable.just(
                     new EventDto("Spring.io", getDate(2016, 5, 11)),
                     new EventDto("JavaOne", getDate(2016, 9, 22))
             ));

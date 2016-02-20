@@ -19,8 +19,6 @@ package org.springframework.cloud.netflix.rx;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.netflix.rx.handler.ObservableReturnValueHandler;
-import org.springframework.cloud.netflix.rx.handler.SingleReturnValueHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;

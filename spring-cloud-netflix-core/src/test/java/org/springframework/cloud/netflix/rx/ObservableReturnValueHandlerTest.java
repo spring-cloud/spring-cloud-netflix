@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.rx.handler;
+package org.springframework.cloud.netflix.rx;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -33,6 +33,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 import rx.Single;
 
 import java.util.Date;
@@ -65,25 +66,25 @@ public class SingleDeferredResultTest {
     protected static class Application {
 
         @RequestMapping(method = RequestMethod.GET, value = "/single")
-        public SingleDeferredResult<String> single() {
-            return new SingleDeferredResult<>(Single.just("single value"));
+        public DeferredResult<String> single() {
+            return RxResponse.single(Single.just("single value"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")
-        public SingleDeferredResult<ResponseEntity<String>> singleWithResponse() {
-            return new SingleDeferredResult<>(
+        public DeferredResult<ResponseEntity<String>> singleWithResponse() {
+            return RxResponse.single(
                     Single.just(new ResponseEntity<>("single value", HttpStatus.NOT_FOUND))
             );
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/event", produces = APPLICATION_JSON_UTF8_VALUE)
-        public SingleDeferredResult<EventDto> event() {
-            return new SingleDeferredResult<>(Single.just(new EventDto("Spring.io", new Date())));
+        public DeferredResult<EventDto> event() {
+            return RxResponse.single(Single.just(new EventDto("Spring.io", new Date())));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/throw")
-        public SingleDeferredResult<Object> error() {
-            return new SingleDeferredResult<>(Single.error(new RuntimeException("Unexpected")));
+        public DeferredResult<Object> error() {
+            return RxResponse.single(Single.error(new RuntimeException("Unexpected")));
         }
     }
 

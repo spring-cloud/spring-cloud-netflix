@@ -26,7 +26,7 @@ import rx.Observable;
  * @author Jakub Narloch
  * @see SseEmitter
  */
-public class ObservableSseEmitter<T> extends SseEmitter {
+class ObservableSseEmitter<T> extends SseEmitter {
 
     private final ResponseBodyEmitterSubscriber<T> subscriber;
 

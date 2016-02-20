@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.rx.handler;
+package org.springframework.cloud.netflix.rx;
 
-import org.springframework.cloud.netflix.rx.SingleDeferredResult;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.WebAsyncUtils;

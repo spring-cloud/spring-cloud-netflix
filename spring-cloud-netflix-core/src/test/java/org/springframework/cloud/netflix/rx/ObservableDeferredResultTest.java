@@ -35,6 +35,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -72,18 +73,18 @@ public class ObservableDeferredResultTest {
     protected static class Application {
 
         @RequestMapping(method = RequestMethod.GET, value = "/single")
-        public ObservableDeferredResult<String> single() {
-            return new ObservableDeferredResult<>(Observable.just("single value"));
+        public DeferredResult<List<String>> single() {
+            return RxResponse.observable(Observable.just("single value"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/multiple")
-        public ObservableDeferredResult<String> multiple() {
-            return new ObservableDeferredResult<>(Observable.just("multiple", "values"));
+        public DeferredResult<List<String>> multiple() {
+            return RxResponse.observable(Observable.just("multiple", "values"));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/events", produces = APPLICATION_JSON_UTF8_VALUE)
-        public ObservableDeferredResult<EventDto> events() {
-            return new ObservableDeferredResult<>(
+        public DeferredResult<List<EventDto>> events() {
+            return RxResponse.observable(
                     Observable.just(
                             new EventDto("Spring.io", new Date()),
                             new EventDto("JavaOne", new Date())
@@ -92,13 +93,13 @@ public class ObservableDeferredResultTest {
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/throw")
-        public ObservableDeferredResult<Object> error() {
-            return new ObservableDeferredResult<>(Observable.error(new RuntimeException("Unexpected")));
+        public DeferredResult<List<Object>> error() {
+            return RxResponse.observable(Observable.error(new RuntimeException("Unexpected")));
         }
 
         @RequestMapping(method = RequestMethod.GET, value = "/timeout")
-        public ObservableDeferredResult<String> timeout() {
-            return new ObservableDeferredResult<>(Observable.timer(1, TimeUnit.MINUTES).map(new Func1<Long, String>() {
+        public DeferredResult<List<String>> timeout() {
+            return RxResponse.observable(Observable.timer(1, TimeUnit.MINUTES).map(new Func1<Long, String>() {
                 @Override
                 public String call(Long aLong) {
                     return "single value";
