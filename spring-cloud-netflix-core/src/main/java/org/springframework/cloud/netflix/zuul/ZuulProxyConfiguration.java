@@ -116,7 +116,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		if (this.traces != null) {
 			helper.setTraces(this.traces);
 		}
-		return new SimpleHostRoutingFilter(helper);
+		return new SimpleHostRoutingFilter(helper, zuulProperties);
 	}
 
 	@Bean

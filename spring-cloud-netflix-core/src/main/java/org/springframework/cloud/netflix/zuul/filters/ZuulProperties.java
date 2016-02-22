@@ -57,6 +57,8 @@ public class ZuulProperties {
 
 	private boolean ignoreLocalService = true;
 
+	private Host host = new Host();
+
 	@PostConstruct
 	public void init() {
 		for (Entry<String, ZuulRoute> entry : this.routes.entrySet()) {
@@ -140,6 +142,14 @@ public class ZuulProperties {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable);
 		}
 
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class Host {
+		private int maxTotalConnections = 200;
+		private int maxPerRouteConnections = 20;
 	}
 
 	public String getServletPattern() {
