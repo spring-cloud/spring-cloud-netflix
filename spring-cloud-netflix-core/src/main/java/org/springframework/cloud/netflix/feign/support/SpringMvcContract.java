@@ -33,12 +33,15 @@ import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterP
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import feign.Contract;
 import feign.Feign;
 import feign.MethodMetadata;
+import feign.Param;
 
 import static feign.Util.checkState;
 import static feign.Util.emptyToNull;
@@ -58,14 +61,24 @@ public class SpringMvcContract extends Contract.BaseContract {
 	private final Map<Class<? extends Annotation>, AnnotatedParameterProcessor> annotatedArgumentProcessors;
 	private final Map<String, Method> processedMethods = new HashMap<>();
 
+	private final ConversionService conversionService;
+
 	public SpringMvcContract() {
 		this(Collections.<AnnotatedParameterProcessor> emptyList());
 	}
 
 	public SpringMvcContract(
 			List<AnnotatedParameterProcessor> annotatedParameterProcessors) {
+		this(annotatedParameterProcessors, new DefaultConversionService());
+	}
+
+	public SpringMvcContract(
+			List<AnnotatedParameterProcessor> annotatedParameterProcessors,
+			ConversionService conversionService) {
 		Assert.notNull(annotatedParameterProcessors,
 				"Parameter processors can not be null.");
+		Assert.notNull(conversionService,
+				"ConversionService can not be null.");
 
 		List<AnnotatedParameterProcessor> processors;
 		if (!annotatedParameterProcessors.isEmpty()) {
@@ -75,6 +88,8 @@ public class SpringMvcContract extends Contract.BaseContract {
 			processors = getDefaultAnnotatedArgumentsProcessors();
 		}
 		this.annotatedArgumentProcessors = toAnnotatedArgumentProcessorMap(processors);
+		this.conversionService = conversionService;
+		ConvertingExpander.CONVERSION_SERVICE.set(conversionService);
 	}
 
 	@Override
@@ -182,6 +197,11 @@ public class SpringMvcContract extends Contract.BaseContract {
 				isHttpAnnotation |= processor.processArgument(context,
 						processParameterAnnotation);
 			}
+		}
+		if (isHttpAnnotation && data.indexToExpanderClass().get(paramIndex) == null
+				&& this.conversionService.canConvert(
+						method.getParameterTypes()[paramIndex], String.class)) {
+			data.indexToExpanderClass().put(paramIndex, ConvertingExpander.class);
 		}
 		return isHttpAnnotation;
 	}
@@ -292,4 +312,23 @@ public class SpringMvcContract extends Contract.BaseContract {
 		}
 	}
 
+	public static class ConvertingExpander implements Param.Expander {
+		static final ThreadLocal<ConversionService> CONVERSION_SERVICE = new ThreadLocal<ConversionService>() {
+			protected ConversionService initialValue() {
+				return new DefaultConversionService();
+			}
+		};
+
+		private final ConversionService conversionService;
+
+		public ConvertingExpander() {
+			this.conversionService = CONVERSION_SERVICE.get();
+		}
+
+		@Override
+		public String expand(Object value) {
+			return conversionService.convert(value, String.class);
+		}
+
+	}
 }

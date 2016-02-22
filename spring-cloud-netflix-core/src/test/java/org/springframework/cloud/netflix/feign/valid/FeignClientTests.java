@@ -29,6 +29,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -105,6 +106,15 @@ public class FeignClientTests {
 	@Autowired
 	HystrixClient hystrixClient;
 
+	protected enum Arg {
+		A, B;
+
+		@Override
+		public String toString() {
+			return name().toLowerCase(Locale.ENGLISH);
+		}
+	}
+
 	@FeignClient(value = "localapp", configuration = TestClientConfig.class)
 	protected interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
@@ -130,6 +140,9 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
 		ResponseEntity head();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/tostring")
+		String getToString(@RequestParam("arg") Arg arg);
 	}
 
 	public static class TestClientConfig {
@@ -271,6 +284,10 @@ public class FeignClientTests {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
 		}
 
+		@RequestMapping(method = RequestMethod.GET, value = "/tostring")
+		String getToString(@RequestParam("arg") Arg arg) {
+			return arg.toString();
+		}
 
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
@@ -373,6 +390,12 @@ public class FeignClientTests {
 		assertNotNull("response was null", response);
 		assertEquals("status code was wrong", HttpStatus.NOT_FOUND, response.getStatusCode());
 		assertNull("response body was not null", response.getBody());
+	}
+
+	@Test
+	public void testConvertingExpander() {
+		assertEquals(Arg.A.toString(), testClient.getToString(Arg.A));
+		assertEquals(Arg.B.toString(), testClient.getToString(Arg.B));
 	}
 
 	@Test
