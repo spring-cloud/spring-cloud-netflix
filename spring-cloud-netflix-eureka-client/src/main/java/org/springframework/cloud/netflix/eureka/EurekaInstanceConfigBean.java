@@ -135,6 +135,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	 * secure virtual host name.Think of this as similar to the fully qualified domain
 	 * name, that the users of your services will need to find this instance.
 	 */
+	@Value("${spring.application.name:unknown}")
 	private String secureVirtualHostName;
 
 	/**
