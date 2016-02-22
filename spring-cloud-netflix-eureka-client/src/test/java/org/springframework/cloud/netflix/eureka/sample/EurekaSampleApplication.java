@@ -16,9 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.sample;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.repository.InMemoryMetricRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,6 +37,9 @@ import com.netflix.appinfo.InstanceInfo;
 @RestController
 @EnableEurekaClient
 public class EurekaSampleApplication {
+
+	@Autowired
+	DiscoveryClient discoveryClient;
 
 	@Bean
 	public InMemoryMetricRepository inMemoryMetricRepository() {
@@ -54,7 +59,7 @@ public class EurekaSampleApplication {
 
 	@RequestMapping("/")
 	public String home() {
-		return "Hello world";
+		return "Hello world "+discoveryClient.getLocalServiceInstance().getUri();
 	}
 
 	public static void main(String[] args) {
