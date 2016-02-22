@@ -36,6 +36,7 @@ import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.ServletDetectionFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
 import org.springframework.cloud.netflix.zuul.web.ZuulController;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
@@ -119,6 +120,11 @@ public class ZuulConfiguration {
 	@Bean
 	public DebugFilter debugFilter() {
 		return new DebugFilter();
+	}
+
+	@Bean
+	public ServletDetectionFilter servletDetectionFilter() {
+		return new ServletDetectionFilter();
 	}
 
 	@Bean
