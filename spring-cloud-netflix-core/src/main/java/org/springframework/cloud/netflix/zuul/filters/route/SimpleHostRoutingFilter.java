@@ -18,9 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -169,6 +167,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 
 		String uri = this.helper.buildZuulRequestURI(request);
+		this.helper.addIgnoredHeaders();
 
 		try {
 			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
@@ -277,7 +276,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			httpPatch.setEntity(entity);
 			break;
 		default:
-			httpRequest = new BasicHttpRequest(verb, uri + this.helper.getQueryString(params));
+			httpRequest = new BasicHttpRequest(verb,
+					uri + this.helper.getQueryString(params));
 			log.debug(uri + this.helper.getQueryString(params));
 		}
 		try {

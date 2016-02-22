@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -59,6 +60,12 @@ public class ProxyRequestHelper {
 	public static final String IGNORED_HEADERS = "ignoredHeaders";
 
 	private TraceRepository traces;
+
+	private Set<String> ignoredHeaders = new LinkedHashSet<>();
+
+	public void setIgnoredHeaders(Set<String> ignoredHeaders) {
+		this.ignoredHeaders = ignoredHeaders;
+	}
 
 	public void setTraces(TraceRepository traces) {
 		this.traces = traces;
@@ -170,6 +177,9 @@ public class ProxyRequestHelper {
 		}
 		@SuppressWarnings("unchecked")
 		Set<String> set = (Set<String>) ctx.get(IGNORED_HEADERS);
+		for (String name : this.ignoredHeaders) {
+			set.add(name.toLowerCase());
+		}
 		for (String name : names) {
 			set.add(name.toLowerCase());
 		}
@@ -191,6 +201,7 @@ public class ProxyRequestHelper {
 		case "content-encoding":
 		case "server":
 		case "transfer-encoding":
+		case "x-application-context":
 			return false;
 		default:
 			return true;
@@ -284,7 +295,7 @@ public class ProxyRequestHelper {
 			for (String value : params.get(param)) {
 				query.append("&");
 				query.append(param);
-				if(!"".equals(value)) {
+				if (!"".equals(value)) {
 					query.append("=");
 					query.append(value);
 				}

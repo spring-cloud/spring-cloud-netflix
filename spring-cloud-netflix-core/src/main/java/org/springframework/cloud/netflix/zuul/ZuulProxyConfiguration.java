@@ -21,7 +21,6 @@ import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
@@ -31,7 +30,6 @@ import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.discovery.SimpleServiceRouteMapper;
@@ -89,8 +87,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	public ServletDetectionFilter servletDetectionFilter() {
 		return new ServletDetectionFilter();
-	}	
-	
+	}
+
 	@Bean
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator) {
 		return new PreDecorationFilter(routeLocator,
@@ -99,24 +97,26 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	// route filters
 	@Bean
-	public RibbonRoutingFilter ribbonRoutingFilter(
+	public RibbonRoutingFilter ribbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory) {
-		ProxyRequestHelper helper = new ProxyRequestHelper();
-		if (this.traces != null) {
-			helper.setTraces(this.traces);
-		}
 		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper,
 				ribbonCommandFactory);
 		return filter;
 	}
 
 	@Bean
-	public SimpleHostRoutingFilter simpleHostRoutingFilter() {
+	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper) {
+		return new SimpleHostRoutingFilter(helper);
+	}
+
+	@Bean
+	public ProxyRequestHelper proxyRequestHelper() {
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 		if (this.traces != null) {
 			helper.setTraces(this.traces);
 		}
-		return new SimpleHostRoutingFilter(helper);
+		helper.setIgnoredHeaders(this.zuulProperties.getIgnoredHeaders());
+		return helper;
 	}
 
 	@Bean

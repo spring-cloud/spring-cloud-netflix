@@ -16,15 +16,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import lombok.AllArgsConstructor;
@@ -39,6 +43,13 @@ import lombok.NoArgsConstructor;
 @ConfigurationProperties("zuul")
 public class ZuulProperties {
 
+	/**
+	 *
+	 */
+	private static final List<String> SECURITY_HEADERS = Arrays.asList("Pragma",
+			"Cache-Control", "X-Frame-Options", "X-Content-Type-Options",
+			"X-XSS-Protection", "Expires");
+
 	private String prefix = "";
 
 	private boolean stripPrefix = true;
@@ -49,13 +60,30 @@ public class ZuulProperties {
 
 	private boolean addProxyHeaders = true;
 
-	private List<String> ignoredServices = new ArrayList<>();
+	private Set<String> ignoredServices = new LinkedHashSet<>();
 
-	private List<String> ignoredPatterns = new ArrayList<>();
+	private Set<String> ignoredPatterns = new LinkedHashSet<>();
+
+	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
 	private String servletPath = "/zuul";
 
 	private boolean ignoreLocalService = true;
+
+	public Set<String> getIgnoredHeaders() {
+		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
+		if (ClassUtils.isPresent(
+				"org.springframework.security.config.annotation.web.WebSecurityConfigurer",
+				null) && Collections.disjoint(ignoredHeaders, SECURITY_HEADERS)) {
+			// Allow Spring Security in the gateway to control these headers
+			ignoredHeaders.addAll(SECURITY_HEADERS);
+		}
+		return ignoredHeaders;
+	}
+
+	public void setIgnoredHeaders(Set<String> ignoredHeaders) {
+		this.ignoredHeaders.addAll(ignoredHeaders);
+	}
 
 	@PostConstruct
 	public void init() {

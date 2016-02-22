@@ -19,13 +19,8 @@ package org.springframework.cloud.netflix.zuul;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
-import com.netflix.client.ClientException;
-import com.netflix.client.http.HttpRequest;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.niws.client.http.RestClient;
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +40,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,10 +53,17 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.SneakyThrows;
+import com.netflix.client.ClientException;
+import com.netflix.client.http.HttpRequest;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.niws.client.http.RestClient;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import lombok.SneakyThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
@@ -68,7 +71,7 @@ import static org.junit.Assert.assertTrue;
 @IntegrationTest({ "server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
-		"zuul.routes.badhost: /badhost/**" })
+		"zuul.routes.badhost: /badhost/**", "zuul.ignoredHeaders: X-Header" })
 @DirtiesContext
 public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 
@@ -81,6 +84,29 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("/trailing-slash", result.getBody());
+	}
+
+	@Test
+	public void simpleHostRouteIgnoredHeader() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/add-header", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertNull(result.getHeaders().get("X-Header"));
+	}
+
+	@Test
+	public void simpleHostRouteDefaultIgnoredHeader() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/add-header", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("[testclient:0]",
+				result.getHeaders().get("X-Application-Context").toString());
 	}
 
 	@Test
@@ -102,15 +128,14 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 	@Test
 	public void ribbonCommandBadHost() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/badhost/1",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/badhost/1", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 
 	@Test
 	public void ribbonCommandFactoryOverridden() {
-		assertTrue(
-				"ribbonCommandFactory not a MyRibbonCommandFactory",
+		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
 	}
 
@@ -132,8 +157,18 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 		return request.getRequestURI();
 	}
 
+	@RequestMapping(value = "/add-header")
+	public ResponseEntity<String> addHeader(HttpServletRequest request) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("X-Header", "FOO");
+		ResponseEntity<String> result = new ResponseEntity<String>(
+				request.getRequestURI(), headers, HttpStatus.OK);
+		return result;
+	}
+
 	@Bean
-	public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+	public RibbonCommandFactory<?> ribbonCommandFactory(
+			SpringClientFactory clientFactory) {
 		return new MyRibbonCommandFactory(clientFactory);
 	}
 
@@ -154,12 +189,12 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 			String uri = context.getUri();
 			if (uri.startsWith("/throwexception/")) {
 				String code = uri.replace("/throwexception/", "");
-				RestClient restClient = getClientFactory().getClient(context.getServiceId(),
-						RestClient.class);
-				return new MyCommand(Integer.parseInt(code),
-						context.getServiceId(), restClient, getVerb(context.getVerb()),
-						context.getUri(), context.getRetryable(), context.getHeaders(),
-						context.getParams(), context.getRequestEntity());
+				RestClient restClient = getClientFactory()
+						.getClient(context.getServiceId(), RestClient.class);
+				return new MyCommand(Integer.parseInt(code), context.getServiceId(),
+						restClient, getVerb(context.getVerb()), context.getUri(),
+						context.getRetryable(), context.getHeaders(), context.getParams(),
+						context.getRequestEntity());
 			}
 			return super.create(context);
 		}
@@ -169,17 +204,23 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 
 		private int errorCode;
 
-		public MyCommand(int errorCode, String commandKey, RestClient restClient, HttpRequest.Verb verb, String uri, Boolean retryable, MultiValueMap<String, String> headers, MultiValueMap<String, String> params, InputStream requestEntity) throws URISyntaxException {
-			super(commandKey, restClient, verb, uri, retryable, headers, params, requestEntity);
+		public MyCommand(int errorCode, String commandKey, RestClient restClient,
+				HttpRequest.Verb verb, String uri, Boolean retryable,
+				MultiValueMap<String, String> headers,
+				MultiValueMap<String, String> params, InputStream requestEntity)
+						throws URISyntaxException {
+			super(commandKey, restClient, verb, uri, retryable, headers, params,
+					requestEntity);
 			this.errorCode = errorCode;
 		}
 
 		@Override
 		protected ClientHttpResponse forward() throws Exception {
-			if (errorCode == 503) {
+			if (this.errorCode == 503) {
 				throw new ClientException(ClientException.ErrorType.SERVER_THROTTLED);
 			}
-			return new MockClientHttpResponse((byte[])null, HttpStatus.valueOf(this.errorCode));
+			return new MockClientHttpResponse((byte[]) null,
+					HttpStatus.valueOf(this.errorCode));
 		}
 	}
 

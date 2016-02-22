@@ -72,6 +72,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext context = RequestContext.getCurrentContext();
+		this.helper.addIgnoredHeaders();
 		try {
 			RibbonCommandContext commandContext = buildCommandContext(context);
 			ClientHttpResponse response = forward(commandContext);
@@ -133,7 +134,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	}
 
-	protected ClientHttpResponse handleException(Map<String, Object> info, HystrixRuntimeException ex) throws ZuulException {
+	protected ClientHttpResponse handleException(Map<String, Object> info,
+			HystrixRuntimeException ex) throws ZuulException {
 		int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
 		Throwable cause = ex;
 		String message = ex.getFailureType().toString();
@@ -144,7 +146,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 
 		if (clientException != null) {
-			if (clientException.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
+			if (clientException
+					.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
 				statusCode = HttpStatus.SERVICE_UNAVAILABLE.value();
 			}
 			cause = clientException;
@@ -159,7 +162,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			return null;
 		}
 		if (t instanceof ClientException) {
-			return (ClientException)t;
+			return (ClientException) t;
 		}
 		return findClientException(t.getCause());
 	}

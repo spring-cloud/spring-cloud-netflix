@@ -229,7 +229,7 @@ public class DiscoveryClientRouteLocatorTests {
 	public void testGetMatchingPathWithoutMatchingIgnoredPattern() throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
@@ -242,7 +242,7 @@ public class DiscoveryClientRouteLocatorTests {
 	public void testGetMatchingPathWithMatchingIgnoredPattern() throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
@@ -255,7 +255,7 @@ public class DiscoveryClientRouteLocatorTests {
 			throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.setPrefix("/proxy");
 		this.properties.init();
@@ -270,7 +270,7 @@ public class DiscoveryClientRouteLocatorTests {
 			throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
@@ -283,7 +283,7 @@ public class DiscoveryClientRouteLocatorTests {
 			throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setStripPrefix(false);
@@ -300,7 +300,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties
-				.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
+				.setIgnoredPatterns(Collections.singleton("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setStripPrefix(false);
@@ -315,7 +315,7 @@ public class DiscoveryClientRouteLocatorTests {
 			throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
@@ -331,7 +331,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties
-				.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
+				.setIgnoredPatterns(Collections.singleton("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
@@ -345,7 +345,7 @@ public class DiscoveryClientRouteLocatorTests {
 			throws Exception {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
@@ -361,7 +361,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties
-				.setIgnoredPatterns(Collections.singletonList("/proxy" + IGNOREDPATTERN));
+				.setIgnoredPatterns(Collections.singleton("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
 		this.properties.setPrefix("/proxy");
@@ -377,7 +377,7 @@ public class DiscoveryClientRouteLocatorTests {
 				this.discovery, this.properties);
 		ZuulRoute zuulRoute = new ZuulRoute("/foo/**");
 		zuulRoute.setStripPrefix(true);
-		this.properties.setIgnoredPatterns(Collections.singletonList(IGNOREDPATTERN));
+		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo", zuulRoute);
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
@@ -448,7 +448,7 @@ public class DiscoveryClientRouteLocatorTests {
 	public void testIgnoreRoutes() {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList(IGNOREDSERVICE));
+		this.properties.setIgnoredServices(Collections.singleton(IGNOREDSERVICE));
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(IGNOREDSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
@@ -460,7 +460,7 @@ public class DiscoveryClientRouteLocatorTests {
 	public void testIgnoreRoutesWithPattern() {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList("ignore*"));
+		this.properties.setIgnoredServices(Collections.singleton("ignore*"));
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(IGNOREDSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
@@ -472,7 +472,7 @@ public class DiscoveryClientRouteLocatorTests {
 	public void testIgnoreAllRoutes() {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(IGNOREDSERVICE));
 		List<Route> routesMap = routeLocator.getRoutes();
@@ -485,7 +485,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		List<Route> routesMap = routeLocator.getRoutes();
 		assertNotNull("routes ignored foo", getRoute(routesMap, "/foo/**"));
@@ -499,7 +499,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", route);
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/foo/**");
@@ -517,7 +517,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", route);
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("foo"));
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/**");
@@ -533,7 +533,7 @@ public class DiscoveryClientRouteLocatorTests {
 				new ZuulRoute("/foo/**", "http://foo.com"));
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
-		this.properties.setIgnoredServices(Collections.singletonList("*"));
+		this.properties.setIgnoredServices(Collections.singleton("*"));
 		given(this.discovery.getServices()).willReturn(Collections.singletonList("bar"));
 		List<Route> routesMap = routeLocator.getRoutes();
 		assertNotNull("routes ignored foo", getRoute(routesMap, getMapping("foo")));

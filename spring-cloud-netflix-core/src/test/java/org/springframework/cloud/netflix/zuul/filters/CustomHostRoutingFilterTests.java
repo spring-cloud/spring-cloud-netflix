@@ -191,7 +191,8 @@ class SampleCustomZuulProxyApplication {
 	protected static class CustomZuulProxyConfig extends ZuulProxyConfiguration {
 		@Bean
 		@Override
-		public SimpleHostRoutingFilter simpleHostRoutingFilter() {
+		public SimpleHostRoutingFilter simpleHostRoutingFilter(
+				ProxyRequestHelper helper) {
 			return new CustomHostRoutingFilter();
 		}
 

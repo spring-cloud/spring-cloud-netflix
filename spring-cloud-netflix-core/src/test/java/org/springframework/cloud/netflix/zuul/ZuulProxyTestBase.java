@@ -5,11 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +28,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Spencer Gibb
  */
-public class ZuulProxyTestBase {
+public abstract class ZuulProxyTestBase {
 
 	@Value("${local.server.port}")
 	protected int port;
@@ -113,8 +113,8 @@ public class ZuulProxyTestBase {
 	@Test
 	public void testNotFoundFromApp() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/local/notfound", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/simple/local/notfound",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
 	}
 
@@ -246,7 +246,8 @@ public class ZuulProxyTestBase {
 							.containsKey("override")) {
 						Map<String, List<String>> overridden = new HashMap<>();
 						overridden.put("key", Arrays.asList("overridden"));
-						RequestContext.getCurrentContext().setRequestQueryParams(overridden);
+						RequestContext.getCurrentContext()
+								.setRequestQueryParams(overridden);
 					}
 					return null;
 				}
