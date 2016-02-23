@@ -70,6 +70,8 @@ public class ZuulProperties {
 
 	private boolean ignoreLocalService = true;
 
+	private Host host = new Host();
+
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
@@ -168,6 +170,14 @@ public class ZuulProperties {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable);
 		}
 
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class Host {
+		private int maxTotalConnections = 200;
+		private int maxPerRouteConnections = 20;
 	}
 
 	public String getServletPattern() {

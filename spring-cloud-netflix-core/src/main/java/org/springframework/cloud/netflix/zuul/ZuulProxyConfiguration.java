@@ -30,6 +30,7 @@ import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.discovery.SimpleServiceRouteMapper;
@@ -105,8 +106,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
-	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper) {
-		return new SimpleHostRoutingFilter(helper);
+	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties);
 	}
 
 	@Bean
