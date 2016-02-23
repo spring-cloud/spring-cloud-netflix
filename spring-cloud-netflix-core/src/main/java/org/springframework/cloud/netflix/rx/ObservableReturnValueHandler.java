@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.rx;
 
-import org.springframework.cloud.netflix.rx.SingleDeferredResult;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
@@ -76,7 +75,7 @@ public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnVal
     protected DeferredResult<?> convertToDeferredResult(final ResponseEntity<?> originalResponseEntity, Observable<?> observable) {
 
         Observable<ResponseEntity<List<?>>> observableResponse =
-                observable.toList().map(new ResponseEntityMapper(originalResponseEntity));
+                observable.toList().map(new ResponseEntityAdapter(originalResponseEntity));
         return new SingleDeferredResult<>(observableResponse.toSingle());
     }
 
@@ -96,11 +95,11 @@ public class ObservableReturnValueHandler implements AsyncHandlerMethodReturnVal
         return null;
     }
 
-    private static final class ResponseEntityMapper implements Func1<List<?>, ResponseEntity<List<?>>> {
+    private static final class ResponseEntityAdapter implements Func1<List<?>, ResponseEntity<List<?>>> {
 
         private final ResponseEntity<?> originalResponseEntity;
 
-        ResponseEntityMapper(ResponseEntity<?> originalResponseEntity) {
+        ResponseEntityAdapter(ResponseEntity<?> originalResponseEntity) {
             this.originalResponseEntity = originalResponseEntity;
         }
 
