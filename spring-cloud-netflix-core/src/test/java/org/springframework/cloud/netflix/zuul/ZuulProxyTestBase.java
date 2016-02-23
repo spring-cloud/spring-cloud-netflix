@@ -54,8 +54,8 @@ public abstract class ZuulProxyTestBase {
 
 	@Before
 	public void setTestRequestcontext() {
-		RequestContext context = new RequestContext();
-		RequestContext.testSetCurrentContext(context);
+		RequestContext.testSetCurrentContext(null);
+		RequestContext.getCurrentContext().unset();
 	}
 
 	protected String getRoute(String path) {
@@ -157,7 +157,7 @@ public abstract class ZuulProxyTestBase {
 	}
 
 	@Test
-	public void simpleHostRouteWithOriginalQString() {
+	public void simpleHostRouteWithOriginalQueryString() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
 		this.endpoint.reset();
 

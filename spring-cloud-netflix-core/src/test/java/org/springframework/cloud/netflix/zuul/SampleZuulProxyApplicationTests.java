@@ -51,6 +51,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.client.ClientException;
@@ -110,6 +111,28 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 	}
 
 	@Test
+	public void simpleHostRouteWithQuery() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/query?foo=bar", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("/query?foo=bar", result.getBody());
+	}
+
+	@Test
+	public void simpleHostRouteWithEncodedQuery() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/query?foo={foo}", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class, "weird#chars");
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("/query?foo=weird#chars", result.getBody());
+	}
+
+	@Test
 	public void ribbonCommandForbidden() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/throwexception/403",
@@ -164,6 +187,11 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 		ResponseEntity<String> result = new ResponseEntity<String>(
 				request.getRequestURI(), headers, HttpStatus.OK);
 		return result;
+	}
+
+	@RequestMapping(value = "/query")
+	public String addQuery(HttpServletRequest request, @RequestParam String foo) {
+		return request.getRequestURI() + "?foo=" + foo;
 	}
 
 	@Bean

@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -36,6 +37,7 @@ import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
@@ -290,17 +292,27 @@ public class ProxyRequestHelper {
 	}
 
 	public String getQueryString(MultiValueMap<String, String> params) {
+		if (params.isEmpty()) {
+			return "";
+		}
 		StringBuilder query = new StringBuilder();
+		Map<String, Object> singles = new HashMap<>();
 		for (String param : params.keySet()) {
+			int i = 0;
 			for (String value : params.get(param)) {
 				query.append("&");
 				query.append(param);
 				if (!"".equals(value)) {
-					query.append("=");
-					query.append(value);
+					singles.put(param + i, value);
+					query.append("={");
+					query.append(param + i);
+					query.append("}");
 				}
+				i++;
 			}
 		}
-		return (query.length() > 0) ? "?" + query.substring(1) : "";
+
+		UriTemplate template = new UriTemplate("?" + query.toString().substring(1));
+		return template.expand(singles).toString();
 	}
 }
