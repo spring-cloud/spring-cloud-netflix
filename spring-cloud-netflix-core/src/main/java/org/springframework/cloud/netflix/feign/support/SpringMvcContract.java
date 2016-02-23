@@ -30,10 +30,14 @@ import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.PathVariableParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestHeaderParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterProcessor;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import feign.Contract;
+import feign.Feign;
 import feign.MethodMetadata;
 
 import static feign.Util.checkState;
@@ -49,7 +53,10 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 	private static final String CONTENT_TYPE = "Content-Type";
 
+	private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
+
 	private final Map<Class<? extends Annotation>, AnnotatedParameterProcessor> annotatedArgumentProcessors;
+	private final Map<String, Method> processedMethods = new HashMap<>();
 
 	public SpringMvcContract() {
 		this(Collections.<AnnotatedParameterProcessor> emptyList());
@@ -72,6 +79,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 	@Override
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
+		processedMethods.put(Feign.configKey(targetType, method), method);
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
 
 		RequestMapping classAnnotation = findMergedAnnotation(targetType, RequestMapping.class);
@@ -161,12 +169,18 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 		AnnotatedParameterProcessor.AnnotatedParameterContext context = new SimpleAnnotatedParameterContext(
 				data, paramIndex);
+		Method method = processedMethods.get(data.configKey());
 		for (Annotation parameterAnnotation : annotations) {
 			AnnotatedParameterProcessor processor = this.annotatedArgumentProcessors
 					.get(parameterAnnotation.annotationType());
 			if (processor != null) {
+				Annotation processParameterAnnotation;
+				// synthesize, handling @AliasFor, while falling back to parameter name on
+				// missing String #value():
+				processParameterAnnotation = synthesizeWithMethodParameterNameAsFallbackValue(
+						parameterAnnotation, method, paramIndex);
 				isHttpAnnotation |= processor.processArgument(context,
-						parameterAnnotation);
+						processParameterAnnotation);
 			}
 		}
 		return isHttpAnnotation;
@@ -224,6 +238,23 @@ public class SpringMvcContract extends Contract.BaseContract {
 		annotatedArgumentResolvers.add(new RequestHeaderParameterProcessor());
 
 		return annotatedArgumentResolvers;
+	}
+
+	private Annotation synthesizeWithMethodParameterNameAsFallbackValue(
+			Annotation parameterAnnotation, Method method, int parameterIndex) {
+		Map<String, Object> annotationAttributes = AnnotationUtils
+				.getAnnotationAttributes(parameterAnnotation);
+		Object defaultValue = AnnotationUtils.getDefaultValue(parameterAnnotation);
+		if (defaultValue instanceof String
+				&& defaultValue.equals(annotationAttributes.get(AnnotationUtils.VALUE))) {
+			String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+			if (parameterNames != null && parameterNames.length > parameterIndex) {
+				annotationAttributes.put(AnnotationUtils.VALUE,
+						parameterNames[parameterIndex]);
+			}
+		}
+		return AnnotationUtils.synthesizeAnnotation(annotationAttributes,
+				parameterAnnotation.annotationType(), null);
 	}
 
 	private class SimpleAnnotatedParameterContext

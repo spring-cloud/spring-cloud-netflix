@@ -1,11 +1,13 @@
 package org.springframework.cloud.netflix.feign.support;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 import feign.MethodMetadata;
 import lombok.AllArgsConstructor;
@@ -26,7 +29,19 @@ import lombok.ToString;
 /**
  * @author chadjaros
  */
-public class SpringMvcContractTest {
+public class SpringMvcContractTests {
+	private static final Class<?> EXECUTABLE_TYPE;
+
+	static {
+		Class<?> executableType;
+		try {
+			executableType = Class.forName("java.lang.reflect.Executable");
+		}
+		catch (ClassNotFoundException ex) {
+			executableType = null;
+		}
+		EXECUTABLE_TYPE = executableType;
+	}
 
 	private SpringMvcContract contract;
 
@@ -123,6 +138,27 @@ public class SpringMvcContractTest {
 	}
 
 	@Test
+	public void testProcessAnnotations_Aliased() throws Exception {
+		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest2",
+				String.class, Integer.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/advanced/test2", data.template().url());
+		assertEquals("PUT", data.template().method());
+		assertEquals(MediaType.APPLICATION_JSON_VALUE,
+				data.template().headers().get("Accept").iterator().next());
+
+		assertEquals("Authorization", data.indexToName().get(0).iterator().next());
+		assertEquals("amount", data.indexToName().get(1).iterator().next());
+
+		assertEquals("{Authorization}",
+				data.template().headers().get("Authorization").iterator().next());
+		assertEquals("{amount}",
+				data.template().queries().get("amount").iterator().next());
+	}
+
+	@Test
 	public void testProcessAnnotations_Advanced2() throws Exception {
 		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTest");
 		MethodMetadata data = this.contract
@@ -146,6 +182,56 @@ public class SpringMvcContractTest {
 				data.template().headers().get("Accept").iterator().next());
 	}
 
+	@Test
+	public void testProcessAnnotations_Fallback() throws Exception {
+		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTestFallback",
+				String.class, String.class, Integer.class);
+
+		assumeTrue(hasJava8ParameterNames(method));
+
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/advanced/testfallback/{id}", data.template().url());
+		assertEquals("PUT", data.template().method());
+		assertEquals(MediaType.APPLICATION_JSON_VALUE,
+				data.template().headers().get("Accept").iterator().next());
+
+		assertEquals("Authorization", data.indexToName().get(0).iterator().next());
+		assertEquals("id", data.indexToName().get(1).iterator().next());
+		assertEquals("amount", data.indexToName().get(2).iterator().next());
+
+		assertEquals("{Authorization}",
+				data.template().headers().get("Authorization").iterator().next());
+		assertEquals("{amount}",
+				data.template().queries().get("amount").iterator().next());
+	}
+
+	/**
+	 * For abstract (e.g. interface) methods, only Java 8 Parameter names (compiler arg
+	 * -parameters) can supply parameter names; bytecode-based strategies use local
+	 * variable declarations, of which there are none for abstract methods.
+	 * @param m
+	 * @return whether a parameter name was found
+	 * @throws IllegalArgumentException if method has no parameters
+	 */
+	private static boolean hasJava8ParameterNames(Method m) {
+		org.springframework.util.Assert.isTrue(m.getParameterTypes().length > 0,
+				"method has no parameters");
+		if (EXECUTABLE_TYPE != null) {
+			Method getParameters = ReflectionUtils.findMethod(EXECUTABLE_TYPE, "getParameters");
+			try {
+				Object[] parameters = (Object[]) getParameters.invoke(m);
+				Method isNamePresent = ReflectionUtils.findMethod(parameters[0].getClass(), "isNamePresent");
+				return Boolean.TRUE.equals(isNamePresent.invoke(parameters[0]));
+			}
+			catch (IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException ex) {
+			}
+		}
+		return false;
+	}
+
 	public interface TestTemplate_Simple {
 		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
@@ -165,6 +251,15 @@ public class SpringMvcContractTest {
 		@RequestMapping(path = "/test/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		ResponseEntity<TestObject> getTest(@RequestHeader("Authorization") String auth,
 				@PathVariable("id") String id, @RequestParam("amount") Integer amount);
+
+		@RequestMapping(path = "/test2", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+		ResponseEntity<TestObject> getTest2(@RequestHeader(name = "Authorization") String auth,
+				@RequestParam(name = "amount") Integer amount);
+
+		@ExceptionHandler
+		@RequestMapping(path = "/testfallback/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+		ResponseEntity<TestObject> getTestFallback(@RequestHeader String Authorization,
+				@PathVariable String id, @RequestParam Integer amount);
 
 		@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 		TestObject getTest();
