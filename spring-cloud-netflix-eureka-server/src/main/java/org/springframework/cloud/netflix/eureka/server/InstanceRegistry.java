@@ -18,8 +18,6 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import java.util.List;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceCanceledEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
@@ -33,22 +31,25 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
 import com.netflix.eureka.EurekaServerConfig;
-import com.netflix.eureka.lease.Lease;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.resources.ServerCodecs;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
  */
 @CommonsLog
-public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements ApplicationContextAware {
+public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
+		implements ApplicationContextAware {
 
 	private ApplicationContext ctxt;
 	private int defaultOpenForTrafficCount;
 
 	public InstanceRegistry(EurekaServerConfig serverConfig,
-							EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
-							EurekaClient eurekaClient, int expectedNumberOfRenewsPerMin, int defaultOpenForTrafficCount) {
+			EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
+			EurekaClient eurekaClient, int expectedNumberOfRenewsPerMin,
+			int defaultOpenForTrafficCount) {
 		super(serverConfig, clientConfig, serverCodecs, eurekaClient);
 
 		this.expectedNumberOfRenewsPerMin = expectedNumberOfRenewsPerMin;
@@ -61,29 +62,26 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 	}
 
 	/**
-	 * If {@link PeerAwareInstanceRegistryImpl#openForTraffic(ApplicationInfoManager, int)}
-	 * is called with a zero * argument, it means that leases are not
-	 * automatically * cancelled if the instance * hasn't sent any renewals
-	 * recently. This happens for a standalone server. It seems like a bad
-	 * default, so we set it to the smallest non-zero value we can, so that any
-	 * instances that subsequently register can bump up the threshold.
+	 * If
+	 * {@link PeerAwareInstanceRegistryImpl#openForTraffic(ApplicationInfoManager, int)}
+	 * is called with a zero * argument, it means that leases are not automatically *
+	 * cancelled if the instance * hasn't sent any renewals recently. This happens for a
+	 * standalone server. It seems like a bad default, so we set it to the smallest
+	 * non-zero value we can, so that any instances that subsequently register can bump up
+	 * the threshold.
 	 */
 	@Override
 	public void openForTraffic(ApplicationInfoManager applicationInfoManager, int count) {
-		super.openForTraffic(applicationInfoManager, count == 0 ? defaultOpenForTrafficCount : count);
-	}
-
-
-	@Override
-	public void register(InstanceInfo info, boolean isReplication) {
-		register(info, Lease.DEFAULT_DURATION_IN_SECS, isReplication);
+		super.openForTraffic(applicationInfoManager,
+				count == 0 ? this.defaultOpenForTrafficCount : count);
 	}
 
 	@Override
 	public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {
 		if (log.isDebugEnabled()) {
 			log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
-					+ ", leaseDuration " + leaseDuration + ", isReplication " + isReplication);
+					+ ", leaseDuration " + leaseDuration + ", isReplication "
+					+ isReplication);
 		}
 		// TODO: what to publish from info (whole object?)
 		this.ctxt.publishEvent(new EurekaInstanceRegisteredEvent(this, info,
@@ -98,15 +96,15 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl implements A
 			log.debug("cancel " + appName + " serverId " + serverId + ", isReplication {}"
 					+ isReplication);
 		}
-		this.ctxt.publishEvent(new EurekaInstanceCanceledEvent(this, appName, serverId,
-				isReplication));
+		this.ctxt.publishEvent(
+				new EurekaInstanceCanceledEvent(this, appName, serverId, isReplication));
 
 		return super.cancel(appName, serverId, isReplication);
 	}
 
 	@Override
 	public boolean renew(final String appName, final String serverId,
-						 boolean isReplication) {
+			boolean isReplication) {
 		if (log.isDebugEnabled()) {
 			log.debug("renew " + appName + " serverId " + serverId + ", isReplication {}"
 					+ isReplication);
