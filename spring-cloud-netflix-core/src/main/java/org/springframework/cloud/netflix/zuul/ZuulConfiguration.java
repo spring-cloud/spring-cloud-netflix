@@ -128,6 +128,11 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
+	public ServletDetectionFilter servletDetectionFilter() {
+		return new ServletDetectionFilter();
+	}
+
+	@Bean
 	public Servlet30WrapperFilter servlet30WrapperFilter() {
 		return new Servlet30WrapperFilter();
 	}
