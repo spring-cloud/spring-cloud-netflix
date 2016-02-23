@@ -109,8 +109,13 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	protected static class EurekaServerConfigBeanConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
-		public EurekaServerConfig eurekaServerConfig() {
-			return new EurekaServerConfigBean();
+		public EurekaServerConfig eurekaServerConfig(EurekaClientConfig clientConfig) {
+			EurekaServerConfigBean server = new EurekaServerConfigBean();
+			if (clientConfig.shouldRegisterWithEureka()) {
+				// Set a sensible default if we are supposed to replicate
+				server.setRegistrySyncRetries(5);
+			}
+			return server;
 		}
 	}
 

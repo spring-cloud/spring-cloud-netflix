@@ -21,16 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.netflix.eureka.aws.AwsBindingStrategy;
-import lombok.Data;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import com.netflix.eureka.EurekaServerConfig;
-
 import org.springframework.cloud.netflix.eureka.EurekaConstants;
 import org.springframework.core.env.PropertyResolver;
+
+import com.netflix.eureka.EurekaServerConfig;
+import com.netflix.eureka.aws.AwsBindingStrategy;
+
+import lombok.Data;
 
 /**
  * @author Dave Syer
@@ -90,7 +89,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 
 	private long aSGUpdateIntervalMs = 5 * MINUTES;
 
-	private long aSGCacheExpiryTimeoutMs = 10 * MINUTES; // defaults to longer than the asg update interval
+	private long aSGCacheExpiryTimeoutMs = 10 * MINUTES; // defaults to longer than the
+															// asg update interval
 
 	private long responseCacheAutoExpirationInSeconds = 180;
 
@@ -110,7 +110,6 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 
 	private boolean syncWhenTimestampDiffers = true;
 
-	//TODO: what should these defaults be? for single first?
 	private int registrySyncRetries = 0;
 
 	private long registrySyncRetryWaitMs = 30 * 1000;
@@ -221,8 +220,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 
 	@Override
 	public Set<String> getRemoteRegionAppWhitelist(String regionName) {
-		return this.remoteRegionAppWhitelist.get(regionName == null ? "global"
-				: regionName.trim().toLowerCase());
+		return this.remoteRegionAppWhitelist
+				.get(regionName == null ? "global" : regionName.trim().toLowerCase());
 	}
 
 	@Override
@@ -242,12 +241,12 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 
 	@Override
 	public String getJsonCodecName() {
-		return jsonCodecName;
+		return this.jsonCodecName;
 	}
 
 	@Override
 	public String getXmlCodecName() {
-		return xmlCodecName;
+		return this.xmlCodecName;
 	}
 
 	@Override
@@ -262,8 +261,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 
 	@Override
 	public String getExperimental(String name) {
-		if (propertyResolver != null) {
-			return propertyResolver.getProperty(PREFIX + ".experimental." + name,
+		if (this.propertyResolver != null) {
+			return this.propertyResolver.getProperty(PREFIX + ".experimental." + name,
 					String.class, null);
 		}
 		return null;
