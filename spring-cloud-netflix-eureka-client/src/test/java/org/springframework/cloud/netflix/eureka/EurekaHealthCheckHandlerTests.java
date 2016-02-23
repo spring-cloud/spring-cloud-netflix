@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.junit.Assert.assertEquals;
+import java.util.List;
+
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,11 +26,14 @@ import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.OrderedHealthAggregator;
+import org.springframework.cloud.client.discovery.health.DiscoveryClientHealthIndicator;
+import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
+import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import com.netflix.appinfo.InstanceInfo;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Tests the {@link EurekaHealthCheckHandler} with different health indicator registered.
@@ -48,8 +53,8 @@ public class EurekaHealthCheckHandlerTests {
     @Test
     public void testNoHealthCheckRegistered() throws Exception {
 
-        InstanceInfo.InstanceStatus status = healthCheckHandler.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
-        assertEquals(InstanceInfo.InstanceStatus.UNKNOWN, status);
+        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+        assertEquals(InstanceStatus.UNKNOWN, status);
     }
 
     @Test
@@ -57,8 +62,8 @@ public class EurekaHealthCheckHandlerTests {
 
         initialize(UpHealthConfiguration.class);
 
-        InstanceInfo.InstanceStatus status = healthCheckHandler.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
-        assertEquals(InstanceInfo.InstanceStatus.UP, status);
+        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+        assertEquals(InstanceStatus.UP, status);
     }
 
     @Test
@@ -66,8 +71,8 @@ public class EurekaHealthCheckHandlerTests {
 
         initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
-        InstanceInfo.InstanceStatus status = healthCheckHandler.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
-        assertEquals(InstanceInfo.InstanceStatus.DOWN, status);
+        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+        assertEquals(InstanceStatus.DOWN, status);
     }
 
     @Test
@@ -75,9 +80,18 @@ public class EurekaHealthCheckHandlerTests {
 
         initialize(FatalHealthConfiguration.class);
 
-        InstanceInfo.InstanceStatus status = healthCheckHandler.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
-        assertEquals(InstanceInfo.InstanceStatus.UNKNOWN, status);
+        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+        assertEquals(InstanceStatus.UNKNOWN, status);
     }
+
+	@Test
+	public void testEurekaIgnored() throws Exception {
+
+		initialize(EurekaDownHealthConfiguration.class);
+
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UP);
+		assertEquals(InstanceStatus.UP, status);
+	}
 
     private void initialize(Class<?>... configurations) throws Exception {
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
@@ -88,7 +102,7 @@ public class EurekaHealthCheckHandlerTests {
     public static class UpHealthConfiguration {
 
         @Bean
-        public HealthIndicator upIndicator() {
+        public HealthIndicator healthIndicator() {
             return new AbstractHealthIndicator() {
                 @Override
                 protected void doHealthCheck(Health.Builder builder) throws Exception {
@@ -101,7 +115,7 @@ public class EurekaHealthCheckHandlerTests {
     public static class DownHealthConfiguration {
 
         @Bean
-        public HealthIndicator upIndicator() {
+        public HealthIndicator healthIndicator() {
             return new AbstractHealthIndicator() {
                 @Override
                 protected void doHealthCheck(Health.Builder builder) throws Exception {
@@ -114,7 +128,7 @@ public class EurekaHealthCheckHandlerTests {
     public static class FatalHealthConfiguration {
 
         @Bean
-        public HealthIndicator upIndicator() {
+        public HealthIndicator healthIndicator() {
             return new AbstractHealthIndicator() {
                 @Override
                 protected void doHealthCheck(Health.Builder builder) throws Exception {
@@ -123,4 +137,32 @@ public class EurekaHealthCheckHandlerTests {
             };
         }
     }
+
+
+	public static class EurekaDownHealthConfiguration {
+		@Bean
+		public DiscoveryHealthIndicator discoveryHealthIndicator() {
+			return new DiscoveryClientHealthIndicator(null) {
+				@Override
+				public Health health() {
+					return Health.up().build();
+				}
+			};
+		}
+
+		@Bean
+		public DiscoveryHealthIndicator eurekaHealthIndicator() {
+			return new EurekaHealthIndicator(null, null, null) {
+				@Override
+				public Health health() {
+					return Health.down().build();
+				}
+			};
+		}
+
+		@Bean
+		public DiscoveryCompositeHealthIndicator discoveryCompositeHealthIndicator(List<DiscoveryHealthIndicator> indicators) {
+			return new DiscoveryCompositeHealthIndicator(new OrderedHealthAggregator(), indicators);
+		}
+	}
 }

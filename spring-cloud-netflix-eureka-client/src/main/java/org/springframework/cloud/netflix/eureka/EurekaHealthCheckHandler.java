@@ -16,10 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,12 +28,12 @@ import org.springframework.boot.actuate.health.CompositeHealthIndicator;
 import org.springframework.boot.actuate.health.HealthAggregator;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
+import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 
-import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo;
+import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 /**
  * A Eureka health checker, maps the application status into {@link InstanceStatus}
@@ -72,10 +73,24 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
         final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
+
         for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
-            healthIndicator.addHealthIndicator(entry.getKey(), entry.getValue());
+
+			//ignore EurekaHealthIndicator and flatten the rest of the composite
+			//otherwise there is a never ending cycle of down. See gh-643
+			if (entry.getValue() instanceof DiscoveryCompositeHealthIndicator) {
+				DiscoveryCompositeHealthIndicator indicator = (DiscoveryCompositeHealthIndicator) entry.getValue();
+				for (DiscoveryCompositeHealthIndicator.Holder holder : indicator.getHealthIndicators()) {
+					if (!(holder.getDelegate() instanceof EurekaHealthIndicator)) {
+						healthIndicator.addHealthIndicator(holder.getDelegate().getName(), holder);
+					}
+				}
+
+			}
+			else {
+				healthIndicator.addHealthIndicator(entry.getKey(), entry.getValue());
+			}
         }
     }
 
