@@ -40,9 +40,5 @@
 			<groupId>com.netflix.ribbon</groupId>
 			<artifactId>ribbon-eureka</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-		</dependency>
 	</dependencies>
 </project>
