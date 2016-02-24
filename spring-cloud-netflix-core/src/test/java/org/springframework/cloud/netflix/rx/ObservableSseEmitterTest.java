@@ -38,6 +38,7 @@ import rx.Observable;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -79,8 +80,8 @@ public class ObservableSseEmitterTest {
         @RequestMapping(method = RequestMethod.GET, value = "/events")
         public SseEmitter event() {
             return RxResponse.sse(APPLICATION_JSON_UTF8, Observable.just(
-                    new EventDto("Spring.io", getDate(2016, 5, 11)),
-                    new EventDto("JavaOne", getDate(2016, 9, 22))
+                    new EventDto("Spring.io", getDate(2016, 4, 11)),
+                    new EventDto("JavaOne", getDate(2016, 8, 22))
             ));
         }
     }
@@ -118,7 +119,7 @@ public class ObservableSseEmitterTest {
         // then
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("data:{\"name\":\"Spring.io\",\"date\":1465596000000}\n\ndata:{\"name\":\"JavaOne\",\"date\":1477087200000}\n\n", response.getBody());
+        assertEquals("data:{\"name\":\"Spring.io\",\"date\":1462968000000}\n\ndata:{\"name\":\"JavaOne\",\"date\":1474545600000}\n\n", response.getBody());
     }
 
     private String path(String context) {
@@ -126,6 +127,8 @@ public class ObservableSseEmitterTest {
     }
 
     private static Date getDate(int year, int month, int day) {
-        return new GregorianCalendar(year, month, day).getTime();
+        GregorianCalendar calendar = new GregorianCalendar(year, month, day, 12, 0, 0);
+        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return calendar.getTime();
     }
 }
