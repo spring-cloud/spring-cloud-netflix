@@ -18,19 +18,30 @@ package org.springframework.cloud.netflix.sidecar;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.IntegrationTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SidecarApplication.class)
-@IntegrationTest("server.port=0")
-@WebAppConfiguration
+@WebIntegrationTest(randomPort = true, value = {"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1", "eureka.instance.hostname=mhhost", "sidecar.port=7000"})
 public class SidecarApplicationTests {
 
+	@Autowired
+	EurekaInstanceConfigBean config;
+
 	@Test
-	public void contextLoads() {
+	public void testEurekaConfigBean() {
+		assertThat(this.config.getAppname(), equalTo("mytest"));
+		assertThat(this.config.getHostname(), equalTo("mhhost"));
+		assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
+		assertThat(this.config.getNonSecurePort(), equalTo(7000));
+		System.out.println();
 	}
 
 }

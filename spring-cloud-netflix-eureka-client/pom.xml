@@ -13,6 +13,8 @@
 	<name>Spring Cloud Netflix Eureka Client</name>
 	<description>Spring Cloud Netflix Eureka Client</description>
 	<properties>
+		<!-- Why do I need this now? -->
+		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 		<main.basedir>${basedir}/..</main.basedir>
 	</properties>
 	<dependencies>

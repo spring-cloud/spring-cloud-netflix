@@ -26,9 +26,13 @@ import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.util.InetUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClientConfig;
+
+import static org.springframework.cloud.util.IdUtils.getDefaultInstanceId;
 
 /**
  * @author Spencer Gibb
@@ -57,17 +61,24 @@ public class SidecarConfiguration {
 		@Autowired
 		private InetUtils inetUtils;
 
-		@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
-		private int serverPort = 8080;
-
 		@Value("${management.port:${MANAGEMENT_PORT:${PORT:8080}}}")
 		private int managementPort = 8080;
+
+		@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
+		String hostname;
+
+		@Autowired
+		ConfigurableEnvironment env;
 
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
 			int port = this.sidecarProperties.getPort();
 			config.setNonSecurePort(port);
+			config.setInstanceId(getDefaultInstanceId(this.env));
+			if (StringUtils.hasText(this.hostname)) {
+				config.setHostname(this.hostname);
+			}
 			String scheme = config.getSecurePortEnabled() ? "https" : "http";
 			config.setStatusPageUrl(scheme + "://" + config.getHostname() + ":"
 					+ this.managementPort + config.getStatusPageUrlPath());
