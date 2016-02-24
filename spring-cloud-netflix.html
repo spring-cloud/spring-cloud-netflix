@@ -504,6 +504,32 @@ ID, or VIP).</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_authenticating_with_the_eureka_server">Authenticating with the Eureka Server</h3>
+<div class="paragraph">
+<p>HTTP basic authentication will be automatically added to your eureka
+client if one of the <code>eureka.client.serviceUrl.defaultZone</code> URLs has
+credentials embedded in it (curl style, like
+<code><a href="http://user:password@localhost:8761/eureka" class="bare">http://user:password@localhost:8761/eureka</a></code>). For more complex needs
+you can create a <code>@Bean</code> of type <code>DiscoveryClientOptionalArgs</code> and
+inject <code>ClientFilter</code> instances into it, all of which will be applied
+to the calls from the client to the server.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Because of a limitation in Eureka it isn&#8217;t possible to support
+per-server basic auth credentials, so only the first set that are
+found will be used.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_status_page_and_health_indicator">Status Page and Health Indicator</h3>
 <div class="paragraph">
 <p>The status page and health indicators for a Eureka instance default to
@@ -2553,7 +2579,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-02-24 09:35:08 UTC
+Last updated 2016-02-24 20:49:08 UTC
 </div>
 </div>
 </body>
