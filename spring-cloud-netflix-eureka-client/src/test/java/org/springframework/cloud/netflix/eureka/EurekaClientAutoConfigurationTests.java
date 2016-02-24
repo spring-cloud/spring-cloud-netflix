@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.eureka;
 
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,8 +27,13 @@ import org.springframework.boot.test.EnvironmentTestUtils;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.util.UtilAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -67,8 +74,8 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void nonSecurePort() {
 		testNonSecurePort("PORT");
-		assertEquals("eurekaClient", this.context.getBeanDefinition("eurekaClient")
-				.getFactoryMethodName());
+		assertEquals("eurekaClient",
+				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
 	}
 
 	@Test
@@ -78,8 +85,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(), instance
-				.getStatusPageUrl().contains("9999"));
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("9999"));
 	}
 
 	@Test
@@ -89,17 +96,26 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(), instance
-				.getStatusPageUrl().contains("foo"));
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("foo"));
 	}
 
 	@Test
 	public void refreshScopedBeans() {
 		setupContext(RefreshAutoConfiguration.class);
-		assertEquals(ScopedProxyFactoryBean.class.getName(), this.context
-				.getBeanDefinition("eurekaClient").getBeanClassName());
+		assertEquals(ScopedProxyFactoryBean.class.getName(),
+				this.context.getBeanDefinition("eurekaClient").getBeanClassName());
 		assertEquals(ScopedProxyFactoryBean.class.getName(), this.context
 				.getBeanDefinition("eurekaApplicationInfoManager").getBeanClassName());
+	}
+
+	@Test
+	public void basicAuth() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka");
+		setupContext(MockClientConfiguration.class);
+		ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
+		Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
 	private void testNonSecurePort(String propName) {
@@ -117,5 +133,28 @@ public class EurekaClientAutoConfigurationTests {
 	@Import({ UtilAutoConfiguration.class, EurekaClientAutoConfiguration.class })
 	protected static class TestConfiguration {
 
+	}
+
+	@Configuration
+	protected static class MockClientConfiguration {
+
+		@Bean
+		public MutableDiscoveryClientOptionalArgs mutableDiscoveryClientOptionalArgs() {
+			MutableDiscoveryClientOptionalArgs args = new MutableDiscoveryClientOptionalArgs();
+			args.setEurekaJerseyClient(jerseyClient());
+			return args;
+		}
+
+		@Bean
+		public EurekaJerseyClient jerseyClient() {
+			EurekaJerseyClient mock = Mockito.mock(EurekaJerseyClient.class);
+			Mockito.when(mock.getClient()).thenReturn(apacheClient());
+			return mock;
+		}
+
+		@Bean
+		public ApacheHttpClient4 apacheClient() {
+			return Mockito.mock(ApacheHttpClient4.class);
+		}
 	}
 }

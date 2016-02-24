@@ -74,6 +74,20 @@ ID, or VIP).
 
 See {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
 
+=== Authenticating with the Eureka Server
+
+HTTP basic authentication will be automatically added to your eureka
+client if one of the `eureka.client.serviceUrl.defaultZone` URLs has
+credentials embedded in it (curl style, like
+`http://user:password@localhost:8761/eureka`). For more complex needs
+you can create a `@Bean` of type `DiscoveryClientOptionalArgs` and
+inject `ClientFilter` instances into it, all of which will be applied
+to the calls from the client to the server.
+
+NOTE: Because of a limitation in Eureka it isn't possible to support
+per-server basic auth credentials, so only the first set that are
+found will be used.
+
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to
@@ -477,7 +491,7 @@ https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica#
 for more details.  See the https://github.com/Netflix/Hystrix/wiki/Configuration[Hystrix wiki]
 for details on the properties available.
 
-### Propagating the Security Context or using Spring Scopes
+=== Propagating the Security Context or using Spring Scopes
 
 If you want some thread local context to propagate into a `@HystrixCommand` the default declaration will not work because it executes the command in a thread pool (in case of timeouts). You can switch Hystrix to use the same thread as the caller using some configuration, or directly in the annotation, by asking it to use a different "Isolation Strategy". For example:
 
