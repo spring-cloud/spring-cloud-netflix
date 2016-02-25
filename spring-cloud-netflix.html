@@ -2021,6 +2021,75 @@ But calls including "/admin/" will not resolve.</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_cookies_and_sensitive_headers">Cookies and Sensitive Headers</h3>
+<div class="paragraph">
+<p>It&#8217;s OK to share headers between services in the same system, but you
+probably don&#8217;t want sensitive headers leaking downstream into external
+servers. You can specify a list of ignored headers as part of the
+route configuration. Cookies play a special role because they have
+well-defined semantics in browsers, and they are always to be treated
+as sensitive. If the consumer of your proxy is a browser, then cookies
+for downstream services also cause problems for the user because they
+all get jumbled up (all downstream services look like they come from
+the same place).</p>
+</div>
+<div class="paragraph">
+<p>If you are careful with the design of your services, for example if
+only one of the downstream services sets cookies, then you might be
+able to let them flow from the backend all the way up to the
+caller. Also, if your proxy sets cookies and all your back end
+services are part of the same system, it can be natural to simply
+share them (and for instance us Spring Session to link them up to some
+shared state). Other than that, any cookies that get set by downstream
+services are likely to be not very useful to the caller, so it is
+recommended that you make (at least) "Set-Cookie" and "Cookie" into
+sensitive headers for routes that are not part of your domain. Even
+for routes that <strong>are</strong> part of your domain, try to think carefully
+about what it means before allowing cookies to flow between them and
+the proxy.</p>
+</div>
+<div class="paragraph">
+<p>The sensitive headers can be configured as a comma-separate list per
+route, e.g.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      sensitiveHeaders: Cookie,Set-Cookie
+      url: https://dowstream</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+this is the default value for <code>sensitiveHeaders</code>, so you don&#8217;t
+need to set it unless you want it to be different. N.B. this is new in
+Spring Cloud Netflix 1.1 (in 1.0 the user had no control over headers
+and all cookies flow in both directions).
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>In addition to the per-route sensitive headers, you can set a global
+value for <code>zuul.ignoredHeaders</code> for values that should be discarded
+(both request and response) during interactions with downstream
+services. By default these are empty, if Spring Security is not on the
+classpath, and otherwise they are initialized to a set of well-known
+"security" headers (e.g. involving caching) as specified by Spring
+Security. The assumption in this case is that the downstream services
+might add these headers too, and we want the values from the proxy.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_strangulation_patterns_and_local_forwards">Strangulation Patterns and Local Forwards</h3>
 <div class="paragraph">
 <p>A common pattern when migrating an existing application or API is to
@@ -2579,7 +2648,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-02-25 11:54:19 UTC
+Last updated 2016-02-25 17:01:19 UTC
 </div>
 </div>
 </body>
