@@ -1982,7 +1982,7 @@ the service-specific prefix from individual routes, e.g.</p>
 <p>In this example requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.</p>
 </div>
 <div class="paragraph">
-<p>The <code>zuul.routes</code> entries actually bind to an object of type <code>ProxyRouteLocator</code>. If you
+<p>The <code>zuul.routes</code> entries actually bind to an object of type <code>ZuulProperties</code>. If you
 look at the properties of that object you will see that it also has a "retryable" flag.
 Set that flag to "true" to have the Ribbon client automatically retry failed requests
 (and if you need to you can modify the parameters of the retry operations using
@@ -2579,7 +2579,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-02-25 00:21:03 UTC
+Last updated 2016-02-25 11:54:19 UTC
 </div>
 </div>
 </body>
