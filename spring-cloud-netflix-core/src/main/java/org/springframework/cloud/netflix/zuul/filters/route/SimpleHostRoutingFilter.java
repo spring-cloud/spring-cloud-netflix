@@ -209,9 +209,10 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					.build();
 
 			this.connectionManager = new PoolingHttpClientConnectionManager(registry);
-			this.connectionManager.setMaxTotal(hostProperties.getMaxTotalConnections());
 			this.connectionManager
-					.setDefaultMaxPerRoute(hostProperties.getMaxPerRouteConnections());
+					.setMaxTotal(this.hostProperties.getMaxTotalConnections());
+			this.connectionManager.setDefaultMaxPerRoute(
+					this.hostProperties.getMaxPerRouteConnections());
 			return this.connectionManager;
 		}
 		catch (Exception ex) {

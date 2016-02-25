@@ -17,10 +17,9 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.net.URL;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,6 @@ import org.mockito.Mock;
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.Trace;
 import org.springframework.boot.actuate.trace.TraceRepository;
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -163,7 +161,7 @@ public class ProxyRequestHelperTests {
 	}
 
 	@Test
-	public void getQueryString(){
+	public void getQueryString() {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("a", "1234");
 		params.add("b", "5678");
@@ -174,12 +172,44 @@ public class ProxyRequestHelperTests {
 	}
 
 	@Test
-	public void getQueryStringWithEmptyParam(){
+	public void getQueryStringWithEmptyParam() {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("wsdl", "");
 
 		String queryString = new ProxyRequestHelper().getQueryString(params);
 
 		assertThat(queryString, is("?wsdl"));
+	}
+
+	@Test
+	public void ignoreSensitiveHeadersMatchingHost() throws Exception {
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		helper.setSensitiveHeaders(Collections.singleton("Cookie"));
+		helper.setWhitelistHosts(Collections.singleton("*"));
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRouteHost(new URL("http://example.com"));
+		helper.addIgnoredHeaders();
+		assertThat(helper.isIncludedHeader("Cookie"), is(false));
+	}
+
+	@Test
+	public void ignoreSensitiveHeadersNotMatching() throws Exception {
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		helper.setSensitiveHeaders(Collections.singleton("Cookie"));
+		helper.setWhitelistHosts(Collections.singleton("foo.com"));
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRouteHost(new URL("http://example.com"));
+		helper.addIgnoredHeaders();
+		assertThat(helper.isIncludedHeader("Cookie"), is(true));
+	}
+
+	@Test
+	public void ignoreSensitiveHeadersWhenNoRoute() throws Exception {
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		helper.setSensitiveHeaders(Collections.singleton("Cookie"));
+		helper.setWhitelistHosts(Collections.singleton("foo.com"));
+		RequestContext context = RequestContext.getCurrentContext();
+		helper.addIgnoredHeaders();
+		assertThat(helper.isIncludedHeader("Cookie"), is(true));
 	}
 }

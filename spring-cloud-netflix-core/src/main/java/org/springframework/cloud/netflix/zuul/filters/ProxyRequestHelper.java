@@ -19,8 +19,10 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +39,7 @@ import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
@@ -65,8 +68,20 @@ public class ProxyRequestHelper {
 
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
+	private Set<String> sensitiveHeaders = new LinkedHashSet<>();
+
+	private Set<String> whitelistHosts = new LinkedHashSet<>();
+
+	public void setWhitelistHosts(Set<String> whitelistHosts) {
+		this.whitelistHosts.addAll(whitelistHosts);
+	}
+
+	public void setSensitiveHeaders(Set<String> sensitiveHeaders) {
+		this.sensitiveHeaders.addAll(sensitiveHeaders);
+	}
+
 	public void setIgnoredHeaders(Set<String> ignoredHeaders) {
-		this.ignoredHeaders = ignoredHeaders;
+		this.ignoredHeaders.addAll(ignoredHeaders);
 	}
 
 	public void setTraces(TraceRepository traces) {
@@ -182,9 +197,26 @@ public class ProxyRequestHelper {
 		for (String name : this.ignoredHeaders) {
 			set.add(name.toLowerCase());
 		}
+		for (String name : getSensitiveHeaders(ctx)) {
+			set.add(name.toLowerCase());
+		}
 		for (String name : names) {
 			set.add(name.toLowerCase());
 		}
+	}
+
+	private Collection<String> getSensitiveHeaders(RequestContext ctx) {
+		URL uri = ctx.getRouteHost();
+		if (uri == null) {
+			return Collections.emptySet();
+		}
+		String host;
+		host = uri.getHost();
+		if (PatternMatchUtils.simpleMatch(this.whitelistHosts.toArray(new String[0]),
+				host)) {
+			return this.sensitiveHeaders;
+		}
+		return Collections.emptySet();
 	}
 
 	public boolean isIncludedHeader(String headerName) {

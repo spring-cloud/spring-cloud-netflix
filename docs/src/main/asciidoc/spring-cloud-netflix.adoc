@@ -1227,6 +1227,15 @@ span all services and supersede any other route specification.
 This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
 But calls including "/admin/" will not resolve.
 
+=== Sensitive Headers
+
+It's OK to share headers between services in the same system, but you
+probably don't want sensitive headers leaking downstream into external
+servers. Thus if you use an explicit URL in a route configuration (as
+opposed to a service id), then you can also specify a list of
+sensitive headers and a whitelist of host patterns to not receive
+those headers.
+
 === Strangulation Patterns and Local Forwards
 
 A common pattern when migrating an existing application or API is to

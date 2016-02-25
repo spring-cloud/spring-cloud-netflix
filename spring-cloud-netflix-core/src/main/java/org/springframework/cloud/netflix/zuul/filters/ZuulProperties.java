@@ -66,6 +66,8 @@ public class ZuulProperties {
 
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
+	private Sensitive sensitive = new Sensitive();
+
 	private String servletPath = "/zuul";
 
 	private boolean ignoreLocalService = true;
@@ -101,6 +103,21 @@ public class ZuulProperties {
 				value.path = "/" + entry.getKey() + "/**";
 			}
 		}
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class Sensitive {
+		/**
+		 * Headers that are considered sensitive, and not passed on through a proxy.
+		 */
+		private Set<String> headers = new LinkedHashSet<>(Arrays.asList("Cookie"));
+		/**
+		 * Hostname (patterns) that are considered safe and can receive sensitive headers
+		 * when a route is specified as a URL.
+		 */
+		private Set<String> whitelist = new LinkedHashSet<>(Arrays.asList("localhost"));
 	}
 
 	@Data
