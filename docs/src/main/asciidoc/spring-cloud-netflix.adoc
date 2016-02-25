@@ -1,4 +1,4 @@
-:github-tag: master
+:github-tag: 1.0.x
 :github-repo: spring-cloud/spring-cloud-netflix
 :github-raw: http://raw.github.com/{github-repo}/{github-tag}
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
