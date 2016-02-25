@@ -145,7 +145,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
@@ -172,7 +172,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
@@ -188,7 +188,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/app",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/app/proxy/foo/1");
@@ -203,7 +203,7 @@ public class DiscoveryClientRouteLocatorTests {
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/zuul/proxy/foo/1");
@@ -285,7 +285,7 @@ public class DiscoveryClientRouteLocatorTests {
 				this.discovery, this.properties);
 		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
@@ -302,7 +302,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties
 				.setIgnoredPatterns(Collections.singleton("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
@@ -347,7 +347,7 @@ public class DiscoveryClientRouteLocatorTests {
 				this.discovery, this.properties);
 		this.properties.setIgnoredPatterns(Collections.singleton(IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
@@ -363,7 +363,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties
 				.setIgnoredPatterns(Collections.singleton("/proxy" + IGNOREDPATTERN));
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null));
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
 		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");

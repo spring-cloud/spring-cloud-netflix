@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import java.util.List;
 
 import org.junit.Before;
@@ -32,6 +29,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Dave Syer
@@ -72,15 +72,16 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false,
-				null));
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
 		assertEquals("localhost:80", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo", getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertEquals("foo",
+				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
 
 	@Test
@@ -88,8 +89,8 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true,
-				null));
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("forward.to"));
@@ -98,8 +99,8 @@ public class PreDecorationFilterTests {
 	@Test
 	public void forwardWithoutStripPrefixAppendsPath() throws Exception {
 		this.request.setRequestURI("/foo/1");
-		this.routeLocator.addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/bar", false,
-				null));
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/bar", false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/bar/foo/1", ctx.get("forward.to"));
@@ -117,7 +118,8 @@ public class PreDecorationFilterTests {
 		assertEquals("localhost:80", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api/foo", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo", getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertEquals("foo",
+				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {

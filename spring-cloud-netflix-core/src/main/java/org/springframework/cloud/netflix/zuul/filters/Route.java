@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.springframework.util.StringUtils;
 
 import lombok.Data;
@@ -24,14 +27,19 @@ import lombok.Data;
 public class Route {
 
 	public Route(String id, String path, String location, String prefix,
-			Boolean retryable) {
+			Boolean retryable, Set<String> ignoredHeaders) {
 		this.id = id;
 		this.prefix = StringUtils.hasText(prefix) ? prefix : "";
 		this.path = path;
 		this.fullPath = prefix + path;
 		this.location = location;
 		this.retryable = retryable;
-
+		this.sensitiveHeaders = new LinkedHashSet<>();
+		if (ignoredHeaders != null) {
+			for (String header : ignoredHeaders) {
+				this.sensitiveHeaders.add(header.toLowerCase());
+			}
+		}
 	}
 
 	private String id;
@@ -45,5 +53,7 @@ public class Route {
 	private String prefix;
 
 	private Boolean retryable;
+
+	private Set<String> sensitiveHeaders = new LinkedHashSet<>();
 
 }

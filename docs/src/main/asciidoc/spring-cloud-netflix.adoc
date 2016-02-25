@@ -1227,14 +1227,59 @@ span all services and supersede any other route specification.
 This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
 But calls including "/admin/" will not resolve.
 
-=== Sensitive Headers
+=== Cookies and Sensitive Headers
 
 It's OK to share headers between services in the same system, but you
 probably don't want sensitive headers leaking downstream into external
-servers. Thus if you use an explicit URL in a route configuration (as
-opposed to a service id), then you can also specify a list of
-sensitive headers and a whitelist of host patterns to not receive
-those headers.
+servers. You can specify a list of ignored headers as part of the
+route configuration. Cookies play a special role because they have
+well-defined semantics in browsers, and they are always to be treated
+as sensitive. If the consumer of your proxy is a browser, then cookies
+for downstream services also cause problems for the user because they
+all get jumbled up (all downstream services look like they come from
+the same place).
+
+If you are careful with the design of your services, for example if
+only one of the downstream services sets cookies, then you might be
+able to let them flow from the backend all the way up to the
+caller. Also, if your proxy sets cookies and all your back end
+services are part of the same system, it can be natural to simply
+share them (and for instance us Spring Session to link them up to some
+shared state). Other than that, any cookies that get set by downstream
+services are likely to be not very useful to the caller, so it is
+recommended that you make (at least) "Set-Cookie" and "Cookie" into
+sensitive headers for routes that are not part of your domain. Even
+for routes that *are* part of your domain, try to think carefully
+about what it means before allowing cookies to flow between them and
+the proxy.
+
+The sensitive headers can be configured as a comma-separate list per
+route, e.g.
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    users:
+      path: /myusers/**
+      sensitiveHeaders: Cookie,Set-Cookie
+      url: https://dowstream
+----
+
+NOTE: this is the default value for `sensitiveHeaders`, so you don't
+need to set it unless you want it to be different. N.B. this is new in
+Spring Cloud Netflix 1.1 (in 1.0 the user had no control over headers
+and all cookies flow in both directions).
+
+In addition to the per-route sensitive headers, you can set a global
+value for `zuul.ignoredHeaders` for values that should be discarded
+(both request and response) during interactions with downstream
+services. By default these are empty, if Spring Security is not on the
+classpath, and otherwise they are initialized to a set of well-known
+"security" headers (e.g. involving caching) as specified by Spring
+Security. The assumption in this case is that the downstream services
+might add these headers too, and we want the values from the proxy.
 
 === Strangulation Patterns and Local Forwards
 

@@ -17,8 +17,6 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -181,35 +179,4 @@ public class ProxyRequestHelperTests {
 		assertThat(queryString, is("?wsdl"));
 	}
 
-	@Test
-	public void ignoreSensitiveHeadersMatchingHost() throws Exception {
-		ProxyRequestHelper helper = new ProxyRequestHelper();
-		helper.setSensitiveHeaders(Collections.singleton("Cookie"));
-		helper.setWhitelistHosts(Collections.singleton("*"));
-		RequestContext context = RequestContext.getCurrentContext();
-		context.setRouteHost(new URL("http://example.com"));
-		helper.addIgnoredHeaders();
-		assertThat(helper.isIncludedHeader("Cookie"), is(false));
-	}
-
-	@Test
-	public void ignoreSensitiveHeadersNotMatching() throws Exception {
-		ProxyRequestHelper helper = new ProxyRequestHelper();
-		helper.setSensitiveHeaders(Collections.singleton("Cookie"));
-		helper.setWhitelistHosts(Collections.singleton("foo.com"));
-		RequestContext context = RequestContext.getCurrentContext();
-		context.setRouteHost(new URL("http://example.com"));
-		helper.addIgnoredHeaders();
-		assertThat(helper.isIncludedHeader("Cookie"), is(true));
-	}
-
-	@Test
-	public void ignoreSensitiveHeadersWhenNoRoute() throws Exception {
-		ProxyRequestHelper helper = new ProxyRequestHelper();
-		helper.setSensitiveHeaders(Collections.singleton("Cookie"));
-		helper.setWhitelistHosts(Collections.singleton("foo.com"));
-		RequestContext context = RequestContext.getCurrentContext();
-		helper.addIgnoredHeaders();
-		assertThat(helper.isIncludedHeader("Cookie"), is(true));
-	}
 }

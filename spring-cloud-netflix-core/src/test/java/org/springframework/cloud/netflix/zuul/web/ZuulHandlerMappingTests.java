@@ -54,8 +54,8 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void mappedPath() throws Exception {
-		Mockito.when(this.locator.getRoutes()).thenReturn(
-				Collections.singletonList(new Route("foo", "/foo/**", "foo", "", null)));
+		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
+				.singletonList(new Route("foo", "/foo/**", "foo", "", null, null)));
 		this.request.setServletPath("/foo/");
 		this.mapping.setDirty(true);
 		assertNotNull(this.mapping.getHandler(this.request));
@@ -63,8 +63,8 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void defaultPath() throws Exception {
-		Mockito.when(this.locator.getRoutes()).thenReturn(
-				Collections.singletonList(new Route("default", "/**", "foo", "", null)));
+		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
+				.singletonList(new Route("default", "/**", "foo", "", null, null)));
 		;
 		this.request.setServletPath("/");
 		this.mapping.setDirty(true);
@@ -73,8 +73,8 @@ public class ZuulHandlerMappingTests {
 
 	@Test
 	public void errorPath() throws Exception {
-		Mockito.when(this.locator.getRoutes()).thenReturn(
-				Collections.singletonList(new Route("default", "/**", "foo", "", null)));
+		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
+				.singletonList(new Route("default", "/**", "foo", "", null, null)));
 		this.request.setServletPath("/error");
 		this.mapping.setDirty(true);
 		assertNull(this.mapping.getHandler(this.request));

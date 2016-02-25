@@ -19,7 +19,9 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -35,9 +37,26 @@ public class ZuulPropertiesTests {
 	}
 
 	@Test
-	public void addtIgnoredHeaders() {
+	public void addIgnoredHeaders() {
 		this.zuul.setIgnoredHeaders(Collections.singleton("x-foo"));
 		assertTrue(this.zuul.getIgnoredHeaders().contains("x-foo"));
+	}
+
+	@Test
+	public void defaultSensitiveHeaders() {
+		ZuulRoute route = new ZuulRoute("foo");
+		this.zuul.getRoutes().put("foo", route);
+		assertTrue(this.zuul.getRoutes().get("foo").getSensitiveHeaders()
+				.contains("Cookie"));
+	}
+
+	@Test
+	public void addSensitiveHeaders() {
+		ZuulRoute route = new ZuulRoute("foo");
+		route.setSensitiveHeaders(Collections.singleton("x-foo"));
+		this.zuul.getRoutes().put("foo", route);
+		assertFalse(this.zuul.getRoutes().get("foo").getSensitiveHeaders()
+				.contains("Cookie"));
 	}
 
 }

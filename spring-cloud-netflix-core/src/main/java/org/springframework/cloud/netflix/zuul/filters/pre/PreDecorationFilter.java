@@ -71,6 +71,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (location != null) {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
+				ctx.put("ignoredHeaders", route.getSensitiveHeaders());
 
 				if (route.getRetryable() != null) {
 					ctx.put("retryable", route.getRetryable());
@@ -81,9 +82,8 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
 				}
 				else if (location.startsWith("forward:")) {
-					ctx.set("forward.to",
-							StringUtils.cleanPath(location.substring("forward:".length())
-									+ route.getPath()));
+					ctx.set("forward.to", StringUtils.cleanPath(
+							location.substring("forward:".length()) + route.getPath()));
 					ctx.setRouteHost(null);
 					return null;
 				}

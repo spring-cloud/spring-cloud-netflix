@@ -24,15 +24,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
-import com.netflix.zuul.http.ZuulServlet;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
@@ -54,9 +52,9 @@ public class SimpleRouteLocator implements RouteLocator {
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
 		this.properties = properties;
 		if (servletPath != null && StringUtils.hasText(servletPath)) {
-		    this.dispatcherServletPath = servletPath;
+			this.dispatcherServletPath = servletPath;
 		}
-		
+
 		this.zuulServletPath = properties.getServletPath();
 	}
 
@@ -92,7 +90,7 @@ public class SimpleRouteLocator implements RouteLocator {
 
 		log.debug("servletPath=" + this.dispatcherServletPath);
 		log.debug("zuulServletPath=" + this.zuulServletPath);
-		
+
 		String adjustedPath = adjustPath(path);
 
 		ZuulRoute route = null;
@@ -107,7 +105,7 @@ public class SimpleRouteLocator implements RouteLocator {
 			}
 		}
 		log.debug("route matched=" + route);
-		
+
 		return getRoute(route, adjustedPath);
 
 	}
@@ -134,7 +132,7 @@ public class SimpleRouteLocator implements RouteLocator {
 			retryable = route.getRetryable();
 		}
 		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
-				retryable);
+				retryable, route.getSensitiveHeaders());
 	}
 
 	/**
@@ -167,27 +165,28 @@ public class SimpleRouteLocator implements RouteLocator {
 		}
 		return false;
 	}
-	
+
 	private String adjustPath(final String path) {
-	    String adjustedPath = path;
-	    
-	    if (RequestUtils.isDispatcherServletRequest()
-	            && StringUtils.hasText(dispatcherServletPath)) {
-	        if (!dispatcherServletPath.equals("/")) {
-	            adjustedPath = path.substring(this.dispatcherServletPath.length());
-	        }
-	    } else if (RequestUtils.isZuulServletRequest()){
-	        if (StringUtils.hasText(zuulServletPath)
-                && !zuulServletPath.equals("/")) {
-	          adjustedPath = path.substring(this.zuulServletPath.length());
-	        }
-	    } else {
-	        //do nothing
-	    }
-	    
-	    log.debug("adjustedPath=" + path);
-	    return adjustedPath;
+		String adjustedPath = path;
+
+		if (RequestUtils.isDispatcherServletRequest()
+				&& StringUtils.hasText(this.dispatcherServletPath)) {
+			if (!this.dispatcherServletPath.equals("/")) {
+				adjustedPath = path.substring(this.dispatcherServletPath.length());
+			}
+		}
+		else if (RequestUtils.isZuulServletRequest()) {
+			if (StringUtils.hasText(this.zuulServletPath)
+					&& !this.zuulServletPath.equals("/")) {
+				adjustedPath = path.substring(this.zuulServletPath.length());
+			}
+		}
+		else {
+			// do nothing
+		}
+
+		log.debug("adjustedPath=" + path);
+		return adjustedPath;
 	}
-	
 
 }
