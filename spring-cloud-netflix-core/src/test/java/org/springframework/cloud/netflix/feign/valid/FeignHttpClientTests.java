@@ -16,14 +16,17 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
@@ -34,14 +37,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import feign.Client;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -51,19 +55,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-import feign.Client;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignHttpClientTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest",
-		"feign.hystrix.enabled=false", "feign.okhttp.enabled=false" })
+@WebIntegrationTest(randomPort = true, value = { "server.port=0",
+		"spring.application.name=feignclienttest", "feign.hystrix.enabled=false",
+		"feign.okhttp.enabled=false" })
 @DirtiesContext
 public class FeignHttpClientTests {
 
@@ -123,10 +122,9 @@ public class FeignHttpClientTests {
 		}
 
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclienttest",
-							"management.contextPath=/admin")
-					.run(args);
+			new SpringApplicationBuilder(Application.class).properties(
+					"spring.application.name=feignclienttest",
+					"management.contextPath=/admin").run(args);
 		}
 	}
 
