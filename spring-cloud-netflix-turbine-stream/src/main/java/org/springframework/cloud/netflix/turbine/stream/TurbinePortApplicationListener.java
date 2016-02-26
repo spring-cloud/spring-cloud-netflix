@@ -5,10 +5,11 @@ import java.util.Map;
 
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.MapPropertySource;
 
 public class TurbinePortApplicationListener implements
-		ApplicationListener<ApplicationEnvironmentPreparedEvent> {
+		ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
@@ -41,4 +42,8 @@ public class TurbinePortApplicationListener implements
 		}
 	}
 
+	@Override
+	public int getOrder() {
+		return Ordered.HIGHEST_PRECEDENCE;
+	}
 }
