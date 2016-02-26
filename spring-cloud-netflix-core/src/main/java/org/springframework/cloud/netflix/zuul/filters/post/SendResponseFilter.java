@@ -92,13 +92,15 @@ public class SendResponseFilter extends ZuulFilter {
 			return;
 		}
 		HttpServletResponse servletResponse = context.getResponse();
-		servletResponse.setCharacterEncoding("UTF-8");
+		if (servletResponse.getCharacterEncoding() == null) { // only set if not set
+			servletResponse.setCharacterEncoding("UTF-8");
+		}
 		OutputStream outStream = servletResponse.getOutputStream();
 		InputStream is = null;
 		try {
 			if (RequestContext.getCurrentContext().getResponseBody() != null) {
 				String body = RequestContext.getCurrentContext().getResponseBody();
-				writeResponse(new ByteArrayInputStream(body.getBytes()), outStream);
+				writeResponse(new ByteArrayInputStream(body.getBytes(servletResponse.getCharacterEncoding())), outStream);
 				return;
 			}
 			boolean isGzipRequested = false;
