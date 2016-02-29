@@ -54,6 +54,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -86,6 +87,11 @@ import rx.Observable;
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false"})
 @DirtiesContext
 public class FeignClientTests {
+
+	public static final String HELLO_WORLD_1 = "hello world 1";
+	public static final String OI_TERRA_2 = "oi terra 2";
+	public static final String MYHEADER1 = "myheader1";
+	public static final String MYHEADER2 = "myheader2";
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -130,6 +136,9 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
 		ResponseEntity head();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		HttpEntity<Hello> getHelloEntity();
 	}
 
 	public static class TestClientConfig {
@@ -139,7 +148,7 @@ public class FeignClientTests {
 			return new RequestInterceptor() {
 				@Override
 				public void apply(RequestTemplate template) {
-					template.header("myheader1", "myheader1value");
+					template.header(MYHEADER1, "myheader1value");
 				}
 			};
 		}
@@ -149,7 +158,7 @@ public class FeignClientTests {
 			return new RequestInterceptor() {
 				@Override
 				public void apply(RequestTemplate template) {
-					template.header("myheader2", "myheader2value");
+					template.header(MYHEADER2, "myheader2value");
 				}
 			};
 		}
@@ -220,7 +229,7 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
-			return new Hello("hello world 1");
+			return new Hello(HELLO_WORLD_1);
 		}
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
@@ -232,14 +241,14 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
 		public List<String> getHelloStrings() {
 			ArrayList<String> hellos = new ArrayList<>();
-			hellos.add("hello world 1");
-			hellos.add("oi terra 2");
+			hellos.add(HELLO_WORLD_1);
+			hellos.add(OI_TERRA_2);
 			return hellos;
 		}
 
 		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
-		public List<String> getHelloHeaders(@RequestHeader("myheader1") String myheader1,
-				@RequestHeader("myheader2") String myheader2) {
+		public List<String> getHelloHeaders(@RequestHeader(MYHEADER1) String myheader1,
+				@RequestHeader(MYHEADER2) String myheader2) {
 			ArrayList<String> headers = new ArrayList<>();
 			headers.add(myheader1);
 			headers.add(myheader2);
@@ -281,8 +290,8 @@ public class FeignClientTests {
 
 	private static ArrayList<Hello> getHelloList() {
 		ArrayList<Hello> hellos = new ArrayList<>();
-		hellos.add(new Hello("hello world 1"));
-		hellos.add(new Hello("oi terra 2"));
+		hellos.add(new Hello(HELLO_WORLD_1));
+		hellos.add(new Hello(OI_TERRA_2));
 		return hellos;
 	}
 
@@ -299,7 +308,7 @@ public class FeignClientTests {
 	public void testSimpleType() {
 		Hello hello = this.testClient.getHello();
 		assertNotNull("hello was null", hello);
-		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+		assertEquals("first hello didn't match", new Hello(HELLO_WORLD_1), hello);
 	}
 
 	@Test
@@ -332,7 +341,7 @@ public class FeignClientTests {
 		assertNotNull("testClientServiceId was null", this.testClientServiceId);
 		final Hello hello = this.testClientServiceId.getHello();
 		assertNotNull("The hello response was null", hello);
-		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+		assertEquals("first hello didn't match", new Hello(HELLO_WORLD_1), hello);
 	}
 
 	@Test
@@ -365,6 +374,15 @@ public class FeignClientTests {
 		ResponseEntity response = testClient.head();
 		assertNotNull("response was null", response);
 		assertEquals("status code was wrong", HttpStatus.OK, response.getStatusCode());
+	}
+
+	@Test
+	public void testHttpEntity() {
+		HttpEntity<Hello> entity = testClient.getHelloEntity();
+		assertNotNull("entity was null", entity);
+		Hello hello = entity.getBody();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello(HELLO_WORLD_1), hello);
 	}
 
 	@Test

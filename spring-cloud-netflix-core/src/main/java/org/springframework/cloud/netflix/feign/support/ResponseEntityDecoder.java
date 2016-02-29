@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -33,13 +34,13 @@ public class ResponseEntityDecoder implements Decoder {
 	public Object decode(final Response response, Type type) throws IOException,
 			FeignException {
 
-		if (isParameterizeResponseEntity(type)) {
+		if (isParameterizeHttpEntity(type)) {
 			type = ((ParameterizedType) type).getActualTypeArguments()[0];
 			Object decodedObject = decoder.decode(response, type);
 
 			return createResponse(decodedObject, response);
 		}
-		else if (isResponseEntity(type)) {
+		else if (isHttpEntity(type)) {
 			return createResponse(null, response);
 		}
 		else {
@@ -47,14 +48,19 @@ public class ResponseEntityDecoder implements Decoder {
 		}
 	}
 
-	private boolean isParameterizeResponseEntity(Type type) {
-		return type instanceof ParameterizedType
-				&& ((ParameterizedType) type).getRawType().equals(ResponseEntity.class);
+	private boolean isParameterizeHttpEntity(Type type) {
+		if (type instanceof ParameterizedType) {
+			return isHttpEntity(((ParameterizedType) type).getRawType());
+		}
+		return false;
 	}
 
-	private boolean isResponseEntity(Type type) {
-
-		return type instanceof Class && type.equals(ResponseEntity.class);
+	private boolean isHttpEntity(Type type) {
+		if (type instanceof Class) {
+			Class c = (Class) type;
+			return HttpEntity.class.isAssignableFrom(c);
+		}
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")
