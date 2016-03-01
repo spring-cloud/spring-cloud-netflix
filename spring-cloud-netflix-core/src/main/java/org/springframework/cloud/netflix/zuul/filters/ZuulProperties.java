@@ -72,6 +72,8 @@ public class ZuulProperties {
 
 	private Host host = new Host();
 
+	private boolean traceRequestBody = true;
+
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(

@@ -112,6 +112,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 			helper.setTraces(this.traces);
 		}
 		helper.setIgnoredHeaders(this.zuulProperties.getIgnoredHeaders());
+		helper.setTraceRequestBody(this.zuulProperties.isTraceRequestBody());
 		return helper;
 	}
 

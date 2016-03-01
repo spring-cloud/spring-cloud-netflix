@@ -26,6 +26,7 @@ import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.Trace;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.LinkedMultiValueMap;
@@ -83,6 +84,85 @@ public class ProxyRequestHelperTests {
 		System.err.println(actual.getInfo());
 		assertThat((String) actual.getInfo().get("body"), equalTo("{}"));
 
+	}
+
+	@Test
+	public void shouldDebugBodyDisabled() throws Exception {
+		RequestContext context = RequestContext.getCurrentContext();
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+		helper.setTraceRequestBody(false);
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+	}
+
+	@Test
+	public void shouldDebugBodyChunked() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setChunkedRequestBody();
+		context.setRequest(request);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+	}
+
+	@Test
+	public void shouldDebugBodyServlet() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setZuulEngineRan();
+		context.setRequest(request);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+	}
+
+	@Test
+	public void shouldDebugBodyNullContentType() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContentType(null);
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(true));
+	}
+
+	@Test
+	public void shouldDebugBodyNullRequest() throws Exception {
+		RequestContext context = RequestContext.getCurrentContext();
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(true));
+	}
+
+	@Test
+	public void shouldDebugBodyNotMultitypeContentType() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(true));
+	}
+
+	@Test
+	public void shouldDebugBodyMultitypeContentType() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
 	}
 
 	@Test

@@ -34,6 +34,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -69,6 +70,8 @@ public class ProxyRequestHelper {
 
 	private Set<String> whitelistHosts = new LinkedHashSet<>();
 
+	private boolean traceRequestBody = true;
+
 	public void setWhitelistHosts(Set<String> whitelistHosts) {
 		this.whitelistHosts.addAll(whitelistHosts);
 	}
@@ -83,6 +86,10 @@ public class ProxyRequestHelper {
 
 	public void setTraces(TraceRepository traces) {
 		this.traces = traces;
+	}
+
+	public void setTraceRequestBody(boolean traceRequestBody) {
+		this.traceRequestBody = traceRequestBody;
 	}
 
 	public String buildZuulRequestURI(HttpServletRequest request) {
@@ -225,7 +232,7 @@ public class ProxyRequestHelper {
 	public Map<String, Object> debug(String verb, String uri,
 			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
 			InputStream requestEntity) throws IOException {
-		Map<String, Object> info = new LinkedHashMap<String, Object>();
+		Map<String, Object> info = new LinkedHashMap<>();
 		if (this.traces != null) {
 			RequestContext context = RequestContext.getCurrentContext();
 			info.put("method", verb);
@@ -233,8 +240,8 @@ public class ProxyRequestHelper {
 			info.put("query", getQueryString(params));
 			info.put("remote", true);
 			info.put("proxy", context.get("proxy"));
-			Map<String, Object> trace = new LinkedHashMap<String, Object>();
-			Map<String, Object> input = new LinkedHashMap<String, Object>();
+			Map<String, Object> trace = new LinkedHashMap<>();
+			Map<String, Object> input = new LinkedHashMap<>();
 			trace.put("request", input);
 			info.put("headers", trace);
 			for (Entry<String, List<String>> entry : headers.entrySet()) {
@@ -258,9 +265,9 @@ public class ProxyRequestHelper {
 		return info;
 	}
 
-	private boolean shouldDebugBody(RequestContext ctx) {
+	/* for tests */ boolean shouldDebugBody(RequestContext ctx) {
 		HttpServletRequest request = ctx.getRequest();
-		if (ctx.isChunkedRequestBody()) {
+		if (!this.traceRequestBody || ctx.isChunkedRequestBody() || RequestUtils.isZuulServletRequest()) {
 			return false;
 		}
 		if (request == null || request.getContentType() == null) {
