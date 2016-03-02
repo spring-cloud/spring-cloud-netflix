@@ -39,9 +39,10 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
-	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders) {
+	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders, boolean removeSemicolonContent) {
 		this.routeLocator = routeLocator;
 		this.addProxyHeaders = addProxyHeaders;
+		this.urlPathHelper.setRemoveSemicolonContent(removeSemicolonContent);
 	}
 
 	@Override

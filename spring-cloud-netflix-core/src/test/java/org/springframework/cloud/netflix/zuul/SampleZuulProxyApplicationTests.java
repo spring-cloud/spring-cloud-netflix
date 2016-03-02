@@ -50,6 +50,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.MatrixVariable;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,19 +62,20 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.client.http.RestClient;
 
+import lombok.SneakyThrows;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import lombok.SneakyThrows;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({ "server.port: 0",
+@IntegrationTest({"server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
-		"zuul.routes.badhost: /badhost/**", "zuul.ignoredHeaders: X-Header" })
+		"zuul.routes.badhost: /badhost/**", "zuul.ignoredHeaders: X-Header",
+		"zuul.removeSemicolonContent: false"})
 @DirtiesContext
 public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 
@@ -122,12 +125,24 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 	}
 
 	@Test
+	public void simpleHostRouteWithMatrix() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/matrix/my;q=2;p=1/more;x=2",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("my=1-2;more=2", result.getBody());
+	}
+
+	@Test
 	public void simpleHostRouteWithEncodedQuery() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/query?foo={foo}", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class, "weird#chars");
+				"http://localhost:" + this.port + "/self/query?foo={foo}",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class,
+				"weird#chars");
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("/query?foo=weird#chars", result.getBody());
 	}
@@ -175,12 +190,12 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 		@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
 class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
-	@RequestMapping(value = "/trailing-slash")
+	@RequestMapping("/trailing-slash")
 	public String trailingSlash(HttpServletRequest request) {
 		return request.getRequestURI();
 	}
 
-	@RequestMapping(value = "/add-header")
+	@RequestMapping("/add-header")
 	public ResponseEntity<String> addHeader(HttpServletRequest request) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("X-Header", "FOO");
@@ -189,9 +204,17 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 		return result;
 	}
 
-	@RequestMapping(value = "/query")
+	@RequestMapping("/query")
 	public String addQuery(HttpServletRequest request, @RequestParam String foo) {
 		return request.getRequestURI() + "?foo=" + foo;
+	}
+
+	@RequestMapping("/matrix/{name}/{another}")
+	public String matrix(@PathVariable("name") String name,
+						 @MatrixVariable(value = "p", pathVar = "name") int p,
+						 @MatrixVariable(value = "q", pathVar = "name") int q,
+						 @PathVariable("another") String another, @MatrixVariable(value = "x", pathVar = "another") int x) {
+		return name + "=" + p + "-" + q + ";" + another + "=" + x;
 	}
 
 	@Bean

@@ -74,6 +74,8 @@ public class ZuulProperties {
 
 	private boolean traceRequestBody = true;
 
+	private boolean removeSemicolonContent = true;
+
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(

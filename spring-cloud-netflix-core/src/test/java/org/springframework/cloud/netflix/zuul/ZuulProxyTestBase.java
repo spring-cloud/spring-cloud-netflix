@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
@@ -182,7 +184,7 @@ public abstract class ZuulProxyTestBase {
 		assertEquals("Received {key=[overridden]}", result.getBody());
 	}
 
-	protected static abstract class AbstractZuulProxyApplication {
+	protected static abstract class AbstractZuulProxyApplication extends DelegatingWebMvcConfiguration {
 
 		@RequestMapping("/testing123")
 		public String testing123() {
@@ -257,6 +259,13 @@ public abstract class ZuulProxyTestBase {
 					return 0;
 				}
 			};
+		}
+
+		@Override
+		public RequestMappingHandlerMapping requestMappingHandlerMapping() {
+			RequestMappingHandlerMapping mapping = super.requestMappingHandlerMapping();
+			mapping.setRemoveSemicolonContent(false);
+			return mapping;
 		}
 	}
 }

@@ -54,7 +54,8 @@ public class PreDecorationFilterTests {
 		initMocks(this);
 		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
 				this.properties);
-		this.filter = new PreDecorationFilter(this.routeLocator, true);
+		this.filter = new PreDecorationFilter(this.routeLocator, true,
+				this.properties.isRemoveSemicolonContent());
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.clear();
 		ctx.setRequest(this.request);
