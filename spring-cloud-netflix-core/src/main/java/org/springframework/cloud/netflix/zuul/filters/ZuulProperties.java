@@ -123,7 +123,7 @@ public class ZuulProperties {
 		private Boolean retryable;
 
 		private Set<String> sensitiveHeaders = new LinkedHashSet<>(
-				Arrays.asList("Cookie", "Set-Cookie"));
+				Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
 
 		public ZuulRoute(String text) {
 			String location = null;

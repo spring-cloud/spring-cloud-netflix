@@ -1263,7 +1263,7 @@ route, e.g.
   routes:
     users:
       path: /myusers/**
-      sensitiveHeaders: Cookie,Set-Cookie
+      sensitiveHeaders: Cookie,Set-Cookie,Authorization
       url: https://dowstream
 ----
 
