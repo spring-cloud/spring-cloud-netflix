@@ -16,20 +16,15 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.commons.util.InetUtilsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.util.InetUtils;
-import org.springframework.cloud.util.InetUtilsProperties;
 
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext.ContextKey;
@@ -37,6 +32,11 @@ import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.cloud.netflix.ribbon.eureka.EurekaRibbonClientConfiguration.VALUE_NOT_SET;
 
 /**
  * @author Dave Syer

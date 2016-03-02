@@ -45,8 +45,8 @@ import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
+import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
-import org.springframework.cloud.util.InetUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -64,7 +64,7 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import static org.springframework.cloud.util.IdUtils.getDefaultInstanceId;
+import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
 /**
  * @author Dave Syer
