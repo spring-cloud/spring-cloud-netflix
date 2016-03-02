@@ -49,10 +49,10 @@ fi
 VERSION=$(sed `dirname $0`/pom.xml -e '/<parent/,+4d' | grep '<version' | head -1 | sed -e 's/.*>\(.*\)<.*/\1/')
 if echo $VERSION | egrep -q 'M|RC'; then
     echo Activating \"milestone\" profile for version=\"$VERSION\"
-    echo $MAVEN_OPTS | grep -q milestone || MAVEN_OPTS="$MAVEN_OPTS -Pmilestone"
+    echo $MAVEN_ARGS | grep -q milestone || MAVEN_ARGS="$MAVEN_ARGS -Pmilestone"
 else
     echo Deactivating \"milestone\" profile for version=\"$VERSION\"
-    echo $MAVEN_OPTS | grep -q milestone && MAVEN_OPTS=$(echo $MAVEN_OPTS | sed -e 's/-Pmilestone//')
+    echo $MAVEN_ARGS | grep -q milestone && MAVEN_ARGS=$(echo $MAVEN_ARGS | sed -e 's/-Pmilestone//')
 fi
 
 # OS specific support.  $var _must_ be set to either true or false.
@@ -239,5 +239,5 @@ exec "$JAVACMD" \
   $MAVEN_OPTS \
   -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
   "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
-  ${WRAPPER_LAUNCHER} "$@"
+  ${WRAPPER_LAUNCHER} ${MAVEN_ARGS} "$@"
 
