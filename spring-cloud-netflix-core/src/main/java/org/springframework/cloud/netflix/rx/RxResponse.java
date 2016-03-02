@@ -3,10 +3,9 @@ package org.springframework.cloud.netflix.rx;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import rx.Observable;
-import rx.Single;
 
 /**
- * A convenient class allowing to wrap either the {@link Single} or {@link Observable} into a response supported by the
+ * A convenient class allowing to wrap either the {@link Observable} into a response supported by the
  * Spring MVC.
  *
  * @author Jakub Narloch
