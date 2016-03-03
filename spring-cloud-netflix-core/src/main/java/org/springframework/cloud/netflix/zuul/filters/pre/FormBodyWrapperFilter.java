@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletInputStream;
@@ -54,7 +55,8 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	public FormBodyWrapperFilter() {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
-		Assert.notNull(this.requestField, "HttpServletRequestWrapper.req field not found");
+		Assert.notNull(this.requestField,
+				"HttpServletRequestWrapper.req field not found");
 		this.requestField.setAccessible(true);
 	}
 
@@ -82,8 +84,8 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		try {
 			MediaType mediaType = MediaType.valueOf(contentType);
 			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
-					|| (isDispatcherServletRequest(request) && MediaType.MULTIPART_FORM_DATA
-							.includes(mediaType));
+					|| (isDispatcherServletRequest(request)
+							&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
 		}
 		catch (InvalidMediaTypeException ex) {
 			return false;
@@ -91,7 +93,8 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	}
 
 	private boolean isDispatcherServletRequest(HttpServletRequest request) {
-		return request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
+		return request.getAttribute(
+				DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
 	}
 
 	@Override
@@ -100,8 +103,8 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		HttpServletRequest request = ctx.getRequest();
 		FormBodyRequestWrapper wrapper = null;
 		if (request instanceof HttpServletRequestWrapper) {
-			HttpServletRequest wrapped = (HttpServletRequest) ReflectionUtils.getField(
-					this.requestField, request);
+			HttpServletRequest wrapped = (HttpServletRequest) ReflectionUtils
+					.getField(this.requestField, request);
 			wrapper = new FormBodyRequestWrapper(wrapped);
 			ReflectionUtils.setField(this.requestField, request, wrapper);
 		}
@@ -170,16 +173,19 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 				}
 				if (this.request instanceof MultipartRequest) {
 					MultipartRequest multi = (MultipartRequest) this.request;
-					for (Entry<String, MultipartFile> part : multi.getFileMap()
-							.entrySet()) {
-						MultipartFile file = part.getValue();
-						HttpHeaders headers = new HttpHeaders();
-						headers.setContentDispositionFormData(file.getName(),
-								file.getOriginalFilename());
-						headers.setContentType(MediaType.valueOf(file.getContentType()));
-						HttpEntity<byte[]> entity = new HttpEntity<byte[]>(
-								file.getBytes(), headers);
-						builder.set(part.getKey(), entity);
+					for (Entry<String, List<MultipartFile>> parts : multi
+							.getMultiFileMap().entrySet()) {
+						for (MultipartFile part : parts.getValue()) {
+							MultipartFile file = part;
+							HttpHeaders headers = new HttpHeaders();
+							headers.setContentDispositionFormData(file.getName(),
+									file.getOriginalFilename());
+							headers.setContentType(
+									MediaType.valueOf(file.getContentType()));
+							HttpEntity<byte[]> entity = new HttpEntity<byte[]>(
+									file.getBytes(), headers);
+							builder.add(parts.getKey(), entity);
+						}
 					}
 				}
 				FormHttpOutputMessage data = new FormHttpOutputMessage();
