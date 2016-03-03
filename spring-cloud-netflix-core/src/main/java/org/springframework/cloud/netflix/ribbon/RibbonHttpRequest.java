@@ -34,6 +34,7 @@ import java.util.List;
 /**
  * @author Spencer Gibb
  */
+@SuppressWarnings("deprecation")
 public class RibbonHttpRequest extends AbstractClientHttpRequest {
 
 	private HttpRequest.Builder builder;
@@ -41,14 +42,16 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	private HttpRequest.Verb verb;
 	private RestClient client;
 	private IClientConfig config;
+	private RibbonStatsRecorder statsRecorder;
 	private ByteArrayOutputStream outputStream = null;
 
 	public RibbonHttpRequest(URI uri, HttpRequest.Verb verb, RestClient client,
-							 IClientConfig config) {
+							 IClientConfig config, RibbonStatsRecorder statsRecorder) {
 		this.uri = uri;
 		this.verb = verb;
 		this.client = client;
 		this.config = config;
+		this.statsRecorder = statsRecorder;
 		this.builder = HttpRequest.newBuilder().uri(uri).verb(verb);
 	}
 
@@ -71,7 +74,6 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected ClientHttpResponse executeInternal(HttpHeaders headers)
 			throws IOException {
 		try {
@@ -82,18 +84,12 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 			}
 			HttpRequest request = builder.build();
 			HttpResponse response = client.execute(request, config);
+			statsRecorder.recordStats(response);
 			return new RibbonHttpResponse(response);
 		} catch (Exception e) {
+			statsRecorder.recordStats(e);
 			throw new IOException(e);
 		}
-
-		//TODO: fix stats, now that execute is not called
-		// use execute here so stats are collected
-		/*return loadBalancer.execute(this.config.getClientName(), new LoadBalancerRequest<ClientHttpResponse>() {
-@Override
-public ClientHttpResponse apply(ServiceInstance instance) throws Exception {
-}
-});*/
 	}
 
 	private void addHeaders(HttpHeaders headers) {

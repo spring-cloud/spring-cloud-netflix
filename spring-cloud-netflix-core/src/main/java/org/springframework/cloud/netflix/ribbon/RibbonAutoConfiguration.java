@@ -67,7 +67,7 @@ public class RibbonAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
-	public LoadBalancerClient loadBalancerClient() {
+	public RibbonLoadBalancerClient loadBalancerClient() {
 		return new RibbonLoadBalancerClient(springClientFactory());
 	}
 
@@ -80,7 +80,7 @@ public class RibbonAutoConfiguration {
 		private SpringClientFactory springClientFactory;
 
 		@Autowired
-		private LoadBalancerClient loadBalancerClient;
+		private RibbonLoadBalancerClient loadBalancerClient;
 
 		@Bean
 		public RestTemplateCustomizer restTemplateCustomizer() {

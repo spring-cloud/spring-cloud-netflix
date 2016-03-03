@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.ribbon;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
@@ -33,8 +32,6 @@ import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerStats;
-import com.netflix.servo.monitor.Stopwatch;
 
 /**
  * @author Spencer Gibb
@@ -65,6 +62,10 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
+		return this.chooseRibbonServer(serviceId);
+	}
+
+	RibbonServer chooseRibbonServer(String serviceId) {
 		Server server = getServer(serviceId);
 		if (server == null) {
 			return null;
@@ -76,23 +77,21 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	@Override
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
-		RibbonLoadBalancerContext context = this.clientFactory
-				.getLoadBalancerContext(serviceId);
 		Server server = getServer(loadBalancer);
 		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(server,
 				serviceId), serverIntrospector(serviceId).getMetadata(server));
 
-		ServerStats serverStats = context.getServerStats(server);
-		context.noteOpenConnection(serverStats);
-		Stopwatch tracer = context.getExecuteTracer().start();
+		RibbonLoadBalancerContext context = this.clientFactory
+				.getLoadBalancerContext(serviceId);
+		RibbonStatsRecorder statsRecorder = new RibbonStatsRecorder(context, server);
 
 		try {
 			T returnVal = request.apply(ribbonServer);
-			recordStats(context, tracer, serverStats, returnVal, null);
+			statsRecorder.recordStats(returnVal);
 			return returnVal;
 		}
 		catch (Exception ex) {
-			recordStats(context, tracer, serverStats, null, ex);
+			statsRecorder.recordStats(ex);
 			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
@@ -114,13 +113,6 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		}
 
 		return serverIntrospector(serviceId).isSecure(server);
-	}
-
-	private void recordStats(RibbonLoadBalancerContext context, Stopwatch tracer,
-			ServerStats serverStats, Object entity, Throwable exception) {
-		tracer.stop();
-		long duration = tracer.getDuration(TimeUnit.MILLISECONDS);
-		context.noteRequestCompletion(serverStats, entity, exception, duration, null/* errorHandler */);
 	}
 
 	protected Server getServer(String serviceId) {
