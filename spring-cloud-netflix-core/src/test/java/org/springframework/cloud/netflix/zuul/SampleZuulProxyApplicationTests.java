@@ -33,6 +33,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
@@ -230,7 +231,7 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 	public static class MyRibbonCommandFactory extends RestClientRibbonCommandFactory {
 
 		public MyRibbonCommandFactory(SpringClientFactory clientFactory) {
-			super(clientFactory);
+			super(clientFactory, new ZuulProperties());
 		}
 
 		@Override
@@ -261,7 +262,7 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 				MultiValueMap<String, String> params, InputStream requestEntity)
 						throws URISyntaxException {
 			super(commandKey, restClient, verb, uri, retryable, headers, params,
-					requestEntity);
+					requestEntity, new ZuulProperties());
 			this.errorCode = errorCode;
 		}
 

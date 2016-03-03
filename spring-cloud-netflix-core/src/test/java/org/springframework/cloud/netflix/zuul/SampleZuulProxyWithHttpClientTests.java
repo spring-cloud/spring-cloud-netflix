@@ -27,6 +27,7 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
@@ -128,7 +129,7 @@ class SampleHttpClientZuulProxyApplication extends ZuulProxyTestBase.AbstractZuu
 	@Bean
 	public RibbonCommandFactory<?> ribbonCommandFactory(
 			final SpringClientFactory clientFactory) {
-		return new HttpClientRibbonCommandFactory(clientFactory);
+		return new HttpClientRibbonCommandFactory(clientFactory, new ZuulProperties());
 	}
 
 }
