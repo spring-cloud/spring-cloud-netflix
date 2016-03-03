@@ -58,7 +58,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		return !ctx.containsKey("forward.to");
+		return !ctx.containsKey("forward.to") // another filter has already forwarded
+				&& !ctx.containsKey("serviceId"); // another filter has already determined serviceId
 	}
 
 	@Override

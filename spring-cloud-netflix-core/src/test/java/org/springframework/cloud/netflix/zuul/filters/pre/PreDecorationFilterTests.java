@@ -69,6 +69,18 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void skippedIfServiceIdSet() throws Exception {
+		RequestContext.getCurrentContext().set("serviceId", "myservice");
+		assertEquals(false, this.filter.shouldFilter());
+	}
+
+	@Test
+	public void skippedIfForwardToSet() throws Exception {
+		RequestContext.getCurrentContext().set("forward.to", "mycontext");
+		assertEquals(false, this.filter.shouldFilter());
+	}
+
+	@Test
 	public void prefixRouteAddsHeader() throws Exception {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
