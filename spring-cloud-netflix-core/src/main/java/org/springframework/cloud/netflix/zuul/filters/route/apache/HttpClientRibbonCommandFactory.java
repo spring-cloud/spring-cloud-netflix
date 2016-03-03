@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 
@@ -31,18 +32,18 @@ public class HttpClientRibbonCommandFactory implements
 		RibbonCommandFactory<HttpClientRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
+	private final ZuulProperties properties;
 
 	@Override
-	public HttpClientRibbonCommand create(final RibbonCommandContext context) {
-		final String serviceId = context.getServiceId();
-		final RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
+	public HttpClientRibbonCommand create(RibbonCommandContext context) {
+		String serviceId = context.getServiceId();
+		RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
 				serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		final HttpClientRibbonCommand httpClientRibbonCommand = new HttpClientRibbonCommand(
+		return new HttpClientRibbonCommand(
 				serviceId, client, context.getVerb(), context.getUri(),
 				context.getHeaders(), context.getParams(), context.getRequestEntity(),
-				context.getRetryable());
-		return httpClientRibbonCommand;
+				context.getRetryable(), this.properties);
 	}
 }
