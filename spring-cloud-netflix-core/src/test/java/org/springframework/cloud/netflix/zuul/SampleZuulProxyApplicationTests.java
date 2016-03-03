@@ -62,20 +62,23 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.client.http.RestClient;
 
-import lombok.SneakyThrows;
-
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import lombok.SneakyThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
 @WebAppConfiguration
-@IntegrationTest({"server.port: 0",
+@IntegrationTest({ "server.port: 0",
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
 		"zuul.routes.badhost: /badhost/**", "zuul.ignoredHeaders: X-Header",
-		"zuul.removeSemicolonContent: false"})
+		"zuul.routes.rnd: /rnd/**", "rnd.ribbon.listOfServers: ${random.value}",
+		"zuul.removeSemicolonContent: false" })
 @DirtiesContext
 public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 
@@ -140,9 +143,8 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/query?foo={foo}",
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class,
-				"weird#chars");
+				"http://localhost:" + this.port + "/self/query?foo={foo}", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class, "weird#chars");
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("/query?foo=weird#chars", result.getBody());
 	}
@@ -169,6 +171,18 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 				"http://localhost:" + this.port + "/badhost/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		// JSON response
+		assertThat(result.getBody(), containsString("\"status\":500"));
+	}
+
+	@Test
+	public void ribbonCommandRandomHostFromConfig() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/rnd/1", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		// JSON response
+		assertThat(result.getBody(), containsString("\"status\":500"));
 	}
 
 	@Test
@@ -211,9 +225,10 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 
 	@RequestMapping("/matrix/{name}/{another}")
 	public String matrix(@PathVariable("name") String name,
-						 @MatrixVariable(value = "p", pathVar = "name") int p,
-						 @MatrixVariable(value = "q", pathVar = "name") int q,
-						 @PathVariable("another") String another, @MatrixVariable(value = "x", pathVar = "another") int x) {
+			@MatrixVariable(value = "p", pathVar = "name") int p,
+			@MatrixVariable(value = "q", pathVar = "name") int q,
+			@PathVariable("another") String another,
+			@MatrixVariable(value = "x", pathVar = "another") int x) {
 		return name + "=" + p + "-" + q + ";" + another + "=" + x;
 	}
 
@@ -275,7 +290,7 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 		}
 	}
 
-	// Load balancer with fixed server list for "simple" pointing to localhost
+	// Load balancer with fixed server list for "simple" pointing to bad host
 	@Configuration
 	static class BadHostRibbonClientConfiguration {
 		@Bean

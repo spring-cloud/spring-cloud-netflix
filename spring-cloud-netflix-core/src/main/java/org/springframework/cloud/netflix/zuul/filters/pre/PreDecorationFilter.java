@@ -39,7 +39,8 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
-	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders, boolean removeSemicolonContent) {
+	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders,
+			boolean removeSemicolonContent) {
 		this.routeLocator = routeLocator;
 		this.addProxyHeaders = addProxyHeaders;
 		this.urlPathHelper.setRemoveSemicolonContent(removeSemicolonContent);
@@ -59,7 +60,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		return !ctx.containsKey("forward.to") // another filter has already forwarded
-				&& !ctx.containsKey("serviceId"); // another filter has already determined serviceId
+				&& !ctx.containsKey("serviceId"); // another filter has already determined
+													// serviceId
 	}
 
 	@Override
@@ -97,8 +99,9 @@ public class PreDecorationFilter extends ZuulFilter {
 				}
 				if (this.addProxyHeaders) {
 					ctx.addZuulRequestHeader("X-Forwarded-Host",
-							ctx.getRequest().getServerName() + ":"
-									+ String.valueOf(ctx.getRequest().getServerPort()));
+							ctx.getRequest().getServerName());
+					ctx.addZuulRequestHeader("X-Forwarded-Port",
+							String.valueOf(ctx.getRequest().getServerPort()));
 					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
 							ctx.getRequest().getScheme());
 					if (StringUtils.hasText(route.getPrefix())) {

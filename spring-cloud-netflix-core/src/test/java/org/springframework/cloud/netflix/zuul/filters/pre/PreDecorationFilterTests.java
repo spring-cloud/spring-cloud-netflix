@@ -90,7 +90,8 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
-		assertEquals("localhost:80", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo",
@@ -128,7 +129,7 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/1", ctx.get("requestURI"));
-		assertEquals("localhost:80", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api/foo", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo",
