@@ -16,17 +16,10 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.RxNetty;
-import io.reactivex.netty.protocol.http.server.HttpServer;
-import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -36,14 +29,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.SocketUtils;
 
-import rx.Observable;
-import rx.subjects.PublishSubject;
-
 import com.netflix.turbine.aggregator.InstanceKey;
 import com.netflix.turbine.aggregator.StreamAggregator;
 import com.netflix.turbine.internal.JsonUtility;
 
 import static io.reactivex.netty.pipeline.PipelineConfigurators.sseServerConfigurator;
+
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.protocol.http.server.HttpServer;
+import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
+import lombok.extern.apachecommons.CommonsLog;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 /**
  * @author Spencer Gibb
@@ -62,7 +60,8 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 
 	@Bean
 	public HasFeatures Feature() {
-		return HasFeatures.namedFeature("Turbine (Stream)", TurbineStreamProperties.class);
+		return HasFeatures.namedFeature("Turbine (Stream)",
+				TurbineStreamProperties.class);
 	}
 
 	@Bean
@@ -75,16 +74,14 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	public HttpServer<ByteBuf, ServerSentEvent> aggregatorServer() {
 		// multicast so multiple concurrent subscribers get the same stream
 		Observable<Map<String, Object>> publishedStreams = StreamAggregator
-				.aggregateGroupedStreams(
-						hystrixSubject().groupBy(
-								data -> InstanceKey.create((String) data
-										.get("instanceId"))))
+				.aggregateGroupedStreams(hystrixSubject().groupBy(
+						data -> InstanceKey.create((String) data.get("instanceId"))))
 				.doOnUnsubscribe(() -> log.info("Unsubscribing aggregation."))
 				.doOnSubscribe(() -> log.info("Starting aggregation")).flatMap(o -> o)
 				.publish().refCount();
 		Observable<Map<String, Object>> ping = Observable.timer(1, 10, TimeUnit.SECONDS)
-				.map(count -> Collections.singletonMap("type", (Object) "Ping"))
-				.publish().refCount();
+				.map(count -> Collections.singletonMap("type", (Object) "Ping")).publish()
+				.refCount();
 		Observable<Map<String, Object>> output = Observable.merge(publishedStreams, ping);
 
 		this.turbinePort = this.properties.getPort();
@@ -93,16 +90,15 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 			this.turbinePort = SocketUtils.findAvailableTcpPort(40000);
 		}
 
-		HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty.createHttpServer(
-				this.turbinePort,
-				(request, response) -> {
+		HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty
+				.createHttpServer(this.turbinePort, (request, response) -> {
 					log.info("SSE Request Received");
 					response.getHeaders().setHeader("Content-Type", "text/event-stream");
-					return output.doOnUnsubscribe(
-							() -> log.info("Unsubscribing RxNetty server connection"))
-							.flatMap(
-									data -> response.writeAndFlush(new ServerSentEvent(
-											null, null, JsonUtility.mapToJson(data))));
+					return output
+							.doOnUnsubscribe(() -> log
+									.info("Unsubscribing RxNetty server connection"))
+							.flatMap(data -> response.writeAndFlush(new ServerSentEvent(
+									null, null, JsonUtility.mapToJson(data))));
 				}, sseServerConfigurator());
 		return httpServer;
 	}
@@ -130,7 +126,8 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 		if (this.running.compareAndSet(true, false)) {
 			try {
 				aggregatorServer().shutdown();
-			} catch (InterruptedException ex) {
+			}
+			catch (InterruptedException ex) {
 				log.error("Error shutting down", ex);
 			}
 		}

@@ -19,32 +19,42 @@ package org.springframework.cloud.netflix.turbine.stream;
 import java.io.IOException;
 import java.util.Map;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import rx.subjects.PublishSubject;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.apachecommons.CommonsLog;
+import rx.subjects.PublishSubject;
 
 /**
  * @author Spencer Gibb
  */
 @CommonsLog
-@Component //needed for ServiceActivator to be picked up
+@Component // needed for ServiceActivator to be picked up
 public class HystrixStreamAggregator {
 
-	@Autowired
 	private ObjectMapper objectMapper;
 
-	@Autowired
 	private PublishSubject<Map<String, Object>> subject;
 
+	@Autowired
+	public HystrixStreamAggregator(ObjectMapper objectMapper,
+			PublishSubject<Map<String, Object>> subject) {
+		this.objectMapper = objectMapper;
+		this.subject = subject;
+	}
+
 	@ServiceActivator(inputChannel = TurbineStreamClient.INPUT)
-	public void sendToSubject(String payload) {
+	public void sendToSubject(@Payload String payload) {
+		if (payload.startsWith("\"")) {
+			// Legacy payload from an Angel client
+			payload = payload.substring(1, payload.length() - 1);
+			payload = payload.replace("\\\"", "\"");
+		}
 		try {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> map = this.objectMapper.readValue(payload, Map.class);
