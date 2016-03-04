@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.util.ReflectionUtils;
@@ -45,16 +46,16 @@ import lombok.extern.apachecommons.CommonsLog;
 public class SendResponseFilter extends ZuulFilter {
 
 	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
-			.getInstance().getBooleanProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER,
-					false);
+			.getInstance()
+			.getBooleanProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER, false);
 
 	private static DynamicIntProperty INITIAL_STREAM_BUFFER_SIZE = DynamicPropertyFactory
-			.getInstance().getIntProperty(ZuulConstants.ZUUL_INITIAL_STREAM_BUFFER_SIZE,
-					1024);
+			.getInstance()
+			.getIntProperty(ZuulConstants.ZUUL_INITIAL_STREAM_BUFFER_SIZE, 1024);
 
 	private static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
-			.getInstance().getBooleanProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH,
-					false);
+			.getInstance()
+			.getBooleanProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH, false);
 
 	@Override
 	public String filterType() {
@@ -88,7 +89,8 @@ public class SendResponseFilter extends ZuulFilter {
 	private void writeResponse() throws Exception {
 		RequestContext context = RequestContext.getCurrentContext();
 		// there is no body to send
-		if (context.getResponseBody() == null && context.getResponseDataStream() == null) {
+		if (context.getResponseBody() == null
+				&& context.getResponseDataStream() == null) {
 			return;
 		}
 		HttpServletResponse servletResponse = context.getResponse();
@@ -100,12 +102,15 @@ public class SendResponseFilter extends ZuulFilter {
 		try {
 			if (RequestContext.getCurrentContext().getResponseBody() != null) {
 				String body = RequestContext.getCurrentContext().getResponseBody();
-				writeResponse(new ByteArrayInputStream(body.getBytes(servletResponse.getCharacterEncoding())), outStream);
+				writeResponse(
+						new ByteArrayInputStream(
+								body.getBytes(servletResponse.getCharacterEncoding())),
+						outStream);
 				return;
 			}
 			boolean isGzipRequested = false;
-			final String requestEncoding = context.getRequest().getHeader(
-					ZuulHeaders.ACCEPT_ENCODING);
+			final String requestEncoding = context.getRequest()
+					.getHeader(ZuulHeaders.ACCEPT_ENCODING);
 
 			if (requestEncoding != null
 					&& HTTPRequestUtils.getInstance().isGzipped(requestEncoding)) {
@@ -124,10 +129,12 @@ public class SendResponseFilter extends ZuulFilter {
 							inputStream = new GZIPInputStream(is);
 						}
 						catch (java.util.zip.ZipException ex) {
-							log.debug("gzip expected but not "
-									+ "received assuming unencoded response "
-									+ RequestContext.getCurrentContext().getRequest()
-											.getRequestURL().toString());
+							log.debug(
+									"gzip expected but not "
+											+ "received assuming unencoded response "
+											+ RequestContext.getCurrentContext()
+													.getRequest().getRequestURL()
+													.toString());
 							inputStream = is;
 						}
 					}
@@ -144,7 +151,7 @@ public class SendResponseFilter extends ZuulFilter {
 					is.close();
 				}
 				outStream.flush();
-				outStream.close();
+				// The container will close the stream for us
 			}
 			catch (IOException ex) {
 			}
@@ -174,8 +181,8 @@ public class SendResponseFilter extends ZuulFilter {
 		HttpServletResponse servletResponse = context.getResponse();
 		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
 		@SuppressWarnings("unchecked")
-		List<String> rd = (List<String>) RequestContext.getCurrentContext().get(
-				"routingDebug");
+		List<String> rd = (List<String>) RequestContext.getCurrentContext()
+				.get("routingDebug");
 		if (rd != null) {
 			StringBuilder debugHeader = new StringBuilder();
 			for (String it : rd) {
