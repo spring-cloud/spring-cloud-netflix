@@ -36,13 +36,13 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import feign.Contract;
-import feign.Feign;
-import feign.MethodMetadata;
-
 import static feign.Util.checkState;
 import static feign.Util.emptyToNull;
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
+
+import feign.Contract;
+import feign.Feign;
+import feign.MethodMetadata;
 
 /**
  * @author Spencer Gibb
@@ -79,10 +79,11 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 	@Override
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
-		processedMethods.put(Feign.configKey(targetType, method), method);
+		this.processedMethods.put(Feign.configKey(targetType, method), method);
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
 
-		RequestMapping classAnnotation = findMergedAnnotation(targetType, RequestMapping.class);
+		RequestMapping classAnnotation = findMergedAnnotation(targetType,
+				RequestMapping.class);
 		if (classAnnotation != null) {
 			// Prepend path from class annotation if specified
 			if (classAnnotation.value().length > 0) {
@@ -169,7 +170,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 		AnnotatedParameterProcessor.AnnotatedParameterContext context = new SimpleAnnotatedParameterContext(
 				data, paramIndex);
-		Method method = processedMethods.get(data.configKey());
+		Method method = this.processedMethods.get(data.configKey());
 		for (Annotation parameterAnnotation : annotations) {
 			AnnotatedParameterProcessor processor = this.annotatedArgumentProcessors
 					.get(parameterAnnotation.annotationType());
@@ -213,9 +214,9 @@ public class SpringMvcContract extends Contract.BaseContract {
 		// TODO: only supports one header value per key
 		if (annotation.headers() != null && annotation.headers().length > 0) {
 			for (String header : annotation.headers()) {
-				int colon = header.indexOf(':');
-				md.template().header(header.substring(0, colon),
-						header.substring(colon + 2));
+				int index = header.indexOf('=');
+				md.template().header(header.substring(0, index),
+						header.substring(index + 1).trim());
 			}
 		}
 	}

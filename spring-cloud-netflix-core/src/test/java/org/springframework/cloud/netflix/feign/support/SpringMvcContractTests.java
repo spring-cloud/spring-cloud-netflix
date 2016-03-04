@@ -183,6 +183,18 @@ public class SpringMvcContractTests {
 	}
 
 	@Test
+	public void testProcessHeaders() throws Exception {
+		Method method = TestTemplate_Headers.class.getDeclaredMethod("getTest",
+				String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test/{id}", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals("bar", data.template().headers().get("X-Foo").iterator().next());
+	}
+
+	@Test
 	public void testProcessAnnotations_Fallback() throws Exception {
 		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTestFallback",
 				String.class, String.class, Integer.class);
@@ -219,10 +231,12 @@ public class SpringMvcContractTests {
 		org.springframework.util.Assert.isTrue(m.getParameterTypes().length > 0,
 				"method has no parameters");
 		if (EXECUTABLE_TYPE != null) {
-			Method getParameters = ReflectionUtils.findMethod(EXECUTABLE_TYPE, "getParameters");
+			Method getParameters = ReflectionUtils.findMethod(EXECUTABLE_TYPE,
+					"getParameters");
 			try {
 				Object[] parameters = (Object[]) getParameters.invoke(m);
-				Method isNamePresent = ReflectionUtils.findMethod(parameters[0].getClass(), "isNamePresent");
+				Method isNamePresent = ReflectionUtils
+						.findMethod(parameters[0].getClass(), "isNamePresent");
 				return Boolean.TRUE.equals(isNamePresent.invoke(parameters[0]));
 			}
 			catch (IllegalAccessException | IllegalArgumentException
@@ -243,6 +257,11 @@ public class SpringMvcContractTests {
 		TestObject postTest(@RequestBody TestObject object);
 	}
 
+	public interface TestTemplate_Headers {
+		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, headers = "X-Foo=bar")
+		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
+	}
+
 	@JsonAutoDetect
 	@RequestMapping("/advanced")
 	public interface TestTemplate_Advanced {
@@ -253,7 +272,8 @@ public class SpringMvcContractTests {
 				@PathVariable("id") String id, @RequestParam("amount") Integer amount);
 
 		@RequestMapping(path = "/test2", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-		ResponseEntity<TestObject> getTest2(@RequestHeader(name = "Authorization") String auth,
+		ResponseEntity<TestObject> getTest2(
+				@RequestHeader(name = "Authorization") String auth,
 				@RequestParam(name = "amount") Integer amount);
 
 		@ExceptionHandler
