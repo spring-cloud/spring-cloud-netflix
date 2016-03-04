@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -32,6 +30,7 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -44,6 +43,8 @@ import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.HystrixThreadPoolMetrics;
 import com.netflix.hystrix.util.HystrixRollingNumberEvent;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -90,7 +91,11 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			for (String json : metrics) {
 				// TODO: batch all metrics to one message
 				try {
-					this.outboundChannel.send(MessageBuilder.withPayload(json).build());
+					// TODO: remove the explicit content type when s-c-stream can handle that for us
+					this.outboundChannel.send(MessageBuilder.withPayload(json)
+							.setHeader(MessageHeaders.CONTENT_TYPE,
+									"application/json")
+							.build());
 				}
 				catch (Exception ex) {
 					if (log.isTraceEnabled()) {
@@ -157,8 +162,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 						.getRollingCount(HystrixRollingNumberEvent.COLLAPSED));
 				json.writeNumberField("rollingCountExceptionsThrown", commandMetrics
 						.getRollingCount(HystrixRollingNumberEvent.EXCEPTION_THROWN));
-				json.writeNumberField("rollingCountFailure",
-						commandMetrics.getRollingCount(HystrixRollingNumberEvent.FAILURE));
+				json.writeNumberField("rollingCountFailure", commandMetrics
+						.getRollingCount(HystrixRollingNumberEvent.FAILURE));
 				json.writeNumberField("rollingCountFallbackFailure", commandMetrics
 						.getRollingCount(HystrixRollingNumberEvent.FALLBACK_FAILURE));
 				json.writeNumberField("rollingCountFallbackRejection", commandMetrics
@@ -171,12 +176,12 @@ public class HystrixStreamTask implements ApplicationContextAware {
 						.getRollingCount(HystrixRollingNumberEvent.SEMAPHORE_REJECTED));
 				json.writeNumberField("rollingCountShortCircuited", commandMetrics
 						.getRollingCount(HystrixRollingNumberEvent.SHORT_CIRCUITED));
-				json.writeNumberField("rollingCountSuccess",
-						commandMetrics.getRollingCount(HystrixRollingNumberEvent.SUCCESS));
+				json.writeNumberField("rollingCountSuccess", commandMetrics
+						.getRollingCount(HystrixRollingNumberEvent.SUCCESS));
 				json.writeNumberField("rollingCountThreadPoolRejected", commandMetrics
 						.getRollingCount(HystrixRollingNumberEvent.THREAD_POOL_REJECTED));
-				json.writeNumberField("rollingCountTimeout",
-						commandMetrics.getRollingCount(HystrixRollingNumberEvent.TIMEOUT));
+				json.writeNumberField("rollingCountTimeout", commandMetrics
+						.getRollingCount(HystrixRollingNumberEvent.TIMEOUT));
 
 				json.writeNumberField("currentConcurrentExecutionCount",
 						commandMetrics.getCurrentConcurrentExecutionCount());
@@ -186,12 +191,18 @@ public class HystrixStreamTask implements ApplicationContextAware {
 						commandMetrics.getExecutionTimeMean());
 				json.writeObjectFieldStart("latencyExecute");
 				json.writeNumberField("0", commandMetrics.getExecutionTimePercentile(0));
-				json.writeNumberField("25", commandMetrics.getExecutionTimePercentile(25));
-				json.writeNumberField("50", commandMetrics.getExecutionTimePercentile(50));
-				json.writeNumberField("75", commandMetrics.getExecutionTimePercentile(75));
-				json.writeNumberField("90", commandMetrics.getExecutionTimePercentile(90));
-				json.writeNumberField("95", commandMetrics.getExecutionTimePercentile(95));
-				json.writeNumberField("99", commandMetrics.getExecutionTimePercentile(99));
+				json.writeNumberField("25",
+						commandMetrics.getExecutionTimePercentile(25));
+				json.writeNumberField("50",
+						commandMetrics.getExecutionTimePercentile(50));
+				json.writeNumberField("75",
+						commandMetrics.getExecutionTimePercentile(75));
+				json.writeNumberField("90",
+						commandMetrics.getExecutionTimePercentile(90));
+				json.writeNumberField("95",
+						commandMetrics.getExecutionTimePercentile(95));
+				json.writeNumberField("99",
+						commandMetrics.getExecutionTimePercentile(99));
 				json.writeNumberField("99.5",
 						commandMetrics.getExecutionTimePercentile(99.5));
 				json.writeNumberField("100",
@@ -208,7 +219,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				json.writeNumberField("90", commandMetrics.getTotalTimePercentile(90));
 				json.writeNumberField("95", commandMetrics.getTotalTimePercentile(95));
 				json.writeNumberField("99", commandMetrics.getTotalTimePercentile(99));
-				json.writeNumberField("99.5", commandMetrics.getTotalTimePercentile(99.5));
+				json.writeNumberField("99.5",
+						commandMetrics.getTotalTimePercentile(99.5));
 				json.writeNumberField("100", commandMetrics.getTotalTimePercentile(100));
 				json.writeEndObject();
 
@@ -222,7 +234,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 						commandProperties.circuitBreakerRequestVolumeThreshold().get());
 				json.writeNumberField(
 						"propertyValue_circuitBreakerSleepWindowInMilliseconds",
-						commandProperties.circuitBreakerSleepWindowInMilliseconds().get());
+						commandProperties.circuitBreakerSleepWindowInMilliseconds()
+								.get());
 				json.writeNumberField(
 						"propertyValue_circuitBreakerErrorThresholdPercentage",
 						commandProperties.circuitBreakerErrorThresholdPercentage().get());
@@ -245,11 +258,13 @@ public class HystrixStreamTask implements ApplicationContextAware {
 								.get());
 				json.writeStringField(
 						"propertyValue_executionIsolationThreadPoolKeyOverride",
-						commandProperties.executionIsolationThreadPoolKeyOverride().get());
+						commandProperties.executionIsolationThreadPoolKeyOverride()
+								.get());
 				json.writeNumberField(
 						"propertyValue_executionIsolationSemaphoreMaxConcurrentRequests",
 						commandProperties
-								.executionIsolationSemaphoreMaxConcurrentRequests().get());
+								.executionIsolationSemaphoreMaxConcurrentRequests()
+								.get());
 				json.writeNumberField(
 						"propertyValue_fallbackIsolationSemaphoreMaxConcurrentRequests",
 						commandProperties
@@ -309,22 +324,22 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				json.writeStringField("name", key.name());
 				json.writeNumberField("currentTime", System.currentTimeMillis());
 
-				json.writeNumberField("currentActiveCount", threadPoolMetrics
-						.getCurrentActiveCount().intValue());
-				json.writeNumberField("currentCompletedTaskCount", threadPoolMetrics
-						.getCurrentCompletedTaskCount().longValue());
-				json.writeNumberField("currentCorePoolSize", threadPoolMetrics
-						.getCurrentCorePoolSize().intValue());
-				json.writeNumberField("currentLargestPoolSize", threadPoolMetrics
-						.getCurrentLargestPoolSize().intValue());
-				json.writeNumberField("currentMaximumPoolSize", threadPoolMetrics
-						.getCurrentMaximumPoolSize().intValue());
-				json.writeNumberField("currentPoolSize", threadPoolMetrics
-						.getCurrentPoolSize().intValue());
-				json.writeNumberField("currentQueueSize", threadPoolMetrics
-						.getCurrentQueueSize().intValue());
-				json.writeNumberField("currentTaskCount", threadPoolMetrics
-						.getCurrentTaskCount().longValue());
+				json.writeNumberField("currentActiveCount",
+						threadPoolMetrics.getCurrentActiveCount().intValue());
+				json.writeNumberField("currentCompletedTaskCount",
+						threadPoolMetrics.getCurrentCompletedTaskCount().longValue());
+				json.writeNumberField("currentCorePoolSize",
+						threadPoolMetrics.getCurrentCorePoolSize().intValue());
+				json.writeNumberField("currentLargestPoolSize",
+						threadPoolMetrics.getCurrentLargestPoolSize().intValue());
+				json.writeNumberField("currentMaximumPoolSize",
+						threadPoolMetrics.getCurrentMaximumPoolSize().intValue());
+				json.writeNumberField("currentPoolSize",
+						threadPoolMetrics.getCurrentPoolSize().intValue());
+				json.writeNumberField("currentQueueSize",
+						threadPoolMetrics.getCurrentQueueSize().intValue());
+				json.writeNumberField("currentTaskCount",
+						threadPoolMetrics.getCurrentTaskCount().longValue());
 				json.writeNumberField("rollingCountThreadsExecuted",
 						threadPoolMetrics.getRollingCountThreadsExecuted());
 				json.writeNumberField("rollingMaxActiveThreads",

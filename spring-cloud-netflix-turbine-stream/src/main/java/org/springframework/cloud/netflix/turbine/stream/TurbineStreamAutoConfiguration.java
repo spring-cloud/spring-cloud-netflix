@@ -28,19 +28,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Autoconfiguration for a Spring Cloud Turbine using Spring Cloud Stream.
- * Enabled by default if spring-cloud-stream is on the classpath, and can be
- * switched off with <code>turbine.stream.enabled</code>.
+ * Autoconfiguration for a Spring Cloud Turbine using Spring Cloud Stream. Enabled by
+ * default if spring-cloud-stream is on the classpath, and can be switched off with
+ * <code>turbine.stream.enabled</code>.
  *
- * If there is a single
- * {@link ConnectionFactory} in the context it will be used, or if there is a one
- * qualified as <code>@TurbineConnectionFactory</code> it will be preferred over others,
- * otherwise the <code>@Primary</code> one will be used. If there are multiple unqualified
- * connection factories there will be an autowiring error. Note that Spring Boot (as of
- * 1.2.2) creates a ConnectionFactory that is <i>not</i> <code>@Primary</code>, so if you
- * want to use one connection factory for turbine and another for business messages, you
- * need to create both, and annotate them <code>@TurbineConnectionFactory</code> and
- * <code>@Primary</code> respectively.
+ * If there is a single {@link ConnectionFactory} in the context it will be used, or if
+ * there is a one qualified as <code>@TurbineConnectionFactory</code> it will be preferred
+ * over others, otherwise the <code>@Primary</code> one will be used. If there are
+ * multiple unqualified connection factories there will be an autowiring error. Note that
+ * Spring Boot (as of 1.2.2) creates a ConnectionFactory that is <i>not</i>
+ * <code>@Primary</code>, so if you want to use one connection factory for turbine and
+ * another for business messages, you need to create both, and annotate them
+ * <code>@TurbineConnectionFactory</code> and <code>@Primary</code> respectively.
  *
  * @author Spencer Gibb
  * @author Dave Syer
@@ -59,14 +58,19 @@ public class TurbineStreamAutoConfiguration {
 
 	@PostConstruct
 	public void init() {
-		BindingProperties inputBinding = this.bindings.getBindings().get(TurbineStreamClient.INPUT);
+		BindingProperties inputBinding = this.bindings.getBindings()
+				.get(TurbineStreamClient.INPUT);
 		if (inputBinding == null) {
 			this.bindings.getBindings().put(TurbineStreamClient.INPUT,
 					new BindingProperties());
 		}
-		BindingProperties input = this.bindings.getBindings().get(TurbineStreamClient.INPUT);
+		BindingProperties input = this.bindings.getBindings()
+				.get(TurbineStreamClient.INPUT);
 		if (input.getDestination() == null) {
-			input.setDestination(properties.getDestination());
+			input.setDestination(this.properties.getDestination());
+		}
+		if (input.getContentType() == null) {
+			input.setContentType(this.properties.getContentType());
 		}
 	}
 

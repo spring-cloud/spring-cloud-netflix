@@ -16,10 +16,10 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
-import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
+
+import lombok.Data;
 
 /**
  * @author Spencer Gibb
@@ -35,5 +35,7 @@ public class HystrixStreamProperties {
 	private boolean sendId = true;
 
 	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
+
+	private String contentType = "application/json";
 
 }

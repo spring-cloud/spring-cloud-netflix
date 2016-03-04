@@ -33,17 +33,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import com.netflix.hystrix.HystrixCircuitBreaker;
 
 /**
- * Autoconfiguration for a Spring Cloud Hystrix on AMQP. Enabled by default if
- * spring-rabbit is on the classpath, and can be switched off with
- * <code>spring.cloud.bus.amqp.enabled</code>. If there is a single
- * {@link ConnectionFactory} in the context it will be used, or if there is a one
- * qualified as <code>@HystrixConnectionFactory</code> it will be preferred over others,
- * otherwise the <code>@Primary</code> one will be used. If there are multiple unqualified
- * connection factories there will be an autowiring error. Note that Spring Boot (as of
- * 1.2.2) creates a ConnectionFactory that is <i>not</i> <code>@Primary</code>, so if you
- * want to use one connection factory for the bus and another for business messages, you
- * need to create both, and annotate them <code>@HystrixConnectionFactory</code> and
- * <code>@Primary</code> respectively.
+ * Autoconfiguration for a Spring Cloud Hystrix on Spring Cloud Stream. Enabled by default
+ * if spring-cloud-stream is on the classpath, and can be switched off with
+ * <code>hystrix.stream.queue.enabled</code>. There are some high level configuration
+ * options in {@link HystrixStreamProperties}. The binding name for Spring Cloud Stream is
+ * {@link HystrixStreamClient#OUTPUT} so you can configure stream other properties through
+ * that.
  *
  * @author Spencer Gibb
  * @author Dave Syer
@@ -64,19 +59,25 @@ public class HystrixStreamAutoConfiguration {
 
 	@Bean
 	public HasFeatures hystrixStreamQueueFeature() {
-		return HasFeatures.namedFeature("Hystrix Stream (Queue)", HystrixStreamAutoConfiguration.class);
+		return HasFeatures.namedFeature("Hystrix Stream (Queue)",
+				HystrixStreamAutoConfiguration.class);
 	}
 
 	@PostConstruct
 	public void init() {
-		BindingProperties outputBinding = this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
+		BindingProperties outputBinding = this.bindings.getBindings()
+				.get(HystrixStreamClient.OUTPUT);
 		if (outputBinding == null) {
 			this.bindings.getBindings().put(HystrixStreamClient.OUTPUT,
 					new BindingProperties());
 		}
-		BindingProperties output = this.bindings.getBindings().get(HystrixStreamClient.OUTPUT);
+		BindingProperties output = this.bindings.getBindings()
+				.get(HystrixStreamClient.OUTPUT);
 		if (output.getDestination() == null) {
 			output.setDestination(this.properties.getDestination());
+		}
+		if (output.getContentType() == null) {
+			output.setContentType(this.properties.getContentType());
 		}
 	}
 

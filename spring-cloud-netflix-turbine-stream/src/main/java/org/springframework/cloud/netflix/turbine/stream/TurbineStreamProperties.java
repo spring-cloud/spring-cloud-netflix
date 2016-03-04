@@ -16,11 +16,12 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import lombok.Data;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
+import org.springframework.http.MediaType;
+
+import lombok.Data;
 
 /**
  * @author Dave Syer
@@ -33,4 +34,6 @@ public class TurbineStreamProperties {
 	private int port = 8989;
 
 	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
+
+	private String contentType = MediaType.APPLICATION_JSON_VALUE;
 }
