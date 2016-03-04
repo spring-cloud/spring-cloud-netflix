@@ -62,10 +62,6 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-		return this.chooseRibbonServer(serviceId);
-	}
-
-	RibbonServer chooseRibbonServer(String serviceId) {
 		Server server = getServer(serviceId);
 		if (server == null) {
 			return null;

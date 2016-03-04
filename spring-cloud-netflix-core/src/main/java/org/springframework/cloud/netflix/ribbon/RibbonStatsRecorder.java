@@ -12,14 +12,16 @@ import com.netflix.servo.monitor.Stopwatch;
 public class RibbonStatsRecorder {
 
 	private RibbonLoadBalancerContext context;
-	private final ServerStats serverStats;
-	private final Stopwatch tracer;
+	private ServerStats serverStats;
+	private Stopwatch tracer;
 
 	public RibbonStatsRecorder(RibbonLoadBalancerContext context, Server server) {
 		this.context = context;
-		serverStats = context.getServerStats(server);
-		context.noteOpenConnection(serverStats);
-		tracer = context.getExecuteTracer().start();
+		if (server != null) {
+			serverStats = context.getServerStats(server);
+			context.noteOpenConnection(serverStats);
+			tracer = context.getExecuteTracer().start();
+		}
 	}
 
 	public void recordStats(Object entity) {
@@ -31,8 +33,10 @@ public class RibbonStatsRecorder {
 	}
 
 	protected void recordStats(Object entity, Throwable exception) {
-		this.tracer.stop();
-		long duration = this.tracer.getDuration(TimeUnit.MILLISECONDS);
-		this.context.noteRequestCompletion(serverStats, entity, exception, duration, null/* errorHandler */);
+		if (this.tracer != null && this.serverStats != null) {
+			this.tracer.stop();
+			long duration = this.tracer.getDuration(TimeUnit.MILLISECONDS);
+			this.context.noteRequestCompletion(serverStats, entity, exception, duration, null/* errorHandler */);
+		}
 	}
 }

@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.ribbon;
 import java.io.IOException;
 import java.net.URI;
 
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
@@ -26,6 +28,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
+import com.netflix.loadbalancer.Server;
 import com.netflix.niws.client.http.RestClient;
 
 /**
@@ -35,9 +38,9 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 
 	private final SpringClientFactory clientFactory;
 
-    private RibbonLoadBalancerClient loadBalancer;
+    private LoadBalancerClient loadBalancer;
 
-	public RibbonClientHttpRequestFactory(SpringClientFactory clientFactory, RibbonLoadBalancerClient loadBalancer) {
+	public RibbonClientHttpRequestFactory(SpringClientFactory clientFactory, LoadBalancerClient loadBalancer) {
 		this.clientFactory = clientFactory;
         this.loadBalancer = loadBalancer;
 	}
@@ -50,7 +53,7 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
         if (serviceId == null) {
             throw new IOException("Invalid hostname in the URI [" + originalUri.toASCIIString() + "]");
         }
-        RibbonServer instance = loadBalancer.chooseRibbonServer(serviceId);
+		ServiceInstance instance = loadBalancer.choose(serviceId);
 		if (instance == null) {
 			throw new IllegalStateException("No instances available for "+serviceId);
 		}
@@ -60,7 +63,13 @@ public class RibbonClientHttpRequestFactory implements ClientHttpRequestFactory 
 		RestClient client = this.clientFactory.getClient(instance.getServiceId(), RestClient.class);
 		HttpRequest.Verb verb = HttpRequest.Verb.valueOf(httpMethod.name());
 		RibbonLoadBalancerContext context = this.clientFactory.getLoadBalancerContext(serviceId);
-		RibbonStatsRecorder statsRecorder = new RibbonStatsRecorder(context, instance.getServer());
+
+		Server server = null;
+		if (instance instanceof RibbonServer) {
+			server = ((RibbonServer)instance).getServer();
+		}
+
+		RibbonStatsRecorder statsRecorder = new RibbonStatsRecorder(context,  server);
         //@formatter:on
 		return new RibbonHttpRequest(uri, verb, client, clientConfig, statsRecorder);
 	}
