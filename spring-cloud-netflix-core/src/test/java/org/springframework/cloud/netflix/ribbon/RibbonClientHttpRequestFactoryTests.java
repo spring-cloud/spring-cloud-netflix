@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,20 +60,22 @@ import lombok.SneakyThrows;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = RibbonClientHttpRequestFactoryTests.App.class)
 @WebIntegrationTest(value = { "spring.application.name=ribbonclienttest",
-		"spring.jmx.enabled=true" }, randomPort = true)
+		"spring.jmx.enabled=true", "spring.cloud.netflix.metrics.enabled=false" }, randomPort = true)
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
 	@Rule
 	public final ExpectedException exceptionRule = ExpectedException.none();
 
+	@LoadBalanced
 	@Autowired
 	private RestTemplate restTemplate;
 
 	@Test
 	public void requestFactoryIsRibbon() {
-		assertTrue("wrong RequestFactory type", this.restTemplate
-				.getRequestFactory() instanceof RibbonClientHttpRequestFactory);
+		ClientHttpRequestFactory requestFactory = this.restTemplate
+				.getRequestFactory();
+		assertTrue("wrong RequestFactory type: " + requestFactory.getClass(), requestFactory instanceof RibbonClientHttpRequestFactory);
 	}
 
 	@Test

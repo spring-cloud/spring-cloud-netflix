@@ -32,6 +32,7 @@ import com.netflix.servo.monitor.Monitors;
  * @author Jon Schneider
  */
 @Configuration
+@ConditionalOnProperty(value = "spring.cloud.netflix.metrics.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnClass({ Monitors.class, MetricReader.class })
 public class MetricsInterceptorConfiguration {
 
