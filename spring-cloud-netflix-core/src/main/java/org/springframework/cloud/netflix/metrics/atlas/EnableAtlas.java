@@ -29,6 +29,6 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import(AtlasAutoConfiguration.class)
+@Import(AtlasConfiguration.class)
 public @interface EnableAtlas {
 }

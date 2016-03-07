@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -47,10 +48,10 @@ import org.springframework.web.client.RestTemplate;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
-import lombok.SneakyThrows;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import lombok.SneakyThrows;
 
 /**
  * @author Spencer Gibb
@@ -70,12 +71,13 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@Test
 	public void requestFactoryIsRibbon() {
-		assertTrue("wrong RequestFactory type", restTemplate.getRequestFactory() instanceof RibbonClientHttpRequestFactory);
+		assertTrue("wrong RequestFactory type", this.restTemplate
+				.getRequestFactory() instanceof RibbonClientHttpRequestFactory);
 	}
 
 	@Test
 	public void vanillaRequestWorks() {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://simple/",
+		ResponseEntity<String> response = this.restTemplate.getForEntity("http://simple/",
 				String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello", response.getBody());
@@ -83,37 +85,41 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@Test
 	public void requestWithPathParamWorks() {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://simple/path/{param}",
-				String.class, "world");
+		ResponseEntity<String> response = this.restTemplate
+				.getForEntity("http://simple/path/{param}", String.class, "world");
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}
 
 	@Test
 	public void requestWithEncodedPathParamWorks() {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://simple/path/{param}",
-				String.class, "world & everyone else");
+		ResponseEntity<String> response = this.restTemplate.getForEntity(
+				"http://simple/path/{param}", String.class, "world & everyone else");
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello world & everyone else", response.getBody());
+		assertEquals("wrong response body", "hello world & everyone else",
+				response.getBody());
 	}
 
 	@Test
 	public void requestWithRequestParamWorks() {
-		ResponseEntity<String> response = restTemplate.getForEntity("http://simple/request?param={param}", String.class, "world");
+		ResponseEntity<String> response = this.restTemplate.getForEntity(
+				"http://simple/request?param={param}", String.class, "world");
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}
 
 	@Test
 	public void requestWithPostWorks() {
-		ResponseEntity<String> response = restTemplate.postForEntity("http://simple/post", "world", String.class);
+		ResponseEntity<String> response = this.restTemplate
+				.postForEntity("http://simple/post", "world", String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}
 
 	@Test
 	public void requestWithEmptyPostWorks() {
-		ResponseEntity<String> response = restTemplate.postForEntity("http://simple/emptypost", "", String.class);
+		ResponseEntity<String> response = this.restTemplate
+				.postForEntity("http://simple/emptypost", "", String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello empty", response.getBody());
 	}
@@ -122,18 +128,18 @@ public class RibbonClientHttpRequestFactoryTests {
 	@SneakyThrows
 	public void requestWithHeaderWorks() {
 		RequestEntity<Void> entity = RequestEntity.get(new URI("http://simple/header"))
-				.header("X-Param", "world")
-				.build();
-		ResponseEntity<String> response = restTemplate.exchange(entity, String.class);
+				.header("X-Param", "world").build();
+		ResponseEntity<String> response = this.restTemplate.exchange(entity,
+				String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}
 
 	@Test
 	public void invalidHostNameError() {
-		exceptionRule.expect(ResourceAccessException.class);
-		exceptionRule.expectMessage("Invalid hostname");
-		restTemplate.getForEntity("http://simple_bad", String.class);
+		this.exceptionRule.expect(ResourceAccessException.class);
+		this.exceptionRule.expectMessage("Invalid hostname");
+		this.restTemplate.getForEntity("http://simple_bad", String.class);
 	}
 
 	@Configuration
@@ -142,6 +148,12 @@ public class RibbonClientHttpRequestFactoryTests {
 	@RibbonClient(value = "simple", configuration = SimpleRibbonClientConfiguration.class)
 	protected static class App {
 
+		@LoadBalanced
+		@Bean
+		RestTemplate restTemplate() {
+			return new RestTemplate();
+		}
+
 		@RequestMapping("/")
 		public String hi() {
 			return "hello";
@@ -149,17 +161,17 @@ public class RibbonClientHttpRequestFactoryTests {
 
 		@RequestMapping("/path/{param}")
 		public String hiParam(@PathVariable("param") String param) {
-			return "hello "+param;
+			return "hello " + param;
 		}
 
 		@RequestMapping("/request")
 		public String hiRequest(@RequestParam("param") String param) {
-			return "hello "+param;
+			return "hello " + param;
 		}
 
 		@RequestMapping(value = "/post", method = RequestMethod.POST)
 		public String hiPost(@RequestBody String param) {
-			return "hello "+param;
+			return "hello " + param;
 		}
 
 		@RequestMapping(value = "/emptypost", method = RequestMethod.POST)
@@ -169,7 +181,7 @@ public class RibbonClientHttpRequestFactoryTests {
 
 		@RequestMapping("/header")
 		public String hiHeader(@RequestHeader("X-Param") String param) {
-			return "hello "+param;
+			return "hello " + param;
 		}
 	}
 }

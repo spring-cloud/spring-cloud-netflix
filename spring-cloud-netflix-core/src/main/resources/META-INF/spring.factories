@@ -11,3 +11,6 @@ org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration
 
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
+
+org.springframework.boot.env.EnvironmentPostProcessor=\
+org.springframework.cloud.netflix.metrics.ServoEnvironmentPostProcessor

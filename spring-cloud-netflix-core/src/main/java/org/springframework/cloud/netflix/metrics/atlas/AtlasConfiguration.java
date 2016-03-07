@@ -38,7 +38,7 @@ import com.netflix.servo.tag.BasicTagList;
 @Configuration
 @ConditionalOnClass(AtlasMetricObserver.class)
 @Import(ServoMetricsAutoConfiguration.class)
-public class AtlasAutoConfiguration {
+public class AtlasConfiguration {
 	@Autowired(required = false)
 	private Collection<AtlasTagProvider> tagProviders;
 
