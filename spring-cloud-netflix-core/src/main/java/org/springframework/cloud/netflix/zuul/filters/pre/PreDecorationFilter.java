@@ -21,6 +21,8 @@ import java.net.URL;
 
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -36,13 +38,18 @@ public class PreDecorationFilter extends ZuulFilter {
 	private RouteLocator routeLocator;
 
 	private boolean addProxyHeaders;
+	
+	private String dispatcherServletPath;
+	private ZuulProperties zuulProperties;	
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
 	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders,
-			boolean removeSemicolonContent) {
+			boolean removeSemicolonContent, String dispatcherServletPath, ZuulProperties zuulProperties) {
 		this.routeLocator = routeLocator;
 		this.addProxyHeaders = addProxyHeaders;
+		this.dispatcherServletPath = dispatcherServletPath;
+		this.zuulProperties = zuulProperties;
 		this.urlPathHelper.setRemoveSemicolonContent(removeSemicolonContent);
 	}
 
@@ -112,7 +119,27 @@ public class PreDecorationFilter extends ZuulFilter {
 		}
 		else {
 			log.warn("No route found for uri: " + requestURI);
-			ctx.set("forward.to", requestURI);
+			
+			String fallBackUri = requestURI;
+			String fallbackPrefix = dispatcherServletPath; //default fallback servlet is DispatcherServlet
+			
+			if (RequestUtils.isZuulServletRequest()) {
+				//remove the Zuul servletPath from the requestUri
+				log.debug("zuulProperties.getServletPath()=" + zuulProperties.getServletPath());
+				fallBackUri = fallBackUri.replaceFirst(zuulProperties.getServletPath(), "");
+				log.debug("Replaced Zuul servlet path:" + fallBackUri);
+			} else {
+				//remove the DispatcherServlet servletPath from the requestUri
+				log.debug("dispatcherServletPath=" + dispatcherServletPath);
+				fallBackUri = fallBackUri.replaceFirst(dispatcherServletPath, "");
+				log.debug("Replaced DispatcherServlet servlet path:" + fallBackUri);
+			}
+			if (!fallBackUri.startsWith("/")) {
+				fallBackUri = "/" + fallBackUri;
+			}
+			String forwardURI = fallbackPrefix + fallBackUri;
+			forwardURI = forwardURI.replaceAll("//", "/");
+			ctx.set("forward.to", forwardURI);
 		}
 		return null;
 	}

@@ -55,7 +55,8 @@ public class PreDecorationFilterTests {
 		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
 				this.properties);
 		this.filter = new PreDecorationFilter(this.routeLocator, true,
-				this.properties.isRemoveSemicolonContent());
+				this.properties.isRemoveSemicolonContent(),
+				"/", this.properties);
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.clear();
 		ctx.setRequest(this.request);
@@ -135,6 +136,105 @@ public class PreDecorationFilterTests {
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
+	
+	@Test
+	public void routeNotFound() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);		
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		
+		this.request.setRequestURI("/api/bar/1");
+
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/api/bar/1", ctx.get("forward.to"));
+	}
+	
+	@Test
+	public void routeNotFoundDispatcherServletSpecialPath() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);		
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		
+		this.filter = new PreDecorationFilter(this.routeLocator, true,
+				this.properties.isRemoveSemicolonContent(),
+				"/special", this.properties);
+		
+		this.request.setRequestURI("/api/bar/1");
+
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
+	}	
+	
+	@Test
+	public void routeNotFoundZuulRequest() throws Exception {
+		setTestRequestContext();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		ctx.getCurrentContext().setZuulEngineRan();
+		this.request.setRequestURI("/zuul/api/bar/1");
+		ctx.setRequest(this.request);
+		
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setServletPath("/zuul");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		
+		
+		this.filter.run();
+
+		assertEquals("/api/bar/1", ctx.get("forward.to"));
+	}		
+	
+	@Test
+	public void routeNotFoundZuulRequestDispatcherServletSpecialPath() throws Exception {
+		setTestRequestContext();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		ctx.getCurrentContext().setZuulEngineRan();
+		this.request.setRequestURI("/zuul/api/bar/1");
+		ctx.setRequest(this.request);
+		
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setServletPath("/zuul");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		this.filter = new PreDecorationFilter(this.routeLocator, true,
+				this.properties.isRemoveSemicolonContent(),
+				"/special", this.properties);		
+		
+		
+		this.filter.run();
+
+		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
+	}	
+	
+	
+	@Test
+	public void routeNotFoundZuulRequestZuulHomeMapping() throws Exception {
+		setTestRequestContext();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		ctx.getCurrentContext().setZuulEngineRan();
+		this.request.setRequestURI("/api/bar/1");
+		ctx.setRequest(this.request);
+		
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setServletPath("/");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		
+		this.filter = new PreDecorationFilter(this.routeLocator, true,
+				this.properties.isRemoveSemicolonContent(),
+				"/special", this.properties);
+		
+		this.filter.run();
+
+		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
+	}	
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
 		String value = null;
@@ -146,5 +246,11 @@ public class PreDecorationFilterTests {
 		}
 		return value;
 	}
+	
+	private void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+
+	}	
 
 }

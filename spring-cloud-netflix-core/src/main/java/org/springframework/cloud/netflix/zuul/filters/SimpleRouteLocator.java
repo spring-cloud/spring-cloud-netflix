@@ -90,6 +90,9 @@ public class SimpleRouteLocator implements RouteLocator {
 
 		log.debug("servletPath=" + this.dispatcherServletPath);
 		log.debug("zuulServletPath=" + this.zuulServletPath);
+		log.debug("RequestUtils.isDispatcherServletRequest()=" + RequestUtils.isDispatcherServletRequest());
+		log.debug("RequestUtils.isZuulServletRequest()=" + RequestUtils.isZuulServletRequest());
+		
 
 		String adjustedPath = adjustPath(path);
 
@@ -173,12 +176,14 @@ public class SimpleRouteLocator implements RouteLocator {
 				&& StringUtils.hasText(this.dispatcherServletPath)) {
 			if (!this.dispatcherServletPath.equals("/")) {
 				adjustedPath = path.substring(this.dispatcherServletPath.length());
+				log.debug("Stripped dispatcherServletPath");
 			}
 		}
 		else if (RequestUtils.isZuulServletRequest()) {
 			if (StringUtils.hasText(this.zuulServletPath)
 					&& !this.zuulServletPath.equals("/")) {
 				adjustedPath = path.substring(this.zuulServletPath.length());
+				log.debug("Stripped zuulServletPath");
 			}
 		}
 		else {
