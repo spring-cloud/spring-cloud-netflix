@@ -74,6 +74,7 @@ import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import rx.Observable;
+import rx.Single;
 
 /**
  * @author Spencer Gibb
@@ -115,6 +116,9 @@ public class FeignClientTests {
 	protected interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		Single<Hello> getHelloSingle();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
 		List<Hello> getHellos();
@@ -179,6 +183,9 @@ public class FeignClientTests {
 	@FeignClient(name = "localapp3", fallback = HystrixClientFallback.class)
 	protected interface HystrixClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		Single<Hello> failSingle();
+
+		@RequestMapping(method = RequestMethod.GET, value = "/fail")
 		Hello fail();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/fail")
@@ -198,13 +205,18 @@ public class FeignClientTests {
 		}
 
 		@Override
+		public Single<Hello> failSingle() {
+			return Single.just(new Hello("fallbacksingle"));
+		}
+
+		@Override
 		public HystrixCommand<Hello> failCommand() {
 			return new FallbackCommand<>(new Hello("fallbackcommand"));
 		}
 
 		@Override
 		public Observable<Hello> failObservable() {
-			return new FallbackCommand<>(new Hello("fallbackobservable")).observe();
+			return Observable.just(new Hello("fallbackobservable"));
 		}
 
 		@Override
@@ -363,6 +375,15 @@ public class FeignClientTests {
 	}
 
 	@Test
+	public void testSingle() {
+		Single<Hello> single = this.testClient.getHelloSingle();
+		assertNotNull("single was null", single);
+		Hello hello = single.toBlocking().value();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello(HELLO_WORLD_1), hello);
+	}
+
+	@Test
 	public void testNoContentResponse() {
 		ResponseEntity response = testClient.noContent();
 		assertNotNull("response was null", response);
@@ -401,7 +422,15 @@ public class FeignClientTests {
 	}
 
 	@Test
-	@Ignore("Until HystrixCommand works in fallback")
+	public void testHystrixFallbackSingle() {
+		Single<Hello> single = hystrixClient.failSingle();
+		assertNotNull("single was null", single);
+		Hello hello = single.toBlocking().value();
+		assertNotNull("hello was null", hello);
+		assertEquals("message was wrong", "fallbacksingle", hello.getMessage());
+	}
+
+	@Test
 	public void testHystrixFallbackCommand() {
 		HystrixCommand<Hello> command = hystrixClient.failCommand();
 		assertNotNull("command was null", command);
@@ -411,7 +440,6 @@ public class FeignClientTests {
 	}
 
 	@Test
-	@Ignore("Until Observable works in fallback")
 	public void testHystrixFallbackObservable() {
 		Observable<Hello> observable = hystrixClient.failObservable();
 		assertNotNull("observable was null", observable);
