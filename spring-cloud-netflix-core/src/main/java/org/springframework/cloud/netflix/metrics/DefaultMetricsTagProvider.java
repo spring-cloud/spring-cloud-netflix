@@ -41,8 +41,8 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 
 		String status;
 		try {
-			status = (response == null) ? "CLIENT_ERROR"
-					: ((Integer) response.getRawStatusCode()).toString();
+			status = (response == null) ? "CLIENT_ERROR" : ((Integer) response
+					.getRawStatusCode()).toString();
 		}
 		catch (IOException e) {
 			status = "IO_ERROR";
@@ -50,9 +50,13 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 
 		String host = request.getURI().getHost();
 
-		return ImmutableMap.of("method", request.getMethod().name(), "uri",
-				sanitizeUrlTemplate(urlTemplate.replaceAll("^https?://[^/]+/", "")),
-				"status", status, "clientName", host != null ? host : "none");
+		String strippedUrlTemplate = urlTemplate.replaceAll("^https?://[^/]+/", "");
+		//@formatter:off
+		return ImmutableMap.of("method", request.getMethod().name(),
+				"uri", sanitizeUrlTemplate(strippedUrlTemplate),
+				"status", status, "clientName",
+				host != null ? host : "none");
+		//@formatter:on
 	}
 
 	@Override
@@ -91,6 +95,10 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 	 * Atlas take place via query parameters
 	 */
 	private String sanitizeUrlTemplate(String urlTemplate) {
-		return urlTemplate.replaceAll("/", "_").replaceAll("[{}]", "-");
+		String sanitized = urlTemplate.replaceAll("/", "_").replaceAll("[{}]", "-");
+		if (!StringUtils.hasText(sanitized)) {
+			sanitized = "none";
+		}
+		return sanitized;
 	}
 }

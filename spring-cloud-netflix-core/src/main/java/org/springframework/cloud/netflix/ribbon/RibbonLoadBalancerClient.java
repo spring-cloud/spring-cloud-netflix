@@ -177,6 +177,17 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		public Server getServer() {
 			return this.server;
 		}
+
+		@Override
+		public String toString() {
+			final StringBuffer sb = new StringBuffer("RibbonServer{");
+			sb.append("serviceId='").append(serviceId).append('\'');
+			sb.append(", server=").append(server);
+			sb.append(", secure=").append(secure);
+			sb.append(", metadata=").append(metadata);
+			sb.append('}');
+			return sb.toString();
+		}
 	}
 
 }

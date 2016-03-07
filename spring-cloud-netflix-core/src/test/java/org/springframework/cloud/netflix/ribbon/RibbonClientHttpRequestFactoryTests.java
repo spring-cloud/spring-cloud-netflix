@@ -69,7 +69,7 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@LoadBalanced
 	@Autowired
-	private RestTemplate restTemplate;
+	protected RestTemplate restTemplate;
 
 	@Test
 	public void requestFactoryIsRibbon() {
@@ -149,7 +149,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@EnableAutoConfiguration
 	@RestController
 	@RibbonClient(value = "simple", configuration = SimpleRibbonClientConfiguration.class)
-	protected static class App {
+	public static class App {
 
 		@LoadBalanced
 		@Bean
@@ -187,17 +187,17 @@ public class RibbonClientHttpRequestFactoryTests {
 			return "hello " + param;
 		}
 	}
-}
 
-@Configuration
-class SimpleRibbonClientConfiguration {
+	@Configuration
+	static class SimpleRibbonClientConfiguration {
 
-	@Value("${local.server.port}")
-	private int port = 0;
+		@Value("${local.server.port}")
+		private int port = 0;
 
-	@Bean
-	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", this.port));
+		@Bean
+		public ServerList<Server> ribbonServerList() {
+			return new StaticServerList<>(new Server("localhost", this.port));
+		}
+
 	}
-
 }

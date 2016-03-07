@@ -96,7 +96,7 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 		for (String name : headers.keySet()) {
 			// apache http RequestContent pukes if there is a body and
 			// the dynamic headers are already present
-			if (!isDynamic(name) || outputStream == null) {
+			if (!isDynamic(name)) {
 				List<String> values = headers.get(name);
 				for (String value : values) {
 					builder.header(name, value);
@@ -106,6 +106,6 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	}
 
 	private boolean isDynamic(String name) {
-		return name.equals("Content-Length") || name.equals("Transfer-Encoding");
+		return name.equalsIgnoreCase("Content-Length") || name.equalsIgnoreCase("Transfer-Encoding");
 	}
 }
