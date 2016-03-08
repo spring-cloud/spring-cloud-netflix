@@ -16,14 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -32,11 +24,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +33,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.feign.support.FallbackCommand;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
+import org.springframework.cloud.netflix.feign.support.FallbackCommand;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -73,8 +60,19 @@ import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import rx.Observable;
 import rx.Single;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -143,6 +141,12 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		HttpEntity<Hello> getHelloEntity();
+
+		@RequestMapping(method = RequestMethod.POST,
+				consumes = "application/vnd.io.spring.cloud.test.v1+json",
+				produces = "application/vnd.io.spring.cloud.test.v1+json",
+				value = "/complex")
+		String moreComplexContentType(String body);
 	}
 
 	public static class TestClientConfig {
@@ -292,6 +296,13 @@ public class FeignClientTests {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
 		}
 
+		@RequestMapping(method = RequestMethod.POST,
+				consumes = "application/vnd.io.spring.cloud.test.v1+json",
+				produces = "application/vnd.io.spring.cloud.test.v1+json",
+				value = "/complex")
+		String complex(String body) {
+			return "{\"value\":\"OK\"}";
+		}
 
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
@@ -404,6 +415,13 @@ public class FeignClientTests {
 		Hello hello = entity.getBody();
 		assertNotNull("hello was null", hello);
 		assertEquals("first hello didn't match", new Hello(HELLO_WORLD_1), hello);
+	}
+
+	@Test
+	public void testMoreComplexHeader() {
+		String response = testClient.moreComplexContentType("{\"value\":\"OK\"}");
+		assertNotNull("response was null", response);
+		assertEquals("didn't respond with {\"value\":\"OK\"}", "{\"value\":\"OK\"}", response);
 	}
 
 	@Test
