@@ -17,11 +17,14 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre.ratelimit;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -46,7 +49,7 @@ public class RateLimitFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "post";
+		return "pre";
 	}
 
 	@Override
@@ -59,8 +62,7 @@ public class RateLimitFilter extends ZuulFilter {
 		return true;
 	}
 
-	@Override
-	public Object run() {
+	public Object run(){
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletResponse response = ctx.getResponse();
 		HttpServletRequest request = ctx.getRequest();
@@ -71,7 +73,9 @@ public class RateLimitFilter extends ZuulFilter {
 		response.setHeader(Headers.REMAINING, Math.max(rate.getRemaining(), 0) + "");
 		response.setHeader(Headers.RESET, rate.getReset().toString());
 		if (rate.getRemaining() <= 0) {
-			ctx.put("error.status_code", 429);
+			ctx.setResponseStatusCode(429);
+			ctx.put("warning","on");
+			throw new RuntimeException("");
 		}
 		return null;
 	}
