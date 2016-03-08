@@ -223,7 +223,6 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 		return request.getRequestURI() + "?foo=" + foo;
 	}
 
-<<<<<<< HEAD
 	@RequestMapping("/matrix/{name}/{another}")
 	public String matrix(@PathVariable("name") String name,
 			@MatrixVariable(value = "p", pathVar = "name") int p,
@@ -231,26 +230,6 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 			@PathVariable("another") String another,
 			@MatrixVariable(value = "x", pathVar = "another") int x) {
 		return name + "=" + p + "-" + q + ";" + another + "=" + x;
-=======
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.POST)
-	public String post(@PathVariable String id, @RequestBody String body) {
-		return "Posted " + id + "!";
-	}
-
-	@RequestMapping(value = "/qstring")
-	public String qstring(@RequestParam MultiValueMap<String,String> params) {
-		return "Received "+params.toString();
-	}
-
-	@RequestMapping("/")
-	public String home() {
-		return "Hello world";
-	}
-
-	@RequestMapping("/spa ce")
-	public String space() {
-		return "Hello space";
->>>>>>> 837d69955355213596b1060db007ba4cf17075ba
 	}
 
 	@Bean

@@ -38,7 +38,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.Policy;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.Rate;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitConfiguration;
@@ -83,7 +83,7 @@ public class RedisRateLimitZuulProxyApplicationTests {
 	private RateLimiter rateLimiter;
 
 	@Autowired
-	private ProxyRouteLocator routes;
+	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
 	private RedisRateLimitZuulApplication.CounterController controller;
@@ -105,7 +105,7 @@ public class RedisRateLimitZuulProxyApplicationTests {
 		redisServer.stop();
 	}
 
-	//@Test
+	@Test
 	public void getUnauthenticated() {
 		routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
 		this.endpoint.reset();
