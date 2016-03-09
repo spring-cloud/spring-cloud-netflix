@@ -29,7 +29,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitConfiguration;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitFilter;
 import org.springframework.context.annotation.ComponentScan;
@@ -59,7 +59,7 @@ public class RateLimitZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
-	private ProxyRouteLocator routes;
+	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
 	private RoutesEndpoint endpoint;
