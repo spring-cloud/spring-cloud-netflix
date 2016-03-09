@@ -16,20 +16,11 @@
 
 package org.springframework.cloud.netflix.archaius;
 
-import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
-import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
-import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
-import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
-import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
-import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
-
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.ConfigurationBuilder;
@@ -53,14 +44,25 @@ import com.netflix.config.AggregatedConfiguration;
 import com.netflix.config.ConcurrentCompositeConfiguration;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DeploymentContext;
+import com.netflix.config.DynamicProperty;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicURLConfiguration;
+
+import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
+import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_SYS_CONFIG;
+import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
+import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
  */
 @Configuration
-@ConditionalOnClass({ ConcurrentCompositeConfiguration.class, ConfigurationBuilder.class })
+@ConditionalOnClass({ ConcurrentCompositeConfiguration.class,
+		ConfigurationBuilder.class })
 @CommonsLog
 public class ArchaiusAutoConfiguration {
 
@@ -78,6 +80,7 @@ public class ArchaiusAutoConfiguration {
 		setStatic(ConfigurationManager.class, "customConfigurationInstalled", false);
 		setStatic(DynamicPropertyFactory.class, "config", null);
 		setStatic(DynamicPropertyFactory.class, "initializedWithDefaultConfig", false);
+		setStatic(DynamicProperty.class, "dynamicPropertySupportImpl", null);
 		initialized.compareAndSet(true, false);
 	}
 
@@ -101,8 +104,8 @@ public class ArchaiusAutoConfiguration {
 	@Configuration
 	@ConditionalOnProperty(value = "archaius.propagate.environmentChangedEvent", matchIfMissing = true)
 	@ConditionalOnClass(EnvironmentChangeEvent.class)
-	protected static class PropagateEventsConfiguration implements
-			ApplicationListener<EnvironmentChangeEvent> {
+	protected static class PropagateEventsConfiguration
+			implements ApplicationListener<EnvironmentChangeEvent> {
 		@Autowired
 		private Environment env;
 
@@ -110,11 +113,12 @@ public class ArchaiusAutoConfiguration {
 		public void onApplicationEvent(EnvironmentChangeEvent event) {
 			AbstractConfiguration manager = ConfigurationManager.getConfigInstance();
 			for (String key : event.getKeys()) {
-				for (ConfigurationListener listener : manager.getConfigurationListeners()) {
+				for (ConfigurationListener listener : manager
+						.getConfigurationListeners()) {
 					Object source = event.getSource();
 					// TODO: Handle add vs set vs delete?
 					int type = AbstractConfiguration.EVENT_SET_PROPERTY;
-					String value = env.getProperty(key);
+					String value = this.env.getProperty(key);
 					boolean beforeUpdate = false;
 					listener.configurationChanged(new ConfigurationEvent(source, type,
 							key, value, beforeUpdate));
@@ -136,8 +140,8 @@ public class ArchaiusAutoConfiguration {
 
 			// support to add other Configurations (Jdbc, DynamoDb, Zookeeper, jclouds,
 			// etc...)
-			if (externalConfigurations != null) {
-				for (AbstractConfiguration externalConfig : externalConfigurations) {
+			if (this.externalConfigurations != null) {
+				for (AbstractConfiguration externalConfig : this.externalConfigurations) {
 					config.addConfiguration(externalConfig);
 				}
 			}
@@ -165,14 +169,15 @@ public class ArchaiusAutoConfiguration {
 
 			ConcurrentCompositeConfiguration appOverrideConfig = new ConcurrentCompositeConfiguration();
 			config.addConfiguration(appOverrideConfig, APPLICATION_PROPERTIES);
-			config.setContainerConfigurationIndex(config
-					.getIndexOfConfiguration(appOverrideConfig));
+			config.setContainerConfigurationIndex(
+					config.getIndexOfConfiguration(appOverrideConfig));
 
 			addArchaiusConfiguration(config);
 		}
 		else {
 			// TODO: reinstall ConfigurationManager
-			log.warn("Netflix ConfigurationManager has already been installed, unable to re-install");
+			log.warn(
+					"Netflix ConfigurationManager has already been installed, unable to re-install");
 		}
 	}
 
@@ -187,7 +192,8 @@ public class ArchaiusAutoConfiguration {
 			else {
 				installedConfiguration.append(config);
 				if (!(installedConfiguration instanceof AggregatedConfiguration)) {
-					log.warn("Appending a configuration to an existing non-aggregated installed configuration will have no effect");
+					log.warn(
+							"Appending a configuration to an existing non-aggregated installed configuration will have no effect");
 				}
 			}
 		}
