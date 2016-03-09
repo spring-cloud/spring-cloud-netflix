@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013-2015 the original author or authors.
+ *  Copyright 2013-2016 the original author or authors.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ import org.springframework.web.bind.annotation.RestController;
 @WebAppConfiguration
 @SpringApplicationConfiguration(classes = {RedisTemplateConfiguration.class, RedisRateLimitZuulApplication.class})
 @IntegrationTest({"server.port: 0",
-
+		"local.redis.port: 6767",
 		"zuul.ratelimit.enabled: true",
 		"logging.level.org.springframework.web: INFO"
 })
@@ -78,6 +78,9 @@ public class RedisRateLimitZuulProxyApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
+
+
+
 
 	@Autowired
 	private RateLimiter rateLimiter;
@@ -93,17 +96,6 @@ public class RedisRateLimitZuulProxyApplicationTests {
 
 	@Autowired
 	private RoutesEndpoint endpoint;
-
-	@BeforeClass
-	public static void setup() throws Exception {
-		redisServer = new RedisServer(6767);
-		redisServer.start();
-	}
-
-	@AfterClass
-	public static void shutdown() throws Exception {
-		redisServer.stop();
-	}
 
 	@Test
 	public void getUnauthenticated() {
@@ -212,6 +204,17 @@ public class RedisRateLimitZuulProxyApplicationTests {
 
 @Configuration
 class RedisTemplateConfiguration {
+
+	@Value("${local.redis.port}")
+	private int port;
+
+	@Bean
+	public RedisServer redisServer() throws Exception{
+		RedisServer redisServer = new RedisServer(port);
+		redisServer.start();
+		return redisServer;
+	}
+
 	@Bean
 	public RedisTemplate redisTemplate(JedisConnectionFactory cf) {
 		RedisTemplate redisTemplate = new RedisTemplate();
@@ -221,10 +224,10 @@ class RedisTemplateConfiguration {
 	}
 
 	@Bean
-	JedisConnectionFactory jedisConnectionFactory() {
+	JedisConnectionFactory jedisConnectionFactory(RedisServer redisServer) {
 		JedisConnectionFactory factory = new JedisConnectionFactory();
 		factory.setHostName("localhost");
-		factory.setPort(6379);
+		factory.setPort(port);
 		factory.setUsePool(true);
 		return factory;
 	}
