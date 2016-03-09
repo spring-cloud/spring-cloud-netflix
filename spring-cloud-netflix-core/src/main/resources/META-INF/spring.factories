@@ -7,10 +7,13 @@ org.springframework.cloud.netflix.feign.encoding.FeignContentGzipEncodingAutoCon
 org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration,\
 org.springframework.cloud.netflix.rx.RxJavaAutoConfiguration,\
-org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration
-
+org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration,\
+org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitAutoConfiguration
+org.springframework.cloud.bootstrap.BootstrapConfiguration=\
+org.springframework.cloud.netflix.config.DiscoveryClientConfigServiceBootstrapConfiguration
+org.springframework.cloud.client.discovery.EnableDiscoveryClient=\
+org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
-
 org.springframework.boot.env.EnvironmentPostProcessor=\
 org.springframework.cloud.netflix.metrics.ServoEnvironmentPostProcessor
