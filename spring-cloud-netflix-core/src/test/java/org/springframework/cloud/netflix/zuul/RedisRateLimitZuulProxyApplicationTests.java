@@ -41,7 +41,7 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.Policy;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.Rate;
-import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitConfiguration;
+import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitAutoConfiguration;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitProperties;
 import org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimiter;
@@ -235,7 +235,7 @@ class RedisTemplateConfiguration {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@ComponentScan(basePackageClasses = RateLimitConfiguration.class)
+@ComponentScan(basePackageClasses = RateLimitAutoConfiguration.class)
 class RedisRateLimitZuulApplication {
 
 
