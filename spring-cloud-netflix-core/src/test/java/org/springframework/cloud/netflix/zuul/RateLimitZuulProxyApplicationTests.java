@@ -79,7 +79,6 @@ public class RateLimitZuulProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@ComponentScan(basePackageClasses = RateLimitConfiguration.class)
 class RateLimitZuulApplication {
 
 	public static void main(String[] args) {

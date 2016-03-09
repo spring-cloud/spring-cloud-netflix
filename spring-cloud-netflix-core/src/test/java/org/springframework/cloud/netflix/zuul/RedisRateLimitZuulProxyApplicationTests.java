@@ -143,6 +143,7 @@ public class RedisRateLimitZuulProxyApplicationTests {
 		}
 		latch.await();
 		Assert.assertTrue(controller.getCounter().get() <= properties.getPolicies().get(Policy.PolicyType.ANONYMOUS).getLimit());
+		pool.shutdown();
 	}
 
 	@Test
@@ -196,7 +197,6 @@ public class RedisRateLimitZuulProxyApplicationTests {
 					TestRestTemplate testRestTemplate = new TestRestTemplate();
 					latch.countDown();
 					ResponseEntity<String> response = testRestTemplate.getForEntity("http://localhost:" + RedisRateLimitZuulProxyApplicationTests.this.port + "/self/1", String.class);
-					System.out.println(response);
 					Thread.sleep(10L);
 				}
 				catch (Exception e) {

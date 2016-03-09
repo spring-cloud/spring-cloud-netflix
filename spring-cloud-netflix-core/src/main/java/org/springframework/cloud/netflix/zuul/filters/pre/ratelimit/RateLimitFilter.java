@@ -17,31 +17,23 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre.ratelimit;
 
-import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.exception.ZuulException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Vinicius Carvalho
  */
-@Component
-@ConditionalOnProperty("zuul.ratelimit.enabled")
 public class RateLimitFilter extends ZuulFilter {
 
 	private final RateLimiter limiter;
 
 	private RateLimitProperties properties;
 
-	@Autowired
 	public RateLimitFilter(RateLimiter limiter, RateLimitProperties properties) {
 		this.limiter = limiter;
 		this.properties = properties;
