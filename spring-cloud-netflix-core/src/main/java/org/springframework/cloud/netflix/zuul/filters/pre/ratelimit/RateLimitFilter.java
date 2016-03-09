@@ -70,11 +70,11 @@ public class RateLimitFilter extends ZuulFilter {
 		String key = findKey(request);
 		Rate rate = limiter.consume(policy, key);
 		response.setHeader(Headers.LIMIT, rate.getLimit().toString());
-		response.setHeader(Headers.REMAINING, Math.max(rate.getRemaining(), 0) + "");
+		response.setHeader(Headers.REMAINING, String.valueOf(Math.max(rate.getRemaining(), 0)));
 		response.setHeader(Headers.RESET, rate.getReset().toString());
 		if (rate.getRemaining() <= 0) {
 			ctx.setResponseStatusCode(429);
-			ctx.put("warning","on");
+			ctx.put("rateLimitExceeded","true");
 			throw new RuntimeException("");
 		}
 		return null;

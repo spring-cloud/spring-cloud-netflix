@@ -157,7 +157,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 		if(context.get("warning") != null){
-			System.out.printf("should not stop here");
+			log.info("should not stop here");
 		}
 		MultiValueMap<String, String> headers = this.helper
 				.buildZuulRequestHeaders(request);

@@ -20,13 +20,14 @@ package org.springframework.cloud.netflix.zuul.filters.pre.ratelimit;
 import java.util.WeakHashMap;
 
 /**
- * @author Vinicius Carvalho
  *
  * Loosely based on a Leaky Bucket algorithm: https://en.wikipedia.org/wiki/Leaky_bucket
  *
  * Use RedisRateLimiter for production uses.
  *
  * @see org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.redis.RedisRateLimiter
+ *
+ *  @author Vinicius Carvalho
  */
 public class InMemoryRateLimiter implements RateLimiter {
 

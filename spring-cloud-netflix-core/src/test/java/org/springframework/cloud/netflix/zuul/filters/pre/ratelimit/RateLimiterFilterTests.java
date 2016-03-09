@@ -84,7 +84,7 @@ public class RateLimiterFilterTests {
 	public void authenticatedHeadersOk() throws Exception{
 		Policy anonymoousPolicy = properties.getPolicies().get(Policy.PolicyType.ANONYMOUS);
 		Policy authPolicy = new Policy(60L,600L);
-		properties.getPolicies().put(Policy.PolicyType.AUTHENTICATED,authPolicy);
+		properties.getPolicies().put(Policy.PolicyType.AUTHENTICATED.toString(),authPolicy);
 
 		RateLimiter limiter = new InMemoryRateLimiter();
 		RateLimitFilter filter = new RateLimitFilter(limiter,properties);

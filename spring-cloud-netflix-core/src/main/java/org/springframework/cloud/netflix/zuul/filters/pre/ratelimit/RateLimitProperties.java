@@ -22,14 +22,12 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import lombok.Data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Vinicius Carvalho
  */
-@Data
 @ConfigurationProperties("zuul.ratelimit")
 public class RateLimitProperties {
 
@@ -40,8 +38,23 @@ public class RateLimitProperties {
 	@PostConstruct
 	public void init() {
 		if (policies.get(Policy.PolicyType.ANONYMOUS) == null) {
-			policies.put(Policy.PolicyType.ANONYMOUS, new Policy(60L, 60L));
+			policies.put(Policy.PolicyType.ANONYMOUS.toString(), new Policy(60L, 60L));
 		}
 	}
 
+	public Map<String, Policy> getPolicies() {
+		return policies;
+	}
+
+	public void setPolicies(Map<String, Policy> policies) {
+		this.policies = policies;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }

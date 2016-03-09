@@ -17,14 +17,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre.ratelimit;
 
-import lombok.Data;
 
 /**
  * @author Vinicius Carvalho
  *
  * A policy is used to define rate limit constraints within RateLimiter implementations
  */
-@Data
 public class Policy {
 
 	private Long refreshInterval;
@@ -39,9 +37,27 @@ public class Policy {
 		this.limit = limit;
 	}
 
-	public static interface PolicyType {
-		String ANONYMOUS = "anonymous";
+	public static enum PolicyType {
+		ANONYMOUS("anonymous"),AUTHENTICATED("authenticated");
+		private final String type;
+		PolicyType(String type) {
+			this.type = type;
+		}
+	}
 
-		String AUTHENTICATED = "authenticated";
+	public Long getRefreshInterval() {
+		return refreshInterval;
+	}
+
+	public void setRefreshInterval(Long refreshInterval) {
+		this.refreshInterval = refreshInterval;
+	}
+
+	public Long getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Long limit) {
+		this.limit = limit;
 	}
 }
