@@ -125,17 +125,25 @@ public class SendResponseFilter extends ZuulFilter {
 					// before sending to client
 					// else, stream gzip directly to client
 					if (context.getResponseGZipped() && !isGzipRequested) {
-						try {
-							inputStream = new GZIPInputStream(is);
+						// If origin tell it's GZipped but the content is ZERO bytes,
+						// don't try to uncompress
+						final Integer len = context.getOriginContentLength();
+						if (len == null || len > 0) {
+							try {
+								inputStream = new GZIPInputStream(is);
+							}
+							catch (java.util.zip.ZipException ex) {
+								log.debug(
+										"gzip expected but not "
+												+ "received assuming unencoded response "
+												+ RequestContext.getCurrentContext()
+												.getRequest().getRequestURL()
+												.toString());
+								inputStream = is;
+							}
 						}
-						catch (java.util.zip.ZipException ex) {
-							log.debug(
-									"gzip expected but not "
-											+ "received assuming unencoded response "
-											+ RequestContext.getCurrentContext()
-													.getRequest().getRequestURL()
-													.toString());
-							inputStream = is;
+						else {
+							// Already done : inputStream = is;
 						}
 					}
 					else if (context.getResponseGZipped() && isGzipRequested) {
