@@ -7,7 +7,8 @@ org.springframework.cloud.netflix.feign.encoding.FeignContentGzipEncodingAutoCon
 org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration,\
 org.springframework.cloud.netflix.rx.RxJavaAutoConfiguration,\
-org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration
+org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration,\
+org.springframework.cloud.netflix.zuul.filters.pre.ratelimit.RateLimitAutoConfiguration
 
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
