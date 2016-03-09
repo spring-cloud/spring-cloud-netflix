@@ -17,7 +17,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre.ratelimit;
 
-import lombok.Data;
 
 /**
  * @author Vinicius Carvalho
@@ -28,7 +27,6 @@ import lombok.Data;
  * remaining - How many requests are still left on the current window. Maps to X-RateLimit-Remaining header
  * reset - Epoch when the rate is replenished by limit. Maps to X-RateLimit-Reset header
  */
-@Data
 public class Rate {
 	private Long limit;
 
@@ -46,4 +44,28 @@ public class Rate {
 		return new Rate(original.limit, original.remaining, original.reset);
 	}
 
+
+	public Long getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Long limit) {
+		this.limit = limit;
+	}
+
+	public Long getRemaining() {
+		return remaining;
+	}
+
+	public void setRemaining(Long remaining) {
+		this.remaining = remaining;
+	}
+
+	public Long getReset() {
+		return reset;
+	}
+
+	public void setReset(Long reset) {
+		this.reset = reset;
+	}
 }
