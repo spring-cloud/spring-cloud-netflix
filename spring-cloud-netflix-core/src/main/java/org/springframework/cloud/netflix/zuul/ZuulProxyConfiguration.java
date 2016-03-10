@@ -87,8 +87,6 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator) {
 		return new PreDecorationFilter(routeLocator,
-				this.zuulProperties.isAddProxyHeaders(),
-				this.zuulProperties.isRemoveSemicolonContent(),
 				this.server.getServletPrefix(),
 				this.zuulProperties);
 	}

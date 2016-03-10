@@ -52,11 +52,10 @@ public class PreDecorationFilterTests {
 	@Before
 	public void init() {
 		initMocks(this);
+		this.properties = new ZuulProperties();
 		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
 				this.properties);
-		this.filter = new PreDecorationFilter(this.routeLocator, true,
-				this.properties.isRemoveSemicolonContent(),
-				"/", this.properties);
+		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties);
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.clear();
 		ctx.setRequest(this.request);
@@ -154,12 +153,12 @@ public class PreDecorationFilterTests {
 	@Test
 	public void routeNotFoundDispatcherServletSpecialPath() throws Exception {
 		this.properties.setPrefix("/api");
-		this.properties.setStripPrefix(true);		
+		this.properties.setStripPrefix(true);	
+		this.properties.setAddProxyHeaders(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		
-		this.filter = new PreDecorationFilter(this.routeLocator, true,
-				this.properties.isRemoveSemicolonContent(),
+		this.filter = new PreDecorationFilter(this.routeLocator,
 				"/special", this.properties);
 		
 		this.request.setRequestURI("/api/bar/1");
@@ -200,10 +199,10 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/zuul");
+		this.properties.setAddProxyHeaders(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
-		this.filter = new PreDecorationFilter(this.routeLocator, true,
-				this.properties.isRemoveSemicolonContent(),
+		this.filter = new PreDecorationFilter(this.routeLocator,
 				"/special", this.properties);		
 		
 		
@@ -224,11 +223,11 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/");
+		this.properties.setAddProxyHeaders(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		
-		this.filter = new PreDecorationFilter(this.routeLocator, true,
-				this.properties.isRemoveSemicolonContent(),
+		this.filter = new PreDecorationFilter(this.routeLocator,
 				"/special", this.properties);
 		
 		this.filter.run();

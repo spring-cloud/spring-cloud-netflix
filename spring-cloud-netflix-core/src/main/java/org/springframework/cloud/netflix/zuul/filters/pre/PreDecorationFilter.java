@@ -40,17 +40,18 @@ public class PreDecorationFilter extends ZuulFilter {
 	private boolean addProxyHeaders;
 	
 	private String dispatcherServletPath;
-	private ZuulProperties zuulProperties;	
+	private String zuulServletPath;	
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
-	public PreDecorationFilter(RouteLocator routeLocator, boolean addProxyHeaders,
-			boolean removeSemicolonContent, String dispatcherServletPath, ZuulProperties zuulProperties) {
+	public PreDecorationFilter(RouteLocator routeLocator,
+			String dispatcherServletPath, ZuulProperties zuulProperties) {
 		this.routeLocator = routeLocator;
-		this.addProxyHeaders = addProxyHeaders;
+		this.addProxyHeaders = zuulProperties.isAddProxyHeaders();
+		this.urlPathHelper.setRemoveSemicolonContent(zuulProperties.isRemoveSemicolonContent());
 		this.dispatcherServletPath = dispatcherServletPath;
-		this.zuulProperties = zuulProperties;
-		this.urlPathHelper.setRemoveSemicolonContent(removeSemicolonContent);
+		this.zuulServletPath = zuulProperties.getServletPath();
+		
 	}
 
 	@Override
@@ -125,8 +126,8 @@ public class PreDecorationFilter extends ZuulFilter {
 			
 			if (RequestUtils.isZuulServletRequest()) {
 				//remove the Zuul servletPath from the requestUri
-				log.debug("zuulProperties.getServletPath()=" + zuulProperties.getServletPath());
-				fallBackUri = fallBackUri.replaceFirst(zuulProperties.getServletPath(), "");
+				log.debug("zuulServletPath=" + zuulServletPath);
+				fallBackUri = fallBackUri.replaceFirst(zuulServletPath, "");
 				log.debug("Replaced Zuul servlet path:" + fallBackUri);
 			} else {
 				//remove the DispatcherServlet servletPath from the requestUri
