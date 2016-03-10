@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -75,7 +74,7 @@ public class ZuulProperties {
 
 	private boolean traceRequestBody = true;
 
-	private boolean removeSemicolonContent = true;		
+	private boolean removeSemicolonContent = true;
 
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
