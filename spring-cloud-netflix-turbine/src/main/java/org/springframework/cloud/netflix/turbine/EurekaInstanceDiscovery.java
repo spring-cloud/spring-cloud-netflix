@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,14 +47,14 @@ import lombok.extern.apachecommons.CommonsLog;
 public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 
 	private static final String EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION = "appName";
+	private static final String ASG_KEY = "asg";
 
 	private final EurekaClient eurekaClient;
-	private final boolean combineHostPort;
+
 
 	public EurekaInstanceDiscovery(TurbineProperties turbineProperties, EurekaClient eurekaClient) {
 		super(turbineProperties, EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION);
 		this.eurekaClient = eurekaClient;
-		this.combineHostPort = turbineProperties.isCombineHostPort();
 	}
 
 	/**
@@ -104,37 +104,26 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 		String cluster = getClusterName(instanceInfo);
 		Boolean status = parseInstanceStatus(instanceInfo.getStatus());
 		if (hostname != null && cluster != null && status != null) {
-			String hostPart = combineHostPort ? hostname+":"+port : hostname;
-			Instance instance = new Instance(hostPart, cluster, status);
+			Instance instance = getInstance(hostname, port, cluster, status);
 
-			// add metadata
 			Map<String, String> metadata = instanceInfo.getMetadata();
-			if (metadata != null) {
-				instance.getAttributes().putAll(metadata);
-			}
+			boolean securePortEnabled = instanceInfo.isPortEnabled(InstanceInfo.PortType.SECURE);
+			String securePort = String.valueOf(instanceInfo.getSecurePort());
+
+			addMetadata(instance, hostname, port, securePortEnabled, securePort, metadata);
 
 			// add amazon metadata
 			String asgName = instanceInfo.getASGName();
 			if (asgName != null) {
-				instance.getAttributes().put("asg", asgName);
+				instance.getAttributes().put(ASG_KEY, asgName);
 			}
+
 			DataCenterInfo dcInfo = instanceInfo.getDataCenterInfo();
 			if (dcInfo != null && dcInfo.getName().equals(DataCenterInfo.Name.Amazon)) {
 				AmazonInfo amznInfo = (AmazonInfo) dcInfo;
 				instance.getAttributes().putAll(amznInfo.getMetadata());
 			}
 
-			// add ports
-			instance.getAttributes().put("port", String.valueOf(instanceInfo.getPort()));
-			boolean securePortEnabled = instanceInfo.isPortEnabled(InstanceInfo.PortType.SECURE);
-			if (securePortEnabled) {
-				instance.getAttributes().put("securePort", String.valueOf(instanceInfo.getSecurePort()));
-			}
-
-			if (combineHostPort) {
-				String fusedHostPort = securePortEnabled ? hostname+":"+String.valueOf(instanceInfo.getSecurePort()) : hostPart ;
-				instance.getAttributes().put("fusedHostPort", fusedHostPort);
-			}
 			return instance;
 		}
 		else {

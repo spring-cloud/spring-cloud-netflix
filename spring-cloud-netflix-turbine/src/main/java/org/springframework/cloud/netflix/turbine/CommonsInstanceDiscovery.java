@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.turbine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -33,10 +34,10 @@ import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Class that encapsulates an {@link InstanceDiscovery}
- * implementation that uses Eureka (see https://github.com/Netflix/eureka) The plugin
- * requires a list of applications configured. It then queries the set of instances for
- * each application. Instance information retrieved from Eureka must be translated to
- * something that Turbine can understand i.e the
+ * implementation that uses Spring Cloud Commons (see https://github.com/spring-cloud/spring-cloud-commons)
+ * The plugin requires a list of applications configured. It then queries the set of
+ * instances for * each application. Instance information retrieved from the {@link DiscoveryClient}
+ * must be translated to * something that Turbine can understand i.e the
  * {@link Instance} class.
  * <p>
  * All the logic to perform this translation can be overriden here, so that you can
@@ -48,10 +49,14 @@ import lombok.extern.apachecommons.CommonsLog;
 public class CommonsInstanceDiscovery implements InstanceDiscovery {
 
 	private static final String DEFAULT_CLUSTER_NAME_EXPRESSION = "serviceId";
+	protected static final String PORT_KEY = "port";
+	protected static final String SECURE_PORT_KEY = "securePort";
+	protected static final String FUSED_HOST_PORT_KEY = "fusedHostPort";
 
 	private final Expression clusterNameExpression;
 	private DiscoveryClient discoveryClient;
 	private TurbineProperties turbineProperties;
+	private final boolean combineHostPort;
 
 	public CommonsInstanceDiscovery(TurbineProperties turbineProperties, DiscoveryClient discoveryClient) {
 		this(turbineProperties, DEFAULT_CLUSTER_NAME_EXPRESSION);
@@ -67,6 +72,7 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 			clusterNameExpression = defaultExpression;
 		}
 		this.clusterNameExpression = parser.parseExpression(clusterNameExpression);
+		this.combineHostPort = turbineProperties.isCombineHostPort();
 	}
 
 	protected Expression getClusterNameExpression() {
@@ -77,8 +83,12 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 		return turbineProperties;
 	}
 
+	protected boolean isCombineHostPort() {
+		return combineHostPort;
+	}
+
 	/**
-	 * Method that queries Eureka service for a list of configured application names
+	 * Method that queries DiscoveryClient for a list of configured application names
 	 * @return Collection<Instance>
 	 */
 	@Override
@@ -141,31 +151,23 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 
 	/**
 	 * Private helper that marshals the information from each instance into something that
-	 * Turbine can understand. Override this method for your own implementation for
-	 * parsing Eureka info.
+	 * Turbine can understand. Override this method for your own implementation.
 	 * @param serviceInstance
 	 * @return Instance
 	 */
-	private Instance marshall(ServiceInstance serviceInstance) {
+	Instance marshall(ServiceInstance serviceInstance) {
 		String hostname = serviceInstance.getHost();
+		String port = String.valueOf(serviceInstance.getPort());
 		String cluster = getClusterName(serviceInstance);
 		Boolean status = Boolean.TRUE; //TODO: where to get?
 		if (hostname != null && cluster != null && status != null) {
-			Instance instance = new Instance(hostname, cluster, status);
+			Instance instance = getInstance(hostname, port, cluster, status);
 
-			// TODO: reimplement when metadata is in commons
-			// add metadata
-			/*Map<String, String> metadata = instanceInfo.getMetadata();
-			if (metadata != null) {
-				instance.getAttributes().putAll(metadata);
-			}*/
-
-			// add ports
-			instance.getAttributes().put("port", String.valueOf(serviceInstance.getPort()));
+			Map<String, String> metadata = serviceInstance.getMetadata();
 			boolean securePortEnabled = serviceInstance.isSecure();
-			if (securePortEnabled) {
-				instance.getAttributes().put("securePort", String.valueOf(serviceInstance.getPort()));
-			}
+
+			addMetadata(instance, hostname, port, securePortEnabled, port, metadata);
+
 			return instance;
 		}
 		else {
@@ -173,9 +175,31 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 		}
 	}
 
+	protected void addMetadata(Instance instance, String hostname, String port, boolean securePortEnabled, String securePort, Map<String, String> metadata) {
+		// add metadata
+		if (metadata != null) {
+			instance.getAttributes().putAll(metadata);
+		}
+
+		// add ports
+		instance.getAttributes().put(PORT_KEY, port);
+		if (securePortEnabled) {
+			instance.getAttributes().put(SECURE_PORT_KEY, securePort);
+		}
+		if (this.isCombineHostPort()) {
+			String fusedHostPort = securePortEnabled ? hostname+":"+securePort : instance.getHostname() ;
+			instance.getAttributes().put(FUSED_HOST_PORT_KEY, fusedHostPort);
+		}
+	}
+
+	protected Instance getInstance(String hostname, String port, String cluster, Boolean status) {
+		String hostPart = this.isCombineHostPort() ? hostname+":"+port : hostname;
+		return new Instance(hostPart, cluster, status);
+	}
+
 	/**
-	 * Helper that fetches the cluster name. Cluster is a Turbine concept and not a Eureka
-	 * concept. By default we choose the amazon asg name as the cluster. A custom
+	 * Helper that fetches the cluster name. Cluster is a Turbine concept and not a commons
+	 * concept. By default we choose the amazon serviceId as the cluster. A custom
 	 * implementation can be plugged in by overriding this method.
 	 */
 	protected String getClusterName(Object object) {
