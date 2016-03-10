@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.sidecar;
 
 import java.net.URI;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 import lombok.Data;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -33,6 +36,8 @@ public class SidecarProperties {
 
 	private URI homePageUri;
 
+	@Max(65535)
+	@Min(1)
 	private int port;
 
 }
