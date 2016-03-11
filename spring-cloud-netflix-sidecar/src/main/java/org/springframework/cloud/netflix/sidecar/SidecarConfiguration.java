@@ -61,14 +61,14 @@ public class SidecarConfiguration {
 		@Autowired
 		private InetUtils inetUtils;
 
-		@Value("${management.port:${MANAGEMENT_PORT:${PORT:8080}}}")
+		@Value("${management.port:${MANAGEMENT_PORT:${server.port:${SERVER_PORT:${PORT:8080}}}}}")
 		private int managementPort = 8080;
 
 		@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
-		String hostname;
+		private String hostname;
 
 		@Autowired
-		ConfigurableEnvironment env;
+		private ConfigurableEnvironment env;
 
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
