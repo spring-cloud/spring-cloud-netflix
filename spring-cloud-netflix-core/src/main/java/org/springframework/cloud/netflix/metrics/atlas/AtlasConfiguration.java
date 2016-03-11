@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.metrics.export.Exporter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -42,6 +43,10 @@ public class AtlasConfiguration {
 	@Autowired(required = false)
 	private Collection<AtlasTagProvider> tagProviders;
 
+	@Autowired(required = false)
+	@Qualifier("atlasRestTemplate")
+	private RestTemplate restTemplate = new RestTemplate();
+
 	@Bean
 	public AtlasMetricObserverConfigBean atlasObserverConfig() {
 		return new AtlasMetricObserverConfigBean();
@@ -49,7 +54,7 @@ public class AtlasConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public AtlasMetricObserver atlasObserver(AtlasMetricObserverConfigBean atlasObserverConfig, RestTemplate restTemplate) {
+	public AtlasMetricObserver atlasObserver(AtlasMetricObserverConfigBean atlasObserverConfig) {
 		BasicTagList tags = (BasicTagList) BasicTagList.EMPTY;
 		if (tagProviders != null) {
 			for (AtlasTagProvider tagProvider : tagProviders) {

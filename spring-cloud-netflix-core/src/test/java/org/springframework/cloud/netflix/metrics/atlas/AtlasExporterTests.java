@@ -18,9 +18,9 @@ import java.util.Properties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -41,10 +41,10 @@ import com.netflix.servo.monitor.DynamicCounter;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AtlasExporterTests {
 	@Autowired
-	RestTemplate restTemplate;
+	private RestTemplate restTemplate;
 
 	@Autowired
-	AtlasExporter atlasExporter;
+	private AtlasExporter atlasExporter;
 
 	@Test
 	public void exportMetricsAtPeriodicIntervals() {
@@ -68,7 +68,7 @@ public class AtlasExporterTests {
 @EnableAtlas
 class AtlasExporterConfiguration {
 
-	@LoadBalanced
+	@Qualifier("atlasRestTemplate")
 	@Bean
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
