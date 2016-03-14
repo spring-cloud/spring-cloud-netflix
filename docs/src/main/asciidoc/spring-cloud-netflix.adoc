@@ -272,7 +272,7 @@ to Netflix, e.g.
 private DiscoveryClient discoveryClient;
 
 public String serviceUrl() {
-    List<ServiceInstance> list = client.getInstances("STORES");
+    List<ServiceInstance> list = discoveryClient.getInstances("STORES");
     if (list != null && list.size() > 0 ) {
         return list.get(0).getUri();
     }
