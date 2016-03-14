@@ -855,7 +855,7 @@ Creating a bean of one of those type and placing it in a `@FeignClient` configur
 @Configuration
 public class FooConfiguration {
     @Bean
-    public Contract feignContractg() {
+    public Contract feignContract() {
         return new feign.Contract.Default();
     }
 
