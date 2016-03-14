@@ -771,7 +771,7 @@ to Netflix, e.g.</p>
 private DiscoveryClient discoveryClient;
 
 public String serviceUrl() {
-    List&lt;ServiceInstance&gt; list = client.getInstances("STORES");
+    List&lt;ServiceInstance&gt; list = discoveryClient.getInstances("STORES");
     if (list != null &amp;&amp; list.size() &gt; 0 ) {
         return list.get(0).getUri();
     }
@@ -2754,7 +2754,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-14 20:15:56 UTC
+Last updated 2016-03-14 20:55:46 UTC
 </div>
 </div>
 </body>
