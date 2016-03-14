@@ -18,7 +18,7 @@
 		<spring-cloud-config.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<archaius.version>0.7.3</archaius.version>
-		<eureka.version>1.4.3</eureka.version>
+		<eureka.version>1.4.4</eureka.version>
 		<feign.version>8.15.1</feign.version>
 		<hystrix.version>1.5.1</hystrix.version>
 		<ribbon.version>2.1.0</ribbon.version>
