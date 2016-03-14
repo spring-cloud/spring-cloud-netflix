@@ -1483,6 +1483,36 @@ info:
   url: https://github.com/spring-cloud-samples
 ----
 
+[[netflix-rxjava-springmvc]]
+== RxJava with Spring MVC
+Spring Cloud Netflix includes the https://github.com/ReactiveX/RxJava[RxJava].
+
+> RxJava is a Java VM implementation of http://reactivex.io/[Reactive Extensions]: a library for composing asynchronous and event-based programs by using observable sequences.
+
+Spring Cloud Netflix provides support for returning `rx.Single` objects from Spring MVC Controllers. It also supports using `rx.Observable` objects for https://en.wikipedia.org/wiki/Server-sent_events[Server-sent events (SSE)]. This can be very convenient if your internal APIs are already built using RxJava (see <<spring-cloud-feign-hystrix>> for examples).
+
+Here are some examples of using `rx.Single`:
+
+[source,java]
+----
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/SingleReturnValueHandlerTest.java[tags=rx_single,indent=0]
+----
+
+If you have an `Observable`, rather than a single, you can use `.toSingle()` or `.toList().toSingle()`. Here are some examples:
+
+[source,java]
+----
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableReturnValueHandlerTest.java[tags=rx_observable,indent=0]
+----
+
+If you have a streaming endpoint and client, SSE could be an option. To convert `rx.Observable` to a Spring `SseEmitter` use `RxResponse.sse()`. Here are some examples:
+
+[source,java]
+----
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableSseEmitterTest.java[tags=rx_observable_sse,indent=0]
+----
+
+[[netflix-metrics]]
 == Metrics: Spectator, Servo, and Atlas
 
 When used together, Spectator/Servo and Atlas provide a near real-time operational insight platform.
@@ -1545,6 +1575,7 @@ If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runt
 3. URI, sanitized for Atlas
 4. Client name
 
+[[netflix-metrics-spectator]]
 === Metrics Collection: Spectator
 
 To enable Spectator metrics, include a dependency on `spring-boot-starter-spectator`:
@@ -1626,6 +1657,7 @@ DistributionSummary ds = registry.distributionSummary("dsName", "tagKey1", "tagV
 ds.record(request.sizeInBytes());
 ----
 
+[[netflix-metrics-servo]]
 === Metrics Collection: Servo
 
 WARNING: If your code is compiled on Java 8, please use Spectator instead of Servo as Spectator is destined to replace Servo entirely in the long term.
@@ -1649,6 +1681,7 @@ Timer timer = new BasicTimer(config);
 monitorRegistry.register(timer);
 ----
 
+[[netflix-metrics-atlas]]
 === Metrics Backend: Atlas
 
 Atlas was developed by Netflix to manage dimensional time series data for near real-time operational insight. Atlas features in-memory data storage, allowing it to gather and report very large numbers of metrics, very quickly.

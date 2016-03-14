@@ -139,7 +139,7 @@ or you will encounter compile problems. It also needs a specific version of mave
 enabled. Intellij 14.1+ requires some configuration to ensure these are setup properly.
 
  1. Click Preferences, Plugins. *Ensure Lombok is installed*
- 2. Click New, Project from Existing Sources, choose your spring-cloud-sleuth directory
+ 2. Click New, Project from Existing Sources, choose your spring-cloud project directory
  3. Choose Maven, and select Environment Settings. *Ensure you are using Maven 3.3.3*
  4. In the next screen, *Select the profile `spring`* click Next until Finish.
  5. Click Preferences, "Build, Execution, Deployment", Compiler, Annotation Processors. *Click Enable Annotation Processing*
