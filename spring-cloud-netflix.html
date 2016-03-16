@@ -1418,7 +1418,7 @@ public interface StoreClient {
 an arbitrary client name, which is used to create a Ribbon load
 balancer (see <a href="#spring-cloud-ribbon">below for details of Ribbon
 support</a>). You can also specify a URL using the <code>url</code> attribute
-(absolute value or just a hostname).</p>
+(absolute value or just a hostname). The name of the bean in the application context is the fully qualified name of the interface. An alias is also created which is the 'name' attribute plus 'FeignClient'. For the example above, <code>@Qualifier("storesFeignClient")</code> could be used to reference the bean.</p>
 </div>
 <div class="paragraph">
 <p>The Ribbon client above will want to discover the physical addresses
@@ -2754,7 +2754,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-16 20:37:45 UTC
+Last updated 2016-03-16 23:02:46 UTC
 </div>
 </div>
 </body>
