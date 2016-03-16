@@ -16,17 +16,9 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -44,7 +36,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,15 +43,23 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
+ * Tests the Feign Retryer, not ribbon retry.
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignRibbonClientRetryTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=feignclienttest",
-		"localapp.ribbon.MaxAutoRetries=5", "localapp.ribbon.MaxAutoRetriesNextServer=5",
-		"localapp.ribbon.OkToRetryOnAllOperations=true", })
+@WebIntegrationTest(randomPort = true, value = { "spring.application.name=feignclientretrytest",
+		"feign.okhttp.enabled=false", "feign.httpclient.enabled=false",
+		"feign.hystrix.enabled=false", })
 @DirtiesContext
 public class FeignRibbonClientRetryTests {
 
@@ -70,14 +69,13 @@ public class FeignRibbonClientRetryTests {
 	@Autowired
 	private TestClient testClient;
 
-	// @FeignClient(value = "http://localhost:9876", loadbalance = false)
 	@FeignClient("localapp")
-	protected static interface TestClient {
+	protected interface TestClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
-		public Hello getHello();
+		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.GET, value = "/retryme")
-		public int retryMe();
+		int retryMe();
 	}
 
 	@Configuration
@@ -101,12 +99,8 @@ public class FeignRibbonClientRetryTests {
 
 		public static void main(String[] args) throws InterruptedException {
 			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclienttest",
-					"localapp.ribbon.MaxAutoRetries=5",
-					"localapp.ribbon.MaxAutoRetriesNextServer=5",
-					"localapp.ribbon.OkToRetryOnAllOperations=true",
+					"spring.application.name=feignclientretrytest",
 					"management.contextPath=/admin"
-			// ,"local.server.port=9999"
 					).run(args);
 		}
 	}

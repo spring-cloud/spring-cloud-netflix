@@ -54,11 +54,22 @@ public class LoadBalancerFeignClient implements Client {
 					new FeignOptionsClientConfig(options)).toResponse();
 		}
 		catch (ClientException e) {
-			if (e.getCause() instanceof IOException) {
-				throw IOException.class.cast(e.getCause());
+			IOException io = findIOException(e);
+			if (io != null) {
+				throw io;
 			}
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected IOException findIOException(Throwable t) {
+		if (t == null) {
+			return null;
+		}
+		if (t instanceof IOException) {
+			return (IOException) t;
+		}
+		return findIOException(t.getCause());
 	}
 
 	public Client getDelegate() {
