@@ -21,7 +21,7 @@
 		<eureka.version>1.4.4</eureka.version>
 		<feign.version>8.15.1</feign.version>
 		<hystrix.version>1.5.1</hystrix.version>
-		<ribbon.version>2.1.0</ribbon.version>
+		<ribbon.version>2.1.1</ribbon.version>
 		<servo.version>0.10.1</servo.version>
 		<zuul.version>1.1.0</zuul.version>
 		<rxjava.version>1.1.1</rxjava.version>
