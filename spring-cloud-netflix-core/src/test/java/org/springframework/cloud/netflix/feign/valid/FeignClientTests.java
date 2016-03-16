@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -114,6 +115,10 @@ public class FeignClientTests {
 
 	@Autowired
 	HystrixClient hystrixClient;
+
+	@Autowired
+	@Qualifier("localapp3FeignClient")
+	HystrixClient namedHystrixClient;
 
 	protected enum Arg {
 		A, B;
@@ -269,6 +274,12 @@ public class FeignClientTests {
 			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
 	})
 	protected static class Application {
+
+		// needs to be in parent context to test multiple HystrixClient beans
+		@Bean
+		public HystrixClientFallback hystrixClientFallback() {
+			return new HystrixClientFallback();
+		}
 
 		@Bean
 		FeignFormatterRegistrar feignFormatterRegistrar() {
@@ -543,6 +554,11 @@ public class FeignClientTests {
 		assertEquals("message was wrong", "fallbackfuture", hello.getMessage());
 	}
 
+	@Test
+	public void namedFeignClientWorks() {
+		assertNotNull("namedHystrixClient was null", this.namedHystrixClient);
+	}
+
 	@Data
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -555,11 +571,6 @@ public class FeignClientTests {
 		@Bean
 		Logger.Level feignLoggerLevel() {
 			return Logger.Level.FULL;
-		}
-
-		@Bean
-		public HystrixClientFallback hystrixClientFallback() {
-			return new HystrixClientFallback();
 		}
 	}
 

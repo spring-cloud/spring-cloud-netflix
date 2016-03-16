@@ -171,14 +171,18 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 				.genericBeanDefinition(FeignClientFactoryBean.class);
 		validate(attributes);
 		definition.addPropertyValue("url", getUrl(attributes));
-		definition.addPropertyValue("name", getServiceId(attributes));
+		String name = getName(attributes);
+		definition.addPropertyValue("name", name);
 		definition.addPropertyValue("type", className);
 		definition.addPropertyValue("decode404", attributes.get("decode404"));
 		definition.addPropertyValue("fallback", attributes.get("fallback"));
 		definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
 
+		String alias = name + "FeignClient";
+		AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
+		beanDefinition.setPrimary(true);
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(
-				definition.getBeanDefinition(), className);
+				beanDefinition, className, new String[]{alias});
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 	}
 
@@ -189,7 +193,7 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		}
 	}
 
-	private String getServiceId(Map<String, Object> attributes) {
+	private String getName(Map<String, Object> attributes) {
 		String name = (String) attributes.get("serviceId");
 		if (!StringUtils.hasText(name)) {
 			name = (String) attributes.get("name");
