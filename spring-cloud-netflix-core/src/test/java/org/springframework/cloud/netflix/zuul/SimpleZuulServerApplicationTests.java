@@ -135,7 +135,7 @@ class SimpleZuulServerApplication {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(SampleZuulProxyApplication.class, args);
+		SpringApplication.run(SimpleZuulServerApplication.class, args);
 	}
 
 }
