@@ -40,7 +40,7 @@ import feign.RequestTemplate;
 import feign.Response;
 import lombok.SneakyThrows;
 
-public class RibbonLoadBalancerTests {
+public class FeignLoadBalancerTests {
 
 	@Mock
 	private Client delegate;

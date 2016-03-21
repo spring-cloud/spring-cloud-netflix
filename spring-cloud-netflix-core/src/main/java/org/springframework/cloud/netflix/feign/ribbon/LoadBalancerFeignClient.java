@@ -19,9 +19,12 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import java.io.IOException;
 import java.net.URI;
 
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+
 import com.netflix.client.ClientException;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 
 import feign.Client;
 import feign.Request;
@@ -33,13 +36,18 @@ import feign.Response;
  */
 public class LoadBalancerFeignClient implements Client {
 
+	static final Request.Options DEFAULT_OPTIONS = new Request.Options();
+
 	private final Client delegate;
 	private CachingSpringLoadBalancerFactory lbClientFactory;
+	private SpringClientFactory clientFactory;
 
 	public LoadBalancerFeignClient(Client delegate,
-			CachingSpringLoadBalancerFactory lbClientFactory) {
+								   CachingSpringLoadBalancerFactory lbClientFactory,
+								   SpringClientFactory clientFactory) {
 		this.delegate = delegate;
 		this.lbClientFactory = lbClientFactory;
+		this.clientFactory = clientFactory;
 	}
 
 	@Override
@@ -50,8 +58,10 @@ public class LoadBalancerFeignClient implements Client {
 			URI uriWithoutHost = cleanUrl(request.url(), clientName);
 			FeignLoadBalancer.RibbonRequest ribbonRequest = new FeignLoadBalancer.RibbonRequest(
 					this.delegate, request, uriWithoutHost);
+
+			IClientConfig requestConfig = getClientConfig(options, clientName);
 			return lbClient(clientName).executeWithLoadBalancer(ribbonRequest,
-					new FeignOptionsClientConfig(options)).toResponse();
+					requestConfig).toResponse();
 		}
 		catch (ClientException e) {
 			IOException io = findIOException(e);
@@ -60,6 +70,16 @@ public class LoadBalancerFeignClient implements Client {
 			}
 			throw new RuntimeException(e);
 		}
+	}
+
+	IClientConfig getClientConfig(Request.Options options, String clientName) {
+		IClientConfig requestConfig;
+		if (options == DEFAULT_OPTIONS) {
+			requestConfig = this.clientFactory.getClientConfig(clientName);
+		} else {
+			requestConfig = new FeignOptionsClientConfig(options);
+		}
+		return requestConfig;
 	}
 
 	protected IOException findIOException(Throwable t) {

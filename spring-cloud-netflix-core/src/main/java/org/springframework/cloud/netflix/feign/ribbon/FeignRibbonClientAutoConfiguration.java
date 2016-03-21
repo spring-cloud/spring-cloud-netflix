@@ -32,6 +32,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 
 import feign.Client;
 import feign.Feign;
+import feign.Request;
 import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
 
@@ -55,9 +56,16 @@ public class FeignRibbonClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory) {
+	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
+			SpringClientFactory clientFactory) {
 		return new LoadBalancerFeignClient(new Client.Default(null, null),
-				cachingFactory);
+				cachingFactory, clientFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public Request.Options feignRequestOptions() {
+		return LoadBalancerFeignClient.DEFAULT_OPTIONS;
 	}
 
 	@Configuration
@@ -68,12 +76,10 @@ public class FeignRibbonClientAutoConfiguration {
 		@Autowired(required = false)
 		private HttpClient httpClient;
 
-		@Autowired
-		CachingSpringLoadBalancerFactory cachingFactory;
-
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
-		public Client feignClient() {
+		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
+				SpringClientFactory clientFactory) {
 			ApacheHttpClient delegate;
 			if (this.httpClient != null) {
 				delegate = new ApacheHttpClient(this.httpClient);
@@ -81,7 +87,7 @@ public class FeignRibbonClientAutoConfiguration {
 			else {
 				delegate = new ApacheHttpClient();
 			}
-			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
+			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
 		}
 	}
 
@@ -93,12 +99,10 @@ public class FeignRibbonClientAutoConfiguration {
 		@Autowired(required = false)
 		private com.squareup.okhttp.OkHttpClient okHttpClient;
 
-		@Autowired
-		CachingSpringLoadBalancerFactory cachingFactory;
-
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
-		public Client feignClient() {
+		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
+				SpringClientFactory clientFactory) {
 			OkHttpClient delegate;
 			if (this.okHttpClient != null) {
 				delegate = new OkHttpClient(this.okHttpClient);
@@ -106,7 +110,7 @@ public class FeignRibbonClientAutoConfiguration {
 			else {
 				delegate = new OkHttpClient();
 			}
-			return new LoadBalancerFeignClient(delegate, this.cachingFactory);
+			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
 		}
 	}
 }
