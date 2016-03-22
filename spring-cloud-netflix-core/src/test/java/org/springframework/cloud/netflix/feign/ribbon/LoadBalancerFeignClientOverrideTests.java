@@ -45,7 +45,6 @@ import static org.junit.Assert.assertEquals;
 @SpringApplicationConfiguration(classes = LoadBalancerFeignClientOverrideTests.TestConfiguration.class)
 @WebIntegrationTest(randomPort = true, value = {
 		"spring.application.name=loadBalancerFeignClientTests",
-		"foo.ribbon.ConnectTimeout=7", "foo.ribbon.ReadTimeout=17",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false"})
 @DirtiesContext
 public class LoadBalancerFeignClientOverrideTests {

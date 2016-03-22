@@ -22,6 +22,10 @@ hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
 ribbon:
   ConnectTimeout: 3001
   ReadTimeout: 60001
+foo:
+  ribbon:
+    ConnectTimeout: 7
+    ReadTimeout: 17
 management:
   context-path: /admin
 endpoints:
