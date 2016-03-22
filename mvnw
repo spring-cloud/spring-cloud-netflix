@@ -46,7 +46,7 @@ if [ -z "$MAVEN_SKIP_RC" ] ; then
 
 fi
 
-VERSION=$(sed `dirname $0`/pom.xml -e '/<parent/,+4d' | grep '<version' | head -1 | sed -e 's/.*>\(.*\)<.*/\1/')
+VERSION=$(awk '/<parent/ {l=4}; (l-- > 0) {$0=$0} 1' `dirname $0`/pom.xml| grep '<version' | head -1 | sed -e 's/.*>\(.*\)<.*/\1/')
 if echo $VERSION | egrep -q 'M|RC'; then
     echo Activating \"milestone\" profile for version=\"$VERSION\"
     echo $MAVEN_ARGS | grep -q milestone || MAVEN_ARGS="$MAVEN_ARGS -Pmilestone"
