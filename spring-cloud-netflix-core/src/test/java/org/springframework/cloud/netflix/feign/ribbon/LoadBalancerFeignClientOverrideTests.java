@@ -45,7 +45,6 @@ import static org.junit.Assert.assertEquals;
 @SpringApplicationConfiguration(classes = LoadBalancerFeignClientOverrideTests.TestConfiguration.class)
 @WebIntegrationTest(randomPort = true, value = {
 		"spring.application.name=loadBalancerFeignClientTests",
-		"ribbon.ConnectTimeout=5", "ribbon.ReadTimeout=10",
 		"foo.ribbon.ConnectTimeout=7", "foo.ribbon.ReadTimeout=17",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false"})
 @DirtiesContext
@@ -70,7 +69,7 @@ public class LoadBalancerFeignClientOverrideTests {
 		// generic ribbon default configuration
 		Request.Options bazOptions = this.context.getInstance("baz", Request.Options.class);
 		assertEquals(LoadBalancerFeignClient.DEFAULT_OPTIONS, fooOptions);
-		assertOptions(bazOptions, "baz", 5, 10);
+		assertOptions(bazOptions, "baz", 3001, 60001);
 	}
 
 	void assertOptions(Request.Options options, String name, int expectedConnect, int expectedRead) {
@@ -83,8 +82,6 @@ public class LoadBalancerFeignClientOverrideTests {
 	@Configuration
 	@EnableFeignClients(clients = { FooClient.class, BarClient.class, BazClient.class })
 	@EnableAutoConfiguration
-	//@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
-	//		FeignAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}
 
