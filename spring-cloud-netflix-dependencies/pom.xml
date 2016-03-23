@@ -5,18 +5,18 @@
 	<parent>
 		<artifactId>spring-cloud-dependencies-parent</artifactId>
 		<groupId>org.springframework.cloud</groupId>
-		<version>1.1.0.RC1</version>
+		<version>1.1.0.BUILD-SNAPSHOT</version>
         <relativePath/>
 	</parent>
 	<artifactId>spring-cloud-netflix-dependencies</artifactId>
-	<version>1.1.0.RC1</version>
+	<version>1.1.0.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>spring-cloud-netflix-dependencies</name>
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
-		<spring-cloud-commons.version>1.1.0.RC2</spring-cloud-commons.version>
-		<spring-cloud-config.version>1.1.0.RC1</spring-cloud-config.version>
-		<spring-cloud-stream.version>1.0.0.RC1</spring-cloud-stream.version>
+		<spring-cloud-commons.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
+		<spring-cloud-config.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-stream.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<archaius.version>0.7.3</archaius.version>
 		<eureka.version>1.4.4</eureka.version>
 		<feign.version>8.15.1</feign.version>
