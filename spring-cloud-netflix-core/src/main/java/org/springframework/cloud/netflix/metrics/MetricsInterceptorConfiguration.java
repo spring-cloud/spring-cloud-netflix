@@ -14,12 +14,15 @@
 package org.springframework.cloud.netflix.metrics;
 
 import org.aspectj.lang.JoinPoint;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -73,24 +76,37 @@ public class MetricsInterceptorConfiguration {
 		}
 
 		@Bean
-		BeanPostProcessor spectatorRestTemplateInterceptorPostProcessor(
-				final MetricsClientHttpRequestInterceptor interceptor) {
-			return new BeanPostProcessor() {
-				@Override
-				public Object postProcessBeforeInitialization(Object bean,
-						String beanName) {
-					return bean;
-				}
+		BeanPostProcessor spectatorRestTemplateInterceptorPostProcessor() {
+			return new MetricsInterceptorPostProcessor();
+		}
 
-				@Override
-				public Object postProcessAfterInitialization(Object bean,
-						String beanName) {
-					if (bean instanceof RestTemplate) {
-						((RestTemplate) bean).getInterceptors().add(interceptor);
+		private static class MetricsInterceptorPostProcessor implements
+				BeanPostProcessor, ApplicationContextAware {
+			private ApplicationContext context;
+			private MetricsClientHttpRequestInterceptor interceptor;
+
+			@Override
+			public Object postProcessBeforeInitialization(Object bean, String beanName) {
+				return bean;
+			}
+
+			@Override
+			public Object postProcessAfterInitialization(Object bean, String beanName) {
+				if (bean instanceof RestTemplate) {
+					if (this.interceptor == null) {
+						this.interceptor = this.context
+								.getBean(MetricsClientHttpRequestInterceptor.class);
 					}
-					return bean;
+					((RestTemplate) bean).getInterceptors().add(interceptor);
 				}
-			};
+				return bean;
+			}
+
+			@Override
+			public void setApplicationContext(ApplicationContext context)
+					throws BeansException {
+				this.context = context;
+			}
 		}
 	}
 }

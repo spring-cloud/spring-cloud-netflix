@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.metrics;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -23,12 +25,16 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClientHttpRequestFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientHttpRequestFactoryTests;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -44,15 +50,23 @@ public class MetricsRestTemplateTests extends RibbonClientHttpRequestFactoryTest
 	@Override
 	public void requestFactoryIsRibbon() {
 		ClientHttpRequestFactory requestFactory = this.restTemplate.getRequestFactory();
-		assertTrue("wrong RequestFactory type: " + requestFactory.getClass(),
-				requestFactory instanceof InterceptingClientHttpRequestFactory);
+		assertThat("wrong RequestFactory type: " + requestFactory.getClass(),
+				requestFactory, is(instanceOf(InterceptingClientHttpRequestFactory.class)));
 
 		InterceptingClientHttpRequestFactory intercepting = (InterceptingClientHttpRequestFactory) requestFactory;
+		Object interceptorsField = ReflectionTestUtils.getField(intercepting,
+				"interceptors");
+		assertThat("wrong interceptors type: " + interceptorsField.getClass(), interceptorsField, is(instanceOf(List.class)));
+		@SuppressWarnings("unchecked")
+		List<ClientHttpRequestInterceptor> interceptors = (List<ClientHttpRequestInterceptor>) interceptorsField;
+		assertThat("interceptors is wrong size", interceptors, hasSize(1));
+		assertThat("wrong interceptor type", interceptors.get(0),
+				is(instanceOf(MetricsClientHttpRequestInterceptor.class)));
 
 		Object realRequestFactory = ReflectionTestUtils.getField(intercepting,
 				"requestFactory");
-		assertTrue("wrong RequestFactory type: " + realRequestFactory.getClass(),
-				realRequestFactory instanceof RibbonClientHttpRequestFactory);
+		assertThat("wrong RequestFactory type: " + realRequestFactory.getClass(),
+				realRequestFactory, is(instanceOf(RibbonClientHttpRequestFactory.class)));
 	}
 
 }
