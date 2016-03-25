@@ -67,7 +67,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 	@Autowired
 	private HystrixStreamProperties properties;
 
-	private final LinkedBlockingQueue<String> jsonMetrics = new LinkedBlockingQueue<>(
+	// Visible for testing
+	final LinkedBlockingQueue<String> jsonMetrics = new LinkedBlockingQueue<>(
 			1000);
 
 	private final JsonFactory jsonFactory = new JsonFactory();
