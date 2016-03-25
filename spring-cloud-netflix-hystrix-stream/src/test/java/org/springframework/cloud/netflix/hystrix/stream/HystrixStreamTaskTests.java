@@ -8,7 +8,6 @@ import com.netflix.hystrix.strategy.properties.HystrixPropertiesCommandDefault;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
