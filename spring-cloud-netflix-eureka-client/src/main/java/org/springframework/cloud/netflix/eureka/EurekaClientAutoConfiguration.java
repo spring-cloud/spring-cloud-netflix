@@ -21,11 +21,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,8 +56,6 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
-import com.sun.jersey.api.client.filter.ClientFilter;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
@@ -147,16 +140,14 @@ public class EurekaClientAutoConfiguration {
 		@Autowired
 		private ApplicationContext context;
 
-		@Autowired
+		@Autowired(required = false)
 		private DiscoveryClientOptionalArgs optionalArgs;
 
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config) {
-			DiscoveryClientOptionalArgs args = EurekaClientAutoConfiguration
-					.getOptionalArgs(config, this.optionalArgs);
-			return new CloudEurekaClient(manager, config, args, this.context);
+			return new CloudEurekaClient(manager, config, this.optionalArgs, this.context);
 		}
 
 		@Bean
@@ -175,7 +166,7 @@ public class EurekaClientAutoConfiguration {
 		@Autowired
 		private ApplicationContext context;
 
-		@Autowired
+		@Autowired(required = false)
 		private DiscoveryClientOptionalArgs optionalArgs;
 
 		@Bean(destroyMethod = "shutdown")
@@ -185,9 +176,7 @@ public class EurekaClientAutoConfiguration {
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config, EurekaInstanceConfig instance) {
 			manager.getInfo(); // force initialization
-			DiscoveryClientOptionalArgs args = EurekaClientAutoConfiguration
-					.getOptionalArgs(config, this.optionalArgs);
-			return new CloudEurekaClient(manager, config, args, this.context);
+			return new CloudEurekaClient(manager, config, this.optionalArgs, this.context);
 		}
 
 		@Bean
@@ -245,50 +234,6 @@ public class EurekaClientAutoConfiguration {
 		static class FoundScope {
 		}
 
-	}
-
-	public static DiscoveryClientOptionalArgs getOptionalArgs(EurekaClientConfig config,
-			DiscoveryClientOptionalArgs optionalArgs) {
-		Collection<ClientFilter> filters = new LinkedHashSet<>();
-		if (optionalArgs instanceof MutableDiscoveryClientOptionalArgs) {
-			MutableDiscoveryClientOptionalArgs mutable = (MutableDiscoveryClientOptionalArgs) optionalArgs;
-			filters = mutable.getAdditionalFilters() != null
-					? mutable.getAdditionalFilters() : filters;
-			ClientFilter filter = getAuthFilter(config);
-			if (filter != null) {
-				filters.add(filter);
-			}
-			mutable.setAdditionalFilters(filters);
-		}
-		return optionalArgs;
-	}
-
-	private static ClientFilter getAuthFilter(EurekaClientConfig config) {
-		// Netflix throws away the basic auth credentials from the service URL at runtime,
-		// so we look at the default zone and try and lift some credentials from there,
-		// assuming that they don't change from host to host. If they do change from host
-		// to host user will have to create a custom ClientFilter.
-		List<String> urls = config
-				.getEurekaServerServiceUrls(EurekaClientConfigBean.DEFAULT_ZONE);
-		for (String url : urls) {
-			try {
-				String authority = new URI(url).getAuthority();
-				authority = authority != null && authority.contains("@")
-						? authority.substring(0, authority.indexOf("@")) : null;
-				if (authority != null) {
-					String[] values = StringUtils.split(authority, ":");
-					if (values == null) {
-						values = new String[] { authority, "" };
-					}
-					return new HTTPBasicAuthFilter(values[0], values[1]);
-				}
-			}
-			catch (URISyntaxException e) {
-				// This should not occur
-				throw new IllegalArgumentException("Cannot parse service URL: " + url, e);
-			}
-		}
-		return null;
 	}
 
 }
