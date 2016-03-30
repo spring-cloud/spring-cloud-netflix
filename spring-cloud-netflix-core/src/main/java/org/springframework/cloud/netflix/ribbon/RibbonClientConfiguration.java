@@ -28,6 +28,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.RetryHandler;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -98,15 +100,18 @@ public class RibbonClientConfiguration {
 	 *
 	 * @param config the configuration to use by the underlying Ribbon instance
 	 * @param loadBalancer the load balancer to use by the underlying Ribbon instance
+	 * @param serverIntrospector server introspector to use by the underlying Ribbon instance
+	 * @param retryHandler retry handler to use by the underlying Ribbon instance
 	 * @return a {@link RestClient} instances backed by Ribbon
 	 */
 	@Bean
 	@Lazy
 	@ConditionalOnMissingBean
 	public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer,
-			ServerIntrospector serverIntrospector) {
+			ServerIntrospector serverIntrospector, RetryHandler retryHandler) {
 		RestClient client = new OverrideRestClient(config, serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
+		client.setRetryHandler(retryHandler);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
 	}
@@ -134,10 +139,16 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RibbonLoadBalancerContext ribbonLoadBalancerContext(
-			ILoadBalancer loadBalancer, IClientConfig config) {
-		return new RibbonLoadBalancerContext(loadBalancer, config);
+			ILoadBalancer loadBalancer, IClientConfig config, RetryHandler retryHandler) {
+		return new RibbonLoadBalancerContext(loadBalancer, config, retryHandler);
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public RetryHandler retryHandler(IClientConfig config) {
+		return new DefaultLoadBalancerRetryHandler(config);
+	}
+	
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerIntrospector serverIntrospector() {
