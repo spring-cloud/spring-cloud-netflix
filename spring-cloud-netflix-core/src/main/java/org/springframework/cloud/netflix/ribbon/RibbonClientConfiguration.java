@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +49,9 @@ import com.netflix.niws.client.http.RestClient;
 import com.netflix.servo.monitor.Monitors;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
+
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.setRibbonProperty;
 
 /**
  * @author Dave Syer
@@ -153,6 +158,11 @@ public class RibbonClientConfiguration {
 	@ConditionalOnMissingBean
 	public ServerIntrospector serverIntrospector() {
 		return new DefaultServerIntrospector();
+	}
+
+	@PostConstruct
+	public void preprocess() {
+		setRibbonProperty(name, DeploymentContextBasedVipAddresses.key(), name);
 	}
 
 	static class OverrideRestClient extends RestClient {
