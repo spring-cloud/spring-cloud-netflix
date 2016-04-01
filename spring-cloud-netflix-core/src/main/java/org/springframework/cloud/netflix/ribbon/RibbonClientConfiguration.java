@@ -16,7 +16,11 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+
 import java.net.URI;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
@@ -32,6 +36,9 @@ import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.IPing;
@@ -56,6 +63,10 @@ import com.sun.jersey.client.apache4.ApacheHttpClient4;
 @EnableConfigurationProperties
 public class RibbonClientConfiguration {
 
+	protected static final String VALUE_NOT_SET = "__not__set__";
+
+	protected static final String DEFAULT_NAMESPACE = "ribbon";
+	
 	@Value("${ribbon.client.name}")
 	private String name = "client";
 
@@ -155,6 +166,28 @@ public class RibbonClientConfiguration {
 		return new DefaultServerIntrospector();
 	}
 
+	@PostConstruct
+	public void preprocess() {
+		setProp(name, DeploymentContextBasedVipAddresses.key(), name);		
+	}
+
+	protected void setProp(String serviceId, String suffix, String value) {
+		// how to set the namespace properly?
+		String key = getKey(serviceId, suffix);
+		DynamicStringProperty property = getProperty(key);
+		if (property.get().equals(VALUE_NOT_SET)) {
+			ConfigurationManager.getConfigInstance().setProperty(key, value);
+		}
+	}
+
+	protected DynamicStringProperty getProperty(String key) {
+		return DynamicPropertyFactory.getInstance().getStringProperty(key, VALUE_NOT_SET);
+	}
+
+	protected String getKey(String serviceId, String suffix) {
+		return serviceId + "." + DEFAULT_NAMESPACE + "." + suffix;
+	}
+	
 	static class OverrideRestClient extends RestClient {
 
 		private ServerIntrospector serverIntrospector;

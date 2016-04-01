@@ -41,16 +41,14 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerStats;
 import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 
-@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = RestTemplateRetryTest.Application.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port=0", "spring.application.name=resttemplatetest",
 //	"logging.level.com.netflix.loadbalancer=TRACE",
 	"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
-	"badClients.ribbon.DeploymentContextBasedVipAddresses=badClients",
 	"badClients.ribbon.MaxAutoRetries=0",
-	"badClients.ribbon.ReadTimeout=1000",
+	"badClients.ribbon.ReadTimeout=200",
 	"badClients.ribbon.MaxAutoRetriesNextServer=10",
 	"badClients.ribbon.OkToRetryOnAllOperations=true",
 })
@@ -95,7 +93,7 @@ public class RestTemplateRetryTest {
 
 			//Force the good server to have 2 consecutive errors a couple of times.  
 			if (lValue == 2 || lValue == 3 || lValue == 5 || lValue == 6) {
-				Thread.sleep(1500);
+				Thread.sleep(500);
 			}
 			return lValue;				
 		}
@@ -166,11 +164,11 @@ public class RestTemplateRetryTest {
 		
 		badServer1Stats.clearSuccessiveConnectionFailureCount();
 		badServer2Stats.clearSuccessiveConnectionFailureCount();
-		long targetConnectionCount = goodServerStats.getTotalRequestsCount() + 50;
+		long targetConnectionCount = goodServerStats.getTotalRequestsCount() + 20;
 
 		int hits = 0;
 
-		for (int index = 0; index < 50; index++) {
+		for (int index = 0; index < 20; index++) {
 			hits = testClient.getForObject("http://badClients/good", Integer.class);
 		}	
 
@@ -181,8 +179,7 @@ public class RestTemplateRetryTest {
 		Assert.isTrue(badServer1Stats.isCircuitBreakerTripped());
 		Assert.isTrue(badServer2Stats.isCircuitBreakerTripped());
 		Assert.isTrue(goodServerStats.getTotalRequestsCount() == targetConnectionCount);
-		//This is 50
-		Assert.isTrue(hits == 50);
+		Assert.isTrue(hits == 20);
 		System.out.println("Retry Hits: " + hits);
 	}
     
@@ -201,7 +198,7 @@ public class RestTemplateRetryTest {
 
 		int hits = 0;
 
-		for (int index = 0; index < 30; index++) {
+		for (int index = 0; index < 15; index++) {
 			hits = testClient.getForObject("http://badClients/timeout", Integer.class);
 		}	
 		logServerStats(LocalBadClientConfiguration.badServer);
@@ -212,11 +209,11 @@ public class RestTemplateRetryTest {
 		Assert.isTrue(badServer2Stats.isCircuitBreakerTripped());
 		Assert.isTrue(!goodServerStats.isCircuitBreakerTripped());
 		
-		//30 + 4 timeouts. See the endpoint for timeout conditions.
-		Assert.isTrue(hits == 34);
+		//15 + 4 timeouts. See the endpoint for timeout conditions.
+		Assert.isTrue(hits == 19);
 
 		//Wait for any timeout thread to finish.
-		Thread.sleep(1600);
+		Thread.sleep(600);
 			
 	}
 				
