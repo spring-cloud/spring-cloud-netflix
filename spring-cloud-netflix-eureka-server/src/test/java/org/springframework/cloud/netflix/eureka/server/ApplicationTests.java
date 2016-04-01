@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -38,9 +39,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.converters.wrappers.CodecWrapper;
+import com.netflix.eureka.resources.ServerCodecs;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -52,15 +60,8 @@ public class ApplicationTests {
 	@Value("${local.server.port}")
 	private int port = 0;
 
-	@Configuration
-	@EnableAutoConfiguration
-	@EnableEurekaServer
-	protected static class Application {
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka").run(args);
-		}
-	}
+	@Autowired
+	private ServerCodecs serverCodecs;
 
 	@Test
 	public void catalogLoads() {
@@ -103,4 +104,30 @@ public class ApplicationTests {
 		assertNotNull(body);
 		assertTrue("css wasn't preprocessed", body.contains("spring-logo"));
 	}
+
+	@Test
+	public void customCodecWorks() throws Exception {
+		assertThat("serverCodecs is wrong type", this.serverCodecs, is(instanceOf(EurekaServerConfiguration.CloudServerCodecs.class)));
+		CodecWrapper codec = this.serverCodecs.getFullJsonCodec();
+		assertThat("codec is wrong type", codec, is(instanceOf(CloudJacksonJson.class)));
+
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+				.setAppName("fooapp")
+				.add("instanceId", "foo")
+				.build();
+		String encoded = codec.encode(instanceInfo);
+		InstanceInfo decoded = codec.decode(encoded, InstanceInfo.class);
+		assertThat("instanceId was wrong", decoded.getInstanceId(), is("foo"));
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableEurekaServer
+	protected static class Application {
+		public static void main(String[] args) {
+			new SpringApplicationBuilder(Application.class).properties(
+					"spring.application.name=eureka").run(args);
+		}
+	}
+
 }
