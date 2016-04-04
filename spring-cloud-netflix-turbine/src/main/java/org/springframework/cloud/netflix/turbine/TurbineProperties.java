@@ -19,10 +19,10 @@ package org.springframework.cloud.netflix.turbine;
 import java.util.Arrays;
 import java.util.List;
 
-import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
+
+import lombok.Data;
 
 /**
  * @author Spencer Gibb
@@ -38,11 +38,12 @@ public class TurbineProperties {
 	private boolean combineHostPort = false;
 
 	public List<String> getAppConfigList() {
-		if (!StringUtils.hasText(appConfig)) {
+		if (!StringUtils.hasText(this.appConfig)) {
 			return null;
 		}
-		String[] parts = appConfig.trim().split(",");
+		String[] parts = StringUtils.commaDelimitedListToStringArray(this.appConfig);
 		if (parts != null && parts.length > 0) {
+			parts = StringUtils.trimArrayElements(parts);
 			return Arrays.asList(parts);
 		}
 		return null;
