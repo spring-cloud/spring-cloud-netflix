@@ -109,13 +109,11 @@ public class PreDecorationFilter extends ZuulFilter {
 					}
 					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
-					if(xforwardedfor == null) {
+					if (xforwardedfor == null) {
 						xforwardedfor = remoteAddr;
 					}
-					else {
-						if(!xforwardedfor.contains(remoteAddr)) { // Prevent duplicates
-							xforwardedfor += ", " + remoteAddr;
-						}
+					else if (!xforwardedfor.contains(remoteAddr)) { // Prevent duplicates
+						xforwardedfor += ", " + remoteAddr;
 					}
 					ctx.addZuulRequestHeader("X-Forwarded-For", xforwardedfor);
 				}
