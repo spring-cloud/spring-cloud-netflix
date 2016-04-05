@@ -107,6 +107,15 @@ public class PreDecorationFilter extends ZuulFilter {
 					if (StringUtils.hasText(route.getPrefix())) {
 						ctx.addZuulRequestHeader("X-Forwarded-Prefix", route.getPrefix());
 					}
+					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
+					String remoteAddr = ctx.getRequest().getRemoteAddr();
+					if (xforwardedfor == null) {
+						xforwardedfor = remoteAddr;
+					}
+					else if (!xforwardedfor.contains(remoteAddr)) { // Prevent duplicates
+						xforwardedfor += ", " + remoteAddr;
+					}
+					ctx.addZuulRequestHeader("X-Forwarded-For", xforwardedfor);
 				}
 			}
 		}
