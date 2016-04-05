@@ -24,7 +24,7 @@
 		<ribbon.version>2.1.5</ribbon.version>
 		<servo.version>0.10.1</servo.version>
 		<zuul.version>1.1.0</zuul.version>
-		<rxjava.version>1.1.1</rxjava.version>
+		<rxjava.version>1.1.2</rxjava.version>
 		<java.version>1.7</java.version>
 		<turbine.version>1.0.0</turbine.version>
 		<cloud-connectors.version>1.1.1.RELEASE</cloud-connectors.version>
