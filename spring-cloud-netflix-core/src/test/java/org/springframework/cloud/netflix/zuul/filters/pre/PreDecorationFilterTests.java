@@ -85,6 +85,7 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("1.2.3.4");
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
@@ -94,6 +95,7 @@ public class PreDecorationFilterTests {
 		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
+		assertEquals("1.2.3.4", ctx.getZuulRequestHeaders().get("x-forwarded-for"));
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
