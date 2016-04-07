@@ -73,7 +73,7 @@ public class RibbonAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(HttpRequest.class)
-	@ConditionalOnProperty(value = "ribbon.http.client.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(value = "ribbon.http.client.enabled", matchIfMissing = false)
 	protected static class RibbonClientConfig {
 
 		@Autowired
@@ -83,11 +83,12 @@ public class RibbonAutoConfiguration {
 		private LoadBalancerClient loadBalancerClient;
 
 		@Bean
-		public RestTemplateCustomizer restTemplateCustomizer() {
+		public RestTemplateCustomizer restTemplateCustomizer(
+				final RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory) {
 			return new RestTemplateCustomizer() {
 				@Override
 				public void customize(RestTemplate restTemplate) {
-					restTemplate.setRequestFactory(ribbonClientHttpRequestFactory());
+					restTemplate.setRequestFactory(ribbonClientHttpRequestFactory);
 				}
 			};
 		}

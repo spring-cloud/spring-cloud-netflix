@@ -42,7 +42,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MetricsRestTemplateTests.App.class)
 @WebIntegrationTest(value = { "spring.application.name=ribbonclienttest",
-		"spring.jmx.enabled=true" }, randomPort = true)
+		"spring.jmx.enabled=true", "ribbon.http.client.enabled=true" }, randomPort = true)
 @DirtiesContext
 public class MetricsRestTemplateTests extends RibbonClientHttpRequestFactoryTests {
 
@@ -51,12 +51,14 @@ public class MetricsRestTemplateTests extends RibbonClientHttpRequestFactoryTest
 	public void requestFactoryIsRibbon() {
 		ClientHttpRequestFactory requestFactory = this.restTemplate.getRequestFactory();
 		assertThat("wrong RequestFactory type: " + requestFactory.getClass(),
-				requestFactory, is(instanceOf(InterceptingClientHttpRequestFactory.class)));
+				requestFactory,
+				is(instanceOf(InterceptingClientHttpRequestFactory.class)));
 
 		InterceptingClientHttpRequestFactory intercepting = (InterceptingClientHttpRequestFactory) requestFactory;
 		Object interceptorsField = ReflectionTestUtils.getField(intercepting,
 				"interceptors");
-		assertThat("wrong interceptors type: " + interceptorsField.getClass(), interceptorsField, is(instanceOf(List.class)));
+		assertThat("wrong interceptors type: " + interceptorsField.getClass(),
+				interceptorsField, is(instanceOf(List.class)));
 		@SuppressWarnings("unchecked")
 		List<ClientHttpRequestInterceptor> interceptors = (List<ClientHttpRequestInterceptor>) interceptorsField;
 		assertThat("interceptors is wrong size", interceptors, hasSize(1));

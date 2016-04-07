@@ -74,6 +74,9 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
 		Server server = getServer(loadBalancer);
+		if (server == null) {
+			throw new IllegalStateException("No instances available for " + serviceId);
+		}
 		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(server,
 				serviceId), serverIntrospector(serviceId).getMetadata(server));
 
