@@ -79,9 +79,6 @@ public class RibbonAutoConfiguration {
 		@Autowired
 		private SpringClientFactory springClientFactory;
 
-		@Autowired
-		private LoadBalancerClient loadBalancerClient;
-
 		@Bean
 		public RestTemplateCustomizer restTemplateCustomizer(
 				final RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory) {
@@ -95,8 +92,7 @@ public class RibbonAutoConfiguration {
 
 		@Bean
 		public RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory() {
-			return new RibbonClientHttpRequestFactory(this.springClientFactory,
-					this.loadBalancerClient);
+			return new RibbonClientHttpRequestFactory(this.springClientFactory);
 		}
 	}
 
