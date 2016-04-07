@@ -16,8 +16,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.Arrays;
 import java.util.Collections;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
@@ -29,7 +32,17 @@ import static org.junit.Assert.assertTrue;
  */
 public class ZuulPropertiesTests {
 
-	private ZuulProperties zuul = new ZuulProperties();
+	private ZuulProperties zuul;
+
+	@Before
+	public void setup() {
+		this.zuul = new ZuulProperties();
+	}
+
+	@After
+	public void teardown() {
+		this.zuul = null;
+	}
 
 	@Test
 	public void defaultIgnoredHeaders() {
@@ -46,17 +59,22 @@ public class ZuulPropertiesTests {
 	public void defaultSensitiveHeaders() {
 		ZuulRoute route = new ZuulRoute("foo");
 		this.zuul.getRoutes().put("foo", route);
-		assertTrue(this.zuul.getRoutes().get("foo").getSensitiveHeaders()
-				.contains("Cookie"));
+		assertTrue(this.zuul.getRoutes().get("foo").getSensitiveHeaders().isEmpty());
+		assertTrue(this.zuul.getSensitiveHeaders().containsAll(
+				Arrays.asList("Cookie", "Set-Cookie", "Authorization")));
 	}
 
 	@Test
 	public void addSensitiveHeaders() {
+		this.zuul.setSensitiveHeaders(Collections.singleton("x-bar"));
 		ZuulRoute route = new ZuulRoute("foo");
 		route.setSensitiveHeaders(Collections.singleton("x-foo"));
 		this.zuul.getRoutes().put("foo", route);
-		assertFalse(this.zuul.getRoutes().get("foo").getSensitiveHeaders()
-				.contains("Cookie"));
+		ZuulRoute foo = this.zuul.getRoutes().get("foo");
+		assertTrue(foo.getSensitiveHeaders().contains("x-foo"));
+		assertFalse(foo.getSensitiveHeaders().contains("Cookie"));
+		assertTrue(this.zuul.getSensitiveHeaders().contains("x-bar"));
+		assertFalse(this.zuul.getSensitiveHeaders().contains("Cookie"));
 	}
 
 }

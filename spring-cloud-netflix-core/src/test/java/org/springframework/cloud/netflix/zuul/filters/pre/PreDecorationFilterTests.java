@@ -16,12 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -31,6 +34,8 @@ import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
@@ -236,7 +241,39 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 
 		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
-	}	
+	}
+
+	@Test
+	public void sensitiveHeadersOverride() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
+		this.request.setRequestURI("/api/foo/1");
+		ZuulRoute route = new ZuulRoute("/foo/**", "foo");
+		route.setSensitiveHeaders(Collections.singleton("x-foo"));
+		this.routeLocator.addRoute(route);
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		@SuppressWarnings("unchecked")
+		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
+		assertFalse("sensitiveHeaders is wrong", sensitiveHeaders.contains("Cookie"));
+	}
+
+	@Test
+	public void sensitiveHeadersDefaults() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
+		this.request.setRequestURI("/api/foo/1");
+		this.routeLocator.addRoute("/foo/**", "foo");
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		@SuppressWarnings("unchecked")
+		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
+		assertFalse("sensitiveHeaders is wrong", sensitiveHeaders.contains("Cookie"));
+	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
 		String value = null;
