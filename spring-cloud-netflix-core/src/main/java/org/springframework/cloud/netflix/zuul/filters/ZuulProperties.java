@@ -115,6 +115,17 @@ public class ZuulProperties {
 	 */
 	private boolean removeSemicolonContent = true;
 
+	/**
+	 * List of sensitive headers that are not passed to downstream requests. Defaults
+	 * to a "safe" set of headers that commonly contain user credentials. It's OK to
+	 * remove those from the list if the downstream service is part of the same system
+	 * as the proxy, so they are sharing authentication data. If using a physical URL
+	 * outside your own domain, then generally it would be a bad idea to leak user
+	 * credentials.
+	 */
+	private Set<String> sensitiveHeaders = new LinkedHashSet<>(
+			Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
+
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
@@ -193,8 +204,7 @@ public class ZuulProperties {
 		 * outside your own domain, then generally it would be a bad idea to leak user
 		 * credentials.
 		 */
-		private Set<String> sensitiveHeaders = new LinkedHashSet<>(
-				Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
+		private Set<String> sensitiveHeaders = new LinkedHashSet<>();
 
 		public ZuulRoute(String text) {
 			String location = null;
