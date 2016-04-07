@@ -16,11 +16,38 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixExecutable;
+
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.http.client.ClientHttpResponse;
+
+import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 
 /**
  * @author Spencer Gibb
  */
 public interface RibbonCommand extends HystrixExecutable<ClientHttpResponse> {
+
+	class Utils {
+		public static HystrixCommand.Setter getSetter(final String commandKey, ZuulProperties properties) {
+			HystrixCommandProperties.Setter setter = HystrixCommandProperties
+					.Setter()
+					.withExecutionIsolationStrategy(properties.getRibbonIsolationStrategy());
+
+			if (properties.getRibbonIsolationStrategy().equals(SEMAPHORE)) {
+				setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(properties.getSemaphore().getMaxSemaphores());
+			} else {
+				// use properties to configure the rest
+			}
+			return HystrixCommand.Setter
+					.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
+					.andCommandKey(
+							HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
+					.andCommandPropertiesDefaults(setter);
+		}
+	}
 }

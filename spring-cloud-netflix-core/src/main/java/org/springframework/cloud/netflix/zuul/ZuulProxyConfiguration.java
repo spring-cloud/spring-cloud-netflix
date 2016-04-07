@@ -80,7 +80,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RibbonCommandFactory<?> ribbonCommandFactory() {
-		return new RestClientRibbonCommandFactory(this.clientFactory);
+		return new RestClientRibbonCommandFactory(this.clientFactory, this.zuulProperties);
 	}
 
 	// pre filters

@@ -31,9 +31,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
+import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 
 /**
  * @author Spencer Gibb
@@ -114,6 +118,10 @@ public class ZuulProperties {
 	 * Flag to say that path elelents past the first semicolon can be dropped.
 	 */
 	private boolean removeSemicolonContent = true;
+
+	private ExecutionIsolationStrategy ribbonIsolationStrategy = SEMAPHORE;
+
+	private HystrixSemaphore semaphore = new HystrixSemaphore();
 
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
@@ -261,6 +269,13 @@ public class ZuulProperties {
 		 * The maximum number of connections that can be used by a single route.
 		 */
 		private int maxPerRouteConnections = 20;
+	}
+
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class HystrixSemaphore {
+		private int maxSemaphores = 100;
 	}
 
 	public String getServletPattern() {

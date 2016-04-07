@@ -23,18 +23,15 @@ import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpRequest;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpResponse;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
 
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
+
+import static org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand.Utils.getSetter;
 
 /**
  * @author Christian Lohmann
@@ -50,20 +47,20 @@ public class HttpClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 	private final InputStream requestEntity;
 	private final Boolean retryable;
 
-	public HttpClientRibbonCommand(final RibbonLoadBalancingHttpClient client,
-			final String method, final String uri,
-			final MultiValueMap<String, String> headers,
-			final MultiValueMap<String, String> params, final InputStream requestEntity,
-			final Boolean retryable) {
-		this("default", client, method, uri, headers, params, requestEntity, retryable);
+	public HttpClientRibbonCommand(RibbonLoadBalancingHttpClient client,
+								   String method, String uri,
+								   MultiValueMap<String, String> headers,
+								   MultiValueMap<String, String> params, InputStream requestEntity,
+								   Boolean retryable, ZuulProperties properties) {
+		this("default", client, method, uri, headers, params, requestEntity, retryable, properties);
 	}
 
-	public HttpClientRibbonCommand(final String commandKey,
-			final RibbonLoadBalancingHttpClient client, final String method,
-			final String uri, final MultiValueMap<String, String> headers,
-			final MultiValueMap<String, String> params, final InputStream requestEntity,
-			final Boolean retryable) {
-		super(getSetter(commandKey));
+	public HttpClientRibbonCommand(String commandKey,
+			RibbonLoadBalancingHttpClient client, String method,
+			String uri, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity,
+			Boolean retryable, ZuulProperties properties) {
+		super(getSetter(commandKey, properties));
 		this.client = client;
 		this.method = method;
 		this.uri = uri;
@@ -71,26 +68,6 @@ public class HttpClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		this.params = params;
 		this.requestEntity = requestEntity;
 		this.retryable = retryable;
-	}
-
-	protected static Setter getSetter(final String commandKey) {
-
-		// we want to default to semaphore-isolation since this wraps
-		// 2 others commands that are already thread isolated
-		final String name = ZuulConstants.ZUUL_EUREKA + commandKey
-				+ ".semaphore.maxSemaphores";
-		final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
-				.getIntProperty(name, 100);
-		final HystrixCommandProperties.Setter setter = HystrixCommandProperties
-				.Setter()
-				.withExecutionIsolationStrategy(
-						HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE)
-				.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
-		return Setter
-				.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-				.andCommandKey(
-						HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
-				.andCommandPropertiesDefaults(setter);
 	}
 
 	@Override

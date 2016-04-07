@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
 
@@ -29,16 +30,11 @@ import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpRequest.Builder;
 import com.netflix.client.http.HttpRequest.Verb;
 import com.netflix.client.http.HttpResponse;
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import com.netflix.niws.client.http.RestClient;
-import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
+
+import static org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand.Utils.getSetter;
 
 /**
  * Hystrix wrapper around Eureka Ribbon command
@@ -67,17 +63,19 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 	public RestClientRibbonCommand(RestClient restClient, Verb verb, String uri,
 								   Boolean retryable,
 								   MultiValueMap<String, String> headers,
-								   MultiValueMap<String, String> params, InputStream requestEntity)
+								   MultiValueMap<String, String> params, InputStream requestEntity,
+								   ZuulProperties properties)
 			throws URISyntaxException {
-		this("default", restClient, verb, uri, retryable , headers, params, requestEntity);
+		this("default", restClient, verb, uri, retryable , headers, params, requestEntity, properties);
 	}
 
 	public RestClientRibbonCommand(String commandKey, RestClient restClient, Verb verb, String uri,
 								   Boolean retryable,
 								   MultiValueMap<String, String> headers,
-								   MultiValueMap<String, String> params, InputStream requestEntity)
+								   MultiValueMap<String, String> params, InputStream requestEntity,
+								   ZuulProperties properties)
 			throws URISyntaxException {
-		super(getSetter(commandKey));
+		super(getSetter(commandKey, properties));
 		this.restClient = restClient;
 		this.verb = verb;
 		this.uri = new URI(uri);
@@ -85,20 +83,6 @@ public class RestClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 		this.headers = headers;
 		this.params = params;
 		this.requestEntity = requestEntity;
-	}
-
-	protected static HystrixCommand.Setter getSetter(String commandKey) {
-		// we want to default to semaphore-isolation since this wraps
-		// 2 others commands that are already thread isolated
-		String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
-		DynamicIntProperty value = DynamicPropertyFactory.getInstance().getIntProperty(
-				name, 100);
-		HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
-				.withExecutionIsolationStrategy(ExecutionIsolationStrategy.SEMAPHORE)
-				.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
-		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
-				.andCommandPropertiesDefaults(setter);
 	}
 
 	@Override

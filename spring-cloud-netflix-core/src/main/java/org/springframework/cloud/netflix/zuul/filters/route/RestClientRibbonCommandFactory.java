@@ -17,22 +17,22 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 /**
  * @author Spencer Gibb
  */
+@RequiredArgsConstructor
 public class RestClientRibbonCommandFactory implements RibbonCommandFactory<RestClientRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
-
-	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
-		this.clientFactory = clientFactory;
-	}
+	private final ZuulProperties properties;
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -43,7 +43,7 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 		return new RestClientRibbonCommand(
 				context.getServiceId(), restClient, getVerb(context.getVerb()),
 				context.getUri(), context.getRetryable(), context.getHeaders(),
-				context.getParams(), context.getRequestEntity());
+				context.getParams(), context.getRequestEntity(), this.properties);
 	}
 
 	protected SpringClientFactory getClientFactory() {
