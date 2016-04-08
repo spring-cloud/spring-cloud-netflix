@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -37,21 +38,18 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	private RouteLocator routeLocator;
 
-	private boolean addProxyHeaders;
-	
 	private String dispatcherServletPath;
-	private String zuulServletPath;	
+
+	private ZuulProperties properties;
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
 	public PreDecorationFilter(RouteLocator routeLocator,
-			String dispatcherServletPath, ZuulProperties zuulProperties) {
+			String dispatcherServletPath, ZuulProperties properties) {
 		this.routeLocator = routeLocator;
-		this.addProxyHeaders = zuulProperties.isAddProxyHeaders();
-		this.urlPathHelper.setRemoveSemicolonContent(zuulProperties.isRemoveSemicolonContent());
+		this.properties = properties;
+		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
 		this.dispatcherServletPath = dispatcherServletPath;
-		this.zuulServletPath = zuulProperties.getServletPath();
-		
 	}
 
 	@Override
@@ -67,9 +65,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		return !ctx.containsKey("forward.to") // another filter has already forwarded
-				&& !ctx.containsKey("serviceId"); // another filter has already determined
-													// serviceId
+		return !ctx.containsKey("forward.to") // a filter has already forwarded
+				&& !ctx.containsKey("serviceId"); // a filter has already determined serviceId
 	}
 
 	@Override
@@ -83,7 +80,11 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (location != null) {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
-				ctx.put("ignoredHeaders", route.getSensitiveHeaders());
+				if (route.getSensitiveHeaders().isEmpty()) {
+					ctx.put(ProxyRequestHelper.IGNORED_HEADERS, this.properties.getSensitiveHeaders());
+				} else {
+					ctx.put(ProxyRequestHelper.IGNORED_HEADERS, route.getSensitiveHeaders());
+				}
 
 				if (route.getRetryable() != null) {
 					ctx.put("retryable", route.getRetryable());
@@ -105,7 +106,7 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.setRouteHost(null);
 					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
 				}
-				if (this.addProxyHeaders) {
+				if (this.properties.isAddProxyHeaders()) {
 					ctx.addZuulRequestHeader("X-Forwarded-Host",
 							ctx.getRequest().getServerName());
 					ctx.addZuulRequestHeader("X-Forwarded-Port",
@@ -129,14 +130,14 @@ public class PreDecorationFilter extends ZuulFilter {
 		}
 		else {
 			log.warn("No route found for uri: " + requestURI);
-			
+
 			String fallBackUri = requestURI;
 			String fallbackPrefix = dispatcherServletPath; //default fallback servlet is DispatcherServlet
-			
+
 			if (RequestUtils.isZuulServletRequest()) {
 				//remove the Zuul servletPath from the requestUri
-				log.debug("zuulServletPath=" + zuulServletPath);
-				fallBackUri = fallBackUri.replaceFirst(zuulServletPath, "");
+				log.debug("zuulServletPath=" + this.properties.getServletPath());
+				fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(), "");
 				log.debug("Replaced Zuul servlet path:" + fallBackUri);
 			} else {
 				//remove the DispatcherServlet servletPath from the requestUri

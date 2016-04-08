@@ -1267,6 +1267,8 @@ route, e.g.
       url: https://dowstream
 ----
 
+Sensitive headers can also be set globally setting `zuul.sensitiveHeaders`. If `sensitiveHeaders` is set on a route, this will override the global `sensitiveHeaders` setting.
+
 NOTE: this is the default value for `sensitiveHeaders`, so you don't
 need to set it unless you want it to be different. N.B. this is new in
 Spring Cloud Netflix 1.1 (in 1.0 the user had no control over headers
