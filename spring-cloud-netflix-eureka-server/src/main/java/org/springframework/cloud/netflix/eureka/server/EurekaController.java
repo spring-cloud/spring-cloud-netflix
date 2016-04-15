@@ -75,6 +75,7 @@ public class EurekaController {
 		}
 		model.put("statusInfo", statusInfo);
 		populateInstanceInfo(model, statusInfo);
+		filterReplicas(model, statusInfo);
 		return "eureka/status";
 	}
 
@@ -148,7 +149,7 @@ public class EurekaController {
 		for (PeerEurekaNode node : list) {
 			try {
 				URI uri = new URI(node.getServiceUrl());
-				String href = node.getServiceUrl();
+				String href = scrubBasicAuth(node.getServiceUrl());
 				replicas.put(uri.getHost(), href);
 			}
 			catch (Exception ex) {
@@ -266,5 +267,32 @@ public class EurekaController {
 					info.get(AmazonInfo.MetaDataKey.instanceType));
 		}
 		model.put("instanceInfo", instanceMap);
+	}
+
+	protected void filterReplicas(Map<String, Object> model, StatusInfo statusInfo) {
+		Map<String, String> applicationStats = statusInfo.getApplicationStats();
+		if(applicationStats.get("registered-replicas").contains("@")){
+			applicationStats.put("registered-replicas", scrubBasicAuth(applicationStats.get("registered-replicas")));
+		}
+		if(applicationStats.get("unavailable-replicas").contains("@")){
+			applicationStats.put("unavailable-replicas",scrubBasicAuth(applicationStats.get("unavailable-replicas")));
+		}
+		if(applicationStats.get("available-replicas").contains("@")){
+			applicationStats.put("available-replicas",scrubBasicAuth(applicationStats.get("available-replicas")));
+		}
+		model.put("applicationStats", applicationStats);
+	}
+
+	private String scrubBasicAuth(String urlList){
+		String[] urls=urlList.split(",");
+		String filteredUrls="";
+		for(String u : urls){
+			if(u.contains("@")){
+				filteredUrls+=u.substring(0,u.indexOf("//")+2)+u.substring(u.indexOf("@")+1,u.length())+",";
+			}else{
+				filteredUrls+=u+",";
+			}
+		}
+		return filteredUrls.substring(0,filteredUrls.length()-1);
 	}
 }
