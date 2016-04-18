@@ -139,14 +139,14 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 	}
 
 	@Test
-	public void simpleHostRouteWithEncodedQuery() {
+		public void simpleHostRouteWithEncodedQuery() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/query?foo={foo}", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class, "weird#chars");
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("/query?foo=weird#chars", result.getBody());
+		assertEquals("/query?foo=weird%23chars", result.getBody());
 	}
 
 	@Test
