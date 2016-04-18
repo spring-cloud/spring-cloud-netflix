@@ -96,10 +96,10 @@ public class ProxyRequestHelper {
 		RequestContext context = RequestContext.getCurrentContext();
 		String uri = request.getRequestURI();
 		String contextURI = (String) context.get("requestURI");
+		String characterEncoding = request.getCharacterEncoding() != null ? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
 		if (contextURI != null) {
 			try {
-				uri = UriUtils.encodePath(contextURI,
-						WebUtils.DEFAULT_CHARACTER_ENCODING);
+				uri = UriUtils.encodePath(contextURI, characterEncoding);
 			}
 			catch (Exception e) {
 				log.debug(
