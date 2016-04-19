@@ -181,15 +181,21 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		String alias = name + "FeignClient";
 		AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
 		beanDefinition.setPrimary(true);
-		BeanDefinitionHolder holder = new BeanDefinitionHolder(
-				beanDefinition, className, new String[]{alias});
+		BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className,
+				new String[] { alias });
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 	}
 
 	private void validate(Map<String, Object> attributes) {
 		if (StringUtils.hasText((String) attributes.get("value"))) {
+			Assert.isTrue(!StringUtils.hasText((String) attributes.get("name")),
+					"Either name or value can be specified, but not both");
 			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
-					"Either serviceId or value can be specified, but not both");
+					"Either name (serviceId) or value can be specified, but not both");
+		}
+		if (StringUtils.hasText((String) attributes.get("name"))) {
+			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
+					"Either name or serviceId can be specified, but not both");
 		}
 	}
 

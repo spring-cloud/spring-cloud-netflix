@@ -34,9 +34,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 
-import feign.Request;
-
 import static org.junit.Assert.assertEquals;
+
+import feign.Request;
 
 /**
  * @author Spencer Gibb
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 @SpringApplicationConfiguration(classes = LoadBalancerFeignClientOverrideTests.TestConfiguration.class)
 @WebIntegrationTest(randomPort = true, value = {
 		"spring.application.name=loadBalancerFeignClientTests",
-		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false"})
+		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
 @DirtiesContext
 public class LoadBalancerFeignClientOverrideTests {
 
@@ -55,27 +55,34 @@ public class LoadBalancerFeignClientOverrideTests {
 	@Test
 	public void overrideRequestOptions() {
 		// specific ribbon 'bar' configuration via spring bean
-		Request.Options barOptions = this.context.getInstance("bar", Request.Options.class);
+		Request.Options barOptions = this.context.getInstance("bar",
+				Request.Options.class);
 		assertEquals(1, barOptions.connectTimeoutMillis());
 		assertEquals(2, barOptions.readTimeoutMillis());
 		assertOptions(barOptions, "bar", 1, 2);
 
-		// specific ribbon 'foo' configuration
-		Request.Options fooOptions = this.context.getInstance("foo", Request.Options.class);
+		// specific ribbon 'foo' configuration via application.yml
+		Request.Options fooOptions = this.context.getInstance("foo",
+				Request.Options.class);
 		assertEquals(LoadBalancerFeignClient.DEFAULT_OPTIONS, fooOptions);
 		assertOptions(fooOptions, "foo", 7, 17);
 
 		// generic ribbon default configuration
-		Request.Options bazOptions = this.context.getInstance("baz", Request.Options.class);
-		assertEquals(LoadBalancerFeignClient.DEFAULT_OPTIONS, fooOptions);
+		Request.Options bazOptions = this.context.getInstance("baz",
+				Request.Options.class);
+		assertEquals(LoadBalancerFeignClient.DEFAULT_OPTIONS, bazOptions);
 		assertOptions(bazOptions, "baz", 3001, 60001);
 	}
 
-	void assertOptions(Request.Options options, String name, int expectedConnect, int expectedRead) {
-		LoadBalancerFeignClient client = this.context.getInstance(name, LoadBalancerFeignClient.class);
+	void assertOptions(Request.Options options, String name, int expectedConnect,
+			int expectedRead) {
+		LoadBalancerFeignClient client = this.context.getInstance(name,
+				LoadBalancerFeignClient.class);
 		IClientConfig config = client.getClientConfig(options, name);
-		assertEquals("connect was wrong for "+name, expectedConnect, config.get(CommonClientConfigKey.ConnectTimeout, -1).intValue());
-		assertEquals("read was wrong for "+name, expectedRead, config.get(CommonClientConfigKey.ReadTimeout, -1).intValue());
+		assertEquals("connect was wrong for " + name, expectedConnect,
+				config.get(CommonClientConfigKey.ConnectTimeout, -1).intValue());
+		assertEquals("read was wrong for " + name, expectedRead,
+				config.get(CommonClientConfigKey.ReadTimeout, -1).intValue());
 	}
 
 	@Configuration
@@ -107,10 +114,9 @@ public class LoadBalancerFeignClientOverrideTests {
 		}
 	}
 
-	@FeignClient(value = "baz")
+	@FeignClient("baz")
 	interface BazClient {
 		@RequestMapping("/")
 		String get();
-
 	}
 }

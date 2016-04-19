@@ -38,21 +38,20 @@ import org.springframework.core.annotation.AliasFor;
 public @interface FeignClient {
 
 	/**
-	 * The serviceId with optional protocol prefix. Synonym for {@link #serviceId()
-	 * serviceId}. Either serviceId or url must be specified but not both. Can be
-	 * specified as property key, eg: ${propertyKey}.
+	 * The name of the service with optional protocol prefix. Synonym for {@link #name()
+	 * name}. A name must be specified for all clients, whether or not a url is provided.
+	 * Can be specified as property key, eg: ${propertyKey}.
 	 */
 	@AliasFor("name")
 	String value() default "";
 
 	/**
-	 * The serviceId with optional protocol prefix. Synonym for {@link #value() value}.
-	 * Either serviceId or url must be specified but not both. Can be
-	 * specified as property key, eg: ${propertyKey}.
+	 * The service id with optional protocol prefix. Synonym for {@link #value() value}.
 	 *
 	 * @deprecated use {@link #name() name} instead
 	 */
 	@Deprecated
+	@AliasFor("value")
 	String serviceId() default "";
 
 	@AliasFor("value")
