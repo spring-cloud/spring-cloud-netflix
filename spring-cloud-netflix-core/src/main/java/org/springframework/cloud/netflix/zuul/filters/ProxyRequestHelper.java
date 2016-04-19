@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -52,6 +53,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
+ * @author Marcos Barbero
  */
 @CommonsLog
 public class ProxyRequestHelper {
@@ -122,10 +124,22 @@ public class ProxyRequestHelper {
 		}
 		for (String key : map.keySet()) {
 			for (String value : map.get(key)) {
-				params.add(key, UriUtils.encodeQueryParam(value, characterEncoding));
+				params.add(key, encodeQueryParam(value, characterEncoding));
 			}
 		}
 		return params;
+	}
+
+	private String encodeQueryParam(String value, String characterEncoding) {
+		try {
+			value = UriUtils.encodeQueryParam(value, characterEncoding);
+		}
+		catch (UnsupportedEncodingException e) {
+			log.debug(
+					"unable to encode query param from context, falling back to value from request",
+					e);
+		}
+		return value;
 	}
 
 	public MultiValueMap<String, String> buildZuulRequestHeaders(
