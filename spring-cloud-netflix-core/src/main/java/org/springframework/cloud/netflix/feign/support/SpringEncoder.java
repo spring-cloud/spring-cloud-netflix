@@ -22,8 +22,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -89,8 +90,13 @@ public class SpringEncoder implements Encoder {
 					catch (IOException ex) {
 						throw new EncodeException("Error converting request body", ex);
 					}
+
+					for (Map.Entry<String, List<String>> entry : outputMessage.getHeaders().entrySet()) {
+						request.header(entry.getKey(), entry.getValue());
+					}
+
 					request.body(outputMessage.getOutputStream().toByteArray(),
-							Charset.forName("UTF-8")); // TODO: set charset
+						null); // TODO: set charset
 					return;
 				}
 			}
@@ -106,11 +112,10 @@ public class SpringEncoder implements Encoder {
 	private class FeignOutputMessage implements HttpOutputMessage {
 
 		private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-		private final RequestTemplate request;
+		private final HttpHeaders httpHeaders;
 
 		private FeignOutputMessage(RequestTemplate request) {
-			this.request = request;
+			httpHeaders = getHttpHeaders(request.headers());
 		}
 
 		@Override
@@ -120,7 +125,7 @@ public class SpringEncoder implements Encoder {
 
 		@Override
 		public HttpHeaders getHeaders() {
-			return getHttpHeaders(this.request.headers());
+			return httpHeaders;
 		}
 
 		public ByteArrayOutputStream getOutputStream() {
