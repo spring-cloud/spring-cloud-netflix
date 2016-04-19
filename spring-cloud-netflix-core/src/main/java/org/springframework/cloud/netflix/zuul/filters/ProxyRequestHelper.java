@@ -96,7 +96,8 @@ public class ProxyRequestHelper {
 		RequestContext context = RequestContext.getCurrentContext();
 		String uri = request.getRequestURI();
 		String contextURI = (String) context.get("requestURI");
-		String characterEncoding = request.getCharacterEncoding() != null ? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
+		String characterEncoding = request.getCharacterEncoding() != null
+				? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
 		if (contextURI != null) {
 			try {
 				uri = UriUtils.encodePath(contextURI, characterEncoding);
@@ -112,6 +113,8 @@ public class ProxyRequestHelper {
 
 	public MultiValueMap<String, String> buildZuulRequestQueryParams(
 			HttpServletRequest request) {
+		String characterEncoding = request.getCharacterEncoding() != null
+				? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
 		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (map == null) {
@@ -119,7 +122,7 @@ public class ProxyRequestHelper {
 		}
 		for (String key : map.keySet()) {
 			for (String value : map.get(key)) {
-				params.add(key, value);
+				params.add(key, UriUtils.encodeQueryParam(value, characterEncoding));
 			}
 		}
 		return params;
