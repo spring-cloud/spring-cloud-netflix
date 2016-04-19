@@ -52,6 +52,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
+ * @author Marcos Barbero
  */
 @CommonsLog
 public class ProxyRequestHelper {
@@ -96,7 +97,8 @@ public class ProxyRequestHelper {
 		RequestContext context = RequestContext.getCurrentContext();
 		String uri = request.getRequestURI();
 		String contextURI = (String) context.get("requestURI");
-		String characterEncoding = request.getCharacterEncoding() != null ? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
+		String characterEncoding = request.getCharacterEncoding() != null
+				? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
 		if (contextURI != null) {
 			try {
 				uri = UriUtils.encodePath(contextURI, characterEncoding);
@@ -112,6 +114,8 @@ public class ProxyRequestHelper {
 
 	public MultiValueMap<String, String> buildZuulRequestQueryParams(
 			HttpServletRequest request) {
+		String characterEncoding = request.getCharacterEncoding() != null
+				? request.getCharacterEncoding() : WebUtils.DEFAULT_CHARACTER_ENCODING;
 		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		if (map == null) {
@@ -119,10 +123,22 @@ public class ProxyRequestHelper {
 		}
 		for (String key : map.keySet()) {
 			for (String value : map.get(key)) {
-				params.add(key, value);
+				params.add(key, encodeQueryParam(value, characterEncoding));
 			}
 		}
 		return params;
+	}
+
+	private String encodeQueryParam(String value, String characterEncoding) {
+		try {
+			value = UriUtils.encodeQueryParam(value, characterEncoding);
+		}
+		catch (Exception e) {
+			log.debug(
+					"unable to encode query param from context, falling back to value from request",
+					e);
+		}
+		return value;
 	}
 
 	public MultiValueMap<String, String> buildZuulRequestHeaders(
