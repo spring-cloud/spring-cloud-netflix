@@ -25,6 +25,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
@@ -430,11 +431,23 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 		if (serviceUrls == null || serviceUrls.isEmpty()) {
 			serviceUrls = this.serviceUrl.get(DEFAULT_ZONE);
 		}
-		if (serviceUrls != null) {
-			return Arrays.asList(serviceUrls.split(","));
+		if (!StringUtils.isEmpty(serviceUrls)) {
+			final String[] serviceUrlsSplit = serviceUrls.split(",");
+			List<String> eurekaServiceUrls = new ArrayList<>(serviceUrlsSplit.length);
+			for (String eurekaServiceUrl : serviceUrlsSplit) {
+				if (!endsWithSlash(eurekaServiceUrl)) {
+					eurekaServiceUrl += "/";
+				}
+				eurekaServiceUrls.add(eurekaServiceUrl);
+			}
+			return eurekaServiceUrls;
 		}
 
 		return new ArrayList<>();
+	}
+
+	private boolean endsWithSlash(String url) {
+		return url.endsWith("/");
 	}
 
 	@Override
