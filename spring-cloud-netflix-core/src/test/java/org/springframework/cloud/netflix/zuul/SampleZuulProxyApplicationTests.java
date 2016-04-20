@@ -146,7 +146,7 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 				"http://localhost:" + this.port + "/self/query?foo={foo}", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class, "weird#chars");
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("/query?foo=weird%23chars", result.getBody());
+		assertEquals("/query?foo=weird#chars", result.getBody());
 	}
 
 	@Test

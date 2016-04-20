@@ -52,6 +52,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
+ * @author Marcos Barbero
  */
 @CommonsLog
 public class ProxyRequestHelper {
@@ -114,18 +115,6 @@ public class ProxyRequestHelper {
 				: WebUtils.DEFAULT_CHARACTER_ENCODING;
 	}
 
-	private String encodeQueryParam(String value, String encoding) {
-		try {
-			value = UriUtils.encodeQueryParam(value, encoding);
-		}
-		catch (Exception e) {
-			log.debug(
-					"unable to encode value from context, falling back to value from request",
-					e);
-		}
-		return value;
-	}
-
 	public MultiValueMap<String, String> buildZuulRequestQueryParams(
 			HttpServletRequest request) {
 		Map<String, List<String>> map = HTTPRequestUtils.getInstance().getQueryParams();
@@ -133,10 +122,9 @@ public class ProxyRequestHelper {
 		if (map == null) {
 			return params;
 		}
-		String encoding = characterEncoding(request);
 		for (String key : map.keySet()) {
 			for (String value : map.get(key)) {
-				params.add(key, encodeQueryParam(value, encoding));
+				params.add(key, value);
 			}
 		}
 		return params;
