@@ -432,7 +432,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 			serviceUrls = this.serviceUrl.get(DEFAULT_ZONE);
 		}
 		if (!StringUtils.isEmpty(serviceUrls)) {
-			final String[] serviceUrlsSplit = serviceUrls.split(",");
+			final String[] serviceUrlsSplit = StringUtils.commaDelimitedListToStringArray(serviceUrls);
 			List<String> eurekaServiceUrls = new ArrayList<>(serviceUrlsSplit.length);
 			for (String eurekaServiceUrl : serviceUrlsSplit) {
 				if (!endsWithSlash(eurekaServiceUrl)) {
