@@ -86,7 +86,7 @@ public class FeignHttpClientTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
 
-		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop")
+		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop", consumes = "application/json")
 		ResponseEntity<Void> patchHello(Hello hello);
 	}
 

@@ -16,16 +16,12 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
-import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Collection;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
@@ -37,6 +33,10 @@ import org.springframework.http.converter.HttpMessageConverter;
 import feign.RequestTemplate;
 import feign.codec.EncodeException;
 import feign.codec.Encoder;
+import lombok.extern.apachecommons.CommonsLog;
+
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHeaders;
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
 
 /**
  * @author Spencer Gibb
@@ -89,6 +89,12 @@ public class SpringEncoder implements Encoder {
 					catch (IOException ex) {
 						throw new EncodeException("Error converting request body", ex);
 					}
+					// clear headers
+					request.headers(null);
+					// converters can modify headers, so update the request
+					// with the modified headers
+					request.headers(getHeaders(outputMessage.getHeaders()));
+
 					request.body(outputMessage.getOutputStream().toByteArray(),
 							Charset.forName("UTF-8")); // TODO: set charset
 					return;
@@ -107,10 +113,10 @@ public class SpringEncoder implements Encoder {
 
 		private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-		private final RequestTemplate request;
+		private final HttpHeaders httpHeaders;
 
 		private FeignOutputMessage(RequestTemplate request) {
-			this.request = request;
+			httpHeaders = getHttpHeaders(request.headers());
 		}
 
 		@Override
@@ -120,7 +126,7 @@ public class SpringEncoder implements Encoder {
 
 		@Override
 		public HttpHeaders getHeaders() {
-			return getHttpHeaders(this.request.headers());
+			return this.httpHeaders;
 		}
 
 		public ByteArrayOutputStream getOutputStream() {
