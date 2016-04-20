@@ -157,7 +157,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-stream-parent</artifactId>
+				<artifactId>spring-cloud-stream-dependencies</artifactId>
 				<version>${spring-cloud-stream.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
