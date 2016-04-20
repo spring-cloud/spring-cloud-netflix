@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.web.HttpEncodingProperties;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -42,6 +41,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
@@ -71,6 +71,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 @Import(EurekaServerInitializerConfiguration.class)
 @EnableDiscoveryClient
 @EnableConfigurationProperties(EurekaDashboardProperties.class)
+@PropertySource("classpath:/eureka/server.properties")
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server
@@ -121,14 +122,6 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		}
 	}
 
-	// TODO: is there a better way?
-	@Bean(name = "spring.http.encoding.CONFIGURATION_PROPERTIES")
-	public HttpEncodingProperties httpEncodingProperties() {
-		HttpEncodingProperties properties = new HttpEncodingProperties();
-		properties.setForce(false);
-		return properties;
-	}
-
 	@Bean
 	@ConditionalOnProperty(prefix = "eureka.dashboard", name = "enabled", matchIfMissing = true)
 	public EurekaController eurekaController() {
@@ -148,7 +141,8 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 	private static CodecWrapper getFullXml(EurekaServerConfig serverConfig) {
 		CodecWrapper codec = CodecWrappers.getCodec(serverConfig.getXmlCodecName());
-		return codec == null ? CodecWrappers.getCodec(CodecWrappers.XStreamXml.class) : codec;
+		return codec == null ? CodecWrappers.getCodec(CodecWrappers.XStreamXml.class)
+				: codec;
 	}
 
 	class CloudServerCodecs extends DefaultServerCodecs {

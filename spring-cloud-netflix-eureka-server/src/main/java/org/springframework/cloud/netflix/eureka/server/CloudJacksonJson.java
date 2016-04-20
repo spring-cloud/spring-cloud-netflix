@@ -42,26 +42,26 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 	@Override
 	public <T> String encode(T object) throws IOException {
-		return codec.writeToString(object);
+		return this.codec.writeToString(object);
 	}
 
 	@Override
 	public <T> void encode(T object, OutputStream outputStream) throws IOException {
-		codec.writeTo(object, outputStream);
+		this.codec.writeTo(object, outputStream);
 	}
 
 	@Override
 	public <T> T decode(String textValue, Class<T> type) throws IOException {
-		return codec.readValue(type, textValue);
+		return this.codec.readValue(type, textValue);
 	}
 
 	@Override
 	public <T> T decode(InputStream inputStream, Class<T> type) throws IOException {
-		return codec.readValue(type, inputStream);
+		return this.codec.readValue(type, inputStream);
 	}
 
 	static class CloudJacksonCodec extends EurekaJacksonCodec {
-		private static final Version VERSION = new Version(1, 1, 0, null);
+		private static final Version VERSION = new Version(1, 1, 0, null, null, null);
 
 		@SuppressWarnings("deprecation")
 		public CloudJacksonCodec() {
@@ -74,26 +74,37 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			module.addSerializer(DataCenterInfo.class, new DataCenterInfoSerializer());
 			module.addSerializer(InstanceInfo.class, new CloudInstanceInfoSerializer());
 			module.addSerializer(Application.class, new ApplicationSerializer());
-			module.addSerializer(Applications.class, new ApplicationsSerializer(this.getVersionDeltaKey(), this.getAppHashCodeKey()));
+			module.addSerializer(Applications.class, new ApplicationsSerializer(
+					this.getVersionDeltaKey(), this.getAppHashCodeKey()));
 
-			module.addDeserializer(DataCenterInfo.class, new DataCenterInfoDeserializer());
+			module.addDeserializer(DataCenterInfo.class,
+					new DataCenterInfoDeserializer());
 			module.addDeserializer(LeaseInfo.class, new LeaseInfoDeserializer());
-			module.addDeserializer(InstanceInfo.class, new CloudInstanceInfoDeserializer(mapper));
-			module.addDeserializer(Application.class, new ApplicationDeserializer(mapper));
-			module.addDeserializer(Applications.class, new ApplicationsDeserializer(mapper, this.getVersionDeltaKey(), this.getAppHashCodeKey()));
+			module.addDeserializer(InstanceInfo.class,
+					new CloudInstanceInfoDeserializer(mapper));
+			module.addDeserializer(Application.class,
+					new ApplicationDeserializer(mapper));
+			module.addDeserializer(Applications.class, new ApplicationsDeserializer(
+					mapper, this.getVersionDeltaKey(), this.getAppHashCodeKey()));
 
 			mapper.registerModule(module);
 
 			HashMap<Class<?>, ObjectReader> readers = new HashMap<>();
-			readers.put(InstanceInfo.class, mapper.reader().withType(InstanceInfo.class).withRootName("instance"));
-			readers.put(Application.class, mapper.reader().withType(Application.class).withRootName("application"));
-			readers.put(Applications.class, mapper.reader().withType(Applications.class).withRootName("applications"));
+			readers.put(InstanceInfo.class, mapper.reader().withType(InstanceInfo.class)
+					.withRootName("instance"));
+			readers.put(Application.class, mapper.reader().withType(Application.class)
+					.withRootName("application"));
+			readers.put(Applications.class, mapper.reader().withType(Applications.class)
+					.withRootName("applications"));
 			setField("objectReaderByClass", readers);
 
 			HashMap<Class<?>, ObjectWriter> writers = new HashMap<>();
-			writers.put(InstanceInfo.class, mapper.writer().withType(InstanceInfo.class).withRootName("instance"));
-			writers.put(Application.class, mapper.writer().withType(Application.class).withRootName("application"));
-			writers.put(Applications.class, mapper.writer().withType(Applications.class).withRootName("applications"));
+			writers.put(InstanceInfo.class, mapper.writer().withType(InstanceInfo.class)
+					.withRootName("instance"));
+			writers.put(Application.class, mapper.writer().withType(Application.class)
+					.withRootName("application"));
+			writers.put(Applications.class, mapper.writer().withType(Applications.class)
+					.withRootName("applications"));
 			setField("objectWriterByClass", writers);
 
 			setField("mapper", mapper);
@@ -108,7 +119,8 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 	static class CloudInstanceInfoSerializer extends InstanceInfoSerializer {
 		@Override
-		public void serialize(InstanceInfo info, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+		public void serialize(InstanceInfo info, JsonGenerator jgen,
+				SerializerProvider provider) throws IOException {
 
 			if (info.getInstanceId() == null && info.getMetadata() != null) {
 				String instanceId = info.getMetadata().get("instanceId");
