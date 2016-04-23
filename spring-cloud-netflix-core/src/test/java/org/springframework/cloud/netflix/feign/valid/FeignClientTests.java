@@ -142,6 +142,9 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
 
+		@RequestMapping(method = RequestMethod.GET, value = "${feignClient.methodLevelRequestMappingPath}")
+		Hello getHelloUsingPropertyPlaceHolder();
+
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Single<Hello> getHelloSingle();
 
@@ -309,6 +312,11 @@ public class FeignClientTests {
 			return new Hello(HELLO_WORLD_1);
 		}
 
+		@RequestMapping(method = RequestMethod.GET, value = "/hello2")
+		public Hello getHello2() {
+			return new Hello(OI_TERRA_2);
+		}
+
 		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
 		public List<Hello> getHellos() {
 			ArrayList<Hello> hellos = getHelloList();
@@ -396,6 +404,13 @@ public class FeignClientTests {
 				Proxy.isProxyClass(this.testClient.getClass()));
 		InvocationHandler invocationHandler = Proxy.getInvocationHandler(this.testClient);
 		assertNotNull("invocationHandler was null", invocationHandler);
+	}
+
+	@Test
+	public void testRequestMappingClassLevelPropertyReplacement() {
+		Hello hello = this.testClient.getHelloUsingPropertyPlaceHolder();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello(OI_TERRA_2), hello);
 	}
 
 	@Test
