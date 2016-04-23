@@ -31,12 +31,17 @@ import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.PathVariableParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestHeaderParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterProcessor;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import feign.Contract;
@@ -51,7 +56,7 @@ import static org.springframework.core.annotation.AnnotatedElementUtils.findMerg
 /**
  * @author Spencer Gibb
  */
-public class SpringMvcContract extends Contract.BaseContract {
+public class SpringMvcContract extends Contract.BaseContract implements ResourceLoaderAware {
 
 	private static final String ACCEPT = "Accept";
 
@@ -64,6 +69,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 	private final ConversionService conversionService;
 	private final Param.Expander expander;
+	private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
 	public SpringMvcContract() {
 		this(Collections.<AnnotatedParameterProcessor> emptyList());
@@ -95,6 +101,11 @@ public class SpringMvcContract extends Contract.BaseContract {
 	}
 
 	@Override
+	public void setResourceLoader(ResourceLoader resourceLoader) {
+		this.resourceLoader = resourceLoader;
+	}
+
+	@Override
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
 		this.processedMethods.put(Feign.configKey(targetType, method), method);
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
@@ -108,6 +119,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 				checkState(pathValue != null,
 						"RequestMapping.value() was empty on type %s",
 						method.getDeclaringClass().getName());
+				pathValue = resolve(pathValue);
 				if (!pathValue.startsWith("/")) {
 					pathValue = "/" + pathValue;
 				}
@@ -148,6 +160,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 		if (methodMapping.value().length > 0) {
 			String pathValue = emptyToNull(methodMapping.value()[0]);
 			if (pathValue != null) {
+				pathValue = resolve(pathValue);
 				// Append path from @RequestMapping if value is present on method
 				if (!pathValue.startsWith("/")
 						&& !data.template().toString().endsWith("/")) {
@@ -167,6 +180,15 @@ public class SpringMvcContract extends Contract.BaseContract {
 		parseHeaders(data, method, methodMapping);
 
 		data.indexToExpander(new LinkedHashMap<Integer, Param.Expander>());
+	}
+
+	private String resolve(String value) {
+		if (StringUtils.hasText(value)
+				&& this.resourceLoader instanceof ConfigurableApplicationContext) {
+			return ((ConfigurableApplicationContext) this.resourceLoader).getEnvironment()
+					.resolvePlaceholders(value);
+		}
+		return value;
 	}
 
 	private void checkAtMostOne(Method method, Object[] values, String fieldName) {
@@ -312,7 +334,7 @@ public class SpringMvcContract extends Contract.BaseContract {
 
 		@Override
 		public Collection<String> setTemplateParameter(String name,
-				Collection<String> rest) {
+													   Collection<String> rest) {
 			return addTemplatedParam(rest, name);
 		}
 	}
