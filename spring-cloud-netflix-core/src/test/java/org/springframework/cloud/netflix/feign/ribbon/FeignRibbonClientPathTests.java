@@ -58,7 +58,7 @@ import static org.junit.Assert.assertNotNull;
 		"feign.okhttp.enabled=false",
 		"feign.httpclient.enabled=false",
 		"feign.hystrix.enabled=false",
-		"test.path.prefix=/base/path"
+		"test.path.prefix=/base/path" // For pathWithPlaceholder test
 	}
 )
 @DirtiesContext
