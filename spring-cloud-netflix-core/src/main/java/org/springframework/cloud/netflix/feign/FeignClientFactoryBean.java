@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * @author Spencer Gibb
+ * @author Venil Noronha
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -69,6 +70,8 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	private String name;
 
 	private String url;
+
+	private String path;
 
 	private boolean decode404;
 
@@ -170,14 +173,29 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			else {
 				url = this.name;
 			}
+			url += cleanPath();
 			return loadBalance(builder, context, new HardCodedTarget<>(this.type,
 					this.name, url));
 		}
 		if (StringUtils.hasText(this.url) && !this.url.startsWith("http")) {
 			this.url = "http://" + this.url;
 		}
+		String url = this.url + cleanPath();
 		return targeter.target(this, builder, context, new HardCodedTarget<>(
-				this.type, this.name, this.url));
+				this.type, this.name, url));
+	}
+
+	private String cleanPath() {
+		String path = this.path.trim();
+		if (StringUtils.hasLength(path)) {
+			if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
+		}
+		return path;
 	}
 
 	@Override

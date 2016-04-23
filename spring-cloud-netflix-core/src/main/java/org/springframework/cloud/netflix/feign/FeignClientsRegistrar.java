@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Spencer Gibb
  * @author Jakub Narloch
+ * @author Venil Noronha
  */
 public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		ResourceLoaderAware, BeanClassLoaderAware {
@@ -171,6 +172,7 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 				.genericBeanDefinition(FeignClientFactoryBean.class);
 		validate(attributes);
 		definition.addPropertyValue("url", getUrl(attributes));
+		definition.addPropertyValue("path", getPath(attributes));
 		String name = getName(attributes);
 		definition.addPropertyValue("name", name);
 		definition.addPropertyValue("type", className);
@@ -245,6 +247,20 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 			}
 		}
 		return url;
+	}
+
+	private String getPath(Map<String, Object> attributes) {
+		String path = resolve((String) attributes.get("path"));
+		if (StringUtils.hasText(path)) {
+			path = path.trim();
+			if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
+		}
+		return path;
 	}
 
 	protected ClassPathScanningCandidateComponentProvider getScanner() {
