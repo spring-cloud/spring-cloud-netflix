@@ -58,6 +58,7 @@ import static org.junit.Assert.assertNotNull;
 		"feign.okhttp.enabled=false",
 		"feign.httpclient.enabled=false",
 		"feign.hystrix.enabled=false",
+		"test.path.prefix=/base/path"
 	}
 )
 @DirtiesContext
@@ -77,6 +78,9 @@ public class FeignRibbonClientPathTests {
 
 	@Autowired
 	private TestClient4 testClient4;
+	
+	@Autowired
+	private TestClient5 testClient5;
 
 	protected interface TestClient {
 
@@ -97,13 +101,16 @@ public class FeignRibbonClientPathTests {
 	@FeignClient(name = "localapp", path = "/base/path/")
 	protected interface TestClient4 extends TestClient { }
 
+	@FeignClient(name = "localapp", path = "${test.path.prefix}")
+	protected interface TestClient5 extends TestClient { }
+	
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
 	@RequestMapping("/base/path")
 	@EnableFeignClients(clients = {
-		TestClient1.class, TestClient2.class,
-		TestClient3.class, TestClient4.class 
+		TestClient1.class, TestClient2.class, TestClient3.class, TestClient4.class,
+		TestClient5.class
 	})
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	public static class Application {
@@ -133,13 +140,18 @@ public class FeignRibbonClientPathTests {
 	}
 
 	@Test
-	public void testPathWithoutLeadingButTrailingSlash() {
+	public void pathWithoutLeadingButTrailingSlash() {
 		testClientPath(this.testClient3);
 	}
 
 	@Test
-	public void testPathWithLeadingAndTrailingShash() {
+	public void pathWithLeadingAndTrailingSlash() {
 		testClientPath(this.testClient4);
+	}
+
+	@Test
+	public void pathWithPlaceholder() {
+		testClientPath(this.testClient5);
 	}
 
 	private void testClientPath(TestClient testClient) {
