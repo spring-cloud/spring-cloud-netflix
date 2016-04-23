@@ -88,6 +88,12 @@ public class FeignHttpClientTests {
 
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop", consumes = "application/json")
 		ResponseEntity<Void> patchHello(Hello hello);
+
+		@RequestMapping(method = RequestMethod.GET, value = "${feignClient.requestMappingValue}")
+		Hello getHelloFromConfigFile();
+
+		@RequestMapping(method = RequestMethod.GET, value = "${feignClient.wrongRequestMappingValue:/no-value-from-config-file}")
+		Hello getHelloFromConfigFileWithFallback();
 	}
 
 	protected interface UserService {
@@ -116,6 +122,16 @@ public class FeignHttpClientTests {
 			return ResponseEntity.ok().header("X-Hello", "hello world patch").build();
 		}
 
+		@RequestMapping(method = RequestMethod.GET, value = "/value-from-config-file")
+		public Hello getRequestMappingValueFromConfig() {
+			return new Hello("hello world with value from config file");
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/no-value-from-config-file")
+		public Hello getRequestMappingValueFromConfigFallback() {
+			return new Hello("hello world with no value from config file");
+		}
+
 		@Override
 		public User getUser(@PathVariable("id") long id) {
 			return new User("John Smith");
@@ -141,6 +157,22 @@ public class FeignHttpClientTests {
 		assertThat(response, is(notNullValue()));
 		String header = response.getHeaders().getFirst("X-Hello");
 		assertThat(header, equalTo("hello world patch"));
+	}
+
+	@Test
+	public void testRequestMappingFromConfigFile() {
+		Hello hello = testClient.getHelloFromConfigFile();
+		assertNotNull("hello was null", hello);
+		assertEquals("hello didn't match",
+				new Hello("hello world with value from config file"), hello);
+	}
+
+	@Test
+	public void testRequestMappingFromConfigFileWithFallback() {
+		Hello hello = testClient.getHelloFromConfigFileWithFallback();
+		assertNotNull("hello was null", hello);
+		assertEquals("hello didn't match",
+				new Hello("hello world with no value from config file"), hello);
 	}
 
 	@Test

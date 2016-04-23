@@ -43,3 +43,4 @@ zuul:
       path: /stores/**
 feignClient:
   localappName: localapp
+  requestMappingValue: /value-from-config-file
