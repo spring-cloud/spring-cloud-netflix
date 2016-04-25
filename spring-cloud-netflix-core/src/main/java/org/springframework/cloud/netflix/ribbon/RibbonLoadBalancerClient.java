@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	@Override
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
 		Server server = getServer(loadBalancer);
 		if (server == null) {
@@ -88,6 +89,11 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			T returnVal = request.apply(ribbonServer);
 			statsRecorder.recordStats(returnVal);
 			return returnVal;
+		}
+		// catch IOException and rethrow so RestTemplate behaves correctly
+		catch (IOException ex) {
+			statsRecorder.recordStats(ex);
+			throw ex;
 		}
 		catch (Exception ex) {
 			statsRecorder.recordStats(ex);

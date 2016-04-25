@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
@@ -38,9 +39,12 @@ import com.netflix.loadbalancer.ServerStats;
 
 import lombok.SneakyThrows;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyDouble;
@@ -139,7 +143,7 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	public void testExecute() {
+	public void testExecute() throws IOException {
 		final RibbonServer server = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		final String returnVal = "myval";
@@ -172,6 +176,27 @@ public class RibbonLoadBalancerClientTests {
 		}
 		catch (Exception ex) {
 			assertNotNull(ex);
+		}
+		verifyServerStats();
+	}
+
+	@Test
+	public void testExecuteIOException() {
+		final RibbonServer ribbonServer = getRibbonServer();
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(ribbonServer);
+		try {
+			client.execute(ribbonServer.getServiceId(),
+					new LoadBalancerRequest<Object>() {
+						@Override
+						public Object apply(ServiceInstance instance) throws Exception {
+							assertServiceInstance(ribbonServer, instance);
+							throw new IOException();
+						}
+					});
+			fail("Should have thrown exception");
+		}
+		catch (Exception ex) {
+			assertThat("wrong exception type", ex, is(instanceOf(IOException.class)));
 		}
 		verifyServerStats();
 	}
