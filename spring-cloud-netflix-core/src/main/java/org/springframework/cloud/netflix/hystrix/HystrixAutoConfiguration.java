@@ -16,12 +16,11 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
+import org.springframework.boot.actuate.autoconfigure.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.autoconfigure.HealthIndicatorAutoConfiguration;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,31 +30,17 @@ import com.netflix.hystrix.Hystrix;
  * Auto configuration for Hystrix.
  *
  * @author Christian Dupuis
+ * @author Dave Syer
  */
 @Configuration
 @ConditionalOnClass({ Hystrix.class, HealthIndicator.class })
 @AutoConfigureAfter({ HealthIndicatorAutoConfiguration.class })
-@ConditionalOnProperty(value = "health.hystrix.enabled", matchIfMissing = true)
 public class HystrixAutoConfiguration {
 
 	@Bean
+	@ConditionalOnEnabledHealthIndicator("hystrix")
 	public HystrixHealthIndicator hystrixHealthIndicator() {
 		return new HystrixHealthIndicator();
 	}
-	
-	@ConfigurationProperties("health.hystrix")
-	public static class Health {
-		/**
-		 * Flag to inidicate that the hystrix health indicator should be installed. 
-		 */
-		boolean enabled;
 
-		public boolean isEnabled() {
-			return enabled;
-		}
-
-		public void setEnabled(boolean enabled) {
-			this.enabled = enabled;
-		}
-	}
 }
