@@ -158,8 +158,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		HttpServletRequest request = context.getRequest();
 		MultiValueMap<String, String> headers = this.helper
 				.buildZuulRequestHeaders(request);
-		MultiValueMap<String, String> params = this.helper
-				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
 		if (request.getContentLength() < 0) {
@@ -171,7 +169,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 		try {
 			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
-					params, requestEntity);
+					request.getQueryString(), requestEntity);
 			setResponse(response);
 		}
 		catch (Exception ex) {
@@ -248,9 +246,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
 			HttpServletRequest request, MultiValueMap<String, String> headers,
-			MultiValueMap<String, String> params, InputStream requestEntity)
+			String queryString, InputStream requestEntity)
 					throws Exception {
-		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
+		Map<String, Object> info = this.helper.debug(verb, uri, headers, queryString,
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
@@ -261,24 +259,23 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				ContentType.create(request.getContentType()));
 		switch (verb.toUpperCase()) {
 		case "POST":
-			HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
+			HttpPost httpPost = new HttpPost(uri + this.helper.formatQueryString(queryString));
 			httpRequest = httpPost;
 			httpPost.setEntity(entity);
 			break;
 		case "PUT":
-			HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
+			HttpPut httpPut = new HttpPut(uri + this.helper.formatQueryString(queryString));
 			httpRequest = httpPut;
 			httpPut.setEntity(entity);
 			break;
 		case "PATCH":
-			HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
+			HttpPatch httpPatch = new HttpPatch(uri + this.helper.formatQueryString(queryString));
 			httpRequest = httpPatch;
 			httpPatch.setEntity(entity);
 			break;
 		default:
 			httpRequest = new BasicHttpRequest(verb,
-					uri + this.helper.getQueryString(params));
-			log.debug(uri + this.helper.getQueryString(params));
+					uri + this.helper.formatQueryString(queryString));
 		}
 		try {
 			httpRequest.setHeaders(convertHeaders(headers));

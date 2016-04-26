@@ -230,14 +230,20 @@ public class ProxyRequestHelper {
 	}
 
 	public Map<String, Object> debug(String verb, String uri,
-			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+									 MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+									 InputStream requestEntity) throws IOException {
+		return debug(verb, uri, headers, getQueryString(params), requestEntity);
+	}
+
+	public Map<String, Object> debug(String verb, String uri,
+			MultiValueMap<String, String> headers, String queryString,
 			InputStream requestEntity) throws IOException {
 		Map<String, Object> info = new LinkedHashMap<>();
 		if (this.traces != null) {
 			RequestContext context = RequestContext.getCurrentContext();
 			info.put("method", verb);
 			info.put("path", uri);
-			info.put("query", getQueryString(params));
+			info.put("query", queryString);
 			info.put("remote", true);
 			info.put("proxy", context.get("proxy"));
 			Map<String, Object> trace = new LinkedHashMap<>();
@@ -333,5 +339,9 @@ public class ProxyRequestHelper {
 
 		UriTemplate template = new UriTemplate("?" + query.toString().substring(1));
 		return template.expand(singles).toString();
+	}
+
+	public String formatQueryString(String queryString) {
+		return (queryString == null) ? "": "?" + queryString;
 	}
 }
