@@ -1309,13 +1309,47 @@ default is a <code>DomainExtractingServerList</code> and the purpose of this is
 to make physical metadata available to the load balancer without using
 AWS AMI metadata (which is what Netflix relies on). By default the
 server list will be constructed with "zone" information as provided in
-the instance metadata (so on the client set
+the instance metadata (so on the remote clients set
 <code>eureka.instance.metadataMap.zone</code>), and if that is missing it can use
 the domain name from the server hostname as a proxy for zone (if the
-flag <code>approximateZoneFromHostname</code> is set). Once the zone information is
-available it can be used in a <code>ServerListFilter</code> (by default it will
-be used to locate a server in the same zone as the client because the
-default is a <code>ZonePreferenceServerListFilter</code>).</p>
+flag <code>approximateZoneFromHostname</code> is set). Once the zone information
+is available it can be used in a <code>ServerListFilter</code>. By default it
+will be used to locate a server in the same zone as the client because
+the default is a <code>ZonePreferenceServerListFilter</code>. The zone of the
+client is determined the same way as the remote instances by default,
+i.e. via <code>eureka.instance.metadataMap.zone</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+The orthodox "archaius" way to set the client zone is via a
+configuration property called "@zone", and Spring Cloud will use that
+in preference to all other settings if it is available (note that the
+key will have to be quoted in YAML configuration).
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+If there is no other source of zone data then a guess is made
+based on the client configuration (as opposed to the instance
+configuration). We take <code>eureka.client.availabilityZones</code>, which is a
+map from region name to a list of zones, and pull out the first zone
+for the instance&#8217;s own region (i.e. the <code>eureka.client.region</code>, which
+defaults to "us-east-1" for comatibility with native Netflix).
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -2757,7 +2791,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-26 16:32:20 UTC
+Last updated 2016-04-27 08:12:42 UTC
 </div>
 </div>
 </body>
