@@ -36,8 +36,10 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.*;
+import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.VALUE_NOT_SET;
+import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.getProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.getRibbonKey;
+import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.setRibbonProperty;
 
 /**
  * @author Dave Syer
@@ -83,15 +85,27 @@ public class EurekaRibbonClientConfigurationTests {
 		String serviceId = "myService";
 		String suffix = "mySuffix";
 		String value = "myValue";
-		DynamicStringProperty property = getProperty(getRibbonKey(
-				serviceId, suffix));
-		assertEquals("property doesn't have default value", VALUE_NOT_SET, property.get());
+		DynamicStringProperty property = getProperty(getRibbonKey(serviceId, suffix));
+		assertEquals("property doesn't have default value", VALUE_NOT_SET,
+				property.get());
 		setRibbonProperty(serviceId, suffix, value);
 		assertEquals("property has wrong value", value, property.get());
 		setRibbonProperty(serviceId, suffix, value);
 		assertEquals("property has wrong value", value, property.get());
 	}
-	
+
+	@Test
+	public void testExplicitZone() {
+		EurekaClientConfigBean client = new EurekaClientConfigBean();
+		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
+		configBean.getMetadataMap().put("zone", "myZone");
+		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
+				client, "myService", configBean, false);
+		preprocessor.preprocess();
+		assertEquals("myZone",
+				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+	}
+
 	@Test
 	public void testDefaultZone() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
@@ -99,9 +113,10 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, false);
 		preprocessor.preprocess();
-		assertEquals("defaultZone", ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertEquals("defaultZone",
+				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
 	}
-	
+
 	@Test
 	public void testApproximateZone() {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
@@ -110,7 +125,8 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, true);
 		preprocessor.preprocess();
-		assertEquals("is.a.test.com", ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertEquals("is.a.test.com",
+				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
 	}
 
 }

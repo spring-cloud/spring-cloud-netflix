@@ -36,11 +36,11 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
 import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
 import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.setRibbonProperty;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
@@ -104,21 +104,26 @@ public class EurekaRibbonClientConfiguration {
 
 	@PostConstruct
 	public void preprocess() {
-		String zone = ConfigurationManager.getDeploymentContext().getValue(
-				ContextKey.zone);
+		String zone = ConfigurationManager.getDeploymentContext()
+				.getValue(ContextKey.zone);
 		if (this.clientConfig != null && StringUtils.isEmpty(zone)) {
-			if (approximateZoneFromHostname && eurekaConfig != null) {
-				String approxZone = ZoneUtils.extractApproximateZone(eurekaConfig
-						.getHostName(false));
+			if (this.approximateZoneFromHostname && this.eurekaConfig != null) {
+				String approxZone = ZoneUtils
+						.extractApproximateZone(this.eurekaConfig.getHostName(false));
 				log.debug("Setting Zone To " + approxZone);
 				ConfigurationManager.getDeploymentContext().setValue(ContextKey.zone,
 						approxZone);
 			}
 			else {
-				String[] zones = this.clientConfig.getAvailabilityZones(this.clientConfig
-						.getRegion());
-				String availabilityZone = zones != null && zones.length > 0 ? zones[0]
-						: null;
+				String availabilityZone = this.eurekaConfig == null ? null
+						: this.eurekaConfig.getMetadataMap().get("zone");
+				if (availabilityZone == null) {
+					String[] zones = this.clientConfig
+							.getAvailabilityZones(this.clientConfig.getRegion());
+					// Pick the first one from the regions we want to connect to
+					availabilityZone = zones != null && zones.length > 0 ? zones[0]
+							: null;
+				}
 				if (availabilityZone != null) {
 					// You can set this with archaius.deployment.* (maybe requires
 					// custom deployment context)?
@@ -127,7 +132,8 @@ public class EurekaRibbonClientConfiguration {
 				}
 			}
 		}
-		setRibbonProperty(this.serviceId, DeploymentContextBasedVipAddresses.key(), this.serviceId);
+		setRibbonProperty(this.serviceId, DeploymentContextBasedVipAddresses.key(),
+				this.serviceId);
 		setRibbonProperty(this.serviceId, EnableZoneAffinity.key(), "true");
 	}
 
