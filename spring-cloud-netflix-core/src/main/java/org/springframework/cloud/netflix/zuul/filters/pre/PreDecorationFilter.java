@@ -114,7 +114,18 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
 							ctx.getRequest().getScheme());
 					if (StringUtils.hasText(route.getPrefix())) {
-						ctx.addZuulRequestHeader("X-Forwarded-Prefix", route.getPrefix());
+						String existingPrefix = ctx.getRequest().getHeader("X-Forwarded-Prefix");
+						StringBuilder newPrefixBuilder = new StringBuilder();
+						if (StringUtils.hasLength(existingPrefix)) {
+							if (existingPrefix.endsWith("/") && route.getPrefix().startsWith("/")) {
+								newPrefixBuilder.append(existingPrefix, 0, existingPrefix.length() - 1);
+							}
+							else {
+								newPrefixBuilder.append(existingPrefix);
+							}
+						}
+						newPrefixBuilder.append(route.getPrefix());
+						ctx.addZuulRequestHeader("X-Forwarded-Prefix", newPrefixBuilder.toString());
 					}
 					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
