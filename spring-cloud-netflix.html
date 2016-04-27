@@ -1151,39 +1151,19 @@ for details on the properties available.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_turbine_amqp">Turbine AMQP</h3>
+<h3 id="_turbine_stream">Turbine Stream</h3>
 <div class="paragraph">
-<p>In some environments (e.g. in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands doesn&#8217;t work. In that case you might want to have your Hystrix commands push metrics to Turbine, and Spring Cloud enables that with AMQP messaging. All you need to do on the client is add a dependency to <code>spring-cloud-netflix-hystrix-amqp</code> and make sure there is a Rabbit broker available (see Spring Boot documentation for details on how to configure the client credentials, but it should work out of the box for a local broker or in Cloud Foundry).</p>
-</div>
-<div class="paragraph">
-<p>On the server side Just create a Spring Boot application and annotate it with <code>@EnableTurbineAmqp</code> and by default it will come up on port 8989 (point your Hystrix dashboard to that port, any path). You can customize the port using either <code>server.port</code> or <code>turbine.amqp.port</code>. If you have <code>spring-boot-starter-web</code> and <code>spring-boot-starter-actuator</code> on the classpath as well, then you can open up the Actuator endpoints on a separate port (with Tomcat by default) by providing a <code>management.port</code> which is different.</p>
+<p>In some environments (e.g. in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands doesn&#8217;t work. In that case you might want to have your Hystrix commands push metrics to Turbine, and Spring Cloud enables that with messaging. All you need to do on the client is add a dependency to <code>spring-cloud-netflix-hystrix-stream</code> and the <code>spring-cloud-starter-stream-*</code> of your choice (see Spring Cloud Stream documentation for details on the brokers, and how to configure the client credentials, but it should work out of the box for a local broker).</p>
 </div>
 <div class="paragraph">
-<p>You can then point the Hystrix Dashboard to the Turbine AMQP Server instead of individual Hystrix streams.  If Turbine AMQP is running on port 8989 on myhost, then put <code><a href="http://myhost:8989" class="bare">http://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</p>
+<p>On the server side Just create a Spring Boot application and annotate it with <code>@EnableTurbineStream</code> and by default it will come up on port 8989 (point your Hystrix dashboard to that port, any path). You can customize the port using either <code>server.port</code> or <code>turbine.stream.port</code>. If you have <code>spring-boot-starter-web</code> and <code>spring-boot-starter-actuator</code> on the classpath as well, then you can open up the Actuator endpoints on a separate port (with Tomcat by default) by providing a <code>management.port</code> which is different.</p>
 </div>
 <div class="paragraph">
-<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-amqp</code> that has all the dependencies you need to get a Turbine AMQP server running. You need Java 8 to run the app because it is Netty-based.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_customizing_the_amqp_connectionfactory">Customizing the AMQP ConnectionFactory</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>If you are using AMQP there needs to be a <code>ConnectionFactory</code> (from
-Spring Rabbit) in the application context. If there is a single
-<code>ConnectionFactory</code> it will be used, or if there is a one qualified as
-<code>@HystrixConnectionFactory</code> (on the client) and
-<code>@TurbineConnectionFactory</code> (on the server) it will be preferred over
-others, otherwise the <code>@Primary</code> one will be used. If there are
-multiple unqualified connection factories there will be an error.</p>
+<p>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.  If Turbine Stream is running on port 8989 on myhost, then put <code><a href="http://myhost:8989" class="bare">http://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</p>
 </div>
 <div class="paragraph">
-<p>Note that Spring Boot (as of 1.2.2) creates a <code>ConnectionFactory</code> that
-is <em>not</em> <code>@Primary</code>, so if you want to use one connection factory for
-the bus and another for business messages, you need to create both,
-and annotate them <code>@*ConnectionFactory</code> and <code>@Primary</code> respectively.</p>
+<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-stream</code> that has all the dependencies you need to get a Turbine Stream server running - just add the Sream binder of your choice, e.g. <code>spring-cloud-starter-stream-rabbit</code>. You need Java 8 to run the app because it is Netty-based.</p>
+</div>
 </div>
 </div>
 </div>
@@ -2791,7 +2771,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-27 08:12:42 UTC
+Last updated 2016-04-27 13:22:05 UTC
 </div>
 </div>
 </body>
