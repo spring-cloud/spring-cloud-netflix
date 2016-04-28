@@ -22,9 +22,31 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties("netflix.metrics.servo")
 public class ServoMetricsConfigBean {
+
+	/**
+	 * Enable the Netflix Servo metrics services. If this flag is off Servo can still be
+	 * used by Netflix OSS components, but the Spring Boot metrics collection will be done
+	 * with the default services.
+	 */
+	boolean enabled = true;
+	/**
+	 * Fully qualified class name for monitor registry used by Servo.
+	 */
 	String registryClass = "com.netflix.servo.BasicMonitorRegistry";
 
 	public String getRegistryClass() {
-		return registryClass;
+		return this.registryClass;
+	}
+
+	public boolean getEnabled() {
+		return this.enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public void setRegistryClass(String registryClass) {
+		this.registryClass = registryClass;
 	}
 }

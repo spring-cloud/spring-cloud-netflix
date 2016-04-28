@@ -11,13 +11,14 @@ import org.springframework.cloud.netflix.metrics.SimpleMonitorRegistry;
 import com.google.common.collect.Lists;
 import com.netflix.servo.monitor.MonitorConfig;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ServoMetricReaderTests {
 	@Test
 	public void singleCompositeMonitorYieldsMultipleActuatorMetrics() {
 		SimpleMonitorRegistry registry = new SimpleMonitorRegistry();
-		ServoMetricReader reader = new ServoMetricReader(registry, new DimensionalServoMetricNaming());
+		ServoMetricReader reader = new ServoMetricReader(registry,
+				new DimensionalServoMetricNaming());
 
 		MonitorConfig.Builder builder = new MonitorConfig.Builder("metricName");
 		ServoMonitorCache servoMonitorCache = new ServoMonitorCache(registry);
@@ -42,4 +43,3 @@ public class ServoMetricReaderTests {
 				metricNames.get(3));
 	}
 }
-

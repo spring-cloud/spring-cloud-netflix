@@ -184,7 +184,8 @@ public abstract class ZuulProxyTestBase {
 		assertEquals("Received {key=[overridden]}", result.getBody());
 	}
 
-	protected static abstract class AbstractZuulProxyApplication extends DelegatingWebMvcConfiguration {
+	protected static abstract class AbstractZuulProxyApplication
+			extends DelegatingWebMvcConfiguration {
 
 		@RequestMapping("/testing123")
 		public String testing123() {
@@ -202,7 +203,7 @@ public abstract class ZuulProxyTestBase {
 		}
 
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
-		public ResponseEntity get(@PathVariable String id) {
+		public ResponseEntity<?> get(@PathVariable String id) {
 			if ("notfound".equalsIgnoreCase(id)) {
 				return ResponseEntity.notFound().build();
 			}
