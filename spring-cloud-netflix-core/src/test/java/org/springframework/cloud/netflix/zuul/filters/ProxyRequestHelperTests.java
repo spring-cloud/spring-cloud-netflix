@@ -259,15 +259,4 @@ public class ProxyRequestHelperTests {
 		assertThat(queryString, is("?wsdl"));
 	}
 
-	@Test
-	public void formatQueryStringShouldPrependQuestionMark() {
-		String queryString = new ProxyRequestHelper().formatQueryString("a=1234&b=5678");
-
-		assertThat(queryString, is("?a=1234&b=5678"));
-	}
-
-	@Test
-	public void formatQueryStringShouldReturnEmptyStringForNullValue() {
-		assertThat(new ProxyRequestHelper().formatQueryString(null), is(""));
-	}
 }
