@@ -34,19 +34,33 @@ public class ServoMetricsConfigBean {
 	 */
 	String registryClass = "com.netflix.servo.BasicMonitorRegistry";
 
-	public String getRegistryClass() {
-		return this.registryClass;
-	}
+	/**
+	 * When the `ServoMonitorCache` reaches this size, a warning is logged.
+	 * This will be useful if you are using string concatenation in RestTemplate urls.
+	 */
+	int cacheWarningThreshold = 1000;
 
 	public boolean getEnabled() {
 		return this.enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void isEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public String getRegistryClass() {
+		return this.registryClass;
 	}
 
 	public void setRegistryClass(String registryClass) {
 		this.registryClass = registryClass;
+	}
+
+	public int getCacheWarningThreshold() {
+		return cacheWarningThreshold;
+	}
+
+	public void setCacheWarningThreshold(int cacheWarningThreshold) {
+		this.cacheWarningThreshold = cacheWarningThreshold;
 	}
 }

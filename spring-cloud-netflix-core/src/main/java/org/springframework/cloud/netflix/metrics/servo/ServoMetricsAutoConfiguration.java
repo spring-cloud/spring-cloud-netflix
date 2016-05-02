@@ -71,8 +71,8 @@ public class ServoMetricsAutoConfiguration {
 	}
 
 	@Bean
-	public ServoMonitorCache monitorCache(MonitorRegistry monitorRegistry) {
-		return new ServoMonitorCache(monitorRegistry);
+	public ServoMonitorCache monitorCache(MonitorRegistry monitorRegistry, ServoMetricsConfigBean servoMetricsConfig) {
+		return new ServoMonitorCache(monitorRegistry, servoMetricsConfig);
 	}
 
 	@Bean

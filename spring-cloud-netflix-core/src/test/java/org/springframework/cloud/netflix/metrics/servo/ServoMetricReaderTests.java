@@ -21,7 +21,7 @@ public class ServoMetricReaderTests {
 				new DimensionalServoMetricNaming());
 
 		MonitorConfig.Builder builder = new MonitorConfig.Builder("metricName");
-		ServoMonitorCache servoMonitorCache = new ServoMonitorCache(registry);
+		ServoMonitorCache servoMonitorCache = new ServoMonitorCache(registry, new ServoMetricsConfigBean());
 		servoMonitorCache.getTimer(builder.build());
 
 		List<Metric<?>> metrics = Lists.newArrayList(reader.findAll());

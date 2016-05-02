@@ -13,7 +13,6 @@
 
 package org.springframework.cloud.netflix.metrics.spectator;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.MetricRepositoryAutoConfiguration;
 import org.springframework.boot.actuate.endpoint.MetricReaderPublicMetrics;
 import org.springframework.boot.actuate.metrics.CounterService;
@@ -25,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.netflix.metrics.DefaultMetricsTagProvider;
 import org.springframework.cloud.netflix.metrics.MetricsInterceptorConfiguration;
 import org.springframework.cloud.netflix.metrics.MetricsTagProvider;
+import org.springframework.cloud.netflix.metrics.servo.ServoMetricsConfigBean;
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,14 +50,18 @@ import com.netflix.spectator.servo.ServoRegistry;
 @ConditionalOnClass({ Registry.class, MetricReader.class })
 @Import(MetricsInterceptorConfiguration.class)
 public class SpectatorMetricsAutoConfiguration {
-	@Value("${netflix.metrics.servo.registryClass:com.netflix.servo.BasicMonitorRegistry}")
-	String servoRegistryClass;
 
 	@Bean
 	@ConditionalOnMissingBean
-	public MonitorRegistry monitorRegistry() {
+	public ServoMetricsConfigBean servoMetricsConfig() {
+		return new ServoMetricsConfigBean();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public MonitorRegistry monitorRegistry(ServoMetricsConfigBean configBean) {
 		System.setProperty(DefaultMonitorRegistry.class.getCanonicalName()
-				+ ".registryClass", servoRegistryClass);
+				+ ".registryClass", configBean.getRegistryClass());
 		return DefaultMonitorRegistry.getInstance();
 	}
 
@@ -68,8 +72,8 @@ public class SpectatorMetricsAutoConfiguration {
 	}
 
 	@Bean
-	public ServoMonitorCache monitorCache() {
-		return new ServoMonitorCache(monitorRegistry());
+	public ServoMonitorCache monitorCache(MonitorRegistry monitorRegistry, ServoMetricsConfigBean configBean) {
+		return new ServoMonitorCache(monitorRegistry, configBean);
 	}
 
 	@Bean

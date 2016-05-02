@@ -20,17 +20,22 @@ import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.BasicTimer;
 import com.netflix.servo.monitor.MonitorConfig;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 /**
  * Servo does not provide a mechanism to retrieve an existing monitor by name + tags.
  *
  * @author Jon Schneider
  */
+@CommonsLog
 public class ServoMonitorCache {
 	private final Map<MonitorConfig, BasicTimer> timerCache = new HashMap<>();
 	private final MonitorRegistry monitorRegistry;
+	private final ServoMetricsConfigBean config;
 
-	public ServoMonitorCache(MonitorRegistry monitorRegistry) {
+	public ServoMonitorCache(MonitorRegistry monitorRegistry, ServoMetricsConfigBean config) {
 		this.monitorRegistry = monitorRegistry;
+		this.config = config;
 	}
 
 	/**
@@ -39,13 +44,18 @@ public class ServoMonitorCache {
 	 * return it.
 	 */
 	public synchronized BasicTimer getTimer(MonitorConfig config) {
-		BasicTimer t = timerCache.get(config);
+		BasicTimer t = this.timerCache.get(config);
 		if (t != null)
 			return t;
 
 		t = new BasicTimer(config);
-		timerCache.put(config, t);
-		monitorRegistry.register(t);
+		this.timerCache.put(config, t);
+
+		if (this.timerCache.size() > this.config.getCacheWarningThreshold()) {
+			log.warn("timerCache is above the warning threshold of " + this.config.getCacheWarningThreshold() + " with size " + this.timerCache.size() + ".");
+		}
+
+		this.monitorRegistry.register(t);
 		return t;
 	}
 }
