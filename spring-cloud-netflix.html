@@ -1858,12 +1858,26 @@ independently for all the backends.</p>
 <div class="paragraph">
 <p>To enable it, annotate a Spring Boot main class with
 <code>@EnableZuulProxy</code>, and this forwards local calls to the appropriate
-service.  By convention, a service with the Eureka ID "users", will
+service.  By convention, a service with the ID "users", will
 receive requests from the proxy located at <code>/users</code> (with the prefix
 stripped). The proxy uses Ribbon to locate an instance to forward to
-via Eureka, and all requests are executed in a hystrix command, so
+via discovery, and all requests are executed in a hystrix command, so
 failures will show up in Hystrix metrics, and once the circuit is open
 the proxy will not try to contact the service.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+the Zuul starter does not include a discovery client, so for
+routes based on service IDs you need to provide one of those
+on the classpath as well (e.g. Eureka is one choice).
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>To skip having a service automatically added, set
@@ -2771,7 +2785,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-05-02 18:28:27 UTC
+Last updated 2016-05-03 09:06:17 UTC
 </div>
 </div>
 </body>
