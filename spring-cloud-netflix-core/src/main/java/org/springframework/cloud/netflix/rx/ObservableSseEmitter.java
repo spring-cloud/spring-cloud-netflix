@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.rx;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import rx.Observable;
 
 /**
@@ -28,18 +29,17 @@ import rx.Observable;
  */
 class ObservableSseEmitter<T> extends SseEmitter {
 
-    private final ResponseBodyEmitterSubscriber<T> subscriber;
+	public ObservableSseEmitter(Observable<T> observable) {
+		this(null, observable);
+	}
 
-    public ObservableSseEmitter(Observable<T> observable) {
-        this(null, observable);
-    }
+	public ObservableSseEmitter(MediaType mediaType, Observable<T> observable) {
+		this(null, mediaType, observable);
+	}
 
-    public ObservableSseEmitter(MediaType mediaType, Observable<T> observable) {
-        this(null, mediaType, observable);
-    }
-
-    public ObservableSseEmitter(Long timeout, MediaType mediaType, Observable<T> observable) {
-        super(timeout);
-        this.subscriber = new ResponseBodyEmitterSubscriber<>(mediaType, observable, this);
-    }
+	public ObservableSseEmitter(Long timeout, MediaType mediaType,
+			Observable<T> observable) {
+		super(timeout);
+		new ResponseBodyEmitterSubscriber<>(mediaType, observable, this);
+	}
 }
