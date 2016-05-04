@@ -43,13 +43,17 @@ public class PreDecorationFilter extends ZuulFilter {
 	private ZuulProperties properties;
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
+	
+	private ProxyRequestHelper proxyRequestHelper;
 
 	public PreDecorationFilter(RouteLocator routeLocator,
-			String dispatcherServletPath, ZuulProperties properties) {
+			String dispatcherServletPath, ZuulProperties properties,
+			ProxyRequestHelper proxyRequestHelper) {
 		this.routeLocator = routeLocator;
 		this.properties = properties;
 		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
 		this.dispatcherServletPath = dispatcherServletPath;
+		this.proxyRequestHelper = proxyRequestHelper;
 	}
 
 	@Override
@@ -81,9 +85,9 @@ public class PreDecorationFilter extends ZuulFilter {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
 				if (route.getSensitiveHeaders().isEmpty()) {
-					ctx.put(ProxyRequestHelper.IGNORED_HEADERS, this.properties.getSensitiveHeaders());
+					proxyRequestHelper.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));
 				} else {
-					ctx.put(ProxyRequestHelper.IGNORED_HEADERS, route.getSensitiveHeaders());
+					proxyRequestHelper.addIgnoredHeaders(route.getSensitiveHeaders().toArray(new String[0]));
 				}
 
 				if (route.getRetryable() != null) {
