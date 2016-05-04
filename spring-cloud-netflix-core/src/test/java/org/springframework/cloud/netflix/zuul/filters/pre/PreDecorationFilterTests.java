@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +55,8 @@ public class PreDecorationFilterTests {
 	private DiscoveryClientRouteLocator routeLocator;
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
+	
+	private ProxyRequestHelper proxyRequestHelper = new ProxyRequestHelper();
 
 	@Before
 	public void init() {
@@ -60,7 +64,7 @@ public class PreDecorationFilterTests {
 		this.properties = new ZuulProperties();
 		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
 				this.properties);
-		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties);
+		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties, proxyRequestHelper);
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.clear();
 		ctx.setRequest(this.request);
@@ -81,7 +85,7 @@ public class PreDecorationFilterTests {
 
 	@Test
 	public void skippedIfForwardToSet() throws Exception {
-		RequestContext.getCurrentContext().set("forward.to", "mycontext");
+		RequestContext.getCurrentContext().set("forward.to", "myconteext");
 		assertEquals(false, this.filter.shouldFilter());
 	}
 
@@ -189,7 +193,7 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		
 		this.filter = new PreDecorationFilter(this.routeLocator,
-				"/special", this.properties);
+				"/special", this.properties, proxyRequestHelper);
 		
 		this.request.setRequestURI("/api/bar/1");
 
@@ -233,7 +237,7 @@ public class PreDecorationFilterTests {
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		this.filter = new PreDecorationFilter(this.routeLocator,
-				"/special", this.properties);		
+				"/special", this.properties, proxyRequestHelper);		
 		
 		
 		this.filter.run();
@@ -258,7 +262,7 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		
 		this.filter = new PreDecorationFilter(this.routeLocator,
-				"/special", this.properties);
+				"/special", this.properties, proxyRequestHelper);
 		
 		this.filter.run();
 
@@ -295,6 +299,51 @@ public class PreDecorationFilterTests {
 		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
 		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
 		assertFalse("sensitiveHeaders is wrong", sensitiveHeaders.contains("Cookie"));
+	}
+	
+	@Test
+	public void sensitiveHeadersCaseInsensitive() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setSensitiveHeaders(Collections.singleton("X-bAr"));
+		this.request.setRequestURI("/api/foo/1");
+		this.routeLocator.addRoute("/foo/**", "foo");
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		@SuppressWarnings("unchecked")
+		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
+	}
+	
+	@Test
+	public void sensitiveHeadersOverrideCaseInsensitive() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setSensitiveHeaders(Collections.singleton("X-bAr"));
+		this.request.setRequestURI("/api/foo/1");
+		ZuulRoute route = new ZuulRoute("/foo/**", "foo");
+		route.setSensitiveHeaders(Collections.singleton("X-Foo"));
+		this.routeLocator.addRoute(route);
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		@SuppressWarnings("unchecked")
+		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
+	}
+	
+	@Test
+	public void ignoredHeadersAlreadySetInRequestContextDontGetOverridden() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
+		this.request.setRequestURI("/api/foo/1");
+		this.routeLocator.addRoute("/foo/**", "foo");
+		RequestContext ctx = RequestContext.getCurrentContext();
+		ctx.set(ProxyRequestHelper.IGNORED_HEADERS, new HashSet<>(Arrays.asList("x-foo")));
+		this.filter.run();
+		@SuppressWarnings("unchecked")
+		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Arrays.asList("x-bar","x-foo")));
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
