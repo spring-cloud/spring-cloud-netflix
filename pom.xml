@@ -23,6 +23,7 @@
 		<bintray.package>netflix</bintray.package>
 		<main.basedir>${basedir}</main.basedir>
         <netty.version>4.0.27.Final</netty.version>
+		<jackson.version>2.7.3</jackson.version>
 
 		<!-- Sonar -->
 		<surefire.plugin.version>2.19.1</surefire.plugin.version>

@@ -43,20 +43,22 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import static feign.Util.checkState;
+import static feign.Util.emptyToNull;
+import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
 import feign.Contract;
 import feign.Feign;
 import feign.MethodMetadata;
 import feign.Param;
 
-import static feign.Util.checkState;
-import static feign.Util.emptyToNull;
-import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
-
 /**
  * @author Spencer Gibb
  */
-public class SpringMvcContract extends Contract.BaseContract implements ResourceLoaderAware {
+public class SpringMvcContract extends Contract.BaseContract
+		implements ResourceLoaderAware {
 
 	private static final String ACCEPT = "Accept";
 
@@ -85,8 +87,7 @@ public class SpringMvcContract extends Contract.BaseContract implements Resource
 			ConversionService conversionService) {
 		Assert.notNull(annotatedParameterProcessors,
 				"Parameter processors can not be null.");
-		Assert.notNull(conversionService,
-				"ConversionService can not be null.");
+		Assert.notNull(conversionService, "ConversionService can not be null.");
 
 		List<AnnotatedParameterProcessor> processors;
 		if (!annotatedParameterProcessors.isEmpty()) {
@@ -152,8 +153,12 @@ public class SpringMvcContract extends Contract.BaseContract implements Resource
 
 		RequestMapping methodMapping = findMergedAnnotation(method, RequestMapping.class);
 		// HTTP Method
-		checkOne(method, methodMapping.method(), "method");
-		data.template().method(methodMapping.method()[0].name());
+		RequestMethod[] methods = methodMapping.method();
+		if (methods.length == 0) {
+			methods = new RequestMethod[] { RequestMethod.GET };
+		}
+		checkOne(method, methods, "method");
+		data.template().method(methods[0].name());
 
 		// path
 		checkAtMostOne(method, methodMapping.value(), "value");
@@ -228,7 +233,7 @@ public class SpringMvcContract extends Contract.BaseContract implements Resource
 		if (isHttpAnnotation && data.indexToExpander().get(paramIndex) == null
 				&& this.conversionService.canConvert(
 						method.getParameterTypes()[paramIndex], String.class)) {
-			data.indexToExpander().put(paramIndex, expander);
+			data.indexToExpander().put(paramIndex, this.expander);
 		}
 		return isHttpAnnotation;
 	}
@@ -334,7 +339,7 @@ public class SpringMvcContract extends Contract.BaseContract implements Resource
 
 		@Override
 		public Collection<String> setTemplateParameter(String name,
-													   Collection<String> rest) {
+				Collection<String> rest) {
 			return addTemplatedParam(rest, name);
 		}
 	}
@@ -349,7 +354,7 @@ public class SpringMvcContract extends Contract.BaseContract implements Resource
 
 		@Override
 		public String expand(Object value) {
-			return conversionService.convert(value, String.class);
+			return this.conversionService.convert(value, String.class);
 		}
 
 	}
