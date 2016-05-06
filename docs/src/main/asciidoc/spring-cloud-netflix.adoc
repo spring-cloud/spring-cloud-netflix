@@ -1133,8 +1133,8 @@ The location of the backend can be specified as either a "serviceId"
       url: http://example.com/users_service
 ----
 
-These simple url-routes doesn't get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
-To achieve this specify a service-route and configure a Ribbon client for the
+These simple url-routes don't get executed as a `HystrixCommand` nor can you loadbalance multiple URLs with Ribbon.
+To achieve this, specify a service-route and configure a Ribbon client for the
 serviceId (this currently requires disabling Eureka support in Ribbon:
 see <<spring-cloud-ribbon-without-eureka,above for more information>>), e.g.
 
@@ -1157,7 +1157,7 @@ users:
 ----
 
 You can provide convention between serviceId and routes using
-regexmapper.  It uses regular expression named group to extract
+regexmapper.  It uses regular expression named groups to extract
 variables from serviceId and inject them into a route pattern.
 
 .ApplicationConfiguration.java
@@ -1173,11 +1173,11 @@ public PatternServiceRouteMapper serviceRouteMapper() {
 
 This means that a serviceId "myusers-v1" will be mapped to route
 "/v1/myusers/{all}".  Any regular expression is accepted but all named
-group must be present in both servicePattern and routePattern.  If
-servicePattern do not match a serviceId, the default behavior is
-used. In exemple above, a serviceId "myusers" will be mapped to route
-"/myusers/{all}" (no version detected) These feature is disable by
-default and is only applied to discovered services.
+groups must be present in both servicePattern and routePattern.  If
+servicePattern does not match a serviceId, the default behavior is
+used. In the example above, a serviceId "myusers" will be mapped to route
+"/myusers/{all}" (no version detected) This feature is disable by
+default and only applies to discovered services.
 
 To add a prefix to all mappings, set `zuul.prefix` to a value, such as
 `/api`. The proxy prefix is stripped from the request before the
@@ -1195,7 +1195,7 @@ the service-specific prefix from individual routes, e.g.
       stripPrefix: false
 ----
 
-In this example requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.
+In this example, requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.
 
 The `zuul.routes` entries actually bind to an object of type `ZuulProperties`. If you
 look at the properties of that object you will see that it also has a "retryable" flag.
@@ -1209,12 +1209,12 @@ prefix path is stripped by default, and the request to the backend
 picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
 above).
 
-An application with the `@EnableZuulProxy` could act as a standalone
+An application with `@EnableZuulProxy` could act as a standalone
 server if you set a default route ("/"), for example `zuul.route.home:
 /` would route all traffic (i.e. "/{all}") to the "home" service.
 
 If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
-These patterns are being evaluated at the start of the route location process, which
+These patterns are evaluated at the start of the route location process, which
 means prefixes should be included in the pattern to warrant a match. Ignored patterns
 span all services and supersede any other route specification.
 
@@ -1247,7 +1247,7 @@ only one of the downstream services sets cookies, then you might be
 able to let them flow from the backend all the way up to the
 caller. Also, if your proxy sets cookies and all your back end
 services are part of the same system, it can be natural to simply
-share them (and for instance us Spring Session to link them up to some
+share them (and for instance use Spring Session to link them up to some
 shared state). Other than that, any cookies that get set by downstream
 services are likely to be not very useful to the caller, so it is
 recommended that you make (at least) "Set-Cookie" and "Cookie" into
@@ -1256,7 +1256,7 @@ for routes that *are* part of your domain, try to think carefully
 about what it means before allowing cookies to flow between them and
 the proxy.
 
-The sensitive headers can be configured as a comma-separate list per
+The sensitive headers can be configured as a comma-separated list per
 route, e.g.
 
 .application.yml
@@ -1267,10 +1267,10 @@ route, e.g.
     users:
       path: /myusers/**
       sensitiveHeaders: Cookie,Set-Cookie,Authorization
-      url: https://dowstream
+      url: https://downstream
 ----
 
-Sensitive headers can also be set globally setting `zuul.sensitiveHeaders`. If `sensitiveHeaders` is set on a route, this will override the global `sensitiveHeaders` setting.
+Sensitive headers can also be set globally by setting `zuul.sensitiveHeaders`. If `sensitiveHeaders` is set on a route, this will override the global `sensitiveHeaders` setting.
 
 NOTE: this is the default value for `sensitiveHeaders`, so you don't
 need to set it unless you want it to be different. N.B. this is new in
@@ -1323,7 +1323,7 @@ locally, e.g. with a normal Spring `@RequestMapping`. Paths in
 `/third/{all}` are also forwarded, but with a different prefix
 (i.e. `/third/foo` is forwarded to `/3rd/foo`).
 
-NOTE: The ignored pattterns aren't completely ignored, they just
+NOTE: The ignored patterns aren't completely ignored, they just
 aren't handled by the proxy (so they are also effectively forwarded
 locally).
 
