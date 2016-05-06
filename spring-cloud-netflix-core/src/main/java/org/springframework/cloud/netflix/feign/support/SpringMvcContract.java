@@ -17,7 +17,9 @@
 package org.springframework.cloud.netflix.feign.support;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,27 +37,34 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import static feign.Util.checkState;
 import static feign.Util.emptyToNull;
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
+import static org.springframework.core.annotation.AnnotatedElementUtils.isAnnotated;
 
 import feign.Contract;
 import feign.Feign;
 import feign.MethodMetadata;
 import feign.Param;
+import feign.RequestTemplate;
 
 /**
  * @author Spencer Gibb
+ * @author Venil Noronha
  */
 public class SpringMvcContract extends Contract.BaseContract
 		implements ResourceLoaderAware {
@@ -110,6 +119,7 @@ public class SpringMvcContract extends Contract.BaseContract
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
 		this.processedMethods.put(Feign.configKey(targetType, method), method);
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
+		parseRegexAndUpdatePath(md, method);
 
 		RequestMapping classAnnotation = findMergedAnnotation(targetType,
 				RequestMapping.class);
@@ -142,6 +152,23 @@ public class SpringMvcContract extends Contract.BaseContract
 			parseHeaders(md, method, classAnnotation);
 		}
 		return md;
+	}
+
+	protected void parseRegexAndUpdatePath(MethodMetadata md, Method method) {
+		if (isAnnotated(method, RequestMapping.class)) {
+			String url = md.template().url();
+			for (Parameter param : method.getParameters()) {
+				if (isAnnotated(param, PathVariable.class)) {
+					AnnotationAttributes paramAttrs = AnnotatedElementUtils
+							.getMergedAnnotationAttributes(param, PathVariable.class);
+					String pathVariable = (String) paramAttrs.get("value");
+					url = url.replaceAll(pathVariable + ":[^}]+", pathVariable);
+				}
+			}
+			Field urlField = ReflectionUtils.findField(RequestTemplate.class, "url");
+			ReflectionUtils.makeAccessible(urlField);
+			ReflectionUtils.setField(urlField, md.template(), new StringBuilder(url));
+		}
 	}
 
 	@Override
