@@ -157,7 +157,8 @@ public class SpringMvcContract extends Contract.BaseContract
 	protected void parseRegexAndUpdatePath(MethodMetadata md, Method method) {
 		if (isAnnotated(method, RequestMapping.class)) {
 			String url = md.template().url();
-			for (Parameter param : method.getParameters()) {
+			Parameter[] params = method.getParameters();
+			for (Parameter param : params) {
 				if (isAnnotated(param, PathVariable.class)) {
 					AnnotationAttributes paramAttrs = AnnotatedElementUtils
 							.getMergedAnnotationAttributes(param, PathVariable.class);
