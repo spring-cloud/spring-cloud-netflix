@@ -163,8 +163,8 @@ public class SpringMvcContract extends Contract.BaseContract
 				param.initParameterNameDiscovery(parameterNameDiscoverer);
 				if (param.hasParameterAnnotation(PathVariable.class)) {
 					PathVariable pathVariable = param.getParameterAnnotation(PathVariable.class);
-					String variableName = pathVariable.value();
-					url = url.replaceAll(variableName + ":[^}]+", variableName);
+					String varName = pathVariable.value();
+					url = url.replaceAll("\\{" + varName + ":.+?\\}", "{" + varName + "}");
 				}
 			}
 			Field urlField = ReflectionUtils.findField(RequestTemplate.class, "url");
