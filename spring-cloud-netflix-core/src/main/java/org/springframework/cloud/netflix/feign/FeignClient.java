@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.core.annotation.AliasFor;
  * using a <code>@RibbonClient</code> with the same name (i.e. value) as the feign client.
  *
  * @author Spencer Gibb
+ * @author Venil Noronha
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -81,4 +82,11 @@ public @interface FeignClient {
 	 * implement the interface annotated by this annotation and be a valid spring bean.
 	 */
 	Class<?> fallback() default void.class;
+
+	/**
+	 * Path prefix to be used by all method-level mappings. Can be used with or without
+	 * <code>@RibbonClient</code>.
+	 */
+	String path() default "";
+
 }
