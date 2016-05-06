@@ -165,6 +165,14 @@
 						<enabled>false</enabled>
 					</snapshots>
 				</pluginRepository>
+				<pluginRepository>
+					<id>spring-releases</id>
+					<name>Spring Releases</name>
+					<url>http://repo.spring.io/libs-release-local</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
 			</pluginRepositories>
 		</profile>
 		<profile>
