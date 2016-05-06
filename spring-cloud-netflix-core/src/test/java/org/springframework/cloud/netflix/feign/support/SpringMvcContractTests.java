@@ -44,6 +44,7 @@ import lombok.ToString;
 
 /**
  * @author chadjaros
+ * @author Venil Noronha
  */
 public class SpringMvcContractTests {
 	private static final Class<?> EXECUTABLE_TYPE;
@@ -77,6 +78,17 @@ public class SpringMvcContractTests {
 		assertEquals("GET", data.template().method());
 		assertEquals(MediaType.APPLICATION_JSON_VALUE,
 				data.template().headers().get("Accept").iterator().next());
+	}
+
+	@Test
+	public void testProcessAnnotationOnMethod_Regex() throws Exception {
+		Method method = TestTemplate_Regex.class.getDeclaredMethod("login",
+				String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/api/{login}", data.template().url());
+		assertEquals("GET", data.template().method());
 	}
 
 	@Test
@@ -271,6 +283,13 @@ public class SpringMvcContractTests {
 
 		@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 		TestObject postTest(@RequestBody TestObject object);
+	}
+
+	public interface TestTemplate_Regex {
+
+		@RequestMapping(value = "/api/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET)
+		ResponseEntity<TestObject> login(@PathVariable("login") String login);
+
 	}
 
 	public interface TestTemplate_Headers {
