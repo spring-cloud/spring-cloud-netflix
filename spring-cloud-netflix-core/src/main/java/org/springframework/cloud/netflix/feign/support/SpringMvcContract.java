@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.feign.support;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,10 +35,10 @@ import org.springframework.cloud.netflix.feign.annotation.RequestParamParameterP
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.SynthesizingMethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -81,6 +80,7 @@ public class SpringMvcContract extends Contract.BaseContract
 	private final ConversionService conversionService;
 	private final Param.Expander expander;
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
+	private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
 	public SpringMvcContract() {
 		this(Collections.<AnnotatedParameterProcessor> emptyList());
@@ -157,13 +157,14 @@ public class SpringMvcContract extends Contract.BaseContract
 	protected void parseRegexAndUpdatePath(MethodMetadata md, Method method) {
 		if (isAnnotated(method, RequestMapping.class)) {
 			String url = md.template().url();
-			Parameter[] params = method.getParameters();
-			for (Parameter param : params) {
-				if (isAnnotated(param, PathVariable.class)) {
-					AnnotationAttributes paramAttrs = AnnotatedElementUtils
-							.getMergedAnnotationAttributes(param, PathVariable.class);
-					String pathVariable = (String) paramAttrs.get("value");
-					url = url.replaceAll(pathVariable + ":[^}]+", pathVariable);
+			int paramCount = method.getParameterTypes().length;
+			for (int i = 0; i < paramCount; i++) {
+				MethodParameter param = new SynthesizingMethodParameter(method, i);
+				param.initParameterNameDiscovery(parameterNameDiscoverer);
+				if (param.hasParameterAnnotation(PathVariable.class)) {
+					PathVariable pathVariable = param.getParameterAnnotation(PathVariable.class);
+					String variableName = pathVariable.value();
+					url = url.replaceAll(variableName + ":[^}]+", variableName);
 				}
 			}
 			Field urlField = ReflectionUtils.findField(RequestTemplate.class, "url");
