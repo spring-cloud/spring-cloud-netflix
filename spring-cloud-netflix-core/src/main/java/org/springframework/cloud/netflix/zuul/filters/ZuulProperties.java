@@ -116,12 +116,11 @@ public class ZuulProperties {
 	private boolean removeSemicolonContent = true;
 
 	/**
-	 * List of sensitive headers that are not passed to downstream requests. Defaults
-	 * to a "safe" set of headers that commonly contain user credentials. It's OK to
-	 * remove those from the list if the downstream service is part of the same system
-	 * as the proxy, so they are sharing authentication data. If using a physical URL
-	 * outside your own domain, then generally it would be a bad idea to leak user
-	 * credentials.
+	 * List of sensitive headers that are not passed to downstream requests. Defaults to a
+	 * "safe" set of headers that commonly contain user credentials. It's OK to remove
+	 * those from the list if the downstream service is part of the same system as the
+	 * proxy, so they are sharing authentication data. If using a physical URL outside
+	 * your own domain, then generally it would be a bad idea to leak user credentials.
 	 */
 	private Set<String> sensitiveHeaders = new LinkedHashSet<>(
 			Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
@@ -158,7 +157,6 @@ public class ZuulProperties {
 	}
 
 	@Data
-	@AllArgsConstructor
 	@NoArgsConstructor
 	public static class ZuulRoute {
 
@@ -205,6 +203,19 @@ public class ZuulProperties {
 		 * credentials.
 		 */
 		private Set<String> sensitiveHeaders = new LinkedHashSet<>();
+
+		private boolean customSensitiveHeaders = false;
+
+		public ZuulRoute(String id, String path, String serviceId, String url,
+				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
+			this.id = id;
+			this.path = path;
+			this.serviceId = serviceId;
+			this.url = url;
+			this.stripPrefix = stripPrefix;
+			this.retryable = retryable;
+			this.sensitiveHeaders = sensitiveHeaders;
+		}
 
 		public ZuulRoute(String text) {
 			String location = null;
@@ -254,7 +265,16 @@ public class ZuulProperties {
 
 		public Route getRoute(String prefix) {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
-					this.sensitiveHeaders);
+					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null);
+		}
+
+		public void setSensitiveHeaders(Set<String> headers) {
+			this.customSensitiveHeaders = true;
+			this.sensitiveHeaders = new LinkedHashSet<>(headers);
+		}
+
+		public boolean isCustomSensitiveHeaders() {
+			return this.customSensitiveHeaders;
 		}
 
 	}

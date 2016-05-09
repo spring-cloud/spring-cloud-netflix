@@ -36,6 +36,7 @@ public class Route {
 		this.retryable = retryable;
 		this.sensitiveHeaders = new LinkedHashSet<>();
 		if (ignoredHeaders != null) {
+			this.customSensitiveHeaders = true;
 			for (String header : ignoredHeaders) {
 				this.sensitiveHeaders.add(header.toLowerCase());
 			}
@@ -55,5 +56,11 @@ public class Route {
 	private Boolean retryable;
 
 	private Set<String> sensitiveHeaders = new LinkedHashSet<>();
+
+	private boolean customSensitiveHeaders;
+
+	public boolean isCustomSensitiveHeaders() {
+		return this.customSensitiveHeaders;
+	}
 
 }

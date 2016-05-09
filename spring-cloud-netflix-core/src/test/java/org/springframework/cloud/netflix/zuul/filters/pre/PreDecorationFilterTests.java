@@ -55,7 +55,7 @@ public class PreDecorationFilterTests {
 	private DiscoveryClientRouteLocator routeLocator;
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
-	
+
 	private ProxyRequestHelper proxyRequestHelper = new ProxyRequestHelper();
 
 	@Before
@@ -64,7 +64,8 @@ public class PreDecorationFilterTests {
 		this.properties = new ZuulProperties();
 		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
 				this.properties);
-		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties, proxyRequestHelper);
+		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties,
+				this.proxyRequestHelper);
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.clear();
 		ctx.setRequest(this.request);
@@ -105,7 +106,8 @@ public class PreDecorationFilterTests {
 		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 		assertEquals("/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("1.2.3.4, 5.6.7.8", ctx.getZuulRequestHeaders().get("x-forwarded-for"));
+		assertEquals("1.2.3.4, 5.6.7.8",
+				ctx.getZuulRequestHeaders().get("x-forwarded-for"));
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
@@ -126,8 +128,10 @@ public class PreDecorationFilterTests {
 		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/prefix/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("1.2.3.4, 5.6.7.8", ctx.getZuulRequestHeaders().get("x-forwarded-for"));
+		assertEquals("/prefix/api",
+				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
+		assertEquals("1.2.3.4, 5.6.7.8",
+				ctx.getZuulRequestHeaders().get("x-forwarded-for"));
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
@@ -169,101 +173,98 @@ public class PreDecorationFilterTests {
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
-	
+
 	@Test
 	public void routeNotFound() throws Exception {
 		this.properties.setPrefix("/api");
-		this.properties.setStripPrefix(true);		
+		this.properties.setStripPrefix(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
-		
+
 		this.request.setRequestURI("/api/bar/1");
 
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/api/bar/1", ctx.get("forward.to"));
 	}
-	
+
 	@Test
 	public void routeNotFoundDispatcherServletSpecialPath() throws Exception {
 		this.properties.setPrefix("/api");
-		this.properties.setStripPrefix(true);	
+		this.properties.setStripPrefix(true);
 		this.properties.setAddProxyHeaders(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
-		
-		this.filter = new PreDecorationFilter(this.routeLocator,
-				"/special", this.properties, proxyRequestHelper);
-		
+
+		this.filter = new PreDecorationFilter(this.routeLocator, "/special",
+				this.properties, this.proxyRequestHelper);
+
 		this.request.setRequestURI("/api/bar/1");
 
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
-	}	
-	
+	}
+
 	@Test
 	public void routeNotFoundZuulRequest() throws Exception {
 		setTestRequestContext();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		ctx.getCurrentContext().setZuulEngineRan();
+		RequestContext.getCurrentContext().setZuulEngineRan();
 		this.request.setRequestURI("/zuul/api/bar/1");
 		ctx.setRequest(this.request);
-		
+
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/zuul");
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
-		
-		
+
 		this.filter.run();
 
 		assertEquals("/api/bar/1", ctx.get("forward.to"));
-	}		
-	
+	}
+
 	@Test
 	public void routeNotFoundZuulRequestDispatcherServletSpecialPath() throws Exception {
 		setTestRequestContext();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		ctx.getCurrentContext().setZuulEngineRan();
+		RequestContext.getCurrentContext().setZuulEngineRan();
 		this.request.setRequestURI("/zuul/api/bar/1");
 		ctx.setRequest(this.request);
-		
+
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/zuul");
 		this.properties.setAddProxyHeaders(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
-		this.filter = new PreDecorationFilter(this.routeLocator,
-				"/special", this.properties, proxyRequestHelper);		
-		
-		
+		this.filter = new PreDecorationFilter(this.routeLocator, "/special",
+				this.properties, this.proxyRequestHelper);
+
 		this.filter.run();
 
 		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
-	}	
-	
-	
+	}
+
 	@Test
 	public void routeNotFoundZuulRequestZuulHomeMapping() throws Exception {
 		setTestRequestContext();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		ctx.getCurrentContext().setZuulEngineRan();
+		RequestContext.getCurrentContext().setZuulEngineRan();
 		this.request.setRequestURI("/api/bar/1");
 		ctx.setRequest(this.request);
-		
+
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/");
 		this.properties.setAddProxyHeaders(true);
 		this.routeLocator.addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
-		
-		this.filter = new PreDecorationFilter(this.routeLocator,
-				"/special", this.properties, proxyRequestHelper);
-		
+
+		this.filter = new PreDecorationFilter(this.routeLocator, "/special",
+				this.properties, this.proxyRequestHelper);
+
 		this.filter.run();
 
 		assertEquals("/special/api/bar/1", ctx.get("forward.to"));
@@ -281,9 +282,30 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
-		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
-		assertFalse("sensitiveHeaders is wrong", sensitiveHeaders.contains("Cookie"));
+		Set<String> sensitiveHeaders = (Set<String>) ctx
+				.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
+		assertFalse("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.contains("Cookie"));
+	}
+
+	@Test
+	public void sensitiveHeadersOverrideEmpty() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
+		this.request.setRequestURI("/api/foo/1");
+		ZuulRoute route = new ZuulRoute("/foo/**", "foo");
+		route.setSensitiveHeaders(Collections.<String> emptySet());
+		this.routeLocator.addRoute(route);
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		@SuppressWarnings("unchecked")
+		Set<String> sensitiveHeaders = (Set<String>) ctx
+				.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.isEmpty());
 	}
 
 	@Test
@@ -296,11 +318,13 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
-		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
+		Set<String> sensitiveHeaders = (Set<String>) ctx
+				.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
 		assertFalse("sensitiveHeaders is wrong", sensitiveHeaders.contains("Cookie"));
 	}
-	
+
 	@Test
 	public void sensitiveHeadersCaseInsensitive() throws Exception {
 		this.properties.setPrefix("/api");
@@ -311,10 +335,12 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
-		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
+		Set<String> sensitiveHeaders = (Set<String>) ctx
+				.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
 	}
-	
+
 	@Test
 	public void sensitiveHeadersOverrideCaseInsensitive() throws Exception {
 		this.properties.setPrefix("/api");
@@ -327,23 +353,29 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
-		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
+		Set<String> sensitiveHeaders = (Set<String>) ctx
+				.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
 	}
-	
+
 	@Test
-	public void ignoredHeadersAlreadySetInRequestContextDontGetOverridden() throws Exception {
+	public void ignoredHeadersAlreadySetInRequestContextDontGetOverridden()
+			throws Exception {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
 		this.request.setRequestURI("/api/foo/1");
 		this.routeLocator.addRoute("/foo/**", "foo");
 		RequestContext ctx = RequestContext.getCurrentContext();
-		ctx.set(ProxyRequestHelper.IGNORED_HEADERS, new HashSet<>(Arrays.asList("x-foo")));
+		ctx.set(ProxyRequestHelper.IGNORED_HEADERS,
+				new HashSet<>(Arrays.asList("x-foo")));
 		this.filter.run();
 		@SuppressWarnings("unchecked")
-		Set<String> sensitiveHeaders = (Set<String>) ctx.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong", sensitiveHeaders.containsAll(Arrays.asList("x-bar","x-foo")));
+		Set<String> sensitiveHeaders = (Set<String>) ctx
+				.get(ProxyRequestHelper.IGNORED_HEADERS);
+		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
+				sensitiveHeaders.containsAll(Arrays.asList("x-bar", "x-foo")));
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
@@ -356,11 +388,11 @@ public class PreDecorationFilterTests {
 		}
 		return value;
 	}
-	
+
 	private void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 
-	}	
+	}
 
 }

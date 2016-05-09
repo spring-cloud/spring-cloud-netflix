@@ -90,9 +90,10 @@ public class SimpleRouteLocator implements RouteLocator {
 
 		log.debug("servletPath=" + this.dispatcherServletPath);
 		log.debug("zuulServletPath=" + this.zuulServletPath);
-		log.debug("RequestUtils.isDispatcherServletRequest()=" + RequestUtils.isDispatcherServletRequest());
-		log.debug("RequestUtils.isZuulServletRequest()=" + RequestUtils.isZuulServletRequest());
-		
+		log.debug("RequestUtils.isDispatcherServletRequest()="
+				+ RequestUtils.isDispatcherServletRequest());
+		log.debug("RequestUtils.isZuulServletRequest()="
+				+ RequestUtils.isZuulServletRequest());
 
 		String adjustedPath = adjustPath(path);
 
@@ -135,7 +136,8 @@ public class SimpleRouteLocator implements RouteLocator {
 			retryable = route.getRetryable();
 		}
 		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
-				retryable, route.getSensitiveHeaders());
+				retryable,
+				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null);
 	}
 
 	/**

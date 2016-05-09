@@ -43,15 +43,15 @@ public class PreDecorationFilter extends ZuulFilter {
 	private ZuulProperties properties;
 
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
-	
+
 	private ProxyRequestHelper proxyRequestHelper;
 
-	public PreDecorationFilter(RouteLocator routeLocator,
-			String dispatcherServletPath, ZuulProperties properties,
-			ProxyRequestHelper proxyRequestHelper) {
+	public PreDecorationFilter(RouteLocator routeLocator, String dispatcherServletPath,
+			ZuulProperties properties, ProxyRequestHelper proxyRequestHelper) {
 		this.routeLocator = routeLocator;
 		this.properties = properties;
-		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
+		this.urlPathHelper
+				.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
 		this.dispatcherServletPath = dispatcherServletPath;
 		this.proxyRequestHelper = proxyRequestHelper;
 	}
@@ -70,7 +70,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		return !ctx.containsKey("forward.to") // a filter has already forwarded
-				&& !ctx.containsKey("serviceId"); // a filter has already determined serviceId
+				&& !ctx.containsKey("serviceId"); // a filter has already determined
+													// serviceId
 	}
 
 	@Override
@@ -84,10 +85,13 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (location != null) {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
-				if (route.getSensitiveHeaders().isEmpty()) {
-					proxyRequestHelper.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));
-				} else {
-					proxyRequestHelper.addIgnoredHeaders(route.getSensitiveHeaders().toArray(new String[0]));
+				if (!route.isCustomSensitiveHeaders()) {
+					this.proxyRequestHelper.addIgnoredHeaders(
+							this.properties.getSensitiveHeaders().toArray(new String[0]));
+				}
+				else {
+					this.proxyRequestHelper.addIgnoredHeaders(
+							route.getSensitiveHeaders().toArray(new String[0]));
 				}
 
 				if (route.getRetryable() != null) {
@@ -118,18 +122,22 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
 							ctx.getRequest().getScheme());
 					if (StringUtils.hasText(route.getPrefix())) {
-						String existingPrefix = ctx.getRequest().getHeader("X-Forwarded-Prefix");
+						String existingPrefix = ctx.getRequest()
+								.getHeader("X-Forwarded-Prefix");
 						StringBuilder newPrefixBuilder = new StringBuilder();
 						if (StringUtils.hasLength(existingPrefix)) {
-							if (existingPrefix.endsWith("/") && route.getPrefix().startsWith("/")) {
-								newPrefixBuilder.append(existingPrefix, 0, existingPrefix.length() - 1);
+							if (existingPrefix.endsWith("/")
+									&& route.getPrefix().startsWith("/")) {
+								newPrefixBuilder.append(existingPrefix, 0,
+										existingPrefix.length() - 1);
 							}
 							else {
 								newPrefixBuilder.append(existingPrefix);
 							}
 						}
 						newPrefixBuilder.append(route.getPrefix());
-						ctx.addZuulRequestHeader("X-Forwarded-Prefix", newPrefixBuilder.toString());
+						ctx.addZuulRequestHeader("X-Forwarded-Prefix",
+								newPrefixBuilder.toString());
 					}
 					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
@@ -147,17 +155,21 @@ public class PreDecorationFilter extends ZuulFilter {
 			log.warn("No route found for uri: " + requestURI);
 
 			String fallBackUri = requestURI;
-			String fallbackPrefix = dispatcherServletPath; //default fallback servlet is DispatcherServlet
+			String fallbackPrefix = this.dispatcherServletPath; // default fallback
+																// servlet is
+																// DispatcherServlet
 
 			if (RequestUtils.isZuulServletRequest()) {
-				//remove the Zuul servletPath from the requestUri
+				// remove the Zuul servletPath from the requestUri
 				log.debug("zuulServletPath=" + this.properties.getServletPath());
-				fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(), "");
+				fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(),
+						"");
 				log.debug("Replaced Zuul servlet path:" + fallBackUri);
-			} else {
-				//remove the DispatcherServlet servletPath from the requestUri
-				log.debug("dispatcherServletPath=" + dispatcherServletPath);
-				fallBackUri = fallBackUri.replaceFirst(dispatcherServletPath, "");
+			}
+			else {
+				// remove the DispatcherServlet servletPath from the requestUri
+				log.debug("dispatcherServletPath=" + this.dispatcherServletPath);
+				fallBackUri = fallBackUri.replaceFirst(this.dispatcherServletPath, "");
 				log.debug("Replaced DispatcherServlet servlet path:" + fallBackUri);
 			}
 			if (!fallBackUri.startsWith("/")) {
