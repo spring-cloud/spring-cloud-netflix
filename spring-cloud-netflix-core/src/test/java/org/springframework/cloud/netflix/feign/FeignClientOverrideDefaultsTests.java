@@ -31,8 +31,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import feign.Contract;
@@ -40,6 +42,7 @@ import feign.Feign;
 import feign.Logger;
 import feign.Request;
 import feign.RequestInterceptor;
+import feign.RequestLine;
 import feign.RequestTemplate;
 import feign.Retryer;
 import feign.auth.BasicAuthRequestInterceptor;
@@ -59,6 +62,18 @@ public class FeignClientOverrideDefaultsTests {
 
 	@Autowired
 	private FeignContext context;
+
+	@Autowired
+	private FooClient foo;
+
+	@Autowired
+	private BarClient bar;
+
+	@Test
+	public void clientsAvailable() {
+		assertNotNull(this.foo);
+		assertNotNull(this.bar);
+	}
 
 	@Test
 	public void overrideDecoder() {
@@ -144,7 +159,7 @@ public class FeignClientOverrideDefaultsTests {
 
 	@FeignClient(value = "foo", configuration = FooConfiguration.class)
 	interface FooClient {
-		@RequestMapping("/")
+		@RequestLine("GET /")
 		String get();
 
 	}
@@ -178,7 +193,7 @@ public class FeignClientOverrideDefaultsTests {
 
 	@FeignClient(value = "bar", configuration = BarConfiguration.class)
 	interface BarClient {
-		@RequestMapping("/")
+		@RequestMapping(value = "/", method = RequestMethod.GET)
 		String get();
 	}
 
