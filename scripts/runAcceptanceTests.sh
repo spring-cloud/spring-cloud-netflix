@@ -13,6 +13,9 @@ curl "${SCRIPT_URL}" --output runAcceptanceTests.sh
 
 chmod +x runAcceptanceTests.sh
 
+echo "Killing all running apps"
+./runAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}" -n
+
 ./runAcceptanceTests.sh -t "${AT_WHAT_TO_TEST}" -k
 
 SCRIPT_URL="https://raw.githubusercontent.com/spring-cloud-samples/tests/master/scripts/runTests.sh"
