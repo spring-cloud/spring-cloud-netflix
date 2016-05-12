@@ -72,39 +72,51 @@ public class SpringMvcContractTests {
 				String.class);
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+		MethodMetadata extendingData = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
-		assertEquals("/test/{id}", data.template().url());
+		assertEquals("/prepend/{anotherId}", data.template().url());
+		assertEquals(data.template().url(), extendingData.template().url());
 		assertEquals("GET", data.template().method());
+		assertEquals(data.template().method(), extendingData.template().method());
 		assertEquals(MediaType.APPLICATION_JSON_VALUE,
 				data.template().headers().get("Accept").iterator().next());
+		assertEquals(data.template().headers().get("Accept").iterator().next(), 
+				extendingData.template().headers().get("Accept").iterator().next());
+		
+		assertEquals("anotherId", data.indexToName().get(0).iterator().next());
+		assertEquals(data.indexToName().get(0).iterator().next(),
+				extendingData.indexToName().get(0).iterator().next());
 	}
-
+	
 	@Test
 	public void testProcessAnnotations_Simple() throws Exception {
 		Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest",
-				String.class);
+				String.class, String.class);
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
-		assertEquals("/test/{id}", data.template().url());
+		assertEquals("/prepend/{anotherId}/test/{id}", data.template().url());
 		assertEquals("GET", data.template().method());
 		assertEquals(MediaType.APPLICATION_JSON_VALUE,
 				data.template().headers().get("Accept").iterator().next());
 
-		assertEquals("id", data.indexToName().get(0).iterator().next());
+		assertEquals("anotherId", data.indexToName().get(0).iterator().next());
+		assertEquals("id", data.indexToName().get(1).iterator().next());
 	}
 
 	@Test
 	public void testProcessAnnotations_SimplePost() throws Exception {
 		Method method = TestTemplate_Simple.class.getDeclaredMethod("postTest",
-				TestObject.class);
+				String.class, TestObject.class);
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
-		assertEquals("", data.template().url());
+		assertEquals("/prepend/{anotherId}", data.template().url());
 		assertEquals("POST", data.template().method());
 		assertEquals(MediaType.APPLICATION_JSON_VALUE,
 				data.template().headers().get("Accept").iterator().next());
+		assertEquals("anotherId", data.indexToName().get(0).iterator().next());
 
 	}
 
@@ -188,14 +200,16 @@ public class SpringMvcContractTests {
 
 	@Test
 	public void testProcessAnnotations_Advanced3() throws Exception {
-		Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest");
+		Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest", 
+				String.class);
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
-		assertEquals("", data.template().url());
+		assertEquals("/prepend/{anotherId}", data.template().url());
 		assertEquals("GET", data.template().method());
 		assertEquals(MediaType.APPLICATION_JSON_VALUE,
 				data.template().headers().get("Accept").iterator().next());
+		assertEquals("anotherId", data.indexToName().get(0).iterator().next());
 	}
 
 	@Test
@@ -262,15 +276,20 @@ public class SpringMvcContractTests {
 		return false;
 	}
 
+	@RequestMapping("/prepend/{anotherId}")
 	public interface TestTemplate_Simple {
 		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
+		ResponseEntity<TestObject> getTest(@PathVariable String anotherId, @PathVariable String id);
 
 		@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-		TestObject getTest();
+		TestObject getTest(@PathVariable String anotherId);
 
 		@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-		TestObject postTest(@RequestBody TestObject object);
+		TestObject postTest(@PathVariable String anotherId, @RequestBody TestObject object);
+	}
+	
+	public interface TestTemplate_Simple_Extending extends TestTemplate_Simple{
+		
 	}
 
 	public interface TestTemplate_Headers {
