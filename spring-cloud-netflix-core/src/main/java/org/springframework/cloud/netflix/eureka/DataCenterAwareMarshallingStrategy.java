@@ -177,13 +177,23 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			String instanceId = info.getMetadata().get("instanceId");
 			DataCenterInfo dataCenter = info.getDataCenterInfo();
 			if (instanceId != null && Name.Amazon != dataCenter.getName()) {
-				String old = info.getId();
-				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
+				String id = calculateId(info, instanceId);
 				info = new InstanceInfo.Builder(info).setDataCenterInfo(
 						new InstanceIdDataCenterInfo(id)).build();
 				source = info;
 			}
 			super.marshal(source, writer, context);
+		}
+
+		String calculateId(InstanceInfo info, String instanceId) {
+			String old = info.getId();
+			if (old.endsWith(instanceId)) {
+				return old;
+			}
+			if (instanceId.startsWith(old)) {
+				return instanceId;
+			}
+			return old + ":" + instanceId;
 		}
 
 		@Override
@@ -194,8 +204,7 @@ public class DataCenterAwareMarshallingStrategy implements MarshallingStrategy {
 			String instanceId = info.getMetadata().get("instanceId");
 			DataCenterInfo dataCenter = info.getDataCenterInfo();
 			if (instanceId != null && Name.Amazon != dataCenter.getName()) {
-				String old = info.getId();
-				String id = old.endsWith(instanceId) ? old : old + ":" + instanceId;
+				String id = calculateId(info, instanceId);
 				info = new InstanceInfo.Builder(info).setDataCenterInfo(
 						new InstanceIdDataCenterInfo(id)).build();
 				obj = info;
