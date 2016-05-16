@@ -70,7 +70,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
 		CommonsClientAutoConfiguration.class })
-@AutoConfigureAfter(RefreshAutoConfiguration.class)
+@AutoConfigureAfter(name = "org.springframework.cloud.autoconfigure.RefreshAutoConfiguration")
 public class EurekaClientAutoConfiguration {
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
@@ -147,7 +147,8 @@ public class EurekaClientAutoConfiguration {
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config) {
-			return new CloudEurekaClient(manager, config, this.optionalArgs, this.context);
+			return new CloudEurekaClient(manager, config, this.optionalArgs,
+					this.context);
 		}
 
 		@Bean
@@ -176,7 +177,8 @@ public class EurekaClientAutoConfiguration {
 		public EurekaClient eurekaClient(ApplicationInfoManager manager,
 				EurekaClientConfig config, EurekaInstanceConfig instance) {
 			manager.getInfo(); // force initialization
-			return new CloudEurekaClient(manager, config, this.optionalArgs, this.context);
+			return new CloudEurekaClient(manager, config, this.optionalArgs,
+					this.context);
 		}
 
 		@Bean
@@ -217,6 +219,7 @@ public class EurekaClientAutoConfiguration {
 		static class MissingClass {
 		}
 
+		@ConditionalOnClass(RefreshScope.class)
 		@ConditionalOnMissingBean(RefreshAutoConfiguration.class)
 		static class MissingScope {
 		}
