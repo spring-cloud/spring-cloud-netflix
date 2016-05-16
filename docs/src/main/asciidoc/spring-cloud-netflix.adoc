@@ -589,7 +589,7 @@ On the server side Just create a Spring Boot application and annotate it with `@
 
 You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.  If Turbine Stream is running on port 8989 on myhost, then put `http://myhost:8989` in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.
 
-Spring Cloud provides a `spring-cloud-starter-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running - just add the Sream binder of your choice, e.g. `spring-cloud-starter-stream-rabbit`. You need Java 8 to run the app because it is Netty-based.
+Spring Cloud provides a `spring-cloud-starter-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. `spring-cloud-starter-stream-rabbit`. You need Java 8 to run the app because it is Netty-based.
 
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
