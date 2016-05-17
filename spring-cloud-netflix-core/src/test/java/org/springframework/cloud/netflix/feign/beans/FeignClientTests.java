@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.feign.beans;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -61,6 +64,9 @@ public class FeignClientTests {
 	private TestClient testClient;
 
 	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
 	private org.springframework.cloud.netflix.feign.beans.extra.TestClient extraClient;
 
 	@Configuration
@@ -87,6 +93,14 @@ public class FeignClientTests {
 	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+	}
+
+	@Test
+	public void testAnnnotations() throws Exception {
+		Map<String, Object> beans = this.context
+				.getBeansWithAnnotation(FeignClient.class);
+		assertTrue("Wrong clients: " + beans,
+				beans.containsKey(TestClient.class.getName()));
 	}
 
 	@Test

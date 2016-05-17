@@ -52,9 +52,11 @@ public @interface FeignClient {
 	 * @deprecated use {@link #name() name} instead
 	 */
 	@Deprecated
-	@AliasFor("value")
 	String serviceId() default "";
 
+	/**
+	 * The service id with optional protocol prefix. Synonym for {@link #value() value}.
+	 */
 	@AliasFor("value")
 	String name() default "";
 
