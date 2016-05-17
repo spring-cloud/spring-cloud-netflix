@@ -101,6 +101,12 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<!-- Deprecated. To be removed -->
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-turbine-amqp</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-turbine-stream</artifactId>
 				<version>${project.version}</version>
@@ -118,6 +124,12 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-eureka-server</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<!-- Deprecated. To be removed -->
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-netflix-hystrix-amqp</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
