@@ -135,7 +135,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	protected static class RoutesEndpointConfiguration {
 
 		@Bean
-		public RoutesEndpoint zuulEndpoint(DiscoveryClientRouteLocator routeLocator) {
+		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
 		}
 
