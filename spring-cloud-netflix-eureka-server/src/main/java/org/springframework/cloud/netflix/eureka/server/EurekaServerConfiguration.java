@@ -52,6 +52,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.converters.EurekaJacksonCodec;
 import com.netflix.discovery.converters.wrappers.CodecWrapper;
 import com.netflix.discovery.converters.wrappers.CodecWrappers;
 import com.netflix.eureka.DefaultEurekaServerContext;
@@ -102,6 +103,7 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 	@Value("${eureka.server.defaultOpenForTrafficCount:1}")
 	private int defaultOpenForTrafficCount;
+	public static final CloudJacksonJson JACKSON_JSON = new CloudJacksonJson();
 
 	@Bean
 	public HasFeatures eurekaServerFeature() {
@@ -128,15 +130,19 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		return new EurekaController(this.applicationInfoManager);
 	}
 
+	static {
+		CodecWrappers.registerWrapper(JACKSON_JSON);
+		EurekaJacksonCodec.setInstance(JACKSON_JSON.getCodec());
+	}
+
 	@Bean
 	public ServerCodecs serverCodecs() {
-		CodecWrappers.registerWrapper(new CloudJacksonJson());
 		return new CloudServerCodecs(this.eurekaServerConfig);
 	}
 
 	private static CodecWrapper getFullJson(EurekaServerConfig serverConfig) {
 		CodecWrapper codec = CodecWrappers.getCodec(serverConfig.getJsonCodecName());
-		return codec == null ? CodecWrappers.getCodec(CloudJacksonJson.class) : codec;
+		return codec == null ? CodecWrappers.getCodec(JACKSON_JSON.codecName()) : codec;
 	}
 
 	private static CodecWrapper getFullXml(EurekaServerConfig serverConfig) {

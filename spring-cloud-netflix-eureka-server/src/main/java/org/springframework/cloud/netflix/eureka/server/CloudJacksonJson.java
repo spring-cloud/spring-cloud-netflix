@@ -11,7 +11,9 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -36,9 +38,13 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 	protected final CloudJacksonCodec codec = new CloudJacksonCodec();
 
+	public CloudJacksonCodec getCodec() {
+		return codec;
+	}
+
 	@Override
 	public String codecName() {
-		return getCodecName(this.getClass());
+		return getCodecName(LegacyJacksonJson.class);
 	}
 
 	@Override
@@ -120,31 +126,39 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 	static class CloudInstanceInfoSerializer extends InstanceInfoSerializer {
 		@Override
-		public void serialize(InstanceInfo info, JsonGenerator jgen,
+		public void serialize(final InstanceInfo info, JsonGenerator jgen,
 				SerializerProvider provider) throws IOException {
 
-			if (info.getInstanceId() == null && info.getMetadata() != null) {
-				String instanceId = calculateInstanceId(info);
-				info = new InstanceInfo.Builder(info).setInstanceId(instanceId).build();
-			}
-
-			super.serialize(info, jgen, provider);
+			InstanceInfo updated = updateIfNeeded(info);
+			super.serialize(updated, jgen, provider);
 		}
+	}
 
-		private String calculateInstanceId(InstanceInfo info) {
+	static InstanceInfo updateIfNeeded(final InstanceInfo info) {
+		if (info.getInstanceId() == null && info.getMetadata() != null) {
 			String instanceId = info.getMetadata().get("instanceId");
-			String hostName = info.getHostName();
-			if (instanceId != null && StringUtils.hasText(hostName) && !instanceId.startsWith(hostName)) {
-				instanceId = hostName + ":" + instanceId;
+			if (StringUtils.hasText(instanceId)) {
+				// backwards compatibility for Angel
+				if (StringUtils.hasText(info.getHostName()) && !instanceId.startsWith(info.getHostName())) {
+					instanceId = info.getHostName()+":"+instanceId;
+				}
+				return new InstanceInfo.Builder(info).setInstanceId(instanceId).build();
 			}
-			return instanceId == null ? hostName : instanceId;
 		}
+		return info;
 	}
 
 	static class CloudInstanceInfoDeserializer extends InstanceInfoDeserializer {
 
 		protected CloudInstanceInfoDeserializer(ObjectMapper mapper) {
 			super(mapper);
+		}
+
+		@Override
+		public InstanceInfo deserialize(JsonParser jp, DeserializationContext context) throws IOException {
+			InstanceInfo info = super.deserialize(jp, context);
+			InstanceInfo updated = updateIfNeeded(info);
+			return updated;
 		}
 	}
 }
