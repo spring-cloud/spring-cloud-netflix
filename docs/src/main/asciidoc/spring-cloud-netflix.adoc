@@ -286,7 +286,7 @@ Being an instance also involves a periodic heartbeat to the registry
 (via the client's `serviceUrl`) with default duration 30 seconds. A
 service is not available for discovery by clients until the instance,
 the server and the client all have the same metadata in their local
-cache (so it could take 3 hearbeats). You can change the period using
+cache (so it could take 3 heartbeats). You can change the period using
 `eureka.instance.leaseRenewalIntervalInSeconds` and this will speed up
 the process of getting clients connected to other services. In
 production it's probably better to stick with the default because
