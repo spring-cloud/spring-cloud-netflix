@@ -1,5 +1,4 @@
-sudo: required
-dist: trusty
+sudo: false
 cache:
   directories:
     - $HOME/.m2
