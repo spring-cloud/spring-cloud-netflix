@@ -20,6 +20,7 @@ install:
 - './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -nsu -Dmaven.test.redirectTestOutputToFile=true -Dmaven.javadoc.skip=true'
 env:
   global:
+  - MAVEN_OPTS=-Xms256m -Xmx1024m
   - GIT_NAME="Dave Syer"
   - GIT_EMAIL=dsyer@pivotal.io
   - CI_DEPLOY_USERNAME=buildmaster
