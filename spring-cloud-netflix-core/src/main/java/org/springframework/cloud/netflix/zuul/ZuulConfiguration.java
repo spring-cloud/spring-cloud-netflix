@@ -76,7 +76,7 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingBean(RouteLocator.class)
 	public RouteLocator routeLocator() {
 		return new SimpleRouteLocator(this.server.getServletPrefix(),
 				this.zuulProperties);

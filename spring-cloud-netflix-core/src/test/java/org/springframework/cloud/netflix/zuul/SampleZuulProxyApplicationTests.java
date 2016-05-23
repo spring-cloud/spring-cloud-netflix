@@ -24,15 +24,20 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
@@ -81,6 +86,9 @@ import lombok.SneakyThrows;
 		"zuul.removeSemicolonContent: false" })
 @DirtiesContext
 public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
+
+	@Autowired
+	RouteLocator routeLocator;
 
 	@Test
 	public void simpleHostRouteWithTrailingSlash() {
@@ -191,6 +199,12 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 				this.ribbonCommandFactory instanceof SampleZuulProxyApplication.MyRibbonCommandFactory);
 	}
 
+	@Test
+	public void routeLocatorOverridden() {
+		assertTrue("routeLocator not a MyRouteLocator",
+				this.routeLocator instanceof SampleZuulProxyApplication.MyRouteLocator);
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -236,6 +250,11 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 	public RibbonCommandFactory<?> ribbonCommandFactory(
 			SpringClientFactory clientFactory) {
 		return new MyRibbonCommandFactory(clientFactory);
+	}
+
+	@Bean
+	public RouteLocator routeLocator(DiscoveryClient discoveryClient, ZuulProperties zuulProperties) {
+		return new MyRouteLocator("/", discoveryClient, zuulProperties);
 	}
 
 	public static void main(String[] args) {
@@ -298,5 +317,12 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 			return new StaticServerList<>(new Server(UUID.randomUUID().toString(), 4322));
 		}
 
+	}
+
+	static class MyRouteLocator extends DiscoveryClientRouteLocator {
+
+		public MyRouteLocator(String servletPath, DiscoveryClient discovery, ZuulProperties properties) {
+			super(servletPath, discovery, properties);
+		}
 	}
 }
