@@ -787,7 +787,7 @@ public String serviceUrl() {
 (via the client&#8217;s <code>serviceUrl</code>) with default duration 30 seconds. A
 service is not available for discovery by clients until the instance,
 the server and the client all have the same metadata in their local
-cache (so it could take 3 hearbeats). You can change the period using
+cache (so it could take 3 heartbeats). You can change the period using
 <code>eureka.instance.leaseRenewalIntervalInSeconds</code> and this will speed up
 the process of getting clients connected to other services. In
 production it&#8217;s probably better to stick with the default because
@@ -1162,7 +1162,7 @@ for details on the properties available.</p>
 <p>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.  If Turbine Stream is running on port 8989 on myhost, then put <code><a href="http://myhost:8989" class="bare">http://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</p>
 </div>
 <div class="paragraph">
-<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-stream</code> that has all the dependencies you need to get a Turbine Stream server running - just add the Sream binder of your choice, e.g. <code>spring-cloud-starter-stream-rabbit</code>. You need Java 8 to run the app because it is Netty-based.</p>
+<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-stream</code> that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. <code>spring-cloud-starter-stream-rabbit</code>. You need Java 8 to run the app because it is Netty-based.</p>
 </div>
 </div>
 </div>
@@ -1949,8 +1949,8 @@ level, but "/myusers/**" matches hierarchically.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>These simple url-routes doesn&#8217;t get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
-To achieve this specify a service-route and configure a Ribbon client for the
+<p>These simple url-routes don&#8217;t get executed as a <code>HystrixCommand</code> nor can you loadbalance multiple URLs with Ribbon.
+To achieve this, specify a service-route and configure a Ribbon client for the
 serviceId (this currently requires disabling Eureka support in Ribbon:
 see <a href="#spring-cloud-ribbon-without-eureka">above for more information</a>), e.g.</p>
 </div>
@@ -1974,7 +1974,7 @@ users:
 </div>
 <div class="paragraph">
 <p>You can provide convention between serviceId and routes using
-regexmapper.  It uses regular expression named group to extract
+regexmapper.  It uses regular expression named groups to extract
 variables from serviceId and inject them into a route pattern.</p>
 </div>
 <div class="listingblock">
@@ -1991,11 +1991,11 @@ public PatternServiceRouteMapper serviceRouteMapper() {
 <div class="paragraph">
 <p>This means that a serviceId "myusers-v1" will be mapped to route
 "/v1/myusers/**".  Any regular expression is accepted but all named
-group must be present in both servicePattern and routePattern.  If
-servicePattern do not match a serviceId, the default behavior is
-used. In exemple above, a serviceId "myusers" will be mapped to route
-"/myusers/**" (no version detected) These feature is disable by
-default and is only applied to discovered services.</p>
+groups must be present in both servicePattern and routePattern.  If
+servicePattern does not match a serviceId, the default behavior is
+used. In the example above, a serviceId "myusers" will be mapped to route
+"/myusers/**" (no version detected) This feature is disable by
+default and only applies to discovered services.</p>
 </div>
 <div class="paragraph">
 <p>To add a prefix to all mappings, set <code>zuul.prefix</code> to a value, such as
@@ -2015,7 +2015,7 @@ the service-specific prefix from individual routes, e.g.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>In this example requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.</p>
+<p>In this example, requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.</p>
 </div>
 <div class="paragraph">
 <p>The <code>zuul.routes</code> entries actually bind to an object of type <code>ZuulProperties</code>. If you
@@ -2032,13 +2032,13 @@ picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
 above).</p>
 </div>
 <div class="paragraph">
-<p>An application with the <code>@EnableZuulProxy</code> could act as a standalone
+<p>An application with <code>@EnableZuulProxy</code> could act as a standalone
 server if you set a default route ("/"), for example <code>zuul.route.home:
 /</code> would route all traffic (i.e. "/**") to the "home" service.</p>
 </div>
 <div class="paragraph">
 <p>If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
-These patterns are being evaluated at the start of the route location process, which
+These patterns are evaluated at the start of the route location process, which
 means prefixes should be included in the pattern to warrant a match. Ignored patterns
 span all services and supersede any other route specification.</p>
 </div>
@@ -2075,7 +2075,7 @@ only one of the downstream services sets cookies, then you might be
 able to let them flow from the backend all the way up to the
 caller. Also, if your proxy sets cookies and all your back end
 services are part of the same system, it can be natural to simply
-share them (and for instance us Spring Session to link them up to some
+share them (and for instance use Spring Session to link them up to some
 shared state). Other than that, any cookies that get set by downstream
 services are likely to be not very useful to the caller, so it is
 recommended that you make (at least) "Set-Cookie" and "Cookie" into
@@ -2085,7 +2085,7 @@ about what it means before allowing cookies to flow between them and
 the proxy.</p>
 </div>
 <div class="paragraph">
-<p>The sensitive headers can be configured as a comma-separate list per
+<p>The sensitive headers can be configured as a comma-separated list per
 route, e.g.</p>
 </div>
 <div class="listingblock">
@@ -2096,11 +2096,11 @@ route, e.g.</p>
     users:
       path: /myusers/**
       sensitiveHeaders: Cookie,Set-Cookie,Authorization
-      url: https://dowstream</code></pre>
+      url: https://downstream</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Sensitive headers can also be set globally setting <code>zuul.sensitiveHeaders</code>. If <code>sensitiveHeaders</code> is set on a route, this will override the global <code>sensitiveHeaders</code> setting.</p>
+<p>Sensitive headers can also be set globally by setting <code>zuul.sensitiveHeaders</code>. If <code>sensitiveHeaders</code> is set on a route, this will override the global <code>sensitiveHeaders</code> setting.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -2175,7 +2175,7 @@ locally, e.g. with a normal Spring <code>@RequestMapping</code>. Paths in
 <div class="title">Note</div>
 </td>
 <td class="content">
-The ignored pattterns aren&#8217;t completely ignored, they just
+The ignored patterns aren&#8217;t completely ignored, they just
 aren&#8217;t handled by the proxy (so they are also effectively forwarded
 locally).
 </td>
@@ -2785,7 +2785,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-05-04 20:20:24 UTC
+Last updated 2016-05-23 18:37:15 UTC
 </div>
 </div>
 </body>
