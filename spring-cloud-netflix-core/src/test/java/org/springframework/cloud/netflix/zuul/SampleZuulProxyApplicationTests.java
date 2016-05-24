@@ -158,6 +158,17 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 	}
 
 	@Test
+	public void simpleHostRouteWithContentType() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/content-type", HttpMethod.POST,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("<NONE>", result.getBody());
+	}
+
+	@Test
 	public void ribbonCommandForbidden() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/throwexception/403",
@@ -221,6 +232,12 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 	@RequestMapping("/trailing-slash")
 	public String trailingSlash(HttpServletRequest request) {
 		return request.getRequestURI();
+	}
+
+	@RequestMapping("/content-type")
+	public String contentType(HttpServletRequest request) {
+		String header = request.getHeader("Content-Type");
+		return header == null ? "<NONE>" : header;
 	}
 
 	@RequestMapping("/add-header")
