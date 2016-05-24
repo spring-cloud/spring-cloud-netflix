@@ -258,7 +258,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		HttpRequest httpRequest;
 		int contentLength = request.getContentLength();
 		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength,
-				ContentType.create(request.getContentType()));
+				(request.getContentType() == null ? null : ContentType.create(request.getContentType())));
 		switch (verb.toUpperCase()) {
 		case "POST":
 			HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));

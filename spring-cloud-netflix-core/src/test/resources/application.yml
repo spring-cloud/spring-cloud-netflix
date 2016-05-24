@@ -44,3 +44,15 @@ zuul:
 feignClient:
   localappName: localapp
   methodLevelRequestMappingPath: /hello2
+security:
+  basic:
+    enabled: false
+  user:
+    name: greg
+    password: turnquist
+  oauth2:
+    client:
+      client-id: foo
+      client-secret: bar
+    authorization:
+      check-token-access: isAuthenticated()

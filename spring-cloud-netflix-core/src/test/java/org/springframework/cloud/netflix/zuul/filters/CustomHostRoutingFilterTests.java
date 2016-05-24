@@ -26,6 +26,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFil
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,6 +90,18 @@ public class CustomHostRoutingFilterTests {
 				"http://localhost:" + this.port + "/app/self/post", params, String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Post 2", result.getBody());
+	}
+
+	@Test
+	public void postOnSelfViaCustomHostRoutingFilterWithNoContentType() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", null);
+		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
+				"http://localhost:" + this.port + "/app/self/post", new HttpEntity<>((Void) null, headers), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Post", result.getBody());
 	}
 
 	@Test
@@ -168,8 +181,8 @@ class SampleCustomZuulProxyApplication {
 	}
 
 	@RequestMapping(value = "/post", method = RequestMethod.POST)
-	public String post(@RequestParam("id") String id) {
-		return "Post " + id;
+	public String post(@RequestParam(value = "id", required = false) String id) {
+		return "Post" + (id != null ? " " + id : "");
 	}
 
 	@RequestMapping(value = "/put/{id}", method = RequestMethod.PUT)
