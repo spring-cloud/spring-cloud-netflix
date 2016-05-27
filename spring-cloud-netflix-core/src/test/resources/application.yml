@@ -26,6 +26,10 @@ foo:
   ribbon:
     ConnectTimeout: 7
     ReadTimeout: 17
+badClients:
+  ribbon:
+    MaxAutoRetriesNextServer: 10
+    ReadTimeout: 200
 management:
   context-path: /admin
 endpoints:
