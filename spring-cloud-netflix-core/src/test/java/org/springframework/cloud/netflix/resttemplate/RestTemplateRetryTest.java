@@ -12,15 +12,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,13 +42,10 @@ import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = RestTemplateRetryTest.Application.class)
-@WebAppConfiguration
-@IntegrationTest({
-		"server.port=0",
+@WebIntegrationTest(randomPort = true, value = {
 		"spring.application.name=resttemplatetest",
 		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
-		"badClients.ribbon.MaxAutoRetries=0", "badClients.ribbon.ReadTimeout=200",
-		"badClients.ribbon.MaxAutoRetriesNextServer=10",
+		"badClients.ribbon.MaxAutoRetries=0",
 		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
 @DirtiesContext
 public class RestTemplateRetryTest {
