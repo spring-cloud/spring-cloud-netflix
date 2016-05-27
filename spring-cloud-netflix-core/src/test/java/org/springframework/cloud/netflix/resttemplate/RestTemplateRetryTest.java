@@ -44,12 +44,9 @@ import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = RestTemplateRetryTest.Application.class)
 @WebAppConfiguration
-@IntegrationTest({
-		"server.port=0",
-		"spring.application.name=resttemplatetest",
+@IntegrationTest({ "server.port=0", "spring.application.name=resttemplatetest",
 		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
-		"badClients.ribbon.MaxAutoRetries=0", "badClients.ribbon.ReadTimeout=200",
-		"badClients.ribbon.MaxAutoRetriesNextServer=10",
+		"badClients.ribbon.MaxAutoRetries=0",
 		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
 @DirtiesContext
 public class RestTemplateRetryTest {
@@ -270,12 +267,8 @@ class LocalBadClientConfiguration {
 		badServer = new Server("mybadhost", 10001);
 		badServer2 = new Server("localhost", -1);
 
-		balancer = LoadBalancerBuilder
-				.newBuilder()
-				.withClientConfig(config)
-				.withRule(rule)
-				.withPing(ping)
-				.buildFixedServerListLoadBalancer(
+		balancer = LoadBalancerBuilder.newBuilder().withClientConfig(config)
+				.withRule(rule).withPing(ping).buildFixedServerListLoadBalancer(
 						Arrays.asList(badServer, badServer2, goodServer));
 		return balancer;
 	}
