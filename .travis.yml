@@ -1,5 +1,4 @@
 sudo: false
-#dist: trusty
 cache:
   directories:
     - $HOME/.m2
@@ -15,10 +14,10 @@ before_install:
   - echo "https://$GH_TOKEN:@github.com" > .git/credentials
   - gem install asciidoctor
 install:
-#- ./mvnw install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
-#- '[ "${MVN_GOAL}" == "deploy" ] && ./docs/src/main/asciidoc/ghpages.sh || echo "Not updating docs"'
-#script:
-- './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -q -U -Dmaven.test.redirectTestOutputToFile=true -Dmaven.javadoc.skip=true'
+- ./mvnw install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true
+- '[ "${MVN_GOAL}" == "deploy" ] && ./docs/src/main/asciidoc/ghpages.sh || echo "Not updating docs"'
+script:
+- './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -nsu -Dmaven.test.redirectTestOutputToFile=true'
 env:
   global:
   - GIT_NAME="Dave Syer"
@@ -26,8 +25,7 @@ env:
   - CI_DEPLOY_USERNAME=buildmaster
   - FEATURE_BRANCH=$(echo ${TRAVIS_BRANCH} | grep -q "^.*/.*$" && echo true || echo false)
   - SPRING_CLOUD_BUILD=$(echo ${TRAVIS_REPO_SLUG} | grep -q "^spring-cloud/.*$" && echo true || echo false)
-  # jenkins.spring.io is doing deploy
-  - MVN_GOAL=install
+  - MVN_GOAL=$([ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_TAG}" == "" -a "${FEATURE_BRANCH}" == "false" -a "${SPRING_CLOUD_BUILD}" == "true" ] && echo deploy || echo install)
   - VERSION=$(mvn validate | grep Building | head -1 | sed -e 's/.* //')
   - MILESTONE=$(echo ${VERSION} | egrep 'M|RC' && echo true || echo false)
   - MVN_PROFILE=$([ "${MILESTONE}" == "true" ] && echo -P milestone)
