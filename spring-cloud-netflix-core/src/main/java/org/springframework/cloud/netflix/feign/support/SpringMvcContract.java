@@ -266,8 +266,8 @@ public class SpringMvcContract extends Contract.BaseContract
 		if (annotation.headers() != null && annotation.headers().length > 0) {
 			for (String header : annotation.headers()) {
 				int index = header.indexOf('=');
-				md.template().header(header.substring(0, index),
-						header.substring(index + 1).trim());
+				md.template().header(resolve(header.substring(0, index)),
+						resolve(header.substring(index + 1).trim()));
 			}
 		}
 	}
