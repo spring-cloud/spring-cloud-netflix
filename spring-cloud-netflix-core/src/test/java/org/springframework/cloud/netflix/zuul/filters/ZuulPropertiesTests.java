@@ -46,7 +46,8 @@ public class ZuulPropertiesTests {
 
 	@Test
 	public void defaultIgnoredHeaders() {
-		assertTrue(this.zuul.getIgnoredHeaders().isEmpty());
+		assertTrue(this.zuul.getIgnoredHeaders()
+				.containsAll(ZuulProperties.SECURITY_HEADERS));
 	}
 
 	@Test
@@ -60,8 +61,8 @@ public class ZuulPropertiesTests {
 		ZuulRoute route = new ZuulRoute("foo");
 		this.zuul.getRoutes().put("foo", route);
 		assertTrue(this.zuul.getRoutes().get("foo").getSensitiveHeaders().isEmpty());
-		assertTrue(this.zuul.getSensitiveHeaders().containsAll(
-				Arrays.asList("Cookie", "Set-Cookie", "Authorization")));
+		assertTrue(this.zuul.getSensitiveHeaders()
+				.containsAll(Arrays.asList("Cookie", "Set-Cookie", "Authorization")));
 	}
 
 	@Test

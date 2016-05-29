@@ -40,7 +40,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TestConfiguration.class)
 @DirtiesContext
-@IntegrationTest("ribbon.ConnectTimeout=25000")
+@IntegrationTest
 public class RibbonAutoConfigurationIntegrationTests {
 
 	@Autowired
@@ -49,7 +49,7 @@ public class RibbonAutoConfigurationIntegrationTests {
 	@Test
 	public void serverListIsConfigured() throws Exception {
 		IClientConfig config = this.factory.getClientConfig("client");
-		assertEquals(25000,
+		assertEquals(3001,
 				config.getPropertyAsInteger(CommonClientConfigKey.ConnectTimeout, 3000));
 	}
 
