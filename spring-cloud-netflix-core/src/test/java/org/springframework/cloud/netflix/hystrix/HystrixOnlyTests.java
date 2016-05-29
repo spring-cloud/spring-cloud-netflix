@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Base64;
 import java.util.Map;
 
 import org.junit.Test;
@@ -30,6 +35,9 @@ import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -37,10 +45,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -54,6 +58,12 @@ public class HystrixOnlyTests {
 
 	@Value("${local.server.port}")
 	private int port;
+	
+	@Value("${security.user.username}")
+	private String username;
+
+	@Value("${security.user.password}")
+	private String password;
 
 	@Test
 	public void testNormalExecution() {
@@ -85,9 +95,27 @@ public class HystrixOnlyTests {
 				map.containsKey("discovery"));
 	}
 
+
+
 	private Map<?, ?> getHealth() {
-		return new TestRestTemplate().getForObject("http://localhost:" + this.port
-				+ "/admin/health", Map.class);
+		return new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/admin/health", HttpMethod.GET,
+				new HttpEntity<Void>(createBasicAuthHeader(username, password)),
+				Map.class).getBody();
+	}
+
+	public static HttpHeaders createBasicAuthHeader(final String username,
+			final String password) {
+		return new HttpHeaders() {
+			private static final long serialVersionUID = 1766341693637204893L;
+
+			{
+				String auth = username + ":" + password;
+				byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes());
+				String authHeader = "Basic " + new String(encodedAuth);
+				this.set("Authorization", authHeader);
+			}
+		};
 	}
 }
 
