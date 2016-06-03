@@ -52,6 +52,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Dave Syer
+ * @author Marcos Barbero
  */
 @CommonsLog
 public class ProxyRequestHelper {
@@ -98,8 +99,7 @@ public class ProxyRequestHelper {
 		String contextURI = (String) context.get("requestURI");
 		if (contextURI != null) {
 			try {
-				uri = UriUtils.encodePath(contextURI,
-						WebUtils.DEFAULT_CHARACTER_ENCODING);
+				uri = UriUtils.encodePath(contextURI, characterEncoding(request));
 			}
 			catch (Exception e) {
 				log.debug(
@@ -108,6 +108,11 @@ public class ProxyRequestHelper {
 			}
 		}
 		return uri;
+	}
+
+	private String characterEncoding(HttpServletRequest request) {
+		return request.getCharacterEncoding() != null ? request.getCharacterEncoding()
+				: WebUtils.DEFAULT_CHARACTER_ENCODING;
 	}
 
 	public MultiValueMap<String, String> buildZuulRequestQueryParams(
@@ -267,7 +272,8 @@ public class ProxyRequestHelper {
 
 	/* for tests */ boolean shouldDebugBody(RequestContext ctx) {
 		HttpServletRequest request = ctx.getRequest();
-		if (!this.traceRequestBody || ctx.isChunkedRequestBody() || RequestUtils.isZuulServletRequest()) {
+		if (!this.traceRequestBody || ctx.isChunkedRequestBody()
+				|| RequestUtils.isZuulServletRequest()) {
 			return false;
 		}
 		if (request == null || request.getContentType() == null) {
