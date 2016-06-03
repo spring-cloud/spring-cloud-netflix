@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Documented
 @Inherited
 @Qualifier
+@Deprecated
 public @interface HystrixConnectionFactory {
 
 }
