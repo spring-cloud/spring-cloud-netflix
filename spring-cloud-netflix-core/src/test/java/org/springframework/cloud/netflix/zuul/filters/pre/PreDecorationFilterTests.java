@@ -377,6 +377,19 @@ public class PreDecorationFilterTests {
 		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
 				sensitiveHeaders.containsAll(Arrays.asList("x-bar", "x-foo")));
 	}
+	
+	@Test
+	public void urlProperlyDecodedWhenCharacterEncodingIsSet() throws Exception {
+		this.request.setCharacterEncoding("UTF-8");
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.request.setRequestURI("/api/foo/ol%C3%A9%D7%93%D7%A8%D7%A2%D7%A7");
+		this.routeLocator.addRoute("/foo/**", "foo");
+		RequestContext ctx = RequestContext.getCurrentContext();
+		this.filter.run();
+		String decodedRequestURI = (String) ctx.get("requestURI");
+		assertTrue(decodedRequestURI.equals("/oléדרעק"));
+	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
 		String value = null;
