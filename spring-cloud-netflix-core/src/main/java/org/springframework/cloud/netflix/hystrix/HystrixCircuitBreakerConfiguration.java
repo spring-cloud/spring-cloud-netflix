@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.actuator.NamedFeature;
 import org.springframework.context.SmartLifecycle;
@@ -49,6 +50,7 @@ import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServl
 /**
  * @author Spencer Gibb
  * @author Christian Dupuis
+ * @author Venil Noronha
  */
 @Configuration
 public class HystrixCircuitBreakerConfiguration {
@@ -88,6 +90,7 @@ public class HystrixCircuitBreakerConfiguration {
 	@Configuration
 	@ConditionalOnProperty(value = "hystrix.metrics.enabled", matchIfMissing = true)
 	@ConditionalOnClass({ HystrixMetricsPoller.class, GaugeService.class })
+	@EnableConfigurationProperties(HystrixMetricsProperties.class)
 	protected static class HystrixMetricsPollerConfiguration implements SmartLifecycle {
 
 		private static Log logger = LogFactory
@@ -95,6 +98,9 @@ public class HystrixCircuitBreakerConfiguration {
 
 		@Autowired(required = false)
 		private GaugeService gauges;
+
+		@Autowired
+		private HystrixMetricsProperties metricsProperties;
 
 		private ObjectMapper mapper = new ObjectMapper();
 
@@ -125,7 +131,8 @@ public class HystrixCircuitBreakerConfiguration {
 				}
 
 			};
-			this.poller = new HystrixMetricsPoller(listener, 2000);
+			this.poller = new HystrixMetricsPoller(listener,
+					metricsProperties.getPollingIntervalMs());
 			// start polling and it will write directly to the listener
 			this.poller.start();
 			logger.info("Starting poller");
