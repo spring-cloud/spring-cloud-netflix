@@ -259,4 +259,33 @@ public class ProxyRequestHelperTests {
 		assertThat(queryString, is("?wsdl"));
 	}
 
+	@Test
+	public void buildZuulRequestURIWithUTF8() throws Exception {
+		String encodedURI = "/resource/esp%C3%A9cial-char";
+		String decodedURI = "/resource/espécial-char";
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", encodedURI);
+		request.setCharacterEncoding("UTF-8");
+		final RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.set("requestURI", decodedURI);
+
+		final String requestURI = new ProxyRequestHelper().buildZuulRequestURI(request);
+		assertThat(requestURI, equalTo(encodedURI));
+	}
+
+	@Test
+	public void buildZuulRequestURIWithDefaultEncoding() {
+		String encodedURI = "/resource/esp%E9cial-char";
+		String decodedURI = "/resource/espécial-char";
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", encodedURI);
+		final RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.set("requestURI", decodedURI);
+
+		final String requestURI = new ProxyRequestHelper().buildZuulRequestURI(request);
+		assertThat(requestURI, equalTo(encodedURI));
+	}
+
 }
