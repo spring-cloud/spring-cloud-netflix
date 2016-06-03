@@ -48,3 +48,4 @@ zuul:
 feignClient:
   localappName: localapp
   methodLevelRequestMappingPath: /hello2
+  myPlaceholderHeader: myPlaceholderHeaderValue

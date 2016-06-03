@@ -137,51 +137,54 @@ public class FeignClientTests {
 		}
 	}
 
-	@FeignClient(value = "localapp", configuration = TestClientConfig.class)
+	@FeignClient(name = "localapp", configuration = TestClientConfig.class)
 	protected interface TestClient {
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		Hello getHello();
 
-		@RequestMapping(method = RequestMethod.GET, value = "${feignClient.methodLevelRequestMappingPath}")
+		@RequestMapping(method = RequestMethod.GET, path = "${feignClient.methodLevelRequestMappingPath}")
 		Hello getHelloUsingPropertyPlaceHolder();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		Single<Hello> getHelloSingle();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		@RequestMapping(method = RequestMethod.GET, path = "/hellos")
 		List<Hello> getHellos();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
+		@RequestMapping(method = RequestMethod.GET, path = "/hellostrings")
 		List<String> getHelloStrings();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
+		@RequestMapping(method = RequestMethod.GET, path = "/helloheaders")
 		List<String> getHelloHeaders();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
+		@RequestMapping(method = RequestMethod.GET, path = "/helloheadersplaceholders", headers = "myPlaceholderHeader=${feignClient.myPlaceholderHeader}")
+		String getHelloHeadersPlaceholders();
+
+		@RequestMapping(method = RequestMethod.GET, path = "/helloparams")
 		List<String> getParams(@RequestParam("params") List<String> params);
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		@RequestMapping(method = RequestMethod.GET, path = "/hellos")
 		HystrixCommand<List<Hello>> getHellosHystrix();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/noContent")
+		@RequestMapping(method = RequestMethod.GET, path = "/noContent")
 		ResponseEntity noContent();
 
-		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
+		@RequestMapping(method = RequestMethod.HEAD, path = "/head")
 		ResponseEntity head();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		HttpEntity<Hello> getHelloEntity();
 
 		@RequestMapping(method = RequestMethod.POST,
 				consumes = "application/vnd.io.spring.cloud.test.v1+json",
 				produces = "application/vnd.io.spring.cloud.test.v1+json",
-				value = "/complex")
+				path = "/complex")
 		String moreComplexContentType(String body);
 
-		@RequestMapping(method = RequestMethod.GET, value = "/tostring")
+		@RequestMapping(method = RequestMethod.GET, path = "/tostring")
 		String getToString(@RequestParam("arg") Arg arg);
 
-		@RequestMapping(method = RequestMethod.GET, value = "/tostring2")
+		@RequestMapping(method = RequestMethod.GET, path = "/tostring2")
 		String getToString(@RequestParam("arg") OtherArg arg);
 	}
 
@@ -210,31 +213,31 @@ public class FeignClientTests {
 
 	@FeignClient(name = "localapp1")
 	protected interface TestClientServiceId {
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		Hello getHello();
 	}
 
 	@FeignClient(name = "localapp2", decode404 = true)
 	protected interface DecodingTestClient {
-		@RequestMapping(method = RequestMethod.GET, value = "/notFound")
+		@RequestMapping(method = RequestMethod.GET, path = "/notFound")
 		ResponseEntity<String> notFound();
 	}
 
 	@FeignClient(name = "localapp3", fallback = HystrixClientFallback.class)
 	protected interface HystrixClient {
-		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
 		Single<Hello> failSingle();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
 		Hello fail();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
 		HystrixCommand<Hello> failCommand();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
 		Observable<Hello> failObservable();
 
-		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
 		Future<Hello> failFuture();
 	}
 
@@ -307,23 +310,23 @@ public class FeignClientTests {
 			};
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		public Hello getHello() {
 			return new Hello(HELLO_WORLD_1);
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hello2")
+		@RequestMapping(method = RequestMethod.GET, path = "/hello2")
 		public Hello getHello2() {
 			return new Hello(OI_TERRA_2);
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hellos")
+		@RequestMapping(method = RequestMethod.GET, path = "/hellos")
 		public List<Hello> getHellos() {
 			ArrayList<Hello> hellos = getHelloList();
 			return hellos;
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/hellostrings")
+		@RequestMapping(method = RequestMethod.GET, path = "/hellostrings")
 		public List<String> getHelloStrings() {
 			ArrayList<String> hellos = new ArrayList<>();
 			hellos.add(HELLO_WORLD_1);
@@ -331,7 +334,7 @@ public class FeignClientTests {
 			return hellos;
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/helloheaders")
+		@RequestMapping(method = RequestMethod.GET, path = "/helloheaders")
 		public List<String> getHelloHeaders(@RequestHeader(MYHEADER1) String myheader1,
 				@RequestHeader(MYHEADER2) String myheader2) {
 			ArrayList<String> headers = new ArrayList<>();
@@ -340,27 +343,32 @@ public class FeignClientTests {
 			return headers;
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/helloparams")
+		@RequestMapping(method = RequestMethod.GET, path = "/helloheadersplaceholders")
+		public String getHelloHeadersPlaceholders(@RequestHeader("myPlaceholderHeader") String myPlaceholderHeader) {
+			return myPlaceholderHeader;
+		}
+
+		@RequestMapping(method = RequestMethod.GET, path = "/helloparams")
 		public List<String> getParams(@RequestParam("params") List<String> params) {
 			return params;
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/noContent")
+		@RequestMapping(method = RequestMethod.GET, path = "/noContent")
 		ResponseEntity noContent() {
 			return ResponseEntity.noContent().build();
 		}
 
-		@RequestMapping(method = RequestMethod.HEAD, value = "/head")
+		@RequestMapping(method = RequestMethod.HEAD, path = "/head")
 		ResponseEntity head() {
 			return ResponseEntity.ok().build();
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/fail")
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
 		String fail() {
 			throw new RuntimeException("always fails");
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/notFound")
+		@RequestMapping(method = RequestMethod.GET, path = "/notFound")
 		ResponseEntity notFound() {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
 		}
@@ -368,17 +376,17 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.POST,
 				consumes = "application/vnd.io.spring.cloud.test.v1+json",
 				produces = "application/vnd.io.spring.cloud.test.v1+json",
-				value = "/complex")
+				path = "/complex")
 		String complex(String body) {
 			return "{\"value\":\"OK\"}";
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/tostring")
+		@RequestMapping(method = RequestMethod.GET, path = "/tostring")
 		String getToString(@RequestParam("arg") Arg arg) {
 			return arg.toString();
 		}
 
-		@RequestMapping(method = RequestMethod.GET, value = "/tostring2")
+		@RequestMapping(method = RequestMethod.GET, path = "/tostring2")
 		String getToString(@RequestParam("arg") OtherArg arg) {
 			return arg.value;
 		}
@@ -435,6 +443,13 @@ public class FeignClientTests {
 				headers.contains("myheader1value"));
 		assertTrue("headers didn't contain myheader2value",
 				headers.contains("myheader2value"));
+	}
+
+	@Test
+	public void testHeaderPlaceholders() {
+		String header = this.testClient.getHelloHeadersPlaceholders();
+		assertNotNull("header was null", header);
+		assertEquals("header was wrong", "myPlaceholderHeaderValue", header);
 	}
 
 	@Test
