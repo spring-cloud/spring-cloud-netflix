@@ -27,8 +27,11 @@ import java.util.Set;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
@@ -181,15 +184,17 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 					MultipartRequest multi = (MultipartRequest) this.request;
 					for (Entry<String, List<MultipartFile>> parts : multi
 							.getMultiFileMap().entrySet()) {
-						for (MultipartFile part : parts.getValue()) {
-							MultipartFile file = part;
+						for (Part file : this.request.getParts()) {
 							HttpHeaders headers = new HttpHeaders();
 							headers.setContentDispositionFormData(file.getName(),
-									file.getOriginalFilename());
-							headers.setContentType(
-									MediaType.valueOf(file.getContentType()));
-							HttpEntity<byte[]> entity = new HttpEntity<byte[]>(
-									file.getBytes(), headers);
+									file.getSubmittedFileName());
+							if (file.getContentType() != null) {
+								headers.setContentType(
+										MediaType.valueOf(file.getContentType()));
+							}
+							HttpEntity<Resource> entity = new HttpEntity<Resource>(
+									new InputStreamResource(file.getInputStream()),
+									headers);
 							builder.add(parts.getKey(), entity);
 						}
 					}
