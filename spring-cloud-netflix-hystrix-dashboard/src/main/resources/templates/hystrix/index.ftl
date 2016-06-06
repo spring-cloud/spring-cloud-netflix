@@ -31,7 +31,7 @@
 <div style="width:800px;margin:0 auto;">
 	
 	<center>
-	<img width="264" height="233" src="https://raw.github.com/wiki/Netflix/Hystrix/images/hystrix-logo.png">
+	<img width="264" height="233" src="<@spring.url '/hystrix'/>/images/hystrix-logo.png">
 	<br>
 	<br>
 	
