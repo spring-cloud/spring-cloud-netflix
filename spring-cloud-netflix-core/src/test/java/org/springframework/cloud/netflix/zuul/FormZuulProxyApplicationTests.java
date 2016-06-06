@@ -137,6 +137,32 @@ public class FormZuulProxyApplicationTests {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
+
+	@Test
+	public void postWithUrlParams() throws Exception {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
+		form.set("foo", "bar");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.valueOf(
+				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/form?uriParam=uriValue",
+				HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, String>>(form, headers),
+				String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {uriParam=[uriValue], foo=[bar]}", result.getBody());
+	}
+
+	@Test
+	public void getWithUrlParams() throws Exception {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/form?uriParam=uriValue",
+				HttpMethod.GET, null, String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {uriParam=[uriValue]}", result.getBody());
+	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -152,6 +178,12 @@ class FormZuulProxyApplication {
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String accept(@RequestParam MultiValueMap<String, String> form)
+			throws IOException {
+		return "Posted! " + form;
+	}
+
+	@RequestMapping(value = "/form", method = RequestMethod.GET)
+	public String get(@RequestParam MultiValueMap<String, String> form)
 			throws IOException {
 		return "Posted! " + form;
 	}
