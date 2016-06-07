@@ -831,22 +831,22 @@ normal Eureka functionality under <code>/eureka/*</code>.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring dependency management plugin must be added and the Spring cloud starter parent bom must be imported like so:</p>
+<p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:</p>
 </div>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">buildscript {
   dependencies {
-    classpath "io.spring.gradle:dependency-management-plugin:0.4.0.RELEASE"
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
   }
 }
 
-apply plugin: "io.spring.dependency-management"
+apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom 'org.springframework.cloud:spring-cloud-starter-parent:1.0.0.RELEASE'
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Brixton.RELEASE"
   }
 }</code></pre>
 </div>
@@ -2785,7 +2785,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-06 13:45:32 UTC
+Last updated 2016-06-07 01:17:05 UTC
 </div>
 </div>
 </body>
