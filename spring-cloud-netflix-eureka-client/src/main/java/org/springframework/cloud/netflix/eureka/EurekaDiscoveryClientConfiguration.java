@@ -205,7 +205,6 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Configuration
 	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled", matchIfMissing = false)
-	@ConditionalOnBean(HealthIndicator.class)
 	protected static class EurekaHealthCheckHandlerConfiguration {
 
 		@Autowired(required = false)
