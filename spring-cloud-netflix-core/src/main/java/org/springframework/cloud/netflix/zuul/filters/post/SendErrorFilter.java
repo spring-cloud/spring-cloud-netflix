@@ -19,13 +19,14 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.apachecommons.CommonsLog;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.ReflectionUtils;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -34,6 +35,7 @@ import com.netflix.zuul.context.RequestContext;
 public class SendErrorFilter extends ZuulFilter {
 
 	protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
+	private static final String ERROR_STATUS_CODE = "error.status_code";
 
 	@Value("${error.path:/error}")
 	private String errorPath;
@@ -51,9 +53,20 @@ public class SendErrorFilter extends ZuulFilter {
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
+		setErrorStatusCodeIfMissing();
 		// only forward to errorPath if it hasn't been forwarded to already
-		return ctx.containsKey("error.status_code")
+		return ctx.containsKey(ERROR_STATUS_CODE)
 				&& !ctx.getBoolean(SEND_ERROR_FILTER_RAN, false);
+	}
+
+	private void setErrorStatusCodeIfMissing() {
+		RequestContext ctx = RequestContext.getCurrentContext();
+		HttpStatus httpStatus = HttpStatus.valueOf(ctx.getResponseStatusCode());
+		if (httpStatus.is4xxClientError() || httpStatus.is5xxServerError()) {
+			if (!ctx.containsKey(ERROR_STATUS_CODE)) {
+				ctx.set(ERROR_STATUS_CODE, ctx.getResponseStatusCode());
+			}
+		}
 	}
 
 	@Override
@@ -62,7 +75,7 @@ public class SendErrorFilter extends ZuulFilter {
 			RequestContext ctx = RequestContext.getCurrentContext();
 			HttpServletRequest request = ctx.getRequest();
 
-			int statusCode = (Integer) ctx.get("error.status_code");
+			int statusCode = (Integer) ctx.get(ERROR_STATUS_CODE);
 			request.setAttribute("javax.servlet.error.status_code", statusCode);
 
 			if (ctx.containsKey("error.exception")) {
