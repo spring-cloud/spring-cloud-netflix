@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,9 +42,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -54,6 +54,8 @@ public class SimpleZuulServerApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
+
+	@Value("${spring.application.name") String appName;
 
 	@Autowired
 	private RouteLocator routes;
@@ -85,9 +87,18 @@ public class SimpleZuulServerApplicationTests {
 	@Test
 	public void getOnSelfViaFilter() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
+				"http://localhost:" + this.port + "/local", HttpMethod.GET,
 				new HttpEntity<Void>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Hello local", result.getBody());
+	}
+
+	@Test
+	public void returnExceptionStatusIfUrlNotFound() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/nonExistentUrl", HttpMethod.GET,
+				new HttpEntity<Void>((Void) null), String.class);
+		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
 	}
 
 }
