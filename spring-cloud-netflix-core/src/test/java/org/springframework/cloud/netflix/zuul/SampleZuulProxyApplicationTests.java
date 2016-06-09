@@ -18,15 +18,21 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.BasicErrorController;
+import org.springframework.boot.autoconfigure.web.ErrorAttributes;
+import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -67,13 +73,14 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.client.http.RestClient;
 
+import lombok.SneakyThrows;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
-import lombok.SneakyThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleZuulProxyApplication.class)
@@ -89,6 +96,12 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 
 	@Autowired
 	RouteLocator routeLocator;
+	@Autowired SampleZuulProxyApplication.MyErrorController myErrorController;
+
+	@Before
+	public void cleanup() {
+		this.myErrorController.clear();
+	}
 
 	@Test
 	public void simpleHostRouteWithTrailingSlash() {
@@ -99,6 +112,18 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("/trailing-slash", result.getBody());
+		assertFalse(this.myErrorController.wasControllerUsed());
+	}
+
+	@Test
+	public void simpleHostRouteWithNonExistentUrl() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/nonExistentUrl", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+		assertTrue(this.myErrorController.wasControllerUsed());
 	}
 
 	@Test
@@ -272,6 +297,35 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 	@Bean
 	public RouteLocator routeLocator(DiscoveryClient discoveryClient, ZuulProperties zuulProperties) {
 		return new MyRouteLocator("/", discoveryClient, zuulProperties);
+	}
+
+	@Bean
+	public MyErrorController myErrorController(ErrorAttributes errorAttributes) {
+		return new MyErrorController(errorAttributes);
+	}
+
+
+	public static class MyErrorController extends BasicErrorController {
+
+		AtomicBoolean controllerUsed = new AtomicBoolean();
+
+		public MyErrorController(ErrorAttributes errorAttributes) {
+			super(errorAttributes, new ErrorProperties());
+		}
+
+		@Override
+		public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
+			controllerUsed.set(true);
+			return super.error(request);
+		}
+
+		public boolean wasControllerUsed() {
+			return this.controllerUsed.get();
+		}
+
+		public void clear() {
+			this.controllerUsed.set(false);
+		}
 	}
 
 	public static void main(String[] args) {

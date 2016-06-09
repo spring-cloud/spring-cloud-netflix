@@ -66,6 +66,7 @@ import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -88,6 +89,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
+	public static final String ERROR_STATUS_CODE = "error.status_code";
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
@@ -173,13 +175,21 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
 					params, requestEntity);
 			setResponse(response);
+			setErrorCodeFor4xx(context, response);
 		}
 		catch (Exception ex) {
-			context.set("error.status_code",
+			context.set(ERROR_STATUS_CODE,
 					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			context.set("error.exception", ex);
 		}
 		return null;
+	}
+
+	private void setErrorCodeFor4xx(RequestContext context, HttpResponse response) {
+		HttpStatus httpStatus = HttpStatus.valueOf(response.getStatusLine().getStatusCode());
+		if (httpStatus.is4xxClientError()) {
+			context.set(ERROR_STATUS_CODE, httpStatus.value());
+		}
 	}
 
 	protected PoolingHttpClientConnectionManager newConnectionManager() {
