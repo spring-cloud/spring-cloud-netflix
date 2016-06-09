@@ -39,6 +39,7 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
 
+	private static final String ERROR_STATUS_CODE = "error.status_code";
 	protected ProxyRequestHelper helper;
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
 
@@ -77,10 +78,11 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			RibbonCommandContext commandContext = buildCommandContext(context);
 			ClientHttpResponse response = forward(commandContext);
 			setResponse(response);
+			setErrorCodeFor4xx(context, response);
 			return response;
 		}
 		catch (ZuulException ex) {
-			context.set("error.status_code", ex.nStatusCode);
+			context.set(ERROR_STATUS_CODE, ex.nStatusCode);
 			context.set("error.message", ex.errorCause);
 			context.set("error.exception", ex);
 		}
@@ -90,6 +92,14 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			context.set("error.exception", ex);
 		}
 		return null;
+	}
+
+	private void setErrorCodeFor4xx(RequestContext context, ClientHttpResponse response)
+			throws IOException {
+		HttpStatus httpStatus = response.getStatusCode();
+		if (httpStatus.is4xxClientError()) {
+			context.set(ERROR_STATUS_CODE, httpStatus.value());
+		}
 	}
 
 	protected RibbonCommandContext buildCommandContext(RequestContext context) {

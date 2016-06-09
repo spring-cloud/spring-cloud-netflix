@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.boot.test.WebIntegrationTest;
@@ -131,4 +132,8 @@ class SampleHttpClientZuulProxyApplication extends ZuulProxyTestBase.AbstractZuu
 		return new HttpClientRibbonCommandFactory(clientFactory);
 	}
 
+	@Bean
+	public MyErrorController myErrorController(ErrorAttributes errorAttributes) {
+		return new MyErrorController(errorAttributes);
+	}
 }

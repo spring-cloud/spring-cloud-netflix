@@ -96,12 +96,6 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 
 	@Autowired
 	RouteLocator routeLocator;
-	@Autowired SampleZuulProxyApplication.MyErrorController myErrorController;
-
-	@Before
-	public void cleanup() {
-		this.myErrorController.clear();
-	}
 
 	@Test
 	public void simpleHostRouteWithTrailingSlash() {
@@ -302,30 +296,6 @@ class SampleZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyAppl
 	@Bean
 	public MyErrorController myErrorController(ErrorAttributes errorAttributes) {
 		return new MyErrorController(errorAttributes);
-	}
-
-
-	public static class MyErrorController extends BasicErrorController {
-
-		AtomicBoolean controllerUsed = new AtomicBoolean();
-
-		public MyErrorController(ErrorAttributes errorAttributes) {
-			super(errorAttributes, new ErrorProperties());
-		}
-
-		@Override
-		public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-			controllerUsed.set(true);
-			return super.error(request);
-		}
-
-		public boolean wasControllerUsed() {
-			return this.controllerUsed.get();
-		}
-
-		public void clear() {
-			this.controllerUsed.set(false);
-		}
 	}
 
 	public static void main(String[] args) {

@@ -89,7 +89,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
-	public static final String ERROR_STATUS_CODE = "error.status_code";
+	private static final String ERROR_STATUS_CODE = "error.status_code";
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
