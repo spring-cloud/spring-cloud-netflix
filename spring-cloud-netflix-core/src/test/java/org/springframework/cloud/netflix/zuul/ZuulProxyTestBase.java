@@ -4,11 +4,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.BasicErrorController;
+import org.springframework.boot.autoconfigure.web.ErrorAttributes;
+import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -36,6 +42,8 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -53,6 +61,14 @@ public abstract class ZuulProxyTestBase {
 
 	@Autowired
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
+
+	@Autowired
+	protected MyErrorController myErrorController;
+
+	@Before
+	public void cleanup() {
+		this.myErrorController.clear();
+	}
 
 	@Before
 	public void setTestRequestcontext() {
@@ -144,6 +160,16 @@ public abstract class ZuulProxyTestBase {
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
+		assertFalse(myErrorController.wasControllerUsed());
+	}
+
+	@Test
+	public void ribbonRouteWithNonExistentUri() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/nonExistent", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+		assertTrue(myErrorController.wasControllerUsed());
 	}
 
 	@Test
@@ -296,4 +322,27 @@ class AnotherRibbonClientConfiguration {
 		return new StaticServerList<>(new Server("localhost", this.port));
 	}
 
+}
+
+class MyErrorController extends BasicErrorController {
+
+	AtomicBoolean controllerUsed = new AtomicBoolean();
+
+	public MyErrorController(ErrorAttributes errorAttributes) {
+		super(errorAttributes, new ErrorProperties());
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
+		controllerUsed.set(true);
+		return super.error(request);
+	}
+
+	public boolean wasControllerUsed() {
+		return this.controllerUsed.get();
+	}
+
+	public void clear() {
+		this.controllerUsed.set(false);
+	}
 }
