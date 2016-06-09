@@ -571,12 +571,12 @@ turbine:
 
 In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".
 
-To use the "default" cluster for all apps you need a string literal expression (with single quotes):
+To use the "default" cluster for all apps you need a string literal expression (with single quotes, and escaped with double quotes if it is in YAML as well):
 
 ----
 turbine:
   appConfig: customers,stores
-  clusterNameExpression: 'default'
+  clusterNameExpression: "'default'"
 ----
 
 Spring Cloud provides a `spring-cloud-starter-turbine` that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with `@EnableTurbine`.
