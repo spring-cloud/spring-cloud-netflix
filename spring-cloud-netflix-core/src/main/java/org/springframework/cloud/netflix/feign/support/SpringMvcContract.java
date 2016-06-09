@@ -107,6 +107,26 @@ public class SpringMvcContract extends Contract.BaseContract
 	}
 
 	@Override
+	protected void processAnnotationOnClass(MethodMetadata data, Class<?> clz) {
+		if(clz.getInterfaces().length == 0) {
+			RequestMapping classAnnotation = findMergedAnnotation(clz,
+					RequestMapping.class);
+			if (classAnnotation != null) {
+				// Prepend path from class annotation if specified
+				if (classAnnotation.value().length > 0) {
+					String pathValue = emptyToNull(classAnnotation.value()[0]);
+					pathValue = resolve(pathValue);
+					if (!pathValue.startsWith("/")) {
+						pathValue = "/" + pathValue;
+					}
+					data.template().insert(0, pathValue);
+				}
+			}
+		}
+    }
+	
+	
+	@Override
 	public MethodMetadata parseAndValidateMetadata(Class<?> targetType, Method method) {
 		this.processedMethods.put(Feign.configKey(targetType, method), method);
 		MethodMetadata md = super.parseAndValidateMetadata(targetType, method);
@@ -114,19 +134,6 @@ public class SpringMvcContract extends Contract.BaseContract
 		RequestMapping classAnnotation = findMergedAnnotation(targetType,
 				RequestMapping.class);
 		if (classAnnotation != null) {
-			// Prepend path from class annotation if specified
-			if (classAnnotation.value().length > 0) {
-				String pathValue = emptyToNull(classAnnotation.value()[0]);
-				checkState(pathValue != null,
-						"RequestMapping.value() was empty on type %s",
-						method.getDeclaringClass().getName());
-				pathValue = resolve(pathValue);
-				if (!pathValue.startsWith("/")) {
-					pathValue = "/" + pathValue;
-				}
-				md.template().insert(0, pathValue);
-			}
-
 			// produces - use from class annotation only if method has not specified this
 			if (!md.template().headers().containsKey(ACCEPT)) {
 				parseProduces(md, method, classAnnotation);
