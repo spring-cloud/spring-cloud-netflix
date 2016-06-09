@@ -1156,7 +1156,7 @@ for details on the properties available.</p>
 <div class="title">Note</div>
 </td>
 <td class="content">
-by default the native Netflix behaviour built into Turbine does <em>not</em> allow multiple processes per host, per cluster (the key to the instance id is the hostname). Spring Cloud generalizes this a bit, allowing the host and port to be used as the key, but only if you set the property <code>turbine.combineHostPort=true</code>
+by default Spring Cloud allows Turbine to use the host and port to allow multiple processes per host, per cluster. If you want the native Netflix behaviour built into Turbine that does <em>not</em> allow multiple processes per host, per cluster (the key to the instance id is the hostname), then set the property <code>turbine.combineHostPort=false</code>.
 </td>
 </tr>
 </table>
@@ -2821,7 +2821,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-09 22:07:19 UTC
+Last updated 2016-06-09 22:45:00 UTC
 </div>
 </div>
 </body>
