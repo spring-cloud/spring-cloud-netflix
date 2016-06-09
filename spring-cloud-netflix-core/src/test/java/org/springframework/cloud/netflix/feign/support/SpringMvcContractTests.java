@@ -34,13 +34,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
-
 import feign.MethodMetadata;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * @author chadjaros
@@ -92,6 +92,53 @@ public class SpringMvcContractTests {
 				data.template().headers().get("Accept").iterator().next());
 
 		assertEquals("id", data.indexToName().get(0).iterator().next());
+	}
+
+	@Test
+	public void testProcessAnnotations_Class_AnnotationsGetSpecificTest()
+			throws Exception {
+		Method method = TestTemplate_Class_Annotations.class.getDeclaredMethod(
+				"getSpecificTest", String.class, String.class);
+		MethodMetadata data = this.contract.parseAndValidateMetadata(
+				method.getDeclaringClass(), method);
+
+		assertEquals("/prepend/{classId}/test/{testId}", data.template().url());
+		assertEquals("GET", data.template().method());
+
+		assertEquals("classId", data.indexToName().get(0).iterator().next());
+		assertEquals("testId", data.indexToName().get(1).iterator().next());
+	}
+
+	@Test
+	public void testProcessAnnotations_Class_AnnotationsGetAllTests() throws Exception {
+		Method method = TestTemplate_Class_Annotations.class.getDeclaredMethod(
+				"getAllTests", String.class);
+		MethodMetadata data = this.contract.parseAndValidateMetadata(
+				method.getDeclaringClass(), method);
+
+		assertEquals("/prepend/{classId}", data.template().url());
+		assertEquals("GET", data.template().method());
+
+		assertEquals("classId", data.indexToName().get(0).iterator().next());
+	}
+
+	@Test
+	public void testProcessAnnotations_ExtendedInterface() throws Exception {
+		Method extendedMethod = TestTemplate_Extended.class.getMethod("getAllTests",
+				String.class);
+		MethodMetadata extendedData = this.contract.parseAndValidateMetadata(
+				extendedMethod.getDeclaringClass(), extendedMethod);
+
+		Method method = TestTemplate_Class_Annotations.class.getDeclaredMethod(
+				"getAllTests", String.class);
+		MethodMetadata data = this.contract.parseAndValidateMetadata(
+				method.getDeclaringClass(), method);
+
+		assertEquals(extendedData.template().url(), data.template().url());
+		assertEquals(extendedData.template().method(), data.template().method());
+
+		assertEquals(data.indexToName().get(0).iterator().next(),
+				data.indexToName().get(0).iterator().next());
 	}
 
 	@Test
@@ -271,6 +318,20 @@ public class SpringMvcContractTests {
 
 		@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 		TestObject postTest(@RequestBody TestObject object);
+	}
+
+	@RequestMapping("/prepend/{classId}")
+	public interface TestTemplate_Class_Annotations {
+		@RequestMapping(value = "/test/{testId}", method = RequestMethod.GET)
+		TestObject getSpecificTest(@PathVariable("classId") String classId,
+				@PathVariable("testId") String testId);
+
+		@RequestMapping(method = RequestMethod.GET)
+		TestObject getAllTests(@PathVariable("classId") String classId);
+	}
+
+	public interface TestTemplate_Extended extends TestTemplate_Class_Annotations {
+
 	}
 
 	public interface TestTemplate_Headers {
