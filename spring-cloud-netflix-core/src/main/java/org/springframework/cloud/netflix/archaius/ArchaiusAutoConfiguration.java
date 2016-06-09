@@ -29,6 +29,7 @@ import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -94,6 +95,7 @@ public class ArchaiusAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
+	@ConditionalOnEnabledEndpoint("archaius")
 	protected static class ArchaiusEndpointConfiguration {
 		@Bean
 		protected ArchaiusEndpoint archaiusEndpoint() {
