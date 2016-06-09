@@ -50,6 +50,7 @@ public class SpringClientFactoryTests {
 		this.factory.destroy();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testCookiePolicy() {
 		RestClient client = this.factory.getClient("foo", RestClient.class);
