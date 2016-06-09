@@ -22,6 +22,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -67,6 +68,9 @@ public class RibbonClientConfiguration {
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be
 	// associated with ribbon clients
 
+	@Autowired
+	private PropertiesFactory propertiesFactory;
+
 	@Bean
 	@ConditionalOnMissingBean
 	public IClientConfig ribbonClientConfig() {
@@ -78,6 +82,9 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public IRule ribbonRule(IClientConfig config) {
+		if (this.propertiesFactory.isSet(IRule.class, name)) {
+			return this.propertiesFactory.get(IRule.class, config, name);
+		}
 		ZoneAvoidanceRule rule = new ZoneAvoidanceRule();
 		rule.initWithNiwsConfig(config);
 		return rule;
@@ -86,13 +93,19 @@ public class RibbonClientConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public IPing ribbonPing(IClientConfig config) {
-		// TODO: use PingUrl
+		if (this.propertiesFactory.isSet(IPing.class, name)) {
+			return this.propertiesFactory.get(IPing.class, config, name);
+		}
 		return new NoOpPing();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
+	@SuppressWarnings("unchecked")
 	public ServerList<Server> ribbonServerList(IClientConfig config) {
+		if (this.propertiesFactory.isSet(ServerList.class, name)) {
+			return this.propertiesFactory.get(ServerList.class, config, name);
+		}
 		ConfigurationBasedServerList serverList = new ConfigurationBasedServerList();
 		serverList.initWithNiwsConfig(config);
 		return serverList;
@@ -126,6 +139,9 @@ public class RibbonClientConfiguration {
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
 			ServerList<Server> serverList, ServerListFilter<Server> serverListFilter,
 			IRule rule, IPing ping) {
+		if (this.propertiesFactory.isSet(ILoadBalancer.class, name)) {
+			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
+		}
 		ZoneAwareLoadBalancer<Server> balancer = LoadBalancerBuilder.newBuilder()
 				.withClientConfig(config).withRule(rule).withPing(ping)
 				.withServerListFilter(serverListFilter).withDynamicServerList(serverList)
@@ -135,7 +151,11 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	@SuppressWarnings("unchecked")
 	public ServerListFilter<Server> ribbonServerListFilter(IClientConfig config) {
+		if (this.propertiesFactory.isSet(ServerListFilter.class, name)) {
+			return this.propertiesFactory.get(ServerListFilter.class, config, name);
+		}
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		filter.initWithNiwsConfig(config);
 		return filter;

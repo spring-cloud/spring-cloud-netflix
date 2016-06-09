@@ -22,6 +22,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -121,7 +122,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 		SpringClientFactory factory = new SpringClientFactory();
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
-				defaultConfigurationClass));
+				RibbonAutoConfiguration.class, defaultConfigurationClass));
 		HttpClient delegate = mock(HttpClient.class);
 		RibbonLoadBalancingHttpClient client = factory.getClient("service",
 				RibbonLoadBalancingHttpClient.class);

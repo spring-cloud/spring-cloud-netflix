@@ -35,28 +35,32 @@ import static org.junit.Assert.assertEquals;
  */
 public class SpringClientFactoryTests {
 
-	private SpringClientFactory factory = new SpringClientFactory();
 
 	@Test
 	public void testConfigureRetry() {
+		SpringClientFactory factory = new SpringClientFactory();
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
-				ArchaiusAutoConfiguration.class);
+				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
 		EnvironmentTestUtils.addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
-		this.factory.setApplicationContext(parent);
-		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) this.factory
+		factory.setApplicationContext(parent);
+		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory
 				.getLoadBalancerContext("foo").getRetryHandler();
 		assertEquals(2, retryHandler.getMaxRetriesOnSameServer());
 		parent.close();
-		this.factory.destroy();
+		factory.destroy();
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testCookiePolicy() {
-		RestClient client = this.factory.getClient("foo", RestClient.class);
+		SpringClientFactory factory = new SpringClientFactory();
+		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
+				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
+		factory.setApplicationContext(parent);
+		RestClient client = factory.getClient("foo", RestClient.class);
 		ApacheHttpClient4 jerseyClient = (ApacheHttpClient4) client.getJerseyClient();
 		assertEquals(CookiePolicy.IGNORE_COOKIES, jerseyClient.getClientHandler()
 				.getHttpClient().getParams().getParameter(ClientPNames.COOKIE_POLICY));
-		this.factory.destroy();
+		factory.destroy();
 	}
 }

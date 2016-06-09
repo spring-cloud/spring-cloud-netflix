@@ -71,6 +71,12 @@ public class RibbonAutoConfiguration {
 		return new RibbonLoadBalancerClient(springClientFactory());
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public PropertiesFactory propertiesFactory() {
+		return new PropertiesFactory();
+	}
+
 	@Configuration
 	@ConditionalOnClass(HttpRequest.class)
 	@ConditionalOnProperty(value = "ribbon.http.client.enabled", matchIfMissing = false)

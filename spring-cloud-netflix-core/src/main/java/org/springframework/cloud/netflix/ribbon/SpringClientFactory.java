@@ -35,8 +35,10 @@ import com.netflix.loadbalancer.ILoadBalancer;
  */
 public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecification> {
 
+	static final String NAMESPACE = "ribbon";
+
 	public SpringClientFactory() {
-		super(RibbonClientConfiguration.class, "ribbon", "ribbon.client.name");
+		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name");
 	}
 
 	/**
@@ -71,7 +73,11 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 		return getInstance(serviceId, RibbonLoadBalancerContext.class);
 	}
 
-	private <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
+	static <C> C instantiateWithConfig(Class<C> clazz, IClientConfig config) {
+		return instantiateWithConfig(null, clazz, config);
+	}
+
+	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
 										Class<C> clazz, IClientConfig config) {
 		C result = null;
 		if (IClientConfigAware.class.isAssignableFrom(clazz)) {
@@ -95,7 +101,9 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 				// NOPMD
 			}
 		}
-		context.getAutowireCapableBeanFactory().autowireBean(result);
+		if (context != null) {
+			context.getAutowireCapableBeanFactory().autowireBean(result);
+		}
 		return result;
 	}
 
