@@ -1149,6 +1149,18 @@ for details on the properties available.</p>
 <div class="paragraph">
 <p>Spring Cloud provides a <code>spring-cloud-starter-turbine</code> that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with <code>@EnableTurbine</code>.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+by default the native Netflix behaviour built into Turbine does <em>not</em> allow multiple processes per host, per cluster (the key to the instance id is the hostname). Spring Cloud generalizes this a bit, allowing the host and port to be used as the key, but only if you set the property <code>turbine.combineHostPort=true</code>
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_turbine_stream">Turbine Stream</h3>
@@ -2809,7 +2821,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-09 10:23:43 UTC
+Last updated 2016-06-09 15:23:35 UTC
 </div>
 </div>
 </body>
