@@ -1936,7 +1936,7 @@ level, but "/myusers/**" matches hierarchically.</p>
 </div>
 <div class="paragraph">
 <p>The location of the backend can be specified as either a "serviceId"
-(for a Eureka service) or a "url" (for a physical location), e.g.</p>
+(for a service from discovery) or a "url" (for a physical location), e.g.</p>
 </div>
 <div class="listingblock">
 <div class="title">application.yml</div>
@@ -2126,6 +2126,30 @@ classpath, and otherwise they are initialized to a set of well-known
 "security" headers (e.g. involving caching) as specified by Spring
 Security. The assumption in this case is that the downstream services
 might add these headers too, and we want the values from the proxy.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_routes_endpoint">The Routes Endpoint</h3>
+<div class="paragraph">
+<p>If you are using <code>@EnableZuulProxy</code> with tha Spring Boot Actuator you
+will enable (by default) an additional endpoint, available via HTTP as
+<code>/routes</code>. A GET to this endpoint will return a list of the mapped
+routes. A POST will force a refresh of the existing routes (e.g. in
+case there have been changes in the service catalog).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+the routes should respond automatically to changes in the
+service catalog, but the POST to /routes is a way to force the change
+to happen immediately.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -2785,7 +2809,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-09 08:25:42 UTC
+Last updated 2016-06-09 10:23:43 UTC
 </div>
 </div>
 </body>
