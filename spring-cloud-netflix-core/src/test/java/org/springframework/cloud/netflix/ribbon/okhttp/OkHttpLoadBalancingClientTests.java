@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -87,7 +88,7 @@ public class OkHttpLoadBalancingClientTests {
 											   IClientConfig configOverride) throws Exception {
 		SpringClientFactory factory = new SpringClientFactory();
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
-				defaultConfigurationClass));
+				RibbonAutoConfiguration.class, defaultConfigurationClass));
 
 		OkHttpLoadBalancingClient client = factory.getClient("service",
 				OkHttpLoadBalancingClient.class);

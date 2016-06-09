@@ -1,0 +1,5 @@
+# for EurekaRibbonClientPropertyOverrideIntegrationTests
+foo3:
+  ribbon:
+    NFLoadBalancerPingClassName: com.netflix.loadbalancer.DummyPing
+    NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList

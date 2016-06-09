@@ -26,6 +26,14 @@ foo:
   ribbon:
     ConnectTimeout: 7
     ReadTimeout: 17
+# for RibbonClientPreprocessorPropertiesOverridesIntegrationTests
+foo2:
+  ribbon:
+    NFLoadBalancerPingClassName: com.netflix.loadbalancer.DummyPing
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+    NIWSServerListClassName: org.springframework.cloud.netflix.ribbon.test.TestServerList
+    NIWSServerListFilterClassName: com.netflix.loadbalancer.ServerListSubsetFilter
+    NFLoadBalancerClassName: org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer
 badClients:
   ribbon:
     MaxAutoRetriesNextServer: 10
