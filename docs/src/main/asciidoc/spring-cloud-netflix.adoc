@@ -1121,7 +1121,7 @@ specified as an ant-style pattern, so "/myusers/{asterisk}" only matches one
 level, but "/myusers/{all}" matches hierarchically.
 
 The location of the backend can be specified as either a "serviceId"
-(for a Eureka service) or a "url" (for a physical location), e.g.
+(for a service from discovery) or a "url" (for a physical location), e.g.
 
 .application.yml
 [source,yaml]
@@ -1285,6 +1285,18 @@ classpath, and otherwise they are initialized to a set of well-known
 "security" headers (e.g. involving caching) as specified by Spring
 Security. The assumption in this case is that the downstream services
 might add these headers too, and we want the values from the proxy.
+
+=== The Routes Endpoint
+
+If you are using `@EnableZuulProxy` with tha Spring Boot Actuator you
+will enable (by default) an additional endpoint, available via HTTP as
+`/routes`. A GET to this endpoint will return a list of the mapped
+routes. A POST will force a refresh of the existing routes (e.g. in
+case there have been changes in the service catalog).
+
+NOTE: the routes should respond automatically to changes in the
+service catalog, but the POST to /routes is a way to force the change
+to happen immediately.
 
 === Strangulation Patterns and Local Forwards
 

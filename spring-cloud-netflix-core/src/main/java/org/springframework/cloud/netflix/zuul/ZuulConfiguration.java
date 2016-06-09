@@ -27,6 +27,8 @@ import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfigurat
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
+import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
@@ -168,12 +170,19 @@ public class ZuulConfiguration {
 		@Autowired
 		private ZuulHandlerMapping zuulHandlerMapping;
 
+		private HeartbeatMonitor heartbeatMonitor = new HeartbeatMonitor();
+
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
 			if (event instanceof ContextRefreshedEvent
 					|| event instanceof RefreshScopeRefreshedEvent
 					|| event instanceof RoutesRefreshedEvent) {
 				this.zuulHandlerMapping.setDirty(true);
+			}
+			else if (event instanceof HeartbeatEvent) {
+				if (this.heartbeatMonitor.update(((HeartbeatEvent) event).getValue())) {
+					this.zuulHandlerMapping.setDirty(true);
+				}
 			}
 		}
 
