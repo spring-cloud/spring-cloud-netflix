@@ -1137,13 +1137,13 @@ for details on the properties available.</p>
 <p>In this case, the cluster name from 4 services is pulled from their metadata map, and is expected to have values that include "SYSTEM" and "USER".</p>
 </div>
 <div class="paragraph">
-<p>To use the "default" cluster for all apps you need a string literal expression (with single quotes):</p>
+<p>To use the "default" cluster for all apps you need a string literal expression (with single quotes, and escaped with double quotes if it is in YAML as well):</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre>turbine:
   appConfig: customers,stores
-  clusterNameExpression: 'default'</pre>
+  clusterNameExpression: "'default'"</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2821,7 +2821,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-09 15:23:35 UTC
+Last updated 2016-06-09 15:48:55 UTC
 </div>
 </div>
 </body>
