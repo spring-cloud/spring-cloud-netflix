@@ -94,9 +94,9 @@ public class ArchaiusAutoConfigurationTests {
 	}
 
 	@Test
-	public void configurationWithInjectedDbConfiguration() throws Exception {
+	public void configurationWithInjectedConfiguration() throws Exception {
 		this.context = new AnnotationConfigApplicationContext(
-				ArchaiusAutoConfiguration.class, ArchaiusExternalConfiguration.class);
+				ArchaiusAutoConfiguration.class, TestArchaiusExternalConfiguration.class);
 		DynamicStringProperty dbProperty = DynamicPropertyFactory.getInstance()
 				.getStringProperty("db.property", null);
 		DynamicStringProperty secondDbProperty = DynamicPropertyFactory.getInstance()
