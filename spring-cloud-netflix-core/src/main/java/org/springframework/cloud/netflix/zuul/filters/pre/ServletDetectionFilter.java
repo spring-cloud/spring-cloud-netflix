@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import java.lang.reflect.Field;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
@@ -38,10 +36,8 @@ import com.netflix.zuul.http.ZuulServlet;
  */
 public class ServletDetectionFilter extends ZuulFilter {
 
-
 	public ServletDetectionFilter() {
 	}
-
 
 	@Override
 	public String filterType() {
