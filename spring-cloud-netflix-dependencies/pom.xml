@@ -23,7 +23,7 @@
 		<hystrix.version>1.5.3</hystrix.version>
 		<ribbon.version>2.2.0</ribbon.version>
 		<servo.version>0.10.1</servo.version>
-		<zuul.version>1.1.0</zuul.version>
+		<zuul.version>1.2.2</zuul.version>
 		<rxjava.version>1.1.5</rxjava.version>
 		<java.version>1.7</java.version>
 		<turbine.version>1.0.0</turbine.version>
