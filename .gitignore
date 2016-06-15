@@ -14,3 +14,4 @@ _site/
 *.ipr
 *.iws
 .factorypath
+*.log
