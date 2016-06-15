@@ -14,12 +14,13 @@ before_install:
   - echo "https://$GH_TOKEN:@github.com" > .git/credentials
   - gem install asciidoctor
 install:
-- ./mvnw install -P docs -q -U -DskipTests=true -Dmaven.test.redirectTestOutputToFile=true -Dmaven.javadoc.skip=true
+- ./mvnw install -P docs -q -U -DskipTests=true $MVN_LOCAL_OPTS
 - '[ "${MVN_GOAL}" == "deploy" ] && ./docs/src/main/asciidoc/ghpages.sh || echo "Not updating docs"'
 script:
-- './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -nsu -Dmaven.javadoc.skip=true -Dmaven.test.redirectTestOutputToFile=true'
+- './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -nsu $MVN_LOCAL_OPTS'
 env:
   global:
+  - MVN_LOCAL_OPTS=-Dmaven.source.skip=true -Dmaven.javadoc.skip=true -Dmaven.test.redirectTestOutputToFile=true
   - GIT_NAME="Dave Syer"
   - GIT_EMAIL=dsyer@pivotal.io
   - CI_DEPLOY_USERNAME=buildmaster
