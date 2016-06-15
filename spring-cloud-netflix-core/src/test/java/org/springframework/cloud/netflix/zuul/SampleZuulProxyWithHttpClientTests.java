@@ -101,7 +101,7 @@ public class SampleZuulProxyWithHttpClientTests extends ZuulProxyTestBase {
 
 	@Test
 	public void ribbonCommandFactoryOverridden() {
-		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
+		assertTrue("ribbonCommandFactory not a HttpClientRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
 	}
 
@@ -124,12 +124,6 @@ class SampleHttpClientZuulProxyApplication extends ZuulProxyTestBase.AbstractZuu
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
 	public String patch(@PathVariable final String id, @RequestBody final String body) {
 		return "Patched " + id + "!";
-	}
-
-	@Bean
-	public RibbonCommandFactory<?> ribbonCommandFactory(
-			final SpringClientFactory clientFactory) {
-		return new HttpClientRibbonCommandFactory(clientFactory);
 	}
 
 	@Bean

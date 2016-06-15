@@ -21,6 +21,7 @@ import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
@@ -39,6 +40,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonComm
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -54,9 +56,6 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Autowired(required = false)
 	private TraceRepository traces;
-
-	@Autowired
-	private SpringClientFactory clientFactory;
 
 	@Autowired
 	private DiscoveryClient discovery;
@@ -77,10 +76,23 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 				this.discovery, this.zuulProperties, this.serviceRouteMapper);
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
-	public RibbonCommandFactory<?> ribbonCommandFactory() {
-		return new RestClientRibbonCommandFactory(this.clientFactory);
+	@Configuration
+	protected static class HttpClientRibbonConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+			return new HttpClientRibbonCommandFactory(clientFactory);
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty("zuul.ribbon.restclient.enabled")
+	protected static class RestClientRibbonConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+			return new RestClientRibbonCommandFactory(clientFactory);
+		}
 	}
 
 	// pre filters
