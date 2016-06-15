@@ -20,7 +20,7 @@ script:
 - './mvnw -s .settings.xml $MVN_GOAL $MVN_PROFILE -nsu $MVN_LOCAL_OPTS'
 env:
   global:
-  - MVN_LOCAL_OPTS=-Dmaven.source.skip=true -Dmaven.javadoc.skip=true -Dmaven.test.redirectTestOutputToFile=true
+  - MVN_LOCAL_OPTS="-Dmaven.source.skip=true -Dmaven.javadoc.skip=true -Dmaven.test.redirectTestOutputToFile=true"
   - GIT_NAME="Dave Syer"
   - GIT_EMAIL=dsyer@pivotal.io
   - CI_DEPLOY_USERNAME=buildmaster
