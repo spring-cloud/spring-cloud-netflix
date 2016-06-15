@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign.support;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -263,6 +264,19 @@ public class SpringMvcContractTests {
 	}
 
 	@Test
+	public void testProcessAnnotations_MapParams() throws Exception {
+		Method method = TestTemplate_MapParams.class.getDeclaredMethod("getTest",
+				Map.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertNotNull(data.queryMapIndex());
+		assertEquals(0, data.queryMapIndex().intValue());
+	}
+
+	@Test
 	public void testProcessHeaders() throws Exception {
 		Method method = TestTemplate_Headers.class.getDeclaredMethod("getTest",
 				String.class);
@@ -279,7 +293,7 @@ public class SpringMvcContractTests {
 		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTestFallback",
 				String.class, String.class, Integer.class);
 
-		assumeTrue(hasJava8ParameterNames(method));
+		assumeTrue("does not have java 8 parameter names", hasJava8ParameterNames(method));
 
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
@@ -359,6 +373,11 @@ public class SpringMvcContractTests {
 	public interface TestTemplate_ListParams {
 		@RequestMapping(value = "/test", method = RequestMethod.GET)
 		ResponseEntity<TestObject> getTest(@RequestParam("id") List<String> id);
+	}
+
+	public interface TestTemplate_MapParams {
+		@RequestMapping(value = "/test", method = RequestMethod.GET)
+		ResponseEntity<TestObject> getTest(@RequestParam Map<String, String> params);
 	}
 
 	@JsonAutoDetect
