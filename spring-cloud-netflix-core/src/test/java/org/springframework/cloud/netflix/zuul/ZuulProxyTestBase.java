@@ -43,7 +43,6 @@ import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -155,8 +154,10 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void ribbonRouteWithSpace() {
+		String uri = "/simple/spa ce";
+		this.myErrorController.setUriToMatch(uri);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/spa ce", HttpMethod.GET,
+				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
@@ -165,11 +166,13 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void ribbonRouteWithNonExistentUri() {
+		String uri = "/simple/nonExistent";
+		this.myErrorController.setUriToMatch(uri);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/nonExistent", HttpMethod.GET,
+				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-		assertTrue(myErrorController.wasControllerUsed());
+		assertFalse(myErrorController.wasControllerUsed());
 	}
 
 	@Test
@@ -325,6 +328,7 @@ class AnotherRibbonClientConfiguration {
 }
 
 class MyErrorController extends BasicErrorController {
+	ThreadLocal<String> uriToMatch = new ThreadLocal<>();
 
 	AtomicBoolean controllerUsed = new AtomicBoolean();
 
@@ -334,8 +338,17 @@ class MyErrorController extends BasicErrorController {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-		controllerUsed.set(true);
+		String errorUri = (String) request.getAttribute("javax.servlet.error.request_uri");
+
+		if (errorUri != null && errorUri.equals(this.uriToMatch.get())) {
+			controllerUsed.set(true);
+		}
+		this.uriToMatch.remove();
 		return super.error(request);
+	}
+
+	public void setUriToMatch(String uri) {
+		this.uriToMatch.set(uri);
 	}
 
 	public boolean wasControllerUsed() {

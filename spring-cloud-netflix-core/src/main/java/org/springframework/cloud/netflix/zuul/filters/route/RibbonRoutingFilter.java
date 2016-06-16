@@ -78,7 +78,6 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			RibbonCommandContext commandContext = buildCommandContext(context);
 			ClientHttpResponse response = forward(commandContext);
 			setResponse(response);
-			setErrorCodeFor4xx(context, response);
 			return response;
 		}
 		catch (ZuulException ex) {
@@ -92,14 +91,6 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			context.set("error.exception", ex);
 		}
 		return null;
-	}
-
-	private void setErrorCodeFor4xx(RequestContext context, ClientHttpResponse response)
-			throws IOException {
-		HttpStatus httpStatus = response.getStatusCode();
-		if (httpStatus.is4xxClientError()) {
-			context.set(ERROR_STATUS_CODE, httpStatus.value());
-		}
 	}
 
 	protected RibbonCommandContext buildCommandContext(RequestContext context) {
