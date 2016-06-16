@@ -113,11 +113,13 @@ public class SampleZuulProxyApplicationTests extends ZuulProxyTestBase {
 	public void simpleHostRouteWithNonExistentUrl() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
+		String uri = "/self/nonExistentUrl";
+		this.myErrorController.setUriToMatch(uri);
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/nonExistentUrl", HttpMethod.GET,
+				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-		assertTrue(this.myErrorController.wasControllerUsed());
+		assertFalse(this.myErrorController.wasControllerUsed());
 	}
 
 	@Test

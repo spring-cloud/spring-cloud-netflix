@@ -175,7 +175,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
 					params, requestEntity);
 			setResponse(response);
-			setErrorCodeFor4xx(context, response);
 		}
 		catch (Exception ex) {
 			context.set(ERROR_STATUS_CODE,
@@ -183,13 +182,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			context.set("error.exception", ex);
 		}
 		return null;
-	}
-
-	private void setErrorCodeFor4xx(RequestContext context, HttpResponse response) {
-		HttpStatus httpStatus = HttpStatus.valueOf(response.getStatusLine().getStatusCode());
-		if (httpStatus.is4xxClientError()) {
-			context.set(ERROR_STATUS_CODE, httpStatus.value());
-		}
 	}
 
 	protected PoolingHttpClientConnectionManager newConnectionManager() {
