@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.feign.support;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,13 +35,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeTrue;
+
 import feign.MethodMetadata;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * @author chadjaros
@@ -97,10 +100,10 @@ public class SpringMvcContractTests {
 	@Test
 	public void testProcessAnnotations_Class_AnnotationsGetSpecificTest()
 			throws Exception {
-		Method method = TestTemplate_Class_Annotations.class.getDeclaredMethod(
-				"getSpecificTest", String.class, String.class);
-		MethodMetadata data = this.contract.parseAndValidateMetadata(
-				method.getDeclaringClass(), method);
+		Method method = TestTemplate_Class_Annotations.class
+				.getDeclaredMethod("getSpecificTest", String.class, String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
 		assertEquals("/prepend/{classId}/test/{testId}", data.template().url());
 		assertEquals("GET", data.template().method());
@@ -111,10 +114,10 @@ public class SpringMvcContractTests {
 
 	@Test
 	public void testProcessAnnotations_Class_AnnotationsGetAllTests() throws Exception {
-		Method method = TestTemplate_Class_Annotations.class.getDeclaredMethod(
-				"getAllTests", String.class);
-		MethodMetadata data = this.contract.parseAndValidateMetadata(
-				method.getDeclaringClass(), method);
+		Method method = TestTemplate_Class_Annotations.class
+				.getDeclaredMethod("getAllTests", String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
 		assertEquals("/prepend/{classId}", data.template().url());
 		assertEquals("GET", data.template().method());
@@ -129,10 +132,10 @@ public class SpringMvcContractTests {
 		MethodMetadata extendedData = this.contract.parseAndValidateMetadata(
 				extendedMethod.getDeclaringClass(), extendedMethod);
 
-		Method method = TestTemplate_Class_Annotations.class.getDeclaredMethod(
-				"getAllTests", String.class);
-		MethodMetadata data = this.contract.parseAndValidateMetadata(
-				method.getDeclaringClass(), method);
+		Method method = TestTemplate_Class_Annotations.class
+				.getDeclaredMethod("getAllTests", String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
 		assertEquals(extendedData.template().url(), data.template().url());
 		assertEquals(extendedData.template().method(), data.template().method());
@@ -193,6 +196,7 @@ public class SpringMvcContractTests {
 		assertEquals("Authorization", data.indexToName().get(0).iterator().next());
 		assertEquals("id", data.indexToName().get(1).iterator().next());
 		assertEquals("amount", data.indexToName().get(2).iterator().next());
+		assertNotNull(data.indexToExpander().get(2));
 
 		assertEquals("{Authorization}",
 				data.template().headers().get("Authorization").iterator().next());
@@ -243,6 +247,19 @@ public class SpringMvcContractTests {
 		assertEquals("GET", data.template().method());
 		assertEquals(MediaType.APPLICATION_JSON_VALUE,
 				data.template().headers().get("Accept").iterator().next());
+	}
+
+	@Test
+	public void testProcessAnnotations_ListParams() throws Exception {
+		Method method = TestTemplate_ListParams.class.getDeclaredMethod("getTest",
+				List.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals("[{id}]", data.template().queries().get("id").toString());
+		assertNull(data.indexToExpander().get(0));
 	}
 
 	@Test
@@ -337,6 +354,11 @@ public class SpringMvcContractTests {
 	public interface TestTemplate_Headers {
 		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, headers = "X-Foo=bar")
 		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
+	}
+
+	public interface TestTemplate_ListParams {
+		@RequestMapping(value = "/test", method = RequestMethod.GET)
+		ResponseEntity<TestObject> getTest(@RequestParam("id") List<String> id);
 	}
 
 	@JsonAutoDetect

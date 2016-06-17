@@ -45,14 +45,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import static feign.Util.checkState;
+import static feign.Util.emptyToNull;
+import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
+
 import feign.Contract;
 import feign.Feign;
 import feign.MethodMetadata;
 import feign.Param;
-
-import static feign.Util.checkState;
-import static feign.Util.emptyToNull;
-import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
 /**
  * @author Spencer Gibb
@@ -237,11 +237,19 @@ public class SpringMvcContract extends Contract.BaseContract
 			}
 		}
 		if (isHttpAnnotation && data.indexToExpander().get(paramIndex) == null
+				&& !isMultiValued(method.getParameterTypes()[paramIndex])
 				&& this.conversionService.canConvert(
 						method.getParameterTypes()[paramIndex], String.class)) {
 			data.indexToExpander().put(paramIndex, this.expander);
 		}
 		return isHttpAnnotation;
+	}
+
+	private boolean isMultiValued(Class<?> type) {
+		// Feign will deal with each element in a collection individually (with no
+		// expander as of 8.16.2, but we'd rather have no conversion than convert a
+		// collection to a String (which ends up being a csv).
+		return Collection.class.isAssignableFrom(type);
 	}
 
 	private void parseProduces(MethodMetadata md, Method method,
