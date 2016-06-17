@@ -27,12 +27,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RestController;
 
-import feign.RequestTemplate;
-import lombok.Data;
-
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+
+import feign.RequestTemplate;
+import lombok.Data;
 
 /**
  * @author Spencer Gibb
@@ -50,7 +50,7 @@ public class SpringEncoderTests {
 
 	@Autowired
 	@Qualifier("myHttpMessageConverter")
-	private HttpMessageConverter myConverter;
+	private HttpMessageConverter<?> myConverter;
 
 	@Test
 	public void testCustomHttpMessageConverter() {
@@ -73,14 +73,14 @@ public class SpringEncoderTests {
 		private MediaType mediaType;
 
 		public MediaTypeMatcher(String type, String subtype) {
-			mediaType = new MediaType(type, subtype);
+			this.mediaType = new MediaType(type, subtype);
 		}
 
 		@Override
 		public boolean matches(Object argument) {
 			if (argument instanceof MediaType) {
 				MediaType other = (MediaType) argument;
-				return mediaType.equals(other);
+				return this.mediaType.equals(other);
 			}
 			return false;
 		}
@@ -88,7 +88,7 @@ public class SpringEncoderTests {
 		@Override
 		public String toString() {
 			final StringBuffer sb = new StringBuffer("MediaTypeMatcher{");
-			sb.append("mediaType=").append(mediaType);
+			sb.append("mediaType=").append(this.mediaType);
 			sb.append('}');
 			return sb.toString();
 		}
@@ -109,18 +109,19 @@ public class SpringEncoderTests {
 	protected static class Application implements TestClient {
 
 		@Bean
-		HttpMessageConverter myHttpMessageConverter() {
+		HttpMessageConverter<?> myHttpMessageConverter() {
 			return new MyHttpMessageConverter();
 		}
 
-		private static class MyHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
+		private static class MyHttpMessageConverter
+				extends AbstractGenericHttpMessageConverter<Object> {
 
 			public MyHttpMessageConverter() {
 				super(new MediaType("application", "mytype"));
 			}
 
 			@Override
-			protected boolean supports(Class clazz) {
+			protected boolean supports(Class<?> clazz) {
 				return false;
 			}
 
@@ -135,17 +136,22 @@ public class SpringEncoderTests {
 			}
 
 			@Override
-			protected void writeInternal(Object o, Type type, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+			protected void writeInternal(Object o, Type type,
+					HttpOutputMessage outputMessage)
+					throws IOException, HttpMessageNotWritableException {
 
 			}
 
 			@Override
-			protected Object readInternal(Class clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+			protected Object readInternal(Class<?> clazz, HttpInputMessage inputMessage)
+					throws IOException, HttpMessageNotReadableException {
 				return null;
 			}
 
 			@Override
-			public Object read(Type type, Class contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+			public Object read(Type type, Class<?> contextClass,
+					HttpInputMessage inputMessage)
+					throws IOException, HttpMessageNotReadableException {
 				return null;
 			}
 		}
