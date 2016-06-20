@@ -35,6 +35,7 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Christian Lohmann
@@ -100,10 +101,15 @@ public class HttpClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 
 	protected ClientHttpResponse forward() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
+		Long contentLength = null;
+		String contentLengthHeader = context.getRequest().getHeader("Content-Length");
+		if (StringUtils.hasText(contentLengthHeader)) {
+			contentLength = new Long(contentLengthHeader);
+		}
 		URI uriInstance = new URI(this.uri);
 		RibbonApacheHttpRequest request = new RibbonApacheHttpRequest(this.method,
 				uriInstance, this.retryable, this.headers, this.params,
-				this.requestEntity);
+				this.requestEntity, contentLength);
 		final RibbonApacheHttpResponse response = this.client
 				.executeWithLoadBalancer(request);
 		context.set("ribbonResponse", response);
