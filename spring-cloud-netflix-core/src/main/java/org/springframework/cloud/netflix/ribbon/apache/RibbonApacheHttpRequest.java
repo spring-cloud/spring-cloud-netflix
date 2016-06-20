@@ -37,6 +37,7 @@ import lombok.Getter;
 public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable {
 
 	private final String method;
+	private Long contentLength;
 
 	private final MultiValueMap<String, String> headers;
 
@@ -45,10 +46,17 @@ public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable 
 	private final InputStream requestEntity;
 
 	public RibbonApacheHttpRequest(final String method, final URI uri,
+								   final Boolean retryable, final MultiValueMap<String, String> headers,
+								   final MultiValueMap<String, String> params, final InputStream requestEntity) {
+		this(method, uri, retryable, headers, params, requestEntity, null);
+	}
+
+	public RibbonApacheHttpRequest(final String method, final URI uri,
 			final Boolean retryable, final MultiValueMap<String, String> headers,
-			final MultiValueMap<String, String> params, final InputStream requestEntity) {
+			final MultiValueMap<String, String> params, final InputStream requestEntity, Long contentLength) {
 
 		this.method = method;
+		this.contentLength = contentLength;
 		this.uri = uri;
 		this.isRetriable = retryable;
 		this.headers = headers;
@@ -77,6 +85,11 @@ public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable 
 			final BasicHttpEntity entity;
 			entity = new BasicHttpEntity();
 			entity.setContent(this.requestEntity);
+			// if the entity contentLength isn't set, transfer-encoding will be set
+			// to chunked in org.apache.http.protocol.RequestContent. See gh-1042
+			if (contentLength != null) {
+				entity.setContentLength(this.contentLength);
+			}
 			builder.setEntity(entity);
 		}
 
