@@ -16,8 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import com.netflix.discovery.EurekaClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -92,6 +94,10 @@ public class RibbonClientPreprocessorIntegrationTests {
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
+		@Bean
+		EurekaClient eurekaClient() {
+			return Mockito.mock(EurekaClient.class);
+		}
 	}
 
 	@Configuration
