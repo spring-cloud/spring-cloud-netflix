@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,14 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.springframework.cloud.netflix.zuul;
+package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -28,8 +28,9 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -47,13 +48,21 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Spencer Gibb
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SampleHttpClientZuulProxyApplication.class)
+@SpringApplicationConfiguration(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class)
 @WebIntegrationTest(randomPort = true, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**" })
 @DirtiesContext
-public class SampleZuulProxyWithHttpClientTests extends ZuulProxyTestBase {
+public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
+
+	@Override
+	protected boolean supportsPatch() {
+		return true;
+	}
 
 	@Before
 	public void init() {
@@ -88,46 +97,34 @@ public class SampleZuulProxyWithHttpClientTests extends ZuulProxyTestBase {
 	}
 
 	@Test
-	public void patchOnSelfViaSimpleHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
-		this.endpoint.reset();
-
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/1", HttpMethod.PATCH,
-				new HttpEntity<>("TestPatch"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Patched 1!", result.getBody());
-	}
-
-	@Test
 	public void ribbonCommandFactoryOverridden() {
 		assertTrue("ribbonCommandFactory not a HttpClientRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
 	}
+	// Don't use @SpringBootApplication because we don't want to component scan
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	@EnableZuulProxy
+	@RibbonClients({
+			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
+			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
+	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
-}
+		@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
+		public String patch(@PathVariable final String id, @RequestBody final String body) {
+			return "Patched " + id + "!";
+		}
 
-// Don't use @SpringBootApplication because we don't want to component scan
-@Configuration
-@EnableAutoConfiguration
-@RestController
-@EnableZuulProxy
-@RibbonClients({
-		@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
-		@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
-class SampleHttpClientZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyApplication {
+		@Bean
+		public RibbonCommandFactory<?> ribbonCommandFactory(
+				final SpringClientFactory clientFactory) {
+			return new HttpClientRibbonCommandFactory(clientFactory);
+		}
 
-	public static void main(final String[] args) {
-		SpringApplication.run(SampleZuulProxyApplication.class, args);
-	}
-
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
-	public String patch(@PathVariable final String id, @RequestBody final String body) {
-		return "Patched " + id + "!";
-	}
-
-	@Bean
-	public MyErrorController myErrorController(ErrorAttributes errorAttributes) {
-		return new MyErrorController(errorAttributes);
+		@Bean
+		public ZuulProxyTestBase.MyErrorController myErrorController(ErrorAttributes errorAttributes) {
+			return new ZuulProxyTestBase.MyErrorController(errorAttributes);
+		}
 	}
 }

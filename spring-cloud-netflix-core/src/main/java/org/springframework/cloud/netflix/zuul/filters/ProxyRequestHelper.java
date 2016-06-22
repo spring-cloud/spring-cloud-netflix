@@ -249,14 +249,7 @@ public class ProxyRequestHelper {
 			Map<String, Object> input = new LinkedHashMap<>();
 			trace.put("request", input);
 			info.put("headers", trace);
-			for (Entry<String, List<String>> entry : headers.entrySet()) {
-				Collection<String> collection = entry.getValue();
-				Object value = collection;
-				if (collection.size() < 2) {
-					value = collection.isEmpty() ? "" : collection.iterator().next();
-				}
-				input.put(entry.getKey(), value);
-			}
+			transformHeaders(headers, input);
 			RequestContext ctx = RequestContext.getCurrentContext();
 			if (shouldDebugBody(ctx)) {
 				// Prevent input stream from being read if it needs to go downstream
@@ -287,17 +280,21 @@ public class ProxyRequestHelper {
 		if (this.traces != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
-			Map<String, Object> output = new LinkedHashMap<String, Object>();
+			Map<String, Object> output = new LinkedHashMap<>();
 			trace.put("response", output);
-			for (Entry<String, List<String>> key : headers.entrySet()) {
-				Collection<String> collection = key.getValue();
-				Object value = collection;
-				if (collection.size() < 2) {
-					value = collection.isEmpty() ? "" : collection.iterator().next();
-				}
-				output.put(key.getKey(), value);
-			}
+			transformHeaders(headers, output);
 			output.put("status", "" + status);
+		}
+	}
+
+	void transformHeaders(MultiValueMap<String, String> headers, Map<String, Object> output) {
+		for (Entry<String, List<String>> key : headers.entrySet()) {
+			Collection<String> collection = key.getValue();
+			Object value = collection;
+			if (collection.size() < 2) {
+				value = collection.isEmpty() ? "" : collection.iterator().next();
+			}
+			output.put(key.getKey(), value);
 		}
 	}
 

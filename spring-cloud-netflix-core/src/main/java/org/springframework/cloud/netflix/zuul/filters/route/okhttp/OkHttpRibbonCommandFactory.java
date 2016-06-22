@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters.route.apache;
+package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpRequest;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpResponse;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonRequest;
+import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonResponse;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
@@ -27,34 +27,34 @@ import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibb
 import lombok.RequiredArgsConstructor;
 
 /**
- * @author Christian Lohmann
+ * @author Spencer Gibb
  */
 @RequiredArgsConstructor
-public class HttpClientRibbonCommandFactory implements
-		RibbonCommandFactory<HttpClientRibbonCommandFactory.HttpClientRibbonCommand> {
+public class OkHttpRibbonCommandFactory implements
+		RibbonCommandFactory<OkHttpRibbonCommandFactory.OkHttpRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
 
 	@Override
-	public HttpClientRibbonCommand create(final RibbonCommandContext context) {
+	public OkHttpRibbonCommand create(final RibbonCommandContext context) {
 		final String serviceId = context.getServiceId();
-		final RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
-				serviceId, RibbonLoadBalancingHttpClient.class);
+		final OkHttpLoadBalancingClient client = this.clientFactory.getClient(
+				serviceId, OkHttpLoadBalancingClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new HttpClientRibbonCommand(serviceId, client, context);
+		return new OkHttpRibbonCommand(serviceId, client, context);
 	}
 
-	class HttpClientRibbonCommand extends AbstractRibbonCommand<RibbonLoadBalancingHttpClient, RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
+	class OkHttpRibbonCommand extends AbstractRibbonCommand<OkHttpLoadBalancingClient, OkHttpRibbonRequest, OkHttpRibbonResponse> {
 
-		public HttpClientRibbonCommand(final String commandKey,
-									   final RibbonLoadBalancingHttpClient client, RibbonCommandContext context) {
+		public OkHttpRibbonCommand(final String commandKey,
+								   final OkHttpLoadBalancingClient client, RibbonCommandContext context) {
 			super(commandKey, client, context);
 		}
 
 		@Override
-		protected RibbonApacheHttpRequest createRequest() throws Exception {
-			return new RibbonApacheHttpRequest(this.context);
+		protected OkHttpRibbonRequest createRequest() throws Exception {
+			return new OkHttpRibbonRequest(this.context);
 		}
 
 	}

@@ -119,7 +119,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	}
 
 	protected ClientHttpResponse forward(RibbonCommandContext context) throws Exception {
-		Map<String, Object> info = this.helper.debug(context.getVerb(), context.getUri(),
+		Map<String, Object> info = this.helper.debug(context.getMethod(), context.getUri(),
 				context.getHeaders(), context.getParams(), context.getRequestEntity());
 
 		RibbonCommand command = this.ribbonCommandFactory.create(context);

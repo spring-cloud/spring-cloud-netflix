@@ -115,10 +115,6 @@ class RetryableZuulProxyApplication {
 		};
 	}
 
-	public static void main(String[] args) {
-		SpringApplication.run(SampleZuulProxyApplication.class, args);
-	}
-
 }
 
 // Load balancer with fixed server list for "simple" pointing to localhost

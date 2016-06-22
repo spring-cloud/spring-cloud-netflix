@@ -20,6 +20,7 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.springframework.cloud.netflix.zuul.filters.route.restclient.RestClientRibbonCommandIntegrationTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -29,7 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 		org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelperTests.class,
-		org.springframework.cloud.netflix.zuul.SampleZuulProxyApplicationTests.class,
+		RestClientRibbonCommandIntegrationTests.class,
 		org.springframework.cloud.netflix.zuul.FormZuulProxyApplicationTests.class })
 @Ignore
 public class AdhocTestSuite {

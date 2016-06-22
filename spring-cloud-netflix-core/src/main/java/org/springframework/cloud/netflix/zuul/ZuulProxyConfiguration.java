@@ -36,7 +36,8 @@ import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientR
 import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.discovery.SimpleServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
-import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.restclient.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
@@ -92,6 +93,17 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
 			return new RestClientRibbonCommandFactory(clientFactory);
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty("zuul.ribbon.okhttp.enabled")
+	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
+	protected static class OkHttpRibbonConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+			return new OkHttpRibbonCommandFactory(clientFactory);
 		}
 	}
 

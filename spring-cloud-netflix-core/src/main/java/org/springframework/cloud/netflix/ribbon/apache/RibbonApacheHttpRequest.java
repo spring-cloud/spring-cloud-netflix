@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
@@ -24,9 +23,8 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.BasicHttpEntity;
-import org.springframework.util.MultiValueMap;
-
-import com.netflix.client.ClientRequest;
+import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 
 import lombok.Getter;
 
@@ -34,62 +32,38 @@ import lombok.Getter;
  * @author Christian Lohmann
  */
 @Getter
-public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable {
+public class RibbonApacheHttpRequest extends ContextAwareRequest implements Cloneable {
 
-	private final String method;
-	private Long contentLength;
-
-	private final MultiValueMap<String, String> headers;
-
-	private final MultiValueMap<String, String> params;
-
-	private final InputStream requestEntity;
-
-	public RibbonApacheHttpRequest(final String method, final URI uri,
-								   final Boolean retryable, final MultiValueMap<String, String> headers,
-								   final MultiValueMap<String, String> params, final InputStream requestEntity) {
-		this(method, uri, retryable, headers, params, requestEntity, null);
-	}
-
-	public RibbonApacheHttpRequest(final String method, final URI uri,
-			final Boolean retryable, final MultiValueMap<String, String> headers,
-			final MultiValueMap<String, String> params, final InputStream requestEntity, Long contentLength) {
-
-		this.method = method;
-		this.contentLength = contentLength;
-		this.uri = uri;
-		this.isRetriable = retryable;
-		this.headers = headers;
-		this.params = params;
-		this.requestEntity = requestEntity;
+	public RibbonApacheHttpRequest(RibbonCommandContext context) {
+		super(context);
 	}
 
 	public HttpUriRequest toRequest(final RequestConfig requestConfig) {
-		final RequestBuilder builder = RequestBuilder.create(this.method);
+		final RequestBuilder builder = RequestBuilder.create(this.context.getMethod());
 		builder.setUri(this.uri);
-		for (final String name : this.headers.keySet()) {
-			final List<String> values = this.headers.get(name);
+		for (final String name : this.context.getHeaders().keySet()) {
+			final List<String> values = this.context.getHeaders().get(name);
 			for (final String value : values) {
 				builder.addHeader(name, value);
 			}
 		}
 
-		for (final String name : this.params.keySet()) {
-			final List<String> values = this.params.get(name);
+		for (final String name : this.context.getParams().keySet()) {
+			final List<String> values = this.context.getParams().get(name);
 			for (final String value : values) {
 				builder.addParameter(name, value);
 			}
 		}
 
-		if (this.requestEntity != null) {
+		if (this.context.getRequestEntity() != null) {
 			final BasicHttpEntity entity;
 			entity = new BasicHttpEntity();
-			entity.setContent(this.requestEntity);
+			entity.setContent(this.context.getRequestEntity());
 			// if the entity contentLength isn't set, transfer-encoding will be set
 			// to chunked in org.apache.http.protocol.RequestContent. See gh-1042
-			if (contentLength != null) {
-				entity.setContentLength(this.contentLength);
-			} else if ("GET".equals(this.method)) {
+			if (this.context.getContentLength() != null) {
+				entity.setContentLength(this.context.getContentLength());
+			} else if ("GET".equals(this.context.getMethod())) {
 				entity.setContentLength(0);
 			}
 			builder.setEntity(entity);
@@ -99,9 +73,8 @@ public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable 
 		return builder.build();
 	}
 
-	public RibbonApacheHttpRequest withNewUri(final URI uri) {
-		return new RibbonApacheHttpRequest(this.method, uri, this.isRetriable,
-				this.headers, this.params, this.requestEntity);
+	public RibbonApacheHttpRequest withNewUri(URI uri) {
+		return new RibbonApacheHttpRequest(newContext(uri));
 	}
 
 }

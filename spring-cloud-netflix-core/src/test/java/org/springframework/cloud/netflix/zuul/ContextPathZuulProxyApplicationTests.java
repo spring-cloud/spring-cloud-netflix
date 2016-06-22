@@ -16,12 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -42,8 +43,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = ContextPathZuulProxyApplication.class)
@@ -103,10 +102,6 @@ class ContextPathZuulProxyApplication {
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
 	public String get(@PathVariable String id) {
 		return "Gotten " + id + "!";
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(SampleZuulProxyApplication.class, args);
 	}
 
 }

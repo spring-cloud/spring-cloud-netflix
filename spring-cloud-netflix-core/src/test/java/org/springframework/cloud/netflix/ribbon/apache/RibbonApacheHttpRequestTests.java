@@ -35,6 +35,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 
@@ -45,18 +46,18 @@ public class RibbonApacheHttpRequestTests {
 
 	@Test
 	public void testNullEntity() throws Exception {
-		URI uri = URI.create("http://example.com");
+		String uri = "http://example.com";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest("GET", uri, false,
-				headers, params, null);
+		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(new RibbonCommandContext("example", "GET", uri, false,
+				headers, params, null));
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
 		assertThat("request is wrong type", request, is(not(instanceOf(HttpEntityEnclosingRequest.class))));
-		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri.toString()));
+		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri));
 		assertThat("my-header is missing", request.getFirstHeader("my-header"), is(notNullValue()));
 		assertThat("my-header is wrong", request.getFirstHeader("my-header").getValue(), is(equalTo("my-value")));
 		assertThat("myparam is missing", request.getURI().getQuery(), is(equalTo("myparam=myparamval")));
@@ -84,9 +85,9 @@ public class RibbonApacheHttpRequestTests {
 			headers.add("Content-Length", lengthString);
 			length = (long) entityValue.length();
 		}
-		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(method, uri, false,
-				headers, new LinkedMultiValueMap<String, String>(), requestEntity,
-				length);
+		RibbonCommandContext context = new RibbonCommandContext("example", method, uri.toString(), false, headers, new LinkedMultiValueMap<String, String>(), requestEntity);
+		context.setContentLength(length);
+		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(context);
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 

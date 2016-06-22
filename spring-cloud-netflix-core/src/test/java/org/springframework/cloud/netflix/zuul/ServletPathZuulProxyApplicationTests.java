@@ -16,12 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -43,10 +44,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.zuul.context.RequestContext;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ServletPathZuulProxyApplication.class)
+@SpringApplicationConfiguration(classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class)
 @WebAppConfiguration
 @IntegrationTest({ "server.port: 0", "server.servletPath: /app" })
 @DirtiesContext
@@ -91,22 +90,18 @@ public class ServletPathZuulProxyApplicationTests {
 		assertEquals("Gotten strip!", result.getBody());
 	}
 
-}
 
-// Don't use @SpringBootApplication because we don't want to component scan
-@Configuration
-@EnableAutoConfiguration
-@RestController
-@EnableZuulProxy
-class ServletPathZuulProxyApplication {
+	// Don't use @SpringBootApplication because we don't want to component scan
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	@EnableZuulProxy
+	static class ServletPathZuulProxyApplication {
 
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
-	public String get(@PathVariable String id) {
-		return "Gotten " + id + "!";
+		@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
+		public String get(@PathVariable String id) {
+														 return "Gotten " + id + "!";
+																					 }
+
 	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(SampleZuulProxyApplication.class, args);
-	}
-
 }

@@ -16,21 +16,35 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import lombok.Value;
-import org.springframework.util.MultiValueMap;
-
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
+
+import lombok.Data;
 
 /**
  * @author Spencer Gibb
  */
-@Value
+@Data
 public class RibbonCommandContext {
 	private final String serviceId;
-	private final String verb;
+	private final String method;
 	private final String uri;
 	private final Boolean retryable;
 	private final MultiValueMap<String, String> headers;
 	private final MultiValueMap<String, String> params;
 	private final InputStream requestEntity;
+	private Long contentLength;
+
+	public URI uri() {
+		try {
+			return new URI(this.uri);
+		} catch (URISyntaxException e) {
+			ReflectionUtils.rethrowRuntimeException(e);
+		}
+		return null;
+	}
 }

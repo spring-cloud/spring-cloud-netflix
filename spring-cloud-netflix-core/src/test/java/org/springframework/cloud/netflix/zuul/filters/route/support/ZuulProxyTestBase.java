@@ -1,4 +1,21 @@
-package org.springframework.cloud.netflix.zuul;
+/*
+ * Copyright 2013-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.springframework.cloud.netflix.zuul.filters.route.support;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +35,7 @@ import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -41,8 +60,10 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeThat;
 
 /**
  * @author Spencer Gibb
@@ -213,8 +234,30 @@ public abstract class ZuulProxyTestBase {
 		assertEquals("Received {key=[overridden]}", result.getBody());
 	}
 
-	protected static abstract class AbstractZuulProxyApplication
+	@Test
+	public void patchOnSelfViaSimpleHostRoutingFilter() {
+		assumeThat(supportsPatch(), is(true));
+
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
+		this.endpoint.reset();
+
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/1", HttpMethod.PATCH,
+				new HttpEntity<>("TestPatch"), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Patched 1!", result.getBody());
+	}
+
+	protected abstract boolean supportsPatch();
+
+	public static abstract class AbstractZuulProxyApplication
 			extends DelegatingWebMvcConfiguration {
+
+		@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
+		public String patch(@PathVariable final String id,
+							@RequestBody final String body) {
+			return "Patched " + id + "!";
+		}
 
 		@RequestMapping("/testing123")
 		public String testing123() {
@@ -298,64 +341,64 @@ public abstract class ZuulProxyTestBase {
 			return mapping;
 		}
 	}
-}
 
-// Load balancer with fixed server list for "simple" pointing to localhost
-@Configuration
-class SimpleRibbonClientConfiguration {
+	// Load balancer with fixed server list for "simple" pointing to localhost
+	@Configuration
+	public static class SimpleRibbonClientConfiguration {
 
-	@Value("${local.server.port}")
-	private int port;
+		@Value("${local.server.port}")
+		private int port;
 
-	@Bean
-	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", this.port));
+		@Bean
+		public ServerList<Server> ribbonServerList() {
+														   return new StaticServerList<>(new Server("localhost", this.port));
+																															 }
+
 	}
 
-}
+	@Configuration
+	public static class AnotherRibbonClientConfiguration {
 
-@Configuration
-class AnotherRibbonClientConfiguration {
+		@Value("${local.server.port}")
+		private int port;
 
-	@Value("${local.server.port}")
-	private int port;
+		@Bean
+		public ServerList<Server> ribbonServerList() {
+														   return new StaticServerList<>(new Server("localhost", this.port));
+																															 }
 
-	@Bean
-	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("localhost", this.port));
 	}
 
-}
+	public static class MyErrorController extends BasicErrorController {
+		ThreadLocal<String> uriToMatch = new ThreadLocal<>();
 
-class MyErrorController extends BasicErrorController {
-	ThreadLocal<String> uriToMatch = new ThreadLocal<>();
+		AtomicBoolean controllerUsed = new AtomicBoolean();
 
-	AtomicBoolean controllerUsed = new AtomicBoolean();
+		public MyErrorController(ErrorAttributes errorAttributes) {
+																		super(errorAttributes, new ErrorProperties());
+																													  }
 
-	public MyErrorController(ErrorAttributes errorAttributes) {
-		super(errorAttributes, new ErrorProperties());
-	}
+		@Override
+		public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
+			String errorUri = (String) request.getAttribute("javax.servlet.error.request_uri");
 
-	@Override
-	public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-		String errorUri = (String) request.getAttribute("javax.servlet.error.request_uri");
-
-		if (errorUri != null && errorUri.equals(this.uriToMatch.get())) {
-			controllerUsed.set(true);
+			if (errorUri != null && errorUri.equals(this.uriToMatch.get())) {
+				controllerUsed.set(true);
+			}
+			this.uriToMatch.remove();
+			return super.error(request);
 		}
-		this.uriToMatch.remove();
-		return super.error(request);
-	}
 
-	public void setUriToMatch(String uri) {
-		this.uriToMatch.set(uri);
-	}
+		public void setUriToMatch(String uri) {
+													this.uriToMatch.set(uri);
+																			 }
 
-	public boolean wasControllerUsed() {
-		return this.controllerUsed.get();
-	}
+		public boolean wasControllerUsed() {
+												 return this.controllerUsed.get();
+																				  }
 
-	public void clear() {
-		this.controllerUsed.set(false);
+		public void clear() {
+								  this.controllerUsed.set(false);
+																 }
 	}
 }
