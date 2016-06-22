@@ -89,6 +89,8 @@ public class RibbonApacheHttpRequest extends ClientRequest implements Cloneable 
 			// to chunked in org.apache.http.protocol.RequestContent. See gh-1042
 			if (contentLength != null) {
 				entity.setContentLength(this.contentLength);
+			} else if ("GET".equals(this.method)) {
+				entity.setContentLength(0);
 			}
 			builder.setEntity(entity);
 		}
