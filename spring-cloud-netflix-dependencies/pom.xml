@@ -19,7 +19,7 @@
 		<spring-cloud-stream.version>1.0.3.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.4.8</eureka.version>
-		<feign.version>8.16.2</feign.version>
+		<feign.version>8.17.0</feign.version>
 		<hystrix.version>1.5.3</hystrix.version>
 		<ribbon.version>2.2.0</ribbon.version>
 		<servo.version>0.10.1</servo.version>
@@ -452,9 +452,9 @@
 				</exclusions>
 			</dependency>
 			<dependency>
-				<groupId>com.squareup.okhttp</groupId>
+				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>2.5.0</version>
+				<version>3.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>

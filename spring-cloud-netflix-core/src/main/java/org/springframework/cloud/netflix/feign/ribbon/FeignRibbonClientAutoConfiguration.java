@@ -97,7 +97,7 @@ public class FeignRibbonClientAutoConfiguration {
 	protected static class OkHttpConfiguration {
 
 		@Autowired(required = false)
-		private com.squareup.okhttp.OkHttpClient okHttpClient;
+		private okhttp3.OkHttpClient okHttpClient;
 
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
