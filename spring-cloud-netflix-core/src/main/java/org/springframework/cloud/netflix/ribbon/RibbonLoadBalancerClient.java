@@ -114,7 +114,10 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	private boolean isSecure(Server server, String serviceId) {
 		IClientConfig config = this.clientFactory.getClientConfig(serviceId);
 		if (config != null) {
-			return config.get(CommonClientConfigKey.IsSecure, false);
+			Boolean isSecure = config.get(CommonClientConfigKey.IsSecure);
+			if (isSecure != null) {
+				return isSecure;
+			}
 		}
 
 		return serverIntrospector(serviceId).isSecure(server);

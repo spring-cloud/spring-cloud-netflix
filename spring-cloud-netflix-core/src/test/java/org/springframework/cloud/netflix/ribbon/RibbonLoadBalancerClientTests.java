@@ -112,7 +112,7 @@ public class RibbonLoadBalancerClientTests {
 	public void testReconstructUriWithSecureClientConfig() {
 		RibbonServer server = getRibbonServer();
 		IClientConfig config = mock(IClientConfig.class);
-		when(config.get(CommonClientConfigKey.IsSecure, false)).thenReturn(true);
+		when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(true);
 		when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
 
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
@@ -123,6 +123,33 @@ public class RibbonLoadBalancerClientTests {
 		assertEquals(server.getPort(), uri.getPort());
 		assertEquals("https", uri.getScheme());
 	}
+
+        @Test
+        @SneakyThrows
+        public void testReconstructSecureUriWithoutScheme() {
+        	testReconstructSchemelessUriWithoutClientConfig(getSecureRibbonServer(), "https");
+        }
+
+        @Test
+        @SneakyThrows
+        public void testReconstructUnsecureSchemelessUri() {
+                testReconstructSchemelessUriWithoutClientConfig(getRibbonServer(), "http");
+        }
+
+        @SneakyThrows
+        public void testReconstructSchemelessUriWithoutClientConfig(RibbonServer server, String expectedScheme) {
+                IClientConfig config = mock(IClientConfig.class);
+                when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(null);
+                when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
+
+                RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+                ServiceInstance serviceInstance = client.choose(server.getServiceId());
+                URI uri = client.reconstructURI(serviceInstance,
+                                new URI("//" + server.getServiceId()));
+                assertEquals(server.getHost(), uri.getHost());
+                assertEquals(server.getPort(), uri.getPort());
+                assertEquals(expectedScheme, uri.getScheme());
+        }
 
 	@Test
 	public void testChoose() {
@@ -205,6 +232,11 @@ public class RibbonLoadBalancerClientTests {
 		return new RibbonServer("testService", new Server("myhost", 9080), false,
 				Collections.singletonMap("mykey", "myvalue"));
 	}
+
+        protected RibbonServer getSecureRibbonServer() {
+                return new RibbonServer("testService", new Server("myhost", 8443), false,
+                                Collections.singletonMap("mykey", "myvalue"));
+        }
 
 	protected void verifyServerStats() {
 		verify(this.serverStats).incrementActiveRequestsCount();
