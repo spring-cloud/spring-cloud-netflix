@@ -55,7 +55,7 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 	 * netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java
 	 */
 	@SuppressWarnings("deprecation")
-	static class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
+	public static class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
 		public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context) {
 			super(commandKey, client, context);
