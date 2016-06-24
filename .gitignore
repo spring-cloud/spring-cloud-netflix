@@ -15,3 +15,4 @@ _site/
 *.iws
 .factorypath
 *.log
+.shelf
