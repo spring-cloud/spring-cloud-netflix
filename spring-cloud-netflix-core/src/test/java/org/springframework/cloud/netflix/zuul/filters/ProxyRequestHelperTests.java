@@ -72,7 +72,7 @@ public class ProxyRequestHelperTests {
 		request.addHeader("multiName", "multiValue2");
 		RequestContext.getCurrentContext().setRequest(request);
 
-		ProxyRequestHelper helper = new ProxyRequestHelper();
+		TraceProxyRequestHelper helper = new TraceProxyRequestHelper();
 		this.traceRepository = new InMemoryTraceRepository();
 		helper.setTraces(this.traceRepository);
 
@@ -172,7 +172,7 @@ public class ProxyRequestHelperTests {
 		request.addHeader("multiName", "multiValue1");
 		request.addHeader("multiName", "multiValue2");
 
-		ProxyRequestHelper helper = new ProxyRequestHelper();
+		TraceProxyRequestHelper helper = new TraceProxyRequestHelper();
 		helper.setTraces(this.traceRepository);
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);

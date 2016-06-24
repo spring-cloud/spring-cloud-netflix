@@ -21,6 +21,7 @@ import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -31,6 +32,7 @@ import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.TraceProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper;
@@ -54,9 +56,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ZuulProxyConfiguration extends ZuulConfiguration {
-
-	@Autowired(required = false)
-	private TraceRepository traces;
 
 	@Autowired
 	private DiscoveryClient discovery;
@@ -133,17 +132,6 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
-	public ProxyRequestHelper proxyRequestHelper() {
-		ProxyRequestHelper helper = new ProxyRequestHelper();
-		if (this.traces != null) {
-			helper.setTraces(this.traces);
-		}
-		helper.setIgnoredHeaders(this.zuulProperties.getIgnoredHeaders());
-		helper.setTraceRequestBody(this.zuulProperties.isTraceRequestBody());
-		return helper;
-	}
-
-	@Bean
 	public ApplicationListener<ApplicationEvent> zuulDiscoveryRefreshRoutesListener() {
 		return new ZuulDiscoveryRefreshListener();
 	}
@@ -155,14 +143,41 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnMissingClass("org.springframework.boot.actuate.endpoint.Endpoint")
+	protected static class NoActuatorConfiguration {
+
+		@Bean
+		public ProxyRequestHelper proxyRequestHelper(ZuulProperties zuulProperties) {
+			ProxyRequestHelper helper = new ProxyRequestHelper();
+			helper.setIgnoredHeaders(zuulProperties.getIgnoredHeaders());
+			helper.setTraceRequestBody(zuulProperties.isTraceRequestBody());
+			return helper;
+		}
+
+	}
+
+	@Configuration
 	@ConditionalOnClass(Endpoint.class)
 	protected static class RoutesEndpointConfiguration {
+
+		@Autowired(required = false)
+		private TraceRepository traces;
 
 		@Bean
 		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
 		}
 
+		@Bean
+		public ProxyRequestHelper proxyRequestHelper(ZuulProperties zuulProperties) {
+			TraceProxyRequestHelper helper = new TraceProxyRequestHelper();
+			if (this.traces != null) {
+				helper.setTraces(this.traces);
+			}
+			helper.setIgnoredHeaders(zuulProperties.getIgnoredHeaders());
+			helper.setTraceRequestBody(zuulProperties.isTraceRequestBody());
+			return helper;
+		}
 	}
 
 	private static class ZuulDiscoveryRefreshListener
