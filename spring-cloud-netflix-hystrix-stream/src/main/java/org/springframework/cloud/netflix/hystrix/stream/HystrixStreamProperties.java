@@ -28,14 +28,28 @@ import lombok.Data;
 @Data
 public class HystrixStreamProperties {
 
+	/** Flag to indicate that Hystrix Stream is enabled. Default is true. */
 	private boolean enabled = true;
 
+	/** Flag to indicate to prefix metric names with serviceId. Default is true. */
 	private boolean prefixMetricName = true;
 
+	/** Flag to indicate to send the id field in the metrics. Default is true */
 	private boolean sendId = true;
 
+	/** The destination of the stream. Destination as defined by Spring Cloud Stream. Defaults to springCloudHystrixStream */
 	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
 
+	/** The content type of the messages. Defaults to application/json */
 	private String contentType = "application/json";
+
+	/** How often (in ms) to send messages to the stream. Defaults to 500. */
+	private long sendRate = 500;
+
+	/** How often to put messages in the queue. This queue drains to the stream. Defaults to 500. */
+	private long gatherRate = 500;
+
+	/** The size of the metrics queue. This queue drains to the stream. Defaults to 1000. */
+	private int size = 1000;
 
 }
