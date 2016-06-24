@@ -68,6 +68,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 	private HystrixStreamProperties properties;
 
 	// Visible for testing
+	// TODO: configurable size.
 	final LinkedBlockingQueue<String> jsonMetrics = new LinkedBlockingQueue<>(
 			1000);
 
