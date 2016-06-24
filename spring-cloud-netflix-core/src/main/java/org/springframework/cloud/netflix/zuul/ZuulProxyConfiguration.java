@@ -77,6 +77,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Configuration
+	@ConditionalOnProperty(name = "zuul.ribbon.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientRibbonConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
