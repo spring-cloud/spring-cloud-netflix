@@ -17,12 +17,9 @@
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpRequest;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpResponse;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,7 +28,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class HttpClientRibbonCommandFactory implements
-		RibbonCommandFactory<HttpClientRibbonCommandFactory.HttpClientRibbonCommand> {
+		RibbonCommandFactory<HttpClientRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
 
@@ -45,17 +42,4 @@ public class HttpClientRibbonCommandFactory implements
 		return new HttpClientRibbonCommand(serviceId, client, context);
 	}
 
-	class HttpClientRibbonCommand extends AbstractRibbonCommand<RibbonLoadBalancingHttpClient, RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
-
-		public HttpClientRibbonCommand(final String commandKey,
-									   final RibbonLoadBalancingHttpClient client, RibbonCommandContext context) {
-			super(commandKey, client, context);
-		}
-
-		@Override
-		protected RibbonApacheHttpRequest createRequest() throws Exception {
-			return new RibbonApacheHttpRequest(this.context);
-		}
-
-	}
 }

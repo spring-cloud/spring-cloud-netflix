@@ -43,6 +43,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
+import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
@@ -312,7 +314,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			@Override
 			@SuppressWarnings("deprecation")
 			@SneakyThrows
-			public RestClientRibbonCommandFactory.RestClientRibbonCommand create(RibbonCommandContext context) {
+			public RestClientRibbonCommand create(RibbonCommandContext context) {
 				String uri = context.getUri();
 				if (uri.startsWith("/throwexception/")) {
 					String code = uri.replace("/throwexception/", "");
@@ -325,7 +327,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			}
 		}
 
-		static class MyCommand extends RestClientRibbonCommandFactory.RestClientRibbonCommand {
+		static class MyCommand extends RestClientRibbonCommand {
 
 			private int errorCode;
 
