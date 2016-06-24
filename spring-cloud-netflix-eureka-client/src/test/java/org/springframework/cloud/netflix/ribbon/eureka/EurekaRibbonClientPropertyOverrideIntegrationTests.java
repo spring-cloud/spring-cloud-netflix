@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +28,13 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.netflix.discovery.EurekaClient;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.DummyPing;
 import com.netflix.loadbalancer.Server;
@@ -71,5 +75,9 @@ public class EurekaRibbonClientPropertyOverrideIntegrationTests {
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
+		@Bean
+		public EurekaClient eurekaClient() {
+			return mock(EurekaClient.class);
+		}
 	}
 }
