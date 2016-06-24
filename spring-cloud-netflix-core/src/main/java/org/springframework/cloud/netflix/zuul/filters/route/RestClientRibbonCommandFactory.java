@@ -41,14 +41,11 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 		return new RestClientRibbonCommand(context.getServiceId(), restClient, context);
 	}
 
-	static HttpRequest.Verb getVerb(String method) {
-		if (method == null)
-			return HttpRequest.Verb.GET;
-		try {
-			return HttpRequest.Verb.valueOf(method.toUpperCase());
-		}
-		catch (IllegalArgumentException e) {
-			return HttpRequest.Verb.GET;
-		}
+	public SpringClientFactory getClientFactory() {
+		return clientFactory;
+	}
+
+	protected static HttpRequest.Verb getVerb(String method) {
+		return RestClientRibbonCommand.getVerb(method);
 	}
 }

@@ -47,4 +47,13 @@ public class RibbonCommandContext {
 		}
 		return null;
 	}
+
+	/**
+	 * Use getMethod()
+	 * @return
+	 */
+	@Deprecated
+	public String getVerb() {
+		return this.method;
+	}
 }

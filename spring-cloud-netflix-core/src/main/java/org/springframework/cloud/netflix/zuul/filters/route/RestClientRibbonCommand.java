@@ -21,7 +21,10 @@ import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.niws.client.http.RestClient;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
+import org.springframework.util.MultiValueMap;
 
+import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -34,6 +37,14 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
+	@SuppressWarnings("unused")
+	@Deprecated
+	public RestClientRibbonCommand(String commandKey, RestClient restClient, HttpRequest.Verb verb, String uri,
+								   Boolean retryable, MultiValueMap<String, String> headers,
+								   MultiValueMap<String, String> params, InputStream requestEntity) {
+		this(commandKey, restClient, new RibbonCommandContext(commandKey, verb.verb(), uri, retryable, headers, params, requestEntity));
+	}
+
 	public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context) {
 		super(commandKey, client, context);
 	}
@@ -41,7 +52,7 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 	@Override
 	protected HttpRequest createRequest() throws Exception {
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
-				.verb(RestClientRibbonCommandFactory.getVerb(this.context.getMethod()))
+				.verb(getVerb(this.context.getMethod()))
 				.uri(this.context.uri())
 				.entity(this.context.getRequestEntity());
 
@@ -62,6 +73,35 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 			}
 		}
 
+		customizeRequest(builder);
+
 		return builder.build();
 	}
+
+	protected void customizeRequest(HttpRequest.Builder requestBuilder) {
+		// noop
+	}
+
+	@Deprecated
+	public URI getUri() {
+		return this.context.uri();
+	}
+
+	@SuppressWarnings("unused")
+	@Deprecated
+	public HttpRequest.Verb getVerb() {
+		return getVerb(this.context.getVerb());
+	}
+
+	protected static HttpRequest.Verb getVerb(String method) {
+		if (method == null)
+			return HttpRequest.Verb.GET;
+		try {
+			return HttpRequest.Verb.valueOf(method.toUpperCase());
+		}
+		catch (IllegalArgumentException e) {
+			return HttpRequest.Verb.GET;
+		}
+	}
+
 }

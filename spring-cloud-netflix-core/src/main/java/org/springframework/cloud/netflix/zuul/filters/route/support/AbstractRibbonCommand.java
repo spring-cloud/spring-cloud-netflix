@@ -96,5 +96,13 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		return new RibbonHttpResponse(response);
 	}
 
+	public LBC getClient() {
+		return client;
+	}
+
+	public RibbonCommandContext getContext() {
+		return context;
+	}
+
 	protected abstract RQ createRequest() throws Exception;
 }
