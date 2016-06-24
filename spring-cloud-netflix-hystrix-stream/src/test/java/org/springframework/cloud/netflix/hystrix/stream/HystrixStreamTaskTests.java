@@ -61,6 +61,7 @@ public class HystrixStreamTaskTests {
 				new HystrixPropertiesCommandDefault(hystrixCommandKey, HystrixCommandProperties.defaultSetter()));
 		given(this.discoveryClient.getLocalServiceInstance()).willReturn(this.serviceInstance);
 
+		this.hystrixStreamTask.setApplicationContext(this.context);
 		this.hystrixStreamTask.gatherMetrics();
 
 		assertThat(this.hystrixStreamTask.jsonMetrics.isEmpty(), is(false));

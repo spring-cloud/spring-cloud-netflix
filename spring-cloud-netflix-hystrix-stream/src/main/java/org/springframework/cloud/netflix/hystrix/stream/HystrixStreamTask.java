@@ -23,10 +23,8 @@ import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.messaging.MessageChannel;
@@ -55,24 +53,25 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class HystrixStreamTask implements ApplicationContextAware {
 
-	@Autowired
-	@Output(HystrixStreamClient.OUTPUT)
 	private MessageChannel outboundChannel;
 
-	@Autowired
 	private DiscoveryClient discoveryClient;
+
+	private HystrixStreamProperties properties;
 
 	private ApplicationContext context;
 
-	@Autowired
-	private HystrixStreamProperties properties;
-
 	// Visible for testing
-	// TODO: configurable size.
-	final LinkedBlockingQueue<String> jsonMetrics = new LinkedBlockingQueue<>(
-			1000);
+	final LinkedBlockingQueue<String> jsonMetrics;
 
 	private final JsonFactory jsonFactory = new JsonFactory();
+
+	public HystrixStreamTask(MessageChannel outboundChannel, DiscoveryClient discoveryClient, HystrixStreamProperties properties) {
+		this.outboundChannel = outboundChannel;
+		this.discoveryClient = discoveryClient;
+		this.properties = properties;
+		this.jsonMetrics = new LinkedBlockingQueue<>(properties.getSize());
+	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext)
@@ -96,7 +95,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 					// TODO: remove the explicit content type when s-c-stream can handle that for us
 					this.outboundChannel.send(MessageBuilder.withPayload(json)
 							.setHeader(MessageHeaders.CONTENT_TYPE,
-									"application/json")
+									this.properties.getContentType())
 							.build());
 				}
 				catch (Exception ex) {
