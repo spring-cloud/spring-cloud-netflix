@@ -26,8 +26,10 @@ import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.Test;
+import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -80,8 +82,20 @@ public class OkHttpRibbonRequestTests {
 			headers.add("Content-Length", lengthString);
 			length = (long) entityValue.length();
 		}
+
+		RibbonRequestCustomizer requestCustomizer = new RibbonRequestCustomizer<Request.Builder>() {
+			@Override
+			public boolean accepts(Class builderClass) {
+				return builderClass == Request.Builder.class;
+			}
+
+			@Override
+			public void customize(Request.Builder builder) {
+				builder.addHeader("from-customizer", "foo");
+			}
+		};
 		RibbonCommandContext context = new RibbonCommandContext("example", method, uri, false,
-				headers, new LinkedMultiValueMap<String, String>(), requestEntity);
+				headers, new LinkedMultiValueMap<String, String>(), requestEntity, Collections.singletonList(requestCustomizer));
 		context.setContentLength(length);
 		OkHttpRibbonRequest httpRequest = new OkHttpRibbonRequest(context);
 
@@ -92,6 +106,8 @@ public class OkHttpRibbonRequestTests {
 			assertThat("Content-Length is wrong", request.header("Content-Length"),
 					is(equalTo(lengthString)));
 		}
+		assertThat("from-customizer is wrong", request.header("from-customizer"),
+				is(equalTo("foo")));
 
 		if (!method.equalsIgnoreCase("get")) {
 			assertThat("body is null", request.body(), is(notNullValue()));
@@ -104,3 +120,4 @@ public class OkHttpRibbonRequestTests {
 		}
 	}
 }
+

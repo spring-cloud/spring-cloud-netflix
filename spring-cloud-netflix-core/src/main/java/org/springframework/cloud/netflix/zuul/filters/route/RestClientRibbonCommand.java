@@ -17,15 +17,18 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import com.netflix.client.http.HttpRequest;
-import com.netflix.client.http.HttpResponse;
-import com.netflix.niws.client.http.RestClient;
-import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
-import org.springframework.util.MultiValueMap;
+import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+
+import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
+import org.springframework.util.MultiValueMap;
+
+import com.netflix.client.http.HttpRequest;
+import com.netflix.client.http.HttpResponse;
+import com.netflix.niws.client.http.RestClient;
 
 /**
  * Hystrix wrapper around Eureka Ribbon command
@@ -79,7 +82,7 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 	}
 
 	protected void customizeRequest(HttpRequest.Builder requestBuilder) {
-		// noop
+		customize(this.context.getRequestCustomizers(), requestBuilder);
 	}
 
 	@Deprecated

@@ -41,8 +41,8 @@ public abstract class ContextAwareRequest extends ClientRequest {
 	protected RibbonCommandContext newContext(URI uri) {
 		RibbonCommandContext commandContext = new RibbonCommandContext(this.context.getServiceId(),
 				this.context.getMethod(), uri.toString(), this.context.getRetryable(),
-				this.context.getHeaders(), this.context.getParams(), this.context.getRequestEntity());
-		commandContext.setContentLength(this.context.getContentLength());
+				this.context.getHeaders(), this.context.getParams(), this.context.getRequestEntity(),
+				this.context.getRequestCustomizers(), this.context.getContentLength());
 		return commandContext;
 	}
 }

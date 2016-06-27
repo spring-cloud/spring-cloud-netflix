@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
+import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
+
 import java.net.URI;
 import java.util.List;
 
@@ -68,6 +70,8 @@ public class RibbonApacheHttpRequest extends ContextAwareRequest implements Clon
 			}
 			builder.setEntity(entity);
 		}
+
+		customize(this.context.getRequestCustomizers(), builder);
 
 		builder.setConfig(requestConfig);
 		return builder.build();

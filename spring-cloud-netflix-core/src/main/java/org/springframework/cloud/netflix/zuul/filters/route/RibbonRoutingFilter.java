@@ -18,11 +18,13 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
@@ -42,15 +44,18 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	private static final String ERROR_STATUS_CODE = "error.status_code";
 	protected ProxyRequestHelper helper;
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
+	protected List<RibbonRequestCustomizer> requestCustomizers;
 
 	public RibbonRoutingFilter(ProxyRequestHelper helper,
-			RibbonCommandFactory<?> ribbonCommandFactory) {
+							   RibbonCommandFactory<?> ribbonCommandFactory,
+							   List<RibbonRequestCustomizer> requestCustomizers) {
 		this.helper = helper;
 		this.ribbonCommandFactory = ribbonCommandFactory;
+		this.requestCustomizers = requestCustomizers;
 	}
 
 	public RibbonRoutingFilter(RibbonCommandFactory<?> ribbonCommandFactory) {
-		this(new ProxyRequestHelper(), ribbonCommandFactory);
+		this(new ProxyRequestHelper(), ribbonCommandFactory, null);
 	}
 
 	@Override
@@ -115,7 +120,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		uri = uri.replace("//", "/");
 
 		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
-				requestEntity);
+				requestEntity, this.requestCustomizers);
 	}
 
 	protected ClientHttpResponse forward(RibbonCommandContext context) throws Exception {

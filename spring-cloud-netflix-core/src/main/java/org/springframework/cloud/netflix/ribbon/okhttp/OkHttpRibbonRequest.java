@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -72,11 +74,14 @@ public class OkHttpRibbonRequest extends ContextAwareRequest implements Cloneabl
 			requestBody = new InputStreamRequestBody(this.context.getRequestEntity(), mediaType, this.context.getContentLength());
 		}
 
-		return new Request.Builder()
+		Request.Builder builder = new Request.Builder()
 				.url(url.build())
 				.headers(headers.build())
-				.method(this.context.getMethod(), requestBody)
-				.build();
+				.method(this.context.getMethod(), requestBody);
+
+		customize(this.context.getRequestCustomizers(), builder);
+
+		return builder.build();
 	}
 
 	public OkHttpRibbonRequest withNewUri(final URI uri) {
