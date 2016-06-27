@@ -16,26 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.netflix.config.DynamicIntProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.constants.ZuulConstants;
+import com.netflix.zuul.context.RequestContext;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -53,11 +39,13 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
@@ -66,18 +54,28 @@ import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
-import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
-import com.netflix.zuul.context.RequestContext;
-
-import lombok.extern.apachecommons.CommonsLog;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @CommonsLog
 public class SimpleHostRoutingFilter extends ZuulFilter {
@@ -93,6 +91,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
+
+	private boolean sslHostnameValidationEnabled;
 
 	private ProxyRequestHelper helper;
 	private Host hostProperties;
@@ -115,6 +115,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties) {
 		this.helper = helper;
 		this.hostProperties = properties.getHost();
+		sslHostnameValidationEnabled=properties.isSslHostnameValidationEnabled();
 	}
 
 	@PostConstruct
@@ -204,10 +205,17 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				}
 			} }, new SecureRandom());
 
-			final Registry<ConnectionSocketFactory> registry = RegistryBuilder
-					.<ConnectionSocketFactory> create()
-					.register("http", PlainConnectionSocketFactory.INSTANCE)
-					.register("https", new SSLConnectionSocketFactory(sslContext))
+			RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
+					.<ConnectionSocketFactory>create()
+					.register("http", PlainConnectionSocketFactory.INSTANCE);
+			if(sslHostnameValidationEnabled) {
+				registryBuilder
+						.register("https", new SSLConnectionSocketFactory(sslContext));
+			}else {
+				registryBuilder
+						.register("https", new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE));
+			}
+			final Registry<ConnectionSocketFactory> registry = registryBuilder
 					.build();
 
 			this.connectionManager = new PoolingHttpClientConnectionManager(registry);
@@ -228,7 +236,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.setConnectTimeout(CONNECTION_TIMEOUT.get())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 
-		return HttpClients.custom().setConnectionManager(newConnectionManager())
+		HttpClientBuilder httpClientBuilder = HttpClients.custom();
+		if(!sslHostnameValidationEnabled){
+			httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+		}
+		return httpClientBuilder.setConnectionManager(newConnectionManager())
 				.setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
 				.setRedirectStrategy(new RedirectStrategy() {
@@ -363,4 +375,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		this.helper.addIgnoredHeaders(names);
 	}
 
+	/**
+	 * Determines whether the filter enables the validation for ssl hostnames.
+	 * @return
+     */
+	boolean isSslHostnameValidationEnabled(){
+		return sslHostnameValidationEnabled;
+	}
 }
