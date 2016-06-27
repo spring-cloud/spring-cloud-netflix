@@ -28,6 +28,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
 
 /**
@@ -52,6 +54,21 @@ public class SimpleHostRoutingFilterTests {
 		PoolingHttpClientConnectionManager connMgr = getFilter().newConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
+	}
+
+	@Test
+	public void validateSslHostnamesByDefault() {
+		setupContext();
+		assertTrue("Hostname verification should be enabled by default",
+				getFilter().isSslHostnameValidationEnabled());
+	}
+
+	@Test
+	public void validationOfSslHostnamesCanBeDisabledViaProperty() {
+		addEnvironment(this.context, "zuul.sslHostnameValidationEnabled=false");
+		setupContext();
+		assertFalse("Hostname verification should be disabled via property",
+				getFilter().isSslHostnameValidationEnabled());
 	}
 
 	@Test
