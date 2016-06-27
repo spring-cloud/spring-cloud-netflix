@@ -111,7 +111,7 @@ public class ZuulProperties {
 	private boolean traceRequestBody = true;
 
 	/**
-	 * Flag to say that path elelents past the first semicolon can be dropped.
+	 * Flag to say that path elements past the first semicolon can be dropped.
 	 */
 	private boolean removeSemicolonContent = true;
 
@@ -124,6 +124,12 @@ public class ZuulProperties {
 	 */
 	private Set<String> sensitiveHeaders = new LinkedHashSet<>(
 			Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
+
+	/**
+	 * Flag to say whether the hostname for ssl connections should be verified or now. Default is true.
+	 * This should only be used in test setups!
+	 */
+	private boolean sslHostnameValidationEnabled =true;
 
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
