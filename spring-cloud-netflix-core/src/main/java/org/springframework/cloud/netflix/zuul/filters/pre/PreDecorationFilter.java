@@ -121,23 +121,29 @@ public class PreDecorationFilter extends ZuulFilter {
 							String.valueOf(ctx.getRequest().getServerPort()));
 					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
 							ctx.getRequest().getScheme());
+					String forwardedPrefix =
+							ctx.getRequest().getHeader("X-Forwarded-Prefix");
+					String contextPath = ctx.getRequest().getContextPath();
+					String prefix = StringUtils.hasLength(forwardedPrefix)
+							? forwardedPrefix
+							: (StringUtils.hasLength(contextPath) ? contextPath : null);
 					if (StringUtils.hasText(route.getPrefix())) {
-						String existingPrefix = ctx.getRequest()
-								.getHeader("X-Forwarded-Prefix");
 						StringBuilder newPrefixBuilder = new StringBuilder();
-						if (StringUtils.hasLength(existingPrefix)) {
-							if (existingPrefix.endsWith("/")
+						if (prefix != null) {
+							if (prefix.endsWith("/")
 									&& route.getPrefix().startsWith("/")) {
-								newPrefixBuilder.append(existingPrefix, 0,
-										existingPrefix.length() - 1);
+								newPrefixBuilder.append(prefix, 0,
+										prefix.length() - 1);
 							}
 							else {
-								newPrefixBuilder.append(existingPrefix);
+								newPrefixBuilder.append(prefix);
 							}
 						}
 						newPrefixBuilder.append(route.getPrefix());
-						ctx.addZuulRequestHeader("X-Forwarded-Prefix",
-								newPrefixBuilder.toString());
+						prefix = newPrefixBuilder.toString();
+					}
+					if (prefix != null) {
+						ctx.addZuulRequestHeader("X-Forwarded-Prefix", prefix);
 					}
 					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
