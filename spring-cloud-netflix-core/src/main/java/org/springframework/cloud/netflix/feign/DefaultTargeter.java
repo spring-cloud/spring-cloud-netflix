@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,26 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.feign;
 
-import org.springframework.cloud.context.named.NamedContextFactory;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import feign.Feign;
+import feign.Target;
 
 /**
- * @author Dave Syer
+ * @author Spencer Gibb
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-class FeignClientSpecification implements NamedContextFactory.Specification {
+class DefaultTargeter implements Targeter {
 
-	private String name;
-
-	private Class<?>[] configuration;
-
+	@Override
+	public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
+						Target.HardCodedTarget<T> target) {
+		return feign.target(target);
+	}
 }

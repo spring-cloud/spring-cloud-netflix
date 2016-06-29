@@ -16,15 +16,19 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -42,25 +46,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+
 import feign.Client;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignHttpClientTests.Application.class)
-@WebIntegrationTest(randomPort = true, value = { "server.port=0",
+@WebIntegrationTest(randomPort = true, value = {
 		"spring.application.name=feignclienttest", "feign.hystrix.enabled=false",
 		"feign.okhttp.enabled=false" })
 @DirtiesContext
@@ -121,11 +120,6 @@ public class FeignHttpClientTests {
 			return new User("John Smith");
 		}
 
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclienttest",
-					"management.contextPath=/admin").run(args);
-		}
 	}
 
 	@Test

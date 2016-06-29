@@ -57,7 +57,7 @@ import org.springframework.util.StringUtils;
  * @author Jakub Narloch
  * @author Venil Noronha
  */
-public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
+class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		ResourceLoaderAware, BeanClassLoaderAware {
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar

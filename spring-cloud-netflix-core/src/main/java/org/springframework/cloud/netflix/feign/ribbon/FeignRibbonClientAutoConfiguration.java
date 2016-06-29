@@ -71,7 +71,7 @@ public class FeignRibbonClientAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
-	protected static class HttpClientConfiguration {
+	protected static class HttpClientFeignLoadBalancedConfiguration {
 
 		@Autowired(required = false)
 		private HttpClient httpClient;
@@ -94,7 +94,7 @@ public class FeignRibbonClientAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(OkHttpClient.class)
 	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
-	protected static class OkHttpConfiguration {
+	protected static class OkHttpFeignLoadBalancedConfiguration {
 
 		@Autowired(required = false)
 		private okhttp3.OkHttpClient okHttpClient;
