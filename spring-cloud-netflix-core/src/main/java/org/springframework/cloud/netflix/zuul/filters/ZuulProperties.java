@@ -126,7 +126,7 @@ public class ZuulProperties {
 			Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
 
 	/**
-	 * Flag to say whether the hostname for ssl connections should be verified or now. Default is true.
+	 * Flag to say whether the hostname for ssl connections should be verified or not. Default is true.
 	 * This should only be used in test setups!
 	 */
 	private boolean sslHostnameValidationEnabled =true;
