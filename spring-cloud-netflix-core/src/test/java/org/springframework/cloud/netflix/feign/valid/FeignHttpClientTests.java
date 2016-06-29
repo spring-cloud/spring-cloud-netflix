@@ -16,37 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import feign.Client;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -55,16 +24,70 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Field;
+
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.feign.FeignClientFactoryBean;
+import org.springframework.cloud.netflix.feign.FeignContext;
+import org.springframework.cloud.netflix.feign.Targeter;
+import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
+import org.springframework.cloud.netflix.ribbon.RibbonClient;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.SocketUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+
+import feign.Client;
+import feign.Feign;
+import feign.Target;
+import feign.httpclient.ApacheHttpClient;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = FeignHttpClientTests.Application.class)
-@WebIntegrationTest(randomPort = true, value = { "server.port=0",
+@WebIntegrationTest(randomPort = false, value = {
 		"spring.application.name=feignclienttest", "feign.hystrix.enabled=false",
 		"feign.okhttp.enabled=false" })
 @DirtiesContext
 public class FeignHttpClientTests {
+
+	@BeforeClass
+	public static void beforeClass() {
+		int port = SocketUtils.findAvailableTcpPort();
+		System.setProperty("server.port", String.valueOf(port));
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		System.clearProperty("server.port");
+	}
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -77,6 +100,9 @@ public class FeignHttpClientTests {
 
 	@Autowired
 	private UserClient userClient;
+
+	@Autowired
+	private UrlClient urlClient;
 
 	@FeignClient("localapp")
 	protected interface TestClient extends BaseTestClient {
@@ -99,10 +125,15 @@ public class FeignHttpClientTests {
 	protected interface UserClient extends UserService {
 	}
 
+	// this tests that
+	@FeignClient(name = "localappurl", url = "http://localhost:${server.port}/")
+	protected interface UrlClient extends BaseTestClient {
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = { TestClient.class, UserClient.class })
+	@EnableFeignClients(clients = { TestClient.class, UserClient.class, UrlClient.class })
 	@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class)
 	protected static class Application implements UserService {
 
@@ -116,16 +147,27 @@ public class FeignHttpClientTests {
 			return ResponseEntity.ok().header("X-Hello", "hello world patch").build();
 		}
 
+		@Bean
+		public Targeter feignTargeter() {
+			return new Targeter() {
+				@Override
+				public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context, Target.HardCodedTarget<T> target) {
+					Field field = ReflectionUtils.findField(Feign.Builder.class, "client");
+					ReflectionUtils.makeAccessible(field);
+					Client client = (Client) ReflectionUtils.getField(field, feign);
+					if (target.name().equals("localappurl")) {
+						Assert.assertThat("client was wrong type", client, is(instanceOf(ApacheHttpClient.class)));
+					}
+					return feign.target(target);
+				}
+			};
+		}
+
 		@Override
 		public User getUser(@PathVariable("id") long id) {
 			return new User("John Smith");
 		}
 
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclienttest",
-					"management.contextPath=/admin").run(args);
-		}
 	}
 
 	@Test
@@ -157,6 +199,14 @@ public class FeignHttpClientTests {
 		final User user = this.userClient.getUser(1);
 		assertNotNull("Returned user was null", user);
 		assertEquals("Users were different", user, new User("John Smith"));
+	}
+
+	@Test
+	public void testUrlHttpClient() {
+		assertNotNull("UrlClient was null", this.urlClient);
+		Hello hello = this.urlClient.getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
 	}
 
 	@Data

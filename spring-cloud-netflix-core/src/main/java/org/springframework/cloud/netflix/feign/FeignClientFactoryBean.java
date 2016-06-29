@@ -21,10 +21,11 @@ import java.util.Map;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import feign.Client;
@@ -48,22 +49,11 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
+public class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		ApplicationContextAware {
 
-	private static final Targeter targeter;
-
-	static {
-		Targeter targeterToUse;
-		if (ClassUtils.isPresent("feign.hystrix.HystrixFeign",
-				FeignClientFactoryBean.class.getClassLoader())) {
-			targeterToUse = new HystrixTargeter();
-		}
-		else {
-			targeterToUse = new DefaultTargeter();
-		}
-		targeter = targeterToUse;
-	}
+	@Autowired
+	private Targeter targeter;
 
 	private Class<?> type;
 
@@ -83,6 +73,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasText(this.name, "Name must be set");
 	}
+
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
@@ -181,6 +172,15 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			this.url = "http://" + this.url;
 		}
 		String url = this.url + cleanPath();
+		Client client = getOptional(context, Client.class);
+		if (client != null) {
+			if (client instanceof LoadBalancerFeignClient) {
+				// not lod balancing because we have a url,
+				// but ribbon is on the classpath, so unwrap
+				client = ((LoadBalancerFeignClient)client).getDelegate();
+			}
+			builder.client(client);
+		}
 		return targeter.target(this, builder, context, new HardCodedTarget<>(
 				this.type, this.name, url));
 	}
@@ -206,50 +206,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	@Override
 	public boolean isSingleton() {
 		return true;
-	}
-
-	interface Targeter {
-		<T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
-				HardCodedTarget<T> target);
-	}
-
-	static class DefaultTargeter implements Targeter {
-
-		@Override
-		public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
-							HardCodedTarget<T> target) {
-			return feign.target(target);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	static class HystrixTargeter implements Targeter {
-
-		@Override
-		public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
-							HardCodedTarget<T> target) {
-			if (factory.fallback == void.class
-					|| !(feign instanceof feign.hystrix.HystrixFeign.Builder)) {
-				return feign.target(target);
-			}
-
-			Object fallbackInstance = context.getInstance(factory.name, factory.fallback);
-			if (fallbackInstance == null) {
-				throw new IllegalStateException(String.format(
-						"No fallback instance of type %s found for feign client %s",
-						factory.fallback, factory.name));
-			}
-
-			if (!target.type().isAssignableFrom(factory.fallback)) {
-				throw new IllegalStateException(
-						String.format(
-								"Incompatible fallback instance. Fallback of type %s is not assignable to %s for feign client %s",
-								factory.fallback, target.type(), factory.name));
-			}
-
-			feign.hystrix.HystrixFeign.Builder builder = (feign.hystrix.HystrixFeign.Builder) feign;
-			return builder.target(target, (T) fallbackInstance);
-		}
 	}
 
 }

@@ -19,13 +19,20 @@ package org.springframework.cloud.netflix.feign;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import feign.Client;
 import feign.Feign;
+import feign.httpclient.ApacheHttpClient;
+import feign.okhttp.OkHttpClient;
 
 /**
  * @author Spencer Gibb
@@ -49,4 +56,67 @@ public class FeignAutoConfiguration {
 		context.setConfigurations(this.configurations);
 		return context;
 	}
+
+	@Configuration
+	@ConditionalOnClass(name = "feign.hystrix.HystrixFeign")
+	protected static class HystrixFeignTargeterConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public Targeter feignTargeter() {
+			return new HystrixTargeter();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnMissingClass(name = "feign.hystrix.HystrixFeign")
+	protected static class DefaultFeignTargeterConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public Targeter feignTargeter() {
+			return new DefaultTargeter();
+		}
+	}
+
+	// the following configuration is for alternate feign clients if
+	// ribbon is not on the class path.
+	// see corresponding confiurations in FeignRibbonClientAutoConfiguration
+	// for load balanced ribbon clients.
+	@Configuration
+	@ConditionalOnClass(ApacheHttpClient.class)
+	@ConditionalOnMissingClass(name = "com.netflix.loadbalancer.ILoadBalancer")
+	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
+	protected static class HttpClientFeignConfiguration {
+
+		@Autowired(required = false)
+		private HttpClient httpClient;
+
+		@Bean
+		@ConditionalOnMissingBean(Client.class)
+		public Client feignClient() {
+			if (this.httpClient != null) {
+				return new ApacheHttpClient(this.httpClient);
+			}
+			return new ApacheHttpClient();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(OkHttpClient.class)
+	@ConditionalOnMissingClass(name = "com.netflix.loadbalancer.ILoadBalancer")
+	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
+	protected static class OkHttpFeignConfiguration {
+
+		@Autowired(required = false)
+		private com.squareup.okhttp.OkHttpClient okHttpClient;
+
+		@Bean
+		@ConditionalOnMissingBean(Client.class)
+		public Client feignClient() {
+			if (this.okHttpClient != null) {
+				return new OkHttpClient(this.okHttpClient);
+			}
+			return new OkHttpClient();
+		}
+	}
+
 }
