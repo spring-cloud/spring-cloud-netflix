@@ -91,6 +91,34 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void xForwardedHostHasPort() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+	}
+
+	@Test
+	public void hostHeaderSet() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setAddHostHeader(true);
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("host"));
+	}
+
+	@Test
 	public void prefixRouteAddsHeader() throws Exception {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
