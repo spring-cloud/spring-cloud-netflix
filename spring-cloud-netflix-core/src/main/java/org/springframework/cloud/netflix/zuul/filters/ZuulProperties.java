@@ -79,6 +79,11 @@ public class ZuulProperties {
 	private boolean addProxyHeaders = true;
 
 	/**
+	 * Flag to determine whether the proxy forwards the Host header.
+	 */
+	private boolean addHostHeader = false;
+
+	/**
 	 * Set of service names not to consider for proxying automatically. By default all
 	 * services in the discovery client will be proxied.
 	 */
