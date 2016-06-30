@@ -143,16 +143,16 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
-	public SendErrorFilter sendErrorFilter() {
-		return new SendErrorFilter();
-	}
-
-	@Bean
 	public SendForwardFilter sendForwardFilter() {
 		return new SendForwardFilter();
 	}
 
 	// error filters
+
+	@Bean
+	public SendErrorFilter sendErrorFilter() {
+		return new SendErrorFilter();
+	}
 
 	@Bean
 	public ErrorLoggingFilter errorLoggingFilter() {

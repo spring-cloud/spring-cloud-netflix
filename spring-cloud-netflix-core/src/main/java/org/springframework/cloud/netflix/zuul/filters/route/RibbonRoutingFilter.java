@@ -21,12 +21,12 @@ import java.io.InputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
 
 import com.netflix.client.ClientException;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -79,16 +79,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			ClientHttpResponse response = forward(commandContext);
 			setResponse(response);
 			return response;
-		}
-		catch (ZuulException ex) {
-			context.set(ERROR_STATUS_CODE, ex.nStatusCode);
-			context.set("error.message", ex.errorCause);
-			context.set("error.exception", ex);
-		}
-		catch (Exception ex) {
-			context.set("error.status_code",
-					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", ex);
+		} catch (Exception ex) {
+			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
 	}

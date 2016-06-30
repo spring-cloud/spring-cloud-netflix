@@ -91,24 +91,26 @@ public class SimpleZuulServerApplicationTests {
 
 	@Test
 	public void getOnSelfViaFilterShouldSucceed() {
-		getOnSelfViaFilter();
+		ResponseEntity<String> result = getOnSelfViaFilter();
+		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
 	@Test
 	public void exceptionOccurredInFilterShouldBeLogged() throws Exception {
 		RequestContext.getCurrentContext().set("shouldThrowException");
 
-		getOnSelfViaFilter();
+		ResponseEntity<String> result = getOnSelfViaFilter();
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 
 		assertThat(capture.toString(),
 				containsString("java.lang.IllegalStateException: Thrown by exceptionThrowingFilter"));
 	}
 
-	private void getOnSelfViaFilter() {
+	private ResponseEntity<String> getOnSelfViaFilter() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
 				new HttpEntity<Void>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		return result;
 	}
 }
 

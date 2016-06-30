@@ -34,7 +34,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -70,6 +69,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.util.ReflectionUtils;
 
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -175,11 +175,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
 					params, requestEntity);
 			setResponse(response);
-		}
-		catch (Exception ex) {
-			context.set(ERROR_STATUS_CODE,
-					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", ex);
+		} catch (Exception ex) {
+			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
 	}

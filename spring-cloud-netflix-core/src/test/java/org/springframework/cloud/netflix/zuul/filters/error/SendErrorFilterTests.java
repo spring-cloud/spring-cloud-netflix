@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters.post;
+package org.springframework.cloud.netflix.zuul.filters.error;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+import com.netflix.zuul.monitoring.MonitoringHelper;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,6 +41,7 @@ public class SendErrorFilterTests {
 
 	@Before
 	public void setTestRequestcontext() {
+		MonitoringHelper.initMocks();
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
@@ -58,7 +62,7 @@ public class SendErrorFilterTests {
 		RequestContext context = new RequestContext();
 		context.setRequest(request);
 		context.setResponse(new MockHttpServletResponse());
-		context.set("error.status_code", HttpStatus.NOT_FOUND.value());
+		context.setThrowable(new ZuulException("Not found", HttpStatus.NOT_FOUND.value(), "Not found cause"));
 		RequestContext.testSetCurrentContext(context);
 		SendErrorFilter filter = new SendErrorFilter();
 		filter.setErrorPath("/error");
