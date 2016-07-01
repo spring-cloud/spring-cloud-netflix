@@ -68,7 +68,7 @@ public class FeignAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnMissingClass(name = "feign.hystrix.HystrixFeign")
+	@ConditionalOnMissingClass("feign.hystrix.HystrixFeign")
 	protected static class DefaultFeignTargeterConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
@@ -83,7 +83,7 @@ public class FeignAutoConfiguration {
 	// for load balanced ribbon clients.
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
-	@ConditionalOnMissingClass(name = "com.netflix.loadbalancer.ILoadBalancer")
+	@ConditionalOnMissingClass("com.netflix.loadbalancer.ILoadBalancer")
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientFeignConfiguration {
 
@@ -102,7 +102,7 @@ public class FeignAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(OkHttpClient.class)
-	@ConditionalOnMissingClass(name = "com.netflix.loadbalancer.ILoadBalancer")
+	@ConditionalOnMissingClass("com.netflix.loadbalancer.ILoadBalancer")
 	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
 	protected static class OkHttpFeignConfiguration {
 

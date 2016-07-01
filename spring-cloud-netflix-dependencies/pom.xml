@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>spring-cloud-dependencies-parent</artifactId>
 		<groupId>org.springframework.cloud</groupId>
-		<version>1.1.2.BUILD-SNAPSHOT</version>
+		<version>1.2.0.BUILD-SNAPSHOT</version>
         <relativePath/>
 	</parent>
 	<artifactId>spring-cloud-netflix-dependencies</artifactId>
@@ -15,7 +15,7 @@
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
 		<spring-cloud-commons.version>1.1.2.BUILD-SNAPSHOT</spring-cloud-commons.version>
-		<spring-cloud-config.version>1.1.2.BUILD-SNAPSHOT</spring-cloud-config.version>
+		<spring-cloud-config.version>1.2.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>1.0.3.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.4.8</eureka.version>
