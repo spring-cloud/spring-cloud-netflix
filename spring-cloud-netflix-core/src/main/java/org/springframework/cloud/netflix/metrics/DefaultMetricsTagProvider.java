@@ -14,6 +14,7 @@
 package org.springframework.cloud.netflix.metrics;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +25,6 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerMapping;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Jon Schneider
@@ -49,14 +48,19 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 		}
 
 		String host = request.getURI().getHost();
-
+		if( host == null ) {
+			host = "none";
+		}
+		
 		String strippedUrlTemplate = urlTemplate.replaceAll("^https?://[^/]+/", "");
-		//@formatter:off
-		return ImmutableMap.of("method", request.getMethod().name(),
-				"uri", sanitizeUrlTemplate(strippedUrlTemplate),
-				"status", status, "clientName",
-				host != null ? host : "none");
-		//@formatter:on
+		
+		Map<String, String> tags = new HashMap<>();
+		tags.put("method",     request.getMethod().name());
+		tags.put("uri",        sanitizeUrlTemplate(strippedUrlTemplate));
+		tags.put("status",     status);
+		tags.put("clientName", host);
+		
+		return Collections.unmodifiableMap(tags);
 	}
 
 	@Override
@@ -94,7 +98,7 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 	 * As is, the urlTemplate is not suitable for use with Atlas, as all interactions with
 	 * Atlas take place via query parameters
 	 */
-	private String sanitizeUrlTemplate(String urlTemplate) {
+	protected String sanitizeUrlTemplate(String urlTemplate) {
 		String sanitized = urlTemplate.replaceAll("/", "_").replaceAll("[{}]", "-");
 		if (!StringUtils.hasText(sanitized)) {
 			sanitized = "none";
