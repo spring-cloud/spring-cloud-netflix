@@ -24,7 +24,7 @@
 		<main.basedir>${basedir}</main.basedir>
         <netty.version>4.0.27.Final</netty.version>
 		<jackson.version>2.7.3</jackson.version>
-		<spring-cloud-commons.version>1.1.5.BUILD-SNAPSHOT</spring-cloud-commons.version>
+		<spring-cloud-commons.version>1.2.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>1.2.2.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>Brooklyn.BUILD-SNAPSHOT</spring-cloud-stream.version>
 

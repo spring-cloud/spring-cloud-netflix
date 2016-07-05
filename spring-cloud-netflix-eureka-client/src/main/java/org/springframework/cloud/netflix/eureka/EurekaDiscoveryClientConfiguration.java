@@ -22,9 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.health.HealthAggregator;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.OrderedHealthAggregator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,10 +38,8 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 
-import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
@@ -69,68 +65,35 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	private AtomicInteger port = new AtomicInteger(0);
 
 	@Autowired
-	private CloudEurekaInstanceConfig instanceConfig;
-
-	@Autowired(required = false)
-	private HealthCheckHandler healthCheckHandler;
-
-	@Autowired
 	private ApplicationContext context;
 
 	@Autowired
-	private ApplicationInfoManager applicationInfoManager;
+	private EurekaServiceRegistry serviceRegistry;
 
 	@Autowired
-	private EurekaClient eurekaClient;
+	private EurekaRegistration registration;
 
 	@Override
 	public void start() {
 		// only set the port if the nonSecurePort is 0 and this.port != 0
-		if (this.port.get() != 0 && this.instanceConfig.getNonSecurePort() == 0) {
-			this.instanceConfig.setNonSecurePort(this.port.get());
+		if (this.port.get() != 0 && this.registration.getNonSecurePort() == 0) {
+			this.registration.setNonSecurePort(this.port.get());
 		}
 
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
 		// because of containerPortInitializer below
-		if (!this.running.get() && this.instanceConfig.getNonSecurePort() > 0) {
+		if (!this.running.get() && this.registration.getNonSecurePort() > 0) {
 
-			maybeInitializeClient();
+			this.serviceRegistry.register(this.registration);
 
-			if (log.isInfoEnabled()) {
-				log.info("Registering application " + this.instanceConfig.getAppname()
-						+ " with eureka with status "
-						+ this.instanceConfig.getInitialStatus());
-			}
-
-			this.applicationInfoManager
-					.setInstanceStatus(this.instanceConfig.getInitialStatus());
-
-			if (this.healthCheckHandler != null) {
-				this.eurekaClient.registerHealthCheck(this.healthCheckHandler);
-			}
 			this.context.publishEvent(
-					new InstanceRegisteredEvent<>(this, this.instanceConfig));
+					new InstanceRegisteredEvent<>(this, this.registration.getInstanceConfig()));
 			this.running.set(true);
 		}
 	}
-
-	private void maybeInitializeClient() {
-		// force initialization of possibly scoped proxies
-		this.applicationInfoManager.getInfo();
-		this.eurekaClient.getApplications();
-	}
-
 	@Override
 	public void stop() {
-		if (this.applicationInfoManager.getInfo() != null) {
-
-			if (log.isInfoEnabled()) {
-				log.info("Unregistering application " + this.instanceConfig.getAppname()
-						+ " with eureka with status DOWN");
-			}
-
-			this.applicationInfoManager.setInstanceStatus(InstanceStatus.DOWN);
-		}
+		this.serviceRegistry.deregister(this.registration);
 		this.running.set(false);
 	}
 
@@ -189,7 +152,6 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 	public void onApplicationEvent(ContextClosedEvent event) {
 		// register in case meta data changed
 		stop();
-		this.eurekaClient.shutdown();
 	}
 
 	@Configuration

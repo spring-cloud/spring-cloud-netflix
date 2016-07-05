@@ -16,16 +16,24 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Subclass of {@link DiscoveryClient} that sends a {@link HeartbeatEvent} when
@@ -34,22 +42,55 @@ import com.netflix.discovery.EurekaClientConfig;
  */
 @CommonsLog
 public class CloudEurekaClient extends DiscoveryClient {
+	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
 
 	private final AtomicLong cacheRefreshedCount = new AtomicLong(0);
 
-	private ApplicationContext context;
+	private ApplicationEventPublisher publisher;
+	private Field eurekaTransportField;
+	private ApplicationInfoManager applicationInfoManager;
+	private AtomicReference<EurekaHttpClient> eurekaHttpClient = new AtomicReference<>();
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
-			EurekaClientConfig config, ApplicationContext context) {
-		this(applicationInfoManager, config, null, context);
+							 EurekaClientConfig config, ApplicationEventPublisher publisher) {
+		this(applicationInfoManager, config, null, publisher);
 	}
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
 							 EurekaClientConfig config,
 							 DiscoveryClientOptionalArgs args,
-							 ApplicationContext context) {
+							 ApplicationEventPublisher publisher) {
 		super(applicationInfoManager, config, args);
-		this.context = context;
+		this.applicationInfoManager = applicationInfoManager;
+		this.publisher = publisher;
+		this.eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class, "eurekaTransport");
+		ReflectionUtils.makeAccessible(this.eurekaTransportField);
+	}
+
+	public ApplicationInfoManager getApplicationInfoManager() {
+		return applicationInfoManager;
+	}
+
+	public void cancelOverrideStatus(InstanceInfo info) {
+		getEurekaHttpClient().deleteStatusOverride(info.getAppName(), info.getId(), info);
+	}
+
+	EurekaHttpClient getEurekaHttpClient() {
+		if (this.eurekaHttpClient.get() == null) {
+			try {
+				Object eurekaTransport = this.eurekaTransportField.get(this);
+				Field registrationClientField = ReflectionUtils.findField(eurekaTransport.getClass(), "registrationClient");
+				ReflectionUtils.makeAccessible(registrationClientField);
+				this.eurekaHttpClient.compareAndSet(null, (EurekaHttpClient) registrationClientField.get(eurekaTransport));
+			} catch (IllegalAccessException e) {
+				log.error("error getting EurekaHttpClient", e);
+			}
+		}
+		return this.eurekaHttpClient.get();
+	}
+
+	public void setStatus(InstanceStatus newStatus, InstanceInfo info) {
+		getEurekaHttpClient().statusUpdate(info.getAppName(), info.getId(), newStatus, info);
 	}
 
 	@Override
@@ -57,7 +98,7 @@ public class CloudEurekaClient extends DiscoveryClient {
 		if (this.cacheRefreshedCount != null) { //might be called during construction and will be null
 			long newCount = this.cacheRefreshedCount.incrementAndGet();
 			log.trace("onCacheRefreshed called with count: " + newCount);
-			this.context.publishEvent(new HeartbeatEvent(this, newCount));
+			this.publisher.publishEvent(new HeartbeatEvent(this, newCount));
 		}
 	}
 }
