@@ -36,7 +36,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 public class RibbonLoadBalancingHttpClient
 		extends
 		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
-	private final HttpClient delegate = HttpClientBuilder.create().build();
+	private final HttpClient delegate = HttpClientBuilder.create().disableCookieManagement().build();
 
 	public RibbonLoadBalancingHttpClient() {
 		super();
