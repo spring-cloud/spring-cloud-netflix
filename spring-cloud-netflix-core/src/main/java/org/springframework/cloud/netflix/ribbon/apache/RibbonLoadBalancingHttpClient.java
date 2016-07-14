@@ -39,7 +39,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 public class RibbonLoadBalancingHttpClient
 		extends
 		AbstractLoadBalancerAwareClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
-	private final HttpClient delegate = HttpClientBuilder.create().build();
+	private final HttpClient delegate = HttpClientBuilder.create().disableCookieManagement().build();
 
 	private int connectTimeout;
 

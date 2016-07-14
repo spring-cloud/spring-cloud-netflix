@@ -16,9 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
@@ -28,6 +34,8 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
@@ -43,15 +51,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.WebUtils;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SampleHttpClientZuulProxyApplication.class)
 @WebIntegrationTest(randomPort = true, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
-		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**" })
+		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
+		"zuul.routes.singleton: /singleton/**", "zuul.routes.singleton.sensitiveHeaders: "})
 @DirtiesContext
 public class SampleZuulProxyWithHttpClientTests extends ZuulProxyTestBase {
 
@@ -100,11 +116,62 @@ public class SampleZuulProxyWithHttpClientTests extends ZuulProxyTestBase {
 	}
 
 	@Test
+	public void ribbonLoadBalancingHttpClientCookiePolicy() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+						"http://localhost:" + this.port + "/simple/downstream_cookie", HttpMethod.POST,
+						new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Cookie 434354454!", result.getBody());
+		assertNull(result.getHeaders().getFirst(SET_COOKIE));
+
+
+		// if new instance of RibbonLoadBalancingHttpClient is getting created every time
+		// and HttpClient is not reused then there are no concerns for the shared cookie storage
+		// but since https://github.com/spring-cloud/spring-cloud-netflix/issues/1150 is on the way a
+		result = new TestRestTemplate().exchange(
+						"http://localhost:" + this.port + "/singleton/downstream_cookie", HttpMethod.POST,
+						new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Cookie 434354454!", result.getBody());
+		assertEquals("jsessionid=434354454", result.getHeaders().getFirst(SET_COOKIE));
+
+		result = new TestRestTemplate().exchange(
+						"http://localhost:" + this.port + "/singleton/downstream_cookie", HttpMethod.GET,
+						new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Cookie null!", result.getBody());
+	}
+	
+	@Test
 	public void ribbonCommandFactoryOverridden() {
 		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
 	}
 
+}
+
+
+// Load balancer with fixed server list and defined ribbon rest client
+@Configuration
+class SingletonRibbonClientConfiguration {
+
+	@Value("${local.server.port}")
+	private int port;
+
+	@Bean
+	public ServerList<Server> ribbonServerList() {
+		return new StaticServerList<>(new Server("localhost", this.port));
+	}
+
+	@Bean
+	public RibbonLoadBalancingHttpClient ribbonClient(IClientConfig config, ILoadBalancer loadBalancer, RetryHandler retryHandler)
+	{
+		final RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient();
+		client.setLoadBalancer(loadBalancer);
+		client.setRetryHandler(retryHandler);
+		client.initWithNiwsConfig(config);
+		return client;
+	}
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -114,7 +181,8 @@ public class SampleZuulProxyWithHttpClientTests extends ZuulProxyTestBase {
 @EnableZuulProxy
 @RibbonClients({
 		@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
-		@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
+		@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class),
+		@RibbonClient(name = "singleton", configuration = SingletonRibbonClientConfiguration.class)})
 class SampleHttpClientZuulProxyApplication extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 	public static void main(final String[] args) {
@@ -124,6 +192,20 @@ class SampleHttpClientZuulProxyApplication extends ZuulProxyTestBase.AbstractZuu
 	@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
 	public String patch(@PathVariable final String id, @RequestBody final String body) {
 		return "Patched " + id + "!";
+	}
+
+	@RequestMapping(value = "/downstream_cookie", method = RequestMethod.POST)
+	public String setDownstreamCookie(HttpServletResponse response)
+	{
+		response.addCookie(new Cookie("jsessionid", "434354454"));
+		return "Cookie 434354454!";
+	}
+
+	@RequestMapping(value = "/downstream_cookie", method = RequestMethod.GET)
+	public String readDownstreamCookie(HttpServletRequest request)
+	{
+		final Cookie cookie = WebUtils.getCookie(request, "jsessionid");
+		return "Cookie " + cookie + "!";
 	}
 
 	@Bean
