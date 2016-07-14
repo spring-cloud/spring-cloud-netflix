@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.metrics;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -32,11 +34,14 @@ import org.springframework.util.ClassUtils;
  */
 public class ServoEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
+	private static final Log log = LogFactory.getLog(ServoEnvironmentPostProcessor.class);
+
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment,
 			SpringApplication application) {
 		if (ClassUtils.isPresent("com.netflix.servo.monitor.Monitors", null)) {
 			// Make spring AOP default to target class so RestTemplates can be customized
+			log.debug("Setting 'spring.aop.proxyTargetClass=true' to make spring AOP default to target class so RestTemplates can be customized");
 			addDefaultProperty(environment, "spring.aop.proxyTargetClass", "true");
 		}
 	}
