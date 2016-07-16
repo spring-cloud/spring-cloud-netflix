@@ -190,8 +190,6 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 
 	private void validate(Map<String, Object> attributes) {
 		if (StringUtils.hasText((String) attributes.get("value"))) {
-			Assert.isTrue(!StringUtils.hasText((String) attributes.get("name")),
-					"Either name or value can be specified, but not both");
 			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
 					"Either name (serviceId) or value can be specified, but not both");
 		}
