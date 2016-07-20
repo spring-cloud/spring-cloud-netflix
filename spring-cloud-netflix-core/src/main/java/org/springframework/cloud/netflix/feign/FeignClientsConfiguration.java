@@ -76,7 +76,7 @@ public class FeignClientsConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public Contract feignContract(ConversionService feignConversionService) {
+	public Contract feignContract(FormattingConversionService feignConversionService) {
 		return new SpringMvcContract(this.parameterProcessors, feignConversionService);
 	}
 
