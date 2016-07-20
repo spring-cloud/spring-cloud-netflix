@@ -33,6 +33,8 @@ import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEven
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.error.ReleaseResourcesErrorFilter;
+import org.springframework.cloud.netflix.zuul.filters.post.PrePostFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
@@ -144,6 +146,16 @@ public class ZuulConfiguration {
 	@Bean
 	public SendErrorFilter sendErrorFilter() {
 		return new SendErrorFilter();
+	}
+
+	@Bean
+	public PrePostFilter prePostFilter() {
+		return new PrePostFilter();
+	}
+
+	@Bean
+	public ReleaseResourcesErrorFilter resourcesCleanupilter() {
+		return new ReleaseResourcesErrorFilter();
 	}
 
 	@Bean
