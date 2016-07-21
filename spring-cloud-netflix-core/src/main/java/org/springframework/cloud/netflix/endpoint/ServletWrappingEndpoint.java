@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.endpoint;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,8 +61,8 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 		this.controller.setApplicationContext(applicationContext);
 	}
 
-	protected ServletWrappingEndpoint(Class<?> servletClass, String servletName,
-			String path, boolean sensitive, boolean enabled) {
+	protected ServletWrappingEndpoint(Class<? extends Servlet> servletClass,
+			String servletName, String path, boolean sensitive, boolean enabled) {
 		this.controller.setServletClass(servletClass);
 		this.controller.setServletName(servletName);
 		this.path = path;
@@ -76,12 +77,13 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	public ServletWrappingController getController() {
-		return controller;
+		return this.controller;
 	}
+
 	@Override
 	public String getPath() {
 		return this.path;
