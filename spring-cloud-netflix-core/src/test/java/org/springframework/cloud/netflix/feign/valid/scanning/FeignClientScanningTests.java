@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -48,9 +48,8 @@ import feign.Client;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FeignClientScanningTests.Application.class)
-@WebIntegrationTest(randomPort = true, value = { "spring.application.name=feignclienttest",
-	"feign.httpclient.enabled=false"})
+@SpringBootTest(classes = FeignClientScanningTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=feignclienttest", "feign.httpclient.enabled=false" })
 @DirtiesContext
 public class FeignClientScanningTests {
 
@@ -62,8 +61,9 @@ public class FeignClientScanningTests {
 
 	@Autowired
 	private TestClientByKey testClientByKey;
-    
+
 	@Autowired
+	@SuppressWarnings("unused")
 	private Client feignClient;
 
 	@FeignClient("localapp")
@@ -77,7 +77,7 @@ public class FeignClientScanningTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		String getHello();
 	}
-    
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
@@ -90,9 +90,10 @@ public class FeignClientScanningTests {
 		}
 
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclienttest",
-					"management.contextPath=/admin").run(args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=feignclienttest",
+							"management.contextPath=/admin")
+					.run(args);
 		}
 	}
 
@@ -109,7 +110,7 @@ public class FeignClientScanningTests {
 		assertNotNull("hello was null", hello);
 		assertEquals("first hello didn't match", "hello world 1", hello);
 	}
-    
+
 	// Load balancer with fixed server list for "local" pointing to localhost
 	@Configuration
 	public static class LocalRibbonClientConfiguration {

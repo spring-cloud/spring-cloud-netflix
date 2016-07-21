@@ -31,8 +31,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -55,8 +55,7 @@ import lombok.NoArgsConstructor;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FeignHttpClientUrlTests.TestConfig.class)
-@WebIntegrationTest(value = {
+@SpringBootTest(classes = FeignHttpClientUrlTests.TestConfig.class, webEnvironment = WebEnvironment.DEFINED_PORT, value = {
 		"spring.application.name=feignclienturltest", "feign.hystrix.enabled=false",
 		"feign.okhttp.enabled=false" })
 @DirtiesContext
@@ -98,12 +97,15 @@ public class FeignHttpClientUrlTests {
 		public Targeter feignTargeter() {
 			return new Targeter() {
 				@Override
-				public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context, Target.HardCodedTarget<T> target) {
-					Field field = ReflectionUtils.findField(Feign.Builder.class, "client");
+				public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign,
+						FeignContext context, Target.HardCodedTarget<T> target) {
+					Field field = ReflectionUtils.findField(Feign.Builder.class,
+							"client");
 					ReflectionUtils.makeAccessible(field);
 					Client client = (Client) ReflectionUtils.getField(field, feign);
 					if (target.name().equals("localappurl")) {
-						assertThat("client was wrong type", client, is(instanceOf(ApacheHttpClient.class)));
+						assertThat("client was wrong type", client,
+								is(instanceOf(ApacheHttpClient.class)));
 					}
 					return feign.target(target);
 				}

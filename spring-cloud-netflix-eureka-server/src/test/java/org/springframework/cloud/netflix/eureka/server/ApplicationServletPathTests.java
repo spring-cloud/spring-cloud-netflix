@@ -27,9 +27,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.eureka.server.ApplicationServletPathTests.Application;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -39,13 +39,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=eureka",
-		"server.servletPath=/servlet" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=eureka", "server.servletPath=/servlet" })
 public class ApplicationServletPathTests {
 
 	@Value("${local.server.port}")
@@ -56,9 +53,10 @@ public class ApplicationServletPathTests {
 	@EnableEurekaServer
 	protected static class Application {
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka", "server.servletPath=/servlet").run(
-					args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=eureka",
+							"server.servletPath=/servlet")
+					.run(args);
 		}
 	}
 
@@ -80,8 +78,8 @@ public class ApplicationServletPathTests {
 		assertTrue(body.contains("eureka/js"));
 		assertTrue(body.contains("eureka/css"));
 		// The "DS Replicas"
-		assertTrue(body
-				.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
+		assertTrue(
+				body.contains("<a href=\"http://localhost:8761/eureka/\">localhost</a>"));
 	}
 
 	@Test
@@ -106,9 +104,9 @@ public class ApplicationServletPathTests {
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().exchange("http://localhost:"
-				+ this.port + "/servlet/env", HttpMethod.GET, new HttpEntity<>(
-				"parameters", headers), Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/servlet/env", HttpMethod.GET,
+				new HttpEntity<>("parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

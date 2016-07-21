@@ -16,11 +16,13 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
@@ -34,13 +36,11 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TestConfiguration.class)
+@SpringBootTest(classes = TestConfiguration.class)
 @DirtiesContext
 public class RibbonClientsPreprocessorIntegrationTests {
 
@@ -54,21 +54,19 @@ public class RibbonClientsPreprocessorIntegrationTests {
 
 	@SuppressWarnings("unchecked")
 	private ZoneAwareLoadBalancer<Server> getLoadBalancer() {
-		return (ZoneAwareLoadBalancer<Server>) this.factory
-				.getLoadBalancer("foo");
+		return (ZoneAwareLoadBalancer<Server>) this.factory.getLoadBalancer("foo");
 	}
 
 	@Test
 	public void serverListFilterOverride() throws Exception {
-		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(getLoadBalancer().getFilter())
-						.getZone());
+		assertEquals("myTestZone", ZonePreferenceServerListFilter.class
+				.cast(getLoadBalancer().getFilter()).getZone());
 	}
 
 	@Configuration
 	@RibbonClients(@RibbonClient(name = "foo", configuration = FooConfiguration.class))
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class})
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}
 

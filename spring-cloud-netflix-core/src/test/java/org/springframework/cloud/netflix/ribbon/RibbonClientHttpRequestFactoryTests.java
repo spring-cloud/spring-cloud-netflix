@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URI;
 
 import org.junit.Rule;
@@ -25,8 +28,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,17 +54,13 @@ import com.netflix.loadbalancer.ServerList;
 
 import lombok.SneakyThrows;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RibbonClientHttpRequestFactoryTests.App.class)
-@WebIntegrationTest(value = { "spring.application.name=ribbonclienttest",
-		"spring.jmx.enabled=true", "spring.cloud.netflix.metrics.enabled=false",
-		"ribbon.http.client.enabled=true" }, randomPort = true)
+@SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
+		"spring.cloud.netflix.metrics.enabled=false", "ribbon.http.client.enabled=true" })
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
@@ -81,16 +80,16 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@Test
 	public void vanillaRequestWorks() {
-		ResponseEntity<String> response = this.restTemplate.getForEntity(
-				"http://simple/", String.class);
+		ResponseEntity<String> response = this.restTemplate.getForEntity("http://simple/",
+				String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello", response.getBody());
 	}
 
 	@Test
 	public void requestWithPathParamWorks() {
-		ResponseEntity<String> response = this.restTemplate.getForEntity(
-				"http://simple/path/{param}", String.class, "world");
+		ResponseEntity<String> response = this.restTemplate
+				.getForEntity("http://simple/path/{param}", String.class, "world");
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}
@@ -114,16 +113,16 @@ public class RibbonClientHttpRequestFactoryTests {
 
 	@Test
 	public void requestWithPostWorks() {
-		ResponseEntity<String> response = this.restTemplate.postForEntity(
-				"http://simple/post", "world", String.class);
+		ResponseEntity<String> response = this.restTemplate
+				.postForEntity("http://simple/post", "world", String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}
 
 	@Test
 	public void requestWithEmptyPostWorks() {
-		ResponseEntity<String> response = this.restTemplate.postForEntity(
-				"http://simple/emptypost", "", String.class);
+		ResponseEntity<String> response = this.restTemplate
+				.postForEntity("http://simple/emptypost", "", String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello empty", response.getBody());
 	}
@@ -133,8 +132,8 @@ public class RibbonClientHttpRequestFactoryTests {
 	public void requestWithHeaderWorks() {
 		RequestEntity<Void> entity = RequestEntity.get(new URI("http://simple/header"))
 				.header("X-Param", "world").build();
-		ResponseEntity<String> response = this.restTemplate
-				.exchange(entity, String.class);
+		ResponseEntity<String> response = this.restTemplate.exchange(entity,
+				String.class);
 		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
 		assertEquals("wrong response body", "hello world", response.getBody());
 	}

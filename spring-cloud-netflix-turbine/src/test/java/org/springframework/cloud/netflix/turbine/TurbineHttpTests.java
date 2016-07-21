@@ -20,23 +20,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = TurbineHttpTests.TurbineHttpSampleApplication.class)
-@WebIntegrationTest(randomPort = true)
+@SpringBootTest(classes = TurbineHttpTests.TurbineHttpSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TurbineHttpTests {
 
 	@EnableAutoConfiguration
 	@EnableTurbine
 	public static class TurbineHttpSampleApplication {
 		public static void main(String[] args) {
-			new SpringApplicationBuilder().sources(TurbineHttpSampleApplication.class).run(args);
+			new SpringApplicationBuilder().sources(TurbineHttpSampleApplication.class)
+					.run(args);
 		}
 	}
 

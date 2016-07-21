@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.rx;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -24,15 +28,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,10 +46,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import rx.Observable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-
 /**
  * Tests the {@link ObservableSseEmitter} class.
  *
@@ -54,88 +53,91 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
  * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ObservableSseEmitterTest.Application.class)
-@WebAppConfiguration
-@IntegrationTest({"server.port=0"})
+@SpringBootTest(classes = ObservableSseEmitterTest.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class ObservableSseEmitterTest {
 
-    @Value("${local.server.port}")
-    private int port = 0;
+	@Value("${local.server.port}")
+	private int port = 0;
 
-    private TestRestTemplate restTemplate = new TestRestTemplate();
+	private TestRestTemplate restTemplate = new TestRestTemplate();
 
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-    protected static class Application {
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	protected static class Application {
 
 		// tag::rx_observable_sse[]
-        @RequestMapping(method = RequestMethod.GET, value = "/sse")
-        public SseEmitter single() {
-            return RxResponse.sse(Observable.just("single value"));
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/sse")
+		public SseEmitter single() {
+			return RxResponse.sse(Observable.just("single value"));
+		}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/messages")
-        public SseEmitter messages() {
-            return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/messages")
+		public SseEmitter messages() {
+			return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
+		}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/events")
-        public SseEmitter event() {
-            return RxResponse.sse(APPLICATION_JSON_UTF8, Observable.just(
-                    new EventDto("Spring io", getDate(2016, 5, 19)),
-                    new EventDto("SpringOnePlatform", getDate(2016, 8, 1))
-            ));
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/events")
+		public SseEmitter event() {
+			return RxResponse.sse(APPLICATION_JSON_UTF8,
+					Observable.just(new EventDto("Spring io", getDate(2016, 5, 19)),
+							new EventDto("SpringOnePlatform", getDate(2016, 8, 1))));
+		}
 		// end::rx_observable_sse[]
-    }
+	}
 
-    @Test
-    public void shouldRetrieveSse() {
+	@Test
+	public void shouldRetrieveSse() {
 
-        // when
-        ResponseEntity<String> response = restTemplate.getForEntity(path("/sse"), String.class);
+		// when
+		ResponseEntity<String> response = restTemplate.getForEntity(path("/sse"),
+				String.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("data:single value\n\n", response.getBody());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("data:single value\n\n", response.getBody());
+	}
 
-    @Test
-    public void shouldRetrieveSseWithMultipleMessages() {
+	@Test
+	public void shouldRetrieveSseWithMultipleMessages() {
 
-        // when
-        ResponseEntity<String> response = restTemplate.getForEntity(path("/messages"), String.class);
+		// when
+		ResponseEntity<String> response = restTemplate.getForEntity(path("/messages"),
+				String.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("data:message 1\n\ndata:message 2\n\ndata:message 3\n\n", response.getBody());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("data:message 1\n\ndata:message 2\n\ndata:message 3\n\n",
+				response.getBody());
+	}
 
-    @Test
-    public void shouldRetrieveJsonOverSseWithMultipleMessages() {
+	@Test
+	public void shouldRetrieveJsonOverSseWithMultipleMessages() {
 
-        // when
-        ResponseEntity<String> response = restTemplate.getForEntity(path("/events"), String.class);
+		// when
+		ResponseEntity<String> response = restTemplate.getForEntity(path("/events"),
+				String.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("data:{\"name\":\"Spring io\",\"date\":1466337600000}\n\ndata:{\"name\":\"SpringOnePlatform\",\"date\":1472731200000}\n\n", response.getBody());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(
+				"data:{\"name\":\"Spring io\",\"date\":1466337600000}\n\ndata:{\"name\":\"SpringOnePlatform\",\"date\":1472731200000}\n\n",
+				response.getBody());
+	}
 
-    private String path(String context) {
-        return String.format("http://localhost:%d%s", port, context);
-    }
+	private String path(String context) {
+		return String.format("http://localhost:%d%s", port, context);
+	}
 
-    private static Date getDate(int year, int month, int day) {
-        GregorianCalendar calendar = new GregorianCalendar(year, month, day, 12, 0, 0);
-        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return calendar.getTime();
-    }
+	private static Date getDate(int year, int month, int day) {
+		GregorianCalendar calendar = new GregorianCalendar(year, month, day, 12, 0, 0);
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		return calendar.getTime();
+	}
 
 	/**
 	 * A simple DTO used for testing purpose.
@@ -149,7 +151,8 @@ public class ObservableSseEmitterTest {
 		private final Date date;
 
 		@JsonCreator
-		public EventDto(@JsonProperty("name") String name, @JsonProperty("date") Date date) {
+		public EventDto(@JsonProperty("name") String name,
+				@JsonProperty("date") Date date) {
 			this.name = name;
 			this.date = date;
 		}

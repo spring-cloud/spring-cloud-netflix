@@ -1,5 +1,8 @@
 package org.springframework.cloud.netflix.resttemplate;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,8 +15,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
@@ -39,12 +42,8 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerStats;
 import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RestTemplateRetryTest.Application.class)
-@WebIntegrationTest(randomPort = true, value = {
+@SpringBootTest(classes = RestTemplateRetryTest.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=resttemplatetest",
 		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
 		"badClients.ribbon.MaxAutoRetries=0",

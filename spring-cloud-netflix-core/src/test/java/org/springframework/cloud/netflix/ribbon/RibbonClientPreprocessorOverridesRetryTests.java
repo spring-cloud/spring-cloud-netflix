@@ -21,20 +21,18 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
@@ -46,8 +44,8 @@ import com.netflix.client.config.IClientConfig;
  * @author Tyler Van Gorder
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RibbonClientPreprocessorOverridesRetryTests.TestConfiguration.class)
-@TestPropertySource(properties = { "customRetry.ribbon.MaxAutoRetries=0",
+@SpringBootTest(classes = RibbonClientPreprocessorOverridesRetryTests.TestConfiguration.class, value = {
+		"customRetry.ribbon.MaxAutoRetries=0",
 		"customRetry.ribbon.MaxAutoRetriesNextServer=1",
 		"customRetry.ribbon.OkToRetryOnAllOperations=true" })
 @DirtiesContext
@@ -64,14 +62,14 @@ public class RibbonClientPreprocessorOverridesRetryTests {
 				context.getRetryHandler());
 		Assert.isTrue(context.getRetryHandler().getMaxRetriesOnSameServer() == 0);
 		Assert.isTrue(context.getRetryHandler().getMaxRetriesOnNextServer() == 1);
-		Assert.isTrue(context.getRetryHandler().isCircuitTrippingException(
-				new UnknownHostException("Unknown Host")));
+		Assert.isTrue(context.getRetryHandler()
+				.isCircuitTrippingException(new UnknownHostException("Unknown Host")));
 	}
 
 	@Configuration
 	@RibbonClient(name = "customRetry", configuration = RetryRibbonConfiguration.class)
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
+	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+			RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}
 
@@ -87,18 +85,22 @@ class RetryRibbonConfiguration {
 	class CustomRetryHandler extends DefaultLoadBalancerRetryHandler {
 
 		@SuppressWarnings("unchecked")
-		private List<Class<? extends Throwable>> retriable = new ArrayList(){{
-			add(UnknownHostException.class);
-			add(ConnectException.class);
-			add(SocketTimeoutException.class);
-		}};
+		private List<Class<? extends Throwable>> retriable = new ArrayList() {
+			{
+				add(UnknownHostException.class);
+				add(ConnectException.class);
+				add(SocketTimeoutException.class);
+			}
+		};
 
 		@SuppressWarnings("unchecked")
-		private List<Class<? extends Throwable>> circuitRelated = new ArrayList(){{
-			add(UnknownHostException.class);
-			add(SocketException.class);
-			add(SocketTimeoutException.class);
-		}};
+		private List<Class<? extends Throwable>> circuitRelated = new ArrayList() {
+			{
+				add(UnknownHostException.class);
+				add(SocketException.class);
+				add(SocketTimeoutException.class);
+			}
+		};
 
 		CustomRetryHandler(IClientConfig config) {
 			super(config);
