@@ -40,6 +40,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.ClassMetadata;
@@ -154,6 +155,8 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 					Map<String, Object> attributes = annotationMetadata
 							.getAnnotationAttributes(
 									FeignClient.class.getCanonicalName());
+					// Spring 4.2 didn't do this for us. With 4.3 it's idempotent.
+					attributes = AnnotationAttributes.fromMap(attributes);
 
 					String name = getClientName(attributes);
 					registerClientConfiguration(registry, name,
@@ -192,10 +195,6 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		if (StringUtils.hasText((String) attributes.get("value"))) {
 			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
 					"Either name (serviceId) or value can be specified, but not both");
-		}
-		if (StringUtils.hasText((String) attributes.get("name"))) {
-			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
-					"Either name or serviceId can be specified, but not both");
 		}
 	}
 
