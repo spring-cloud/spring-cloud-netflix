@@ -40,6 +40,50 @@ public class FeignClientValidationTests {
 	public ExpectedException expected = ExpectedException.none();
 
 	@Test
+	public void testNameAndValue() {
+		this.expected.expectMessage("only one is permitted");
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				NameAndValueConfiguration.class);
+		assertNotNull(context.getBean(NameAndValueConfiguration.Client.class));
+		context.close();
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = NameAndValueConfiguration.Client.class)
+	protected static class NameAndValueConfiguration {
+
+		@FeignClient(value = "foo", name = "bar")
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+	}
+
+	@Test
+	public void testServiceIdAndValue() {
+		this.expected.expectMessage("only one is permitted");
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				NameAndValueConfiguration.class);
+		assertNotNull(context.getBean(NameAndServiceIdConfiguration.Client.class));
+		context.close();
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = NameAndServiceIdConfiguration.Client.class)
+	protected static class NameAndServiceIdConfiguration {
+
+		@FeignClient(serviceId = "foo", name = "bar")
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+	}
+
+	@Test
 	public void testNotLegalHostname() {
 		this.expected.expectMessage("not legal hostname (foo_bar)");
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
@@ -115,7 +159,8 @@ public class FeignClientValidationTests {
 			return new Dummy();
 		}
 
-		class Dummy { }
+		class Dummy {
+		}
 
 	}
 }

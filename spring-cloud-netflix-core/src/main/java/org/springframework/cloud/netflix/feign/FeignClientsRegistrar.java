@@ -155,8 +155,6 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 					Map<String, Object> attributes = annotationMetadata
 							.getAnnotationAttributes(
 									FeignClient.class.getCanonicalName());
-					// Spring 4.2 didn't do this for us. With 4.3 it's idempotent.
-					attributes = AnnotationAttributes.fromMap(attributes);
 
 					String name = getClientName(attributes);
 					registerClientConfiguration(registry, name,
@@ -192,10 +190,9 @@ public class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	}
 
 	private void validate(Map<String, Object> attributes) {
-		if (StringUtils.hasText((String) attributes.get("value"))) {
-			Assert.isTrue(!StringUtils.hasText((String) attributes.get("serviceId")),
-					"Either name (serviceId) or value can be specified, but not both");
-		}
+		AnnotationAttributes annotation = AnnotationAttributes.fromMap(attributes);
+		// This blows up if an aliased property is overspecified
+		annotation.getAliasedString("name", FeignClient.class, null);
 	}
 
 	private String getName(Map<String, Object> attributes) {
