@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +38,9 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerStats;
 import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = RestTemplateRetryTest.Application.class)
@@ -77,13 +79,13 @@ public class RestTemplateRetryTest {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/good")
 		public int good() {
-			int lValue = hits.getAndIncrement();
+			int lValue = this.hits.getAndIncrement();
 			return lValue;
 		}
 
 		@RequestMapping(method = RequestMethod.GET, value = "/timeout")
 		public int timeout() throws Exception {
-			int lValue = retryHits.getAndIncrement();
+			int lValue = this.retryHits.getAndIncrement();
 
 			// Force the good server to have 2 consecutive errors a couple of times.
 			if (lValue == 2 || lValue == 3 || lValue == 5 || lValue == 6) {
@@ -107,7 +109,7 @@ public class RestTemplateRetryTest {
 	@Before
 	public void setup() throws Exception {
 		// Force Ribbon configuration by making one call.
-		testClient.getForObject("http://badClients/ping", Integer.class);
+		this.testClient.getForObject("http://badClients/ping", Integer.class);
 	}
 
 	@Test
@@ -129,7 +131,7 @@ public class RestTemplateRetryTest {
 		// A null pointer should NOT trigger a circuit breaker.
 		for (int index = 0; index < 10; index++) {
 			try {
-				testClient.getForObject("http://badClients/null", Integer.class);
+				this.testClient.getForObject("http://badClients/null", Integer.class);
 			}
 			catch (Exception exception) {
 			}
@@ -138,9 +140,9 @@ public class RestTemplateRetryTest {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		Assert.isTrue(badServer1Stats.isCircuitBreakerTripped());
-		Assert.isTrue(badServer2Stats.isCircuitBreakerTripped());
-		Assert.isTrue(goodServerStats.getTotalRequestsCount() == targetConnectionCount);
+		assertTrue(badServer1Stats.isCircuitBreakerTripped());
+		assertTrue(badServer2Stats.isCircuitBreakerTripped());
+		assertEquals(targetConnectionCount, goodServerStats.getTotalRequestsCount());
 
 		// Wait for any timeout thread to finish.
 
@@ -176,17 +178,17 @@ public class RestTemplateRetryTest {
 		int hits = 0;
 
 		for (int index = 0; index < 20; index++) {
-			hits = testClient.getForObject("http://badClients/good", Integer.class);
+			hits = this.testClient.getForObject("http://badClients/good", Integer.class);
 		}
 
 		logServerStats(LocalBadClientConfiguration.badServer);
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		Assert.isTrue(badServer1Stats.isCircuitBreakerTripped());
-		Assert.isTrue(badServer2Stats.isCircuitBreakerTripped());
-		Assert.isTrue(goodServerStats.getTotalRequestsCount() == targetConnectionCount);
-		Assert.isTrue(hits == 20);
+		assertTrue(badServer1Stats.isCircuitBreakerTripped());
+		assertTrue(badServer2Stats.isCircuitBreakerTripped());
+		assertEquals(targetConnectionCount, goodServerStats.getTotalRequestsCount());
+		assertEquals(20, hits);
 		System.out.println("Retry Hits: " + hits);
 	}
 
@@ -204,24 +206,25 @@ public class RestTemplateRetryTest {
 
 		badServer1Stats.clearSuccessiveConnectionFailureCount();
 		badServer2Stats.clearSuccessiveConnectionFailureCount();
-		Assert.isTrue(!badServer1Stats.isCircuitBreakerTripped());
-		Assert.isTrue(!badServer2Stats.isCircuitBreakerTripped());
+		assertTrue(!badServer1Stats.isCircuitBreakerTripped());
+		assertTrue(!badServer2Stats.isCircuitBreakerTripped());
 
 		int hits = 0;
 
 		for (int index = 0; index < 15; index++) {
-			hits = testClient.getForObject("http://badClients/timeout", Integer.class);
+			hits = this.testClient.getForObject("http://badClients/timeout",
+					Integer.class);
 		}
 		logServerStats(LocalBadClientConfiguration.badServer);
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		Assert.isTrue(badServer1Stats.isCircuitBreakerTripped());
-		Assert.isTrue(badServer2Stats.isCircuitBreakerTripped());
-		Assert.isTrue(!goodServerStats.isCircuitBreakerTripped());
+		assertTrue(badServer1Stats.isCircuitBreakerTripped());
+		assertTrue(badServer2Stats.isCircuitBreakerTripped());
+		assertTrue(!goodServerStats.isCircuitBreakerTripped());
 
 		// 15 + 4 timeouts. See the endpoint for timeout conditions.
-		Assert.isTrue(hits == 19);
+		assertEquals(19, hits);
 
 		// Wait for any timeout thread to finish.
 		Thread.sleep(600);
@@ -266,12 +269,8 @@ class LocalBadClientConfiguration {
 		badServer = new Server("mybadhost", 10001);
 		badServer2 = new Server("localhost", -1);
 
-		balancer = LoadBalancerBuilder
-				.newBuilder()
-				.withClientConfig(config)
-				.withRule(rule)
-				.withPing(ping)
-				.buildFixedServerListLoadBalancer(
+		balancer = LoadBalancerBuilder.newBuilder().withClientConfig(config)
+				.withRule(rule).withPing(ping).buildFixedServerListLoadBalancer(
 						Arrays.asList(badServer, badServer2, goodServer));
 		return balancer;
 	}
@@ -283,8 +282,8 @@ class LocalBadClientConfiguration {
 
 	static class OverrideRetryHandler extends HttpClientLoadBalancerErrorHandler {
 		public OverrideRetryHandler() {
-			circuitRelated.add(UnknownHostException.class);
-			retriable.add(UnknownHostException.class);
+			this.circuitRelated.add(UnknownHostException.class);
+			this.retriable.add(UnknownHostException.class);
 
 		}
 	}
