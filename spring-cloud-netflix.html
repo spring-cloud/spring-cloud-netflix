@@ -697,14 +697,14 @@ public EurekaInstanceConfigBean eurekaInstanceConfig() {
 <div class="content">
 <pre>eureka:
   instance:
-    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}</pre>
+    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>With this metadata, and multiple service instances deployed on
 localhost, the random value will kick in there to make the instance
-unique. In Cloudfoundry the <code>spring.application.instance_id</code> will be
-populated automatically in a Spring Boot Actuator application, so the
+unique. In Cloudfoundry the <code>vcap.application.instance_id</code> will be
+populated automatically in a Spring Boot application, so the
 random value will not be needed.</p>
 </div>
 </div>
@@ -2821,7 +2821,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-06-11 09:55:56 UTC
+Last updated 2016-07-27 19:59:01 UTC
 </div>
 </div>
 </body>
