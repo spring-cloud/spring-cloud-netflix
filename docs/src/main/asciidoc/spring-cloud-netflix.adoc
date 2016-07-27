@@ -215,13 +215,13 @@ Using Spring Cloud you can override this by providing a unique identifier in `eu
 ----
 eureka:
   instance:
-    instanceId: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
 ----
 
 With this metadata, and multiple service instances deployed on
 localhost, the random value will kick in there to make the instance
-unique. In Cloudfoundry the `spring.application.instance_id` will be
-populated automatically in a Spring Boot Actuator application, so the
+unique. In Cloudfoundry the `vcap.application.instance_id` will be
+populated automatically in a Spring Boot application, so the
 random value will not be needed.
 
 === Using the EurekaClient
