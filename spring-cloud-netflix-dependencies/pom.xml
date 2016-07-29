@@ -19,7 +19,7 @@
 		<spring-cloud-stream.version>1.0.3.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.4.10</eureka.version>
-		<feign.version>8.17.0</feign.version>
+		<feign.version>9.0.0</feign.version>
 		<hystrix.version>1.5.3</hystrix.version>
 		<ribbon.version>2.2.0</ribbon.version>
 		<servo.version>0.10.1</servo.version>
@@ -302,27 +302,27 @@
 				<version>1.4.2</version>
 			</dependency>
 			<dependency>
-				<groupId>com.netflix.feign</groupId>
+				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-core</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.netflix.feign</groupId>
+				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-slf4j</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.netflix.feign</groupId>
+				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-httpclient</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.netflix.feign</groupId>
+				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-hystrix</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.netflix.feign</groupId>
+				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-okhttp</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
