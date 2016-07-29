@@ -82,27 +82,27 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-core</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-slf4j</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-httpclient</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-hystrix</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-okhttp</artifactId>
 			<optional>true</optional>
 		</dependency>

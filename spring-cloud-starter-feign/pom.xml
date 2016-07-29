@@ -37,15 +37,15 @@
 			<artifactId>spring-cloud-commons</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-slf4j</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.netflix.feign</groupId>
+			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-hystrix</artifactId>
 		</dependency>
 		<dependency>
