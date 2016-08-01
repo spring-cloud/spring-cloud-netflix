@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.zuul;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.IntegrationTest;
+import org.springframework.boot.test.OutputCapture;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -42,8 +44,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SimpleZuulServerApplication.class)
@@ -51,6 +55,9 @@ import static org.junit.Assert.assertNotNull;
 @IntegrationTest({ "server.port: 0" })
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
+
+	@Rule
+	public OutputCapture capture = new OutputCapture();
 
 	@Value("${local.server.port}")
 	private int port;
@@ -83,13 +90,28 @@ public class SimpleZuulServerApplicationTests {
 	}
 
 	@Test
-	public void getOnSelfViaFilter() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
+	public void getOnSelfViaFilterShouldSucceed() {
+		ResponseEntity<String> result = getOnSelfViaFilter();
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
+	@Test
+	public void exceptionOccurredInFilterShouldBeLogged() throws Exception {
+		RequestContext.getCurrentContext().set("shouldThrowException");
+
+		ResponseEntity<String> result = getOnSelfViaFilter();
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+
+		assertThat(capture.toString(),
+				containsString("java.lang.IllegalStateException: Thrown by exceptionThrowingFilter"));
+	}
+
+	private ResponseEntity<String> getOnSelfViaFilter() {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
+				new HttpEntity<Void>((Void) null), String.class);
+		return result;
+	}
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -130,6 +152,31 @@ class SimpleZuulServerApplication {
 			@Override
 			public int filterOrder() {
 				return 0;
+			}
+		};
+	}
+
+	@Bean
+	public ZuulFilter exceptionThrowingFilter() {
+		return new ZuulFilter() {
+			@Override
+			public String filterType() {
+				return "pre";
+			}
+
+			@Override
+			public int filterOrder() {
+				return 0;
+			}
+
+			@Override
+			public boolean shouldFilter() {
+				return RequestContext.getCurrentContext().containsKey("shouldThrowException");
+			}
+
+			@Override
+			public Object run() {
+				throw new IllegalStateException("Thrown by exceptionThrowingFilter");
 			}
 		};
 	}

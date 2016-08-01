@@ -18,14 +18,20 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
-
-import lombok.extern.apachecommons.CommonsLog;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
+
+import java.lang.reflect.UndeclaredThrowableException;
+import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * @author Spencer Gibb
@@ -40,7 +46,7 @@ public class SendErrorFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "post";
+		return "error";
 	}
 
 	@Override
@@ -52,8 +58,7 @@ public class SendErrorFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		// only forward to errorPath if it hasn't been forwarded to already
-		return ctx.containsKey("error.status_code")
-				&& !ctx.getBoolean(SEND_ERROR_FILTER_RAN, false);
+		return !ctx.getBoolean(SEND_ERROR_FILTER_RAN, false) && ctx.getThrowable() != null;
 	}
 
 	@Override
@@ -62,19 +67,11 @@ public class SendErrorFilter extends ZuulFilter {
 			RequestContext ctx = RequestContext.getCurrentContext();
 			HttpServletRequest request = ctx.getRequest();
 
-			int statusCode = (Integer) ctx.get("error.status_code");
-			request.setAttribute("javax.servlet.error.status_code", statusCode);
+			ErrorResponse errorResponse = getErrorResponse(ctx);
 
-			if (ctx.containsKey("error.exception")) {
-				Object e = ctx.get("error.exception");
-				log.warn("Error during filtering", Throwable.class.cast(e));
-				request.setAttribute("javax.servlet.error.exception", e);
-			}
-
-			if (ctx.containsKey("error.message")) {
-				String message = (String) ctx.get("error.message");
-				request.setAttribute("javax.servlet.error.message", message);
-			}
+			request.setAttribute("javax.servlet.error.status_code", errorResponse.code);
+			request.setAttribute("javax.servlet.error.message", errorResponse.message);
+			request.setAttribute("javax.servlet.error.exception", errorResponse.throwable);
 
 			RequestDispatcher dispatcher = request.getRequestDispatcher(
 					this.errorPath);
@@ -84,15 +81,51 @@ public class SendErrorFilter extends ZuulFilter {
 					dispatcher.forward(request, ctx.getResponse());
 				}
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
+	}
+
+	private ErrorResponse getErrorResponse(RequestContext ctx) {
+		Throwable ex = ctx.getThrowable();
+
+		int idx = ExceptionUtils.indexOfType(ex, UndeclaredThrowableException.class);
+		if (idx == -1) { // UndeclaredThrowableException was not found in stacktrace
+			return new ErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
+		}
+		UndeclaredThrowableException undeclared = (UndeclaredThrowableException) ExceptionUtils.getThrowables(ex)[idx];
+		Throwable cause = undeclared.getUndeclaredThrowable();
+		if (cause instanceof ZuulException) {
+			ZuulException zuulException = (ZuulException) undeclared.getUndeclaredThrowable();
+			return new ErrorResponse(zuulException.nStatusCode, zuulException.errorCause, zuulException);
+		}
+		return new ErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, cause.getMessage(), cause);
 	}
 
 	public void setErrorPath(String errorPath) {
 		this.errorPath = errorPath;
 	}
 
+	private static class ErrorResponse {
+
+		public final int code;
+		public final String message;
+		public final Throwable throwable;
+
+		public ErrorResponse(int code, String message, Throwable throwable) {
+			this.code = code;
+			this.message = message;
+			this.throwable = throwable;
+		}
+
+		@Override
+		public String toString() {
+			return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+					.append("code", code)
+					.append("message", message)
+					.append("throwable", throwable)
+					.toString();
+		}
+	}
 }
