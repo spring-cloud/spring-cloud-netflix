@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 
@@ -31,6 +32,8 @@ public class OkHttpRibbonCommandFactory implements
 		RibbonCommandFactory<OkHttpRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
+	
+	private final ZuulProperties zuulProperties;
 
 	@Override
 	public OkHttpRibbonCommand create(final RibbonCommandContext context) {
@@ -39,7 +42,7 @@ public class OkHttpRibbonCommandFactory implements
 				serviceId, OkHttpLoadBalancingClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new OkHttpRibbonCommand(serviceId, client, context);
+		return new OkHttpRibbonCommand(serviceId, client, context, zuulProperties);
 	}
 
 }

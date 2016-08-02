@@ -307,7 +307,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			private SpringClientFactory clientFactory;
 
 			public MyRibbonCommandFactory(SpringClientFactory clientFactory) {
-				super(clientFactory);
+				super(clientFactory, new ZuulProperties());
 				this.clientFactory = clientFactory;
 			}
 
@@ -333,7 +333,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 			public MyCommand(int errorCode, String commandKey, RestClient restClient,
 					RibbonCommandContext context) {
-				super(commandKey, restClient, context);
+				super(commandKey, restClient, context, new ZuulProperties());
 				this.errorCode = errorCode;
 			}
 

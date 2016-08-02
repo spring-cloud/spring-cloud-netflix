@@ -86,20 +86,28 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Configuration
 	@ConditionalOnProperty(name = "zuul.ribbon.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientRibbonConfiguration {
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
+		
 		@Bean
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
-			return new HttpClientRibbonCommandFactory(clientFactory);
+			return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties);
 		}
 	}
 
 	@Configuration
 	@ConditionalOnProperty("zuul.ribbon.restclient.enabled")
 	protected static class RestClientRibbonConfiguration {
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
+		
 		@Bean
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
-			return new RestClientRibbonCommandFactory(clientFactory);
+			return new RestClientRibbonCommandFactory(clientFactory, zuulProperties);
 		}
 	}
 
@@ -107,10 +115,14 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@ConditionalOnProperty("zuul.ribbon.okhttp.enabled")
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpRibbonConfiguration {
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
+		
 		@Bean
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
-			return new OkHttpRibbonCommandFactory(clientFactory);
+			return new OkHttpRibbonCommandFactory(clientFactory, zuulProperties);
 		}
 	}
 
