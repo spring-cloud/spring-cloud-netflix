@@ -102,9 +102,8 @@ public class HttpClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 	protected ClientHttpResponse forward() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
 		Long contentLength = null;
-		String contentLengthHeader = context.getRequest().getHeader("Content-Length");
-		if (StringUtils.hasText(contentLengthHeader)) {
-			contentLength = new Long(contentLengthHeader);
+		if (context.getRequest().getContentLength() != -1) {
+			contentLength = new Long(context.getRequest().getContentLength());
 		}
 		URI uriInstance = new URI(this.uri);
 		RibbonApacheHttpRequest request = new RibbonApacheHttpRequest(this.method,
