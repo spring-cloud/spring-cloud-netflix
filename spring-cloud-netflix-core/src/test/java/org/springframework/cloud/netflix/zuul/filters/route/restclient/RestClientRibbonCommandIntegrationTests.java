@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +49,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonComm
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.support.NoEncodingFormHttpMessageConverter;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -59,10 +62,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -228,6 +235,24 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	public void ribbonCommandFactoryOverridden() {
 		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof TestConfig.MyRibbonCommandFactory);
+	}
+	
+	@Override
+	@SuppressWarnings("deprecation")
+	@Test
+	public void javascriptEncodedFormParams() {
+		TestRestTemplate testRestTemplate = new TestRestTemplate();
+		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
+		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
+				new NoEncodingFormHttpMessageConverter()));
+		testRestTemplate.setMessageConverters(converters);
+		
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+		map.add("foo", "(bar)");
+		ResponseEntity<String> result = testRestTemplate.postForEntity(
+				"http://localhost:" + this.port + "/simple/local", map, String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted [(bar)] and Content-Length was: -1!", result.getBody());
 	}
 
 	@Test
