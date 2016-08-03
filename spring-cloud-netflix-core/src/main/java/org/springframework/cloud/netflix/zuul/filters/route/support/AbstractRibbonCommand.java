@@ -46,18 +46,20 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	protected final LBC client;
 	protected RibbonCommandContext context;
 
-	public AbstractRibbonCommand(LBC client, RibbonCommandContext context, ZuulProperties zuulProperties) {
+	public AbstractRibbonCommand(LBC client, RibbonCommandContext context,
+			ZuulProperties zuulProperties) {
 		this("default", client, context, zuulProperties);
 	}
-	
 
-	public AbstractRibbonCommand(String commandKey, LBC client, RibbonCommandContext context, ZuulProperties zuulProperties) {
+	public AbstractRibbonCommand(String commandKey, LBC client,
+			RibbonCommandContext context, ZuulProperties zuulProperties) {
 		super(getSetter(commandKey, zuulProperties));
 		this.client = client;
 		this.context = context;
 	}
 
-	protected static Setter getSetter(final String commandKey, ZuulProperties zuulProperties) {
+	protected static Setter getSetter(final String commandKey,
+			ZuulProperties zuulProperties) {
 
 		// @formatter:off
 		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
@@ -82,9 +84,11 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	@Override
 	protected ClientHttpResponse run() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
-		String contentLengthHeader = context.getRequest().getHeader("Content-Length");
-		if (StringUtils.hasText(contentLengthHeader)) {
-			this.context.setContentLength(new Long(contentLengthHeader));
+		if (context.getRequest() != null) {
+			String contentLengthHeader = context.getRequest().getHeader("Content-Length");
+			if (StringUtils.hasText(contentLengthHeader)) {
+				this.context.setContentLength(new Long(contentLengthHeader));
+			}
 		}
 
 		RQ request = createRequest();
