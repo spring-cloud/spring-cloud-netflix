@@ -22,7 +22,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.util.StringUtils;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
@@ -72,7 +71,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 					.getIntProperty(name, 100);
 			setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
 		} else	{
-			// FIXME Find out which parameters can be set here
+			// TODO Find out is some parameters can be set here
 		}
 		
 		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
@@ -84,12 +83,6 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	@Override
 	protected ClientHttpResponse run() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
-		if (context.getRequest() != null) {
-			String contentLengthHeader = context.getRequest().getHeader("Content-Length");
-			if (StringUtils.hasText(contentLengthHeader)) {
-				this.context.setContentLength(new Long(contentLengthHeader));
-			}
-		}
 
 		RQ request = createRequest();
 		RS response = this.client.executeWithLoadBalancer(request);

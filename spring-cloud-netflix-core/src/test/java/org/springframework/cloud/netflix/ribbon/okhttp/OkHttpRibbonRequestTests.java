@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.springframework.cloud.netflix.feign.encoding.HttpEncoding;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -47,6 +48,7 @@ public class OkHttpRibbonRequestTests {
 		String uri = "http://example.com";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
+		headers.add(HttpEncoding.CONTENT_LENGTH, "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
 		RibbonCommandContext context = new RibbonCommandContext("example", "GET", uri, false, headers, params, null);
@@ -57,6 +59,7 @@ public class OkHttpRibbonRequestTests {
 		assertThat("body is not null", request.body(), is(nullValue()));
 		assertThat("uri is wrong", request.url().toString(), startsWith(uri));
 		assertThat("my-header is wrong", request.header("my-header"), is(equalTo("my-value")));
+		assertThat("Content-Length is wrong", request.header(HttpEncoding.CONTENT_LENGTH), is(equalTo("5192")));
 		assertThat("myparam is missing", request.url().queryParameter("myparam"), is(equalTo("myparamval")));
 	}
 
