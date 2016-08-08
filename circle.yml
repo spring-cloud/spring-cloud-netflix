@@ -3,7 +3,7 @@ general:
     ignore:
       - gh-pages # list of branches to ignore
   artifacts:
-    - "target/"
+    - ".*/target/"
 machine:
   java:
     version: oraclejdk8
@@ -18,10 +18,10 @@ test:
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/target/.*-reports/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
-#    - bash <(curl -s https://codecov.io/bash)
+    - bash <(curl -s https://codecov.io/bash)
 
 notify:
   webhooks:
     # A list of hook hashes, containing the url field
     # gitter hook
-#    - url: https://webhooks.gitter.im/e/fac69f6fc000ef14f7ec
+    - url: https://webhooks.gitter.im/e/22e6bb4eb945dd61ba54
