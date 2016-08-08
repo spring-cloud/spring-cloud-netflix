@@ -1,5 +1,9 @@
 package org.springframework.cloud.netflix.feign.support;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -10,8 +14,8 @@ import org.mockito.ArgumentMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.FeignContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,12 +28,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import feign.RequestTemplate;
 import lombok.Data;
@@ -38,10 +37,8 @@ import lombok.Data;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SpringEncoderTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=springencodertest",
-		"spring.jmx.enabled=true" })
+@SpringBootTest(classes = SpringEncoderTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=springencodertest", "spring.jmx.enabled=true" })
 @DirtiesContext
 public class SpringEncoderTests {
 

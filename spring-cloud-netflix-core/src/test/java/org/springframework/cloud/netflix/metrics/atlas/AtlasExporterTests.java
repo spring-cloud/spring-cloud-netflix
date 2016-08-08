@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -37,7 +37,7 @@ import com.netflix.servo.monitor.DynamicCounter;
 /**
  * @author Jon Schneider
  */
-@SpringApplicationConfiguration(AtlasExporterConfiguration.class)
+@SpringBootTest(classes = AtlasExporterConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AtlasExporterTests {
 	@Autowired

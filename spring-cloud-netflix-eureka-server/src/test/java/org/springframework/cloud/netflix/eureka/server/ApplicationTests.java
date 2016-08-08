@@ -16,6 +16,14 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -25,9 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.eureka.server.ApplicationTests.Application;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -37,24 +45,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.converters.wrappers.CodecWrapper;
 import com.netflix.eureka.resources.ServerCodecs;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.jmx.enabled=true" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.jmx.enabled=true" })
 public class ApplicationTests {
 
 	@Value("${local.server.port}")
@@ -77,9 +75,9 @@ public class ApplicationTests {
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
 		@SuppressWarnings("rawtypes")
-		ResponseEntity<Map> entity = new TestRestTemplate().exchange("http://localhost:"
-				+ this.port + "/env", HttpMethod.GET, new HttpEntity<>("parameters",
-				headers), Map.class);
+		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/env", HttpMethod.GET,
+				new HttpEntity<>("parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -107,14 +105,13 @@ public class ApplicationTests {
 
 	@Test
 	public void customCodecWorks() throws Exception {
-		assertThat("serverCodecs is wrong type", this.serverCodecs, is(instanceOf(EurekaServerConfiguration.CloudServerCodecs.class)));
+		assertThat("serverCodecs is wrong type", this.serverCodecs,
+				is(instanceOf(EurekaServerConfiguration.CloudServerCodecs.class)));
 		CodecWrapper codec = this.serverCodecs.getFullJsonCodec();
 		assertThat("codec is wrong type", codec, is(instanceOf(CloudJacksonJson.class)));
 
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
-				.setAppName("fooapp")
-				.add("instanceId", "foo")
-				.build();
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("fooapp")
+				.add("instanceId", "foo").build();
 		String encoded = codec.encode(instanceInfo);
 		InstanceInfo decoded = codec.decode(encoded, InstanceInfo.class);
 		assertThat("instanceId was wrong", decoded.getInstanceId(), is("foo"));
@@ -125,8 +122,8 @@ public class ApplicationTests {
 	@EnableEurekaServer
 	protected static class Application {
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka").run(args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=eureka").run(args);
 		}
 	}
 

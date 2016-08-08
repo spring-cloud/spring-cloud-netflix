@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.feign.encoding;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -24,8 +27,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.encoding.app.client.InvoiceClient;
 import org.springframework.cloud.netflix.feign.encoding.app.domain.Invoice;
@@ -35,23 +38,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the response compression.
  *
  * @author Jakub Narloch
  */
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "feign.compression.response.enabled=true" })
-@SpringApplicationConfiguration(classes = { FeignAcceptEncodingTests.Application.class })
+@SpringBootTest(classes = FeignAcceptEncodingTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"feign.compression.response.enabled=true" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FeignAcceptEncodingTests {
 

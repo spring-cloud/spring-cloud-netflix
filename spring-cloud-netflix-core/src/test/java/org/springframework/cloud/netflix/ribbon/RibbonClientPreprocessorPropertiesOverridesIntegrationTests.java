@@ -16,11 +16,16 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assume.assumeThat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer;
@@ -39,16 +44,11 @@ import com.netflix.loadbalancer.ServerListSubsetFilter;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assume.assumeThat;
-
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(RibbonClientPreprocessorPropertiesOverridesIntegrationTests.TestConfiguration.class)
+@SpringBootTest(classes = RibbonClientPreprocessorPropertiesOverridesIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 
@@ -62,9 +62,10 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 		ZoneAvoidanceRule.class.cast(getLoadBalancer("bar").getRule());
 	}
 
-	//TODO: why do these tests fail in travis?
+	// TODO: why do these tests fail in travis?
 	void assumeNotTravis() {
-		assumeThat("running in travis, skipping", System.getenv("TRAVIS"), is(not(equalTo("true"))));
+		assumeThat("running in travis, skipping", System.getenv("TRAVIS"),
+				is(not(equalTo("true"))));
 	}
 
 	@Test
@@ -77,7 +78,8 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 	public void serverListOverridesToTest() throws Exception {
 		assumeNotTravis();
 		TestServerList.class.cast(getLoadBalancer("foo2").getServerListImpl());
-		ConfigurationBasedServerList.class.cast(getLoadBalancer("bar").getServerListImpl());
+		ConfigurationBasedServerList.class
+				.cast(getLoadBalancer("bar").getServerListImpl());
 	}
 
 	@Test
@@ -101,7 +103,7 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 	@Configuration
 	@RibbonClients
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class})
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}
 

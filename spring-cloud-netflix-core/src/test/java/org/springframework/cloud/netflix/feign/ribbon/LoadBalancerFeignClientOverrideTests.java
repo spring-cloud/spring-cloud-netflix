@@ -16,12 +16,14 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.FeignContext;
@@ -34,16 +36,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 
-import static org.junit.Assert.assertEquals;
-
 import feign.Request;
 
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = LoadBalancerFeignClientOverrideTests.TestConfiguration.class)
-@WebIntegrationTest(randomPort = true, value = {
+@SpringBootTest(classes = LoadBalancerFeignClientOverrideTests.TestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=loadBalancerFeignClientTests",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
 @DirtiesContext

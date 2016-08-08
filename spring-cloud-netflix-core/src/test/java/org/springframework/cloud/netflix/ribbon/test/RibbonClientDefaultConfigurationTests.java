@@ -23,8 +23,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.test.RibbonClientDefaultConfigurationTestsConfig.BazServiceList;
 import org.springframework.test.annotation.DirtiesContext;
@@ -41,8 +40,7 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RibbonClientDefaultConfigurationTestsConfig.class)
-@IntegrationTest("ribbon.eureka.enabled=true")
+@SpringBootTest(classes = RibbonClientDefaultConfigurationTestsConfig.class, value = "ribbon.eureka.enabled=true")
 @DirtiesContext
 public class RibbonClientDefaultConfigurationTests {
 

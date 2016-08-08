@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Andreas Kluth
