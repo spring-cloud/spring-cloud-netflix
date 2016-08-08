@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -45,7 +45,7 @@ import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(EurekaRibbonClientPropertyOverrideIntegrationTests.TestConfiguration.class)
+@SpringBootTest(classes = EurekaRibbonClientPropertyOverrideIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class EurekaRibbonClientPropertyOverrideIntegrationTests {
 
@@ -60,7 +60,8 @@ public class EurekaRibbonClientPropertyOverrideIntegrationTests {
 
 	@Test
 	public void serverListOverridesToTest() throws Exception {
-		ConfigurationBasedServerList.class.cast(getLoadBalancer("foo3").getServerListImpl());
+		ConfigurationBasedServerList.class
+				.cast(getLoadBalancer("foo3").getServerListImpl());
 		DomainExtractingServerList.class.cast(getLoadBalancer("bar").getServerListImpl());
 	}
 

@@ -17,6 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeThat;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -58,11 +63,6 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assume.assumeThat;
 
 /**
  * @author Spencer Gibb

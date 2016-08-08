@@ -20,12 +20,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,9 +34,8 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = HystrixStreamTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.jmx.enabled=true" })
+@SpringBootTest(classes = HystrixStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"server.port=0", "spring.jmx.enabled=true" })
 @DirtiesContext
 public class HystrixStreamTests {
 

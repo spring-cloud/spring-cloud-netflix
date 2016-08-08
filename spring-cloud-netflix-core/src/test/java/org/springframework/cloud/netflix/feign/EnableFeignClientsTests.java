@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.feign.support.ResponseEntityDecoder;
 import org.springframework.cloud.netflix.feign.support.SpringEncoder;
@@ -42,7 +42,7 @@ import feign.slf4j.Slf4jLogger;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = EnableFeignClientsTests.PlainConfiguration.class)
+@SpringBootTest(classes = EnableFeignClientsTests.PlainConfiguration.class)
 @DirtiesContext
 public class EnableFeignClientsTests {
 

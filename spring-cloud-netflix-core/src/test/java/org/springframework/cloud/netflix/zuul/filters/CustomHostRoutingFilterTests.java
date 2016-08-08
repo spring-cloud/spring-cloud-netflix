@@ -1,5 +1,9 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -15,9 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.ZuulProxyConfiguration;
@@ -31,7 +35,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,14 +46,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.netflix.zuul.context.RequestContext;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SampleCustomZuulProxyApplication.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port: 0", "server.contextPath: /app" })
+@SpringBootTest(classes = SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"server.contextPath: /app" })
 @DirtiesContext
 public class CustomHostRoutingFilterTests {
 
@@ -192,13 +190,14 @@ class SampleCustomZuulProxyApplication {
 
 		@Bean
 		@Override
-		public SimpleHostRoutingFilter simpleHostRoutingFilter(
-				ProxyRequestHelper helper, ZuulProperties zuulProperties) {
+		public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
+				ZuulProperties zuulProperties) {
 			return new CustomHostRoutingFilter(helper, zuulProperties);
 		}
 
 		private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
-			public CustomHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties) {
+			public CustomHostRoutingFilter(ProxyRequestHelper helper,
+					ZuulProperties zuulProperties) {
 				super(helper, zuulProperties);
 			}
 

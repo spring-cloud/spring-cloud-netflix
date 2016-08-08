@@ -1,15 +1,16 @@
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -23,7 +24,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,13 +36,10 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RetryableZuulProxyApplication.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port: 0", "zuul.routes.simple.path: /simple/**",
-		"zuul.routes.simple.retryable: true", "ribbon.OkToRetryOnAllOperations: true" })
+@SpringBootTest(classes = RetryableZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"zuul.routes.simple.path: /simple/**", "zuul.routes.simple.retryable: true",
+		"ribbon.OkToRetryOnAllOperations: true" })
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
 
@@ -50,9 +47,11 @@ public class RetryableZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
+	@SuppressWarnings("unused")
 	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
+	@SuppressWarnings("unused")
 	private RoutesEndpoint endpoint;
 
 	@Before

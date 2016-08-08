@@ -17,20 +17,24 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
@@ -55,24 +59,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpHeaders.SET_COOKIE;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class)
-@WebIntegrationTest(randomPort = true, value = {
+@SpringBootTest(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
-		"zuul.routes.singleton: /singleton/**", "zuul.routes.singleton.sensitiveHeaders: " })
+		"zuul.routes.singleton: /singleton/**",
+		"zuul.routes.singleton.sensitiveHeaders: " })
 @DirtiesContext
 public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
@@ -116,26 +117,27 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	@Test
 	public void ribbonLoadBalancingHttpClientCookiePolicy() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/downstream_cookie", HttpMethod.POST,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/simple/downstream_cookie",
+				HttpMethod.POST, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Cookie 434354454!", result.getBody());
 		assertNull(result.getHeaders().getFirst(SET_COOKIE));
 
-
 		// if new instance of RibbonLoadBalancingHttpClient is getting created every time
-		// and HttpClient is not reused then there are no concerns for the shared cookie storage
-		// but since https://github.com/spring-cloud/spring-cloud-netflix/issues/1150 is on the way a
+		// and HttpClient is not reused then there are no concerns for the shared cookie
+		// storage
+		// but since https://github.com/spring-cloud/spring-cloud-netflix/issues/1150 is
+		// on the way a
 		result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/singleton/downstream_cookie", HttpMethod.POST,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/singleton/downstream_cookie",
+				HttpMethod.POST, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Cookie 434354454!", result.getBody());
 		assertEquals("jsessionid=434354454", result.getHeaders().getFirst(SET_COOKIE));
 
 		result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/singleton/downstream_cookie", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+				"http://localhost:" + this.port + "/singleton/downstream_cookie",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Cookie null!", result.getBody());
 	}
@@ -145,6 +147,7 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		assertTrue("ribbonCommandFactory not a HttpClientRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
 	}
+
 	// Don't use @SpringBootApplication because we don't want to component scan
 	@Configuration
 	@EnableAutoConfiguration
@@ -153,28 +156,26 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	@RibbonClients({
 			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
 			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class),
-		  @RibbonClient(name = "singleton", configuration = SingletonRibbonClientConfiguration.class) })
+			@RibbonClient(name = "singleton", configuration = SingletonRibbonClientConfiguration.class) })
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
-		public String patch(@PathVariable final String id, @RequestBody final String body) {
+		public String patch(@PathVariable final String id,
+				@RequestBody final String body) {
 			return "Patched " + id + "!";
 		}
 
 		@RequestMapping(value = "/downstream_cookie", method = RequestMethod.POST)
-		public String setDownstreamCookie(HttpServletResponse response)
-		{
+		public String setDownstreamCookie(HttpServletResponse response) {
 			response.addCookie(new Cookie("jsessionid", "434354454"));
 			return "Cookie 434354454!";
 		}
 
 		@RequestMapping(value = "/downstream_cookie", method = RequestMethod.GET)
-		public String readDownstreamCookie(HttpServletRequest request)
-		{
+		public String readDownstreamCookie(HttpServletRequest request) {
 			final Cookie cookie = WebUtils.getCookie(request, "jsessionid");
 			return "Cookie " + cookie + "!";
 		}
-
 
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
@@ -183,7 +184,8 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@Bean
-		public ZuulProxyTestBase.MyErrorController myErrorController(ErrorAttributes errorAttributes) {
+		public ZuulProxyTestBase.MyErrorController myErrorController(
+				ErrorAttributes errorAttributes) {
 			return new ZuulProxyTestBase.MyErrorController(errorAttributes);
 		}
 	}
@@ -201,8 +203,8 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@Bean
-		public RibbonLoadBalancingHttpClient ribbonClient(IClientConfig config, ILoadBalancer loadBalancer, RetryHandler retryHandler)
-		{
+		public RibbonLoadBalancingHttpClient ribbonClient(IClientConfig config,
+				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
 			final RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient();
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);

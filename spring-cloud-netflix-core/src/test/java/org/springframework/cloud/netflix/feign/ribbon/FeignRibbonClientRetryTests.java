@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -47,19 +51,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 /**
  * Tests the Feign Retryer, not ribbon retry.
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FeignRibbonClientRetryTests.Application.class)
-@WebIntegrationTest(randomPort = true, value = { "spring.application.name=feignclientretrytest",
-		"feign.okhttp.enabled=false", "feign.httpclient.enabled=false",
-		"feign.hystrix.enabled=false", })
+@SpringBootTest(classes = FeignRibbonClientRetryTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=feignclientretrytest", "feign.okhttp.enabled=false",
+		"feign.httpclient.enabled=false", "feign.hystrix.enabled=false", })
 @DirtiesContext
 public class FeignRibbonClientRetryTests {
 
@@ -98,10 +97,10 @@ public class FeignRibbonClientRetryTests {
 		}
 
 		public static void main(String[] args) throws InterruptedException {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclientretrytest",
-					"management.contextPath=/admin"
-					).run(args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=feignclientretrytest",
+							"management.contextPath=/admin")
+					.run(args);
 		}
 	}
 

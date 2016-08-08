@@ -16,24 +16,24 @@
 
 package org.springframework.cloud.netflix.metrics.servo;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ExportMetricReader;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Dave Syer
  */
+@SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration()
 public class NoServoMetricsAutoConfigurationTests {
 
 	@Autowired(required = false)
