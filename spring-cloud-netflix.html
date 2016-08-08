@@ -2424,17 +2424,18 @@ info:
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
 public Single&lt;String&gt; single() {
-    return Single.just("single value");
+	return Single.just("single value");
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")
 public ResponseEntity&lt;Single&lt;String&gt;&gt; singleWithResponse() {
-    return new ResponseEntity&lt;&gt;(Single.just("single value"), HttpStatus.NOT_FOUND);
+	return new ResponseEntity&lt;&gt;(Single.just("single value"),
+			HttpStatus.NOT_FOUND);
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/throw")
 public Single&lt;Object&gt; error() {
-    return Single.error(new RuntimeException("Unexpected"));
+	return Single.error(new RuntimeException("Unexpected"));
 }</code></pre>
 </div>
 </div>
@@ -2480,20 +2481,19 @@ public Observable&lt;String&gt; timeout() {
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/sse")
 public SseEmitter single() {
-    return RxResponse.sse(Observable.just("single value"));
+	return RxResponse.sse(Observable.just("single value"));
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/messages")
 public SseEmitter messages() {
-    return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
+	return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/events")
 public SseEmitter event() {
-    return RxResponse.sse(APPLICATION_JSON_UTF8, Observable.just(
-            new EventDto("Spring io", getDate(2016, 5, 19)),
-            new EventDto("SpringOnePlatform", getDate(2016, 8, 1))
-    ));
+	return RxResponse.sse(APPLICATION_JSON_UTF8,
+			Observable.just(new EventDto("Spring io", getDate(2016, 5, 19)),
+					new EventDto("SpringOnePlatform", getDate(2016, 8, 1))));
 }</code></pre>
 </div>
 </div>
@@ -2821,7 +2821,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-08 13:59:02 UTC
+Last updated 2016-08-08 14:53:29 UTC
 </div>
 </div>
 </body>
