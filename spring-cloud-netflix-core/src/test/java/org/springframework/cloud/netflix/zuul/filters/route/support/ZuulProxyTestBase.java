@@ -17,6 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeThat;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +39,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.BasicErrorController;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -66,11 +71,6 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assume.assumeThat;
 
 /**
  * @author Spencer Gibb
@@ -262,7 +262,7 @@ public abstract class ZuulProxyTestBase {
 		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
 		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
 				new NoEncodingFormHttpMessageConverter()));
-		testRestTemplate.setMessageConverters(converters);
+		testRestTemplate.getRestTemplate().setMessageConverters(converters);
 		
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add("foo", "(bar)");

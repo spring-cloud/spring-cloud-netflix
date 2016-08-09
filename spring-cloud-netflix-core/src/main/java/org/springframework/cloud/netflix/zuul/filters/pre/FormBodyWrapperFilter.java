@@ -200,10 +200,10 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 					MultipartRequest multi = (MultipartRequest) this.request;
 					for (Entry<String, List<MultipartFile>> parts : multi
 							.getMultiFileMap().entrySet()) {
-						for (Part file : this.request.getParts()) {
+						for (MultipartFile file : parts.getValue()) {
 							HttpHeaders headers = new HttpHeaders();
 							headers.setContentDispositionFormData(file.getName(),
-									file.getSubmittedFileName());
+									file.getOriginalFilename());
 							if (file.getContentType() != null) {
 								headers.setContentType(
 										MediaType.valueOf(file.getContentType()));

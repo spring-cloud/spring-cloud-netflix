@@ -15,7 +15,7 @@ import com.netflix.appinfo.InstanceInfo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 public class InstanceInfoFactoryTests {
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();

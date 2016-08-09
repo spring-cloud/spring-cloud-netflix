@@ -16,6 +16,14 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.text.ParseException;
@@ -33,8 +41,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.FeignFormatterRegistrar;
@@ -72,24 +80,15 @@ import lombok.NoArgsConstructor;
 import rx.Observable;
 import rx.Single;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 /**
  * @author Spencer Gibb
  * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FeignClientTests.Application.class)
-@WebIntegrationTest(randomPort = true, value = {
+@SpringBootTest(classes = FeignClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=feignclienttest",
 		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
-		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false"})
+		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
 @DirtiesContext
 public class FeignClientTests {
 
@@ -167,18 +166,15 @@ public class FeignClientTests {
 		HystrixCommand<List<Hello>> getHellosHystrix();
 
 		@RequestMapping(method = RequestMethod.GET, path = "/noContent")
-		ResponseEntity noContent();
+		ResponseEntity<Void> noContent();
 
 		@RequestMapping(method = RequestMethod.HEAD, path = "/head")
-		ResponseEntity head();
+		ResponseEntity<Void> head();
 
 		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		HttpEntity<Hello> getHelloEntity();
 
-		@RequestMapping(method = RequestMethod.POST,
-				consumes = "application/vnd.io.spring.cloud.test.v1+json",
-				produces = "application/vnd.io.spring.cloud.test.v1+json",
-				path = "/complex")
+		@RequestMapping(method = RequestMethod.POST, consumes = "application/vnd.io.spring.cloud.test.v1+json", produces = "application/vnd.io.spring.cloud.test.v1+json", path = "/complex")
 		String moreComplexContentType(String body);
 
 		@RequestMapping(method = RequestMethod.GET, path = "/tostring")
@@ -271,14 +267,14 @@ public class FeignClientTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = {TestClientServiceId.class, TestClient.class, DecodingTestClient.class, HystrixClient.class},
-			defaultConfiguration = TestDefaultFeignConfig.class)
+	@EnableFeignClients(clients = { TestClientServiceId.class, TestClient.class,
+			DecodingTestClient.class,
+			HystrixClient.class }, defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClients({
 			@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
 			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class),
 			@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
-	})
+			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class), })
 	protected static class Application {
 
 		// needs to be in parent context to test multiple HystrixClient beans
@@ -344,7 +340,8 @@ public class FeignClientTests {
 		}
 
 		@RequestMapping(method = RequestMethod.GET, path = "/helloheadersplaceholders")
-		public String getHelloHeadersPlaceholders(@RequestHeader("myPlaceholderHeader") String myPlaceholderHeader) {
+		public String getHelloHeadersPlaceholders(
+				@RequestHeader("myPlaceholderHeader") String myPlaceholderHeader) {
 			return myPlaceholderHeader;
 		}
 
@@ -354,12 +351,12 @@ public class FeignClientTests {
 		}
 
 		@RequestMapping(method = RequestMethod.GET, path = "/noContent")
-		ResponseEntity noContent() {
+		ResponseEntity<Void> noContent() {
 			return ResponseEntity.noContent().build();
 		}
 
 		@RequestMapping(method = RequestMethod.HEAD, path = "/head")
-		ResponseEntity head() {
+		ResponseEntity<Void> head() {
 			return ResponseEntity.ok().build();
 		}
 
@@ -369,14 +366,11 @@ public class FeignClientTests {
 		}
 
 		@RequestMapping(method = RequestMethod.GET, path = "/notFound")
-		ResponseEntity notFound() {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
+		ResponseEntity<String> notFound() {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String) null);
 		}
 
-		@RequestMapping(method = RequestMethod.POST,
-				consumes = "application/vnd.io.spring.cloud.test.v1+json",
-				produces = "application/vnd.io.spring.cloud.test.v1+json",
-				path = "/complex")
+		@RequestMapping(method = RequestMethod.POST, consumes = "application/vnd.io.spring.cloud.test.v1+json", produces = "application/vnd.io.spring.cloud.test.v1+json", path = "/complex")
 		String complex(String body) {
 			return "{\"value\":\"OK\"}";
 		}
@@ -392,9 +386,10 @@ public class FeignClientTests {
 		}
 
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=feignclienttest",
-					"management.contextPath=/admin").run(args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=feignclienttest",
+							"management.contextPath=/admin")
+					.run(args);
 		}
 	}
 
@@ -480,7 +475,9 @@ public class FeignClientTests {
 	public void testHystrixCommand() {
 		HystrixCommand<List<Hello>> command = this.testClient.getHellosHystrix();
 		assertNotNull("command was null", command);
-		assertEquals("Hystrix command group name should match the name of the feign client", "localapp", command.getCommandGroup().name());
+		assertEquals(
+				"Hystrix command group name should match the name of the feign client",
+				"localapp", command.getCommandGroup().name());
 		List<Hello> hellos = command.execute();
 		assertNotNull("hellos was null", hellos);
 		assertEquals("hellos didn't match", hellos, getHelloList());
@@ -497,14 +494,15 @@ public class FeignClientTests {
 
 	@Test
 	public void testNoContentResponse() {
-		ResponseEntity response = testClient.noContent();
+		ResponseEntity<Void> response = testClient.noContent();
 		assertNotNull("response was null", response);
-		assertEquals("status code was wrong", HttpStatus.NO_CONTENT, response.getStatusCode());
+		assertEquals("status code was wrong", HttpStatus.NO_CONTENT,
+				response.getStatusCode());
 	}
 
 	@Test
 	public void testHeadResponse() {
-		ResponseEntity response = testClient.head();
+		ResponseEntity<Void> response = testClient.head();
 		assertNotNull("response was null", response);
 		assertEquals("status code was wrong", HttpStatus.OK, response.getStatusCode());
 	}
@@ -522,14 +520,16 @@ public class FeignClientTests {
 	public void testMoreComplexHeader() {
 		String response = testClient.moreComplexContentType("{\"value\":\"OK\"}");
 		assertNotNull("response was null", response);
-		assertEquals("didn't respond with {\"value\":\"OK\"}", "{\"value\":\"OK\"}", response);
+		assertEquals("didn't respond with {\"value\":\"OK\"}", "{\"value\":\"OK\"}",
+				response);
 	}
 
 	@Test
 	public void testDecodeNotFound() {
-		ResponseEntity response = decodingTestClient.notFound();
+		ResponseEntity<String> response = decodingTestClient.notFound();
 		assertNotNull("response was null", response);
-		assertEquals("status code was wrong", HttpStatus.NOT_FOUND, response.getStatusCode());
+		assertEquals("status code was wrong", HttpStatus.NOT_FOUND,
+				response.getStatusCode());
 		assertNull("response body was not null", response.getBody());
 	}
 

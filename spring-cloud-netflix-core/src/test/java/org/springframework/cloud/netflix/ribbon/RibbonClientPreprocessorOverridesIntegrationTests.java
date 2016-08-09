@@ -16,11 +16,13 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -42,13 +44,11 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListFilter;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RibbonClientPreprocessorOverridesIntegrationTests.TestConfiguration.class)
+@SpringBootTest(classes = RibbonClientPreprocessorOverridesIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class RibbonClientPreprocessorOverridesIntegrationTests {
 

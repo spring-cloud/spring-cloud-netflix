@@ -16,14 +16,17 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -43,17 +46,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * @author Venil Noronha
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = FeignRibbonClientPathTests.Application.class)
-@WebIntegrationTest(
-	randomPort = true,
-	value = {
+@SpringBootTest(classes = FeignRibbonClientPathTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,value = {
 		"spring.application.name=feignribbonclientpathtest",
 		"feign.okhttp.enabled=false",
 		"feign.httpclient.enabled=false",

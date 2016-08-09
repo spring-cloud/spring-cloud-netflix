@@ -16,18 +16,18 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import java.util.Map;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.boot.test.OutputCapture;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+
+import java.util.Map;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.springframework.boot.test.rule.OutputCapture;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rx.subjects.PublishSubject;
 

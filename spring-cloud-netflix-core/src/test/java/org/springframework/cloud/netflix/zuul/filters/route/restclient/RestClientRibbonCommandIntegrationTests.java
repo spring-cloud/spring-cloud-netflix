@@ -36,24 +36,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.support.NoEncodingFormHttpMessageConverter;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
-import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -67,7 +67,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.MatrixVariable;
@@ -84,9 +83,7 @@ import com.netflix.niws.client.http.RestClient;
 import lombok.SneakyThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port: 0",
+@SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
 		"zuul.routes.badhost: /badhost/**", "zuul.ignoredHeaders: X-Header",
@@ -245,7 +242,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
 		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
 				new NoEncodingFormHttpMessageConverter()));
-		testRestTemplate.setMessageConverters(converters);
+		testRestTemplate.getRestTemplate().setMessageConverters(converters);
 		
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add("foo", "(bar)");
@@ -261,7 +258,6 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				this.routeLocator instanceof TestConfig.MyRouteLocator);
 	}
 
-
 	// Don't use @SpringBootApplication because we don't want to component scan
 	@Configuration
 	@EnableAutoConfiguration
@@ -275,8 +271,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 		@RequestMapping("/trailing-slash")
 		public String trailingSlash(HttpServletRequest request) {
-																	  return request.getRequestURI();
-																									 }
+			return request.getRequestURI();
+		}
 
 		@RequestMapping("/content-type")
 		public String contentType(HttpServletRequest request) {
@@ -314,7 +310,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@Bean
-		public RouteLocator routeLocator(DiscoveryClient discoveryClient, ZuulProperties zuulProperties) {
+		public RouteLocator routeLocator(DiscoveryClient discoveryClient,
+				ZuulProperties zuulProperties) {
 			return new MyRouteLocator("/", discoveryClient, zuulProperties);
 		}
 
@@ -324,10 +321,11 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		public static void main(String[] args) {
-													 SpringApplication.run(TestConfig.class, args);
-																												   }
+			SpringApplication.run(TestConfig.class, args);
+		}
 
-		public static class MyRibbonCommandFactory extends RestClientRibbonCommandFactory {
+		public static class MyRibbonCommandFactory
+				extends RestClientRibbonCommandFactory {
 
 			private SpringClientFactory clientFactory;
 
@@ -377,14 +375,16 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		static class BadHostRibbonClientConfiguration {
 			@Bean
 			public ServerList<Server> ribbonServerList() {
-				return new StaticServerList<>(new Server(UUID.randomUUID().toString(), 4322));
+				return new StaticServerList<>(
+						new Server(UUID.randomUUID().toString(), 4322));
 			}
 
 		}
 
 		static class MyRouteLocator extends DiscoveryClientRouteLocator {
 
-			public MyRouteLocator(String servletPath, DiscoveryClient discovery, ZuulProperties properties) {
+			public MyRouteLocator(String servletPath, DiscoveryClient discovery,
+					ZuulProperties properties) {
 				super(servletPath, discovery, properties);
 			}
 		}
