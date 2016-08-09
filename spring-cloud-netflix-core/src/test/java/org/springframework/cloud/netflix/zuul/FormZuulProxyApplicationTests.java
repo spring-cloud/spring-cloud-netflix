@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -91,7 +90,6 @@ public class FormZuulProxyApplicationTests {
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
 
-	@Ignore // TODO: fix this test
 	@Test
 	public void postWithMultipartForm() {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<String, String>();
