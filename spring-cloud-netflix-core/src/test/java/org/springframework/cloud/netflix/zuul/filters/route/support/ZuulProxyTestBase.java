@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeThat;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +51,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,6 +64,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.netflix.loadbalancer.Server;
@@ -246,6 +254,23 @@ public abstract class ZuulProxyTestBase {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Patched 1!", result.getBody());
 	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void javascriptEncodedFormParams() {
+		TestRestTemplate testRestTemplate = new TestRestTemplate();
+		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
+		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
+				new NoEncodingFormHttpMessageConverter()));
+		testRestTemplate.getRestTemplate().setMessageConverters(converters);
+		
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+		map.add("foo", "(bar)");
+		ResponseEntity<String> result = testRestTemplate.postForEntity(
+				"http://localhost:" + this.port + "/simple/local", map, String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted [(bar)] and Content-Length was: 13!", result.getBody());
+	}
 
 	protected abstract boolean supportsPatch();
 
@@ -267,6 +292,12 @@ public abstract class ZuulProxyTestBase {
 		public String local() {
 			return "Hello local";
 		}
+		
+		@RequestMapping(value = "/local", method = RequestMethod.POST)
+		public String postWithFormParam(HttpServletRequest request, 
+				@RequestBody MultiValueMap<String, String> body) {
+			return "Posted " + body.get("foo") + " and Content-Length was: " + request.getContentLength() + "!";
+		}		
 
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.DELETE)
 		public String delete(@PathVariable String id) {
@@ -338,6 +369,19 @@ public abstract class ZuulProxyTestBase {
 			RequestMappingHandlerMapping mapping = super.requestMappingHandlerMapping();
 			mapping.setRemoveSemicolonContent(false);
 			return mapping;
+		}
+	}
+	
+	@Configuration
+	public class FormEncodedMessageConverterConfiguration extends WebMvcConfigurerAdapter {
+
+		@Override
+		public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+			FormHttpMessageConverter converter = new FormHttpMessageConverter();
+			MediaType mediaType = new MediaType("application", "x-www-form-urlencoded", Charset.forName("UTF-8"));
+			converter.setSupportedMediaTypes(Arrays.asList(mediaType));
+			converters.add(converter);
+			super.configureMessageConverters(converters);
 		}
 	}
 
