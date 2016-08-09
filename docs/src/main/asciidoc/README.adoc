@@ -1,4 +1,6 @@
-image::https://travis-ci.org/spring-cloud/spring-cloud-netflix.svg?branch=master[Build Status, link=https://travis-ci.org/spring-cloud/spring-cloud-netflix]
+image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/1.1.x.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/1.1.x"]
+image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/1.1.x/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/1.1.x"]
+
 
 include::intro.adoc[]
 
