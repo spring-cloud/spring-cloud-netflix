@@ -74,9 +74,9 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	@Override
 	protected ClientHttpResponse run() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
-		String contentLengthHeader = context.getRequest().getHeader("Content-Length");
-		if (StringUtils.hasText(contentLengthHeader)) {
-			this.context.setContentLength(new Long(contentLengthHeader));
+		long contentLength = context.getRequest().getContentLengthLong();
+		if (contentLength != -1) {
+			this.context.setContentLength(contentLength);
 		}
 
 		RQ request = createRequest();
