@@ -1050,6 +1050,8 @@ Zuul's rule engine allows rules and filters to be written in essentially any JVM
 
 NOTE: The configuration property `zuul.max.host.connections` has been replaced by two new properties, `zuul.host.maxTotalConnections` and `zuul.host.maxPerRouteConnections` which default to 200 and 20 respectively.
 
+NOTE: Default Hystrix isolation pattern (ExecutionIsolationStrategy) for all routes is SEMAPHORE.  `zuul.ribbonIsolationStrategy` can be changed to THREAD if this isolation pattern is preferred.
+
 [[netflix-zuul-reverse-proxy]]
 === Embedded Zuul Reverse Proxy
 
