@@ -1549,7 +1549,13 @@ public interface StoreClient {
 <li>
 <p><code>Feign.Builder</code> feignBuilder: <code>HystrixFeign.Builder</code></p>
 </li>
+<li>
+<p><code>Client</code> feignClient: if Ribbon is enabled it is a <code>LoadBalancerFeignClient</code>, otherwise the default feign client is used.</p>
+</li>
 </ul>
+</div>
+<div class="paragraph">
+<p>The OkHttpClient and ApacheHttpClient feign clients can be used by setting <code>feign.okhttp.enabled</code> or <code>feign.httpclient.enabled</code> to <code>true</code>, respectively, and having them on the classpath.</p>
 </div>
 <div class="paragraph">
 <p>Spring Cloud Netflix <em>does not</em> provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:</p>
@@ -2829,7 +2835,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-10 19:59:10 UTC
+Last updated 2016-08-10 20:13:42 UTC
 </div>
 </div>
 </body>
