@@ -1053,6 +1053,9 @@ for details on the properties available.</p>
 <div class="paragraph">
 <p>The same thing applies if you are using <code>@SessionScope</code> or <code>@RequestScope</code>. You will know when you need to do this because of a runtime exception that says it can&#8217;t find the scoped context.</p>
 </div>
+<div class="paragraph">
+<p>You also have the option to set the <code>hystrix.shareSecurityContext</code> property to <code>true</code>. Doing so will auto configure an Hystrix concurrency strategy plugin hook who will transfer the <code>SecurityContext</code> from your main thread to the one used by the Hystrix command. Hystrix does not allow multiple hystrix concurrency strategy to be registered so an extension mechanism is available by declaring your own <code>HystrixConcurrencyStrategy</code> as a Spring bean. Spring Cloud will lookup for your implementation within the Spring context and wrap it inside its own plugin.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_health_indicator">Health Indicator</h3>
@@ -2826,7 +2829,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-10 18:23:08 UTC
+Last updated 2016-08-10 19:20:31 UTC
 </div>
 </div>
 </body>
