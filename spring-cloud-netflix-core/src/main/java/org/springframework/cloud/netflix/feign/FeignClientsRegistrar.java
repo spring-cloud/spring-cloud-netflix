@@ -184,8 +184,14 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		String alias = name + "FeignClient";
 		AbstractBeanDefinition beanDefinition = definition.getBeanDefinition();
 		beanDefinition.setPrimary(true);
+
+		String qualifier = getQualifier(attributes);
+		if (!StringUtils.hasText(qualifier)) {
+			qualifier = alias;
+		}
+
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className,
-				new String[] { alias });
+				new String[] { qualifier });
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
 	}
 
@@ -316,6 +322,17 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 					ClassUtils.getPackageName(importingClassMetadata.getClassName()));
 		}
 		return basePackages;
+	}
+	
+	private String getQualifier(Map<String, Object> client) {
+		if (client == null) {
+			return null;
+		}
+		String qualifier = (String) client.get("qualifier");
+		if (StringUtils.hasText(qualifier)) {
+			return qualifier;
+		}
+		return null;
 	}
 
 	private String getClientName(Map<String, Object> client) {

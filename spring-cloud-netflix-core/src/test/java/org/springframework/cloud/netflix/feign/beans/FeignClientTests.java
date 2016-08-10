@@ -26,6 +26,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -65,6 +66,7 @@ public class FeignClientTests {
 	@Autowired
 	private ApplicationContext context;
 
+	@Qualifier("uniquequalifier")
 	@Autowired
 	private org.springframework.cloud.netflix.feign.beans.extra.TestClient extraClient;
 

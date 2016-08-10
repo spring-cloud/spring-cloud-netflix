@@ -59,6 +59,12 @@ public @interface FeignClient {
 	 */
 	@AliasFor("value")
 	String name() default "";
+	
+	/**
+	 * Sets the <code>@Qualifier</code> for the feign client.
+	 * @return
+	 */
+	String qualifier() default "";
 
 	/**
 	 * An absolute URL or resolvable hostname (the protocol is optional).
