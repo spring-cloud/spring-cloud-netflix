@@ -21,7 +21,7 @@ import org.springframework.cloud.netflix.feign.beans.FeignClientTests.Hello;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(value = "otherapp")
+@FeignClient(value = "otherapp", qualifier = "uniquequalifier")
 public interface TestClient {
 	@RequestMapping(method = RequestMethod.GET, value = "/hello")
 	Hello getHello();
