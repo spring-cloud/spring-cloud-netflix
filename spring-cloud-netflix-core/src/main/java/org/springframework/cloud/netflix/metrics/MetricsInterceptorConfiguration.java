@@ -25,10 +25,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.google.common.collect.Lists;
 import com.netflix.servo.monitor.Monitors;
 
 /**
@@ -97,7 +99,8 @@ public class MetricsInterceptorConfiguration {
 						this.interceptor = this.context
 								.getBean(MetricsClientHttpRequestInterceptor.class);
 					}
-					((RestTemplate) bean).getInterceptors().add(interceptor);
+					((RestTemplate) bean).setInterceptors(Lists.asList(interceptor, ((RestTemplate) bean).getInterceptors().toArray(
+							new ClientHttpRequestInterceptor [((RestTemplate) bean).getInterceptors().size()])));
 				}
 				return bean;
 			}
