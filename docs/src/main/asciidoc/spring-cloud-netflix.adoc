@@ -507,6 +507,8 @@ If you want some thread local context to propagate into a `@HystrixCommand` the 
 
 The same thing applies if you are using `@SessionScope` or `@RequestScope`. You will know when you need to do this because of a runtime exception that says it can't find the scoped context.
 
+You also have the option to set the `hystrix.shareSecurityContext` property to `true`. Doing so will auto configure an Hystrix concurrency strategy plugin hook who will transfer the `SecurityContext` from your main thread to the one used by the Hystrix command. Hystrix does not allow multiple hystrix concurrency strategy to be registered so an extension mechanism is available by declaring your own `HystrixConcurrencyStrategy` as a Spring bean. Spring Cloud will lookup for your implementation within the Spring context and wrap it inside its own plugin. 
+
 ### Health Indicator
 
 The state of the connected circuit breakers are also exposed in the
