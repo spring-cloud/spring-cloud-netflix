@@ -2,7 +2,7 @@
 
 image::https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/1.1.x.svg?style=svg["CircleCI", link="https://circleci.com/gh/spring-cloud/spring-cloud-netflix/tree/1.1.x"]
 image::https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/1.1.x/graph/badge.svg["Codecov", link="https://codecov.io/gh/spring-cloud/spring-cloud-netflix/branch/1.1.x"]
-
+image::https://api.codacy.com/project/badge/Grade/a6885a06921e4f72a0df0b7aabd6d118?branch=1.1.x["Codacy code quality", link="https://www.codacy.com/app/Spring-Cloud/spring-cloud-netflix?branch=1.1.x&utm_source=github.com&utm_medium=referral&utm_content=spring-cloud/spring-cloud-netflix&utm_campaign=Badge_Grade"]
 
 This project provides Netflix OSS integrations for Spring Boot apps through autoconfiguration
 and binding to the Spring Environment and other Spring programming model idioms. With a few
