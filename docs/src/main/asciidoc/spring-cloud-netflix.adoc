@@ -847,6 +847,9 @@ Spring Cloud Netflix provides the following beans by default for feign (`BeanTyp
 * `Logger` feignLogger: `Slf4jLogger`
 * `Contract` feignContract: `SpringMvcContract`
 * `Feign.Builder` feignBuilder: `HystrixFeign.Builder`
+* `Client` feignClient: if Ribbon is enabled it is a `LoadBalancerFeignClient`, otherwise the default feign client is used.
+
+The OkHttpClient and ApacheHttpClient feign clients can be used by setting `feign.okhttp.enabled` or `feign.httpclient.enabled` to `true`, respectively, and having them on the classpath.
 
 Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
 
