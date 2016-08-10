@@ -16,44 +16,94 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.net.URI;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
  */
 public class RibbonClientConfigurationTests {
 
-	@Test
-	public void restClientInitCalledOnce() {
-		CountingConfig config = new CountingConfig();
-		config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
-		config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
-		config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
-		config.setClientName("testClient");
-		new TestRestClient(config);
-		assertThat(config.count, is(equalTo(1)));
-	}
+    private CountingConfig config;
 
-	static class CountingConfig extends DefaultClientConfigImpl {
-		int count = 0;
-	}
+    @Mock
+    private ServerIntrospector inspector;
 
-	static class TestRestClient extends RibbonClientConfiguration.OverrideRestClient {
 
-		private TestRestClient(IClientConfig ncc) {
-			super(ncc, new DefaultServerIntrospector());
-		}
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        config = new CountingConfig();
+        config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
+        config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
+        config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
+        config.setClientName("testClient");
+    }
 
-		@Override
-		public void initWithNiwsConfig(IClientConfig clientConfig) {
-			((CountingConfig) clientConfig).count++;
-			super.initWithNiwsConfig(clientConfig);
-		}
-	}
+    @Test
+    public void restClientInitCalledOnce() {
+        new TestRestClient(config);
+        assertThat(config.count, is(equalTo(1)));
+    }
+
+    static class CountingConfig extends DefaultClientConfigImpl {
+        int count = 0;
+    }
+
+    @Test
+    public void testSecureUriFromClientConfig() throws Exception {
+        Server server = new Server("foo", 7777);
+        when(inspector.isSecure(server)).thenReturn(true);
+
+        RibbonClientConfiguration.OverrideRestClient overrideRestClient = new RibbonClientConfiguration.OverrideRestClient(this.config, inspector);
+        URI uri = overrideRestClient.reconstructURIWithServer(server, new URI("http://foo/"));
+        assertThat(uri, is(new URI("https://foo:7777/")));
+    }
+
+    @Test
+    public void testInSecureUriFromClientConfig() throws Exception {
+        Server server = new Server("foo", 7777);
+        when(inspector.isSecure(server)).thenReturn(false);
+
+        RibbonClientConfiguration.OverrideRestClient overrideRestClient = new RibbonClientConfiguration.OverrideRestClient(this.config, inspector);
+        URI uri = overrideRestClient.reconstructURIWithServer(server, new URI("http://foo/"));
+        assertThat(uri, is(new URI("http://foo:7777/")));
+    }
+
+    @Test
+    public void testNotDoubleEncodedWhenSecure() throws Exception {
+        Server server = new Server("foo", 7777);
+        when(inspector.isSecure(server)).thenReturn(true);
+
+        RibbonClientConfiguration.OverrideRestClient overrideRestClient = new RibbonClientConfiguration.OverrideRestClient(this.config, inspector);
+        URI uri = overrideRestClient.reconstructURIWithServer(server, new URI("http://foo/%20bar"));
+        assertThat(uri, is(new URI("https://foo:7777/%20bar")));
+    }
+
+
+    static class TestRestClient extends RibbonClientConfiguration.OverrideRestClient {
+
+        private TestRestClient(IClientConfig ncc) {
+            super(ncc, new DefaultServerIntrospector());
+        }
+
+        @Override
+        public void initWithNiwsConfig(IClientConfig clientConfig) {
+            ((CountingConfig) clientConfig).count++;
+            super.initWithNiwsConfig(clientConfig);
+        }
+    }
 }
