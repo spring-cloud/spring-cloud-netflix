@@ -19,13 +19,11 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,17 +52,6 @@ public class RibbonCommandContext {
 	@NonNull
 	private final List<RibbonRequestCustomizer> requestCustomizers;
 	private Long contentLength;
-
-	public RibbonCommandContext(String serviceId, String method, String uri,
-			Boolean retryable, MultiValueMap<String, String> headers,
-			MultiValueMap<String, String> params, InputStream requestEntity) {
-		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-				new ArrayList<RibbonRequestCustomizer>(),
-				headers.containsKey("Content-Length") && StringUtils
-						.hasText(headers.getFirst("Content-Length").toString())
-								? new Long(headers.getFirst("Content-Length").toString())
-								: null);
-	}
 
 	public URI uri() {
 		try {

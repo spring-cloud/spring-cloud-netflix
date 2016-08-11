@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import org.junit.Before;
@@ -57,8 +58,10 @@ public class RestClientRibbonCommandTests {
 		headers.add("my-header", "my-value");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RestClientRibbonCommand command = new RestClientRibbonCommand("cmd", null, new RibbonCommandContext("example", "GET", uri, false,
-				headers, params, null), zuulProperties);
+		RestClientRibbonCommand command = 
+				new RestClientRibbonCommand("cmd", null,
+				new RibbonCommandContext("example", "GET", uri, false, headers, params, null,new ArrayList<RibbonRequestCustomizer>()),
+				zuulProperties);
 
 		HttpRequest request = command.createRequest();
 

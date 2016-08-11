@@ -39,16 +39,6 @@ import com.netflix.niws.client.http.RestClient;
 @SuppressWarnings("deprecation")
 public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
-	@SuppressWarnings("unused")
-	@Deprecated
-	public RestClientRibbonCommand(String commandKey, RestClient restClient, HttpRequest.Verb verb, String uri,
-								   Boolean retryable, MultiValueMap<String, String> headers,
-								   MultiValueMap<String, String> params, InputStream requestEntity,
-								   ZuulProperties zuulProperties) {
-		this(commandKey, restClient, 
-				new RibbonCommandContext(commandKey, verb.verb(), uri, retryable, headers, params, requestEntity), zuulProperties);
-	}
-
 	public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context, ZuulProperties zuulProperties) {
 		super(commandKey, client, context, zuulProperties);
 	}

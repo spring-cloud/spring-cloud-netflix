@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import org.apache.http.HttpEntity;
@@ -56,8 +57,9 @@ public class RibbonApacheHttpRequestTests {
 		headers.add(HttpEncoding.CONTENT_LENGTH, "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(new RibbonCommandContext("example", "GET", uri, false,
-				headers, params, null));
+		RibbonApacheHttpRequest httpRequest = 
+				new RibbonApacheHttpRequest(
+						new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()));
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
