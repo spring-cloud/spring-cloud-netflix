@@ -52,7 +52,7 @@ public class ZuulProperties {
 	 * duplicated if the proxy and the backend are secured with Spring. By default they
 	 * are added to the ignored headers if Spring Security is present.
 	 */
-	private static final List<String> SECURITY_HEADERS = Arrays.asList("Pragma",
+	public static final List<String> SECURITY_HEADERS = Arrays.asList("Pragma",
 			"Cache-Control", "X-Frame-Options", "X-Content-Type-Options",
 			"X-XSS-Protection", "Expires");
 

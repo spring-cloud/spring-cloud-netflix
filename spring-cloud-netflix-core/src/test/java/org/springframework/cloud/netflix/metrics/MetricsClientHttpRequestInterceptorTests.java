@@ -15,8 +15,11 @@ package org.springframework.cloud.netflix.metrics;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
@@ -28,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -58,6 +62,9 @@ public class MetricsClientHttpRequestInterceptorTests {
 	@Autowired
 	RestTemplate restTemplate;
 
+	@Autowired
+	RestTemplate restTemplateWithFakeInterceptorsList;
+
 	@Test
 	public void metricsGatheredWhenSuccessful() {
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
@@ -79,6 +86,28 @@ public class MetricsClientHttpRequestInterceptorTests {
 
 		mockServer.verify();
 	}
+
+	@Test
+	public void restTemplateWithFakeInterceptorList() {
+		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplateWithFakeInterceptorsList);
+		mockServer.expect(MockRestRequestMatchers.requestTo("/test/123"))
+				.andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+				.andRespond(MockRestResponseCreators.withSuccess("OK", MediaType.APPLICATION_JSON));
+		String s = restTemplate.getForObject("/test/{id}", String.class, 123);
+
+		MonitorConfig.Builder builder = new MonitorConfig.Builder("metricName")
+				.withTag("method", "GET")
+				.withTag("uri", "_test_-id-")
+				.withTag("status", "200")
+				.withTag("clientName", "none");
+
+		BasicTimer timer = servoMonitorCache.getTimer(builder.build());
+
+		assertEquals(2L, (long) timer.getCount());
+		assertEquals("OK", s);
+
+		mockServer.verify();
+	}
 }
 
 @Configuration
@@ -95,7 +124,15 @@ class MetricsRestTemplateTestConfig {
 @Configuration
 class MetricsRestTemplateRestTemplateConfig {
 	@Bean
+	@Primary
 	RestTemplate restTemplate() {
 		return new RestTemplate();
+	}
+
+	@Bean(name="restTemplateWithFakeInterceptorsList")
+	RestTemplate restTemplateWithFakeInterceptorsList() {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.setInterceptors(Arrays.asList(Mockito.mock(ClientHttpRequestInterceptor.class)));
+		return restTemplate;
 	}
 }

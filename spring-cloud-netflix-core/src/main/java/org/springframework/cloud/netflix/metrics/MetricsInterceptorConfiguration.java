@@ -13,6 +13,8 @@
 
 package org.springframework.cloud.netflix.metrics;
 
+import java.util.ArrayList;
+
 import org.aspectj.lang.JoinPoint;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -25,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -80,8 +83,8 @@ public class MetricsInterceptorConfiguration {
 			return new MetricsInterceptorPostProcessor();
 		}
 
-		private static class MetricsInterceptorPostProcessor implements
-				BeanPostProcessor, ApplicationContextAware {
+		private static class MetricsInterceptorPostProcessor
+				implements BeanPostProcessor, ApplicationContextAware {
 			private ApplicationContext context;
 			private MetricsClientHttpRequestInterceptor interceptor;
 
@@ -97,7 +100,12 @@ public class MetricsInterceptorConfiguration {
 						this.interceptor = this.context
 								.getBean(MetricsClientHttpRequestInterceptor.class);
 					}
-					((RestTemplate) bean).getInterceptors().add(interceptor);
+					RestTemplate restTemplate = (RestTemplate) bean;
+					// create a new list as the old one may be unmodifiable (ie Arrays.asList())
+					ArrayList<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+					interceptors.add(interceptor);
+					interceptors.addAll(restTemplate.getInterceptors());
+					restTemplate.setInterceptors(interceptors);
 				}
 				return bean;
 			}

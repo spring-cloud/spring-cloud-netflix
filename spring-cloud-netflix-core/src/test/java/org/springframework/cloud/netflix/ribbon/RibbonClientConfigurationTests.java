@@ -16,26 +16,46 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import java.net.URI;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.OverrideRestClient;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import org.junit.Test;
+import com.netflix.loadbalancer.Server;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
  */
 public class RibbonClientConfigurationTests {
 
-	@Test
-	public void restClientInitCalledOnce() {
-		CountingConfig config = new CountingConfig();
+	private CountingConfig config;
+
+	@Mock
+	private ServerIntrospector inspector;
+
+	@Before
+	public void setup() {
+		MockitoAnnotations.initMocks(this);
+		config = new CountingConfig();
 		config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
 		config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
 		config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
 		config.setClientName("testClient");
+	}
+
+	@Test
+	public void restClientInitCalledOnce() {
 		new TestRestClient(config);
 		assertThat(config.count, is(equalTo(1)));
 	}
@@ -44,7 +64,43 @@ public class RibbonClientConfigurationTests {
 		int count = 0;
 	}
 
-	static class TestRestClient extends RibbonClientConfiguration.OverrideRestClient {
+	@Test
+	public void testSecureUriFromClientConfig() throws Exception {
+		Server server = new Server("foo", 7777);
+		when(inspector.isSecure(server)).thenReturn(true);
+
+		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
+				inspector);
+		URI uri = overrideRestClient.reconstructURIWithServer(server,
+				new URI("http://foo/"));
+		assertThat(uri, is(new URI("https://foo:7777/")));
+	}
+
+	@Test
+	public void testInSecureUriFromClientConfig() throws Exception {
+		Server server = new Server("foo", 7777);
+		when(inspector.isSecure(server)).thenReturn(false);
+
+		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
+				inspector);
+		URI uri = overrideRestClient.reconstructURIWithServer(server,
+				new URI("http://foo/"));
+		assertThat(uri, is(new URI("http://foo:7777/")));
+	}
+
+	@Test
+	public void testNotDoubleEncodedWhenSecure() throws Exception {
+		Server server = new Server("foo", 7777);
+		when(inspector.isSecure(server)).thenReturn(true);
+
+		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
+				inspector);
+		URI uri = overrideRestClient.reconstructURIWithServer(server,
+				new URI("http://foo/%20bar"));
+		assertThat(uri, is(new URI("https://foo:7777/%20bar")));
+	}
+
+	static class TestRestClient extends OverrideRestClient {
 
 		private TestRestClient(IClientConfig ncc) {
 			super(ncc, new DefaultServerIntrospector());

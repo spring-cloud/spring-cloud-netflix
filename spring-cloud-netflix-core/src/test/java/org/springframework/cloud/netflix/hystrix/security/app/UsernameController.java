@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.feign.beans.extra;
+package org.springframework.cloud.netflix.hystrix.security.app;
 
-import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.cloud.netflix.feign.beans.FeignClientTests.Hello;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-@FeignClient(value = "otherapp", qualifier = "uniquequalifier")
-public interface TestClient {
-	@RequestMapping(method = RequestMethod.GET, value = "/hello")
-	Hello getHello();
+/**
+ * @author Daniel Lavoie
+ */
+@RestController
+@RequestMapping("/username")
+public class UsernameController {
+	@RequestMapping
+	public String getUsername(@RequestHeader String username){
+		return username;
+	}
 }
