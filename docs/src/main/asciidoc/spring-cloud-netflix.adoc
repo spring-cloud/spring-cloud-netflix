@@ -507,6 +507,8 @@ If you want some thread local context to propagate into a `@HystrixCommand` the 
 
 The same thing applies if you are using `@SessionScope` or `@RequestScope`. You will know when you need to do this because of a runtime exception that says it can't find the scoped context.
 
+You also have the option to set the `hystrix.shareSecurityContext` property to `true`. Doing so will auto configure an Hystrix concurrency strategy plugin hook who will transfer the `SecurityContext` from your main thread to the one used by the Hystrix command. Hystrix does not allow multiple hystrix concurrency strategy to be registered so an extension mechanism is available by declaring your own `HystrixConcurrencyStrategy` as a Spring bean. Spring Cloud will lookup for your implementation within the Spring context and wrap it inside its own plugin. 
+
 ### Health Indicator
 
 The state of the connected circuit breakers are also exposed in the
@@ -790,7 +792,12 @@ In the `@FeignClient` annotation the String value ("stores" above) is
 an arbitrary client name, which is used to create a Ribbon load
 balancer (see <<spring-cloud-ribbon,below for details of Ribbon
 support>>). You can also specify a URL using the `url` attribute
-(absolute value or just a hostname). The name of the bean in the application context is the fully qualified name of the interface. An alias is also created which is the 'name' attribute plus 'FeignClient'. For the example above, `@Qualifier("storesFeignClient")` could be used to reference the bean.
+(absolute value or just a hostname). The name of the bean in the
+application context is the fully qualified name of the interface.
+An alias is also created which is the 'name' attribute plus 'FeignClient'.
+For the example above, `@Qualifier("storesFeignClient")` could be used to
+reference the bean. If you want to change the default `@Qualifier` value,
+this can be done with the `qualifier` value in `@FeignClient`.
 
 The Ribbon client above will want to discover the physical addresses
 for the "stores" service. If your application is a Eureka client then
@@ -840,6 +847,9 @@ Spring Cloud Netflix provides the following beans by default for feign (`BeanTyp
 * `Logger` feignLogger: `Slf4jLogger`
 * `Contract` feignContract: `SpringMvcContract`
 * `Feign.Builder` feignBuilder: `HystrixFeign.Builder`
+* `Client` feignClient: if Ribbon is enabled it is a `LoadBalancerFeignClient`, otherwise the default feign client is used.
+
+The OkHttpClient and ApacheHttpClient feign clients can be used by setting `feign.okhttp.enabled` or `feign.httpclient.enabled` to `true`, respectively, and having them on the classpath.
 
 Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
 

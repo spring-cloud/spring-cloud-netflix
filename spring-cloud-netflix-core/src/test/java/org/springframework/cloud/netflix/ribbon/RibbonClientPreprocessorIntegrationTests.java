@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessorIntegrationTests.PlainConfiguration;
 import org.springframework.context.annotation.Configuration;
@@ -28,13 +28,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.loadbalancer.*;
+import com.netflix.loadbalancer.ConfigurationBasedServerList;
+import com.netflix.loadbalancer.NoOpPing;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 /**
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = PlainConfiguration.class)
+@SpringBootTest(classes = PlainConfiguration.class)
 @DirtiesContext
 public class RibbonClientPreprocessorIntegrationTests {
 

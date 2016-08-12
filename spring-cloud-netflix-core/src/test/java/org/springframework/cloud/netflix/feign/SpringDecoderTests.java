@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,30 +29,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SpringDecoderTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=springdecodertest",
-		"spring.jmx.enabled=true" })
+@SpringBootTest(classes = SpringDecoderTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=springdecodertest", "spring.jmx.enabled=true" })
 @DirtiesContext
 public class SpringDecoderTests extends FeignClientFactoryBean {
 
@@ -83,7 +80,8 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		assertEquals("wrong status code", HttpStatus.OK, response.getStatusCode());
 		Hello hello = response.getBody();
 		assertNotNull("hello was null", hello);
-		assertEquals("first hello didn't match", new Hello("hello world via response"), hello);
+		assertEquals("first hello didn't match", new Hello("hello world via response"),
+				hello);
 	}
 
 	@Test
@@ -198,13 +196,14 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 
 		@Override
 		public ResponseEntity<String> getNotFound() {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String)null);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String) null);
 		}
 
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=springdecodertest",
-					"management.contextPath=/admin").run(args);
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=springdecodertest",
+							"management.contextPath=/admin")
+					.run(args);
 		}
 	}
 

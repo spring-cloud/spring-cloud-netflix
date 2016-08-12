@@ -1,0 +1,26 @@
+general:
+  branches:
+    ignore:
+      - gh-pages # list of branches to ignore
+machine:
+  java:
+    version: oraclejdk8
+  environment:
+    _JAVA_OPTIONS: "-Xms1024m -Xmx2048m"
+dependencies:
+  override:
+    - ./mvnw -s .settings.xml -U --fail-never dependency:go-offline || true
+test:
+  override:
+    - ./mvnw -s .settings.xml clean install org.jacoco:jacoco-maven-plugin:prepare-agent install -U -P sonar -nsu --batch-mode -Dmaven.test.redirectTestOutputToFile=true -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+  post:
+    - find . -type f -regex ".*/spring-cloud-*.*/target/*.*" | cpio -pdm $CIRCLE_ARTIFACTS
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/.*-reports/.*" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    - bash <(curl -s https://codecov.io/bash)
+
+notify:
+  webhooks:
+    # A list of hook hashes, containing the url field
+    # gitter hook
+    - url: https://webhooks.gitter.im/e/22e6bb4eb945dd61ba54

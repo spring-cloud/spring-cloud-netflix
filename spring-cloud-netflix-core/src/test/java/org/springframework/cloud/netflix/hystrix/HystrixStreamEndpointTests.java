@@ -16,15 +16,20 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.InputStream;
+import java.net.URL;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,23 +37,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.InputStream;
-import java.net.URL;
-
-import static org.junit.Assert.*;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 /**
  * @author Dave Syer
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = HystrixStreamEndpointTests.Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=hystrixstreamtest" })
+@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=hystrixstreamtest" })
 @DirtiesContext
 public class HystrixStreamEndpointTests {
 
@@ -64,8 +64,9 @@ public class HystrixStreamEndpointTests {
 	@Test
 	public void hystrixStreamWorks() throws Exception {
 		String url = "http://localhost:" + port;
-		//you have to hit a Hystrix circuit breaker before the stream sends anything
-		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url, String.class);
+		// you have to hit a Hystrix circuit breaker before the stream sends anything
+		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
+				String.class);
 		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
 
 		URL hystrixUrl = new URL(url + "/admin/hystrix.stream");
@@ -103,4 +104,3 @@ public class HystrixStreamEndpointTests {
 		}
 	}
 }
-

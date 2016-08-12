@@ -16,33 +16,31 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.hystrix.dashboard.HystrixDashboardHomePageTests.Application;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
-@WebAppConfiguration
-@IntegrationTest({ "server.port=0", "spring.application.name=hystrix-dashboard" })
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"server.port=0", "spring.application.name=hystrix-dashboard" })
 public class HystrixDashboardHomePageTests {
 
 	@Value("${local.server.port}")
@@ -50,18 +48,17 @@ public class HystrixDashboardHomePageTests {
 
 	@Test
 	public void homePage() {
-		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port, String.class);
+		ResponseEntity<String> entity = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		entity.getBody().contains("<base href=\"/\">");
 	}
 
 	@Test
 	public void cssAvailable() {
-		ResponseEntity<String> entity = new TestRestTemplate()
-				.getForEntity(
-						"http://localhost:" + this.port + "/hystrix/css/global.css",
-						String.class);
+		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/hystrix/css/global.css",
+				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -84,8 +81,8 @@ public class HystrixDashboardHomePageTests {
 		}
 
 		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=hystrix-dashboard").run();
+			new SpringApplicationBuilder(Application.class)
+					.properties("spring.application.name=hystrix-dashboard").run();
 		}
 
 	}

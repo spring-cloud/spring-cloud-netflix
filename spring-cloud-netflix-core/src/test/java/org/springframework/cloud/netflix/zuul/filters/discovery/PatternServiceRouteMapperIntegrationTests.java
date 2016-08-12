@@ -1,5 +1,10 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.cloud.netflix.zuul.filters.discovery.PatternServiceRouteMapperIntegrationTests.SERVICE_ID;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -25,7 +30,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,19 +40,13 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.cloud.netflix.zuul.filters.discovery.PatternServiceRouteMapperIntegrationTests.SERVICE_ID;
-
 /**
  * @author Stéphane Leroy
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SampleCustomZuulProxyApplication.class)
-@WebIntegrationTest(value = { "spring.application.name=regex-test-application",
-		"spring.jmx.enabled=true" }, randomPort = true)
-@TestPropertySource(properties = "eureka.client.enabled=false")
+@SpringBootTest(classes = SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"spring.application.name=regex-test-application", "spring.jmx.enabled=true",
+		"eureka.client.enabled=false" })
 @DirtiesContext
 public class PatternServiceRouteMapperIntegrationTests {
 

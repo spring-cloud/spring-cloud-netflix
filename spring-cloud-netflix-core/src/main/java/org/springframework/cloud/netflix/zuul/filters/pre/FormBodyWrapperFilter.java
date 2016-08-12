@@ -26,6 +26,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
@@ -57,13 +59,19 @@ import com.netflix.zuul.http.ServletInputStreamWrapper;
 public class FormBodyWrapperFilter extends ZuulFilter {
 
 	private Field requestField;
+	private Field servletRequestField;
 
 	public FormBodyWrapperFilter() {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
+		this.servletRequestField = ReflectionUtils.findField(ServletRequestWrapper.class,
+				"request", ServletRequest.class);		
 		Assert.notNull(this.requestField,
 				"HttpServletRequestWrapper.req field not found");
+		Assert.notNull(this.servletRequestField,
+				"ServletRequestWrapper.request field not found");
 		this.requestField.setAccessible(true);
+		this.servletRequestField.setAccessible(true);
 	}
 
 	@Override
@@ -113,6 +121,9 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 					.getField(this.requestField, request);
 			wrapper = new FormBodyRequestWrapper(wrapped);
 			ReflectionUtils.setField(this.requestField, request, wrapper);
+			if(request instanceof ServletRequestWrapper) {
+				ReflectionUtils.setField(this.servletRequestField, request, wrapper);
+			}
 		}
 		else {
 			wrapper = new FormBodyRequestWrapper(request);
@@ -159,6 +170,11 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			}
 			return this.contentLength;
 		}
+		
+		@Override
+		public long getContentLengthLong() {
+			return getContentLength();
+		}
 
 		@Override
 		public ServletInputStream getInputStream() throws IOException {
@@ -184,10 +200,10 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 					MultipartRequest multi = (MultipartRequest) this.request;
 					for (Entry<String, List<MultipartFile>> parts : multi
 							.getMultiFileMap().entrySet()) {
-						for (Part file : this.request.getParts()) {
+						for (MultipartFile file : parts.getValue()) {
 							HttpHeaders headers = new HttpHeaders();
 							headers.setContentDispositionFormData(file.getName(),
-									file.getSubmittedFileName());
+									file.getOriginalFilename());
 							if (file.getContentType() != null) {
 								headers.setContentType(
 										MediaType.valueOf(file.getContentType()));

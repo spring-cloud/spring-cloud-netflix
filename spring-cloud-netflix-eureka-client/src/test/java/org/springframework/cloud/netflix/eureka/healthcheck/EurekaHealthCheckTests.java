@@ -25,18 +25,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
-
 
 /**
  * Tests the Eureka health check handler.
@@ -44,38 +42,37 @@ import com.netflix.discovery.EurekaClient;
  * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class)
-@WebAppConfiguration
-@IntegrationTest({"server.port=0", "eureka.client.healthcheck.enabled=true", "debug=true"})
+@SpringBootTest(classes = EurekaHealthCheckTests.EurekaHealthCheckApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"eureka.client.healthcheck.enabled=true", "debug=true" })
 @DirtiesContext
 public class EurekaHealthCheckTests {
 
-    @Autowired
-    private EurekaClient discoveryClient;
+	@Autowired
+	private EurekaClient discoveryClient;
 
-    @Test
-    public void shouldRegisterService() {
+	@Test
+	public void shouldRegisterService() {
 
-        InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
-                        .getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
+		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
+				.getStatus(InstanceInfo.InstanceStatus.UNKNOWN);
 
-        assertNotNull(status);
-        assertEquals(InstanceInfo.InstanceStatus.OUT_OF_SERVICE, status);
-    }
+		assertNotNull(status);
+		assertEquals(InstanceInfo.InstanceStatus.OUT_OF_SERVICE, status);
+	}
 
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableEurekaClient
-    protected static class EurekaHealthCheckApplication {
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableEurekaClient
+	protected static class EurekaHealthCheckApplication {
 
-        @Bean
-        public HealthIndicator healthIndicator() {
-            return new HealthIndicator() {
-                @Override
-                public Health health() {
-                    return new Health.Builder().outOfService().build();
-                }
-            };
-        }
-    }
+		@Bean
+		public HealthIndicator healthIndicator() {
+			return new HealthIndicator() {
+				@Override
+				public Health health() {
+					return new Health.Builder().outOfService().build();
+				}
+			};
+		}
+	}
 }
