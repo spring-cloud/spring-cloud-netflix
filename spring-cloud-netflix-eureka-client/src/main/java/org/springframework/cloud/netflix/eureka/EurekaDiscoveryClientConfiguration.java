@@ -22,9 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.health.HealthAggregator;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.OrderedHealthAggregator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -194,12 +192,26 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
+	@ConditionalOnProperty(name = "eureka.health.indicator.enabled", matchIfMissing = true)
 	protected static class EurekaHealthIndicatorConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
 		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 				EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
 			return new EurekaHealthIndicator(eurekaClient, instanceConfig, clientConfig);
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
+	protected static class EurekaEndpointConfiguration {
+
+		@Autowired(required = false)
+		private EurekaHealthCheckHandler eurekaHealthCheckHandler;
+
+		@Bean
+		public EurekaEndpoint eurekaInstanceStatusEndpoint(ApplicationInfoManager applicationInfoManager) {
+			return new EurekaEndpoint(applicationInfoManager, eurekaHealthCheckHandler);
 		}
 	}
 

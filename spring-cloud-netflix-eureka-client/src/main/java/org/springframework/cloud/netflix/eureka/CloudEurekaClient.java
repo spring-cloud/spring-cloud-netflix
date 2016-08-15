@@ -16,8 +16,12 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
@@ -26,6 +30,7 @@ import org.springframework.context.ApplicationContext;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Subclass of {@link DiscoveryClient} that sends a {@link HeartbeatEvent} when
@@ -38,6 +43,9 @@ public class CloudEurekaClient extends DiscoveryClient {
 	private final AtomicLong cacheRefreshedCount = new AtomicLong(0);
 
 	private ApplicationContext context;
+	private Field eurekaTransportField;
+	private ApplicationInfoManager applicationInfoManager;
+	private EurekaHttpClient eurekaHttpClient;
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
 			EurekaClientConfig config, ApplicationContext context) {
@@ -49,7 +57,34 @@ public class CloudEurekaClient extends DiscoveryClient {
 							 DiscoveryClientOptionalArgs args,
 							 ApplicationContext context) {
 		super(applicationInfoManager, config, args);
+		this.applicationInfoManager = applicationInfoManager;
 		this.context = context;
+		this.eurekaTransportField = ReflectionUtils.findField(DiscoveryClient.class, "eurekaTransport");
+		ReflectionUtils.makeAccessible(this.eurekaTransportField);
+	}
+
+	public void cancelOverrideStatus() {
+		InstanceInfo info = this.applicationInfoManager.getInfo();
+		getEurekaHttpClient().deleteStatusOverride(info.getAppName(), info.getId(), info);
+	}
+
+	EurekaHttpClient getEurekaHttpClient() {
+		if (eurekaHttpClient == null) {
+			try {
+				Object eurekaTransport = this.eurekaTransportField.get(this);
+				Field registrationClientField = ReflectionUtils.findField(eurekaTransport.getClass(), "registrationClient");
+				ReflectionUtils.makeAccessible(registrationClientField);
+				eurekaHttpClient = (EurekaHttpClient) registrationClientField.get(eurekaTransport);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return eurekaHttpClient;
+	}
+
+	public void setStatus(InstanceStatus newStatus) {
+		InstanceInfo info = this.applicationInfoManager.getInfo();
+		getEurekaHttpClient().statusUpdate(info.getAppName(), info.getId(), newStatus, info);
 	}
 
 	@Override
