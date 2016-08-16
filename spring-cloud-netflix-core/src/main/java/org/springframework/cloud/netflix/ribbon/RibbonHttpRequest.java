@@ -108,6 +108,6 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	}
 
 	private boolean isDynamic(String name) {
-		return name.equalsIgnoreCase("Content-Length") || name.equalsIgnoreCase("Transfer-Encoding");
+		return "Content-Length".equalsIgnoreCase(name) || "Transfer-Encoding".equalsIgnoreCase(name);
 	}
 }

@@ -20,6 +20,7 @@ package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonRequest;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonResponse;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 
@@ -29,8 +30,10 @@ import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibb
 public class OkHttpRibbonCommand extends AbstractRibbonCommand<OkHttpLoadBalancingClient, OkHttpRibbonRequest, OkHttpRibbonResponse> {
 
 	public OkHttpRibbonCommand(final String commandKey,
-							   final OkHttpLoadBalancingClient client, RibbonCommandContext context) {
-		super(commandKey, client, context);
+							   final OkHttpLoadBalancingClient client, 
+							   final RibbonCommandContext context,
+							   final ZuulProperties zuulProperties) {
+		super(commandKey, client, context, zuulProperties);
 	}
 
 	@Override

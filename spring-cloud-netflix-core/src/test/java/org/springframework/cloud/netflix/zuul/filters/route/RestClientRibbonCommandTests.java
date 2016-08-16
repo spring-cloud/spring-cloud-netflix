@@ -27,10 +27,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 
@@ -41,6 +44,13 @@ import com.netflix.client.http.HttpRequest;
  */
 public class RestClientRibbonCommandTests {
 
+	private ZuulProperties zuulProperties;
+	
+	@Before
+	public void setUp()	{
+		zuulProperties = new ZuulProperties();
+	}
+	
 	@Test
 	public void testNullEntity() throws Exception {
 		String uri = "http://example.com";
@@ -48,8 +58,10 @@ public class RestClientRibbonCommandTests {
 		headers.add("my-header", "my-value");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RestClientRibbonCommand command = new RestClientRibbonCommand("cmd", null, new RibbonCommandContext("example", "GET", uri, false,
-				headers, params, null));
+		RestClientRibbonCommand command = 
+				new RestClientRibbonCommand("cmd", null,
+				new RibbonCommandContext("example", "GET", uri, false, headers, params, null,new ArrayList<RibbonRequestCustomizer>()),
+				zuulProperties);
 
 		HttpRequest request = command.createRequest();
 
@@ -96,7 +108,7 @@ public class RestClientRibbonCommandTests {
 				uri.toString(), false, headers, new LinkedMultiValueMap<String, String>(),
 				requestEntity, Collections.singletonList(requestCustomizer));
 		context.setContentLength(length);
-		RestClientRibbonCommand command = new RestClientRibbonCommand("cmd", null, context);
+		RestClientRibbonCommand command = new RestClientRibbonCommand("cmd", null, context, zuulProperties);
 
 		HttpRequest request = command.createRequest();
 
