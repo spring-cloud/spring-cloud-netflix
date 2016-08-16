@@ -14,6 +14,7 @@
 	<properties>
 		<docs.main>spring-cloud-netflix</docs.main>
 		<main.basedir>${basedir}/..</main.basedir>
+		<docs.whitelisted.branches>1.0.x,1.1.x</docs.whitelisted.branches>
 	</properties>
  	<build>
 		<plugins>
