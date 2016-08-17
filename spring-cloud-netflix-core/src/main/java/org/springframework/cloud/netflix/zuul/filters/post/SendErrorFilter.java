@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import java.io.IOException;
+
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import lombok.extern.apachecommons.CommonsLog;
@@ -76,19 +79,26 @@ public class SendErrorFilter extends ZuulFilter {
 				request.setAttribute("javax.servlet.error.message", message);
 			}
 
-			RequestDispatcher dispatcher = request.getRequestDispatcher(
-					this.errorPath);
-			if (dispatcher != null) {
-				ctx.set(SEND_ERROR_FILTER_RAN, true);
-				if (!ctx.getResponse().isCommitted()) {
-					dispatcher.forward(request, ctx.getResponse());
-				}
-			}
+			doOnError(ctx, request);
 		}
 		catch (Exception ex) {
 			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
+	}
+
+	/**
+	 * Dispatches to error path
+	 */
+	protected void doOnError(RequestContext ctx, HttpServletRequest request) throws ServletException, IOException {
+		RequestDispatcher dispatcher = request.getRequestDispatcher(
+				this.errorPath);
+		if (dispatcher != null) {
+			ctx.set(SEND_ERROR_FILTER_RAN, true);
+			if (!ctx.getResponse().isCommitted()) {
+				dispatcher.forward(request, ctx.getResponse());
+			}
+		}
 	}
 
 	public void setErrorPath(String errorPath) {

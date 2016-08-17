@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class SendResponseFilter extends ZuulFilter {
 		return null;
 	}
 
-	private void writeResponse() throws Exception {
+	protected void writeResponse() throws Exception {
 		RequestContext context = RequestContext.getCurrentContext();
 		// there is no body to send
 		if (context.getResponseBody() == null
@@ -184,7 +184,7 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 	}
 
-	private void addResponseHeaders() {
+	protected void addResponseHeaders() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletResponse servletResponse = context.getResponse();
 		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
