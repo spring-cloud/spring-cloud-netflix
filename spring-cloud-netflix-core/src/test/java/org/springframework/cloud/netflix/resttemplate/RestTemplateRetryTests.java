@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RestTemplateRetryTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=resttemplatetest",
+		"spring.application.name=resttemplatetest", "logging.level.com.netflix=DEBUG",
 		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
 		"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=0",
 		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })

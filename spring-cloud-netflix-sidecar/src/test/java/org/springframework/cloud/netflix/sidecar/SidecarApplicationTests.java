@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +23,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -43,7 +43,6 @@ public class SidecarApplicationTests {
 		assertThat(this.config.getHostname(), equalTo("mhhost"));
 		assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
 		assertThat(this.config.getNonSecurePort(), equalTo(7000));
-		System.out.println();
 	}
 
 }
