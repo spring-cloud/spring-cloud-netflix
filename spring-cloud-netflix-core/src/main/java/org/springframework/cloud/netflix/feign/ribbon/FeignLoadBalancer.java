@@ -123,9 +123,7 @@ public class FeignLoadBalancer extends
 					request.headers());
 			// Apache client barfs if you set the content length
 			headers.remove(Util.CONTENT_LENGTH);
-			return new RequestTemplate().method(request.method())
-					.append(getUri().toASCIIString())
-					.body(request.body(), request.charset()).headers(headers).request();
+			return Request.create(request.method(),getUri().toASCIIString(),headers,request.body(),request.charset());
 		}
 
 		Request toRequest() {

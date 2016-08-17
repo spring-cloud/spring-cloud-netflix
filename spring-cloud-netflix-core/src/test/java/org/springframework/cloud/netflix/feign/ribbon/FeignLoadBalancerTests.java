@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -113,4 +114,21 @@ public class FeignLoadBalancerTests {
 				new URI("http://bar/"));
 		assertThat(uri, is(new URI("https://foo:443/")));
 	}
+
+	@Test
+	@SneakyThrows
+	public void testRibbonRequestURLEncode() {
+		String url = "http://foo/?name=%7bcookie";//name={cookie
+		Request request = Request.create("GET",url,new HashMap(),null,null);
+
+		assertThat(request.url(),is(url));
+
+		RibbonRequest ribbonRequest = new RibbonRequest(this.delegate,request,new URI(request.url()));
+
+		Request cloneRequest = ribbonRequest.toRequest();
+
+		assertThat(cloneRequest.url(),is(url));
+
+	}
+
 }
