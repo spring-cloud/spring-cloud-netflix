@@ -112,8 +112,8 @@ public class EurekaClientAutoConfigurationTests {
 		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
 				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka");
 		setupContext(MockClientConfiguration.class);
-		//ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
-		//Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
+		// ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
+		// Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
 	private void testNonSecurePort(String propName) {
