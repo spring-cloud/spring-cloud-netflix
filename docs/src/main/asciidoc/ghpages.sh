@@ -27,9 +27,23 @@ fi
 
 # Prop that will let commit the changes
 COMMIT_CHANGES="no"
+MAVEN_PATH=${MAVEN_PATH:-}
+echo "Path to Maven is [${MAVEN_PATH}]"
+
+# Code getting the name of the current branch. For master we want to publish as we did until now
+# http://stackoverflow.com/questions/1593051/how-to-programmatically-determine-the-current-checked-out-git-branch
+# If there is a branch already passed will reuse it - otherwise will try to find it
+CURRENT_BRANCH=${BRANCH}
+if [[ -z "${CURRENT_BRANCH}" ]] ; then
+  CURRENT_BRANCH=$(git symbolic-ref -q HEAD)
+  CURRENT_BRANCH=${CURRENT_BRANCH##refs/heads/}
+  CURRENT_BRANCH=${CURRENT_BRANCH:-HEAD}
+fi
+echo "Current branch is [${CURRENT_BRANCH}]"
+git checkout ${CURRENT_BRANCH}
 
 # Get the name of the `docs.main` property
-MAIN_ADOC_VALUE=$(mvn -q \
+MAIN_ADOC_VALUE=$("${MAVEN_PATH}"mvn -q \
     -Dexec.executable="echo" \
     -Dexec.args='${docs.main}' \
     --non-recursive \
@@ -38,7 +52,7 @@ echo "Extracted 'main.adoc' from Maven build [${MAIN_ADOC_VALUE}]"
 
 # Get whitelisted branches - assumes that a `docs` module is available under `docs` profile
 WHITELIST_PROPERTY="docs.whitelisted.branches"
-WHITELISTED_BRANCHES_VALUE=$(mvn -q \
+WHITELISTED_BRANCHES_VALUE=$("${MAVEN_PATH}"mvn -q \
     -Dexec.executable="echo" \
     -Dexec.args="\${${WHITELIST_PROPERTY}}" \
     org.codehaus.mojo:exec-maven-plugin:1.3.1:exec \
@@ -46,17 +60,9 @@ WHITELISTED_BRANCHES_VALUE=$(mvn -q \
     -pl docs)
 echo "Extracted '${WHITELIST_PROPERTY}' from Maven build [${WHITELISTED_BRANCHES_VALUE}]"
 
-# Code getting the name of the current branch. For master we want to publish as we did until now
-# http://stackoverflow.com/questions/1593051/how-to-programmatically-determine-the-current-checked-out-git-branch
-CURRENT_BRANCH=$(git symbolic-ref -q HEAD)
-CURRENT_BRANCH=${CURRENT_BRANCH##refs/heads/}
-CURRENT_BRANCH=${CURRENT_BRANCH:-HEAD}
-echo "Current branch is [${CURRENT_BRANCH}]"
-
 # Stash any outstanding changes
 ###################################################################
-git diff-index --quiet HEAD
-dirty=$?
+git diff-index --quiet HEAD && dirty=$? || (echo "Failed to check if the current repo is dirty. Assuming that it is." && dirty="1")
 if [ "$dirty" != "0" ]; then git stash; fi
 
 # Switch to gh-pages branch to sync it with master
