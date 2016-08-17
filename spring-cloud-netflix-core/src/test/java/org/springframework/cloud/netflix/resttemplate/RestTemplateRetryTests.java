@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +47,7 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = RestTemplateRetryTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=resttemplatetest",
 		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
-		"badClients.ribbon.MaxAutoRetries=0",
+		"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=0",
 		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
 @DirtiesContext
 public class RestTemplateRetryTests {
@@ -265,7 +266,7 @@ class LocalBadClientConfiguration {
 
 		goodServer = new Server("localhost", this.port);
 		badServer = new Server("mybadhost", 10001);
-		badServer2 = new Server("localhost", -1);
+		badServer2 = new Server("localhost", SocketUtils.findAvailableTcpPort());
 
 		balancer = LoadBalancerBuilder.newBuilder().withClientConfig(config)
 				.withRule(rule).withPing(ping).buildFixedServerListLoadBalancer(
