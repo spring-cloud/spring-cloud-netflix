@@ -91,6 +91,34 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void xForwardedHostHasPort() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+	}
+
+	@Test
+	public void hostHeaderSet() throws Exception {
+		this.properties.setPrefix("/api");
+		this.properties.setAddHostHeader(true);
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("host"));
+	}
+
+	@Test
 	public void prefixRouteAddsHeader() throws Exception {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
@@ -132,6 +160,86 @@ public class PreDecorationFilterTests {
 				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("1.2.3.4, 5.6.7.8",
 				ctx.getZuulRequestHeaders().get("x-forwarded-for"));
+		assertEquals("foo",
+				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+	}
+
+	@Test
+	public void routeWithContextPath() {
+		this.properties.setStripPrefix(false);
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setContextPath("/context-path");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/api/foo/1", ctx.get("requestURI"));
+		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertEquals("/context-path",
+				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
+		assertEquals("foo",
+				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+	}
+
+	@Test
+	public void prefixRouteWithContextPath() {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setContextPath("/context-path");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/foo/1", ctx.get("requestURI"));
+		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertEquals("/context-path/api",
+				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
+		assertEquals("foo",
+				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+	}
+
+	@Test
+	public void routeIgnoreContextPathIfPrefixHeader() {
+		this.properties.setStripPrefix(false);
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setContextPath("/context-path");
+		this.request.addHeader("X-Forwarded-Prefix", "/prefix");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/api/foo/1", ctx.get("requestURI"));
+		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertEquals("/prefix",
+				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
+		assertEquals("foo",
+				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+	}
+
+	@Test
+	public void prefixRouteIgnoreContextPathIfPrefixHeader() {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setContextPath("/context-path");
+		this.request.addHeader("X-Forwarded-Prefix", "/prefix");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/foo/1", ctx.get("requestURI"));
+		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertEquals("/prefix/api",
+				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
 	}
@@ -377,7 +485,7 @@ public class PreDecorationFilterTests {
 		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
 				sensitiveHeaders.containsAll(Arrays.asList("x-bar", "x-foo")));
 	}
-	
+
 	@Test
 	public void urlProperlyDecodedWhenCharacterEncodingIsSet() throws Exception {
 		this.request.setCharacterEncoding("UTF-8");

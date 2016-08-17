@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -35,6 +37,8 @@ import lombok.extern.apachecommons.CommonsLog;
 
 @CommonsLog
 public class PreDecorationFilter extends ZuulFilter {
+
+	public static final int FILTER_ORDER = 5;
 
 	private RouteLocator routeLocator;
 
@@ -58,7 +62,7 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	@Override
 	public int filterOrder() {
-		return 5;
+		return FILTER_ORDER;
 	}
 
 	@Override
@@ -115,29 +119,34 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
 				}
 				if (this.properties.isAddProxyHeaders()) {
-					ctx.addZuulRequestHeader("X-Forwarded-Host",
-							ctx.getRequest().getServerName());
+					ctx.addZuulRequestHeader("X-Forwarded-Host", toHostHeader(ctx.getRequest()));
 					ctx.addZuulRequestHeader("X-Forwarded-Port",
 							String.valueOf(ctx.getRequest().getServerPort()));
 					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
 							ctx.getRequest().getScheme());
+					String forwardedPrefix =
+							ctx.getRequest().getHeader("X-Forwarded-Prefix");
+					String contextPath = ctx.getRequest().getContextPath();
+					String prefix = StringUtils.hasLength(forwardedPrefix)
+							? forwardedPrefix
+							: (StringUtils.hasLength(contextPath) ? contextPath : null);
 					if (StringUtils.hasText(route.getPrefix())) {
-						String existingPrefix = ctx.getRequest()
-								.getHeader("X-Forwarded-Prefix");
 						StringBuilder newPrefixBuilder = new StringBuilder();
-						if (StringUtils.hasLength(existingPrefix)) {
-							if (existingPrefix.endsWith("/")
+						if (prefix != null) {
+							if (prefix.endsWith("/")
 									&& route.getPrefix().startsWith("/")) {
-								newPrefixBuilder.append(existingPrefix, 0,
-										existingPrefix.length() - 1);
+								newPrefixBuilder.append(prefix, 0,
+										prefix.length() - 1);
 							}
 							else {
-								newPrefixBuilder.append(existingPrefix);
+								newPrefixBuilder.append(prefix);
 							}
 						}
 						newPrefixBuilder.append(route.getPrefix());
-						ctx.addZuulRequestHeader("X-Forwarded-Prefix",
-								newPrefixBuilder.toString());
+						prefix = newPrefixBuilder.toString();
+					}
+					if (prefix != null) {
+						ctx.addZuulRequestHeader("X-Forwarded-Prefix", prefix);
 					}
 					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
@@ -148,6 +157,9 @@ public class PreDecorationFilter extends ZuulFilter {
 						xforwardedfor += ", " + remoteAddr;
 					}
 					ctx.addZuulRequestHeader("X-Forwarded-For", xforwardedfor);
+				}
+				if (this.properties.isAddHostHeader()) {
+					ctx.addZuulRequestHeader("Host", toHostHeader(ctx.getRequest()));
 				}
 			}
 		}
@@ -180,6 +192,15 @@ public class PreDecorationFilter extends ZuulFilter {
 			ctx.set("forward.to", forwardURI);
 		}
 		return null;
+	}
+
+	private String toHostHeader(HttpServletRequest request) {
+		int port = request.getServerPort();
+		if ((port == 80 && "http".equals(request.getScheme())) || (port == 443 && "https".equals(request.getScheme()))) {
+			return request.getServerName();
+		} else {
+			return request.getServerName() + ":" + port;
+		}
 	}
 
 	private URL getUrl(String target) {
