@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>spring-cloud-netflix-eureka-server</artifactId>
 	<name>Spring Cloud Netflix Eureka Server</name>
-	<url>http://projects.spring.io/spring-cloud/</url>
+	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 		<wro4j.version>1.7.9</wro4j.version>

@@ -11,10 +11,10 @@
 	<artifactId>spring-cloud-starter-turbine-amqp</artifactId>
 	<name>spring-cloud-starter-turbine-amqp</name>
 	<description>Spring Cloud Starter Turbine AMQP (deprecated, please use spring-cloud-starter-turbine-stream)</description>
-	<url>http://projects.spring.io/spring-cloud</url>
+	<url>https://projects.spring.io/spring-cloud</url>
 	<organization>
 		<name>Pivotal Software, Inc.</name>
-		<url>http://www.spring.io</url>
+		<url>https://www.spring.io</url>
 	</organization>
 	<properties>
 		<main.basedir>${basedir}/../..</main.basedir>

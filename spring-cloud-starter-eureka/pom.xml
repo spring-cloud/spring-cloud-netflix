@@ -11,10 +11,10 @@
 	<artifactId>spring-cloud-starter-eureka</artifactId>
 	<name>spring-cloud-starter-eureka</name>
 	<description>Spring Cloud Starter</description>
-	<url>http://projects.spring.io/spring-cloud</url>
+	<url>https://projects.spring.io/spring-cloud</url>
 	<organization>
 		<name>Pivotal Software, Inc.</name>
-		<url>http://www.spring.io</url>
+		<url>https://www.spring.io</url>
 	</organization>
 	<properties>
 		<main.basedir>${basedir}/../..</main.basedir>

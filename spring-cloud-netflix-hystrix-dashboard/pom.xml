@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>spring-cloud-netflix-hystrix-dashboard</artifactId>
 	<name>Spring Cloud Netflix Hystrix</name>
-	<url>http://projects.spring.io/spring-cloud/</url>
+	<url>https://projects.spring.io/spring-cloud/</url>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
