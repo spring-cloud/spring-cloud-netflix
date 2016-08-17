@@ -41,7 +41,6 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
@@ -180,7 +179,7 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				final SpringClientFactory clientFactory) {
-			return new HttpClientRibbonCommandFactory(clientFactory, new ZuulProperties());
+			return new HttpClientRibbonCommandFactory(clientFactory);
 		}
 
 		@Bean

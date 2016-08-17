@@ -20,7 +20,6 @@ package org.springframework.cloud.netflix.zuul.filters.route.apache;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpRequest;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpResponse;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 
@@ -30,10 +29,8 @@ import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibb
 public class HttpClientRibbonCommand extends AbstractRibbonCommand<RibbonLoadBalancingHttpClient, RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
 
 	public HttpClientRibbonCommand(final String commandKey,
-								   final RibbonLoadBalancingHttpClient client,
-								   final RibbonCommandContext context,
-								   final ZuulProperties zuulProperties) {
-		super(commandKey, client, context, zuulProperties);
+								   final RibbonLoadBalancingHttpClient client, RibbonCommandContext context) {
+		super(commandKey, client, context);
 	}
 
 	@Override

@@ -17,32 +17,28 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-
 import com.netflix.client.http.HttpRequest;
-import com.netflix.niws.client.http.RestClient;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
-import lombok.RequiredArgsConstructor;
+import com.netflix.niws.client.http.RestClient;
 
 /**
  * @author Spencer Gibb
  */
-@RequiredArgsConstructor
-public class RestClientRibbonCommandFactory
-		implements RibbonCommandFactory<RestClientRibbonCommand> {
+public class RestClientRibbonCommandFactory implements RibbonCommandFactory<RestClientRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
 
-	private final ZuulProperties zuulProperties;
+	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
+	}
 
 	@Override
 	@SuppressWarnings("deprecation")
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
 		RestClient restClient = this.clientFactory.getClient(context.getServiceId(),
 				RestClient.class);
-		return new RestClientRibbonCommand(context.getServiceId(), restClient, context,
-				this.zuulProperties);
+		return new RestClientRibbonCommand(context.getServiceId(), restClient, context);
 	}
 
 	public SpringClientFactory getClientFactory() {

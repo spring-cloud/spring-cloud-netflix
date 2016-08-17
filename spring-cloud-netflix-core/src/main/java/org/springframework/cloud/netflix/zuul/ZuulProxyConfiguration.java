@@ -86,24 +86,20 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Configuration
 	@ConditionalOnProperty(name = "zuul.ribbon.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientRibbonConfiguration {
-
 		@Bean
 		@ConditionalOnMissingBean
-		public RibbonCommandFactory<?> ribbonCommandFactory(
-				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties);
+		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+			return new HttpClientRibbonCommandFactory(clientFactory);
 		}
 	}
 
 	@Configuration
 	@ConditionalOnProperty("zuul.ribbon.restclient.enabled")
 	protected static class RestClientRibbonConfiguration {
-
 		@Bean
 		@ConditionalOnMissingBean
-		public RibbonCommandFactory<?> ribbonCommandFactory(
-				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new RestClientRibbonCommandFactory(clientFactory, zuulProperties);
+		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+			return new RestClientRibbonCommandFactory(clientFactory);
 		}
 	}
 
@@ -111,12 +107,10 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@ConditionalOnProperty("zuul.ribbon.okhttp.enabled")
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpRibbonConfiguration {
-
 		@Bean
 		@ConditionalOnMissingBean
-		public RibbonCommandFactory<?> ribbonCommandFactory(
-				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new OkHttpRibbonCommandFactory(clientFactory, zuulProperties);
+		public RibbonCommandFactory<?> ribbonCommandFactory(SpringClientFactory clientFactory) {
+			return new OkHttpRibbonCommandFactory(clientFactory);
 		}
 	}
 
@@ -124,16 +118,18 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator,
 			ProxyRequestHelper proxyRequestHelper) {
-		return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(),
-				this.zuulProperties, proxyRequestHelper);
+		return new PreDecorationFilter(routeLocator,
+				this.server.getServletPrefix(),
+				this.zuulProperties,
+				proxyRequestHelper);
 	}
 
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory) {
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory,
-				this.requestCustomizers);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper,
+				ribbonCommandFactory, this.requestCustomizers);
 		return filter;
 	}
 

@@ -26,11 +26,9 @@ import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 
 import org.junit.Test;
-import org.springframework.cloud.netflix.feign.encoding.HttpEncoding;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -49,41 +47,33 @@ public class OkHttpRibbonRequestTests {
 		String uri = "http://example.com";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
-		// headers.add(HttpEncoding.CONTENT_LENGTH, "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonCommandContext context = new RibbonCommandContext("example", "GET", uri,
-				false, headers, params, null, new ArrayList<RibbonRequestCustomizer>());
+		RibbonCommandContext context = new RibbonCommandContext("example", "GET", uri, false, headers, params, null);
 		OkHttpRibbonRequest httpRequest = new OkHttpRibbonRequest(context);
 
 		Request request = httpRequest.toRequest();
 
 		assertThat("body is not null", request.body(), is(nullValue()));
 		assertThat("uri is wrong", request.url().toString(), startsWith(uri));
-		assertThat("my-header is wrong", request.header("my-header"),
-				is(equalTo("my-value")));
-		assertThat("myparam is missing", request.url().queryParameter("myparam"),
-				is(equalTo("myparamval")));
+		assertThat("my-header is wrong", request.header("my-header"), is(equalTo("my-value")));
+		assertThat("myparam is missing", request.url().queryParameter("myparam"), is(equalTo("myparamval")));
 	}
 
 	@Test
-	// this situation happens, see
-	// https://github.com/spring-cloud/spring-cloud-netflix/issues/1042#issuecomment-227723877
+	// this situation happens, see https://github.com/spring-cloud/spring-cloud-netflix/issues/1042#issuecomment-227723877
 	public void testEmptyEntityGet() throws Exception {
 		String entityValue = "";
-		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false,
-				"GET");
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false, "GET");
 	}
 
 	@Test
 	public void testNonEmptyEntityPost() throws Exception {
 		String entityValue = "abcd";
-		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true,
-				"POST");
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true, "POST");
 	}
 
-	void testEntity(String entityValue, ByteArrayInputStream requestEntity,
-			boolean addContentLengthHeader, String method) throws IOException {
+	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws IOException {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
 		String uri = "http://example.com";
@@ -104,9 +94,8 @@ public class OkHttpRibbonRequestTests {
 				builder.addHeader("from-customizer", "foo");
 			}
 		};
-		RibbonCommandContext context = new RibbonCommandContext("example", method, uri,
-				false, headers, new LinkedMultiValueMap<String, String>(), requestEntity,
-				Collections.singletonList(requestCustomizer));
+		RibbonCommandContext context = new RibbonCommandContext("example", method, uri, false,
+				headers, new LinkedMultiValueMap<String, String>(), requestEntity, Collections.singletonList(requestCustomizer));
 		context.setContentLength(length);
 		OkHttpRibbonRequest httpRequest = new OkHttpRibbonRequest(context);
 
@@ -123,8 +112,7 @@ public class OkHttpRibbonRequestTests {
 		if (!method.equalsIgnoreCase("get")) {
 			assertThat("body is null", request.body(), is(notNullValue()));
 			RequestBody body = request.body();
-			assertThat("contentLength is wrong", body.contentLength(),
-					is(equalTo((long) entityValue.length())));
+			assertThat("contentLength is wrong", body.contentLength(), is(equalTo((long) entityValue.length())));
 			Buffer content = new Buffer();
 			body.writeTo(content);
 			String string = content.readByteString().utf8();
@@ -132,3 +120,4 @@ public class OkHttpRibbonRequestTests {
 		}
 	}
 }
+

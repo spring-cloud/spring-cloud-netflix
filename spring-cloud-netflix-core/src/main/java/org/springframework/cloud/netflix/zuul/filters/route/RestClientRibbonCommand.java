@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 import org.springframework.util.MultiValueMap;
 
@@ -34,13 +33,23 @@ import com.netflix.niws.client.http.RestClient;
 /**
  * Hystrix wrapper around Eureka Ribbon command
  *
- * see <a href="https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java">original</a>
+ * see original
+ * https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/
+ * netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java
  */
 @SuppressWarnings("deprecation")
 public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
-	public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context, ZuulProperties zuulProperties) {
-		super(commandKey, client, context, zuulProperties);
+	@SuppressWarnings("unused")
+	@Deprecated
+	public RestClientRibbonCommand(String commandKey, RestClient restClient, HttpRequest.Verb verb, String uri,
+								   Boolean retryable, MultiValueMap<String, String> headers,
+								   MultiValueMap<String, String> params, InputStream requestEntity) {
+		this(commandKey, restClient, new RibbonCommandContext(commandKey, verb.verb(), uri, retryable, headers, params, requestEntity));
+	}
+
+	public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context) {
+		super(commandKey, client, context);
 	}
 
 	@Override

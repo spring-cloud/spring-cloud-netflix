@@ -47,8 +47,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	protected List<RibbonRequestCustomizer> requestCustomizers;
 
 	public RibbonRoutingFilter(ProxyRequestHelper helper,
-			RibbonCommandFactory<?> ribbonCommandFactory,
-			List<RibbonRequestCustomizer> requestCustomizers) {
+							   RibbonCommandFactory<?> ribbonCommandFactory,
+							   List<RibbonRequestCustomizer> requestCustomizers) {
 		this.helper = helper;
 		this.ribbonCommandFactory = ribbonCommandFactory;
 		this.requestCustomizers = requestCustomizers;
@@ -120,13 +120,12 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		uri = uri.replace("//", "/");
 
 		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
-				requestEntity, this.requestCustomizers, request.getContentLengthLong());
+				requestEntity, this.requestCustomizers);
 	}
 
 	protected ClientHttpResponse forward(RibbonCommandContext context) throws Exception {
-		Map<String, Object> info = this.helper.debug(context.getMethod(),
-				context.getUri(), context.getHeaders(), context.getParams(),
-				context.getRequestEntity());
+		Map<String, Object> info = this.helper.debug(context.getMethod(), context.getUri(),
+				context.getHeaders(), context.getParams(), context.getRequestEntity());
 
 		RibbonCommand command = this.ribbonCommandFactory.create(context);
 		try {
