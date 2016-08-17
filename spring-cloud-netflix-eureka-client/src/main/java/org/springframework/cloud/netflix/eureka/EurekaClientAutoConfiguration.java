@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -204,7 +203,8 @@ public class EurekaClientAutoConfiguration {
 	@Target({ ElementType.TYPE, ElementType.METHOD })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
-	@Conditional(OnRefreshScopeCondition.class)
+	@ConditionalOnClass(RefreshScope.class)
+	@ConditionalOnBean(RefreshAutoConfiguration.class)
 	@interface ConditionalOnRefreshScope {
 
 	}
@@ -219,22 +219,8 @@ public class EurekaClientAutoConfiguration {
 		static class MissingClass {
 		}
 
-		@ConditionalOnClass(RefreshScope.class)
 		@ConditionalOnMissingBean(RefreshAutoConfiguration.class)
 		static class MissingScope {
-		}
-
-	}
-
-	private static class OnRefreshScopeCondition extends AllNestedConditions {
-
-		public OnRefreshScopeCondition() {
-			super(ConfigurationPhase.REGISTER_BEAN);
-		}
-
-		@ConditionalOnClass(RefreshScope.class)
-		@ConditionalOnBean(RefreshAutoConfiguration.class)
-		static class FoundScope {
 		}
 
 	}

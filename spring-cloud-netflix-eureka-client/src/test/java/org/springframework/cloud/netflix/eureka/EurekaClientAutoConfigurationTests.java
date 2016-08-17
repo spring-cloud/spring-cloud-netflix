@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.eureka;
 
 import org.junit.After;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
@@ -32,7 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static org.junit.Assert.assertEquals;
@@ -114,8 +112,8 @@ public class EurekaClientAutoConfigurationTests {
 		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
 				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka");
 		setupContext(MockClientConfiguration.class);
-		//ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
-		//Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
+		// ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
+		// Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
 	private void testNonSecurePort(String propName) {
