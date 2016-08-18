@@ -80,7 +80,7 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testSecureUriFromClientConfig() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(this.introspector.secureAvailable(server)).thenReturn(true);
+		when(this.introspector.isSecure(server)).thenReturn(true);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
 				this.introspector);
@@ -92,7 +92,7 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testInsecureUriFromClientConfig() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(this.introspector.secureAvailable(server)).thenReturn(false);
+		when(this.introspector.isSecure(server)).thenReturn(false);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
 				this.introspector);
@@ -104,7 +104,7 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testNotDoubleEncodedWhenSecure() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(this.introspector.secureAvailable(server)).thenReturn(true);
+		when(this.introspector.isSecure(server)).thenReturn(true);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
 				this.introspector);

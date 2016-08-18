@@ -70,8 +70,8 @@ public class FeignLoadBalancerTests {
 		when(this.config.get(ConnectTimeout)).thenReturn(this.defaultConnectTimeout);
 		when(this.config.get(ReadTimeout)).thenReturn(this.defaultReadTimeout);
 
-		when(this.optionallySecureIntrospector.insecureAvailable(any(Server.class))).thenReturn(true);
-		when(this.optionallySecureIntrospector.secureAvailable(any(Server.class))).thenReturn(true);
+		when(this.optionallySecureIntrospector.isInsecure(any(Server.class))).thenReturn(true);
+		when(this.optionallySecureIntrospector.isSecure(any(Server.class))).thenReturn(true);
 	}
 
 	@Test

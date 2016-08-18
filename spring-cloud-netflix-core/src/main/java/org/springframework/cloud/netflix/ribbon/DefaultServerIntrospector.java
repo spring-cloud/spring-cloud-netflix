@@ -26,13 +26,13 @@ import com.netflix.loadbalancer.Server;
  */
 public class DefaultServerIntrospector implements ServerIntrospector {
 	@Override
-	public boolean secureAvailable(Server server) {
+	public boolean isSecure(Server server) {
 		// Can we do better?
 		return (""+server.getPort()).endsWith("443");
 	}
 
 	@Override
-	public boolean insecureAvailable(Server server) {
+	public boolean isInsecure(Server server) {
 		return (""+server.getPort()).endsWith("80");
 	}
 

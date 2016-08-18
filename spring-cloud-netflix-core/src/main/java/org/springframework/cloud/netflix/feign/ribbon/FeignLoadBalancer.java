@@ -107,8 +107,8 @@ public class FeignLoadBalancer extends
 	}
 
 	private boolean onlySecureAvailable(Server server) {
-		return this.serverIntrospector.secureAvailable(server)
-				&& !this.serverIntrospector.insecureAvailable(server);
+		return this.serverIntrospector.isSecure(server)
+				&& !this.serverIntrospector.isInsecure(server);
 	}
 
 	static class RibbonRequest extends ClientRequest implements Cloneable {

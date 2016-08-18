@@ -25,9 +25,9 @@ import com.netflix.loadbalancer.Server;
  */
 public interface ServerIntrospector {
 
-	boolean secureAvailable(Server server);
+	boolean isSecure(Server server);
 
-	boolean insecureAvailable(Server server);
+	boolean isInsecure(Server server);
 
 	Map<String, String> getMetadata(Server server);
 }
