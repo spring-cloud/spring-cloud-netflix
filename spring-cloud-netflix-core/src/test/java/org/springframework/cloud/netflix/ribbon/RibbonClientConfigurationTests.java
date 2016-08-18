@@ -29,7 +29,6 @@ import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -47,17 +46,31 @@ public class RibbonClientConfigurationTests {
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		config = new CountingConfig();
-		config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
-		config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
-		config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
-		config.setClientName("testClient");
+		this.config = new CountingConfig();
+		this.config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
+		this.config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
+		this.config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
+		this.config.setClientName("testClient");
 	}
 
 	@Test
 	public void restClientInitCalledOnce() {
-		new TestRestClient(config);
-		assertThat(config.count, is(equalTo(1)));
+		new TestRestClient(this.config);
+		assertThat(this.config.count, is(1));
+	}
+
+	@Test
+	public void restClientWithSecureServer() throws Exception {
+		CountingConfig config = new CountingConfig();
+		config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
+		config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
+		config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
+		config.setClientName("bar");
+		Server server = new Server("example.com", 443);
+		URI uri = new TestRestClient(config).reconstructURIWithServer(server,
+				new URI("/foo"));
+		assertThat(uri.getScheme(), is("https"));
+		assertThat(uri.getHost(), is("example.com"));
 	}
 
 	static class CountingConfig extends DefaultClientConfigImpl {
@@ -67,10 +80,10 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testSecureUriFromClientConfig() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(inspector.isSecure(server)).thenReturn(true);
+		when(this.inspector.isSecure(server)).thenReturn(true);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				inspector);
+				this.inspector);
 		URI uri = overrideRestClient.reconstructURIWithServer(server,
 				new URI("http://foo/"));
 		assertThat(uri, is(new URI("https://foo:7777/")));
@@ -79,10 +92,10 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testInSecureUriFromClientConfig() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(inspector.isSecure(server)).thenReturn(false);
+		when(this.inspector.isSecure(server)).thenReturn(false);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				inspector);
+				this.inspector);
 		URI uri = overrideRestClient.reconstructURIWithServer(server,
 				new URI("http://foo/"));
 		assertThat(uri, is(new URI("http://foo:7777/")));
@@ -91,10 +104,10 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testNotDoubleEncodedWhenSecure() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(inspector.isSecure(server)).thenReturn(true);
+		when(this.inspector.isSecure(server)).thenReturn(true);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				inspector);
+				this.inspector);
 		URI uri = overrideRestClient.reconstructURIWithServer(server,
 				new URI("http://foo/%20bar"));
 		assertThat(uri, is(new URI("https://foo:7777/%20bar")));
