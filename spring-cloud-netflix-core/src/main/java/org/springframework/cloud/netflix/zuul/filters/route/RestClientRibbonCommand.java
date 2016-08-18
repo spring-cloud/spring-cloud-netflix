@@ -39,18 +39,27 @@ import com.netflix.niws.client.http.RestClient;
 @SuppressWarnings("deprecation")
 public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
-	public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context, ZuulProperties zuulProperties) {
+	public RestClientRibbonCommand(String commandKey, RestClient client,
+			RibbonCommandContext context, ZuulProperties zuulProperties) {
 		super(commandKey, client, context, zuulProperties);
+	}
+
+	@Deprecated
+	public RestClientRibbonCommand(String commandKey, RestClient restClient,
+			HttpRequest.Verb verb, String uri, Boolean retryable,
+			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+			InputStream requestEntity) {
+		this(commandKey, restClient, new RibbonCommandContext(commandKey, verb.verb(),
+				uri, retryable, headers, params, requestEntity), new ZuulProperties());
 	}
 
 	@Override
 	protected HttpRequest createRequest() throws Exception {
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
-				.verb(getVerb(this.context.getMethod()))
-				.uri(this.context.uri())
+				.verb(getVerb(this.context.getMethod())).uri(this.context.uri())
 				.entity(this.context.getRequestEntity());
 
-		if(this.context.getRetryable() != null) {
+		if (this.context.getRetryable() != null) {
 			builder.setRetriable(this.context.getRetryable());
 		}
 

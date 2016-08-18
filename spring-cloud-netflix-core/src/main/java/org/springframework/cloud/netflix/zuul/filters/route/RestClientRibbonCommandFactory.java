@@ -23,18 +23,24 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * @author Spencer Gibb
  */
-@RequiredArgsConstructor
-public class RestClientRibbonCommandFactory
-		implements RibbonCommandFactory<RestClientRibbonCommand> {
+public class RestClientRibbonCommandFactory implements RibbonCommandFactory<RestClientRibbonCommand> {
 
 	private final SpringClientFactory clientFactory;
 
-	private final ZuulProperties zuulProperties;
+	private ZuulProperties zuulProperties;
+
+	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
+		this(clientFactory, new ZuulProperties());
+	}
+
+	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory,
+			ZuulProperties zuulProperties) {
+		this.clientFactory = clientFactory;
+		this.zuulProperties = zuulProperties;
+	}
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -49,7 +55,12 @@ public class RestClientRibbonCommandFactory
 		return clientFactory;
 	}
 
+	public void setZuulProperties(ZuulProperties zuulProperties) {
+		this.zuulProperties = zuulProperties;
+	}
+
 	protected static HttpRequest.Verb getVerb(String method) {
 		return RestClientRibbonCommand.getVerb(method);
 	}
+
 }
