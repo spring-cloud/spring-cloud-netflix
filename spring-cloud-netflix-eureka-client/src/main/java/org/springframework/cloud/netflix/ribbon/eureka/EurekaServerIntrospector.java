@@ -30,12 +30,21 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 public class EurekaServerIntrospector extends DefaultServerIntrospector {
 
 	@Override
-	public boolean isSecure(Server server) {
+	public boolean secureAvailable(Server server) {
 		if (server instanceof DiscoveryEnabledServer) {
 			DiscoveryEnabledServer discoveryServer = (DiscoveryEnabledServer) server;
 			return discoveryServer.getInstanceInfo().isPortEnabled(InstanceInfo.PortType.SECURE);
 		}
-		return super.isSecure(server);
+		return super.secureAvailable(server);
+	}
+
+	@Override
+	public boolean insecureAvailable(Server server) {
+		if (server instanceof DiscoveryEnabledServer) {
+			DiscoveryEnabledServer discoveryServer = (DiscoveryEnabledServer) server;
+			return discoveryServer.getInstanceInfo().isPortEnabled(InstanceInfo.PortType.UNSECURE);
+		}
+		return super.insecureAvailable(server);
 	}
 
 	@Override

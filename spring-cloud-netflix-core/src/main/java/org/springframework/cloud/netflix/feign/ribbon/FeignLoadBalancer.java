@@ -98,13 +98,17 @@ public class FeignLoadBalancer extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		String scheme = original.getScheme();
-		if (!"https".equals(scheme) && (this.serverIntrospector.isSecure(server)
-				|| this.clientConfig.get(CommonClientConfigKey.IsSecure, false))) {
-			original = UriComponentsBuilder.fromUri(original).scheme("https").build()
-					.toUri();
+		if (!"https".equals(original.getScheme()) && (
+				onlySecureAvailable(server) ||
+						this.clientConfig.get(CommonClientConfigKey.IsSecure, false))) {
+			original = UriComponentsBuilder.fromUri(original).scheme("https").build().toUri();
 		}
 		return super.reconstructURIWithServer(server, original);
+	}
+
+	private boolean onlySecureAvailable(Server server) {
+		return this.serverIntrospector.secureAvailable(server)
+				&& !this.serverIntrospector.insecureAvailable(server);
 	}
 
 	static class RibbonRequest extends ClientRequest implements Cloneable {

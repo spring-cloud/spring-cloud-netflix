@@ -120,7 +120,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			}
 		}
 
-		return serverIntrospector(serviceId).isSecure(server);
+		return serverIntrospector(serviceId).secureAvailable(server);
 	}
 
 	protected Server getServer(String serviceId) {

@@ -49,10 +49,12 @@ public class FeignLoadBalancerTests {
 	private ILoadBalancer lb;
 	@Mock
 	private IClientConfig config;
+	@Mock
+	private ServerIntrospector optionallySecureIntrospector;
 
 	private FeignLoadBalancer feignLoadBalancer;
 
-	private ServerIntrospector inspector = new DefaultServerIntrospector();
+	private ServerIntrospector introspector = new DefaultServerIntrospector();
 
 	private Integer defaultConnectTimeout = 10000;
 	private Integer defaultReadTimeout = 10000;
@@ -67,6 +69,9 @@ public class FeignLoadBalancerTests {
 				.thenReturn(true);
 		when(this.config.get(ConnectTimeout)).thenReturn(this.defaultConnectTimeout);
 		when(this.config.get(ReadTimeout)).thenReturn(this.defaultReadTimeout);
+
+		when(this.optionallySecureIntrospector.insecureAvailable(any(Server.class))).thenReturn(true);
+		when(this.optionallySecureIntrospector.secureAvailable(any(Server.class))).thenReturn(true);
 	}
 
 	@Test
@@ -74,7 +79,7 @@ public class FeignLoadBalancerTests {
 	public void testUriInsecure() {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector);
+				this.introspector);
 		Request request = new RequestTemplate().method("GET").append("http://foo/")
 				.request();
 		RibbonRequest ribbonRequest = new RibbonRequest(this.delegate, request,
@@ -93,9 +98,9 @@ public class FeignLoadBalancerTests {
 	@Test
 	@SneakyThrows
 	public void testSecureUriFromClientConfig() {
-		when(this.config.get(IsSecure)).thenReturn(true);
+		when(this.config.get(IsSecure, false)).thenReturn(true);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector);
+				this.introspector);
 		Server server = new Server("foo", 7777);
 		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
 				new URI("http://foo/"));
@@ -104,9 +109,21 @@ public class FeignLoadBalancerTests {
 
 	@Test
 	@SneakyThrows
+	public void testInsecureUriFromInsecureClientConfigToOptionallySecureServer() {
+		when(this.config.get(IsSecure, false)).thenReturn(false);
+		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
+				this.optionallySecureIntrospector);
+		Server server = new Server("foo", 7777);
+		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
+				new URI("http://foo/"));
+		assertThat(uri, is(new URI("http://foo:7777/")));
+	}
+
+	@Test
+	@SneakyThrows
 	public void testSecureUriFromClientConfigOverride() {
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector);
+				this.introspector);
 		Server server = Mockito.mock(Server.class);
 		when(server.getPort()).thenReturn(443);
 		when(server.getHost()).thenReturn("foo");

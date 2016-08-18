@@ -41,7 +41,7 @@ public class RibbonClientConfigurationTests {
 	private CountingConfig config;
 
 	@Mock
-	private ServerIntrospector inspector;
+	private ServerIntrospector introspector;
 
 	@Before
 	public void setup() {
@@ -80,22 +80,22 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testSecureUriFromClientConfig() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(this.inspector.isSecure(server)).thenReturn(true);
+		when(this.introspector.secureAvailable(server)).thenReturn(true);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				this.inspector);
+				this.introspector);
 		URI uri = overrideRestClient.reconstructURIWithServer(server,
 				new URI("http://foo/"));
 		assertThat(uri, is(new URI("https://foo:7777/")));
 	}
 
 	@Test
-	public void testInSecureUriFromClientConfig() throws Exception {
+	public void testInsecureUriFromClientConfig() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(this.inspector.isSecure(server)).thenReturn(false);
+		when(this.introspector.secureAvailable(server)).thenReturn(false);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				this.inspector);
+				this.introspector);
 		URI uri = overrideRestClient.reconstructURIWithServer(server,
 				new URI("http://foo/"));
 		assertThat(uri, is(new URI("http://foo:7777/")));
@@ -104,10 +104,10 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testNotDoubleEncodedWhenSecure() throws Exception {
 		Server server = new Server("foo", 7777);
-		when(this.inspector.isSecure(server)).thenReturn(true);
+		when(this.introspector.secureAvailable(server)).thenReturn(true);
 
 		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				this.inspector);
+				this.introspector);
 		URI uri = overrideRestClient.reconstructURIWithServer(server,
 				new URI("http://foo/%20bar"));
 		assertThat(uri, is(new URI("https://foo:7777/%20bar")));
