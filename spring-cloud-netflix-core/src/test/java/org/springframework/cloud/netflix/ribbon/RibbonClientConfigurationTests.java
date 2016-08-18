@@ -16,13 +16,18 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import java.net.URI;
+
+import org.junit.Test;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import org.junit.Test;
+import com.netflix.loadbalancer.Server;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -38,6 +43,20 @@ public class RibbonClientConfigurationTests {
 		config.setClientName("testClient");
 		new TestRestClient(config);
 		assertThat(config.count, is(equalTo(1)));
+	}
+
+	@Test
+	public void restClientWithSecureServer() throws Exception {
+		CountingConfig config = new CountingConfig();
+		config.setProperty(CommonClientConfigKey.ConnectTimeout, "1");
+		config.setProperty(CommonClientConfigKey.ReadTimeout, "1");
+		config.setProperty(CommonClientConfigKey.MaxHttpConnectionsPerHost, "1");
+		config.setClientName("bar");
+		Server server = new Server("example.com", 443);
+		URI uri = new TestRestClient(config).reconstructURIWithServer(server,
+				new URI("/foo"));
+		assertThat(uri.getScheme(), is(equalTo("https")));
+		assertThat(uri.getHost(), is(equalTo("example.com")));
 	}
 
 	static class CountingConfig extends DefaultClientConfigImpl {
