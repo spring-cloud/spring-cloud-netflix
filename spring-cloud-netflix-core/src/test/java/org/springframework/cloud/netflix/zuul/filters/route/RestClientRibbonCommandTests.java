@@ -38,6 +38,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 
 import com.netflix.client.http.HttpRequest;
+import com.netflix.client.http.HttpRequest.Verb;
 
 /**
  * @author Spencer Gibb
@@ -51,6 +52,38 @@ public class RestClientRibbonCommandTests {
 		zuulProperties = new ZuulProperties();
 	}
 	
+	/**
+	 * Tests old constructors kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
+	 */
+	@Test
+	@Deprecated
+	public void testNullEntityWithOldConstruct() throws Exception {
+		String uri = "http://example.com";
+		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		headers.add("my-header", "my-value");
+		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("myparam", "myparamval");
+		RestClientRibbonCommand command = 
+				new RestClientRibbonCommand("cmd", null,Verb.GET ,uri, false, headers, params, null);
+
+		HttpRequest request = command.createRequest();
+
+		assertThat("uri is wrong", request.getUri().toString(), startsWith(uri));
+		assertThat("my-header is wrong", request.getHttpHeaders().getFirstValue("my-header"), is(equalTo("my-value")));
+		assertThat("myparam is missing", request.getQueryParams().get("myparam").iterator().next(), is(equalTo("myparamval")));
+		
+		command = 
+				new RestClientRibbonCommand("cmd", null,
+				new RibbonCommandContext("example", "GET", uri, false, headers, params, null),
+				zuulProperties);
+
+		request = command.createRequest();
+
+		assertThat("uri is wrong", request.getUri().toString(), startsWith(uri));
+		assertThat("my-header is wrong", request.getHttpHeaders().getFirstValue("my-header"), is(equalTo("my-value")));
+		assertThat("myparam is missing", request.getQueryParams().get("myparam").iterator().next(), is(equalTo("myparamval")));
+	}
+	
 	@Test
 	public void testNullEntity() throws Exception {
 		String uri = "http://example.com";
@@ -60,7 +93,7 @@ public class RestClientRibbonCommandTests {
 		params.add("myparam", "myparamval");
 		RestClientRibbonCommand command = 
 				new RestClientRibbonCommand("cmd", null,
-				new RibbonCommandContext("example", "GET", uri, false, headers, params, null,new ArrayList<RibbonRequestCustomizer>()),
+				new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()),
 				zuulProperties);
 
 		HttpRequest request = command.createRequest();

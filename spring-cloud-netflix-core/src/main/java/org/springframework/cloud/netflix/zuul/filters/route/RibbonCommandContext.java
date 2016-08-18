@@ -54,6 +54,10 @@ public class RibbonCommandContext {
 	private final List<RibbonRequestCustomizer> requestCustomizers;
 	private Long contentLength;
 
+	/**
+	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
+	 */
+	@Deprecated
 	public RibbonCommandContext(String serviceId, String method, String uri,
 			Boolean retryable, MultiValueMap<String, String> headers,
 			MultiValueMap<String, String> params, InputStream requestEntity) {
