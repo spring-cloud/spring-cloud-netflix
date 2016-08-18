@@ -2081,6 +2081,34 @@ span all services and supersede any other route specification.</p>
 <p>This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
 But calls including "/admin/" will not resolve.</p>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+If you need your routes to have their order preserved you need to use a YAML
+file as the ordering will be lost using a properties file. For example:
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+    legacy:
+      path: /**</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you were to use a properties file, the <code>legacy</code> path may end up in front of the <code>users</code>
+path rendering the <code>users</code> path unreachable.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_cookies_and_sensitive_headers">Cookies and Sensitive Headers</h3>
@@ -2835,7 +2863,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-18 16:59:10 UTC
+Last updated 2016-08-18 17:34:02 UTC
 </div>
 </div>
 </body>
