@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 import org.springframework.util.MultiValueMap;
 
@@ -33,33 +34,32 @@ import com.netflix.niws.client.http.RestClient;
 /**
  * Hystrix wrapper around Eureka Ribbon command
  *
- * see original
- * https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/
- * netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java
+ * see <a href="https://github.com/Netflix/zuul/blob/master/zuul-netflix/src/main/java/com/netflix/zuul/dependency/ribbon/hystrix/RibbonCommand.java">original</a>
  */
 @SuppressWarnings("deprecation")
 public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, HttpRequest, HttpResponse> {
 
-	@SuppressWarnings("unused")
-	@Deprecated
-	public RestClientRibbonCommand(String commandKey, RestClient restClient, HttpRequest.Verb verb, String uri,
-								   Boolean retryable, MultiValueMap<String, String> headers,
-								   MultiValueMap<String, String> params, InputStream requestEntity) {
-		this(commandKey, restClient, new RibbonCommandContext(commandKey, verb.verb(), uri, retryable, headers, params, requestEntity));
+	public RestClientRibbonCommand(String commandKey, RestClient client,
+			RibbonCommandContext context, ZuulProperties zuulProperties) {
+		super(commandKey, client, context, zuulProperties);
 	}
 
-	public RestClientRibbonCommand(String commandKey, RestClient client, RibbonCommandContext context) {
-		super(commandKey, client, context);
+	@Deprecated
+	public RestClientRibbonCommand(String commandKey, RestClient restClient,
+			HttpRequest.Verb verb, String uri, Boolean retryable,
+			MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
+			InputStream requestEntity) {
+		this(commandKey, restClient, new RibbonCommandContext(commandKey, verb.verb(),
+				uri, retryable, headers, params, requestEntity), new ZuulProperties());
 	}
 
 	@Override
 	protected HttpRequest createRequest() throws Exception {
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
-				.verb(getVerb(this.context.getMethod()))
-				.uri(this.context.uri())
+				.verb(getVerb(this.context.getMethod())).uri(this.context.uri())
 				.entity(this.context.getRequestEntity());
 
-		if(this.context.getRetryable() != null) {
+		if (this.context.getRetryable() != null) {
 			builder.setRetriable(this.context.getRetryable());
 		}
 

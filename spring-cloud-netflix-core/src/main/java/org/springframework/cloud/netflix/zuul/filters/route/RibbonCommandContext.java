@@ -54,9 +54,13 @@ public class RibbonCommandContext {
 	private final List<RibbonRequestCustomizer> requestCustomizers;
 	private Long contentLength;
 
-	public RibbonCommandContext(String serviceId, String method, String uri, Boolean retryable,
-								MultiValueMap<String, String> headers, MultiValueMap<String, String> params,
-								InputStream requestEntity) {
+	/**
+	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
+	 */
+	@Deprecated
+	public RibbonCommandContext(String serviceId, String method, String uri,
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
 				new ArrayList<RibbonRequestCustomizer>(), null);
 	}
@@ -64,7 +68,8 @@ public class RibbonCommandContext {
 	public URI uri() {
 		try {
 			return new URI(this.uri);
-		} catch (URISyntaxException e) {
+		}
+		catch (URISyntaxException e) {
 			ReflectionUtils.rethrowRuntimeException(e);
 		}
 		return null;

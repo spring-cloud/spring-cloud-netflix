@@ -18,10 +18,10 @@
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.util.StringUtils;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
@@ -32,39 +32,48 @@ import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
 /**
  * @author Spencer Gibb
  */
-public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwareClient<RQ, RS>, RQ extends ClientRequest, RS extends HttpResponse> extends HystrixCommand<ClientHttpResponse> implements
-		RibbonCommand {
+public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwareClient<RQ, RS>, RQ extends ClientRequest, RS extends HttpResponse>
+		extends HystrixCommand<ClientHttpResponse> implements RibbonCommand {
 
 	protected final LBC client;
 	protected RibbonCommandContext context;
 
-	public AbstractRibbonCommand(LBC client, RibbonCommandContext context) {
-		this("default", client, context);
+	public AbstractRibbonCommand(LBC client, RibbonCommandContext context,
+			ZuulProperties zuulProperties) {
+		this("default", client, context, zuulProperties);
 	}
 
-	public AbstractRibbonCommand(String commandKey, LBC client, RibbonCommandContext context) {
-		super(getSetter(commandKey));
+	public AbstractRibbonCommand(String commandKey, LBC client,
+			RibbonCommandContext context, ZuulProperties zuulProperties) {
+		super(getSetter(commandKey, zuulProperties));
 		this.client = client;
 		this.context = context;
 	}
 
-	protected static Setter getSetter(final String commandKey) {
+	protected static Setter getSetter(final String commandKey,
+			ZuulProperties zuulProperties) {
 
-		// we want to default to semaphore-isolation since this wraps
-		// 2 others commands that are already thread isolated
 		// @formatter:off
-		final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
-		final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
-				.getIntProperty(name, 100);
-		final HystrixCommandProperties.Setter setter = HystrixCommandProperties .Setter()
-				.withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE)
-				.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
+		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
+				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy());
+		if (zuulProperties.getRibbonIsolationStrategy() == ExecutionIsolationStrategy.SEMAPHORE){
+			final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
+			// we want to default to semaphore-isolation since this wraps
+			// 2 others commands that are already thread isolated
+			final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
+					.getIntProperty(name, 100);
+			setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
+		} else	{
+			// TODO Find out is some parameters can be set here
+		}
+		
 		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
 				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
 				.andCommandPropertiesDefaults(setter);
@@ -74,10 +83,6 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	@Override
 	protected ClientHttpResponse run() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
-		long contentLength = context.getRequest().getContentLengthLong();
-		if (contentLength != -1) {
-			this.context.setContentLength(contentLength);
-		}
 
 		RQ request = createRequest();
 		RS response = this.client.executeWithLoadBalancer(request);

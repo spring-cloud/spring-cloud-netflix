@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import org.apache.http.HttpEntity;
@@ -37,6 +38,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.junit.Test;
+import org.springframework.cloud.netflix.feign.encoding.HttpEncoding;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -52,10 +54,12 @@ public class RibbonApacheHttpRequestTests {
 		String uri = "http://example.com";
 		LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("my-header", "my-value");
+		headers.add(HttpEncoding.CONTENT_LENGTH, "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(new RibbonCommandContext("example", "GET", uri, false,
-				headers, params, null));
+		RibbonApacheHttpRequest httpRequest = 
+				new RibbonApacheHttpRequest(
+						new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()));
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
@@ -63,7 +67,9 @@ public class RibbonApacheHttpRequestTests {
 		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri));
 		assertThat("my-header is missing", request.getFirstHeader("my-header"), is(notNullValue()));
 		assertThat("my-header is wrong", request.getFirstHeader("my-header").getValue(), is(equalTo("my-value")));
+		assertThat("Content-Length is wrong", request.getFirstHeader(HttpEncoding.CONTENT_LENGTH).getValue(), is(equalTo("5192")));
 		assertThat("myparam is missing", request.getURI().getQuery(), is(equalTo("myparam=myparamval")));
+		
 	}
 
 	@Test

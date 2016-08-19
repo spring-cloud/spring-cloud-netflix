@@ -17,9 +17,10 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import com.netflix.client.http.HttpRequest;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
+import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
 
 /**
@@ -29,8 +30,16 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 
 	private final SpringClientFactory clientFactory;
 
+	private ZuulProperties zuulProperties;
+
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
+		this(clientFactory, new ZuulProperties());
+	}
+
+	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory,
+			ZuulProperties zuulProperties) {
 		this.clientFactory = clientFactory;
+		this.zuulProperties = zuulProperties;
 	}
 
 	@Override
@@ -38,14 +47,20 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
 		RestClient restClient = this.clientFactory.getClient(context.getServiceId(),
 				RestClient.class);
-		return new RestClientRibbonCommand(context.getServiceId(), restClient, context);
+		return new RestClientRibbonCommand(context.getServiceId(), restClient, context,
+				this.zuulProperties);
 	}
 
 	public SpringClientFactory getClientFactory() {
 		return clientFactory;
 	}
 
+	public void setZuulProperties(ZuulProperties zuulProperties) {
+		this.zuulProperties = zuulProperties;
+	}
+
 	protected static HttpRequest.Verb getVerb(String method) {
 		return RestClientRibbonCommand.getVerb(method);
 	}
+
 }
