@@ -32,7 +32,7 @@ function check_if_anything_to_sync() {
         exit 0
     fi
 
-    if ! [ -d docs/target/generated-docs ]; then
+    if ! [ -d docs/target/generated-docs ] && ! [ "${BUILD}" == "yes" ]; then
         echo "No gh-pages sources in docs/target/generated-docs, so not syncing"
         exit 0
     fi
@@ -101,12 +101,13 @@ function add_docs_from_target() {
         local clonedStatic=${ROOT_FOLDER}/target/spring-cloud-static
         if [[ ! -e "${clonedStatic}/.git" ]]; then
             echo "Cloning Spring Cloud Static to target"
-            git clone ${SPRING_CLOUD_STATIC_REPO} ${clonedStatic}
+            git clone ${SPRING_CLOUD_STATIC_REPO} ${clonedStatic} && git checkout gh-pages
         else
             echo "Spring Cloud Static already cloned - will pull changes"
             cd ${clonedStatic} && git checkout gh-pages && git pull origin gh-pages
         fi
         DESTINATION_REPO_FOLDER=${clonedStatic}/${REPO_NAME}
+        mkdir -p ${DESTINATION_REPO_FOLDER}
     else
         if [[ ! -e "${DESTINATION}/.git" ]]; then
             echo "[${DESTINATION}] is not a git repository"
