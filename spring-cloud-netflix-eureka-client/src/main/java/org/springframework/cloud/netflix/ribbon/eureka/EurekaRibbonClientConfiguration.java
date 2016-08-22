@@ -41,7 +41,7 @@ import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
 import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.setRibbonProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
 
 import lombok.extern.apachecommons.CommonsLog;
 

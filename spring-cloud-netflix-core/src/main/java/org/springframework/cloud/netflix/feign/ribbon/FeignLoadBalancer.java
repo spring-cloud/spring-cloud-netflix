@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientException;
@@ -38,9 +37,10 @@ import com.netflix.loadbalancer.Server;
 
 import feign.Client;
 import feign.Request;
-import feign.RequestTemplate;
 import feign.Response;
 import feign.Util;
+
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 public class FeignLoadBalancer extends
 		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
@@ -98,13 +98,8 @@ public class FeignLoadBalancer extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		String scheme = original.getScheme();
-		if (!"https".equals(scheme) && (this.serverIntrospector.isSecure(server)
-				|| this.clientConfig.get(CommonClientConfigKey.IsSecure, false))) {
-			original = UriComponentsBuilder.fromUri(original).scheme("https").build()
-					.toUri();
-		}
-		return super.reconstructURIWithServer(server, original);
+		URI uri = updateToHttpsIfNeeded(original, this.clientConfig, this.serverIntrospector, server);
+		return super.reconstructURIWithServer(server, uri);
 	}
 
 	static class RibbonRequest extends ClientRequest implements Cloneable {

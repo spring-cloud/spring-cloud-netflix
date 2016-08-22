@@ -19,6 +19,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -100,6 +101,28 @@ public class FeignLoadBalancerTests {
 		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
 				new URI("http://foo/"));
 		assertThat(uri, is(new URI("https://foo:7777/")));
+	}
+
+	@Test
+	@SneakyThrows
+	public void testInsecureUriFromInsecureClientConfigToSecureServerIntrospector() {
+		when(this.config.get(IsSecure)).thenReturn(false);
+		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
+				new ServerIntrospector() {
+					@Override
+					public boolean isSecure(Server server) {
+						return true;
+					}
+
+					@Override
+					public Map<String, String> getMetadata(Server server) {
+						return null;
+					}
+				});
+		Server server = new Server("foo", 7777);
+		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
+				new URI("http://foo/"));
+		assertThat(uri, is(new URI("http://foo:7777/")));
 	}
 
 	@Test

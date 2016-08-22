@@ -52,7 +52,8 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.setRibbonProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
  * @author Dave Syer
@@ -187,23 +188,21 @@ public class RibbonClientConfiguration {
 
 	static class OverrideRestClient extends RestClient {
 
+		private IClientConfig config;
 		private ServerIntrospector serverIntrospector;
 
-		protected OverrideRestClient(IClientConfig ncc,
+		protected OverrideRestClient(IClientConfig config,
 				ServerIntrospector serverIntrospector) {
 			super();
+			this.config = config;
 			this.serverIntrospector = serverIntrospector;
-			initWithNiwsConfig(ncc);
+			initWithNiwsConfig(this.config);
 		}
 
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
-			String scheme = original.getScheme();
-			if (!"https".equals(scheme) && this.serverIntrospector.isSecure(server)) {
-				original = UriComponentsBuilder.fromUri(original).scheme("https").build(true)
-						.toUri();
-			}
-			return super.reconstructURIWithServer(server, original);
+			URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+			return super.reconstructURIWithServer(server, uri);
 		}
 
 		@Override
