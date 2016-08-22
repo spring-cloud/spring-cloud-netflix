@@ -201,7 +201,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		annotation.getAliasedString("name", FeignClient.class, null);
 	}
 
-	private String getName(Map<String, Object> attributes) {
+	/* for testing */ String getName(Map<String, Object> attributes) {
 		String name = (String) attributes.get("serviceId");
 		if (!StringUtils.hasText(name)) {
 			name = (String) attributes.get("name");
@@ -216,7 +216,14 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 
 		String host = null;
 		try {
-			host = new URI("http://" + name).getHost();
+			String url;
+			if (!name.startsWith("http://") && !name.startsWith("https://")) {
+				url = "http://" + name;
+			} else {
+				url = name;
+			}
+			host = new URI(url).getHost();
+
 		}
 		catch (URISyntaxException e) {
 		}
