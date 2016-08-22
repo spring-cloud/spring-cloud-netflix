@@ -39,6 +39,15 @@ public class EurekaServerIntrospector extends DefaultServerIntrospector {
 	}
 
 	@Override
+	public boolean isInsecure(Server server) {
+		if (server instanceof DiscoveryEnabledServer) {
+			DiscoveryEnabledServer discoveryServer = (DiscoveryEnabledServer) server;
+			return discoveryServer.getInstanceInfo().isPortEnabled(InstanceInfo.PortType.UNSECURE);
+		}
+		return super.isInsecure(server);
+	}
+
+	@Override
 	public Map<String, String> getMetadata(Server server) {
 		if (server instanceof DiscoveryEnabledServer) {
 			DiscoveryEnabledServer discoveryServer = (DiscoveryEnabledServer) server;

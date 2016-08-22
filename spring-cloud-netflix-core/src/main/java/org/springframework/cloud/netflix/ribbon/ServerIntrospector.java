@@ -27,5 +27,7 @@ public interface ServerIntrospector {
 
 	boolean isSecure(Server server);
 
+	boolean isInsecure(Server server);
+
 	Map<String, String> getMetadata(Server server);
 }

@@ -32,6 +32,11 @@ public class DefaultServerIntrospector implements ServerIntrospector {
 	}
 
 	@Override
+	public boolean isInsecure(Server server) {
+		return (""+server.getPort()).endsWith("80");
+	}
+
+	@Override
 	public Map<String, String> getMetadata(Server server) {
 		return Collections.emptyMap();
 	}
