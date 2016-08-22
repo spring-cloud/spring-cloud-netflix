@@ -36,10 +36,10 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.VALUE_NOT_SET;
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.getProperty;
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.getRibbonKey;
-import static org.springframework.cloud.netflix.ribbon.RibbonProperyUtils.setRibbonProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.VALUE_NOT_SET;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.getProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.getRibbonKey;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
 
 /**
  * @author Dave Syer

@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -113,14 +112,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	private boolean isSecure(Server server, String serviceId) {
 		IClientConfig config = this.clientFactory.getClientConfig(serviceId);
-		if (config != null) {
-			Boolean isSecure = config.get(CommonClientConfigKey.IsSecure);
-			if (isSecure != null) {
-				return isSecure;
-			}
-		}
-
-		return serverIntrospector(serviceId).isSecure(server);
+		ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
+		return RibbonUtils.isSecure(config, serverIntrospector, server);
 	}
 
 	protected Server getServer(String serviceId) {
