@@ -37,6 +37,7 @@ import com.netflix.loadbalancer.Server;
 
 import feign.Client;
 import feign.Request;
+import feign.RequestTemplate;
 import feign.Response;
 import feign.Util;
 
