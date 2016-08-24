@@ -20,7 +20,7 @@
 		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.4.10</eureka.version>
 		<feign.version>9.3.0</feign.version>
-		<hystrix.version>1.5.3</hystrix.version>
+		<hystrix.version>1.5.5</hystrix.version>
 		<ribbon.version>2.2.0</ribbon.version>
 		<servo.version>0.10.1</servo.version>
 		<zuul.version>1.2.2</zuul.version>
