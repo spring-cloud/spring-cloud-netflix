@@ -16,12 +16,7 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.InputStream;
-import java.net.URL;
-
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +35,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import java.io.InputStream;
+import java.net.URL;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Dave Syer
@@ -74,7 +73,7 @@ public class HystrixStreamEndpointTests {
 		byte[] buffer = new byte[1024];
 		in.read(buffer);
 		String contents = new String(buffer);
-		assertTrue(contents.contains("ping"));
+		assertTrue(contents.contains("Hystrix"));
 		in.close();
 	}
 
