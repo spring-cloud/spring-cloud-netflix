@@ -950,10 +950,38 @@ on a machine that knows its own hostname (it is looked up using
 </div>
 <div class="paragraph">
 <p>You can add multiple peers to a system, and as long as they are all
-connected to each other by at least one edge, they will synchronize
-the registrations amongst themselves. If the peers are physically
-separated (inside a data centre or between multiple data centres) then
-the system can in principle survive split-brain type failures.</p>
+directly connected to each other, they will synchronize
+the registrations amongst themselves.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml (Three Peer Aware Eureka Servers)</div>
+<div class="content">
+<pre>eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/,http://peer2/eureka/,http://peer3/eureka/
+
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+
+---
+spring:
+  profiles: peer3
+eureka:
+  instance:
+    hostname: peer3</pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -2821,7 +2849,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-26 09:24:10 UTC
+Last updated 2016-08-26 10:57:31 UTC
 </div>
 </div>
 </body>
