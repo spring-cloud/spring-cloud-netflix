@@ -52,6 +52,7 @@ import static org.mockito.Mockito.when;
 public class EurekaControllerTest {
 
 	private ApplicationInfoManager infoManager;
+	private ApplicationInfoManager original;
 
 	@Before
 	public void setup() throws Exception {
@@ -64,6 +65,7 @@ public class EurekaControllerTest {
 				.build();
 
 		this.infoManager = mock(ApplicationInfoManager.class);
+		this.original = ApplicationInfoManager.getInstance();
 		setInstance(this.infoManager);
 		when(this.infoManager.getInfo()).thenReturn(instanceInfo);
 
@@ -90,10 +92,10 @@ public class EurekaControllerTest {
 
 	@After
 	public void teardown() throws Exception {
-		setInstance(null);
+		setInstance(this.original);
 	}
 
-	void setInstance(ApplicationInfoManager infoManager) throws IllegalAccessException {
+	static void setInstance(ApplicationInfoManager infoManager) throws IllegalAccessException {
 		Field instance = ReflectionUtils.findField(ApplicationInfoManager.class, "instance");
 		ReflectionUtils.makeAccessible(instance);
 		instance.set(null, infoManager);
