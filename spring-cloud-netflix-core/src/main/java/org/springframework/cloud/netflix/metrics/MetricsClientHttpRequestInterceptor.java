@@ -18,8 +18,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -43,17 +41,22 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 	 * Boot (Actuator) provides a more general purpose abstraction for dimensional metrics
 	 * systems, this can be moved there and rewritten against that abstraction.
 	 */
-	@Autowired
-	MonitorRegistry registry;
+	private final MonitorRegistry registry;
 
-	@Autowired
-	Collection<MetricsTagProvider> tagProviders;
+	private final Collection<MetricsTagProvider> tagProviders;
 
-	@Autowired
-	ServoMonitorCache servoMonitorCache;
+	private final ServoMonitorCache servoMonitorCache;
 
-	@Value("${netflix.metrics.restClient.metricName:restclient}")
-	String metricName;
+	private final String metricName;
+
+	public MetricsClientHttpRequestInterceptor(MonitorRegistry registry,
+			Collection<MetricsTagProvider> tagProviders,
+			ServoMonitorCache servoMonitorCache, String metricName) {
+		this.registry = registry;
+		this.tagProviders = tagProviders;
+		this.servoMonitorCache = servoMonitorCache;
+		this.metricName = metricName;
+	}
 
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
@@ -68,8 +71,8 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 		finally {
 			SmallTagMap.Builder builder = SmallTagMap.builder();
 			for (MetricsTagProvider tagProvider : tagProviders) {
-				for (Map.Entry<String, String> tag : tagProvider.clientHttpRequestTags(
-						request, response).entrySet()) {
+				for (Map.Entry<String, String> tag : tagProvider
+						.clientHttpRequestTags(request, response).entrySet()) {
 					builder.add(Tags.newTag(tag.getKey(), tag.getValue()));
 				}
 			}
@@ -78,8 +81,8 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 					.builder(metricName);
 			monitorConfigBuilder.withTags(builder);
 
-			servoMonitorCache.getTimer(monitorConfigBuilder.build()).record(
-					System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+			servoMonitorCache.getTimer(monitorConfigBuilder.build())
+					.record(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
 		}
 	}
 }

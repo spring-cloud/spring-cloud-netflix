@@ -15,14 +15,17 @@ package org.springframework.cloud.netflix.metrics;
 
 import java.util.ArrayList;
 
+import com.netflix.servo.MonitorRegistry;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.actuate.metrics.reader.MetricReader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +36,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.netflix.servo.monitor.Monitors;
+
+import java.util.Collection;
 
 /**
  * @author Jon Schneider
@@ -71,11 +76,18 @@ public class MetricsInterceptorConfiguration {
 
 	@Configuration
 	@ConditionalOnBean({ RestTemplate.class })
+	@ConditionalOnClass(name = "javax.servlet.http.HttpServletRequest")
 	static class MetricsRestTemplateConfiguration {
 
+		@Value("${netflix.metrics.restClient.metricName:restclient}")
+		String metricName;
+
 		@Bean
-		MetricsClientHttpRequestInterceptor spectatorLoggingClientHttpRequestInterceptor() {
-			return new MetricsClientHttpRequestInterceptor();
+		MetricsClientHttpRequestInterceptor spectatorLoggingClientHttpRequestInterceptor(
+				MonitorRegistry registry, Collection<MetricsTagProvider> tagProviders,
+				ServoMonitorCache servoMonitorCache) {
+			return new MetricsClientHttpRequestInterceptor(registry, tagProviders,
+					servoMonitorCache, this.metricName);
 		}
 
 		@Bean

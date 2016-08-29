@@ -95,8 +95,12 @@ public class ServoMetricsAutoConfiguration {
 		return new ServoMetricServices(monitorRegistry);
 	}
 
-	@Bean
-	public MetricsTagProvider defaultMetricsTagProvider() {
-		return new DefaultMetricsTagProvider();
+	@Configuration
+	@ConditionalOnClass(name = "javax.servlet.http.HttpServletRequest")
+	protected static class MetricsTagConfiguration {
+		@Bean
+		public MetricsTagProvider defaultMetricsTagProvider() {
+			return new DefaultMetricsTagProvider();
+		}
 	}
 }
