@@ -233,8 +233,10 @@ public class EurekaController {
 					LinkedHashMap<String, Object> instance = new LinkedHashMap<>();
 					instances.add(instance);
 					instance.put("id", p.first());
-					instance.put("url", p.second());
-					instance.put("isHref", p.second().startsWith("http"));
+					String url = p.second();
+					instance.put("url", url);
+					boolean isHref = url != null && url.startsWith("http");
+					instance.put("isHref", isHref);
 					/*
 					 * String id = p.first(); String url = p.second(); if(url != null &&
 					 * url.startsWith("http")){
