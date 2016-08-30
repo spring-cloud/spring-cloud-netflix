@@ -638,6 +638,18 @@ traffic to application in state other then 'UP'.</p>
       enabled: true</pre>
 </div>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<code>eureka.client.healthcheck.enabled=true</code> should only be set in <code>application.yml</code>. Setting the value in <code>bootstrap.yml</code> will cause undesirable side effects like registering in eureka with an <code>UNKNOWN</code> status.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>If you require more control over the health checks, you may consider
 implementing your own <code>com.netflix.appinfo.HealthCheckHandler</code>.</p>
@@ -2875,7 +2887,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-30 13:59:10 UTC
+Last updated 2016-08-30 15:14:45 UTC
 </div>
 </div>
 </body>
