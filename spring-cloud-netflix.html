@@ -441,6 +441,14 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).</p>
 <p>Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.</p>
 </div>
 <div class="sect2">
+<h3 id="netflix-eureka-client-starter">How to Include Eureka Client</h3>
+<div class="paragraph">
+<p>To include Eureka Client in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-eureka</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_registering_with_eureka">Registering with Eureka</h3>
 <div class="paragraph">
 <p>When a client registers with Eureka, it provides meta-data about itself
@@ -812,8 +820,18 @@ assumptions about the lease renewal period.</p>
 <div class="sect1">
 <h2 id="spring-cloud-eureka-server">Service Discovery: Eureka Server</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="netflix-eureka-server-starter">How to Include Eureka Server</h3>
 <div class="paragraph">
-<p>Example eureka server (e.g. using spring-cloud-starter-eureka-server to set up the classpath):</p>
+<p>To include Eureka Server in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-eureka-server</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="spring-cloud-running-eureka-server">How to Run a Eureka Server</h3>
+<div class="paragraph">
+<p>Example eureka server;</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -866,6 +884,7 @@ dependencyManagement {
 </td>
 </tr>
 </table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_high_availability_zones_and_regions">High Availability, Zones and Regions</h3>
@@ -1003,6 +1022,13 @@ IP Address rather than its hostname.</p>
 <div class="paragraph">
 <p>Having an open circuit stops cascading failures and allows overwhelmed or failing services time to heal.  The fallback can be another Hystrix protected call, static data or a sane empty value.  Fallbacks may be chained so the first fallback makes some other business call which in turn falls back to static data.</p>
 </div>
+<div class="sect2">
+<h3 id="netflix-hystrix-starter">How to Include Hystrix</h3>
+<div class="paragraph">
+<p>To include Hystrix in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-hystrix</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
 <div class="paragraph">
 <p>Example boot app:</p>
 </div>
@@ -1046,6 +1072,7 @@ attribute with a list of <code>@HystrixProperty</code> annotations.  See
 <a href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica#configuration">here</a>
 for more details.  See the <a href="https://github.com/Netflix/Hystrix/wiki/Configuration">Hystrix wiki</a>
 for details on the properties available.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_propagating_the_security_context_or_using_spring_scopes">Propagating the Security Context or using Spring Scopes</h3>
@@ -1117,8 +1144,16 @@ for details on the properties available.</p>
 </div>
 <div class="title">Figure 3. Hystrix Dashboard</div>
 </div>
+<div class="sect2">
+<h3 id="netflix-hystrix-dashboard-starter">How to Include Hystrix Dashboard</h3>
+<div class="paragraph">
+<p>To include the Hystrix Dashboard in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-hystrix-dashboard</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
 <div class="paragraph">
 <p>To run the Hystrix Dashboard annotate your Spring Boot main class with <code>@EnableHystrixDashboard</code>.  You then visit <code>/hystrix</code> and point the dashboard to an individual instances <code>/hystrix.stream</code> endpoint in a Hystrix client application.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_turbine">Turbine</h3>
@@ -1211,6 +1246,14 @@ annotation). Spring Cloud creates a new ensemble as an
 <code>ApplicationContext</code> on demand for each named client using
 <code>RibbonClientConfiguration</code>. This contains (amongst other things) an
 <code>ILoadBalancer</code>, a <code>RestClient</code>, and a <code>ServerListFilter</code>.</p>
+</div>
+<div class="sect2">
+<h3 id="netflix-ribbon-starter">How to Include Ribbon</h3>
+<div class="paragraph">
+<p>To include Ribbon in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-ribbon</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_customizing_the_ribbon_client">Customizing the Ribbon Client</h3>
@@ -1307,7 +1350,7 @@ public class FooConfiguration {
 <div class="sect2">
 <h3 id="_using_ribbon_with_eureka">Using Ribbon with Eureka</h3>
 <div class="paragraph">
-<p>When Eureka is used in conjunction with Ribbon the <code>ribbonServerList</code>
+<p>When Eureka is used in conjunction with Ribbon (i.e., both are on the classpath) the <code>ribbonServerList</code>
 is overridden with an extension of <code>DiscoveryEnabledNIWSServerList</code>
 which populates the list of servers from Eureka.  It also replaces the
 <code>IPing</code> interface with <code>NIWSDiscoveryPing</code> which delegates to Eureka
@@ -1422,6 +1465,13 @@ disable the use of Eureka in Ribbon.</p>
 <div class="paragraph">
 <p><a href="https://github.com/Netflix/feign">Feign</a> is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same <code>HttpMessageConverters</code> used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.</p>
 </div>
+<div class="sect2">
+<h3 id="netflix-feign-starter">How to Include Feign</h3>
+<div class="paragraph">
+<p>To include Feign in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-feign</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
 <div class="paragraph">
 <p>Example spring boot app</p>
 </div>
@@ -1473,6 +1523,7 @@ it will resolve the service in the Eureka service registry. If you
 don&#8217;t want to use Eureka, you can simply configure a list of servers
 in your external configuration (see
 <a href="#spring-cloud-ribbon-without-eureka">above for example</a>).</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="spring-cloud-feign-overriding-defaults">Overriding Feign Defaults</h3>
@@ -1894,6 +1945,14 @@ Default Hystrix isolation pattern (ExecutionIsolationStrategy) for all routes is
 </td>
 </tr>
 </table>
+</div>
+<div class="sect2">
+<h3 id="netflix-zuul-starter">How to Include Zuul</h3>
+<div class="paragraph">
+<p>To include Zuul in your project use the starter with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-starter-zuul</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="netflix-zuul-reverse-proxy">Embedded Zuul Reverse Proxy</h3>
@@ -2369,6 +2428,10 @@ also proxy service calls through an embedded Zuul proxy which gets its route
 entries from Eureka.  The Spring Cloud Config Server can be accessed directly
 via host lookup or through the Zuul Proxy.  The non-jvm app should implement
 a health check so the Sidecar can report to eureka if the app is up or down.</p>
+</div>
+<div class="paragraph">
+<p>To include Sidecar in your project use the dependency with group <code>org.springframework.cloud</code>
+and artifact id <code>spring-cloud-netflix-sidecar</code>.</p>
 </div>
 <div class="paragraph">
 <p>To enable the Sidecar, create a Spring Boot application with <code>@EnableSidecar</code>.
@@ -2887,7 +2950,7 @@ After executing several requests against your service, you can gather some very 
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-08-30 15:22:55 UTC
+Last updated 2016-08-30 15:44:30 UTC
 </div>
 </div>
 </body>
