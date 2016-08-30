@@ -5,6 +5,8 @@
 :all: {asterisk}{asterisk}
 = Spring Cloud Netflix
 
+*{spring-cloud-version}*
+
 include::intro.adoc[]
 
 == Service Discovery: Eureka Clients
