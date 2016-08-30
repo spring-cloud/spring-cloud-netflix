@@ -715,6 +715,33 @@ public class FooConfiguration {
 
 This replaces the `NoOpPing` with `PingUrl`.
 
+=== Customizing the Ribbon Client using properties
+
+Starting with version 1.2.0, Spring Cloud Netflix now supports customizing Ribbon clients using properties to be compatible with the https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers#components-of-load-balancer[Ribbon documentation].
+
+This allows you to change behavior at start up time in different environments.
+
+The supported properties are listed below and should be prefixed by `<clientName>.ribbon.`:
+
+* `NFLoadBalancerClassName`: should implement `ILoadBalancer`
+* `NFLoadBalancerRuleClassName`: should implement `IRule`
+* `NFLoadBalancerPingClassName`: should implement `IPing`
+* `NIWSServerListClassName`: should implement `ServerList`
+* `NIWSServerListFilterClassName` should implement `ServerListFilter`
+
+NOTE: Classes defined in these properties have precedence over beans defined using `@RibbonClient(configuration=MyRibbonConfig.class)` and the defaults provided by Spring Cloud Netflix.
+
+To set the `IRule` for a service name `users` you could set the following:
+
+.application.yml
+----
+users:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+----
+
+See the https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers[Ribbon documentation] for implementations provided by Ribbon.
+
 === Using Ribbon with Eureka
 
 When Eureka is used in conjunction with Ribbon (i.e., both are on the classpath) the `ribbonServerList`
