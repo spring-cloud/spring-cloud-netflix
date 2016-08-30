@@ -19,7 +19,7 @@
 		<spring-cloud-stream.version>Brooklyn.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.4.11</eureka.version>
-		<feign.version>9.3.0</feign.version>
+		<feign.version>9.3.1</feign.version>
 		<hystrix.version>1.5.5</hystrix.version>
 		<ribbon.version>2.2.0</ribbon.version>
 		<servo.version>0.10.1</servo.version>
