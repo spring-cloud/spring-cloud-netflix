@@ -35,7 +35,6 @@ import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.util.StringUtils;
 
 /**
  * @author Christian Lohmann
@@ -89,8 +88,7 @@ public class HttpClientRibbonCommand extends HystrixCommand<ClientHttpResponse> 
 				.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
 		return Setter
 				.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-				.andCommandKey(
-						HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
+				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
 				.andCommandPropertiesDefaults(setter);
 	}
 
