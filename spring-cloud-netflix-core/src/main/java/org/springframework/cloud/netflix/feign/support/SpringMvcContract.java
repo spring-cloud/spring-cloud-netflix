@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.feign.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.PathVariableParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestHeaderParameterProcessor;
@@ -313,8 +315,11 @@ public class SpringMvcContract extends Contract.BaseContract
 		Object defaultValue = AnnotationUtils.getDefaultValue(parameterAnnotation);
 		if (defaultValue instanceof String
 				&& defaultValue.equals(annotationAttributes.get(AnnotationUtils.VALUE))) {
+			Type[] parameterTypes = method.getGenericParameterTypes();
 			String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
-			if (parameterNames != null && parameterNames.length > parameterIndex) {
+			if (parameterNames != null && parameterNames.length > parameterIndex
+					&& parameterTypes != null && parameterTypes.length > parameterIndex
+					&& BeanUtils.isSimpleProperty(parameterTypes[parameterIndex].getClass())) {
 				annotationAttributes.put(AnnotationUtils.VALUE,
 						parameterNames[parameterIndex]);
 			}
