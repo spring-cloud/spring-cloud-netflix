@@ -47,15 +47,18 @@ public class RequestParamParameterProcessor implements AnnotatedParameterProcess
 			Annotation annotation) {
 		RequestParam requestParam = ANNOTATION.cast(annotation);
 		String name = requestParam.value();
-		checkState(emptyToNull(name) != null,
-				"RequestParam.value() was empty on parameter %s",
-				context.getParameterIndex());
-		context.setParameterName(name);
+		if (emptyToNull(name) != null) {
+			context.setParameterName(name);
 
-		MethodMetadata data = context.getMethodMetadata();
-		Collection<String> query = context.setTemplateParameter(name,
-				data.template().queries().get(name));
-		data.template().query(name, query);
+			MethodMetadata data = context.getMethodMetadata();
+			Collection<String> query = context.setTemplateParameter(name,
+					data.template().queries().get(name));
+			data.template().query(name, query);
+		} else {
+			// supports `Map` types
+			MethodMetadata data = context.getMethodMetadata();
+			data.queryMapIndex(context.getParameterIndex());
+		}
 		return true;
 	}
 }
