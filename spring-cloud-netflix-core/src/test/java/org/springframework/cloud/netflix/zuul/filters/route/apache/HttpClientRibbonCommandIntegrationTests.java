@@ -77,11 +77,6 @@ import com.netflix.loadbalancer.ServerList;
 @DirtiesContext
 public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
-	@Override
-	protected boolean supportsPatch() {
-		return true;
-	}
-
 	@Before
 	public void init() {
 		super.setTestRequestcontext();

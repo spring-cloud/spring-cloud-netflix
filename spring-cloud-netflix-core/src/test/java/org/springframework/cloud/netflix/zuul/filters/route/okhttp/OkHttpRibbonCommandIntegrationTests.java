@@ -52,11 +52,6 @@ import org.springframework.web.bind.annotation.RestController;
 @DirtiesContext
 public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
-	@Override
-	protected boolean supportsPatch() {
-		return true;
-	}
-
 	@Before
 	public void init() {
 		super.setTestRequestcontext();

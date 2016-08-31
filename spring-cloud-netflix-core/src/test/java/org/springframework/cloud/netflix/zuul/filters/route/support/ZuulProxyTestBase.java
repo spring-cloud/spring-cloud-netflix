@@ -103,6 +103,20 @@ public abstract class ZuulProxyTestBase {
 		RequestContext.getCurrentContext().unset();
 	}
 
+	/**
+	 * used to disable patch tests if client doesn't support it
+	 */
+	protected boolean supportsPatch() {
+		return true;
+	}
+
+	/**
+	 * used to switch delete tests with a boyd if client doesn't support it
+	 */
+	protected boolean supportsDeleteWithBody() {
+		return true;
+	}
+
 	protected String getRoute(String path) {
 		for (Route route : this.routes.getRoutes()) {
 			if (path.equals(route.getFullPath())) {
@@ -193,6 +207,20 @@ public abstract class ZuulProxyTestBase {
 	}
 
 	@Test
+	public void ribbonDeleteWithBody() {
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/deletewithbody", HttpMethod.DELETE,
+				new HttpEntity<>("deleterequestbody"), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		if (supportsDeleteWithBody()) {
+			assertEquals("Deleted deleterequestbody", result.getBody());
+		} else {
+			assertEquals("Deleted null", result.getBody());
+		}
+	}
+
+	@Test
 	public void ribbonRouteWithNonExistentUri() {
 		String uri = "/simple/nonExistent";
 		this.myErrorController.setUriToMatch(uri);
@@ -272,8 +300,6 @@ public abstract class ZuulProxyTestBase {
 		assertEquals("Posted [(bar)] and Content-Length was: 13!", result.getBody());
 	}
 
-	protected abstract boolean supportsPatch();
-
 	public static abstract class AbstractZuulProxyApplication
 			extends DelegatingWebMvcConfiguration {
 
@@ -297,7 +323,12 @@ public abstract class ZuulProxyTestBase {
 		public String postWithFormParam(HttpServletRequest request, 
 				@RequestBody MultiValueMap<String, String> body) {
 			return "Posted " + body.get("foo") + " and Content-Length was: " + request.getContentLength() + "!";
-		}		
+		}
+
+		@RequestMapping(value = "/deletewithbody", method = RequestMethod.DELETE)
+		public String deleteWithBody(@RequestBody(required = false) String body) {
+			return "Deleted " + body;
+		}
 
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.DELETE)
 		public String delete(@PathVariable String id) {

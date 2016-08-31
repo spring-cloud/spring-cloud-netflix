@@ -55,9 +55,17 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 
 	@Override
 	protected HttpRequest createRequest() throws Exception {
+		final InputStream requestEntity;
+		// ApacheHttpClient4Handler does not support body in delete requests
+		if (getContext().getMethod().equalsIgnoreCase("DELETE")) {
+			requestEntity = null;
+		} else {
+			requestEntity = this.context.getRequestEntity();
+		}
+
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
 				.verb(getVerb(this.context.getMethod())).uri(this.context.uri())
-				.entity(this.context.getRequestEntity());
+				.entity(requestEntity);
 
 		if (this.context.getRetryable() != null) {
 			builder.setRetriable(this.context.getRetryable());

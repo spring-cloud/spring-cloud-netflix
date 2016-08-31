@@ -176,10 +176,6 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	protected InputStream getRequestBody(HttpServletRequest request) {
 		InputStream requestEntity = null;
-		// ApacheHttpClient4Handler does not support body in delete requests
-		if (request.getMethod().equals("DELETE")) {
-			return null;
-		}
 		try {
 			requestEntity = (InputStream) RequestContext.getCurrentContext()
 					.get("requestEntity");

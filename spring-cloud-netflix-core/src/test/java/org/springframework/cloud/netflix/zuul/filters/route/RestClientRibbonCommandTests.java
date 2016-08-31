@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
@@ -116,6 +117,12 @@ public class RestClientRibbonCommandTests {
 		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true, "POST");
 	}
 
+	@Test
+	public void testNonEmptyEntityDelete() throws Exception {
+		String entityValue = "abcd";
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true, "DELETE");
+	}
+
 	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws Exception {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
@@ -154,10 +161,14 @@ public class RestClientRibbonCommandTests {
 				is(equalTo("foo")));
 
 
-		assertThat("entity is missing", request.getEntity(), is(notNullValue()));
-		assertThat("entity is wrong type", InputStream.class.isAssignableFrom(request.getEntity().getClass()), is(true));
-		InputStream entity = (InputStream) request.getEntity();
-		String string = StreamUtils.copyToString(entity, Charset.forName("UTF-8"));
-		assertThat("content is wrong", string, is(equalTo(entityValue)));
+		if (method.equalsIgnoreCase("DELETE")) {
+			assertThat("entity is was non-null", request.getEntity(), is(nullValue()));
+		} else {
+			assertThat("entity is missing", request.getEntity(), is(notNullValue()));
+			assertThat("entity is wrong type", InputStream.class.isAssignableFrom(request.getEntity().getClass()), is(true));
+			InputStream entity = (InputStream) request.getEntity();
+			String string = StreamUtils.copyToString(entity, Charset.forName("UTF-8"));
+			assertThat("content is wrong", string, is(equalTo(entityValue)));
+		}
 	}
 }

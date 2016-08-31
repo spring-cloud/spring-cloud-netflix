@@ -100,6 +100,11 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		return false;
 	}
 
+	@Override
+	protected boolean supportsDeleteWithBody() {
+		return false;
+	}
+
 	@Test
 	public void simpleHostRouteWithTrailingSlash() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
