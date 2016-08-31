@@ -99,7 +99,10 @@ public class DefaultMetricsTagProvider implements MetricsTagProvider {
 	 * Atlas take place via query parameters
 	 */
 	protected String sanitizeUrlTemplate(String urlTemplate) {
-		String sanitized = urlTemplate.replaceAll("/", "_").replaceAll("[{}]", "-");
+		String sanitized = urlTemplate
+				.replaceAll("\\{(\\w+):.+}(?=/|$)", "-$1-") // extract path variable names from regex expressions
+				.replaceAll("/", "_")
+				.replaceAll("[{}]", "-");
 		if (!StringUtils.hasText(sanitized)) {
 			sanitized = "none";
 		}
