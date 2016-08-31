@@ -108,20 +108,4 @@ public class FeignClientsConfiguration {
 		return Feign.builder();
 	}
 
-	@Configuration
-	@ConditionalOnClass(ApacheHttpClient.class)
-	protected static class HttpClientConfiguration {
-
-		@Autowired(required = false)
-		private HttpClient httpClient;
-
-		@ConditionalOnMissingBean
-		@Bean
-		public Client feignClient() {
-			if (this.httpClient != null) {
-				return new ApacheHttpClient(this.httpClient);
-			}
-			return new ApacheHttpClient();
-		}
-	}
 }

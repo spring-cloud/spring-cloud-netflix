@@ -157,7 +157,7 @@ public class FeignClientOverrideDefaultsTests {
 		}
 	}
 
-	@FeignClient(value = "foo", configuration = FooConfiguration.class)
+	@FeignClient(name = "foo", url = "http://foo", configuration = FooConfiguration.class)
 	interface FooClient {
 		@RequestLine("GET /")
 		String get();
@@ -191,7 +191,7 @@ public class FeignClientOverrideDefaultsTests {
 		}
 	}
 
-	@FeignClient(value = "bar", configuration = BarConfiguration.class)
+	@FeignClient(name = "bar", url = "http://bar", configuration = BarConfiguration.class)
 	interface BarClient {
 		@RequestMapping(value = "/", method = RequestMethod.GET)
 		String get();
