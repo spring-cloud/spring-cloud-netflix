@@ -26,7 +26,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -127,7 +129,11 @@ public class AtlasMetricObserver implements MetricObserver {
 		}
 	}
 
-	private void sendMetricsBatch(List<Metric> metrics) {
+	enum PublishMetricsBatchStatus { 
+		NothingToDo, Success, PartialSuccess, Failure
+	}
+	
+	PublishMetricsBatchStatus sendMetricsBatch(List<Metric> metrics) {
 		try {
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
 			JsonGenerator gen = smileFactory.createGenerator(output, JsonEncoding.UTF8);
@@ -136,7 +142,7 @@ public class AtlasMetricObserver implements MetricObserver {
 
 			writeCommonTags(gen);
 			if (writeMetrics(gen, metrics) == 0)
-				return; // short circuit this batch if no valid/numeric metrics existed
+				return PublishMetricsBatchStatus.NothingToDo; // short circuit this batch if no valid/numeric metrics existed
 
 			gen.writeEndObject();
 			gen.flush();
@@ -145,22 +151,32 @@ public class AtlasMetricObserver implements MetricObserver {
 			headers.setContentType(MediaType.valueOf("application/x-jackson-smile"));
 			HttpEntity<byte[]> entity = new HttpEntity<>(output.toByteArray(), headers);
 			try {
-				restTemplate.exchange(uri, HttpMethod.POST, entity, Map.class);
+				ResponseEntity<Map> response = restTemplate.exchange(uri, HttpMethod.POST, entity, Map.class);
+				if(response.getStatusCode() == HttpStatus.ACCEPTED) {
+					// partial success processing the metrics batch
+					List<String> messages = (List<String>) response.getBody().get("message");
+					if(messages != null) {
+						for (String message : messages) {
+							logger.error("Failed to write metric to atlas: " + message);
+						}
+					}
+					return PublishMetricsBatchStatus.PartialSuccess;
+				}
 			}
 			catch (HttpClientErrorException e) {
-				logger.error(
-						"Failed to write metrics to atlas: "
-								+ e.getResponseBodyAsString(), e);
+				logger.error("Failed to write metrics to atlas: " + e.getResponseBodyAsString());
+				return PublishMetricsBatchStatus.Failure;
 			}
 			catch (RestClientException e) {
 				logger.error("Failed to write metrics to atlas", e);
+				return PublishMetricsBatchStatus.Failure;
 			}
 		}
 		catch (IOException e) {
-			// an IOException stemming from the generator writing to a
-			// ByteArrayOutputStream is impossible
-			throw new RuntimeException(e);
+			return PublishMetricsBatchStatus.Failure;
 		}
+		
+		return PublishMetricsBatchStatus.Success;
 	}
 
 	private void writeCommonTags(JsonGenerator gen) throws IOException {
@@ -208,8 +224,8 @@ public class AtlasMetricObserver implements MetricObserver {
 			Metric transformed;
 
 			// Atlas will not normalize metrics tagged with atlas.dstype=gauge. Since
-			// these metric types are
-			// pre-normalized, we do not want Atlas to touch the value
+			// these metric types are pre-normalized, we do not want Atlas to touch the 
+			// value
 			if (DataSourceType.GAUGE.name().equals(value)
 					|| DataSourceType.RATE.name().equals(value)
 					|| DataSourceType.NORMALIZED.name().equals(value)) {
@@ -218,10 +234,8 @@ public class AtlasMetricObserver implements MetricObserver {
 			}
 
 			// atlas.dstype=counter means you're sending the absolute value of the counter
-			// (a monotonically
-			// increasing value), and Atlas will keep the previous value and convert it to
-			// a rate per second
-			// when the metric is received
+			// (a monotonically increasing value), and Atlas will keep the previous value 
+			// and convert it to a rate per second when the metric is received
 			else if (DataSourceType.COUNTER.name().equals(value)) {
 				transformed = new Metric(
 						m.getConfig().withAdditionalTag(atlasCounterTag),
