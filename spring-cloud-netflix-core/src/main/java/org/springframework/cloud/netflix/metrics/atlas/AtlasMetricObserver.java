@@ -38,6 +38,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.publish.MetricObserver;
 import com.netflix.servo.tag.BasicTag;
 import com.netflix.servo.tag.Tag;
@@ -96,7 +97,7 @@ public class AtlasMetricObserver implements MetricObserver {
 		return true;
 	}
 
-	protected static String normalizeAtlasUri(String uri) {
+	static String normalizeAtlasUri(String uri) {
 		if (uri != null) {
 			Matcher matcher = Pattern.compile("(.+?)(/api/v1/publish)?/?").matcher(uri);
 			if (matcher.matches())
@@ -119,7 +120,7 @@ public class AtlasMetricObserver implements MetricObserver {
 			return;
 		}
 
-		List<Metric> metrics = addTypeTagsAsNecessary(rawMetrics);
+		List<Metric> metrics = sanitizeTags(addTypeTagsAsNecessary(rawMetrics));
 
 		for (int i = 0; i < metrics.size(); i += config.getBatchSize()) {
 			List<Metric> batch = metrics.subList(i,
@@ -217,8 +218,25 @@ public class AtlasMetricObserver implements MetricObserver {
 		return totalMetricsInBatch;
 	}
 
-	protected static List<Metric> addTypeTagsAsNecessary(List<Metric> metrics) {
-		List<Metric> typedMetrics = new ArrayList<>();
+	static List<Metric> sanitizeTags(List<Metric> metrics) {
+		List<Metric> sanitized = new ArrayList<>(metrics.size());
+		for (Metric m : metrics) {
+			MonitorConfig.Builder config = MonitorConfig.builder(toValidCharset(m.getConfig().getName()));
+			for (Tag tag : m.getConfig().getTags()) {
+				config.withTag(toValidCharset(tag.getKey()), toValidCharset(tag.getValue()));
+			}
+			config.withPublishingPolicy(m.getConfig().getPublishingPolicy());
+			sanitized.add(new Metric(config.build(), m.getTimestamp(), m.getValue()));
+		}
+		return sanitized;
+	}
+	
+	private static String toValidCharset(String name) {
+		return name.replaceAll("[^\\.\\-\\w]", "_");
+	}
+
+	static List<Metric> addTypeTagsAsNecessary(List<Metric> metrics) {
+		List<Metric> typedMetrics = new ArrayList<>(metrics.size());
 		for (Metric m : metrics) {
 			String value = m.getConfig().getTags().getValue(DataSourceType.KEY);
 			Metric transformed;

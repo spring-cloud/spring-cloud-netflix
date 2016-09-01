@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.servo.tag.Tag;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -190,6 +191,23 @@ public class AtlasMetricObserverTests {
 		
 		assertThat(obs.sendMetricsBatch(generateMetrics(2)), 
 				is(equalTo(AtlasMetricObserver.PublishMetricsBatchStatus.PartialSuccess)));
+	}
+	
+	@Test
+	public void sanitizeMetrics() {
+		String mixtureOfValidAndInvalidChars = "a_1.2-Z/ A";
+		
+		Metric m = new Metric(new MonitorConfig.Builder(mixtureOfValidAndInvalidChars)
+				.withTag(mixtureOfValidAndInvalidChars, mixtureOfValidAndInvalidChars).build(), 0, 1);
+		
+		Metric sanitizedMetric = AtlasMetricObserver.sanitizeTags(Collections.singletonList(m)).get(0);
+
+		String valid = "a_1.2-Z__A";
+		assertThat(sanitizedMetric.getConfig().getName(), is(equalTo(valid)));
+		
+		Tag tag = sanitizedMetric.getConfig().getTags().iterator().next();
+		assertThat(tag.getKey(), is(equalTo(valid)));
+		assertThat(tag.getValue(), is(equalTo(valid)));
 	}
 
 	private List<Metric> generateMetrics(int numberOfMetrics) {
