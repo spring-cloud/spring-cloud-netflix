@@ -112,6 +112,12 @@ public class MetricsHandlerInterceptorIntegrationTests {
 		mvc.perform(get("/test/some/error/10")).andExpect(status().is4xxClientError());
 		assertTimer("test_some_error_-id-", null, 422);
 	}
+	
+	@Test
+	public void metricsGatheredOnRequestMappingWithRegex() throws Exception {
+		mvc.perform(get("/test/some/regex/.aa")).andExpect(status().isOk());
+		assertTimer("test_some_regex_-id-", null, 200);
+	}
 
 	protected void assertTimer(String uriTag, String exceptionType, Integer status) {
 		MonitorConfig.Builder builder = new MonitorConfig.Builder("metricName")
@@ -161,7 +167,12 @@ class MetricsTestController {
 	public String testSomeUnhandledError(@PathVariable Long id) {
 		throw new RuntimeException("Boom on $id!");
 	}
-
+	
+	@RequestMapping("/regex/{id:\\.[a-z]+}")
+	public String testSomeRegexRequest(@PathVariable String id) {
+		return id;
+	}
+	
 	@ExceptionHandler(value = IllegalStateException.class)
 	@ResponseStatus(code = HttpStatus.UNPROCESSABLE_ENTITY)
 	ModelAndView defaultErrorHandler(HttpServletRequest request, Exception e) {
