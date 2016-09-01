@@ -75,7 +75,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		}
 		
 		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey + "RibbonCommand"))
+				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
 				.andCommandPropertiesDefaults(setter);
 		// @formatter:on
 	}
