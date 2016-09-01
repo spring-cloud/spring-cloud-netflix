@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
@@ -30,14 +31,11 @@ import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.BasicTagList;
 
-import static com.netflix.servo.annotations.DataSourceType.COUNTER;
-import static com.netflix.servo.annotations.DataSourceType.GAUGE;
-import static com.netflix.servo.annotations.DataSourceType.INFORMATIONAL;
-import static com.netflix.servo.annotations.DataSourceType.KEY;
-import static com.netflix.servo.annotations.DataSourceType.NORMALIZED;
-import static com.netflix.servo.annotations.DataSourceType.RATE;
-import static org.junit.Assert.assertEquals;
+import static com.netflix.servo.annotations.DataSourceType.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -47,10 +45,10 @@ public class AtlasMetricObserverTests {
 	@Test
 	public void normalizeAtlasUri() {
 		String normalized = "http://localhost:7001/api/v1/publish";
-		assertEquals(normalized, AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001"));
-		assertEquals(normalized, AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/"));
-		assertEquals(normalized, AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/api/v1/publish"));
-		assertEquals(normalized, AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/api/v1/publish/"));
+		assertThat(AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001"), is(equalTo(normalized)));
+		assertThat(AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/"), is(equalTo(normalized)));
+		assertThat(AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/api/v1/publish"), is(equalTo(normalized)));
+		assertThat(AtlasMetricObserver.normalizeAtlasUri("http://localhost:7001/api/v1/publish/"), is(equalTo(normalized)));
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -80,25 +78,24 @@ public class AtlasMetricObserverTests {
 
 		assertHasAtlasType("rate", metricWithType("foo", INFORMATIONAL));
 		assertHasAtlasType("rate", new Metric(new MonitorConfig.Builder("foo").build(),
-				0, "bar"));
+				System.currentTimeMillis(), "bar"));
 
 		// already has type
 		Metric m = new Metric(new MonitorConfig.Builder("foo")
 				.withTag(KEY, COUNTER.name()).withTag("atlas.dstype", "counter").build(),
-				0, "bar");
+				System.currentTimeMillis(), "bar");
 		assertHasAtlasType("counter", m);
-		assertEquals(2, m.getConfig().getTags().size());
+		assertThat(m.getConfig().getTags().size(), is(equalTo(2)));
 	}
 
 	private void assertHasAtlasType(String atlasType, Metric m) {
-		assertEquals(atlasType,
-				AtlasMetricObserver.addTypeTagsAsNecessary(Collections.singletonList(m))
-						.get(0).getConfig().getTags().getValue("atlas.dstype"));
+		assertThat(AtlasMetricObserver.addTypeTagsAsNecessary(Collections.singletonList(m))
+						.get(0).getConfig().getTags().getValue("atlas.dstype"), is(equalTo(atlasType)));
 	}
 
 	private Metric metricWithType(String key, DataSourceType type) {
 		return new Metric(new MonitorConfig.Builder(key).withTag(KEY, type.name())
-				.build(), 0, 1);
+				.build(), System.currentTimeMillis(), 1);
 	}
 
 	@Test
@@ -143,6 +140,56 @@ public class AtlasMetricObserverTests {
 		obs.update(Collections.singletonList(new Metric(new MonitorConfig.Builder("foo")
 				.build(), 0, "nonumber")));
 		mockServer.verify();
+	}
+
+	/**
+	 * If ALL of the metrics in a batch fail, Atlas will return a 400 with a String body indicating why.
+	 */
+	@Test
+	public void failingMetricsBatch() {
+		RestTemplate restTemplate = new RestTemplate();
+
+		AtlasMetricObserverConfigBean config = new AtlasMetricObserverConfigBean();
+		config.setBatchSize(1);
+		config.setUri("atlas");
+
+		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+		mockServer
+				.expect(MockRestRequestMatchers.requestTo("atlas/api/v1/publish"))
+				.andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
+				.andRespond(MockRestResponseCreators.withBadRequest().body("foo0 is bad for some reason"));
+
+		AtlasMetricObserver obs = new AtlasMetricObserver(config, restTemplate, BasicTagList.EMPTY);
+
+		assertThat(obs.sendMetricsBatch(generateMetrics(1)), 
+				is(equalTo(AtlasMetricObserver.PublishMetricsBatchStatus.Failure)));
+	}
+
+	/**
+	 * If SOME metrics in a batch fail, Atlas will return a 202 with a JSON body with a message for each 
+	 * failing metric.
+	 */
+	@Test
+	public void partialSuccessMetricsBatch() {
+		RestTemplate restTemplate = new RestTemplate();
+
+		AtlasMetricObserverConfigBean config = new AtlasMetricObserverConfigBean();
+		config.setBatchSize(2);
+		config.setUri("atlas");
+
+		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
+		mockServer
+				.expect(MockRestRequestMatchers.requestTo("atlas/api/v1/publish"))
+				.andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
+				.andRespond(
+						MockRestResponseCreators.withStatus(HttpStatus.ACCEPTED)
+								.body("{\"message\" : [\"foo1 is bad for some reason\"]}")
+								.contentType(MediaType.APPLICATION_JSON));
+
+		AtlasMetricObserver obs = new AtlasMetricObserver(config, restTemplate, BasicTagList.EMPTY);
+		
+		assertThat(obs.sendMetricsBatch(generateMetrics(2)), 
+				is(equalTo(AtlasMetricObserver.PublishMetricsBatchStatus.PartialSuccess)));
 	}
 
 	private List<Metric> generateMetrics(int numberOfMetrics) {
