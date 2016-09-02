@@ -100,7 +100,8 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	 */
 	Instance marshall(InstanceInfo instanceInfo) {
 		String hostname = instanceInfo.getHostName();
-		String port = String.valueOf(instanceInfo.getPort());
+		final String managementPort = instanceInfo.getMetadata().get("management.port");
+		String port = managementPort == null ? String.valueOf(instanceInfo.getPort()) : managementPort;
 		String cluster = getClusterName(instanceInfo);
 		Boolean status = parseInstanceStatus(instanceInfo.getStatus());
 		if (hostname != null && cluster != null && status != null) {
