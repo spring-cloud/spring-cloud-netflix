@@ -211,7 +211,7 @@ public class SendResponseFilter extends ZuulFilter {
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
 			if (contentLength != null && !ctx.getResponseGZipped()) {
-				servletResponse.setContentLength(contentLength.intValue());
+				servletResponse.setContentLengthLong(contentLength);
 			}
 		}
 	}
