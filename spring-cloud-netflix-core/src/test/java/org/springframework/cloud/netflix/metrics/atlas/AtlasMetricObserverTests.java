@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.netflix.servo.tag.Tag;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -31,8 +30,14 @@ import com.netflix.servo.Metric;
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.BasicTagList;
+import com.netflix.servo.tag.Tag;
 
-import static com.netflix.servo.annotations.DataSourceType.*;
+import static com.netflix.servo.annotations.DataSourceType.COUNTER;
+import static com.netflix.servo.annotations.DataSourceType.GAUGE;
+import static com.netflix.servo.annotations.DataSourceType.INFORMATIONAL;
+import static com.netflix.servo.annotations.DataSourceType.KEY;
+import static com.netflix.servo.annotations.DataSourceType.NORMALIZED;
+import static com.netflix.servo.annotations.DataSourceType.RATE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
