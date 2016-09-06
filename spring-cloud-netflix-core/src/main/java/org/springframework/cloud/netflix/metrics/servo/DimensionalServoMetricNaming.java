@@ -16,7 +16,7 @@ package org.springframework.cloud.netflix.metrics.servo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.springframework.util.StringUtils;
 
 import com.netflix.servo.monitor.Monitor;
 import com.netflix.servo.monitor.MonitorConfig;
@@ -33,6 +33,6 @@ public class DimensionalServoMetricNaming implements ServoMetricNaming {
 		for (Tag t : config.getTags()) {
 			tags.add(t.getKey() + "=" + t.getValue());
 		}
-		return config.getName() + "(" + StringUtils.join(tags, ",") + ")";
+		return config.getName() + "(" + StringUtils.collectionToCommaDelimitedString(tags) + ")";
 	}
 }
