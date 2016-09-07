@@ -46,15 +46,6 @@ if [ -z "$MAVEN_SKIP_RC" ] ; then
 
 fi
 
-VERSION=$(awk '/<parent/ {l=4}; (l-- > 0) {$0=$0} 1' `dirname $0`/pom.xml| grep '<version' | head -1 | sed -e 's/.*>\(.*\)<.*/\1/')
-if echo $VERSION | egrep -q 'M|RC'; then
-    echo Activating \"milestone\" profile for version=\"$VERSION\"
-    echo $MAVEN_ARGS | grep -q milestone || MAVEN_ARGS="$MAVEN_ARGS -Pmilestone"
-else
-    echo Deactivating \"milestone\" profile for version=\"$VERSION\"
-    echo $MAVEN_ARGS | grep -q milestone && MAVEN_ARGS=$(echo $MAVEN_ARGS | sed -e 's/-Pmilestone//')
-fi
-
 # OS specific support.  $var _must_ be set to either true or false.
 cygwin=false;
 darwin=false;
@@ -66,27 +57,27 @@ case "`uname`" in
            #
            # Look for the Apple JDKs first to preserve the existing behaviour, and then look
            # for the new JDKs provided by Oracle.
-           # 
+           #
            if [ -z "$JAVA_HOME" ] && [ -L /System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK ] ; then
              #
              # Apple JDKs
              #
              export JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home
            fi
-           
+
            if [ -z "$JAVA_HOME" ] && [ -L /System/Library/Java/JavaVirtualMachines/CurrentJDK ] ; then
              #
              # Apple JDKs
              #
              export JAVA_HOME=/System/Library/Java/JavaVirtualMachines/CurrentJDK/Contents/Home
            fi
-             
+
            if [ -z "$JAVA_HOME" ] && [ -L "/Library/Java/JavaVirtualMachines/CurrentJDK" ] ; then
              #
              # Oracle JDKs
              #
              export JAVA_HOME=/Library/Java/JavaVirtualMachines/CurrentJDK/Contents/Home
-           fi           
+           fi
 
            if [ -z "$JAVA_HOME" ] && [ -x "/usr/libexec/java_home" ]; then
              #
@@ -228,16 +219,30 @@ concat_lines() {
 export MAVEN_PROJECTBASEDIR=${MAVEN_BASEDIR:-$(find_maven_basedir)}
 MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS"
 
-# Provide a "standardized" way to retrieve the CLI args that will 
+# Provide a "standardized" way to retrieve the CLI args that will
 # work with both Windows and non-Windows executions.
 MAVEN_CMD_LINE_ARGS="$MAVEN_CONFIG $@"
 export MAVEN_CMD_LINE_ARGS
 
 WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
 
+VERSION=$(exec "$JAVACMD" \
+  $MAVEN_OPTS \
+  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
+  "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
+  -Dexec.executable="echo" -Dexec.args='${project.version}' ${WRAPPER_LAUNCHER} -q --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec )
+
+if echo $VERSION | egrep -q 'M|RC'; then
+    echo Activating \"milestone\" profile for version=\"$VERSION\"
+    echo $MAVEN_ARGS | grep -q milestone || MAVEN_ARGS="$MAVEN_ARGS -Pmilestone"
+else
+    echo Deactivating \"milestone\" profile for version=\"$VERSION\"
+    echo $MAVEN_ARGS | grep -q milestone && MAVEN_ARGS=$(echo $MAVEN_ARGS | sed -e 's/-Pmilestone//')
+fi
+
+
 exec "$JAVACMD" \
   $MAVEN_OPTS \
   -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
   "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
   ${WRAPPER_LAUNCHER} ${MAVEN_ARGS} "$@"
-
