@@ -3,6 +3,7 @@
 :github-raw: http://raw.github.com/{github-repo}/{github-tag}
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
 :all: {asterisk}{asterisk}
+:nofooter:
 = Spring Cloud Netflix
 
 *{spring-cloud-version}*
@@ -128,7 +129,7 @@ respectively. This will make Eureka publish instance information
 showing an explicit preference for secure communication. The Spring
 Cloud `DiscoveryClient` will always return an `https://...` URI for a
 service configured this way, and the Eureka (native) instance
-information will have a secure health check URL. 
+information will have a secure health check URL.
 
 Because of the way
 Eureka works internally, it will still publish a non-secure URL for
@@ -536,7 +537,7 @@ If you want some thread local context to propagate into a `@HystrixCommand` the 
 
 The same thing applies if you are using `@SessionScope` or `@RequestScope`. You will know when you need to do this because of a runtime exception that says it can't find the scoped context.
 
-You also have the option to set the `hystrix.shareSecurityContext` property to `true`. Doing so will auto configure an Hystrix concurrency strategy plugin hook who will transfer the `SecurityContext` from your main thread to the one used by the Hystrix command. Hystrix does not allow multiple hystrix concurrency strategy to be registered so an extension mechanism is available by declaring your own `HystrixConcurrencyStrategy` as a Spring bean. Spring Cloud will lookup for your implementation within the Spring context and wrap it inside its own plugin. 
+You also have the option to set the `hystrix.shareSecurityContext` property to `true`. Doing so will auto configure an Hystrix concurrency strategy plugin hook who will transfer the `SecurityContext` from your main thread to the one used by the Hystrix command. Hystrix does not allow multiple hystrix concurrency strategy to be registered so an extension mechanism is available by declaring your own `HystrixConcurrencyStrategy` as a Spring bean. Spring Cloud will lookup for your implementation within the Spring context and wrap it inside its own plugin.
 
 ### Health Indicator
 
@@ -1167,7 +1168,7 @@ failures will show up in Hystrix metrics, and once the circuit is open
 the proxy will not try to contact the service.
 
 NOTE: the Zuul starter does not include a discovery client, so for
-routes based on service IDs you need to provide one of those 
+routes based on service IDs you need to provide one of those
 on the classpath as well (e.g. Eureka is one choice).
 
 To skip having a service automatically added, set
