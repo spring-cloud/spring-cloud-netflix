@@ -2,6 +2,7 @@
 :github-repo: spring-cloud/spring-cloud-netflix
 :github-raw: http://raw.github.com/{github-repo}/{github-tag}
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
+:nofooter:
 = Spring Cloud Netflix
 
 include::intro.adoc[]
@@ -33,7 +34,7 @@ public class Application {
     public String home() {
         return "Hello world";
     }
-    
+
     public static void main(String[] args) {
         new SpringApplicationBuilder(Application.class).web(true).run(args);
     }
@@ -185,7 +186,7 @@ builder) and also <<spring-cloud-ribbon, Spring `RestTemplate`>> using
 the logical Eureka service identifiers (VIPs) instead of physical
 URLs. To configure Ribbon with a fixed list of physical servers you
 can simply set `<client>.ribbon.listOfServers` to a comma-separated
-list of physical addresses (or hostnames), where `<client>` is the ID 
+list of physical addresses (or hostnames), where `<client>` is the ID
 of the client.
 
 You can also use the `org.springframework.cloud.client.discovery.DiscoveryClient`
@@ -298,7 +299,7 @@ server:
 eureka:
   instance:
     hostname: localhost
-  client: 
+  client:
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
@@ -324,7 +325,7 @@ spring:
 eureka:
   instance:
     hostname: peer1
-  client: 
+  client:
     serviceUrl:
       defaultZone: http://peer2/eureka/
 
@@ -334,7 +335,7 @@ spring:
 eureka:
   instance:
     hostname: peer2
-  client: 
+  client:
     serviceUrl:
       defaultZone: http://peer1/eureka/
 ----
@@ -426,7 +427,7 @@ If you want some thread local context to propagate into a `@HystrixCommand` the 
     commandProperties = {
       @HystrixProperty(name="execution.isolation.strategy", value="SEMAPHORE")
     }
-) 
+)
 ...
 ----
 
@@ -437,7 +438,7 @@ In particular you might be interested
 ### Health Indicator
 
 The state of the connected circuit breakers are also exposed in the
-`/health` endpoint of the calling application. 
+`/health` endpoint of the calling application.
 
 [source,json,indent=0]
 ----
@@ -547,7 +548,7 @@ you give it as an application developer (e.g. using the `@FeignClient`
 annotation). Spring Cloud creates a new ensemble as an
 `ApplicationContext` on demand for each named client using
 `RibbonClientConfiguration`. This contains (amongst other things) an
-`ILoadBalancer`, a `RestClient`, and a `ServerListFilter`. 
+`ILoadBalancer`, a `RestClient`, and a `ServerListFilter`.
 
 === Customizing the Ribbon Client
 
@@ -792,7 +793,7 @@ configured routes map, then it will be unignored. Example:
 [source,yaml]
 ----
  zuul:
-  ignoredServices: * 
+  ignoredServices: *
   routes:
     users: /myusers/**
 ----
@@ -830,7 +831,7 @@ and the serviceId independently:
 This means that http calls to "/myusers" get forwarded to the
 "users_service" service.  The route has to have a "path" which can be
 specified as an ant-style pattern, so "/myusers/\*" only matches one
-level, but "/myusers/**" matches hierarchically. 
+level, but "/myusers/**" matches hierarchically.
 
 The location of the backend can be specified as either a "serviceId"
 (for a Eureka service) or a "url" (for a physical location), e.g.
@@ -845,7 +846,7 @@ The location of the backend can be specified as either a "serviceId"
       url: http://example.com/users_service
 ----
 
-These simple url-routes doesn't get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon. 
+These simple url-routes doesn't get executed as HystrixCommand nor can you loadbalance multiple url with Ribbon.
 To achieve this specify a service-route and configure a Ribbon client for the
 serviceId (this currently requires disabling Eureka support in Ribbon:
 see <<spring-cloud-ribbon-without-eureka,above for more information>>), e.g.
@@ -906,10 +907,10 @@ server if you set a default route ("/"), for example `zuul.route.home:
 
 If you `@EnableZuulProxy` you can use the proxy paths to
 upload files and it should just work as long as the files
-are small. For large files there is an alternative path 
-which bypasses the Spring `DispatcherServlet` (to 
+are small. For large files there is an alternative path
+which bypasses the Spring `DispatcherServlet` (to
 avoid multipart processing) in "/zuul/*". I.e. if
-`zuul.routes.customers=/customers/**` then you can 
+`zuul.routes.customers=/customers/**` then you can
 POST large files to "/zuul/customers/*". The servlet
 path is externalized via `zuul.servletPath`. Extremely
 large files will also require elevated timeout settings
@@ -940,7 +941,7 @@ use `@EnableZuulServer` (instead of `@EnableZuulProxy`). Any beans that you add 
 will be installed automatically, as they are with `@EnableZuulProxy`, but without any of the proxy filters being added
 automatically.
 
-In this case the routes into the Zuul server are 
+In this case the routes into the Zuul server are
 still specified by configuring "zuul.routes.*", but there is no service discovery and no proxying, so the
 "serviceId" and "url" settings are ignored. For example:
 
