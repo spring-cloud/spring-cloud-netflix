@@ -68,7 +68,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 			// we want to default to semaphore-isolation since this wraps
 			// 2 others commands that are already thread isolated
 			final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
-					.getIntProperty(name, 100);
+					.getIntProperty(name, zuulProperties.getSemaphore().getMaxSemaphores());
 			setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
 		} else	{
 			// TODO Find out is some parameters can be set here
