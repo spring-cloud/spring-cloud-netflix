@@ -63,6 +63,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
@@ -293,6 +294,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			httpRequest = httpPatch;
 			httpPatch.setEntity(entity);
 			break;
+        case "DELETE":
+            BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(verb,
+                    uri + this.helper.getQueryString(params));
+            httpRequest = entityRequest;
+            entityRequest.setEntity(entity);
+            break;
 		default:
 			httpRequest = new BasicHttpRequest(verb,
 					uri + this.helper.getQueryString(params));
