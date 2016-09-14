@@ -69,6 +69,11 @@ public class SingleReturnValueHandlerTest {
 			return new ResponseEntity<>(Single.just("single value"),
 					HttpStatus.NOT_FOUND);
 		}
+		
+		@RequestMapping(method = RequestMethod.GET, value = "/singleCreatedWithResponse")
+		public Single<ResponseEntity<String>> singleOuterWithResponse() {
+			return Single.just(new ResponseEntity<>("single value", HttpStatus.CREATED));
+		}
 
 		@RequestMapping(method = RequestMethod.GET, value = "/throw")
 		public Single<Object> error() {
@@ -113,6 +118,19 @@ public class SingleReturnValueHandlerTest {
 		// then
 		assertNotNull(response);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	}
+	
+	@Test
+	public void shouldRetrieveSingleValueWithCreatedCode() {
+
+		// when
+		ResponseEntity<String> response = restTemplate.getForEntity(path("/singleCreatedWithResponse"),
+				String.class);
+
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		assertEquals("single value", response.getBody());
 	}
 
 	private String path(String context) {
