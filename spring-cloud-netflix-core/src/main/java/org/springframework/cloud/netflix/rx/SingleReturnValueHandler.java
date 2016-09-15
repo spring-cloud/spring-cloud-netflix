@@ -100,9 +100,9 @@ public class SingleReturnValueHandler implements AsyncHandlerMethodReturnValueHa
 				.map(new Func1<Object, ResponseEntity<?>>() {
 					@Override
 					public ResponseEntity<?> call(Object object) {
-						if (object instanceof ResponseEntity){
-			                            return (ResponseEntity) object;
-                        			}
+						if (object instanceof ResponseEntity) {
+							return (ResponseEntity) object;
+						}
 
 						return new ResponseEntity<Object>(object,
 								getHttpHeaders(responseEntity),
