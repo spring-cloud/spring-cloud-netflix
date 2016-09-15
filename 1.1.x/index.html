@@ -2450,20 +2450,26 @@ info:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
-public Single&lt;String&gt; single() {
-    return Single.just("single value");
-}
+<pre class="highlight"><code class="language-java" data-lang="java">      @RequestMapping(method = RequestMethod.GET, value = "/single")
+      public Single&lt;String&gt; single() {
+          return Single.just("single value");
+      }
 
 @RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")
 public ResponseEntity&lt;Single&lt;String&gt;&gt; singleWithResponse() {
-    return new ResponseEntity&lt;&gt;(Single.just("single value"), HttpStatus.NOT_FOUND);
+	return new ResponseEntity&lt;&gt;(Single.just("single value"),
+			HttpStatus.NOT_FOUND);
 }
 
-@RequestMapping(method = RequestMethod.GET, value = "/throw")
-public Single&lt;Object&gt; error() {
-    return Single.error(new RuntimeException("Unexpected"));
-}</code></pre>
+@RequestMapping(method = RequestMethod.GET, value = "/singleCreatedWithResponse")
+public Single&lt;ResponseEntity&lt;String&gt;&gt; singleOuterWithResponse() {
+	return Single.just(new ResponseEntity&lt;&gt;("single value", HttpStatus.CREATED));
+}
+
+      @RequestMapping(method = RequestMethod.GET, value = "/throw")
+      public Single&lt;Object&gt; error() {
+          return Single.error(new RuntimeException("Unexpected"));
+      }</code></pre>
 </div>
 </div>
 <div class="paragraph">
