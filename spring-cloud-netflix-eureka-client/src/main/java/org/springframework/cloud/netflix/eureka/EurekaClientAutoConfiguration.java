@@ -62,6 +62,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Dave Syer
  * @author Spencer Gibb
  * @author Jon Schneider
+ * @author Matt Jenkins
  */
 @Configuration
 @EnableConfigurationProperties
@@ -80,6 +81,12 @@ public class EurekaClientAutoConfiguration {
 
 	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
 	String hostname;
+
+	@Value("${eureka.instance.statusPageUrlPath:}")
+	String statusPageUrlPath;
+
+	@Value("${eureka.instance.healthCheckUrlPath:}")
+	String healthCheckUrlPath;
 
 	@Autowired
 	ConfigurableEnvironment env;
@@ -110,6 +117,12 @@ public class EurekaClientAutoConfiguration {
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
 			if (StringUtils.hasText(this.hostname)) {
 				instance.setHostname(this.hostname);
+			}
+			if (StringUtils.hasText(statusPageUrlPath)) {
+				instance.setStatusPageUrlPath(statusPageUrlPath);
+			}
+			if (StringUtils.hasText(healthCheckUrlPath)) {
+				instance.setHealthCheckUrlPath(healthCheckUrlPath);
 			}
 			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
 			instance.setStatusPageUrl(scheme + "://" + instance.getHostname() + ":"
