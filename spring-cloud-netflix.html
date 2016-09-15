@@ -2622,6 +2622,11 @@ public ResponseEntity&lt;Single&lt;String&gt;&gt; singleWithResponse() {
 			HttpStatus.NOT_FOUND);
 }
 
+@RequestMapping(method = RequestMethod.GET, value = "/singleCreatedWithResponse")
+public Single&lt;ResponseEntity&lt;String&gt;&gt; singleOuterWithResponse() {
+	return Single.just(new ResponseEntity&lt;&gt;("single value", HttpStatus.CREATED));
+}
+
 @RequestMapping(method = RequestMethod.GET, value = "/throw")
 public Single&lt;Object&gt; error() {
 	return Single.error(new RuntimeException("Unexpected"));
