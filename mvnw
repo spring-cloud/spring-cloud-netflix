@@ -226,11 +226,20 @@ export MAVEN_CMD_LINE_ARGS
 
 WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
 
+echo "Running version check for the first time to ensure all jars are downloaded. Without this wrong version might be chosen"
 VERSION=$(exec "$JAVACMD" \
   $MAVEN_OPTS \
   -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
   "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
   -Dexec.executable="echo" -Dexec.args='${project.version}' ${WRAPPER_LAUNCHER} -q --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec )
+
+echo "Running version check for the second time in order to output only the version"
+VERSION=$(exec "$JAVACMD" \
+  $MAVEN_OPTS \
+  -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
+  "-Dmaven.home=${M2_HOME}" "-Dmaven.multiModuleProjectDirectory=${MAVEN_PROJECTBASEDIR}" \
+  -Dexec.executable="echo" -Dexec.args='${project.version}' ${WRAPPER_LAUNCHER} -q --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec )
+echo "The found version is [${VERSION}]"
 
 if echo $VERSION | egrep -q 'M|RC'; then
     echo Activating \"milestone\" profile for version=\"$VERSION\"
