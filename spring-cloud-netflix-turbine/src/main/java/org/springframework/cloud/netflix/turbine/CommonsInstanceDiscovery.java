@@ -157,7 +157,8 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 	 */
 	Instance marshall(ServiceInstance serviceInstance) {
 		String hostname = serviceInstance.getHost();
-		String port = String.valueOf(serviceInstance.getPort());
+        	String managementPort = serviceInstance.getMetadata().get("management.port");
+        	String port = managementPort == null ? String.valueOf(serviceInstance.getPort()) : managementPort;
 		String cluster = getClusterName(serviceInstance);
 		Boolean status = Boolean.TRUE; //TODO: where to get?
 		if (hostname != null && cluster != null && status != null) {

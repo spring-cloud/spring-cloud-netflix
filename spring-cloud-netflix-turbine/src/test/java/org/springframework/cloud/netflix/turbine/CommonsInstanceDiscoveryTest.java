@@ -100,7 +100,23 @@ public class CommonsInstanceDiscoveryTest {
 		assertEquals("url is wrong", "http://"+hostName+":"+port+"/hystrix.stream", urlPath);
 	}
 
-	@Test
+    @Test
+    public void testUseManagementPortFromMetadata() {
+        CommonsInstanceDiscovery discovery = createDiscovery();
+        String appName = "testAppName";
+        int port = 8080;
+        int managementPort = 8081;
+        String hostName = "myhost";
+        DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, false);
+        serviceInstance.getMetadata().put("management.port", String.valueOf(managementPort));
+        Instance instance = discovery.marshall(serviceInstance);
+        assertEquals("port is wrong", String.valueOf(managementPort), instance.getAttributes().get("port"));
+
+        String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
+        assertEquals("url is wrong", "http://"+hostName+":"+managementPort+"/hystrix.stream", urlPath);
+    }
+
+    @Test
 	public void testGetSecurePort() {
 		CommonsInstanceDiscovery discovery = createDiscovery();
 		String appName = "testAppName";
