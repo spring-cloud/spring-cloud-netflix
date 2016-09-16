@@ -16,10 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 
 import org.junit.Before;
@@ -58,6 +55,10 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+
+import static java.nio.charset.Charset.defaultCharset;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.util.StreamUtils.copyToString;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -119,6 +120,24 @@ public class FormZuulProxyApplicationTests {
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! bar", result.getBody());
+	}
+
+	@Test
+	public void postWithMultipartFileAndForm() {
+		MultiValueMap<String, Object> form = new LinkedMultiValueMap<String, Object>();
+		HttpHeaders part = new HttpHeaders();
+		part.setContentType(MediaType.TEXT_PLAIN);
+		part.setContentDispositionFormData("file", "foo.txt");
+		form.set("foo", new HttpEntity<byte[]>("bar".getBytes(), part));
+		form.set("field", "data");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/simple/fileandform", HttpMethod.POST,
+				new HttpEntity<MultiValueMap<String, Object>>(form, headers),
+				String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! bar!field!data", result.getBody());
 	}
 
 	@Test
@@ -190,22 +209,15 @@ class FormZuulProxyApplication {
 	@RequestMapping(value = "/file", method = RequestMethod.POST)
 	public String file(@RequestParam(required = false) MultipartFile file)
 			throws IOException {
-		byte[] bytes = new byte[0];
-		if (file != null) {
-			if (file.getSize() > 1024) {
-				bytes = new byte[1024];
-				InputStream inputStream = file.getInputStream();
-				inputStream.read(bytes);
-				byte[] buffer = new byte[1024 * 1024 * 10];
-				while (inputStream.read(buffer) >= 0) {
-					log.info("Read more bytes");
-				}
-			}
-			else {
-				bytes = file.getBytes();
-			}
-		}
-		return "Posted! " + new String(bytes);
+
+		return "Posted! " + copyToString(file.getInputStream(), defaultCharset());
+	}
+
+	@RequestMapping(value = "/fileandform", method = RequestMethod.POST)
+	public String fileAndForm(@RequestParam MultipartFile file, @RequestParam String field)
+			throws IOException {
+
+		return "Posted! " + copyToString(file.getInputStream(), defaultCharset()) + "!field!" + field;
 	}
 
 	@Bean
