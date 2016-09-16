@@ -33,6 +33,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
+import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
@@ -82,12 +83,6 @@ public class EurekaClientAutoConfiguration {
 	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
 	String hostname;
 
-	@Value("${eureka.instance.statusPageUrlPath:}")
-	String statusPageUrlPath;
-
-	@Value("${eureka.instance.healthCheckUrlPath:}")
-	String healthCheckUrlPath;
-
 	@Autowired
 	ConfigurableEnvironment env;
 
@@ -111,6 +106,7 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
+		RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
@@ -118,6 +114,8 @@ public class EurekaClientAutoConfiguration {
 			if (StringUtils.hasText(this.hostname)) {
 				instance.setHostname(this.hostname);
 			}
+			String statusPageUrlPath = relaxedPropertyResolver.getProperty("statusPageUrlPath");
+			String healthCheckUrlPath = relaxedPropertyResolver.getProperty("healthCheckUrlPath");
 			if (StringUtils.hasText(statusPageUrlPath)) {
 				instance.setStatusPageUrlPath(statusPageUrlPath);
 			}

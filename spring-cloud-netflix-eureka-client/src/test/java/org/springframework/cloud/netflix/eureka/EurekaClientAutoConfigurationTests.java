@@ -113,6 +113,54 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void statusPageUrlPathAndManagementPortKabobCase() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999",
+				"eureka.instance.status-page-url-path=/myStatusPage");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("/myStatusPage"));
+	}
+
+	@Test
+	public void healthCheckUrlPathAndManagementPortKabobCase() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999",
+				"eureka.instance.health-check-url-path=/myHealthCheck");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+	}
+
+	@Test
+	public void statusPageUrlPathAndManagementPortUpperCase() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999",
+				"EUREKA_INSTANCE_STATUS_PAGE_URL_PATH=/myStatusPage");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("/myStatusPage"));
+	}
+
+	@Test
+	public void healthCheckUrlPathAndManagementPortUpperCase() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999",
+				"EUREKA_INSTANCE_HEALTH_CHECK_URL_PATH=/myHealthCheck");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+	}
+
+	@Test
 	public void hostname() {
 		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "eureka.instance.hostname=foo");
