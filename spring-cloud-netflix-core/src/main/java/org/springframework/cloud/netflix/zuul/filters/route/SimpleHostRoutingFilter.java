@@ -181,8 +181,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			setResponse(response);
 		}
 		catch (Exception ex) {
-			context.set(ERROR_STATUS_CODE,
-					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			context.set(ERROR_STATUS_CODE, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			context.set("error.exception", ex);
 		}
 		return null;
@@ -211,7 +210,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
 					.<ConnectionSocketFactory> create()
 					.register("http", PlainConnectionSocketFactory.INSTANCE);
-			if (sslHostnameValidationEnabled) {
+			if (this.sslHostnameValidationEnabled) {
 				registryBuilder.register("https",
 						new SSLConnectionSocketFactory(sslContext));
 			}
@@ -240,24 +239,24 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
-		if (!sslHostnameValidationEnabled) {
+		if (!this.sslHostnameValidationEnabled) {
 			httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
 		}
 		return httpClientBuilder.setConnectionManager(newConnectionManager())
-				.setDefaultRequestConfig(requestConfig)
+				.useSystemProperties().setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
 				.setRedirectStrategy(new RedirectStrategy() {
 					@Override
 					public boolean isRedirected(HttpRequest request,
 							HttpResponse response, HttpContext context)
-									throws ProtocolException {
+							throws ProtocolException {
 						return false;
 					}
 
 					@Override
 					public HttpUriRequest getRedirect(HttpRequest request,
 							HttpResponse response, HttpContext context)
-									throws ProtocolException {
+							throws ProtocolException {
 						return null;
 					}
 				}).build();
@@ -266,7 +265,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
 			HttpServletRequest request, MultiValueMap<String, String> headers,
 			MultiValueMap<String, String> params, InputStream requestEntity)
-					throws Exception {
+			throws Exception {
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
@@ -380,9 +379,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	/**
 	 * Determines whether the filter enables the validation for ssl hostnames.
-	 * @return
+	 * @return true if enabled
 	 */
 	boolean isSslHostnameValidationEnabled() {
-		return sslHostnameValidationEnabled;
+		return this.sslHostnameValidationEnabled;
 	}
 }
