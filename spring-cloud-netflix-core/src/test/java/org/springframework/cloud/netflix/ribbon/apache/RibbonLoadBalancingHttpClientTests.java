@@ -67,6 +67,13 @@ public class RibbonLoadBalancingHttpClientTests {
 	}
 
 	@Test
+	public void testTimeouts() throws Exception {
+		RequestConfig result = getBuiltRequestConfig(Timeouts.class, null);
+		assertThat(result.getConnectTimeout(), is(60000));
+		assertThat(result.getSocketTimeout(), is (50000));
+	}
+
+	@Test
 	public void testRequestConfigDoNotFollowRedirectsOverrideWithFollowRedirects()
 			throws Exception {
 
@@ -113,6 +120,17 @@ public class RibbonLoadBalancingHttpClientTests {
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.FollowRedirects, false);
+			return config;
+		}
+	}
+
+	@Configuration
+	protected static class Timeouts {
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
+			config.set(CommonClientConfigKey.ReadTimeout, 50000);
 			return config;
 		}
 	}

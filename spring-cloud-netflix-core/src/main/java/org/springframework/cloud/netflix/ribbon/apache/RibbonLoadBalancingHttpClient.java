@@ -16,8 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import java.net.URI;
-
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -26,9 +27,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
+import java.net.URI;
 
 /**
  * @author Christian Lohmann
@@ -53,14 +52,14 @@ public class RibbonLoadBalancingHttpClient
 		if (configOverride != null) {
 			builder.setConnectTimeout(configOverride.get(
 					CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
-			builder.setConnectionRequestTimeout(configOverride.get(
+			builder.setSocketTimeout(configOverride.get(
 					CommonClientConfigKey.ReadTimeout, this.readTimeout));
 			builder.setRedirectsEnabled(configOverride.get(
 					CommonClientConfigKey.FollowRedirects, this.followRedirects));
 		}
 		else {
 			builder.setConnectTimeout(this.connectTimeout);
-			builder.setConnectionRequestTimeout(this.readTimeout);
+			builder.setSocketTimeout(this.readTimeout);
 			builder.setRedirectsEnabled(this.followRedirects);
 		}
 
