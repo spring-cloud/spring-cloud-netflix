@@ -88,7 +88,7 @@ import lombok.SneakyThrows;
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
 		"zuul.routes.badhost: /badhost/**", "zuul.ignoredHeaders: X-Header",
 		"zuul.routes.rnd: /rnd/**", "rnd.ribbon.listOfServers: ${random.value}",
-		"zuul.removeSemicolonContent: false" })
+		"zuul.removeSemicolonContent: false", "ribbon.restclient.enabled=true"})
 @DirtiesContext
 public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 

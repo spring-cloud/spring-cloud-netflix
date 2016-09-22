@@ -1357,6 +1357,12 @@ file as the ordering will be lost using a properties file. For example:
 If you were to use a properties file, the `legacy` path may end up in front of the `users`
 path rendering the `users` path unreachable.
 
+=== Zuul Http Client
+
+The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
+deprecated Ribbon `RestClient. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
+`ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
+
 === Cookies and Sensitive Headers
 
 It's OK to share headers between services in the same system, but you

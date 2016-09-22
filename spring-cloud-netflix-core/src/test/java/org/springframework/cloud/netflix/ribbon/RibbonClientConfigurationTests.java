@@ -17,17 +17,27 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.netflix.client.AbstractLoadBalancerAwareClient;
+import com.netflix.niws.client.http.RestClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.OverrideRestClient;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
+import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -82,11 +92,11 @@ public class RibbonClientConfigurationTests {
 		Server server = new Server("foo", 7777);
 		when(this.inspector.isSecure(server)).thenReturn(true);
 
-		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				this.inspector);
-		URI uri = overrideRestClient.reconstructURIWithServer(server,
-				new URI("http://foo/"));
-		assertThat(uri, is(new URI("https://foo:7777/")));
+		for (AbstractLoadBalancerAwareClient client : clients()) {
+			URI uri = client.reconstructURIWithServer(server,
+					new URI("http://foo/"));
+			assertThat(getReason(client), uri, is(new URI("https://foo:7777/")));
+		}
 	}
 
 	@Test
@@ -94,11 +104,15 @@ public class RibbonClientConfigurationTests {
 		Server server = new Server("foo", 7777);
 		when(this.inspector.isSecure(server)).thenReturn(false);
 
-		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				this.inspector);
-		URI uri = overrideRestClient.reconstructURIWithServer(server,
-				new URI("http://foo/"));
-		assertThat(uri, is(new URI("http://foo:7777/")));
+		for (AbstractLoadBalancerAwareClient client : clients()) {
+			URI uri = client.reconstructURIWithServer(server,
+					new URI("http://foo/"));
+			assertThat(getReason(client), uri, is(new URI("http://foo:7777/")));
+		}
+	}
+
+	String getReason(AbstractLoadBalancerAwareClient client) {
+		return client.getClass().getSimpleName()+" failed";
 	}
 
 	@Test
@@ -106,11 +120,57 @@ public class RibbonClientConfigurationTests {
 		Server server = new Server("foo", 7777);
 		when(this.inspector.isSecure(server)).thenReturn(true);
 
-		OverrideRestClient overrideRestClient = new OverrideRestClient(this.config,
-				this.inspector);
-		URI uri = overrideRestClient.reconstructURIWithServer(server,
-				new URI("http://foo/%20bar"));
-		assertThat(uri, is(new URI("https://foo:7777/%20bar")));
+		for (AbstractLoadBalancerAwareClient client : clients()) {
+			URI uri = client.reconstructURIWithServer(server,
+					new URI("http://foo/%20bar"));
+			assertThat(getReason(client), uri, is(new URI("https://foo:7777/%20bar")));
+		}
+	}
+
+	private List<AbstractLoadBalancerAwareClient> clients() {
+		ArrayList<AbstractLoadBalancerAwareClient> clients = new ArrayList<>();
+		clients.add(new OverrideRestClient(this.config, this.inspector));
+		clients.add(new RibbonLoadBalancingHttpClient(this.config, this.inspector));
+		clients.add(new OkHttpLoadBalancingClient(this.config, this.inspector));
+		return clients;
+	}
+
+	@Test
+	public void testDefaultsToApacheHttpClient() {
+		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class, OkHttpLoadBalancingClient.class);
+		testClient(RibbonLoadBalancingHttpClient.class, "ribbon.httpclient.enabled", RestClient.class, OkHttpLoadBalancingClient.class);
+	}
+
+	@Test
+	public void testEnableRestClient() {
+		testClient(RestClient.class, "ribbon.restclient.enabled", RibbonLoadBalancingHttpClient.class,
+				OkHttpLoadBalancingClient.class);
+	}
+
+	@Test
+	public void testEnableOkHttpClient() {
+		testClient(OkHttpLoadBalancingClient.class, "ribbon.okhttp.enabled", RibbonLoadBalancingHttpClient.class,
+				RestClient.class);
+	}
+
+	void testClient(Class<?> clientType, String property, Class<?>... excludedTypes) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(RibbonAutoConfiguration.class,
+				RibbonClientConfiguration.class);
+		if (property != null) {
+			EnvironmentTestUtils.addEnvironment(context, property);
+		}
+		context.refresh();
+		context.getBean(clientType);
+		for (Class<?> excludedType : excludedTypes) {
+			assertThat("has "+excludedType.getSimpleName()+ " instance", hasInstance(context, excludedType), is(false));
+		}
+		context.close();
+	}
+
+	private <T> boolean hasInstance(ListableBeanFactory lbf, Class<T> requiredType) {
+		return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(lbf,
+				requiredType).length > 0;
 	}
 
 	static class TestRestClient extends OverrideRestClient {

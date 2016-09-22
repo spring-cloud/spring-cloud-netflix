@@ -19,15 +19,22 @@ package org.springframework.cloud.netflix.ribbon.okhttp;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
  * @author Spencer Gibb
@@ -35,13 +42,28 @@ import com.netflix.loadbalancer.ILoadBalancer;
 public class OkHttpLoadBalancingClient
 		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse> {
 	private final OkHttpClient delegate = new OkHttpClient();
+	private final IClientConfig config;
+	private final ServerIntrospector serverIntrospector;
 
+	@Deprecated
 	public OkHttpLoadBalancingClient() {
 		super();
+		config = new DefaultClientConfigImpl();
+		serverIntrospector = new DefaultServerIntrospector();
 	}
 
+	@Deprecated
 	public OkHttpLoadBalancingClient(final ILoadBalancer lb) {
 		super(lb);
+		config = new DefaultClientConfigImpl();
+		serverIntrospector = new DefaultServerIntrospector();
+	}
+
+	public OkHttpLoadBalancingClient(IClientConfig config,
+			ServerIntrospector serverIntrospector) {
+		this.config = config;
+		this.serverIntrospector = serverIntrospector;
+		initWithNiwsConfig(config);
 	}
 
 	@Override
@@ -86,5 +108,12 @@ public class OkHttpLoadBalancingClient
 		}
 
 		return builder.build();
+	}
+
+	@Override
+	public URI reconstructURIWithServer(Server server, URI original) {
+		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector,
+				server);
+		return super.reconstructURIWithServer(server, uri);
 	}
 }

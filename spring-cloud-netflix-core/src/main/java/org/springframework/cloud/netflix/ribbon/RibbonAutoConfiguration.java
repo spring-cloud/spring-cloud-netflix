@@ -16,12 +16,18 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,6 +36,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfigurati
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
@@ -79,7 +86,7 @@ public class RibbonAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(HttpRequest.class)
-	@ConditionalOnProperty(value = "ribbon.http.client.enabled", matchIfMissing = false)
+	@ConditionalOnRibbonRestClient
 	protected static class RibbonClientConfig {
 
 		@Autowired
@@ -102,4 +109,24 @@ public class RibbonAutoConfiguration {
 		}
 	}
 
+	//TODO: support for autoconfiguring restemplate to use apache http client or okhttp
+
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRibbonRestClientCondition.class)
+	@interface ConditionalOnRibbonRestClient { }
+
+	private static class OnRibbonRestClientCondition extends AnyNestedCondition {
+		public OnRibbonRestClientCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@Deprecated //remove in Edgware"
+		@ConditionalOnProperty("ribbon.http.client.enabled")
+		static class ZuulProperty {}
+
+		@ConditionalOnProperty("ribbon.restclient.enabled")
+		static class RibbonProperty {}
+	}
 }

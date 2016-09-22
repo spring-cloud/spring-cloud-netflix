@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.ribbon;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.junit.Test;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -28,6 +27,7 @@ import com.netflix.niws.client.http.RestClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Dave Syer
@@ -41,7 +41,7 @@ public class SpringClientFactoryTests {
 		SpringClientFactory factory = new SpringClientFactory();
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
 				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
-		EnvironmentTestUtils.addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
+		addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
 		factory.setApplicationContext(parent);
 		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory
 				.getLoadBalancerContext("foo").getRetryHandler();
@@ -54,8 +54,10 @@ public class SpringClientFactoryTests {
 	@Test
 	public void testCookiePolicy() {
 		SpringClientFactory factory = new SpringClientFactory();
-		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
+		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
+		addEnvironment(parent, "ribbon.restclient.enabled=true");
+		parent.register(RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
+		parent.refresh();
 		factory.setApplicationContext(parent);
 		RestClient client = factory.getClient("foo", RestClient.class);
 		ApacheHttpClient4 jerseyClient = (ApacheHttpClient4) client.getJerseyClient();

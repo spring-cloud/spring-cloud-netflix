@@ -35,6 +35,7 @@ import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
@@ -200,10 +201,10 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public RibbonLoadBalancingHttpClient ribbonClient(IClientConfig config,
 				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
-			final RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient();
+			final RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(config,
+					new DefaultServerIntrospector());
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
-			client.initWithNiwsConfig(config);
 			return client;
 		}
 

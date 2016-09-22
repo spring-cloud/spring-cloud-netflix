@@ -16,12 +16,18 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -52,6 +58,7 @@ import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -84,7 +91,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "zuul.ribbon.httpclient.enabled", matchIfMissing = true)
+	@ConditionalOnRibbonHttpClient
 	protected static class HttpClientRibbonConfiguration {
 
 		@Bean
@@ -96,7 +103,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty("zuul.ribbon.restclient.enabled")
+	@ConditionalOnRibbonRestClient
 	protected static class RestClientRibbonConfiguration {
 
 		@Bean
@@ -108,7 +115,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty("zuul.ribbon.okhttp.enabled")
+	@ConditionalOnRibbonOkHttpClient
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpRibbonConfiguration {
 
@@ -118,6 +125,63 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
 			return new OkHttpRibbonCommandFactory(clientFactory, zuulProperties);
 		}
+	}
+
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRibbonHttpClientCondition.class)
+	@interface ConditionalOnRibbonHttpClient { }
+
+	private static class OnRibbonHttpClientCondition extends AnyNestedCondition {
+		public OnRibbonHttpClientCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@Deprecated //remove in Edgware"
+		@ConditionalOnProperty(name = "zuul.ribbon.httpclient.enabled", matchIfMissing = true)
+		static class ZuulProperty {}
+
+		@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
+		static class RibbonProperty {}
+	}
+
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRibbonOkHttpClientCondition.class)
+	@interface ConditionalOnRibbonOkHttpClient { }
+
+	private static class OnRibbonOkHttpClientCondition extends AnyNestedCondition {
+		public OnRibbonOkHttpClientCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@Deprecated //remove in Edgware"
+		@ConditionalOnProperty("zuul.ribbon.okhttp.enabled")
+		static class ZuulProperty {}
+
+		@ConditionalOnProperty("ribbon.okhttp.enabled")
+		static class RibbonProperty {}
+	}
+
+	@Target({ ElementType.TYPE, ElementType.METHOD })
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRibbonRestClientCondition.class)
+	@interface ConditionalOnRibbonRestClient { }
+
+	private static class OnRibbonRestClientCondition extends AnyNestedCondition {
+		public OnRibbonRestClientCondition() {
+			super(ConfigurationPhase.REGISTER_BEAN);
+		}
+
+		@Deprecated //remove in Edgware"
+		@ConditionalOnProperty("zuul.ribbon.restclient.enabled")
+		static class ZuulProperty {}
+
+		@ConditionalOnProperty("ribbon.restclient.enabled")
+		static class RibbonProperty {}
 	}
 
 	// pre filters

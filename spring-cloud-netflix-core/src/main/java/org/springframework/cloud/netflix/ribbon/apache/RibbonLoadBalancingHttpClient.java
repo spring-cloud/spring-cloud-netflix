@@ -16,33 +16,55 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
+import java.net.URI;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
  * @author Christian Lohmann
  */
+//TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient
 		extends
 		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
 	private final HttpClient delegate = HttpClientBuilder.create().disableCookieManagement().build();
+	private final IClientConfig config;
+	private final ServerIntrospector serverIntrospector;
 
+	@Deprecated
 	public RibbonLoadBalancingHttpClient() {
 		super();
+		this.config = new DefaultClientConfigImpl();
+		this.serverIntrospector = new DefaultServerIntrospector();
 	}
 
+	@Deprecated
 	public RibbonLoadBalancingHttpClient(final ILoadBalancer lb) {
 		super(lb);
+		this.config = new DefaultClientConfigImpl();
+		this.serverIntrospector = new DefaultServerIntrospector();
+	}
+
+	public RibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector) {
+		this.config = config;
+		this.serverIntrospector = serverIntrospector;
+		initWithNiwsConfig(config);
 	}
 
 	@Override
@@ -74,6 +96,12 @@ public class RibbonLoadBalancingHttpClient
 		final HttpUriRequest httpUriRequest = request.toRequest(requestConfig);
 		final HttpResponse httpResponse = this.delegate.execute(httpUriRequest);
 		return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
+	}
+
+	@Override
+	public URI reconstructURIWithServer(Server server, URI original) {
+		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+		return super.reconstructURIWithServer(server, uri);
 	}
 
 }
