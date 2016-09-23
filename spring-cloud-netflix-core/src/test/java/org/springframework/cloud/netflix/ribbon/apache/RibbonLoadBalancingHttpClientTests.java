@@ -20,6 +20,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -71,6 +72,20 @@ public class RibbonLoadBalancingHttpClientTests {
 		RequestConfig result = getBuiltRequestConfig(Timeouts.class, null);
 		assertThat(result.getConnectTimeout(), is(60000));
 		assertThat(result.getSocketTimeout(), is (50000));
+	}
+
+	@Test
+	public void testConnections() throws Exception {
+		SpringClientFactory factory = new SpringClientFactory();
+		factory.setApplicationContext(new AnnotationConfigApplicationContext(
+				RibbonAutoConfiguration.class, Connections.class));
+		RibbonLoadBalancingHttpClient client = factory.getClient("service",
+				RibbonLoadBalancingHttpClient.class);
+
+		HttpClient delegate = client.getDelegate();
+		PoolingHttpClientConnectionManager connManager = (PoolingHttpClientConnectionManager) ReflectionTestUtils.getField(delegate, "connManager");
+		assertThat(connManager.getMaxTotal(), is(101));
+		assertThat(connManager.getDefaultMaxPerRoute(), is(201));
 	}
 
 	@Test
@@ -131,6 +146,18 @@ public class RibbonLoadBalancingHttpClientTests {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
 			config.set(CommonClientConfigKey.ReadTimeout, 50000);
+			return config;
+		}
+	}
+
+
+	@Configuration
+	protected static class Connections {
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.MaxTotalConnections, 101);
+			config.set(CommonClientConfigKey.MaxConnectionsPerHost, 201);
 			return config;
 		}
 	}

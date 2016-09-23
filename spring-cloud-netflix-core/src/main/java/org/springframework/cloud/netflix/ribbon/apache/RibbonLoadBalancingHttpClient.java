@@ -43,28 +43,51 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 public class RibbonLoadBalancingHttpClient
 		extends
 		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
-	private final HttpClient delegate = HttpClientBuilder.create().disableCookieManagement().build();
+	private final HttpClient delegate;
 	private final IClientConfig config;
 	private final ServerIntrospector serverIntrospector;
 
 	@Deprecated
 	public RibbonLoadBalancingHttpClient() {
-		super();
-		this.config = new DefaultClientConfigImpl();
-		this.serverIntrospector = new DefaultServerIntrospector();
+		this(new DefaultClientConfigImpl(), new DefaultServerIntrospector());
 	}
 
 	@Deprecated
 	public RibbonLoadBalancingHttpClient(final ILoadBalancer lb) {
 		super(lb);
 		this.config = new DefaultClientConfigImpl();
+		this.delegate = createHttpClient(this.config);
 		this.serverIntrospector = new DefaultServerIntrospector();
+		initWithNiwsConfig(config);
 	}
 
 	public RibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector) {
+		this.delegate = createHttpClient(config);
 		this.config = config;
 		this.serverIntrospector = serverIntrospector;
 		initWithNiwsConfig(config);
+	}
+
+	public RibbonLoadBalancingHttpClient(HttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
+		this.delegate = delegate;
+		this.config = config;
+		this.serverIntrospector = serverIntrospector;
+		initWithNiwsConfig(config);
+	}
+
+	protected HttpClient createHttpClient(IClientConfig config) {
+		return HttpClientBuilder.create()
+				// already defaults to 0 in builder, so resetting to 0 won't hurt
+				.setMaxConnTotal(config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections, 0))
+				// already defaults to 0 in builder, so resetting to 0 won't hurt
+				.setMaxConnPerRoute(config.getPropertyAsInteger(CommonClientConfigKey.MaxConnectionsPerHost, 0))
+				.disableCookieManagement()
+				.useSystemProperties() // for proxy
+				.build();
+	}
+
+	protected HttpClient getDelegate() {
+		return this.delegate;
 	}
 
 	@Override
