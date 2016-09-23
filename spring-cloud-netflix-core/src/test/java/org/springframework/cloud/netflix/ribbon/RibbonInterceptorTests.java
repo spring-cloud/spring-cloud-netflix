@@ -16,15 +16,14 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import java.net.URI;
-import java.net.URL;
-
+import com.netflix.loadbalancer.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
@@ -33,10 +32,12 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.netflix.loadbalancer.Server;
+import java.net.URI;
+import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -66,7 +67,7 @@ public class RibbonInterceptorTests {
 	@Test
 	public void testIntercept() throws Exception {
 		RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
-		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(new MyClient(server));
+		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(new MyClient(server), new RetryTemplate());
 		given(this.request.getURI()).willReturn(new URL("http://myservice").toURI());
 		given(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
 				.willReturn(this.response);
@@ -109,6 +110,11 @@ public class RibbonInterceptorTests {
 		public URI reconstructURI(ServiceInstance instance, URI original) {
 			return UriComponentsBuilder.fromUri(original).host(instance.getHost())
 					.port(instance.getPort()).build().toUri();
+		}
+
+		@Override
+		public LoadBalancedRetryPolicy getRetryPolicy(String serviceId) {
+			return null;
 		}
 
 	}
