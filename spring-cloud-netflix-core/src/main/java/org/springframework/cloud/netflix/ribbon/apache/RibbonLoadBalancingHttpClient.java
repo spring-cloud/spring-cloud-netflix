@@ -23,13 +23,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -42,40 +40,27 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 //TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient
 		extends
-		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse> {
-	private final HttpClient delegate;
-	private final IClientConfig config;
-	private final ServerIntrospector serverIntrospector;
+		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, HttpClient> {
 
 	@Deprecated
 	public RibbonLoadBalancingHttpClient() {
-		this(new DefaultClientConfigImpl(), new DefaultServerIntrospector());
+		super();
 	}
 
 	@Deprecated
 	public RibbonLoadBalancingHttpClient(final ILoadBalancer lb) {
 		super(lb);
-		this.config = new DefaultClientConfigImpl();
-		this.delegate = createHttpClient(this.config);
-		this.serverIntrospector = new DefaultServerIntrospector();
-		initWithNiwsConfig(config);
 	}
 
 	public RibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector) {
-		this.delegate = createHttpClient(config);
-		this.config = config;
-		this.serverIntrospector = serverIntrospector;
-		initWithNiwsConfig(config);
+		super(config, serverIntrospector);
 	}
 
 	public RibbonLoadBalancingHttpClient(HttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
-		this.delegate = delegate;
-		this.config = config;
-		this.serverIntrospector = serverIntrospector;
-		initWithNiwsConfig(config);
+		super(delegate, config, serverIntrospector);
 	}
 
-	protected HttpClient createHttpClient(IClientConfig config) {
+	protected HttpClient createDelegate(IClientConfig config) {
 		return HttpClientBuilder.create()
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
 				.setMaxConnTotal(config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections, 0))
@@ -84,10 +69,6 @@ public class RibbonLoadBalancingHttpClient
 				.disableCookieManagement()
 				.useSystemProperties() // for proxy
 				.build();
-	}
-
-	protected HttpClient getDelegate() {
-		return this.delegate;
 	}
 
 	@Override

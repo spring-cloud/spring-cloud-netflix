@@ -19,13 +19,11 @@ package org.springframework.cloud.netflix.ribbon.okhttp;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -40,30 +38,31 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
  * @author Spencer Gibb
  */
 public class OkHttpLoadBalancingClient
-		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse> {
-	private final OkHttpClient delegate = new OkHttpClient();
-	private final IClientConfig config;
-	private final ServerIntrospector serverIntrospector;
+		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
 
 	@Deprecated
 	public OkHttpLoadBalancingClient() {
 		super();
-		config = new DefaultClientConfigImpl();
-		serverIntrospector = new DefaultServerIntrospector();
 	}
 
 	@Deprecated
 	public OkHttpLoadBalancingClient(final ILoadBalancer lb) {
 		super(lb);
-		config = new DefaultClientConfigImpl();
-		serverIntrospector = new DefaultServerIntrospector();
 	}
 
 	public OkHttpLoadBalancingClient(IClientConfig config,
 			ServerIntrospector serverIntrospector) {
-		this.config = config;
-		this.serverIntrospector = serverIntrospector;
-		initWithNiwsConfig(config);
+		super(config, serverIntrospector);
+	}
+
+	public OkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config,
+									 ServerIntrospector serverIntrospector) {
+		super(delegate, config, serverIntrospector);
+	}
+
+	@Override
+	protected OkHttpClient createDelegate(IClientConfig config) {
+		return new OkHttpClient();
 	}
 
 	@Override
