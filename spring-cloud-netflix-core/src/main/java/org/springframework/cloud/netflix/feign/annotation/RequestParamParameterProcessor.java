@@ -62,7 +62,7 @@ public class RequestParamParameterProcessor implements AnnotatedParameterProcess
 		String name = requestParam.value();
 		checkState(emptyToNull(name) != null,
 				"RequestParam.value() was empty on parameter %s",
-				context.getParameterIndex());
+                parameterIndex);
 		context.setParameterName(name);
 
 		Collection<String> query = context.setTemplateParameter(name,
