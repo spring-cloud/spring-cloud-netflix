@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.feign.annotation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ import static feign.Util.emptyToNull;
  * {@link PathVariable} parameter processor.
  *
  * @author Jakub Narloch
+ * @author Abhijit Sarkar
  * @see AnnotatedParameterProcessor
  */
 public class PathVariableParameterProcessor implements AnnotatedParameterProcessor {
@@ -44,7 +46,7 @@ public class PathVariableParameterProcessor implements AnnotatedParameterProcess
     }
 
     @Override
-    public boolean processArgument(AnnotatedParameterContext context, Annotation annotation) {
+    public boolean processArgument(AnnotatedParameterContext context, Annotation annotation, Method method) {
         String name = ANNOTATION.cast(annotation).value();
         checkState(emptyToNull(name) != null,
                 "PathVariable annotation was empty on param %s.", context.getParameterIndex());

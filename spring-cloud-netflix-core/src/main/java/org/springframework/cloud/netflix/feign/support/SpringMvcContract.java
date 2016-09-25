@@ -58,6 +58,7 @@ import feign.Param;
 
 /**
  * @author Spencer Gibb
+ * @author Abhijit Sarkar
  */
 public class SpringMvcContract extends Contract.BaseContract
 		implements ResourceLoaderAware {
@@ -235,7 +236,7 @@ public class SpringMvcContract extends Contract.BaseContract
 				processParameterAnnotation = synthesizeWithMethodParameterNameAsFallbackValue(
 						parameterAnnotation, method, paramIndex);
 				isHttpAnnotation |= processor.processArgument(context,
-						processParameterAnnotation);
+						processParameterAnnotation, method);
 			}
 		}
 		if (isHttpAnnotation && data.indexToExpander().get(paramIndex) == null
