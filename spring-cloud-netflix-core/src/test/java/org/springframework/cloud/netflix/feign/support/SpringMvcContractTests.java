@@ -358,12 +358,6 @@ public class SpringMvcContractTests {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testProcessHeaderMapInvalidType() throws Exception {
-        Method method = TestTemplate_HeaderMap.class.getDeclaredMethod("headerMapInvalidType", String.class);
-        this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
-    }
-
-    @Test(expected = IllegalStateException.class)
     public void testProcessHeaderMapMoreThanOnce() throws Exception {
         Method method = TestTemplate_HeaderMap.class.getDeclaredMethod(
                 "headerMapMoreThanOnce", MultiValueMap.class, MultiValueMap.class);
@@ -382,12 +376,6 @@ public class SpringMvcContractTests {
         assertEquals(0, data.queryMapIndex().intValue());
         Map<String, Collection<String>> params = data.template().queries();
         assertEquals("{aParam}", params.get("aParam").iterator().next());
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testProcessQueryMapInvalidType() throws Exception {
-        Method method = TestTemplate_QueryMap.class.getDeclaredMethod("queryMapInvalidType", String.class);
-        this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -443,10 +431,6 @@ public class SpringMvcContractTests {
                 @RequestHeader MultiValueMap<String, String> headerMap,
                 @RequestHeader(name = "aHeader") String aHeader);
 
-        @RequestMapping(path = "/headerMapInvalidType")
-        String headerMapInvalidType(
-                @RequestHeader String aHeader);
-
         @RequestMapping(path = "/headerMapMoreThanOnce")
         String headerMapMoreThanOnce(
                 @RequestHeader MultiValueMap<String, String> headerMap1,
@@ -458,10 +442,6 @@ public class SpringMvcContractTests {
         String queryMap(
                 @RequestParam MultiValueMap<String, String> queryMap,
                 @RequestParam(name = "aParam") String aParam);
-
-        @RequestMapping(path = "/queryMapInvalidType")
-        String queryMapInvalidType(
-                @RequestParam String aParam);
 
         @RequestMapping(path = "/queryMapMoreThanOnce")
         String queryMapMoreThanOnce(
