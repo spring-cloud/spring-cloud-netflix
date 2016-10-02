@@ -42,10 +42,10 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -192,8 +192,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		this.helper.addIgnoredHeaders();
 
 		try {
-			HttpResponse response = forward(this.httpClient, verb, uri, request, headers,
-					params, requestEntity);
+			CloseableHttpResponse response = forward(this.httpClient, verb, uri, request,
+					headers, params, requestEntity);
 			setResponse(response);
 		}
 		catch (Exception ex) {
@@ -278,8 +278,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				}).build();
 	}
 
-	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
-			HttpServletRequest request, MultiValueMap<String, String> headers,
+	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,
+			String uri, HttpServletRequest request, MultiValueMap<String, String> headers,
 			MultiValueMap<String, String> params, InputStream requestEntity)
 			throws Exception {
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
@@ -301,7 +301,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		try {
 			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
-			HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
+			CloseableHttpResponse zuulResponse = forwardRequest(httpclient, httpHost,
+					httpRequest);
 			this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
 					revertHeaders(zuulResponse.getAllHeaders()));
 			return zuulResponse;
@@ -379,8 +380,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return list.toArray(new BasicHeader[0]);
 	}
 
-	private HttpResponse forwardRequest(HttpClient httpclient, HttpHost httpHost,
-			HttpRequest httpRequest) throws IOException {
+	private CloseableHttpResponse forwardRequest(CloseableHttpClient httpclient,
+			HttpHost httpHost, HttpRequest httpRequest) throws IOException {
 		return httpclient.execute(httpHost, httpRequest);
 	}
 
@@ -407,6 +408,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private void setResponse(HttpResponse response) throws IOException {
+		RequestContext.getCurrentContext().set("zuulResponse", response);
 		this.helper.setResponse(response.getStatusLine().getStatusCode(),
 				response.getEntity() == null ? null : response.getEntity().getContent(),
 				revertHeaders(response.getAllHeaders()));

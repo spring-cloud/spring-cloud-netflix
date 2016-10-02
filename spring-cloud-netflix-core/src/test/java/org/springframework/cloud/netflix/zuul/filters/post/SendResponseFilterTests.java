@@ -16,9 +16,26 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import java.io.ByteArrayInputStream;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
+import static org.hamcrest.Matchers.equalTo;
 
+import java.io.ByteArrayInputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,11 +50,6 @@ import com.netflix.config.ConfigurationManager;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
 
 /**
  * @author Spencer Gibb
@@ -95,6 +107,34 @@ public class SendResponseFilterTests {
 				.getHeader("Content-Length");
 		assertThat("wrong origin content length", contentLength, equalTo("6"));
 	}
+
+    @Test
+	public void closeResponseOutpusStreamError() throws Exception {
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        RequestContext context = new RequestContext();
+        context.setRequest(new MockHttpServletRequest());
+        context.setResponse(response);
+        context.setResponseDataStream(new ByteArrayInputStream("Hello\n".getBytes("UTF-8")));
+        Closeable zuulResponse = mock(Closeable.class);
+        context.set("zuulResponse", zuulResponse);
+        RequestContext.testSetCurrentContext(context);
+
+        SendResponseFilter filter = new SendResponseFilter();
+
+        ServletOutputStream zuuloutputstream = mock(ServletOutputStream.class);
+        doThrow(new IOException("Response to client closed")).when(zuuloutputstream).write(isA(byte[].class), anyInt(), anyInt());
+
+        when(response.getOutputStream()).thenReturn(zuuloutputstream);
+
+        try {
+            filter.run();
+        } catch (UndeclaredThrowableException ex) {
+            assertThat(ex.getUndeclaredThrowable().getMessage(), is("Response to client closed"));
+        }
+
+        verify(zuulResponse).close();
+    }
 
 	private void runFilter(String characterEncoding, String content, boolean streamContent) throws Exception {
 		MockHttpServletResponse response = new MockHttpServletResponse();
