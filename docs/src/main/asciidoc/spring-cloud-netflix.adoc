@@ -1305,6 +1305,9 @@ the service-specific prefix from individual routes, e.g.
       stripPrefix: false
 ----
 
+NOTE:  `zuul.stripPrefix` only applies to the prefix set in `zuul.prefix`.  It does have any effect on prefixes
+defined within a given route's `path`.
+
 In this example, requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.
 
 The `zuul.routes` entries actually bind to an object of type `ZuulProperties`. If you
