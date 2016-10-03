@@ -1012,6 +1012,29 @@ static class HystrixClientFallback implements HystrixClient {
 }
 ----
 
+If one needs access to the cause that made the fallback trigger, one can use the `fallbackFactory` attribute inside `@FeignClient`.
+
+[source,java,indent=0]
+----
+@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
+protected interface HystrixClient {
+    @RequestMapping(method = RequestMethod.GET, value = "/hello")
+    Hello iFailSometimes();
+}
+
+static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClient> {
+    @Override
+    public HystrixClient create(Throwable cause) {
+        return new HystrixClientWithFallBackFactory() {
+    		@Override
+    	    public Hello iFailSometimes() {
+    			return new Hello("fallback; reason was: " + cause.getMessage());
+    		}
+    	};
+    }
+}
+----
+
 WARNING: There is a limitation with the implementation of fallbacks in Feign and how Hystrix fallbacks work. Fallbacks are currently not supported for methods that return `com.netflix.hystrix.HystrixCommand` and `rx.Observable`.
 
 [[spring-cloud-feign-inheritance]]
