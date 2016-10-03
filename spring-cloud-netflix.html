@@ -2204,6 +2204,19 @@ the service-specific prefix from individual routes, e.g.</p>
       stripPrefix: false</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<code>zuul.stripPrefix</code> only applies to the prefix set in <code>zuul.prefix</code>.  It does have any effect on prefixes
+defined within a given route&#8217;s <code>path</code>.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>In this example, requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.</p>
 </div>
