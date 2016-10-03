@@ -127,6 +127,17 @@ public class RibbonClientConfigurationTests {
 		}
 	}
 
+	@Test
+	public void testPlusInQueryStringGetsRewrittenWhenServerIsSecure() throws Exception {
+		Server server = new Server("foo", 7777);
+		when(this.inspector.isSecure(server)).thenReturn(true);
+
+		for (AbstractLoadBalancerAwareClient client : clients()) {
+			URI uri = client.reconstructURIWithServer(server, new URI("http://foo/%20bar?hello=1+2"));
+			assertThat(uri, is(new URI("https://foo:7777/%20bar?hello=1%202")));
+		}
+	}
+
 	private List<AbstractLoadBalancerAwareClient> clients() {
 		ArrayList<AbstractLoadBalancerAwareClient> clients = new ArrayList<>();
 		clients.add(new OverrideRestClient(this.config, this.inspector));

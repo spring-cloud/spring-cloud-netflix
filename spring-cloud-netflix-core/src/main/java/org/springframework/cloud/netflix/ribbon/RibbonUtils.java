@@ -1,18 +1,19 @@
 package org.springframework.cloud.netflix.ribbon;
 
+import java.net.URI;
+
+import org.springframework.web.util.UriComponentsBuilder;
+
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.client.config.IClientConfigKey;
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.Server;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 /**
  * @author Spencer Gibb
+ * @author Jacques-Etienne Beaudet
  */
 public class RibbonUtils {
 
@@ -67,13 +68,19 @@ public class RibbonUtils {
 	 * @param server
 	 * @return
 	 */
-	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config, ServerIntrospector serverIntrospector, Server server) {
+	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config, ServerIntrospector serverIntrospector,
+			Server server) {
 		String scheme = uri.getScheme();
 		if (!"https".equals(scheme) && isSecure(config, serverIntrospector, server)) {
-			return UriComponentsBuilder.fromUri(uri).scheme("https").build(true)
-					.toUri();
+			UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri).scheme("https");
+			if (uri.getRawQuery() != null) {
+				// When building the URI, UriComponentsBuilder verify the allowed characters and does not 
+				// support the '+' so we replace it for its equivalent '%20'.
+				// See issue https://jira.spring.io/browse/SPR-10172
+				uriComponentsBuilder.replaceQuery(uri.getRawQuery().replace("+", "%20"));
+			}
+			return uriComponentsBuilder.build(true).toUri();
 		}
 		return uri;
 	}
-
 }
