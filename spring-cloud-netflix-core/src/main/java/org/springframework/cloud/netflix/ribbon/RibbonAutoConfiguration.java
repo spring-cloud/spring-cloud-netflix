@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
@@ -76,6 +77,11 @@ public class RibbonAutoConfiguration {
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
 	public LoadBalancerClient loadBalancerClient() {
 		return new RibbonLoadBalancerClient(springClientFactory());
+	}
+
+	@Bean
+	public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
+		return new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
 	}
 
 	@Bean

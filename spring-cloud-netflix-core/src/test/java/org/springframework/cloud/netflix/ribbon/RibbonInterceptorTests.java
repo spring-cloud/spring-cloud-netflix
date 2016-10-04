@@ -23,10 +23,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRetryProperties;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -36,6 +37,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 
@@ -67,7 +69,8 @@ public class RibbonInterceptorTests {
 	@Test
 	public void testIntercept() throws Exception {
 		RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
-		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(new MyClient(server), new RetryTemplate());
+		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(new MyClient(server), new RetryTemplate(),
+				new LoadBalancerRetryProperties(), new LoadBalancedRetryPolicyFactory.NeverRetryFactory());
 		given(this.request.getURI()).willReturn(new URL("http://myservice").toURI());
 		given(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
 				.willReturn(this.response);
@@ -107,14 +110,20 @@ public class RibbonInterceptorTests {
 		}
 
 		@Override
-		public URI reconstructURI(ServiceInstance instance, URI original) {
-			return UriComponentsBuilder.fromUri(original).host(instance.getHost())
-					.port(instance.getPort()).build().toUri();
+		public <T> T execute(String s, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
+			try {
+				return request.apply(this.instance);
+			}
+			catch (Exception ex) {
+				ReflectionUtils.rethrowRuntimeException(ex);
+			}
+			return null;
 		}
 
 		@Override
-		public LoadBalancedRetryPolicy getRetryPolicy(String serviceId) {
-			return null;
+		public URI reconstructURI(ServiceInstance instance, URI original) {
+			return UriComponentsBuilder.fromUri(original).host(instance.getHost())
+					.port(instance.getPort()).build().toUri();
 		}
 
 	}

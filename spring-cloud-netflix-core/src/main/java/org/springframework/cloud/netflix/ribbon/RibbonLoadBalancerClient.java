@@ -21,11 +21,8 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
-import org.springframework.http.HttpMethod;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,8 +35,9 @@ import java.util.Map;
 /**
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Ryan Baxter
  */
-public class RibbonLoadBalancerClient implements LoadBalancerClient {
+public class RibbonLoadBalancerClient implements LoadBalancerClient{
 
 	private SpringClientFactory clientFactory;
 
@@ -60,33 +58,6 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			uri = UriComponentsBuilder.fromUri(uri).scheme("https").build().toUri();
 		}
 		return context.reconstructURIWithServer(server, uri);
-	}
-
-	@Override
-	public LoadBalancedRetryPolicy getRetryPolicy(String serviceId) {
-		final RibbonLoadBalancerContext lbContext = this.clientFactory
-				.getLoadBalancerContext(serviceId);
-		return new LoadBalancedRetryPolicy() {
-			@Override
-			public boolean canRetry(LoadBalancedRetryContext context) {
-				HttpMethod method = context.getRequest().getMethod();
-				if(HttpMethod.GET == method || lbContext.isOkToRetryOnAllOperations()) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-
-			@Override
-			public void close(LoadBalancedRetryContext context) {
-
-			}
-
-			@Override
-			public void registerThrowable(LoadBalancedRetryContext context, Throwable throwable) {
-
-			}
-		};
 	}
 
 	@Override
@@ -112,6 +83,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		return execute(serviceId, ribbonServer, request);
 	}
 
+	@Override
 	public <T> T execute(String serviceId, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
 		Server server = null;
 		if(serviceInstance instanceof RibbonServer) {
