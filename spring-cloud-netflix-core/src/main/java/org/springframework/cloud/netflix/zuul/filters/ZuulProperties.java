@@ -42,6 +42,7 @@ import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStr
 /**
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Mathias Düsterhöft
  */
 @Data
 @ConfigurationProperties("zuul")
@@ -50,7 +51,7 @@ public class ZuulProperties {
 	/**
 	 * Headers that are generally expected to be added by Spring Security, and hence often
 	 * duplicated if the proxy and the backend are secured with Spring. By default they
-	 * are added to the ignored headers if Spring Security is present.
+	 * are added to the ignored headers if Spring Security is present and ignoreSecurityHeaders = true.
 	 */
 	public static final List<String> SECURITY_HEADERS = Arrays.asList("Pragma",
 			"Cache-Control", "X-Frame-Options", "X-Content-Type-Options",
@@ -102,6 +103,14 @@ public class ZuulProperties {
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
 	/**
+	 * SECURITY_HEADERS are added to ignored headers if spring security is on the classpath and ignoreSecurityHeaders = true
+	 * By setting ignoreSecurityHeaders to false we can switch off this default behaviour. This should be used together with
+	 * disabling the default spring security headers
+	 * see https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers
+	 */
+	private boolean ignoreSecurityHeaders = true;
+
+	/**
 	 * Path to install Zuul as a servlet (not part of Spring MVC). The servlet is more
 	 * memory efficient for requests with large bodies, e.g. file uploads.
 	 */
@@ -148,7 +157,7 @@ public class ZuulProperties {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
 				"org.springframework.security.config.annotation.web.WebSecurityConfigurer",
-				null) && Collections.disjoint(ignoredHeaders, SECURITY_HEADERS)) {
+				null) && Collections.disjoint(ignoredHeaders, SECURITY_HEADERS) && ignoreSecurityHeaders) {
 			// Allow Spring Security in the gateway to control these headers
 			ignoredHeaders.addAll(SECURITY_HEADERS);
 		}

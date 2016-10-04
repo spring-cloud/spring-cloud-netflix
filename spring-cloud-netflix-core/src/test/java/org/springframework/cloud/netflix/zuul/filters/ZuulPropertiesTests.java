@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Dave Syer
+ * @author Mathias Düsterhöft
  */
 public class ZuulPropertiesTests {
 
@@ -46,8 +47,16 @@ public class ZuulPropertiesTests {
 
 	@Test
 	public void defaultIgnoredHeaders() {
+		assertTrue(this.zuul.isIgnoreSecurityHeaders());
 		assertTrue(this.zuul.getIgnoredHeaders()
 				.containsAll(ZuulProperties.SECURITY_HEADERS));
+	}
+
+	@Test
+	public void securityHeadersNotIgnored() {
+		zuul.setIgnoreSecurityHeaders(false);
+
+		assertTrue(this.zuul.getIgnoredHeaders().isEmpty());
 	}
 
 	@Test
