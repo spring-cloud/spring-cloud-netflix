@@ -53,7 +53,7 @@ class HystrixTargeter implements Targeter {
 											HystrixFeign.Builder builder,
 											Class<?> fallbackFactoryClass) {
 		FallbackFactory<? extends T> fallbackFactory = (FallbackFactory<? extends T>)
-			getFromContext(feignClientName, context, fallbackFactoryClass, FallbackFactory.class);
+			getFromContext("fallbackFactory", feignClientName, context, fallbackFactoryClass, FallbackFactory.class);
 		Object exampleFallback = fallbackFactory.create(new RuntimeException());
 		Assert.notNull(exampleFallback,
 			String.format(
@@ -72,24 +72,24 @@ class HystrixTargeter implements Targeter {
 	private <T> T targetWithFallback(String feignClientName, FeignContext context,
 									 Target.HardCodedTarget<T> target,
 									 HystrixFeign.Builder builder, Class<?> fallback) {
-		T fallbackInstance = getFromContext(feignClientName, context, fallback, target.type());
+		T fallbackInstance = getFromContext("fallback", feignClientName, context, fallback, target.type());
 		return builder.target(target, fallbackInstance);
 	}
 
-	private <T> T getFromContext(String feignClientName, FeignContext context,
-								 Class<?> annotationType, Class<T> targetType) {
-		Object fallbackInstance = context.getInstance(feignClientName, annotationType);
+	private <T> T getFromContext(String fallbackMechanism, String feignClientName, FeignContext context,
+								 Class<?> beanType, Class<T> targetType) {
+		Object fallbackInstance = context.getInstance(feignClientName, beanType);
 		if (fallbackInstance == null) {
 			throw new IllegalStateException(String.format(
-					"No fallback/fallbackFactory instance of type %s found for feign client %s",
-				annotationType, feignClientName));
+				"No " + fallbackMechanism + " instance of type %s found for feign client %s",
+				beanType, feignClientName));
 		}
 
-		if (!targetType.isAssignableFrom(annotationType)) {
+		if (!targetType.isAssignableFrom(beanType)) {
 			throw new IllegalStateException(
 					String.format(
-							"Incompatible fallback/fallbackFactory instance. Fallback/fallbackFactory of type %s is not assignable to %s for feign client %s",
-						annotationType, targetType, feignClientName));
+						"Incompatible " + fallbackMechanism + " instance. Fallback/fallbackFactory of type %s is not assignable to %s for feign client %s",
+						beanType, targetType, feignClientName));
 		}
 		return (T) fallbackInstance;
 	}

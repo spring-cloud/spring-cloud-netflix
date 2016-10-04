@@ -105,7 +105,7 @@ public class FeignClientValidationTests {
 		try (
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				MissingFallbackConfiguration.class)) {
-			this.expected.expectMessage("No fallback/fallbackFactory instance of type");
+			this.expected.expectMessage("No fallback instance of type");
 			assertNotNull(context.getBean(MissingFallbackConfiguration.Client.class));
 		}
 	}
@@ -134,7 +134,7 @@ public class FeignClientValidationTests {
 	public void testWrongFallbackType() {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				WrongFallbackTypeConfiguration.class)) {
-			this.expected.expectMessage("Incompatible fallback/fallbackFactory instance");
+			this.expected.expectMessage("Incompatible fallback instance");
 			assertNotNull(context.getBean(WrongFallbackTypeConfiguration.Client.class));
 		}
 	}
@@ -164,7 +164,7 @@ public class FeignClientValidationTests {
 	public void testMissingFallbackFactory() {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 			MissingFallbackFactoryConfiguration.class)) {
-			this.expected.expectMessage("No fallback/fallbackFactory instance of type");
+			this.expected.expectMessage("No fallbackFactory instance of type");
 			assertNotNull(context.getBean(MissingFallbackFactoryConfiguration.Client.class));
 		}
 	}
@@ -193,7 +193,7 @@ public class FeignClientValidationTests {
 	public void testWrongFallbackFactoryType() {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 			WrongFallbackFactoryTypeConfiguration.class)) {
-			this.expected.expectMessage("Incompatible fallback/fallbackFactory instance");
+			this.expected.expectMessage("Incompatible fallbackFactory instance");
 			assertNotNull(context.getBean(WrongFallbackFactoryTypeConfiguration.Client.class));
 		}
 	}
