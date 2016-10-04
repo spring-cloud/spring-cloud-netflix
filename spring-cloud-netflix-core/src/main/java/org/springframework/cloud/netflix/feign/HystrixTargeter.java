@@ -54,6 +54,8 @@ class HystrixTargeter implements Targeter {
 											Class<?> fallbackFactoryClass) {
 		FallbackFactory<? extends T> fallbackFactory = (FallbackFactory<? extends T>)
 			getFromContext("fallbackFactory", feignClientName, context, fallbackFactoryClass, FallbackFactory.class);
+		/* We take a sample fallback from the fallback factory to check if it returns a fallback
+		that is compatible with the annotated feign interface. */
 		Object exampleFallback = fallbackFactory.create(new RuntimeException());
 		Assert.notNull(exampleFallback,
 			String.format(
