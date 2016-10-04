@@ -2356,6 +2356,9 @@ and all cookies flow in both directions).
 </tr>
 </table>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_ignored_headers">Ignored Headers</h3>
 <div class="paragraph">
 <p>In addition to the per-route sensitive headers, you can set a global
 value for <code>zuul.ignoredHeaders</code> for values that should be discarded
@@ -2364,7 +2367,8 @@ services. By default these are empty, if Spring Security is not on the
 classpath, and otherwise they are initialized to a set of well-known
 "security" headers (e.g. involving caching) as specified by Spring
 Security. The assumption in this case is that the downstream services
-might add these headers too, and we want the values from the proxy.</p>
+might add these headers too, and we want the values from the proxy.
+To not discard these well known security headers in case Spring Security is on the classpath you can set <code>zuul.ignoreSecurityHeaders</code> to <code>false</code>. This can be useful if you disabled the HTTP Security response headers in Spring Security and want the values provided by downstream services</p>
 </div>
 </div>
 <div class="sect2">
