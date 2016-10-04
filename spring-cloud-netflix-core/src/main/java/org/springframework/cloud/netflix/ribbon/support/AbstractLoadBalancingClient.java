@@ -17,6 +17,9 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
@@ -29,7 +32,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 /**
  * @author Spencer Gibb
  */
-public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest, T extends IResponse> extends
+public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest, T extends IResponse, D> extends
 		AbstractLoadBalancerAwareClient<S, T> {
 
 	protected int connectTimeout;
@@ -42,16 +45,47 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 
 	protected boolean okToRetryOnAllOperations;
 
+	protected final D delegate;
+	protected final IClientConfig config;
+	protected final ServerIntrospector serverIntrospector;
+
+	@Deprecated
 	public AbstractLoadBalancingClient() {
 		super(null);
+		this.config = new DefaultClientConfigImpl();
+		this.delegate = createDelegate(this.config);
+		this.serverIntrospector = new DefaultServerIntrospector();
 		this.setRetryHandler(RetryHandler.DEFAULT);
+		initWithNiwsConfig(config);
 	}
 
+	@Deprecated
 	public AbstractLoadBalancingClient(final ILoadBalancer lb) {
 		super(lb);
+		this.config = new DefaultClientConfigImpl();
+		this.delegate = createDelegate(config);
+		this.serverIntrospector = new DefaultServerIntrospector();
 		this.setRetryHandler(RetryHandler.DEFAULT);
+		initWithNiwsConfig(config);
 	}
 
+	protected AbstractLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector) {
+		super(null);
+		this.delegate = createDelegate(config);
+		this.config = config;
+		this.serverIntrospector = serverIntrospector;
+		this.setRetryHandler(RetryHandler.DEFAULT);
+		initWithNiwsConfig(config);
+	}
+
+	protected AbstractLoadBalancingClient(D delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
+		super(null);
+		this.delegate = delegate;
+		this.config = config;
+		this.serverIntrospector = serverIntrospector;
+		this.setRetryHandler(RetryHandler.DEFAULT);
+		initWithNiwsConfig(config);
+	}
 
 	@Override
 	public void initWithNiwsConfig(IClientConfig clientConfig) {
@@ -70,6 +104,12 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 		this.okToRetryOnAllOperations = clientConfig.getPropertyAsBoolean(
 				CommonClientConfigKey.OkToRetryOnAllOperations,
 				DefaultClientConfigImpl.DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
+	}
+
+	protected abstract D createDelegate(IClientConfig config);
+
+	public D getDelegate() {
+		return this.delegate;
 	}
 
 	@Override
