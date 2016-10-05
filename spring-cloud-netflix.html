@@ -1794,6 +1794,31 @@ static class HystrixClientFallback implements HystrixClient {
 }</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>If one needs access to the cause that made the fallback trigger, one can use the <code>fallbackFactory</code> attribute inside <code>@FeignClient</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
+protected interface HystrixClient {
+	@RequestMapping(method = RequestMethod.GET, value = "/hello")
+	Hello iFailSometimes();
+}
+
+@Component
+static class HystrixClientFallbackFactory implements FallbackFactory&lt;HystrixClient&gt; {
+	@Override
+	public HystrixClient create(Throwable cause) {
+		return new HystrixClientWithFallBackFactory() {
+			@Override
+			public Hello iFailSometimes() {
+				return new Hello("fallback; reason was: " + cause.getMessage());
+			}
+		};
+	}
+}</code></pre>
+</div>
+</div>
 <div class="admonitionblock warning">
 <table>
 <tr>
