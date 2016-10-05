@@ -260,6 +260,28 @@ public class ProxyRequestHelperTests {
 	}
 
 	@Test
+	public void getQueryStringEncoded() {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("foo", "weird#chars");
+
+		String queryString = new ProxyRequestHelper().getQueryString(params);
+
+		assertThat(queryString, is("?foo=weird%23chars"));
+	}
+
+	@Test
+	public void getQueryParamNameWithColon() {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("foo:bar", "baz");
+		params.add("foobar", "bam");
+		params.add("foo\fbar", "bat"); // form feed is the colon replacement char
+
+		String queryString = new ProxyRequestHelper().getQueryString(params);
+
+		assertThat(queryString, is("?foo:bar=baz&foobar=bam&foo%0Cbar=bat"));
+	}
+
+	@Test
 	public void buildZuulRequestURIWithUTF8() throws Exception {
 		String encodedURI = "/resource/esp%C3%A9cial-char";
 		String decodedURI = "/resource/espécial-char";
