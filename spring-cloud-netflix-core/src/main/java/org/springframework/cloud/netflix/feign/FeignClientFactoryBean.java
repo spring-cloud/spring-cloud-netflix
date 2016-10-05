@@ -69,6 +69,8 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 
 	private Class<?> fallback = void.class;
 
+	private Class<?> fallbackFactory = void.class;
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasText(this.name, "Name must be set");
