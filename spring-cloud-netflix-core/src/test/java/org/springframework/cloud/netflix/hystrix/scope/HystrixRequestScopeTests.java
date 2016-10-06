@@ -15,7 +15,6 @@
  */
 package org.springframework.cloud.netflix.hystrix.scope;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +26,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 /**
  * Tests that a Hystrix command works properly using Spring beans with request scope.
@@ -43,47 +43,47 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringBootTest(classes = HystrixRequestScopeTests.MyApplication.class)
 public class HystrixRequestScopeTests {
 
-    @Autowired
-    private MyService myService;
+	@Autowired
+	private MyService myService;
 
-    @SpringBootApplication
-    @Configuration
-    @EnableCircuitBreaker
-    public static class MyApplication{
+	@Test
+	public void testRequestScopedBean() {
 
-        @Bean
-        public MyService myService(){
-            return new MyService();
-        }
+		Assert.assertEquals("ciao", myService.hello());
+	}
 
-        @Bean
-        @Scope(value="request",proxyMode= ScopedProxyMode.TARGET_CLASS)
-        public RequestService requestService(){
-            return new RequestService();
-        }
+	@SpringBootApplication
+	@Configuration
+	@EnableCircuitBreaker
+	public static class MyApplication {
 
-    }
+		@Bean
+		public MyService myService() {
+			return new MyService();
+		}
 
-    public  static class MyService {
+		@Bean
+		@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+		public RequestService requestService() {
+			return new RequestService();
+		}
 
-        @Autowired
-        private RequestService requestService;
+	}
 
-        @HystrixCommand
-        public String hello() {
-            return requestService.execute();
-        }
-    }
+	public static class MyService {
 
-    public static class RequestService {
-        public String execute(){
-            return "ciao";
-        }
-    }
+		@Autowired
+		private RequestService requestService;
 
-    @Test
-    public void testRequestScopedBean(){
+		@HystrixCommand
+		public String hello() {
+			return requestService.execute();
+		}
+	}
 
-        Assert.assertEquals("ciao", myService.hello());
-    }
+	public static class RequestService {
+		public String execute() {
+			return "ciao";
+		}
+	}
 }
