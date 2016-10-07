@@ -89,7 +89,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 		final int instanceLeaseDuration = resolveInstanceLeaseDuration(info);
 		logRegistration(info, isReplication, instanceLeaseDuration);
 		publishEurekaInstanceRegisteredEvent(info, instanceLeaseDuration, isReplication);
-		super.register(info, isReplication);
+		superRegister(info, isReplication);
 	}
 
 	@Override
@@ -128,29 +128,45 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 	protected boolean internalCancel(String appName, String id, boolean isReplication) {
 		logCancelation(appName, id, isReplication);
 		publishEurekaInstanceCanceledEvent(appName, id, isReplication);
+		return superInternalCancel(appName, id, isReplication);
+	}
+
+	protected boolean superInternalCancel(String appName, String id,
+			boolean isReplication) {
 		return super.internalCancel(appName, id, isReplication);
 	}
 
-	private void logRegistration(InstanceInfo info, boolean isReplication, int instanceLeaseDuration) {
+	protected void superRegister(InstanceInfo info, boolean isReplication) {
+		super.register(info, isReplication);
+	}
+
+	private void logRegistration(InstanceInfo info, boolean isReplication,
+			int instanceLeaseDuration) {
 		if (log.isDebugEnabled()) {
-      log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
-          + ", leaseDuration " + instanceLeaseDuration + ", isReplication " + isReplication);
+			log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
+					+ ", leaseDuration " + instanceLeaseDuration + ", isReplication "
+					+ isReplication);
 		}
 	}
 
 	private void logCancelation(String appName, String serverId, boolean isReplication) {
 		if (log.isDebugEnabled()) {
-			log.debug("cancel " + appName + " serverId " + serverId + ", isReplication " + isReplication);
+			log.debug("cancel " + appName + " serverId " + serverId + ", isReplication "
+					+ isReplication);
 		}
 	}
 
-	private void publishEurekaInstanceRegisteredEvent(InstanceInfo info, int leaseDuration, boolean isReplication) {
+	private void publishEurekaInstanceRegisteredEvent(InstanceInfo info,
+			int leaseDuration, boolean isReplication) {
 		// TODO: what to publish from info (whole object?)
-		this.ctxt.publishEvent(new EurekaInstanceRegisteredEvent(this, info, leaseDuration, isReplication));
+		this.ctxt.publishEvent(new EurekaInstanceRegisteredEvent(this, info,
+				leaseDuration, isReplication));
 	}
 
-	private void publishEurekaInstanceCanceledEvent(String appName, String serverId, boolean isReplication) {
-		this.ctxt.publishEvent(new EurekaInstanceCanceledEvent(this, appName, serverId, isReplication));
+	private void publishEurekaInstanceCanceledEvent(String appName, String serverId,
+			boolean isReplication) {
+		this.ctxt.publishEvent(
+				new EurekaInstanceCanceledEvent(this, appName, serverId, isReplication));
 	}
 
 	private int resolveInstanceLeaseDuration(final InstanceInfo info) {
