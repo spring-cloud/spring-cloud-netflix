@@ -1731,7 +1731,7 @@ If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runt
 [TIP]
 ====
 Avoid using hardcoded url parameters within `RestTemplate'.  When targeting dynamic endpoints use URL variables. This will avoid potential "GC Overhead Limit Reached" issues where `ServoMonitorCache` treats each url as a unique key. 
-
+----
 // recommended
 String orderid = "1";
 restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
