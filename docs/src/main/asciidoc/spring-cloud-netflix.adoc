@@ -1735,6 +1735,7 @@ Avoid using hardcoded url parameters within `RestTemplate'.  When targeting dyna
 // recommended
 String orderid = "1";
 restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+
 // avoid
 restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
 
