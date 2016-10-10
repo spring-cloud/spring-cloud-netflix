@@ -51,9 +51,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		ApplicationContextAware {
-
-	@Autowired
-	private Targeter targeter;
+	/***********************************
+	 * WARNING! Nothing in this class should be @Autowired. It causes NPEs because of some lifecycle race condition.
+	 ***********************************/
 
 	private Class<?> type;
 
@@ -146,6 +146,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		Client client = getOptional(context, Client.class);
 		if (client != null) {
 			builder.client(client);
+			Targeter targeter = get(context, Targeter.class);
 			return targeter.target(this, builder, context, target);
 		}
 
@@ -183,6 +184,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			}
 			builder.client(client);
 		}
+		Targeter targeter = get(context, Targeter.class);
 		return targeter.target(this, builder, context, new HardCodedTarget<>(
 				this.type, this.name, url));
 	}
