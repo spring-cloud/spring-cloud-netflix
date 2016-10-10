@@ -16,10 +16,13 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.client.HttpClient;
+import com.netflix.hystrix.HystrixCommand;
+import feign.Contract;
+import feign.Feign;
+import feign.Retryer;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.hystrix.HystrixFeign;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -37,15 +40,8 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 
-import com.netflix.hystrix.HystrixCommand;
-
-import feign.Client;
-import feign.Contract;
-import feign.Feign;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.httpclient.ApacheHttpClient;
-import feign.hystrix.HystrixFeign;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Dave Syer
@@ -105,7 +101,7 @@ public class FeignClientsConfiguration {
 	@Scope("prototype")
 	@ConditionalOnMissingBean
 	public Feign.Builder feignBuilder() {
-		return Feign.builder();
+		return Feign.builder().retryer(Retryer.NEVER_RETRY);
 	}
 
 }

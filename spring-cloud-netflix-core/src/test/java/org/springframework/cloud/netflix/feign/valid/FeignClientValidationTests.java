@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.feign.valid;
 
 import org.junit.Test;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -82,6 +83,7 @@ public class FeignClientValidationTests {
 	@Test
 	public void validLoadBalanced() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				LoadBalancerAutoConfiguration.class,
 				RibbonAutoConfiguration.class,
 				FeignRibbonClientAutoConfiguration.class,
 				GoodServiceIdConfiguration.class);

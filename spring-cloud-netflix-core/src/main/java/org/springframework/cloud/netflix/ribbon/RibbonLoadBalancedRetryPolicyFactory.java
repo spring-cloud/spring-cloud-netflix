@@ -16,10 +16,10 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalanceChooser;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.HttpMethod;
 
 /**
@@ -32,8 +32,9 @@ public class RibbonLoadBalancedRetryPolicyFactory implements LoadBalancedRetryPo
     public RibbonLoadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
         this.clientFactory = clientFactory;
     }
+
     @Override
-    public LoadBalancedRetryPolicy create(final String serviceId, final LoadBalancerClient loadBalancerClient) {
+    public LoadBalancedRetryPolicy create(final String serviceId, final LoadBalanceChooser loadBalanceChooser) {
         final RibbonLoadBalancerContext lbContext = this.clientFactory
                 .getLoadBalancerContext(serviceId);
         return new LoadBalancedRetryPolicy() {
@@ -69,7 +70,7 @@ public class RibbonLoadBalancedRetryPolicyFactory implements LoadBalancedRetryPo
                 //Do this before we increment the counters because the first call to this method
                 //is not a retry it is just an initial failure.
                 if(!canRetrySameServer(context)  && canRetryNextServer(context)) {
-                    context.setServiceInstance(loadBalancerClient.choose(serviceId));
+                    context.setServiceInstance(loadBalanceChooser.choose(serviceId));
                 }
                 //This method is called regardless of whether we are retrying or making the first request.
                 //Since we do not count the initial request in the retry count we don't reset the counter

@@ -144,17 +144,17 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient{
 		return this.clientFactory.getLoadBalancer(serviceId);
 	}
 
-	protected static class RibbonServer implements ServiceInstance {
+	public static class RibbonServer implements ServiceInstance {
 		private final String serviceId;
 		private final Server server;
 		private final boolean secure;
 		private Map<String, String> metadata;
 
-		protected RibbonServer(String serviceId, Server server) {
+		public RibbonServer(String serviceId, Server server) {
 			this(serviceId, server, false, Collections.<String, String> emptyMap());
 		}
 
-		protected RibbonServer(String serviceId, Server server, boolean secure,
+		public RibbonServer(String serviceId, Server server, boolean secure,
 				Map<String, String> metadata) {
 			this.serviceId = serviceId;
 			this.server = server;
