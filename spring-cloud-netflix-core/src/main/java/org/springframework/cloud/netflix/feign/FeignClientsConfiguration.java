@@ -41,6 +41,7 @@ import com.netflix.hystrix.HystrixCommand;
 import feign.Contract;
 import feign.Feign;
 import feign.Logger;
+import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.hystrix.HystrixFeign;
@@ -107,7 +108,7 @@ public class FeignClientsConfiguration {
 	@Scope("prototype")
 	@ConditionalOnMissingBean
 	public Feign.Builder feignBuilder() {
-		return Feign.builder();
+		return Feign.builder().retryer(Retryer.NEVER_RETRY);
 	}
 
 	@Bean

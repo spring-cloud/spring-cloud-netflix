@@ -16,6 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -24,18 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
-
-import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 
@@ -71,7 +68,7 @@ public class ZuulProperties {
 	 * Flag for whether retry is supported by default (assuming the routes themselves
 	 * support it).
 	 */
-	private Boolean retryable;
+	private Boolean retryable = false;
 
 	/**
 	 * Map of route names to properties.
