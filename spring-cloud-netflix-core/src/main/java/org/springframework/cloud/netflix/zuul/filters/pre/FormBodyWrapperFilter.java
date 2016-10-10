@@ -62,7 +62,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
 		this.servletRequestField = ReflectionUtils.findField(ServletRequestWrapper.class,
-				"request", ServletRequest.class);		
+				"request", ServletRequest.class);
 		Assert.notNull(this.requestField,
 				"HttpServletRequestWrapper.req field not found");
 		Assert.notNull(this.servletRequestField,
@@ -96,7 +96,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			MediaType mediaType = MediaType.valueOf(contentType);
 			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
 					|| (isDispatcherServletRequest(request)
-							&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
+					&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
 		}
 		catch (InvalidMediaTypeException ex) {
 			return false;
@@ -167,7 +167,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			}
 			return this.contentLength;
 		}
-		
+
 		@Override
 		public long getContentLengthLong() {
 			return getContentLength();
