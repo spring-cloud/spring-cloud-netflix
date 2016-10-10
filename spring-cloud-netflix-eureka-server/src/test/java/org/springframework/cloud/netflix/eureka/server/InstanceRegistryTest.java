@@ -1,10 +1,8 @@
 package org.springframework.cloud.netflix.eureka.server;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,17 +10,18 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.cloud.netflix.eureka.server.InstanceRegistryTest.Application;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceCanceledEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -40,140 +39,110 @@ import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
                 + "cloud.netflix.eureka.server.InstanceRegistry=DEBUG"})
 public class InstanceRegistryTest {
 
-    @SpyBean(PeerAwareInstanceRegistry.class)
-    private InstanceRegistry instanceRegistry;
+	private final List<ApplicationEvent> applicationEvents = new LinkedList<>();
 
-    @Autowired
-    private Listener eurekaEventListener;
+	@SpyBean(PeerAwareInstanceRegistry.class)
+	private InstanceRegistry instanceRegistry;
 
-    @Before
-    public void setup() {
-        eurekaEventListener.getApplicationEvents().clear();
-    }
+	@MockBean
+	private ApplicationListener<EurekaInstanceRegisteredEvent>
+			instanceRegisteredEventListenerMock;
 
-    @Test
-    public void testRegister() throws Exception {
-        // stubbing superclass method invocation
-        doNothing().when(instanceRegistry)
-                .superRegister(any(InstanceInfo.class), anyBoolean());
+	@MockBean
+	private ApplicationListener<EurekaInstanceCanceledEvent>
+			instanceCanceledEventListenerMock;
 
-        // creating instance info
-        LeaseInfo leaseInfo = getLeaseInfo();
-        InstanceInfo instanceInfo = getInstanceInfo(leaseInfo);
+	@Before
+	public void setup() {
+		applicationEvents.clear();
+		Answer applicationListenerAnswer = prepareListenerMockAnswer();
+		doAnswer(applicationListenerAnswer).when(instanceRegisteredEventListenerMock)
+				.onApplicationEvent(isA(EurekaInstanceRegisteredEvent.class));
+		doAnswer(applicationListenerAnswer).when(instanceCanceledEventListenerMock)
+				.onApplicationEvent(isA(EurekaInstanceCanceledEvent.class));
+	}
+		
 
-        // calling tested method
-        instanceRegistry.register(instanceInfo, false);
+	@Test
+	public void testRegister() throws Exception {
+		// creating instance info
+		LeaseInfo leaseInfo = getLeaseInfo();
+		InstanceInfo instanceInfo = getInstanceInfo(leaseInfo);
+		// calling tested method
+		instanceRegistry.register(instanceInfo, false);
+		// event of proper type is registered
+		assertEquals(1, applicationEvents.size());
+		assertTrue(applicationEvents.get(0) instanceof EurekaInstanceRegisteredEvent);
+		// event details are correct
+		EurekaInstanceRegisteredEvent registeredEvent =
+				(EurekaInstanceRegisteredEvent) (applicationEvents.get(0));
+		assertEquals(instanceInfo, registeredEvent.getInstanceInfo());
+		assertEquals(leaseInfo.getDurationInSecs(), registeredEvent.getLeaseDuration());
+		assertEquals(instanceRegistry, registeredEvent.getSource());
+		assertFalse(registeredEvent.isReplication());
+	}
 
-        // event of proper type is registered
-        assertEquals(1, eurekaEventListener.getApplicationEvents().size());
-        assertTrue(eurekaEventListener.getApplicationEvents().get(0)
-                instanceof EurekaInstanceRegisteredEvent);
+	@Test
+	public void testDefaultLeaseDurationRegisterEvent() throws Exception {
+		// creating instance info
+		InstanceInfo instanceInfo = getInstanceInfo(null);
+		// calling tested method
+		instanceRegistry.register(instanceInfo, false);
+		// instance info duration is set to default
+		EurekaInstanceRegisteredEvent registeredEvent =
+				(EurekaInstanceRegisteredEvent) (applicationEvents.get(0));
+		assertEquals(LeaseInfo.DEFAULT_LEASE_DURATION,
+				registeredEvent.getLeaseDuration());
+	}
 
-        // event details are correct
-        EurekaInstanceRegisteredEvent registeredEvent = (EurekaInstanceRegisteredEvent)
-                (eurekaEventListener.getApplicationEvents().get(0));
-        assertEquals(instanceInfo, registeredEvent.getInstanceInfo());
-        assertEquals(leaseInfo.getDurationInSecs(), registeredEvent.getLeaseDuration());
-        assertEquals(instanceRegistry, registeredEvent.getSource());
-        assertFalse(registeredEvent.isReplication());
+	@Test
+	public void testInternalCancel() throws Exception {
+		// calling tested method
+		instanceRegistry.internalCancel("my-app", "appId", false);
+		// event of proper type is registered
+		assertEquals(1, applicationEvents.size());
+		assertTrue(applicationEvents.get(0) instanceof EurekaInstanceCanceledEvent);
+		// event details are correct
+		EurekaInstanceCanceledEvent registeredEvent =
+				(EurekaInstanceCanceledEvent) (applicationEvents.get(0));
+		assertEquals("my-app", registeredEvent.getAppName());
+		assertEquals("appId", registeredEvent.getServerId());
+		assertEquals(instanceRegistry, registeredEvent.getSource());
+		assertFalse(registeredEvent.isReplication());
+	}
 
-        // superclass method wrapper was successfully invoked
-        verify(instanceRegistry).superRegister(instanceInfo, false);
-    }
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableEurekaServer
+	protected static class Application {
+		public static void main(String[] args) {
+			new SpringApplicationBuilder(Application.class).run(args);
+		}
+	}
 
-    @Test
-    public void testDefaultLeaseDurationRegisterEvent() throws Exception {
-        // stubbing superclass method invocation
-        doNothing().when(instanceRegistry)
-                .superRegister(any(InstanceInfo.class), anyBoolean());
+	private LeaseInfo getLeaseInfo() {
+		LeaseInfo.Builder leaseBuilder = LeaseInfo.Builder.newBuilder();
+		leaseBuilder.setRenewalIntervalInSecs(10);
+		leaseBuilder.setDurationInSecs(15);
+		return leaseBuilder.build();
+	}
 
-        // creating instance info
-        InstanceInfo instanceInfo = getInstanceInfo(null);
+	private InstanceInfo getInstanceInfo(LeaseInfo leaseInfo) {
+		InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder();
+		builder.setAppName("my-app-name");
+		builder.setHostName("my-host-name");
+		builder.setPort(8008);
+		builder.setLeaseInfo(leaseInfo);
+		return builder.build();
+	}
 
-        // calling tested method
-        instanceRegistry.register(instanceInfo, false);
-
-        // instance info duration is set to default
-        EurekaInstanceRegisteredEvent registeredEvent = (EurekaInstanceRegisteredEvent)
-                (eurekaEventListener.getApplicationEvents().get(0));
-        assertEquals(LeaseInfo.DEFAULT_LEASE_DURATION, registeredEvent.getLeaseDuration());
-    }
-
-    @Test
-    public void testInternalCancel() throws Exception {
-        // stubbing superclass method invocation
-        doReturn(Boolean.TRUE).when(instanceRegistry)
-                .superInternalCancel(anyString(), anyString(), anyBoolean());
-
-        // calling tested method
-        boolean cancellationResult = instanceRegistry
-                .internalCancel("my-app", "appId", false);
-
-        // event of proper type is registered
-        assertEquals(1, eurekaEventListener.getApplicationEvents().size());
-        assertTrue(eurekaEventListener.getApplicationEvents().get(0)
-                instanceof EurekaInstanceCanceledEvent);
-
-        // event details are correct
-        EurekaInstanceCanceledEvent registeredEvent = (EurekaInstanceCanceledEvent)
-                (eurekaEventListener.getApplicationEvents().get(0));
-        assertEquals("my-app", registeredEvent.getAppName());
-        assertEquals("appId", registeredEvent.getServerId());
-        assertEquals(instanceRegistry, registeredEvent.getSource());
-        assertFalse(registeredEvent.isReplication());
-
-        // superclass method wrapper was successfully invoked
-        verify(instanceRegistry).superInternalCancel("my-app", "appId", false);
-        assertTrue(cancellationResult);
-    }
-
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableEurekaServer
-    protected static class Application {
-
-        public static void main(String[] args) {
-            new SpringApplicationBuilder(Application.class)
-                    .properties("spring.application.name=eureka").run(args);
-        }
-
-        @Bean
-        public Listener eurekaEventsListener() {
-            return new Listener();
-        }
-    }
-
-    private LeaseInfo getLeaseInfo() {
-        LeaseInfo.Builder leaseBuilder = LeaseInfo.Builder.newBuilder();
-        leaseBuilder.setRenewalIntervalInSecs(10);
-        leaseBuilder.setDurationInSecs(15);
-        return leaseBuilder.build();
-    }
-
-
-    private InstanceInfo getInstanceInfo(LeaseInfo leaseInfo) {
-        InstanceInfo.Builder builder = InstanceInfo.Builder.newBuilder();
-        builder.setAppName("my-app-name");
-        builder.setHostName("my-host-name");
-        builder.setPort(8008);
-        builder.setLeaseInfo(leaseInfo);
-        return builder.build();
-    }
-
-    private static class Listener implements ApplicationListener {
-
-        private final List<ApplicationEvent> applicationEvents = new LinkedList<>();
-
-        @Override
-        public void onApplicationEvent(ApplicationEvent event) {
-            if (event instanceof EurekaInstanceCanceledEvent ||
-                    event instanceof EurekaInstanceRegisteredEvent) {
-                applicationEvents.add(event);
-            }
-        }
-
-        public List<ApplicationEvent> getApplicationEvents() {
-            return applicationEvents;
-        }
-    }
+	private Answer prepareListenerMockAnswer() {
+		return new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				return applicationEvents
+						.add((ApplicationEvent) invocation.getArguments()[0]);
+			}
+		};
+	}
 }

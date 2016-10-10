@@ -89,7 +89,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 		final int instanceLeaseDuration = resolveInstanceLeaseDuration(info);
 		logRegistration(info, isReplication, instanceLeaseDuration);
 		publishEurekaInstanceRegisteredEvent(info, instanceLeaseDuration, isReplication);
-		superRegister(info, isReplication);
+		super.register(info, isReplication);
 	}
 
 	@Override
@@ -128,16 +128,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 	protected boolean internalCancel(String appName, String id, boolean isReplication) {
 		logCancelation(appName, id, isReplication);
 		publishEurekaInstanceCanceledEvent(appName, id, isReplication);
-		return superInternalCancel(appName, id, isReplication);
-	}
-
-	protected boolean superInternalCancel(String appName, String id,
-			boolean isReplication) {
 		return super.internalCancel(appName, id, isReplication);
-	}
-
-	protected void superRegister(InstanceInfo info, boolean isReplication) {
-		super.register(info, isReplication);
 	}
 
 	private void logRegistration(InstanceInfo info, boolean isReplication,
