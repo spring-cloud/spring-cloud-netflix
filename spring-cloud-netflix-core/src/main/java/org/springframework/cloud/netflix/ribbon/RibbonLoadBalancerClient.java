@@ -55,7 +55,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		boolean secure = isSecure(server, serviceId);
 		URI uri = original;
 		if (secure) {
-			uri = UriComponentsBuilder.fromUri(uri).scheme("https").build().toUri();
+			uri = UriComponentsBuilder.fromUri(uri).scheme("https").build(true).toUri();
 		}
 		return context.reconstructURIWithServer(server, uri);
 	}
