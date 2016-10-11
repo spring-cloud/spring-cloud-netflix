@@ -16,10 +16,20 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.http.HttpServletRequestWrapper;
-import com.netflix.zuul.http.ServletInputStreamWrapper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestWrapper;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -37,18 +47,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.http.HttpServletRequestWrapper;
+import com.netflix.zuul.http.ServletInputStreamWrapper;
 
 /**
  * @author Spencer Gibb
@@ -96,7 +98,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			MediaType mediaType = MediaType.valueOf(contentType);
 			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
 					|| (isDispatcherServletRequest(request)
-					&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
+							&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
 		}
 		catch (InvalidMediaTypeException ex) {
 			return false;
@@ -118,7 +120,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 					.getField(this.requestField, request);
 			wrapper = new FormBodyRequestWrapper(wrapped);
 			ReflectionUtils.setField(this.requestField, request, wrapper);
-			if(request instanceof ServletRequestWrapper) {
+			if (request instanceof ServletRequestWrapper) {
 				ReflectionUtils.setField(this.servletRequestField, request, wrapper);
 			}
 		}
@@ -229,12 +231,8 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		private Set<String> findQueryParams() {
 			Set<String> result = new HashSet<>();
 			String query = this.request.getQueryString();
-			String[] splitQuery = StringUtils.split(query, "&");
-			if(splitQuery == null && query != null) {
-				splitQuery = new String[]{query};
-			}
-			if (splitQuery != null) {
-				for (String value : splitQuery) {
+			if (query != null) {
+				for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
 					if (value.contains("=")) {
 						value = value.substring(0, value.indexOf("="));
 					}
