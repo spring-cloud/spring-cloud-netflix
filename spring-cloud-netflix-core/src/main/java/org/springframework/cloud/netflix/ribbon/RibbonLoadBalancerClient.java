@@ -52,11 +52,10 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 		Server server = new Server(instance.getHost(), instance.getPort());
-		boolean secure = isSecure(server, serviceId);
-		URI uri = original;
-		if (secure) {
-			uri = UriComponentsBuilder.fromUri(uri).scheme("https").build(true).toUri();
-		}
+		IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
+		ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
+		URI uri = RibbonUtils.updateToHttpsIfNeeded(original, clientConfig,
+				serverIntrospector, server);
 		return context.reconstructURIWithServer(server, uri);
 	}
 
