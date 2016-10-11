@@ -36,6 +36,7 @@ import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 import com.netflix.eureka.resources.ServerCodecs;
 
 import lombok.extern.apachecommons.CommonsLog;
+import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Spencer Gibb
@@ -79,33 +80,27 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	@Override
 	public void register(InstanceInfo info, int leaseDuration, boolean isReplication) {
-		logRegistration(info, isReplication, leaseDuration);
-		publishEurekaInstanceRegisteredEvent(info, leaseDuration, isReplication);
+		handleRegistration(info, leaseDuration, isReplication);
 		super.register(info, leaseDuration, isReplication);
 	}
 
 	@Override
 	public void register(final InstanceInfo info, final boolean isReplication) {
-		final int instanceLeaseDuration = resolveInstanceLeaseDuration(info);
-		logRegistration(info, isReplication, instanceLeaseDuration);
-		publishEurekaInstanceRegisteredEvent(info, instanceLeaseDuration, isReplication);
+		handleRegistration(info, resolveInstanceLeaseDuration(info), isReplication);
 		super.register(info, isReplication);
 	}
 
 	@Override
 	public boolean cancel(String appName, String serverId, boolean isReplication) {
-		logCancelation(appName, serverId, isReplication);
-		publishEurekaInstanceCanceledEvent(appName, serverId, isReplication);
+		handleCancelation(appName, serverId, isReplication);
 		return super.cancel(appName, serverId, isReplication);
 	}
 
 	@Override
 	public boolean renew(final String appName, final String serverId,
 			boolean isReplication) {
-		if (log.isDebugEnabled()) {
-			log.debug("renew " + appName + " serverId " + serverId + ", isReplication {}"
-					+ isReplication);
-		}
+		log("renew " + appName + " serverId " + serverId + ", isReplication {}"
+				+ isReplication);
 		List<Application> applications = getSortedApplications();
 		for (Application input : applications) {
 			if (input.getName().equals(appName)) {
@@ -116,8 +111,8 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 						break;
 					}
 				}
-				this.ctxt.publishEvent(new EurekaInstanceRenewedEvent(this, appName,
-						serverId, instance, isReplication));
+				publishEvent(new EurekaInstanceRenewedEvent(this, appName, serverId,
+						instance, isReplication));
 				break;
 			}
 		}
@@ -126,38 +121,32 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	@Override
 	protected boolean internalCancel(String appName, String id, boolean isReplication) {
-		logCancelation(appName, id, isReplication);
-		publishEurekaInstanceCanceledEvent(appName, id, isReplication);
+		handleCancelation(appName, id, isReplication);
 		return super.internalCancel(appName, id, isReplication);
 	}
 
-	private void logRegistration(InstanceInfo info, boolean isReplication,
-			int instanceLeaseDuration) {
-		if (log.isDebugEnabled()) {
-			log.debug("register " + info.getAppName() + ", vip " + info.getVIPAddress()
-					+ ", leaseDuration " + instanceLeaseDuration + ", isReplication "
-					+ isReplication);
-		}
+	private void handleCancelation(String appName, String id, boolean isReplication) {
+		log("cancel " + appName + ", serverId " + id + ", isReplication " + isReplication);
+		publishEvent(new EurekaInstanceCanceledEvent(this, appName, id, isReplication));
 	}
 
-	private void logCancelation(String appName, String serverId, boolean isReplication) {
-		if (log.isDebugEnabled()) {
-			log.debug("cancel " + appName + " serverId " + serverId + ", isReplication "
-					+ isReplication);
-		}
-	}
-
-	private void publishEurekaInstanceRegisteredEvent(InstanceInfo info,
-			int leaseDuration, boolean isReplication) {
-		// TODO: what to publish from info (whole object?)
-		this.ctxt.publishEvent(new EurekaInstanceRegisteredEvent(this, info,
-				leaseDuration, isReplication));
-	}
-
-	private void publishEurekaInstanceCanceledEvent(String appName, String serverId,
+	private void handleRegistration(InstanceInfo info, int leaseDuration,
 			boolean isReplication) {
-		this.ctxt.publishEvent(
-				new EurekaInstanceCanceledEvent(this, appName, serverId, isReplication));
+		log("register " + info.getAppName() + ", vip " + info.getVIPAddress()
+				+ ", leaseDuration " + leaseDuration + ", isReplication "
+				+ isReplication);
+		publishEvent(new EurekaInstanceRegisteredEvent(this, info, leaseDuration,
+				isReplication));
+	}
+		
+	private void log(String message) {
+		if (log.isDebugEnabled()) {
+			log.debug(message);
+		}
+	}
+
+	private void publishEvent(ApplicationEvent applicationEvent) {
+		this.ctxt.publishEvent(applicationEvent);
 	}
 
 	private int resolveInstanceLeaseDuration(final InstanceInfo info) {
