@@ -38,6 +38,7 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
 
 import lombok.SneakyThrows;
+import org.springframework.web.util.DefaultUriTemplateHandler;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -105,6 +106,31 @@ public class RibbonLoadBalancerClientTests {
 				new URL(scheme + "://" + server.getServiceId()).toURI());
 		assertEquals(server.getHost(), uri.getHost());
 		assertEquals(server.getPort(), uri.getPort());
+	}
+
+	@Test
+	public void testReconstructSecureUriWithSpecialCharsPath() {
+		testReconstructUriWithPath("https", "/foo=|");
+	}
+
+	@Test
+	public void testReconstructUnsecureUriWithSpecialCharsPath() {
+		testReconstructUriWithPath("http", "/foo=|");
+	}
+
+	private void testReconstructUriWithPath(String scheme, String path) {
+		RibbonServer server = getRibbonServer();
+		IClientConfig config = mock(IClientConfig.class);
+		when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(true);
+		when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
+
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+		ServiceInstance serviceInstance = client.choose(server.getServiceId());
+
+		URI expanded = new DefaultUriTemplateHandler()
+				.expand(scheme + "://" + server.getServiceId() + path);
+		URI reconstructed = client.reconstructURI(serviceInstance, expanded);
+		assertEquals(expanded.getPath(), reconstructed.getPath());
 	}
 
 	@Test
