@@ -2863,6 +2863,28 @@ public SseEmitter event() {
 </li>
 </ol>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Avoid using hardcoded url parameters within <code>RestTemplate</code>.  When targeting dynamic endpoints use URL variables. This will avoid potential "GC Overhead Limit Reached" issues where <code>ServoMonitorCache</code> treats each url as a unique key.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// recommended
+String orderid = "1";
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+
+// avoid
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="netflix-metrics-spectator">Metrics Collection: Spectator</h3>
