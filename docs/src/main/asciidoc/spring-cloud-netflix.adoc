@@ -1758,6 +1758,18 @@ If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runt
 3. URI, sanitized for Atlas
 4. Client name
 
+WARNING: Avoid using hardcoded url parameters within `RestTemplate`.  When targeting dynamic endpoints use URL variables. This will avoid potential "GC Overhead Limit Reached" issues where `ServoMonitorCache` treats each url as a unique key.
+
+[source,java,indent=0]
+----
+// recommended
+String orderid = "1";
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+
+// avoid
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
+----
+
 [[netflix-metrics-spectator]]
 === Metrics Collection: Spectator
 
