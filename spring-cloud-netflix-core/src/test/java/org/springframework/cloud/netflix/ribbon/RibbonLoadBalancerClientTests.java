@@ -29,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
+import org.springframework.web.util.DefaultUriTemplateHandler;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
@@ -38,7 +39,6 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
 
 import lombok.SneakyThrows;
-import org.springframework.web.util.DefaultUriTemplateHandler;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
