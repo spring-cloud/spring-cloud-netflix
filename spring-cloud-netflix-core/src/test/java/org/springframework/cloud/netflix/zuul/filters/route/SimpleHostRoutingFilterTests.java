@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.entity.InputStreamEntity;
@@ -30,6 +29,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.ByteArrayInputStream;
 
@@ -84,17 +84,17 @@ public class SimpleHostRoutingFilterTests {
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
 	}
 
-    @Test
-    public void deleteRequestBuiltWithBody() {
-        setupContext();
-        InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-        HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri", inputStreamEntity,
-                new MultiValueMap<String, String>(), new MultiValueMap<String, String>());
+	@Test
+	public void deleteRequestBuiltWithBody() {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri", inputStreamEntity,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>());
 
-        assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
-        HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
-        assertTrue(httpEntityEnclosingRequest.getEntity() != null);
-    }
+		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
+		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
 
 	private void setupContext() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,

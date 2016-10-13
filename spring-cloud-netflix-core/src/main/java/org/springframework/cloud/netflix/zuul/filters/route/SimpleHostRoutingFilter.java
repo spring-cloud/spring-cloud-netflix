@@ -265,41 +265,41 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
     protected HttpRequest buildHttpRequest (String verb, String uri, InputStreamEntity entity,
-                                 MultiValueMap<String, String> headers, MultiValueMap<String, String> params)
-            throws Exception {
-        HttpRequest httpRequest;
+											MultiValueMap<String, String> headers, MultiValueMap<String, String> params)
+			throws Exception {
+		HttpRequest httpRequest;
 
-        switch (verb.toUpperCase()) {
-            case "POST":
-                HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
-                httpRequest = httpPost;
-                httpPost.setEntity(entity);
-                break;
-            case "PUT":
-                HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
-                httpRequest = httpPut;
-                httpPut.setEntity(entity);
-                break;
-            case "PATCH":
-                HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
-                httpRequest = httpPatch;
-                httpPatch.setEntity(entity);
-                break;
-            case "DELETE":
-                BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(verb,
-                        uri + this.helper.getQueryString(params));
-                httpRequest = entityRequest;
-                entityRequest.setEntity(entity);
-                break;
-            default:
-                httpRequest = new BasicHttpRequest(verb,
-                        uri + this.helper.getQueryString(params));
-                log.debug(uri + this.helper.getQueryString(params));
-        }
+		switch (verb.toUpperCase()) {
+			case "POST":
+				HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
+				httpRequest = httpPost;
+				httpPost.setEntity(entity);
+				break;
+			case "PUT":
+				HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
+				httpRequest = httpPut;
+				httpPut.setEntity(entity);
+				break;
+			case "PATCH":
+				HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
+				httpRequest = httpPatch;
+				httpPatch.setEntity(entity);
+				break;
+			case "DELETE":
+				BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(verb,
+						uri + this.helper.getQueryString(params));
+				httpRequest = entityRequest;
+				entityRequest.setEntity(entity);
+				break;
+			default:
+				httpRequest = new BasicHttpRequest(verb,
+						uri + this.helper.getQueryString(params));
+				log.debug(uri + this.helper.getQueryString(params));
+		}
 
-        httpRequest.setHeaders(convertHeaders(headers));
-        return httpRequest;
-    }
+		httpRequest.setHeaders(convertHeaders(headers));
+		return httpRequest;
+	}
 
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
 			HttpServletRequest request, MultiValueMap<String, String> headers,
