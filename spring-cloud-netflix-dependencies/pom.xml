@@ -270,6 +270,10 @@
 						<artifactId>jackson-dataformat-xml</artifactId>
 						<groupId>com.fasterxml.jackson.dataformat</groupId>
 					</exclusion>
+					<exclusion>
+						<artifactId>*</artifactId>
+						<groupId>com.amazonaws</groupId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<!-- Eureka core dep that is now optional -->
