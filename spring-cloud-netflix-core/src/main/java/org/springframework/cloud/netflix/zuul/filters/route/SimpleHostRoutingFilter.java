@@ -266,7 +266,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
     protected HttpRequest buildHttpRequest (String verb, String uri, InputStreamEntity entity,
 											MultiValueMap<String, String> headers, MultiValueMap<String, String> params)
-			throws Exception {
+	{
 		HttpRequest httpRequest;
 
 		switch (verb.toUpperCase()) {
