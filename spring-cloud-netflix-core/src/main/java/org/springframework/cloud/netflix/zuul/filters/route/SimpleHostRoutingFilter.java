@@ -264,6 +264,43 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				}).build();
 	}
 
+    protected HttpRequest buildHttpRequest (String verb, String uri, InputStreamEntity entity,
+                                 MultiValueMap<String, String> headers, MultiValueMap<String, String> params)
+            throws Exception {
+        HttpRequest httpRequest;
+
+        switch (verb.toUpperCase()) {
+            case "POST":
+                HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
+                httpRequest = httpPost;
+                httpPost.setEntity(entity);
+                break;
+            case "PUT":
+                HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
+                httpRequest = httpPut;
+                httpPut.setEntity(entity);
+                break;
+            case "PATCH":
+                HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
+                httpRequest = httpPatch;
+                httpPatch.setEntity(entity);
+                break;
+            case "DELETE":
+                BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(verb,
+                        uri + this.helper.getQueryString(params));
+                httpRequest = entityRequest;
+                entityRequest.setEntity(entity);
+                break;
+            default:
+                httpRequest = new BasicHttpRequest(verb,
+                        uri + this.helper.getQueryString(params));
+                log.debug(uri + this.helper.getQueryString(params));
+        }
+
+        httpRequest.setHeaders(convertHeaders(headers));
+        return httpRequest;
+    }
+
 	private HttpResponse forward(HttpClient httpclient, String verb, String uri,
 			HttpServletRequest request, MultiValueMap<String, String> headers,
 			MultiValueMap<String, String> params, InputStream requestEntity)
@@ -273,40 +310,13 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
 		uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
-		HttpRequest httpRequest;
 		int contentLength = request.getContentLength();
 		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength,
 				request.getContentType() != null
 						? ContentType.create(request.getContentType()) : null);
-		switch (verb.toUpperCase()) {
-		case "POST":
-			HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
-			httpRequest = httpPost;
-			httpPost.setEntity(entity);
-			break;
-		case "PUT":
-			HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
-			httpRequest = httpPut;
-			httpPut.setEntity(entity);
-			break;
-		case "PATCH":
-			HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
-			httpRequest = httpPatch;
-			httpPatch.setEntity(entity);
-			break;
-        case "DELETE":
-            BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(verb,
-                    uri + this.helper.getQueryString(params));
-            httpRequest = entityRequest;
-            entityRequest.setEntity(entity);
-            break;
-		default:
-			httpRequest = new BasicHttpRequest(verb,
-					uri + this.helper.getQueryString(params));
-			log.debug(uri + this.helper.getQueryString(params));
-		}
+
+		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params);
 		try {
-			httpRequest.setHeaders(convertHeaders(headers));
 			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
 			HttpResponse zuulResponse = forwardRequest(httpclient, httpHost, httpRequest);
