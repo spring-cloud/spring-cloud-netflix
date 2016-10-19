@@ -66,8 +66,8 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 	/**
 	 * If
 	 * {@link PeerAwareInstanceRegistryImpl#openForTraffic(ApplicationInfoManager, int)}
-	 * is called with a zero * argument, it means that leases are not automatically *
-	 * cancelled if the instance * hasn't sent any renewals recently. This happens for a
+	 * is called with a zero argument, it means that leases are not automatically
+	 * cancelled if the instance hasn't sent any renewals recently. This happens for a
 	 * standalone server. It seems like a bad default, so we set it to the smallest
 	 * non-zero value we can, so that any instances that subsequently register can bump up
 	 * the threshold.
