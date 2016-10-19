@@ -29,26 +29,16 @@ import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider
  */
 public abstract class AbstractRibbonCommandFactory implements RibbonCommandFactory {
 
-	private final Set<ZuulFallbackProvider> fallbackProviders;
-
 	private Map<String, ZuulFallbackProvider> fallbackProviderCache;
 
 	public AbstractRibbonCommandFactory(Set<ZuulFallbackProvider> fallbackProviders){
-		this.fallbackProviders = fallbackProviders;
 		this.fallbackProviderCache = new HashMap<String, ZuulFallbackProvider>();
+		for(ZuulFallbackProvider provider : fallbackProviders) {
+			fallbackProviderCache.put(provider.getRoute(), provider);
+		}
 	}
 
 	protected ZuulFallbackProvider getFallbackProvider(String route) {
-		ZuulFallbackProvider zuulFallbackProvider = fallbackProviderCache.get(route);
-		if(zuulFallbackProvider == null) {
-			for (ZuulFallbackProvider provider : fallbackProviders) {
-				if (provider.getRoute().equals(route)) {
-					zuulFallbackProvider = provider;
-					fallbackProviderCache.put(route, zuulFallbackProvider);
-					break;
-				}
-			}
-		}
-		return zuulFallbackProvider;
+		return fallbackProviderCache.get(route);
 	}
 }
