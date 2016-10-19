@@ -37,15 +37,15 @@ public interface AnnotatedParameterProcessor {
 	 */
 	Class<? extends Annotation> getAnnotationType();
 
-    /**
-     * Process the annotated parameter.
-     *
-     * @param context    the parameter context
-     * @param annotation the annotation instance
-     * @param method     the method that contains the annotation
-     * @return whether the parameter is http
-     */
-    boolean processArgument(AnnotatedParameterContext context, Annotation annotation, Method method);
+	/**
+	 * Process the annotated parameter.
+	 *
+	 * @param context    the parameter context
+	 * @param annotation the annotation instance
+	 * @param method     the method that contains the annotation
+	 * @return whether the parameter is http
+	 */
+	boolean processArgument(AnnotatedParameterContext context, Annotation annotation, Method method);
 
 	/**
 	 * Specifies the parameter context.

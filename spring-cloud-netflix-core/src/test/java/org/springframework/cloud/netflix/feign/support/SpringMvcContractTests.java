@@ -343,47 +343,47 @@ public class SpringMvcContractTests {
 		return false;
 	}
 
-    @Test
-    public void testProcessHeaderMap() throws Exception {
-        Method method = TestTemplate_HeaderMap.class.getDeclaredMethod("headerMap",
-                MultiValueMap.class, String.class);
-        MethodMetadata data = this.contract
-                .parseAndValidateMetadata(method.getDeclaringClass(), method);
+	@Test
+	public void testProcessHeaderMap() throws Exception {
+		Method method = TestTemplate_HeaderMap.class.getDeclaredMethod("headerMap",
+				MultiValueMap.class, String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
-        assertEquals("/headerMap", data.template().url());
-        assertEquals("GET", data.template().method());
-        assertEquals(0, data.headerMapIndex().intValue());
-        Map<String, Collection<String>> headers = data.template().headers();
-        assertEquals("{aHeader}", headers.get("aHeader").iterator().next());
-    }
+		assertEquals("/headerMap", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals(0, data.headerMapIndex().intValue());
+		Map<String, Collection<String>> headers = data.template().headers();
+		assertEquals("{aHeader}", headers.get("aHeader").iterator().next());
+	}
 
-    @Test(expected = IllegalStateException.class)
-    public void testProcessHeaderMapMoreThanOnce() throws Exception {
-        Method method = TestTemplate_HeaderMap.class.getDeclaredMethod(
-                "headerMapMoreThanOnce", MultiValueMap.class, MultiValueMap.class);
-        this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
-    }
+	@Test(expected = IllegalStateException.class)
+	public void testProcessHeaderMapMoreThanOnce() throws Exception {
+		Method method = TestTemplate_HeaderMap.class.getDeclaredMethod(
+				"headerMapMoreThanOnce", MultiValueMap.class, MultiValueMap.class);
+		this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
+	}
 
-    @Test
-    public void testProcessQueryMap() throws Exception {
-        Method method = TestTemplate_QueryMap.class.getDeclaredMethod("queryMap",
-                MultiValueMap.class, String.class);
-        MethodMetadata data = this.contract
-                .parseAndValidateMetadata(method.getDeclaringClass(), method);
+	@Test
+	public void testProcessQueryMap() throws Exception {
+		Method method = TestTemplate_QueryMap.class.getDeclaredMethod("queryMap",
+				MultiValueMap.class, String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
 
-        assertEquals("/queryMap", data.template().url());
-        assertEquals("GET", data.template().method());
-        assertEquals(0, data.queryMapIndex().intValue());
-        Map<String, Collection<String>> params = data.template().queries();
-        assertEquals("{aParam}", params.get("aParam").iterator().next());
-    }
+		assertEquals("/queryMap", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals(0, data.queryMapIndex().intValue());
+		Map<String, Collection<String>> params = data.template().queries();
+		assertEquals("{aParam}", params.get("aParam").iterator().next());
+	}
 
-    @Test(expected = IllegalStateException.class)
-    public void testProcessQueryMapMoreThanOnce() throws Exception {
-        Method method = TestTemplate_QueryMap.class.getDeclaredMethod(
-                "queryMapMoreThanOnce", MultiValueMap.class, MultiValueMap.class);
-        this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
-    }
+	@Test(expected = IllegalStateException.class)
+	public void testProcessQueryMapMoreThanOnce() throws Exception {
+		Method method = TestTemplate_QueryMap.class.getDeclaredMethod(
+				"queryMapMoreThanOnce", MultiValueMap.class, MultiValueMap.class);
+		this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
+	}
 
 	public interface TestTemplate_Simple {
 		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -425,29 +425,29 @@ public class SpringMvcContractTests {
 		ResponseEntity<TestObject> getTest(@RequestParam Map<String, String> params);
 	}
 
-    public interface TestTemplate_HeaderMap {
-        @RequestMapping(path = "/headerMap")
-        String headerMap(
-                @RequestHeader MultiValueMap<String, String> headerMap,
-                @RequestHeader(name = "aHeader") String aHeader);
+	public interface TestTemplate_HeaderMap {
+		@RequestMapping(path = "/headerMap")
+		String headerMap(
+				@RequestHeader MultiValueMap<String, String> headerMap,
+				@RequestHeader(name = "aHeader") String aHeader);
 
-        @RequestMapping(path = "/headerMapMoreThanOnce")
-        String headerMapMoreThanOnce(
-                @RequestHeader MultiValueMap<String, String> headerMap1,
-                @RequestHeader MultiValueMap<String, String> headerMap2);
-    }
+		@RequestMapping(path = "/headerMapMoreThanOnce")
+		String headerMapMoreThanOnce(
+				@RequestHeader MultiValueMap<String, String> headerMap1,
+				@RequestHeader MultiValueMap<String, String> headerMap2);
+	}
 
-    public interface TestTemplate_QueryMap {
-        @RequestMapping(path = "/queryMap")
-        String queryMap(
-                @RequestParam MultiValueMap<String, String> queryMap,
-                @RequestParam(name = "aParam") String aParam);
+	public interface TestTemplate_QueryMap {
+		@RequestMapping(path = "/queryMap")
+		String queryMap(
+				@RequestParam MultiValueMap<String, String> queryMap,
+				@RequestParam(name = "aParam") String aParam);
 
-        @RequestMapping(path = "/queryMapMoreThanOnce")
-        String queryMapMoreThanOnce(
-                @RequestParam MultiValueMap<String, String> queryMap1,
-                @RequestParam MultiValueMap<String, String> queryMap2);
-    }
+		@RequestMapping(path = "/queryMapMoreThanOnce")
+		String queryMapMoreThanOnce(
+				@RequestParam MultiValueMap<String, String> queryMap1,
+				@RequestParam MultiValueMap<String, String> queryMap2);
+	}
 
 	@JsonAutoDetect
 	@RequestMapping("/advanced")
