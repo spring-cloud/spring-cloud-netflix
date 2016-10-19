@@ -52,6 +52,7 @@ import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
@@ -64,6 +65,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Spencer Gibb
  * @author Jon Schneider
  * @author Matt Jenkins
+ * @author Ryan Baxter
  */
 @Configuration
 @EnableConfigurationProperties
@@ -75,16 +77,19 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 public class EurekaClientAutoConfiguration {
 
 	@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
-	int nonSecurePort;
+	private int nonSecurePort;
 
 	@Value("${management.port:${MANAGEMENT_PORT:${server.port:${SERVER_PORT:${PORT:8080}}}}}")
-	int managementPort;
+	private int managementPort;
 
 	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
-	String hostname;
+	private String hostname;
 
 	@Autowired
-	ConfigurableEnvironment env;
+	private ConfigurableEnvironment env;
+
+	@Autowired(required = false)
+	private HealthCheckHandler healthCheckHandler;
 
 	@Bean
 	public HasFeatures eurekaFeature() {
@@ -107,9 +112,16 @@ public class EurekaClientAutoConfiguration {
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
 		RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
+		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
+		String springAppName = springPropertyResolver.getProperty("name");
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
+		if(StringUtils.hasText(springAppName)) {
+			instance.setAppname(springAppName);
+			instance.setVirtualHostName(springAppName);
+			instance.setSecureVirtualHostName(springAppName);
+		}
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
 			if (StringUtils.hasText(this.hostname)) {
 				instance.setHostname(this.hostname);
@@ -135,6 +147,20 @@ public class EurekaClientAutoConfiguration {
 	public DiscoveryClient discoveryClient(EurekaInstanceConfig config,
 			EurekaClient client) {
 		return new EurekaDiscoveryClient(config, client);
+	}
+
+	@Bean
+	public EurekaServiceRegistry eurekaServiceRegistry() {
+		return new EurekaServiceRegistry();
+	}
+
+	@Bean
+	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
+		return EurekaRegistration.builder(instanceConfig)
+				.with(applicationInfoManager)
+				.with(eurekaClient)
+				.with(healthCheckHandler)
+				.build();
 	}
 
 	@Bean

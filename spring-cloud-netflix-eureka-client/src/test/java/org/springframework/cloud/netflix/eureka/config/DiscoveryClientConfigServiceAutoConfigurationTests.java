@@ -26,6 +26,7 @@ import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.DiscoveryClientConfigServiceBootstrapConfiguration;
+import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -99,7 +100,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		@Bean
 		public EurekaClient eurekaClient(ApplicationInfoManager manager) {
 			InstanceInfo info = manager.getInfo();
-			EurekaClient client = Mockito.mock(EurekaClient.class);
+			EurekaClient client = Mockito.mock(CloudEurekaClient.class);
 			given(client.getInstancesByVipAddress(DEFAULT_CONFIG_SERVER, false))
 					.willReturn(Arrays.asList(info));
 			return client;

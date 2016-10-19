@@ -17,27 +17,34 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
 
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
 
 /**
  * @author Spencer Gibb
+ * @author Ryan Baxter
  */
-public class RestClientRibbonCommandFactory implements RibbonCommandFactory<RestClientRibbonCommand> {
+public class RestClientRibbonCommandFactory extends AbstractRibbonCommandFactory {
 
-	private final SpringClientFactory clientFactory;
+	private SpringClientFactory clientFactory;
 
 	private ZuulProperties zuulProperties;
 
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
-		this(clientFactory, new ZuulProperties());
+		this(clientFactory, new ZuulProperties(), Collections.<ZuulFallbackProvider>emptySet());
 	}
 
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory,
-			ZuulProperties zuulProperties) {
+										  ZuulProperties zuulProperties,
+										  Set<ZuulFallbackProvider> zuulFallbackProviders) {
+		super(zuulFallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
 	}
@@ -45,10 +52,12 @@ public class RestClientRibbonCommandFactory implements RibbonCommandFactory<Rest
 	@Override
 	@SuppressWarnings("deprecation")
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
-		RestClient restClient = this.clientFactory.getClient(context.getServiceId(),
+		String serviceId = context.getServiceId();
+		ZuulFallbackProvider fallbackProvider = getFallbackProvider(serviceId);
+		RestClient restClient = this.clientFactory.getClient(serviceId,
 				RestClient.class);
 		return new RestClientRibbonCommand(context.getServiceId(), restClient, context,
-				this.zuulProperties);
+				this.zuulProperties, fallbackProvider);
 	}
 
 	public SpringClientFactory getClientFactory() {

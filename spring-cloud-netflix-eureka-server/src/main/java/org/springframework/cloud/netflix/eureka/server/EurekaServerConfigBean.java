@@ -188,6 +188,8 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 
 	private AwsBindingStrategy bindingStrategy = AwsBindingStrategy.EIP;
 
+	private int minAvailableInstancesForPeerReplication = -1;
+
 	@Override
 	public boolean shouldEnableSelfPreservation() {
 		return this.enableSelfPreservation;
@@ -266,5 +268,10 @@ public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstan
 					String.class, null);
 		}
 		return null;
+	}
+
+	@Override
+	public int getHealthStatusMinNumberOfAvailablePeers() {
+		return this.minAvailableInstancesForPeerReplication;
 	}
 }

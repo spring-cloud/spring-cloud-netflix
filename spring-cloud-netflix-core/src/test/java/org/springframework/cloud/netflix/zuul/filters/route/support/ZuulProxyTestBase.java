@@ -1,5 +1,4 @@
-/*
- * Copyright 2013-2016 the original author or authors.
+opyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assume.assumeThat;
-
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +41,16 @@ import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -66,14 +64,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeThat;
+
 /**
  * @author Spencer Gibb
+ * @author Ryan Baxter
  */
 public abstract class ZuulProxyTestBase {
 
@@ -363,6 +366,22 @@ public abstract class ZuulProxyTestBase {
 			return "Hello space";
 		}
 
+		@RequestMapping("/slow")
+		public String slow() {
+			try {
+				Thread.sleep(80000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return "slow";
+
+		}
+
+		@Bean
+		public ZuulFallbackProvider fallbackProvider() {
+			return new FallbackProvider();
+		}
+
 		@Bean
 		public ZuulFilter sampleFilter() {
 			return new ZuulFilter() {
@@ -393,6 +412,7 @@ public abstract class ZuulProxyTestBase {
 					return 0;
 				}
 			};
+
 		}
 
 		@Override
@@ -400,6 +420,53 @@ public abstract class ZuulProxyTestBase {
 			RequestMappingHandlerMapping mapping = super.requestMappingHandlerMapping();
 			mapping.setRemoveSemicolonContent(false);
 			return mapping;
+		}
+
+
+	}
+
+	public static class FallbackProvider implements ZuulFallbackProvider {
+
+		@Override
+		public String getRoute() {
+			return "simple";
+		}
+
+		@Override
+		public ClientHttpResponse fallbackResponse() {
+			return new ClientHttpResponse() {
+				@Override
+				public HttpStatus getStatusCode() throws IOException {
+					return HttpStatus.OK;
+				}
+
+				@Override
+				public int getRawStatusCode() throws IOException {
+					return 200;
+				}
+
+				@Override
+				public String getStatusText() throws IOException {
+					return null;
+				}
+
+				@Override
+				public void close() {
+
+				}
+
+				@Override
+				public InputStream getBody() throws IOException {
+					return new ByteArrayInputStream("fallback".getBytes());
+				}
+
+				@Override
+				public HttpHeaders getHeaders() {
+					HttpHeaders headers = new HttpHeaders();
+					headers.setContentType(MediaType.TEXT_HTML);
+					return headers;
+				}
+			};
 		}
 	}
 	

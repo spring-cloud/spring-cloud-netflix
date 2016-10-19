@@ -50,12 +50,11 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	private ProxyRequestHelper proxyRequestHelper;
 
-	public PreDecorationFilter(RouteLocator routeLocator, String dispatcherServletPath,
-			ZuulProperties properties, ProxyRequestHelper proxyRequestHelper) {
+	public PreDecorationFilter(RouteLocator routeLocator, String dispatcherServletPath, ZuulProperties properties,
+			ProxyRequestHelper proxyRequestHelper) {
 		this.routeLocator = routeLocator;
 		this.properties = properties;
-		this.urlPathHelper
-				.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
+		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
 		this.dispatcherServletPath = dispatcherServletPath;
 		this.proxyRequestHelper = proxyRequestHelper;
 	}
@@ -81,8 +80,7 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		final String requestURI = this.urlPathHelper
-				.getPathWithinApplication(ctx.getRequest());
+		final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx.getRequest());
 		Route route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
@@ -90,12 +88,11 @@ public class PreDecorationFilter extends ZuulFilter {
 				ctx.put("requestURI", route.getPath());
 				ctx.put("proxy", route.getId());
 				if (!route.isCustomSensitiveHeaders()) {
-					this.proxyRequestHelper.addIgnoredHeaders(
-							this.properties.getSensitiveHeaders().toArray(new String[0]));
+					this.proxyRequestHelper
+							.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));
 				}
 				else {
-					this.proxyRequestHelper.addIgnoredHeaders(
-							route.getSensitiveHeaders().toArray(new String[0]));
+					this.proxyRequestHelper.addIgnoredHeaders(route.getSensitiveHeaders().toArray(new String[0]));
 				}
 
 				if (route.getRetryable() != null) {
@@ -107,8 +104,8 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-Service", location);
 				}
 				else if (location.startsWith("forward:")) {
-					ctx.set("forward.to", StringUtils.cleanPath(
-							location.substring("forward:".length()) + route.getPath()));
+					ctx.set("forward.to",
+							StringUtils.cleanPath(location.substring("forward:".length()) + route.getPath()));
 					ctx.setRouteHost(null);
 					return null;
 				}
@@ -119,35 +116,7 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
 				}
 				if (this.properties.isAddProxyHeaders()) {
-					ctx.addZuulRequestHeader("X-Forwarded-Host", toHostHeader(ctx.getRequest()));
-					ctx.addZuulRequestHeader("X-Forwarded-Port",
-							String.valueOf(ctx.getRequest().getServerPort()));
-					ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO,
-							ctx.getRequest().getScheme());
-					String forwardedPrefix =
-							ctx.getRequest().getHeader("X-Forwarded-Prefix");
-					String contextPath = ctx.getRequest().getContextPath();
-					String prefix = StringUtils.hasLength(forwardedPrefix)
-							? forwardedPrefix
-							: (StringUtils.hasLength(contextPath) ? contextPath : null);
-					if (StringUtils.hasText(route.getPrefix())) {
-						StringBuilder newPrefixBuilder = new StringBuilder();
-						if (prefix != null) {
-							if (prefix.endsWith("/")
-									&& route.getPrefix().startsWith("/")) {
-								newPrefixBuilder.append(prefix, 0,
-										prefix.length() - 1);
-							}
-							else {
-								newPrefixBuilder.append(prefix);
-							}
-						}
-						newPrefixBuilder.append(route.getPrefix());
-						prefix = newPrefixBuilder.toString();
-					}
-					if (prefix != null) {
-						ctx.addZuulRequestHeader("X-Forwarded-Prefix", prefix);
-					}
+					addProxyHeaders(ctx, route);
 					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
 					if (xforwardedfor == null) {
@@ -174,8 +143,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (RequestUtils.isZuulServletRequest()) {
 				// remove the Zuul servletPath from the requestUri
 				log.debug("zuulServletPath=" + this.properties.getServletPath());
-				fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(),
-						"");
+				fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(), "");
 				log.debug("Replaced Zuul servlet path:" + fallBackUri);
 			}
 			else {
@@ -194,11 +162,70 @@ public class PreDecorationFilter extends ZuulFilter {
 		return null;
 	}
 
+	private void addProxyHeaders(RequestContext ctx, Route route) {
+		HttpServletRequest request = ctx.getRequest();
+		String host = toHostHeader(request);
+		String port = String.valueOf(request.getServerPort());
+		String proto = request.getScheme();
+		if (hasHeader(request, "X-Forwarded-Host")) {
+			host = request.getHeader("X-Forwarded-Host") + "," + host;
+			if (!hasHeader(request, "X-Forwarded-Port")) {
+				if (hasHeader(request, "X-Forwarded-Proto")) {
+					StringBuilder builder = new StringBuilder();
+					for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader("X-Forwarded-Proto"))) {
+						if (builder.length()>0) {
+							builder.append(",");
+						}
+						builder.append("https".equals(previous) ? "443" : "80");
+					}
+					builder.append(",").append(port);
+					port = builder.toString();
+				}
+			} else {
+				port = request.getHeader("X-Forwarded-Port") + "," + port;
+			}
+			proto = request.getHeader("X-Forwarded-Proto") + "," + proto;
+		}
+		ctx.addZuulRequestHeader("X-Forwarded-Host", host);
+		ctx.addZuulRequestHeader("X-Forwarded-Port", port);
+		ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO, proto);
+		addProxyPrefix(ctx, route);
+	}
+
+	private boolean hasHeader(HttpServletRequest request, String name) {
+		return StringUtils.hasLength(request.getHeader(name));
+	}
+
+	private void addProxyPrefix(RequestContext ctx, Route route) {
+		String forwardedPrefix = ctx.getRequest().getHeader("X-Forwarded-Prefix");
+		String contextPath = ctx.getRequest().getContextPath();
+		String prefix = StringUtils.hasLength(forwardedPrefix) ? forwardedPrefix
+				: (StringUtils.hasLength(contextPath) ? contextPath : null);
+		if (StringUtils.hasText(route.getPrefix())) {
+			StringBuilder newPrefixBuilder = new StringBuilder();
+			if (prefix != null) {
+				if (prefix.endsWith("/") && route.getPrefix().startsWith("/")) {
+					newPrefixBuilder.append(prefix, 0, prefix.length() - 1);
+				}
+				else {
+					newPrefixBuilder.append(prefix);
+				}
+			}
+			newPrefixBuilder.append(route.getPrefix());
+			prefix = newPrefixBuilder.toString();
+		}
+		if (prefix != null) {
+			ctx.addZuulRequestHeader("X-Forwarded-Prefix", prefix);
+		}
+	}
+
 	private String toHostHeader(HttpServletRequest request) {
 		int port = request.getServerPort();
-		if ((port == 80 && "http".equals(request.getScheme())) || (port == 443 && "https".equals(request.getScheme()))) {
+		if ((port == 80 && "http".equals(request.getScheme()))
+				|| (port == 443 && "https".equals(request.getScheme()))) {
 			return request.getServerName();
-		} else {
+		}
+		else {
 			return request.getServerName() + ":" + port;
 		}
 	}
