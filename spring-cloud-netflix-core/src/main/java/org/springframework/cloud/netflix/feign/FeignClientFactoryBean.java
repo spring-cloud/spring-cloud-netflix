@@ -83,11 +83,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	}
 
 	protected Feign.Builder feign(FeignContext context) {
-		Logger logger = getOptional(context, Logger.class);
-
-		if (logger == null) {
-			logger = new Slf4jLogger(this.type);
-		}
+		Logger logger = getLogger(context);
 
 		// @formatter:off
 		Feign.Builder builder = get(context, Feign.Builder.class)
@@ -126,6 +122,21 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		}
 
 		return builder;
+	}
+
+	private Logger getLogger(FeignContext context) {
+		Logger logger = null;
+		FeignLoggerFactory loggerFactory = getOptional(context, FeignLoggerFactory.class);
+		if (loggerFactory != null) {
+			logger = loggerFactory.create(this.type);
+		}
+		if (logger == null) {
+			logger = getOptional(context, Logger.class);
+		}
+		if (logger == null) {
+			logger = new Slf4jLogger(this.type);
+		}
+		return logger;
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {
