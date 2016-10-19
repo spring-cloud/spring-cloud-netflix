@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
@@ -52,6 +53,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonComm
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
@@ -94,11 +96,14 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@ConditionalOnRibbonHttpClient
 	protected static class HttpClientRibbonConfiguration {
 
+		@Autowired(required = false)
+		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+
 		@Bean
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties);
+			return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties, zuulFallbackProviders);
 		}
 	}
 
@@ -106,11 +111,15 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@ConditionalOnRibbonRestClient
 	protected static class RestClientRibbonConfiguration {
 
+		@Autowired(required = false)
+		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+
 		@Bean
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new RestClientRibbonCommandFactory(clientFactory, zuulProperties);
+			return new RestClientRibbonCommandFactory(clientFactory, zuulProperties,
+					zuulFallbackProviders);
 		}
 	}
 
@@ -119,11 +128,15 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpRibbonConfiguration {
 
+		@Autowired(required = false)
+		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+
 		@Bean
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new OkHttpRibbonCommandFactory(clientFactory, zuulProperties);
+			return new OkHttpRibbonCommandFactory(clientFactory, zuulProperties,
+					zuulFallbackProviders);
 		}
 	}
 

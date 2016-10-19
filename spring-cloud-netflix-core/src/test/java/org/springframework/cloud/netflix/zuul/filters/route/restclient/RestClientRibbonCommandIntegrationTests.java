@@ -26,9 +26,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+
+import lombok.SneakyThrows;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +56,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonComm
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.NoEncodingFormHttpMessageConverter;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
@@ -79,8 +84,6 @@ import com.netflix.client.ClientException;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.client.http.RestClient;
-
-import lombok.SneakyThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -285,6 +288,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
+		@Autowired(required = false)
+		private Set<ZuulFallbackProvider> fallbackProviders = Collections.emptySet();
+
 		@RequestMapping("/trailing-slash")
 		public String trailingSlash(HttpServletRequest request) {
 			return request.getRequestURI();
@@ -327,7 +333,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				SpringClientFactory clientFactory) {
-			return new MyRibbonCommandFactory(clientFactory);
+			return new MyRibbonCommandFactory(clientFactory, fallbackProviders);
 		}
 
 		@Bean
@@ -350,8 +356,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 			private SpringClientFactory clientFactory;
 
-			public MyRibbonCommandFactory(SpringClientFactory clientFactory) {
-				super(clientFactory, new ZuulProperties());
+			public MyRibbonCommandFactory(SpringClientFactory clientFactory,
+										  Set<ZuulFallbackProvider> fallbackProviders) {
+				super(clientFactory, new ZuulProperties(), fallbackProviders);
 				this.clientFactory = clientFactory;
 			}
 
