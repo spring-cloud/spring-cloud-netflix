@@ -1750,6 +1750,67 @@ public class FooConfiguration {
 </div>
 </div>
 <div class="sect2">
+<h3 id="_creating_feign_clients_manually">Creating Feign Clients Manually</h3>
+<div class="paragraph">
+<p>In some cases it might be necessary to customize your Feign Clients in a way that is not
+possible using the methods above.  In this case you can create Clients using the
+<a href="https://github.com/OpenFeign/feign/#basics">Feign Builder API</a>. Below is an example
+which creates two Feign Clients with the same interface but configures each one with
+a separate request interceptor.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Import(FeignClientsConfiguration.class)
+class FooController {
+
+	private FooClient fooClient;
+
+	private FooClient adminClient;
+
+    @Autowired
+	public FooController(
+			ResponseEntityDecoder decoder, SpringEncoder encoder, Client client) {
+		this.fooClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+				.target(FooClient.class, "http://PROD-SVC");
+		this.adminClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
+				.target(FooClient.class, "http://PROD-SVC");
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+In the above example <code>FeignClientsConfiguration.class</code> is the default configuration
+provided by Spring Cloud Netflix.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<code>PROD-SVC</code> is the name of the service the Clients will be making requests to.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
 <h3 id="spring-cloud-feign-hystrix">Feign Hystrix Support</h3>
 <div class="paragraph">
 <p>If Hystrix is on the classpath, by default Feign will wrap all methods with a circuit breaker. Returning a <code>com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code>.toObservable()</code> or <code>.observe()</code> or asynchronous use (with a call to <code>.queue()</code>).</p>
