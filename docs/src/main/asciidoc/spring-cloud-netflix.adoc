@@ -1007,7 +1007,7 @@ class FooController {
 NOTE: In the above example `FeignClientsConfiguration.class` is the default configuration
 provided by Spring Cloud Netflix.
 
-NOTE: `prodSvcInfo` is the service the the Clients will be making requests to.
+NOTE: `PROD-SVC` is the name of the service the Clients will be making requests to.
 
 [[spring-cloud-feign-hystrix]]
 === Feign Hystrix Support
