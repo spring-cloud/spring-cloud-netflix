@@ -989,18 +989,17 @@ class FooController {
 
     @Autowired
 	public FooController(
-			ResponseEntityDecoder decoder, SpringEncoder encoder, EurekaClient discoveryClient) {
-        InstanceInfo prodSvcInfo =  discoveryClient.getNextServerFromEureka("PROD-SVC", false);
-		this.fooClient = Feign.builder()
+			ResponseEntityDecoder decoder, SpringEncoder encoder, Client client) {
+		this.fooClient = Feign.builder().client(client)
 				.encoder(encoder)
-                .decoder(decoder)
-	            .requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
-	            .target(FooClient.class, prodSvcInfo.getHomePageUrl());
-		this.adminClient = Feign.builder()
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+				.target(FooClient.class, "http://PROD-SVC");
+		this.adminClient = Feign.builder().client(client)
 				.encoder(encoder)
-                .decoder(decoder)
-	            .requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
-	            .target(FooClient.class, prodSvcInfo.getHomePageUrl());
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
+				.target(FooClient.class, "http://PROD-SVC");
     }
 }
 ----
