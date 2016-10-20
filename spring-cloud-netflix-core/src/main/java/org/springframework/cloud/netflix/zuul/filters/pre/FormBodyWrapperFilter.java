@@ -22,16 +22,14 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
@@ -44,6 +42,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -65,7 +64,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
 		this.servletRequestField = ReflectionUtils.findField(ServletRequestWrapper.class,
-				"request", ServletRequest.class);		
+				"request", ServletRequest.class);
 		Assert.notNull(this.requestField,
 				"HttpServletRequestWrapper.req field not found");
 		Assert.notNull(this.servletRequestField,
@@ -121,7 +120,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 					.getField(this.requestField, request);
 			wrapper = new FormBodyRequestWrapper(wrapped);
 			ReflectionUtils.setField(this.requestField, request, wrapper);
-			if(request instanceof ServletRequestWrapper) {
+			if (request instanceof ServletRequestWrapper) {
 				ReflectionUtils.setField(this.servletRequestField, request, wrapper);
 			}
 		}
@@ -170,7 +169,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			}
 			return this.contentLength;
 		}
-		
+
 		@Override
 		public long getContentLengthLong() {
 			return getContentLength();
@@ -233,7 +232,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			Set<String> result = new HashSet<>();
 			String query = this.request.getQueryString();
 			if (query != null) {
-				for (String value : StringUtils.split(query, "&")) {
+				for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
 					if (value.contains("=")) {
 						value = value.substring(0, value.indexOf("="));
 					}

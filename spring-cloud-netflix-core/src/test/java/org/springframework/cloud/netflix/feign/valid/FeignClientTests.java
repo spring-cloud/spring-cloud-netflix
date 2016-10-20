@@ -74,6 +74,7 @@ import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import feign.hystrix.FallbackFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -114,6 +115,9 @@ public class FeignClientTests {
 
 	@Autowired
 	HystrixClient hystrixClient;
+
+	@Autowired
+	private HystrixClientWithFallBackFactory hystrixClientWithFallBackFactory;
 
 	@Autowired
 	@Qualifier("localapp3FeignClient")
@@ -237,6 +241,27 @@ public class FeignClientTests {
 		Future<Hello> failFuture();
 	}
 
+	@FeignClient(name = "localapp4", fallbackFactory = HystrixClientFallbackFactory.class)
+	protected interface HystrixClientWithFallBackFactory {
+
+		@RequestMapping(method = RequestMethod.GET, path = "/fail")
+		Hello fail();
+	}
+
+	static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClientWithFallBackFactory> {
+
+		@Override
+		public HystrixClientWithFallBackFactory create(final Throwable cause) {
+			return new HystrixClientWithFallBackFactory() {
+				@Override
+				public Hello fail() {
+					assertNotNull("Cause was null", cause);
+					return new Hello("Hello from the fallback side: " + cause.getMessage());
+				}
+			};
+		}
+	}
+
 	static class HystrixClientFallback implements HystrixClient {
 		@Override
 		public Hello fail() {
@@ -268,19 +293,26 @@ public class FeignClientTests {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableFeignClients(clients = { TestClientServiceId.class, TestClient.class,
-			DecodingTestClient.class,
-			HystrixClient.class }, defaultConfiguration = TestDefaultFeignConfig.class)
+			DecodingTestClient.class, HystrixClient.class, HystrixClientWithFallBackFactory.class },
+			defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClients({
 			@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
 			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class),
 			@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class), })
+			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
+			@RibbonClient(name = "localapp4", configuration = LocalRibbonClientConfiguration.class)
+	})
 	protected static class Application {
 
 		// needs to be in parent context to test multiple HystrixClient beans
 		@Bean
 		public HystrixClientFallback hystrixClientFallback() {
 			return new HystrixClientFallback();
+		}
+
+		@Bean
+		public HystrixClientFallbackFactory hystrixClientFallbackFactory() {
+			return new HystrixClientFallbackFactory();
 		}
 
 		@Bean
@@ -582,6 +614,15 @@ public class FeignClientTests {
 		Hello hello = future.get(1, TimeUnit.SECONDS);
 		assertNotNull("hello was null", hello);
 		assertEquals("message was wrong", "fallbackfuture", hello.getMessage());
+	}
+
+	@Test
+	public void testHystrixClientWithFallBackFactory() throws Exception {
+		Hello hello = hystrixClientWithFallBackFactory.fail();
+		assertNotNull("hello was null", hello);
+		assertNotNull("hello#message was null", hello.getMessage());
+		assertTrue("hello#message did not contain the cause (status code) of the fallback invocation",
+			hello.getMessage().contains("500"));
 	}
 
 	@Test

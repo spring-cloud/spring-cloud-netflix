@@ -187,6 +187,17 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	}
 
 	@Test
+	public void simpleHostRouteWithColonParamNames() {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + "/self/colonquery?foo:bar={foobar0}&foobar={foobar1}", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class, "baz", "bam");
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("/colonquery?foo:bar=baz&foobar=bam", result.getBody());
+	}
+
+	@Test
 	public void simpleHostRouteWithContentType() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
@@ -295,8 +306,13 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@RequestMapping("/query")
-		public String addQuery(HttpServletRequest request, @RequestParam String foo) {
+		public String query(HttpServletRequest request, @RequestParam String foo) {
 			return request.getRequestURI() + "?foo=" + foo;
+		}
+
+		@RequestMapping("/colonquery")
+		public String colonQuery(HttpServletRequest request, @RequestParam(name = "foo:bar") String foobar0, @RequestParam(name = "foobar") String foobar1) {
+			return request.getRequestURI() + "?foo:bar=" + foobar0 + "&foobar=" + foobar1;
 		}
 
 		@RequestMapping("/matrix/{name}/{another}")

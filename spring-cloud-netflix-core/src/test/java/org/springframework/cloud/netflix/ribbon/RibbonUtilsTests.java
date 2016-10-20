@@ -17,9 +17,6 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.hamcrest.Matchers.is;
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -30,6 +27,10 @@ import org.junit.Test;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.Server;
+
+import static org.hamcrest.Matchers.is;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.isSecure;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
  * @author Spencer Gibb

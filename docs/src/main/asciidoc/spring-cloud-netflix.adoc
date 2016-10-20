@@ -1012,6 +1012,30 @@ static class HystrixClientFallback implements HystrixClient {
 }
 ----
 
+If one needs access to the cause that made the fallback trigger, one can use the `fallbackFactory` attribute inside `@FeignClient`.
+
+[source,java,indent=0]
+----
+@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
+protected interface HystrixClient {
+	@RequestMapping(method = RequestMethod.GET, value = "/hello")
+	Hello iFailSometimes();
+}
+
+@Component
+static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClient> {
+	@Override
+	public HystrixClient create(Throwable cause) {
+		return new HystrixClientWithFallBackFactory() {
+			@Override
+			public Hello iFailSometimes() {
+				return new Hello("fallback; reason was: " + cause.getMessage());
+			}
+		};
+	}
+}
+----
+
 WARNING: There is a limitation with the implementation of fallbacks in Feign and how Hystrix fallbacks work. Fallbacks are currently not supported for methods that return `com.netflix.hystrix.HystrixCommand` and `rx.Observable`.
 
 [[spring-cloud-feign-inheritance]]
@@ -1363,7 +1387,7 @@ path rendering the `users` path unreachable.
 === Zuul Http Client
 
 The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
-deprecated Ribbon `RestClient. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
+deprecated Ribbon `RestClient`. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
 `ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
 
 === Cookies and Sensitive Headers
@@ -1733,6 +1757,18 @@ If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runt
 2. HTTP status (e.g. 200, 400, 500), "CLIENT_ERROR" if the response returned null, or "IO_ERROR" if an `IOException` occurred during the execution of the `RestTemplate` method
 3. URI, sanitized for Atlas
 4. Client name
+
+WARNING: Avoid using hardcoded url parameters within `RestTemplate`.  When targeting dynamic endpoints use URL variables. This will avoid potential "GC Overhead Limit Reached" issues where `ServoMonitorCache` treats each url as a unique key.
+
+[source,java,indent=0]
+----
+// recommended
+String orderid = "1";
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+
+// avoid
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
+----
 
 [[netflix-metrics-spectator]]
 === Metrics Collection: Spectator

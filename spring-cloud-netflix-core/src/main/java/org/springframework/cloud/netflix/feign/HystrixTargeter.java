@@ -19,6 +19,9 @@ package org.springframework.cloud.netflix.feign;
 
 import feign.Feign;
 import feign.Target;
+import feign.hystrix.FallbackFactory;
+import feign.hystrix.HystrixFeign;
+import org.springframework.util.Assert;
 
 /**
  * @author Spencer Gibb
@@ -29,26 +32,67 @@ class HystrixTargeter implements Targeter {
 	@Override
 	public <T> T target(FeignClientFactoryBean factory, Feign.Builder feign, FeignContext context,
 						Target.HardCodedTarget<T> target) {
-		if (factory.getFallback() == void.class
-				|| !(feign instanceof feign.hystrix.HystrixFeign.Builder)) {
+		if (!(feign instanceof feign.hystrix.HystrixFeign.Builder)) {
 			return feign.target(target);
 		}
+		feign.hystrix.HystrixFeign.Builder builder = (feign.hystrix.HystrixFeign.Builder) feign;
+		Class<?> fallback = factory.getFallback();
+		if (fallback != void.class) {
+			return targetWithFallback(factory.getName(), context, target, builder, fallback);
+		}
+		Class<?> fallbackFactory = factory.getFallbackFactory();
+		if (fallbackFactory != void.class) {
+			return targetWithFallbackFactory(factory.getName(), context, target, builder, fallbackFactory);
+		}
 
-		Object fallbackInstance = context.getInstance(factory.getName(), factory.getFallback());
+		return feign.target(target);
+	}
+
+	private <T> T targetWithFallbackFactory(String feignClientName, FeignContext context,
+											Target.HardCodedTarget<T> target,
+											HystrixFeign.Builder builder,
+											Class<?> fallbackFactoryClass) {
+		FallbackFactory<? extends T> fallbackFactory = (FallbackFactory<? extends T>)
+			getFromContext("fallbackFactory", feignClientName, context, fallbackFactoryClass, FallbackFactory.class);
+		/* We take a sample fallback from the fallback factory to check if it returns a fallback
+		that is compatible with the annotated feign interface. */
+		Object exampleFallback = fallbackFactory.create(new RuntimeException());
+		Assert.notNull(exampleFallback,
+			String.format(
+			"Incompatible fallbackFactory instance for feign client %s. Factory may not produce null!",
+				feignClientName));
+		if (!target.type().isAssignableFrom(exampleFallback.getClass())) {
+			throw new IllegalStateException(
+				String.format(
+					"Incompatible fallbackFactory instance for feign client %s. Factory produces instances of '%s', but should produce instances of '%s'",
+					feignClientName, exampleFallback.getClass(), target.type()));
+		}
+		return builder.target(target, fallbackFactory);
+	}
+
+
+	private <T> T targetWithFallback(String feignClientName, FeignContext context,
+									 Target.HardCodedTarget<T> target,
+									 HystrixFeign.Builder builder, Class<?> fallback) {
+		T fallbackInstance = getFromContext("fallback", feignClientName, context, fallback, target.type());
+		return builder.target(target, fallbackInstance);
+	}
+
+	private <T> T getFromContext(String fallbackMechanism, String feignClientName, FeignContext context,
+								 Class<?> beanType, Class<T> targetType) {
+		Object fallbackInstance = context.getInstance(feignClientName, beanType);
 		if (fallbackInstance == null) {
 			throw new IllegalStateException(String.format(
-					"No fallback instance of type %s found for feign client %s",
-					factory.getFallback(), factory.getName()));
+				"No " + fallbackMechanism + " instance of type %s found for feign client %s",
+				beanType, feignClientName));
 		}
 
-		if (!target.type().isAssignableFrom(factory.getFallback())) {
+		if (!targetType.isAssignableFrom(beanType)) {
 			throw new IllegalStateException(
 					String.format(
-							"Incompatible fallback instance. Fallback of type %s is not assignable to %s for feign client %s",
-							factory.getFallback(), target.type(), factory.getName()));
+						"Incompatible " + fallbackMechanism + " instance. Fallback/fallbackFactory of type %s is not assignable to %s for feign client %s",
+						beanType, targetType, feignClientName));
 		}
-
-		feign.hystrix.HystrixFeign.Builder builder = (feign.hystrix.HystrixFeign.Builder) feign;
-		return builder.target(target, (T) fallbackInstance);
+		return (T) fallbackInstance;
 	}
 }

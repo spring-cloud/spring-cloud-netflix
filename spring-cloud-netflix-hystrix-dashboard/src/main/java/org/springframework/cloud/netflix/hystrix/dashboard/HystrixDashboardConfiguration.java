@@ -40,8 +40,8 @@ import org.apache.http.params.HttpParams;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +53,6 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
  * @author Dave Syer
  * @author Roy Clarkson
  */
-@SuppressWarnings("deprecation")
 @Configuration
 @EnableConfigurationProperties(HystrixDashboardProperties.class)
 public class HystrixDashboardConfiguration {
@@ -263,6 +262,7 @@ public class HystrixDashboardConfiguration {
 			}
 		}
 
+		@SuppressWarnings("deprecation")
 		private static class ProxyConnectionManager {
 
 			private final static PoolingClientConnectionManager threadSafeConnectionManager = new PoolingClientConnectionManager();
