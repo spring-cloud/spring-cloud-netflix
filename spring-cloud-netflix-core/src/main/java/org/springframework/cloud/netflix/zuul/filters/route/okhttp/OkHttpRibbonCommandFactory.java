@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
@@ -34,6 +35,10 @@ public class OkHttpRibbonCommandFactory extends AbstractRibbonCommandFactory {
 	private SpringClientFactory clientFactory;
 	
 	private ZuulProperties zuulProperties;
+
+	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
+		this(clientFactory, zuulProperties, Collections.<ZuulFallbackProvider>emptySet());
+	}
 
 	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties,
 									  Set<ZuulFallbackProvider> zuulFallbackProviders) {
