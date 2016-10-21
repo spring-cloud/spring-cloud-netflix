@@ -39,7 +39,6 @@ import feign.Target.HardCodedTarget;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.slf4j.Slf4jLogger;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -83,7 +82,8 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	}
 
 	protected Feign.Builder feign(FeignContext context) {
-		Logger logger = getLogger(context);
+		FeignLoggerFactory loggerFactory = get(context, FeignLoggerFactory.class);
+		Logger logger = loggerFactory.create(this.type);
 
 		// @formatter:off
 		Feign.Builder builder = get(context, Feign.Builder.class)
@@ -122,15 +122,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		}
 
 		return builder;
-	}
-
-	private Logger getLogger(FeignContext context) {
-		Logger logger = getOptional(context, Logger.class);
-		if (logger == null) {
-			FeignLoggerFactory loggerFactory = get(context, FeignLoggerFactory.class);
-			logger = loggerFactory.create(this.type);
-		}
-		return logger;
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {

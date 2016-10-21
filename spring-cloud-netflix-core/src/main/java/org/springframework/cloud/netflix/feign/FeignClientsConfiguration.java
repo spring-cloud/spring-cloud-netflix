@@ -116,9 +116,12 @@ public class FeignClientsConfiguration {
 
 	static class DefaultFeignLoggerFactory implements FeignLoggerFactory {
 
+		@Autowired(required = false)
+		private Logger logger;
+
 		@Override
 		public Logger create(Class<?> type) {
-			return new Slf4jLogger(type);
+			return this.logger != null ? this.logger : new Slf4jLogger(type);
 		}
 
 	}
