@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -31,6 +32,7 @@ import org.springframework.cloud.netflix.feign.support.SpringEncoder;
 import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
@@ -38,19 +40,20 @@ import org.springframework.format.support.FormattingConversionService;
 
 import com.netflix.hystrix.HystrixCommand;
 
+import feign.Client;
 import feign.Contract;
 import feign.Feign;
-import feign.Logger;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
+import feign.httpclient.ApacheHttpClient;
 import feign.hystrix.HystrixFeign;
-import feign.slf4j.Slf4jLogger;
 
 /**
  * @author Dave Syer
  * @author Venil Noronha
  */
 @Configuration
+@Import(FeignLoggerAutoConfiguration.class)
 public class FeignClientsConfiguration {
 
 	@Autowired
@@ -106,24 +109,6 @@ public class FeignClientsConfiguration {
 	@ConditionalOnMissingBean
 	public Feign.Builder feignBuilder() {
 		return Feign.builder();
-	}
-
-	@Bean
-	@ConditionalOnMissingBean
-	public FeignLoggerFactory feignLoggerFactory() {
-		return new DefaultFeignLoggerFactory();
-	}
-
-	static class DefaultFeignLoggerFactory implements FeignLoggerFactory {
-
-		@Autowired(required = false)
-		private Logger logger;
-
-		@Override
-		public Logger create(Class<?> type) {
-			return this.logger != null ? this.logger : new Slf4jLogger(type);
-		}
-
 	}
 
 }
