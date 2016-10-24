@@ -21,10 +21,10 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import feign.Logger;
 import feign.slf4j.Slf4jLogger;
@@ -46,7 +46,7 @@ public class FeignLoggerFactoryTests {
 	}
 
 	@Configuration
-	@ImportAutoConfiguration(FeignLoggerAutoConfiguration.class)
+	@Import(FeignClientsConfiguration.class)
 	protected static class SampleConfiguration1 {
 
 	}
@@ -63,7 +63,7 @@ public class FeignLoggerFactoryTests {
 	}
 
 	@Configuration
-	@ImportAutoConfiguration(FeignLoggerAutoConfiguration.class)
+	@Import(FeignClientsConfiguration.class)
 	protected static class SampleConfiguration2 {
 
 		@Bean
@@ -95,11 +95,11 @@ public class FeignLoggerFactoryTests {
 	}
 
 	@Configuration
-	@ImportAutoConfiguration(FeignLoggerAutoConfiguration.class)
+	@Import(FeignClientsConfiguration.class)
 	protected static class SampleConfiguration3 {
 
 		@Bean
-		public FeignLoggerFactory loggerFactory() {
+		public FeignLoggerFactory feignLoggerFactory() {
 			return new LoggerFactoryImpl();
 		}
 
