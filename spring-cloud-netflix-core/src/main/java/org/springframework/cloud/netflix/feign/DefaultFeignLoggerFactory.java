@@ -22,7 +22,7 @@ import feign.slf4j.Slf4jLogger;
 /**
  * @author Venil Noronha
  */
-public class DefaultFeignLoggerFactory  implements FeignLoggerFactory {
+public class DefaultFeignLoggerFactory implements FeignLoggerFactory {
 
 	private Logger logger;
 
