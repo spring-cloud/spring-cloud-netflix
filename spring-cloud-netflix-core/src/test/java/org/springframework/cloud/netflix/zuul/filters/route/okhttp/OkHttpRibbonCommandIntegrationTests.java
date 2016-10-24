@@ -20,9 +20,13 @@ package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +38,7 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -100,10 +105,14 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
+		@Autowired(required = false)
+		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				final SpringClientFactory clientFactory) {
-			return new OkHttpRibbonCommandFactory(clientFactory, new ZuulProperties());
+			return new OkHttpRibbonCommandFactory(clientFactory, new ZuulProperties(),
+					zuulFallbackProviders);
 		}
 
 		@Bean

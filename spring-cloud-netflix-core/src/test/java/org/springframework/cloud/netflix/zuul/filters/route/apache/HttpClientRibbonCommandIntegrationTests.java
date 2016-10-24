@@ -22,6 +22,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
+import java.util.Collections;
+import java.util.Set;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
@@ -44,6 +48,7 @@ import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpCl
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -155,6 +160,9 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			@RibbonClient(name = "singleton", configuration = SingletonRibbonClientConfiguration.class) })
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
+		@Autowired(required = false)
+		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
 		public String patch(@PathVariable final String id,
 				@RequestBody final String body) {
@@ -176,7 +184,8 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				final SpringClientFactory clientFactory) {
-			return new HttpClientRibbonCommandFactory(clientFactory, new ZuulProperties());
+			return new HttpClientRibbonCommandFactory(clientFactory, new ZuulProperties(),
+					zuulFallbackProviders);
 		}
 
 		@Bean
