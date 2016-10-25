@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.StringUtils;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import static org.junit.Assert.assertEquals;
@@ -216,7 +217,7 @@ public class EurekaInstanceConfigBeanTests {
 			EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 			RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
 			String springAppName = springPropertyResolver.getProperty("name");
-			if(springAppName != null) {
+			if(StringUtils.hasText(springAppName)) {
 				configBean.setSecureVirtualHostName(springAppName);
 				configBean.setVirtualHostName(springAppName);
 				configBean.setAppname(springAppName);

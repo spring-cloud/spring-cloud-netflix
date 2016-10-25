@@ -113,7 +113,7 @@ public class EurekaClientAutoConfiguration {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
-		if(springAppName != null) {
+		if(StringUtils.hasText(springAppName)) {
 			instance.setAppname(springAppName);
 			instance.setVirtualHostName(springAppName);
 			instance.setSecureVirtualHostName(springAppName);
