@@ -70,6 +70,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ZuulProxyConfiguration extends ZuulConfiguration {
 
+	@SuppressWarnings("rawtypes")
 	@Autowired(required = false)
 	private List<RibbonRequestCustomizer> requestCustomizers = Collections.emptyList();
 
