@@ -37,9 +37,10 @@ public class ZuulController extends ServletWrappingController {
 	}
 
 	@Override
-	protected ModelAndView handleRequestInternal(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		try {
+			// We don't care about the other features of the base class, just want to
+			// handle the request
 			return super.handleRequestInternal(request, response);
 		}
 		finally {
