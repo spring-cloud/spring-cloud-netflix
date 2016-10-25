@@ -163,13 +163,37 @@ public class PreDecorationFilter extends ZuulFilter {
 	}
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {
-		String host = toHostHeader(ctx.getRequest());
-		String port = String.valueOf(ctx.getRequest().getServerPort());
-		String proto = ctx.getRequest().getScheme();
+		HttpServletRequest request = ctx.getRequest();
+		String host = toHostHeader(request);
+		String port = String.valueOf(request.getServerPort());
+		String proto = request.getScheme();
+		if (hasHeader(request, "X-Forwarded-Host")) {
+			host = request.getHeader("X-Forwarded-Host") + "," + host;
+			if (!hasHeader(request, "X-Forwarded-Port")) {
+				if (hasHeader(request, "X-Forwarded-Proto")) {
+					StringBuilder builder = new StringBuilder();
+					for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader("X-Forwarded-Proto"))) {
+						if (builder.length()>0) {
+							builder.append(",");
+						}
+						builder.append("https".equals(previous) ? "443" : "80");
+					}
+					builder.append(",").append(port);
+					port = builder.toString();
+				}
+			} else {
+				port = request.getHeader("X-Forwarded-Port") + "," + port;
+			}
+			proto = request.getHeader("X-Forwarded-Proto") + "," + proto;
+		}
 		ctx.addZuulRequestHeader("X-Forwarded-Host", host);
 		ctx.addZuulRequestHeader("X-Forwarded-Port", port);
 		ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO, proto);
 		addProxyPrefix(ctx, route);
+	}
+
+	private boolean hasHeader(HttpServletRequest request, String name) {
+		return StringUtils.hasLength(request.getHeader(name));
 	}
 
 	private void addProxyPrefix(RequestContext ctx, Route route) {
