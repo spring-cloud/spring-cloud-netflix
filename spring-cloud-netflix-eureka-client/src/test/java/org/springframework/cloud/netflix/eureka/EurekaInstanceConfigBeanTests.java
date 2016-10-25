@@ -20,15 +20,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import static org.junit.Assert.assertEquals;
@@ -38,6 +40,7 @@ import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnviron
 /**
  * @author Dave Syer
  * @author Spencer Gibb
+ * @author Ryan Baxter
  */
 public class EurekaInstanceConfigBeanTests {
 
@@ -185,6 +188,14 @@ public class EurekaInstanceConfigBeanTests {
 
 	}
 
+	@Test
+	public void testDefaultAppName() throws Exception {
+		setupContext();
+		assertEquals("default app name is wrong", "unknown", getInstanceConfig().getAppname());
+		assertEquals("default virtual hostname is wrong", "unknown", getInstanceConfig().getVirtualHostName());
+		assertEquals("default secure virtual hostname is wrong", "unknown", getInstanceConfig().getSecureVirtualHostName());
+	}
+
 	private void setupContext() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
@@ -198,9 +209,19 @@ public class EurekaInstanceConfigBeanTests {
 	@Configuration
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+		@Autowired
+		ConfigurableEnvironment env;
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
-			return new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
+			EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
+			RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
+			String springAppName = springPropertyResolver.getProperty("name");
+			if(springAppName != null) {
+				configBean.setSecureVirtualHostName(springAppName);
+				configBean.setVirtualHostName(springAppName);
+				configBean.setAppname(springAppName);
+			}
+			return configBean;
 		}
 
 	}
