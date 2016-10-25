@@ -64,6 +64,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Spencer Gibb
  * @author Jon Schneider
  * @author Matt Jenkins
+ * @author Ryan Baxter
  */
 @Configuration
 @EnableConfigurationProperties
@@ -107,9 +108,16 @@ public class EurekaClientAutoConfiguration {
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
 		RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
+		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
+		String springAppName = springPropertyResolver.getProperty("name");
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
+		if(StringUtils.hasText(springAppName)) {
+			instance.setAppname(springAppName);
+			instance.setVirtualHostName(springAppName);
+			instance.setSecureVirtualHostName(springAppName);
+		}
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
 			if (StringUtils.hasText(this.hostname)) {
 				instance.setHostname(this.hostname);
