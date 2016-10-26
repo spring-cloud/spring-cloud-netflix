@@ -20,15 +20,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
-
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -36,6 +33,7 @@ import com.netflix.loadbalancer.Server;
 /**
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Ryan Baxter
  */
 public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
@@ -79,12 +77,25 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(server,
 				serviceId), serverIntrospector(serviceId).getMetadata(server));
 
+		return execute(serviceId, ribbonServer, request);
+	}
+
+	@Override
+	public <T> T execute(String serviceId, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
+		Server server = null;
+		if(serviceInstance instanceof RibbonServer) {
+			server = ((RibbonServer)serviceInstance).getServer();
+		}
+		if (server == null) {
+			throw new IllegalStateException("No instances available for " + serviceId);
+		}
+
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 		RibbonStatsRecorder statsRecorder = new RibbonStatsRecorder(context, server);
 
 		try {
-			T returnVal = request.apply(ribbonServer);
+			T returnVal = request.apply(serviceInstance);
 			statsRecorder.recordStats(returnVal);
 			return returnVal;
 		}

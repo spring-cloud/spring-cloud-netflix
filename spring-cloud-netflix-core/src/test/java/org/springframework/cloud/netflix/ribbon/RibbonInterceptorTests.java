@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +35,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import com.netflix.loadbalancer.Server;
 
 import static org.junit.Assert.assertEquals;
@@ -96,6 +95,17 @@ public class RibbonInterceptorTests {
 
 		@Override
 		public <T> T execute(String serviceId, LoadBalancerRequest<T> request) {
+			try {
+				return request.apply(this.instance);
+			}
+			catch (Exception ex) {
+				ReflectionUtils.rethrowRuntimeException(ex);
+			}
+			return null;
+		}
+
+		@Override
+		public <T> T execute(String s, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
 			try {
 				return request.apply(this.instance);
 			}
