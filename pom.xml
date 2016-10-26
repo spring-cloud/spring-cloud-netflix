@@ -81,6 +81,13 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-commons</artifactId>
+				<type>test-jar</type>
+				<scope>test</scope>
+				<version>${spring-cloud-commons.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-config-dependencies</artifactId>
 				<version>${spring-cloud-config.version}</version>
 				<type>pom</type>

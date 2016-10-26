@@ -16,10 +16,10 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalanceChooser;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.http.HttpMethod;
 
 /**
@@ -34,7 +34,7 @@ public class RibbonLoadBalancedRetryPolicyFactory implements LoadBalancedRetryPo
     }
 
     @Override
-    public LoadBalancedRetryPolicy create(final String serviceId, final LoadBalanceChooser loadBalanceChooser) {
+    public LoadBalancedRetryPolicy create(final String serviceId, final ServiceInstanceChooser loadBalanceChooser) {
         final RibbonLoadBalancerContext lbContext = this.clientFactory
                 .getLoadBalancerContext(serviceId);
         return new LoadBalancedRetryPolicy() {
