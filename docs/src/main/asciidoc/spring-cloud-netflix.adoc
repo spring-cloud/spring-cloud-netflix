@@ -970,6 +970,45 @@ This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `
 
 Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
 
+=== Creating Feign Clients Manually
+
+In some cases it might be necessary to customize your Feign Clients in a way that is not
+possible using the methods above.  In this case you can create Clients using the
+https://github.com/OpenFeign/feign/#basics[Feign Builder API]. Below is an example
+which creates two Feign Clients with the same interface but configures each one with
+a separate request interceptor.
+
+[source,java,indent=0]
+----
+@Import(FeignClientsConfiguration.class)
+class FooController {
+
+	private FooClient fooClient;
+
+	private FooClient adminClient;
+
+    @Autowired
+	public FooController(
+			ResponseEntityDecoder decoder, SpringEncoder encoder, Client client) {
+		this.fooClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+				.target(FooClient.class, "http://PROD-SVC");
+		this.adminClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
+				.target(FooClient.class, "http://PROD-SVC");
+    }
+}
+----
+
+NOTE: In the above example `FeignClientsConfiguration.class` is the default configuration
+provided by Spring Cloud Netflix.
+
+NOTE: `PROD-SVC` is the name of the service the Clients will be making requests to.
+
 [[spring-cloud-feign-hystrix]]
 === Feign Hystrix Support
 

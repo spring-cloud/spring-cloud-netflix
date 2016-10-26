@@ -21,8 +21,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.http.client.ClientHttpResponse;
-
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
 import com.netflix.client.http.HttpResponse;
@@ -44,6 +44,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 	protected final LBC client;
 	protected RibbonCommandContext context;
+	protected ZuulFallbackProvider zuulFallbackProvider;
 
 	public AbstractRibbonCommand(LBC client, RibbonCommandContext context,
 			ZuulProperties zuulProperties) {
@@ -52,9 +53,16 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 	public AbstractRibbonCommand(String commandKey, LBC client,
 			RibbonCommandContext context, ZuulProperties zuulProperties) {
+		this(commandKey, client, context, zuulProperties, null);
+	}
+
+	public AbstractRibbonCommand(String commandKey, LBC client,
+								 RibbonCommandContext context, ZuulProperties zuulProperties,
+								 ZuulFallbackProvider fallbackProvider) {
 		super(getSetter(commandKey, zuulProperties));
 		this.client = client;
 		this.context = context;
+		this.zuulFallbackProvider = fallbackProvider;
 	}
 
 	protected static Setter getSetter(final String commandKey,
@@ -99,6 +107,14 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		}
 
 		return new RibbonHttpResponse(response);
+	}
+
+	@Override
+	protected ClientHttpResponse getFallback() {
+		if(zuulFallbackProvider != null) {
+			return zuulFallbackProvider.fallbackResponse();
+		}
+		return super.getFallback();
 	}
 
 	public LBC getClient() {

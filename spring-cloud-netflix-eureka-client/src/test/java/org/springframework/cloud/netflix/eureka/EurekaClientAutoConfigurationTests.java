@@ -189,6 +189,23 @@ public class EurekaClientAutoConfigurationTests {
 		// Mockito.verify(http).addFilter(Matchers.any(HTTPBasicAuthFilter.class));
 	}
 
+	@Test
+	public void testDefaultAppName() throws Exception {
+		setupContext();
+		assertEquals("unknown", getInstanceConfig().getAppname());
+		assertEquals("unknown", getInstanceConfig().getVirtualHostName());
+		assertEquals("unknown", getInstanceConfig().getSecureVirtualHostName());
+	}
+
+	@Test
+	public void testAppName() throws Exception {
+		EnvironmentTestUtils.addEnvironment(this.context, "spring.application.name=mytest");
+		setupContext();
+		assertEquals("mytest", getInstanceConfig().getAppname());
+		assertEquals("mytest", getInstanceConfig().getVirtualHostName());
+		assertEquals("mytest", getInstanceConfig().getSecureVirtualHostName());
+	}
+
 	private void testNonSecurePort(String propName) {
 		addEnvironment(this.context, propName + ":8888");
 		setupContext();
