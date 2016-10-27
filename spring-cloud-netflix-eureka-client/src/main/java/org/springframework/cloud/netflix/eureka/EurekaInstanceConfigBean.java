@@ -16,19 +16,26 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.bind.RelaxedPropertyResolver;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.commons.util.InetUtils.HostInfo;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+
+import com.netflix.appinfo.DataCenterInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.MyDataCenterInfo;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashMap;
-import java.util.Map;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.commons.util.InetUtils;
-import org.springframework.cloud.commons.util.InetUtils.HostInfo;
-import com.netflix.appinfo.DataCenterInfo;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.MyDataCenterInfo;
 
 /**
  * @author Dave Syer
@@ -37,7 +44,7 @@ import com.netflix.appinfo.MyDataCenterInfo;
  */
 @Data
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware, InitializingBean {
 
 	private static final String UNKNOWN = "unknown";
 
@@ -272,6 +279,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
 	private String[] defaultAddressResolutionOrder = new String[0];
+	private Environment environment;
 
 	public String getHostname() {
 		return getHostName(false);
@@ -318,5 +326,21 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 			this.hostname = this.hostInfo.getHostname();
 		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(this.environment, "spring.application.");
+		String springAppName = springPropertyResolver.getProperty("name");
+		if(StringUtils.hasText(springAppName)) {
+			setAppname(springAppName);
+			setVirtualHostName(springAppName);
+			setSecureVirtualHostName(springAppName);
+		}
 	}
 }
