@@ -2137,7 +2137,8 @@ independently for all the backends.</p>
 service.  By convention, a service with the ID "users", will
 receive requests from the proxy located at <code>/users</code> (with the prefix
 stripped). The proxy uses Ribbon to locate an instance to forward to
-via discovery, and all requests are executed in a hystrix command, so
+via discovery, and all requests are executed in a
+<a href="#hystrix-fallbacks-for-routes">hystrix command</a>, so
 failures will show up in Hystrix metrics, and once the circuit is open
 the proxy will not try to contact the service.</p>
 </div>
@@ -2607,6 +2608,72 @@ possible filters that are enabled.  If you want to disable one, simply set
 <code>filters</code> is the Zuul filter type. For example to disable
 <code>org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter</code> set
 <code>zuul.SendResponseFilter.post.disable=true</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="hystrix-fallbacks-for-routes">Providing Hystrix Fallbacks For Routes</h3>
+<div class="paragraph">
+<p>When a circuit for a given route in Zuul is tripped you can provide a fallback response
+by creating a bean of type <code>ZuulFallbackProvider</code>.  Within this bean you need to specify
+the route ID the fallback is for and provide a <code>ClientHttpResponse</code> to return
+as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implementation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">class MyFallbackProvider implements ZuulFallbackProvider {
+    @Override
+    public String getRoute() {
+        return "customers";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse() {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return HttpStatus.OK;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return 200;
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return "OK";
+            }
+
+            @Override
+            public void close() {
+
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And here is what the route configuration would look like.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">zuul:
+  routes:
+    customers: /customers/**</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
