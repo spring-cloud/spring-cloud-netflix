@@ -1236,7 +1236,8 @@ To enable it, annotate a Spring Boot main class with
 service.  By convention, a service with the ID "users", will
 receive requests from the proxy located at `/users` (with the prefix
 stripped). The proxy uses Ribbon to locate an instance to forward to
-via discovery, and all requests are executed in a hystrix command, so
+via discovery, and all requests are executed in a
+<<hystrix-fallbacks-for-routes, hystrix command>>, so
 failures will show up in Hystrix metrics, and once the circuit is open
 the proxy will not try to contact the service.
 
@@ -1603,6 +1604,70 @@ possible filters that are enabled.  If you want to disable one, simply set
 `filters` is the Zuul filter type. For example to disable
 `org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter` set
 `zuul.SendResponseFilter.post.disable=true`.
+
+[[hystrix-fallbacks-for-routes]]
+=== Providing Hystrix Fallbacks For Routes
+
+When a circuit for a given route in Zuul is tripped you can provide a fallback response
+by creating a bean of type `ZuulFallbackProvider`.  Within this bean you need to specify
+the route ID the fallback is for and provide a `ClientHttpResponse` to return
+as a fallback.  Here is a very simple `ZuulFallbackProvider` implementation.
+
+[source,java]
+----
+class MyFallbackProvider implements ZuulFallbackProvider {
+    @Override
+    public String getRoute() {
+        return "customers";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse() {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return HttpStatus.OK;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return 200;
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return "OK";
+            }
+
+            @Override
+            public void close() {
+
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}
+----
+
+And here is what the route configuration would look like.
+
+[source,yaml]
+----
+zuul:
+  routes:
+    customers: /customers/**
+----
 
 === Polyglot support with Sidecar
 
