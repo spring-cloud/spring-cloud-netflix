@@ -1618,7 +1618,7 @@ as a fallback.  Here is a very simple `ZuulFallbackProvider` implementation.
 class MyFallbackProvider implements ZuulFallbackProvider {
     @Override
     public String getRoute() {
-        return "zuulserver";
+        return "customers";
     }
 
     @Override
@@ -1658,6 +1658,15 @@ class MyFallbackProvider implements ZuulFallbackProvider {
         };
     }
 }
+----
+
+And here is what the route configuration would look like.
+
+[source,yaml]
+----
+zuul:
+  routes:
+    customers: /customers/**
 ----
 
 === Polyglot support with Sidecar
