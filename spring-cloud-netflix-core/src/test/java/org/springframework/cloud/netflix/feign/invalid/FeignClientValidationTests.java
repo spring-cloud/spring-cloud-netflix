@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.feign.invalid;
 
+import feign.hystrix.FallbackFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -42,10 +43,7 @@ public class FeignClientValidationTests {
 	@Test
 	public void testNameAndValue() {
 		this.expected.expectMessage("only one is permitted");
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				NameAndValueConfiguration.class);
-		assertNotNull(context.getBean(NameAndValueConfiguration.Client.class));
-		context.close();
+		new AnnotationConfigApplicationContext(NameAndValueConfiguration.class);
 	}
 
 	@Configuration
@@ -86,10 +84,7 @@ public class FeignClientValidationTests {
 	@Test
 	public void testNotLegalHostname() {
 		this.expected.expectMessage("not legal hostname (foo_bar)");
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				BadHostnameConfiguration.class);
-		assertNotNull(context.getBean(BadHostnameConfiguration.Client.class));
-		context.close();
+		new AnnotationConfigApplicationContext(BadHostnameConfiguration.class);
 	}
 
 	@Configuration
@@ -107,11 +102,12 @@ public class FeignClientValidationTests {
 
 	@Test
 	public void testMissingFallback() {
-		this.expected.expectMessage("No fallback instance of type");
+		try (
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				MissingFallbackConfiguration.class);
-		assertNotNull(context.getBean(MissingFallbackConfiguration.Client.class));
-		context.close();
+				MissingFallbackConfiguration.class)) {
+			this.expected.expectMessage("No fallback instance of type");
+			assertNotNull(context.getBean(MissingFallbackConfiguration.Client.class));
+		}
 	}
 
 	@Configuration
@@ -136,11 +132,11 @@ public class FeignClientValidationTests {
 
 	@Test
 	public void testWrongFallbackType() {
-		this.expected.expectMessage("Incompatible fallback instance");
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				WrongFallbackTypeConfiguration.class);
-		assertNotNull(context.getBean(WrongFallbackTypeConfiguration.Client.class));
-		context.close();
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+				WrongFallbackTypeConfiguration.class)) {
+			this.expected.expectMessage("Incompatible fallback instance");
+			assertNotNull(context.getBean(WrongFallbackTypeConfiguration.Client.class));
+		}
 	}
 
 	@Configuration
@@ -160,6 +156,100 @@ public class FeignClientValidationTests {
 		}
 
 		class Dummy {
+		}
+
+	}
+
+	@Test
+	public void testMissingFallbackFactory() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+			MissingFallbackFactoryConfiguration.class)) {
+			this.expected.expectMessage("No fallbackFactory instance of type");
+			assertNotNull(context.getBean(MissingFallbackFactoryConfiguration.Client.class));
+		}
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = MissingFallbackFactoryConfiguration.Client.class)
+	protected static class MissingFallbackFactoryConfiguration {
+
+		@FeignClient(name = "foobar", url = "http://localhost", fallbackFactory = ClientFallback.class)
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+		class ClientFallback implements FallbackFactory<Client> {
+
+			@Override
+			public Client create(Throwable cause) {
+				return null;
+			}
+		}
+	}
+
+	@Test
+	public void testWrongFallbackFactoryType() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+			WrongFallbackFactoryTypeConfiguration.class)) {
+			this.expected.expectMessage("Incompatible fallbackFactory instance");
+			assertNotNull(context.getBean(WrongFallbackFactoryTypeConfiguration.Client.class));
+		}
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = WrongFallbackFactoryTypeConfiguration.Client.class)
+	protected static class WrongFallbackFactoryTypeConfiguration {
+
+		@FeignClient(name = "foobar", url = "http://localhost", fallbackFactory = Dummy.class)
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+		@Bean
+		Dummy dummy() {
+			return new Dummy();
+		}
+
+		class Dummy {
+		}
+
+	}
+
+	@Test
+	public void testWrongFallbackFactoryGenericType() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+			WrongFallbackFactoryGenericTypeConfiguration.class)) {
+			this.expected.expectMessage("Incompatible fallbackFactory instance");
+			assertNotNull(context.getBean(WrongFallbackFactoryGenericTypeConfiguration.Client.class));
+		}
+	}
+
+	@Configuration
+	@Import(FeignAutoConfiguration.class)
+	@EnableFeignClients(clients = WrongFallbackFactoryGenericTypeConfiguration.Client.class)
+	protected static class WrongFallbackFactoryGenericTypeConfiguration {
+
+		@FeignClient(name = "foobar", url = "http://localhost", fallbackFactory = ClientFallback.class)
+		interface Client {
+			@RequestMapping(method = RequestMethod.GET, value = "/")
+			String get();
+		}
+
+		@Bean
+		ClientFallback dummy() {
+			return new ClientFallback();
+		}
+
+		class ClientFallback implements FallbackFactory<String> {
+
+			@Override
+			public String create(Throwable cause) {
+				return "tryinToTrickYa";
+			}
 		}
 
 	}

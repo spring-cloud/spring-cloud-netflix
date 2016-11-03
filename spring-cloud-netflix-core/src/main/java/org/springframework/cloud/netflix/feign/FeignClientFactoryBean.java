@@ -39,7 +39,6 @@ import feign.Target.HardCodedTarget;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import feign.slf4j.Slf4jLogger;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -51,9 +50,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		ApplicationContextAware {
-
-	@Autowired
-	private Targeter targeter;
+	/***********************************
+	 * WARNING! Nothing in this class should be @Autowired. It causes NPEs because of some lifecycle race condition.
+	 ***********************************/
 
 	private Class<?> type;
 
@@ -69,6 +68,8 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 
 	private Class<?> fallback = void.class;
 
+	private Class<?> fallbackFactory = void.class;
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		Assert.hasText(this.name, "Name must be set");
@@ -81,11 +82,8 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	}
 
 	protected Feign.Builder feign(FeignContext context) {
-		Logger logger = getOptional(context, Logger.class);
-
-		if (logger == null) {
-			logger = new Slf4jLogger(this.type);
-		}
+		FeignLoggerFactory loggerFactory = get(context, FeignLoggerFactory.class);
+		Logger logger = loggerFactory.create(this.type);
 
 		// @formatter:off
 		Feign.Builder builder = get(context, Feign.Builder.class)
@@ -144,6 +142,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		Client client = getOptional(context, Client.class);
 		if (client != null) {
 			builder.client(client);
+			Targeter targeter = get(context, Targeter.class);
 			return targeter.target(this, builder, context, target);
 		}
 
@@ -181,6 +180,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			}
 			builder.client(client);
 		}
+		Targeter targeter = get(context, Targeter.class);
 		return targeter.target(this, builder, context, new HardCodedTarget<>(
 				this.type, this.name, url));
 	}

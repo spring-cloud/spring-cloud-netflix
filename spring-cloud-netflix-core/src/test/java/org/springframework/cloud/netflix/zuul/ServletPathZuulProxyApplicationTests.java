@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.zuul;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,13 +36,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 
 import com.netflix.zuul.context.RequestContext;
 
@@ -68,9 +74,38 @@ public class ServletPathZuulProxyApplicationTests {
 	public void getOnSelfViaSimpleHostRoutingFilter() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + this.port + "/app/self/1",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Gotten 1!", result.getBody());
+	}
+
+	@Test
+	public void optionsOnRawEndpoint() throws Exception {
+		ResponseEntity<String> result = new TestRestTemplate().exchange(RequestEntity
+				.options(new URI("http://localhost:" + this.port + "/app/local/1"))
+				.header("Origin", "http://localhost:9000").header("Access-Control-Request-Method", "GET").build(),
+				String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("http://localhost:9000", result.getHeaders().getFirst("Access-Control-Allow-Origin"));
+	}
+
+	@Test
+	public void optionsOnSelf() throws Exception {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
+		this.endpoint.reset();
+		ResponseEntity<String> result = new TestRestTemplate().exchange(RequestEntity
+				.options(new URI("http://localhost:" + this.port + "/app/self/1"))
+				.header("Origin", "http://localhost:9000").header("Access-Control-Request-Method", "GET").build(),
+				String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("http://localhost:9000", result.getHeaders().getFirst("Access-Control-Allow-Origin"));
+	}
+
+	@Test
+	public void contentOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/app/self/1", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+				RequestEntity.get(new URI("http://localhost:" + this.port + "/app/local/1")).build(), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten 1!", result.getBody());
 	}
@@ -80,9 +115,8 @@ public class ServletPathZuulProxyApplicationTests {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
 				"http://localhost:" + this.port + "/app/local", false, false, null));
 		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/app/strip", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + this.port + "/app/strip",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		// Prefix not stripped to it goes to /local/strip
 		assertEquals("Gotten strip!", result.getBody());
@@ -96,6 +130,7 @@ public class ServletPathZuulProxyApplicationTests {
 	static class ServletPathZuulProxyApplication {
 
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
+		@CrossOrigin(origins = "*")
 		public String get(@PathVariable String id) {
 			return "Gotten " + id + "!";
 		}

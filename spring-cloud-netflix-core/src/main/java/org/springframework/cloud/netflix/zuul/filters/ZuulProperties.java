@@ -100,7 +100,7 @@ public class ZuulProperties {
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
 	/**
-	 * SECURITY_HEADERS are added to ignored headers if spring security is on the classpath and ignoreSecurityHeaders = true
+	 * Flag to say that SECURITY_HEADERS are added to ignored headers if spring security is on the classpath.
 	 * By setting ignoreSecurityHeaders to false we can switch off this default behaviour. This should be used together with
 	 * disabling the default spring security headers
 	 * see https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers

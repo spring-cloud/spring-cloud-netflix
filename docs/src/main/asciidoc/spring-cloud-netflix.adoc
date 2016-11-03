@@ -970,6 +970,45 @@ This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `
 
 Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
 
+=== Creating Feign Clients Manually
+
+In some cases it might be necessary to customize your Feign Clients in a way that is not
+possible using the methods above.  In this case you can create Clients using the
+https://github.com/OpenFeign/feign/#basics[Feign Builder API]. Below is an example
+which creates two Feign Clients with the same interface but configures each one with
+a separate request interceptor.
+
+[source,java,indent=0]
+----
+@Import(FeignClientsConfiguration.class)
+class FooController {
+
+	private FooClient fooClient;
+
+	private FooClient adminClient;
+
+    @Autowired
+	public FooController(
+			ResponseEntityDecoder decoder, SpringEncoder encoder, Client client) {
+		this.fooClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
+				.target(FooClient.class, "http://PROD-SVC");
+		this.adminClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
+				.target(FooClient.class, "http://PROD-SVC");
+    }
+}
+----
+
+NOTE: In the above example `FeignClientsConfiguration.class` is the default configuration
+provided by Spring Cloud Netflix.
+
+NOTE: `PROD-SVC` is the name of the service the Clients will be making requests to.
+
 [[spring-cloud-feign-hystrix]]
 === Feign Hystrix Support
 
@@ -1009,6 +1048,30 @@ static class HystrixClientFallback implements HystrixClient {
     public Hello iFailSometimes() {
         return new Hello("fallback");
     }
+}
+----
+
+If one needs access to the cause that made the fallback trigger, one can use the `fallbackFactory` attribute inside `@FeignClient`.
+
+[source,java,indent=0]
+----
+@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
+protected interface HystrixClient {
+	@RequestMapping(method = RequestMethod.GET, value = "/hello")
+	Hello iFailSometimes();
+}
+
+@Component
+static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClient> {
+	@Override
+	public HystrixClient create(Throwable cause) {
+		return new HystrixClientWithFallBackFactory() {
+			@Override
+			public Hello iFailSometimes() {
+				return new Hello("fallback; reason was: " + cause.getMessage());
+			}
+		};
+	}
 }
 ----
 
@@ -1173,7 +1236,8 @@ To enable it, annotate a Spring Boot main class with
 service.  By convention, a service with the ID "users", will
 receive requests from the proxy located at `/users` (with the prefix
 stripped). The proxy uses Ribbon to locate an instance to forward to
-via discovery, and all requests are executed in a hystrix command, so
+via discovery, and all requests are executed in a
+<<hystrix-fallbacks-for-routes, hystrix command>>, so
 failures will show up in Hystrix metrics, and once the circuit is open
 the proxy will not try to contact the service.
 
@@ -1363,7 +1427,7 @@ path rendering the `users` path unreachable.
 === Zuul Http Client
 
 The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
-deprecated Ribbon `RestClient. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
+deprecated Ribbon `RestClient`. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
 `ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
 
 === Cookies and Sensitive Headers
@@ -1540,6 +1604,70 @@ possible filters that are enabled.  If you want to disable one, simply set
 `filters` is the Zuul filter type. For example to disable
 `org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter` set
 `zuul.SendResponseFilter.post.disable=true`.
+
+[[hystrix-fallbacks-for-routes]]
+=== Providing Hystrix Fallbacks For Routes
+
+When a circuit for a given route in Zuul is tripped you can provide a fallback response
+by creating a bean of type `ZuulFallbackProvider`.  Within this bean you need to specify
+the route ID the fallback is for and provide a `ClientHttpResponse` to return
+as a fallback.  Here is a very simple `ZuulFallbackProvider` implementation.
+
+[source,java]
+----
+class MyFallbackProvider implements ZuulFallbackProvider {
+    @Override
+    public String getRoute() {
+        return "customers";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse() {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return HttpStatus.OK;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return 200;
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return "OK";
+            }
+
+            @Override
+            public void close() {
+
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}
+----
+
+And here is what the route configuration would look like.
+
+[source,yaml]
+----
+zuul:
+  routes:
+    customers: /customers/**
+----
 
 === Polyglot support with Sidecar
 
@@ -1733,6 +1861,18 @@ If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runt
 2. HTTP status (e.g. 200, 400, 500), "CLIENT_ERROR" if the response returned null, or "IO_ERROR" if an `IOException` occurred during the execution of the `RestTemplate` method
 3. URI, sanitized for Atlas
 4. Client name
+
+WARNING: Avoid using hardcoded url parameters within `RestTemplate`.  When targeting dynamic endpoints use URL variables. This will avoid potential "GC Overhead Limit Reached" issues where `ServoMonitorCache` treats each url as a unique key.
+
+[source,java,indent=0]
+----
+// recommended
+String orderid = "1";
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+
+// avoid
+restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
+----
 
 [[netflix-metrics-spectator]]
 === Metrics Collection: Spectator

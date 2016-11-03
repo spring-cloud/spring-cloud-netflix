@@ -25,6 +25,8 @@ import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.util.PatternMatchUtils;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
 import com.netflix.zuul.context.RequestContext;
@@ -51,6 +53,16 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		setOrder(-200);
 	}
 
+	@Override
+	protected HandlerExecutionChain getCorsHandlerExecutionChain(HttpServletRequest request,
+			HandlerExecutionChain chain, CorsConfiguration config) {
+		if (config == null) {
+			// Allow CORS requests to go to the backend
+			return chain;
+		}
+		return super.getCorsHandlerExecutionChain(request, chain, config);
+	}
+
 	public void setErrorController(ErrorController errorController) {
 		this.errorController = errorController;
 	}
@@ -63,10 +75,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	@Override
-	protected Object lookupHandler(String urlPath, HttpServletRequest request)
-			throws Exception {
-		if (this.errorController != null
-				&& urlPath.equals(this.errorController.getErrorPath())) {
+	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
+		if (this.errorController != null && urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
 		String[] ignored = this.routeLocator.getIgnoredPaths().toArray(new String[0]);

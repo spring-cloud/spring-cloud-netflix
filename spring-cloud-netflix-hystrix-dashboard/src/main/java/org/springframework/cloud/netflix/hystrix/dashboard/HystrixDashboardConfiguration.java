@@ -53,7 +53,6 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
  * @author Dave Syer
  * @author Roy Clarkson
  */
-@SuppressWarnings("deprecation")
 @Configuration
 @EnableConfigurationProperties(HystrixDashboardProperties.class)
 public class HystrixDashboardConfiguration {
@@ -263,6 +262,7 @@ public class HystrixDashboardConfiguration {
 			}
 		}
 
+		@SuppressWarnings("deprecation")
 		private static class ProxyConnectionManager {
 
 			private final static PoolingClientConnectionManager threadSafeConnectionManager = new PoolingClientConnectionManager();

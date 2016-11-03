@@ -16,33 +16,46 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 
 /**
  * @author Christian Lohmann
+ * @author Ryan Baxter
  */
-@RequiredArgsConstructor
-public class HttpClientRibbonCommandFactory implements
-		RibbonCommandFactory<HttpClientRibbonCommand> {
+public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory {
 
 	private final SpringClientFactory clientFactory;
 	
 	private final ZuulProperties zuulProperties;
 
+	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
+		this(clientFactory, zuulProperties, Collections.<ZuulFallbackProvider>emptySet());
+	}
+
+	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties,
+										  Set<ZuulFallbackProvider> fallbackProviders) {
+		super(fallbackProviders);
+		this.clientFactory = clientFactory;
+		this.zuulProperties = zuulProperties;
+	}
+
 	@Override
 	public HttpClientRibbonCommand create(final RibbonCommandContext context) {
+		ZuulFallbackProvider zuulFallbackProvider = getFallbackProvider(context.getServiceId());
 		final String serviceId = context.getServiceId();
 		final RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
 				serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties);
+		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider);
 	}
 
 }

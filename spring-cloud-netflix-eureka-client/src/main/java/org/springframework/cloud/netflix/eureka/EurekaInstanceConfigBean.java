@@ -19,10 +19,14 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtils.HostInfo;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
@@ -36,10 +40,13 @@ import lombok.Setter;
 /**
  * @author Dave Syer
  * @author Spencer Gibb
+ * @author Ryan Baxter
  */
 @Data
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware, InitializingBean {
+
+	private static final String UNKNOWN = "unknown";
 
 	@Getter(AccessLevel.PRIVATE)
 	@Setter(AccessLevel.PRIVATE)
@@ -52,8 +59,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	/**
 	 * Get the name of the application to be registered with eureka.
 	 */
-	@Value("${spring.application.name:unknown}")
-	private String appname = "unknown";
+	private String appname = UNKNOWN;
 
 	/**
 	 * Get the name of the application group to be registered with eureka.
@@ -119,8 +125,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	 * virtual host name.Think of this as similar to the fully qualified domain name, that
 	 * the users of your services will need to find this instance.
 	 */
-	@Value("${spring.application.name:unknown}")
-	private String virtualHostName;
+	private String virtualHostName = UNKNOWN;
 
 	/**
 	 * Get the unique Id (within the scope of the appName) of this instance to be
@@ -135,8 +140,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	 * secure virtual host name.Think of this as similar to the fully qualified domain
 	 * name, that the users of your services will need to find this instance.
 	 */
-	@Value("${spring.application.name:unknown}")
-	private String secureVirtualHostName;
+	private String secureVirtualHostName = UNKNOWN;
 
 	/**
 	 * Gets the AWS autoscaling group name associated with this instance. This information
@@ -275,6 +279,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
 	private String[] defaultAddressResolutionOrder = new String[0];
+	private Environment environment;
 
 	public String getHostname() {
 		return getHostName(false);
@@ -321,5 +326,21 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig {
 			this.hostname = this.hostInfo.getHostname();
 		}
 		return this.preferIpAddress ? this.ipAddress : this.hostname;
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(this.environment, "spring.application.");
+		String springAppName = springPropertyResolver.getProperty("name");
+		if(StringUtils.hasText(springAppName)) {
+			setAppname(springAppName);
+			setVirtualHostName(springAppName);
+			setSecureVirtualHostName(springAppName);
+		}
 	}
 }
