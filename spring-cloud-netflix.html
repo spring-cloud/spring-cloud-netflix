@@ -2425,9 +2425,6 @@ route, e.g.</p>
       url: https://downstream</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>Sensitive headers can also be set globally by setting <code>zuul.sensitiveHeaders</code>. If <code>sensitiveHeaders</code> is set on a route, this will override the global <code>sensitiveHeaders</code> setting.</p>
-</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -2442,6 +2439,26 @@ and all cookies flow in both directions).
 </td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>The <code>sensitiveHeaders</code> are a blacklist and the default is not empty,
+so to make Zuul send all headers (except the "ignored" ones) you would
+have to explicitly set it to the empty list. This is necessary if you
+want to pass cookie or authorization headers to your back end. Example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  routes:
+    users:
+      path: /myusers/**
+      sensitiveHeaders:
+      url: https://downstream</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Sensitive headers can also be set globally by setting <code>zuul.sensitiveHeaders</code>. If <code>sensitiveHeaders</code> is set on a route, this will override the global <code>sensitiveHeaders</code> setting.</p>
 </div>
 </div>
 <div class="sect2">
