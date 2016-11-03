@@ -39,7 +39,7 @@ import rx.Single;
 public class RxJavaAutoConfiguration {
 
 	@Configuration
-	@ConditionalOnClass(AsyncHandlerMethodReturnValueHandler.class)
+	@ConditionalOnClass({ AsyncHandlerMethodReturnValueHandler.class, WebMvcConfigurerAdapter.class })
 	protected static class RxJavaReturnValueHandlerConfig {
 		@Bean
 		public SingleReturnValueHandler singleReturnValueHandler() {
