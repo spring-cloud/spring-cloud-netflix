@@ -1470,12 +1470,28 @@ route, e.g.
       url: https://downstream
 ----
 
-Sensitive headers can also be set globally by setting `zuul.sensitiveHeaders`. If `sensitiveHeaders` is set on a route, this will override the global `sensitiveHeaders` setting.
-
 NOTE: this is the default value for `sensitiveHeaders`, so you don't
 need to set it unless you want it to be different. N.B. this is new in
 Spring Cloud Netflix 1.1 (in 1.0 the user had no control over headers
 and all cookies flow in both directions).
+
+The `sensitiveHeaders` are a blacklist and the default is not empty,
+so to make Zuul send all headers (except the "ignored" ones) you would
+have to explicitly set it to the empty list. This is necessary if you
+want to pass cookie or authorization headers to your back end. Example:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    users:
+      path: /myusers/**
+      sensitiveHeaders: 
+      url: https://downstream
+----
+
+Sensitive headers can also be set globally by setting `zuul.sensitiveHeaders`. If `sensitiveHeaders` is set on a route, this will override the global `sensitiveHeaders` setting.
 
 === Ignored Headers
 
