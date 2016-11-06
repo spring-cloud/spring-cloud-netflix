@@ -76,9 +76,8 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
-	@Override
-	@ConditionalOnMissingBean(RouteLocator.class)
-	public DiscoveryClientRouteLocator routeLocator() {
+	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
+	public DiscoveryClientRouteLocator discoveryRouteLocator() {
 		return new DiscoveryClientRouteLocator(this.server.getServletPrefix(), this.discovery, this.zuulProperties,
 				this.serviceRouteMapper);
 	}

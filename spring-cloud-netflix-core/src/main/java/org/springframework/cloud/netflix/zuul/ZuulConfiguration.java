@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -47,6 +49,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.netflix.zuul.ZuulFilter;
@@ -78,8 +81,15 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(RouteLocator.class)
-	public RouteLocator routeLocator() {
+	@Primary
+	public CompositeRouteLocator primaryRouteLocator(
+			Collection<RouteLocator> routeLocators) {
+		return new CompositeRouteLocator(routeLocators);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(SimpleRouteLocator.class)
+	public SimpleRouteLocator simpleRouteLocator() {
 		return new SimpleRouteLocator(this.server.getServletPrefix(),
 				this.zuulProperties);
 	}

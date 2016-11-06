@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
+import org.springframework.core.Ordered;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
@@ -38,7 +39,8 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author Dave Syer
  */
 @CommonsLog
-public class SimpleRouteLocator implements RouteLocator {
+public class SimpleRouteLocator implements RouteLocator, Ordered {
+	private static final int DEFAULT_ORDER = 0;
 
 	private ZuulProperties properties;
 
@@ -48,6 +50,7 @@ public class SimpleRouteLocator implements RouteLocator {
 	private String zuulServletPath;
 
 	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
+	private int order = DEFAULT_ORDER;
 
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
 		this.properties = properties;
@@ -198,6 +201,15 @@ public class SimpleRouteLocator implements RouteLocator {
 
 		log.debug("adjustedPath=" + path);
 		return adjustedPath;
+	}
+
+	@Override
+	public int getOrder() {
+		return order;
+	}
+	
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 }
