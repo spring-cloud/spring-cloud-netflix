@@ -16,17 +16,16 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.util.ReflectionUtils;
-
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -36,8 +35,6 @@ import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -210,10 +207,23 @@ public class SendResponseFilter extends ZuulFilter {
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
-			if (contentLength != null && !ctx.getResponseGZipped()) {
-				servletResponse.setContentLengthLong(contentLength);
+			if ( contentLength != null && !ctx.getResponseGZipped()) {
+				// To support Servlet API 3.0.1 we need to check if setcontentLengthLong exists
+				try {
+					HttpServletResponse.class.getMethod("setContentLengthLong");
+					servletResponse.setContentLengthLong(contentLength);
+				} catch (NoSuchMethodException e) {
+					//Try and set some kind of content length if we can safely convert the Long to an int
+					if(isLongSafe(contentLength)) {
+						servletResponse.setContentLength(contentLength.intValue());
+					}
+				}
 			}
 		}
+	}
+
+	private boolean isLongSafe(long value) {
+		return value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE;
 	}
 
 }
