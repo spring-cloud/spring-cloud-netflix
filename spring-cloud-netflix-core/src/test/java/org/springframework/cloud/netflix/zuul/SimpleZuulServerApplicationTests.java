@@ -67,24 +67,16 @@ public class SimpleZuulServerApplicationTests {
 
 	@Test
 	public void bindRoute() {
-		assertNotNull(getRoute("/testing123/**"));
+		assertNotNull(getRoute("/stores/**"));
 	}
 
 	@Test
 	public void getOnSelf() {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
+				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello world", result.getBody());
-	}
-
-	@Test
-	public void getOnSelfViaFilter() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
 }

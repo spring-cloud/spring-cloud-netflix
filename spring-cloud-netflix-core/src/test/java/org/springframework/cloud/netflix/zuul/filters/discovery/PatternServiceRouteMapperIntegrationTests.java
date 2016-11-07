@@ -22,7 +22,8 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -56,20 +57,18 @@ public class PatternServiceRouteMapperIntegrationTests {
 	private int port;
 
 	@Autowired
-	private DiscoveryClientRouteLocator routes;
-
-	@Autowired
-	private RoutesEndpoint endpoint;
+	private ZuulProperties properties;
 
 	@Before
 	public void setTestRequestcontext() {
+		addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		addRoute("/root/**", "http://localhost:" + this.port);
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
 
 	@Test
 	public void getRegexMappedService() {
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/v1/domain/service/get/1",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
@@ -79,13 +78,15 @@ public class PatternServiceRouteMapperIntegrationTests {
 
 	@Test
 	public void getStaticRoute() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/get/1", HttpMethod.GET,
+				"http://localhost:" + this.port + "/root/get/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Get 1", result.getBody());
+	}
+
+	private void addRoute(String path, String location) {
+		this.properties.getRoutes().put(path, new ZuulRoute(path, location));
 	}
 
 }

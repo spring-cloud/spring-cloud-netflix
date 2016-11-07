@@ -16,198 +16,60 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.Ordered;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
  *
  * @author Dave Syer
+ * @author Johannes Edmeier
  */
-@CommonsLog
-public class SimpleRouteLocator implements RouteLocator, Ordered {
+public class SimpleRouteLocator extends AbstractZuulRouteLocator implements RouteLocator, Ordered {
 	private static final int DEFAULT_ORDER = 0;
+	private int order = DEFAULT_ORDER;
 
 	private ZuulProperties properties;
 
-	private PathMatcher pathMatcher = new AntPathMatcher();
-
-	private String dispatcherServletPath = "/";
-	private String zuulServletPath;
-
-	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
-	private int order = DEFAULT_ORDER;
-
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
+		super(servletPath, properties);
 		this.properties = properties;
-		if (servletPath != null && StringUtils.hasText(servletPath)) {
-			this.dispatcherServletPath = servletPath;
-		}
-
-		this.zuulServletPath = properties.getServletPath();
 	}
 
 	@Override
-	public List<Route> getRoutes() {
-		if (this.routes.get() == null) {
-			this.routes.set(locateRoutes());
-		}
-		List<Route> values = new ArrayList<>();
-		for (String url : this.routes.get().keySet()) {
-			ZuulRoute route = this.routes.get().get(url);
-			String path = route.getPath();
-			values.add(getRoute(route, path));
-		}
-		return values;
-	}
-
-	@Override
-	public Collection<String> getIgnoredPaths() {
-		return this.properties.getIgnoredPatterns();
-	}
-
-	@Override
-	public Route getMatchingRoute(final String path) {
-
-		if (log.isDebugEnabled()) {
-			log.debug("Finding route for path: " + path);
-		}
-
-		if (this.routes.get() == null) {
-			this.routes.set(locateRoutes());
-		}
-
-		if (log.isDebugEnabled()) {
-			log.debug("servletPath=" + this.dispatcherServletPath);
-			log.debug("zuulServletPath=" + this.zuulServletPath);
-			log.debug("RequestUtils.isDispatcherServletRequest()="
-					+ RequestUtils.isDispatcherServletRequest());
-			log.debug("RequestUtils.isZuulServletRequest()="
-					+ RequestUtils.isZuulServletRequest());
-		}
-
-		String adjustedPath = adjustPath(path);
-
-		ZuulRoute route = null;
-		if (!matchesIgnoredPatterns(adjustedPath)) {
-			for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
-				String pattern = entry.getKey();
-				log.debug("Matching pattern:" + pattern);
-				if (this.pathMatcher.match(pattern, adjustedPath)) {
-					route = entry.getValue();
-					break;
-				}
-			}
-		}
-		if (log.isDebugEnabled()) {
-			log.debug("route matched=" + route);
-		}
-
-		return getRoute(route, adjustedPath);
-
-	}
-
-	private Route getRoute(ZuulRoute route, String path) {
-		if (route == null) {
-			return null;
-		}
-		String targetPath = path;
-		String prefix = this.properties.getPrefix();
-		if (path.startsWith(prefix) && this.properties.isStripPrefix()) {
-			targetPath = path.substring(prefix.length());
-		}
-		if (route.isStripPrefix()) {
-			int index = route.getPath().indexOf("*") - 1;
-			if (index > 0) {
-				String routePrefix = route.getPath().substring(0, index);
-				targetPath = targetPath.replaceFirst(routePrefix, "");
-				prefix = prefix + routePrefix;
-			}
-		}
-		Boolean retryable = this.properties.getRetryable();
-		if (route.getRetryable() != null) {
-			retryable = route.getRetryable();
-		}
-		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
-				retryable,
-				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null);
-	}
-
-	/**
-	 * Calculate all the routes and set up a cache for the values. Subclasses can call
-	 * this method if they need to implement {@link RefreshableRouteLocator}.
-	 */
-	protected void doRefresh() {
-		this.routes.set(locateRoutes());
-	}
-
-	/**
-	 * Compute a map of path pattern to route. The default is just a static map from the
-	 * {@link ZuulProperties}, but subclasses can add dynamic calculations.
-	 */
 	protected Map<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<String, ZuulRoute>();
+		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
 		for (ZuulRoute route : this.properties.getRoutes().values()) {
-			routesMap.put(route.getPath(), route);
+			if (StringUtils.hasText(route.getUrl())) {
+				String path = addPrefix(route.getPath());
+				routesMap.put(path, route);
+			}
 		}
 		return routesMap;
 	}
 
-	protected boolean matchesIgnoredPatterns(String path) {
-		for (String pattern : this.properties.getIgnoredPatterns()) {
-			log.debug("Matching ignored pattern:" + pattern);
-			if (this.pathMatcher.match(pattern, path)) {
-				log.debug("Path " + path + " matches ignored pattern " + pattern);
-				return true;
+	private String addPrefix(String path) {
+		if (!path.startsWith("/")) {
+			path = "/" + path;
+		}
+		if (StringUtils.hasText(this.properties.getPrefix())) {
+			path = this.properties.getPrefix() + path;
+			if (!path.startsWith("/")) {
+				path = "/" + path;
 			}
 		}
-		return false;
-	}
-
-	private String adjustPath(final String path) {
-		String adjustedPath = path;
-
-		if (RequestUtils.isDispatcherServletRequest()
-				&& StringUtils.hasText(this.dispatcherServletPath)) {
-			if (!this.dispatcherServletPath.equals("/")) {
-				adjustedPath = path.substring(this.dispatcherServletPath.length());
-				log.debug("Stripped dispatcherServletPath");
-			}
-		}
-		else if (RequestUtils.isZuulServletRequest()) {
-			if (StringUtils.hasText(this.zuulServletPath)
-					&& !this.zuulServletPath.equals("/")) {
-				adjustedPath = path.substring(this.zuulServletPath.length());
-				log.debug("Stripped zuulServletPath");
-			}
-		}
-		else {
-			// do nothing
-		}
-
-		log.debug("adjustedPath=" + path);
-		return adjustedPath;
+		return path;
 	}
 
 	@Override
 	public int getOrder() {
 		return order;
 	}
-	
+
 	public void setOrder(int order) {
 		this.order = order;
 	}

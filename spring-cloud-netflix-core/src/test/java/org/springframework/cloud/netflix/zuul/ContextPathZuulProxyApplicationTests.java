@@ -27,8 +27,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -53,21 +53,19 @@ public class ContextPathZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
-	private DiscoveryClientRouteLocator routes;
-
-	@Autowired
-	private RoutesEndpoint endpoint;
+	private ZuulProperties properties;
 
 	@Before
 	public void setTestRequestcontext() {
+		addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
+		addRoute(new ZuulRoute("strip", "/strip/**", "strip",
+				"http://localhost:" + this.port + "/app/local", false, false, null));
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
 
 	@Test
 	public void getOnSelfViaSimpleHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/app/self/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -77,9 +75,6 @@ public class ContextPathZuulProxyApplicationTests {
 
 	@Test
 	public void stripPrefixFalseAppendsPath() {
-		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/app/local", false, false, null));
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/app/strip", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -88,6 +83,13 @@ public class ContextPathZuulProxyApplicationTests {
 		assertEquals("Gotten strip!", result.getBody());
 	}
 
+	private void addRoute(String path, String location) {
+		addRoute(new ZuulRoute(path, location));
+	}
+
+	private void addRoute(ZuulRoute zuulRoute) {
+		this.properties.getRoutes().put(zuulRoute.getPath(), zuulRoute);
+	}
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan

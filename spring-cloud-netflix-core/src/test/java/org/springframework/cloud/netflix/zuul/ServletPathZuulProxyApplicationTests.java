@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +29,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
 
 import com.netflix.zuul.context.RequestContext;
 
@@ -59,21 +57,19 @@ public class ServletPathZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
-	private DiscoveryClientRouteLocator routes;
-
-	@Autowired
-	private RoutesEndpoint endpoint;
+	private ZuulProperties properties;
 
 	@Before
 	public void setTestRequestcontext() {
+		addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
+		addRoute(new ZuulRoute("strip", "/strip/**", "strip",
+				"http://localhost:" + this.port + "/app/local", false, false, null));
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
 
 	@Test
 	public void getOnSelfViaSimpleHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + this.port + "/app/self/1",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -92,8 +88,6 @@ public class ServletPathZuulProxyApplicationTests {
 
 	@Test
 	public void optionsOnSelf() throws Exception {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(RequestEntity
 				.options(new URI("http://localhost:" + this.port + "/app/self/1"))
 				.header("Origin", "http://localhost:9000").header("Access-Control-Request-Method", "GET").build(),
@@ -112,14 +106,19 @@ public class ServletPathZuulProxyApplicationTests {
 
 	@Test
 	public void stripPrefixFalseAppendsPath() {
-		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/app/local", false, false, null));
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange("http://localhost:" + this.port + "/app/strip",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		// Prefix not stripped to it goes to /local/strip
 		assertEquals("Gotten strip!", result.getBody());
+	}
+
+	private void addRoute(String path, String location) {
+		addRoute(new ZuulRoute(path, location));
+	}
+
+	private void addRoute(ZuulRoute zuulRoute) {
+		this.properties.getRoutes().put(zuulRoute.getPath(), zuulRoute);
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan

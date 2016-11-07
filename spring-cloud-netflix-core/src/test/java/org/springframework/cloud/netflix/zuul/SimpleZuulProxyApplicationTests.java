@@ -32,6 +32,8 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -57,7 +59,7 @@ public class SimpleZuulProxyApplicationTests {
 	private int port;
 
 	@Autowired
-	private DiscoveryClientRouteLocator routes;
+	private ZuulProperties zuul;
 
 	@Autowired
 	private RoutesEndpoint endpoint;
@@ -67,7 +69,7 @@ public class SimpleZuulProxyApplicationTests {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 
-		this.routes.addRoute("/foo/**", "http://localhost:" + this.port + "/bar");
+		this.zuul.getRoutes().put("/foo/**", new ZuulRoute("/foo/**", "http://localhost:" + this.port + "/bar"));
 		this.endpoint.reset();
 	}
 

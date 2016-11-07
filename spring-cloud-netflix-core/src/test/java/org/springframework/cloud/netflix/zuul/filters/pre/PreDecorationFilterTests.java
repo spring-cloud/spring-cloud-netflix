@@ -16,6 +16,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -26,7 +31,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -35,11 +43,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 /**
  * @author Dave Syer
  */
@@ -47,12 +50,12 @@ public class PreDecorationFilterTests {
 
 	private PreDecorationFilter filter;
 
+	private ZuulProperties properties = new ZuulProperties();
+
 	@Mock
 	private DiscoveryClient discovery;
 
-	private ZuulProperties properties = new ZuulProperties();
-
-	private DiscoveryClientRouteLocator routeLocator;
+	private RouteLocator routeLocator;
 
 	private MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -62,8 +65,9 @@ public class PreDecorationFilterTests {
 	public void init() {
 		initMocks(this);
 		this.properties = new ZuulProperties();
-		this.routeLocator = new DiscoveryClientRouteLocator("/", this.discovery,
-				this.properties);
+		this.routeLocator = new CompositeRouteLocator(
+				Arrays.asList(new SimpleRouteLocator("/", this.properties),
+						new DiscoveryClientRouteLocator("/", discovery, properties)));
 		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties,
 				this.proxyRequestHelper);
 		RequestContext ctx = RequestContext.getCurrentContext();
@@ -96,8 +100,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setRemoteAddr("5.6.7.8");
 		this.request.setServerPort(8080);
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
@@ -111,7 +114,7 @@ public class PreDecorationFilterTests {
 		this.request.setServerPort(8080);
 		this.request.addHeader("X-Forwarded-Host", "example.com");
 		this.request.addHeader("X-Forwarded-Proto", "https");
-		this.routeLocator.addRoute(
+		addRoute(
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
@@ -127,8 +130,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setRemoteAddr("5.6.7.8");
 		this.request.setServerPort(8080);
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
@@ -142,8 +144,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setRemoteAddr("5.6.7.8");
 		this.request.addHeader("X-Forwarded-For", "1.2.3.4");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
@@ -165,8 +166,7 @@ public class PreDecorationFilterTests {
 		this.request.setRemoteAddr("5.6.7.8");
 		this.request.addHeader("X-Forwarded-For", "1.2.3.4");
 		this.request.addHeader("X-Forwarded-Prefix", "/prefix");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
@@ -186,8 +186,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(false);
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setContextPath("/context-path");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/api/foo/1", ctx.get("requestURI"));
@@ -206,8 +205,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setContextPath("/context-path");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
@@ -226,8 +224,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setContextPath("/context-path");
 		this.request.addHeader("X-Forwarded-Prefix", "/prefix");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/api/foo/1", ctx.get("requestURI"));
@@ -247,8 +244,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setContextPath("/context-path");
 		this.request.addHeader("X-Forwarded-Prefix", "/prefix");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("requestURI"));
@@ -266,8 +262,7 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/foo/1", ctx.get("forward.to"));
@@ -276,7 +271,7 @@ public class PreDecorationFilterTests {
 	@Test
 	public void forwardWithoutStripPrefixAppendsPath() throws Exception {
 		this.request.setRequestURI("/foo/1");
-		this.routeLocator.addRoute(
+		addRoute(
 				new ZuulRoute("foo", "/foo/**", null, "forward:/bar", false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
@@ -288,7 +283,7 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute("/foo/**", "foo");
+		addRoute("/foo/**", "foo");
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/1", ctx.get("requestURI"));
@@ -303,8 +298,7 @@ public class PreDecorationFilterTests {
 	public void routeNotFound() throws Exception {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 
 		this.request.setRequestURI("/api/bar/1");
 
@@ -318,8 +312,7 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setAddProxyHeaders(true);
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 
 		this.filter = new PreDecorationFilter(this.routeLocator, "/special",
 				this.properties, this.proxyRequestHelper);
@@ -342,8 +335,7 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/zuul");
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 
 		this.filter.run();
 
@@ -362,8 +354,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/zuul");
 		this.properties.setAddProxyHeaders(true);
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		this.filter = new PreDecorationFilter(this.routeLocator, "/special",
 				this.properties, this.proxyRequestHelper);
 
@@ -384,8 +375,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(true);
 		this.properties.setServletPath("/");
 		this.properties.setAddProxyHeaders(true);
-		this.routeLocator.addRoute(
-				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
+		addRoute(new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 
 		this.filter = new PreDecorationFilter(this.routeLocator, "/special",
 				this.properties, this.proxyRequestHelper);
@@ -403,7 +393,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		ZuulRoute route = new ZuulRoute("/foo/**", "foo");
 		route.setSensitiveHeaders(Collections.singleton("x-foo"));
-		this.routeLocator.addRoute(route);
+		addRoute(route);
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
@@ -423,7 +413,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		ZuulRoute route = new ZuulRoute("/foo/**", "foo");
 		route.setSensitiveHeaders(Collections.<String> emptySet());
-		this.routeLocator.addRoute(route);
+		addRoute(route);
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
@@ -439,7 +429,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(true);
 		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute("/foo/**", "foo");
+		addRoute("/foo/**", "foo");
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
@@ -456,7 +446,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(true);
 		this.properties.setSensitiveHeaders(Collections.singleton("X-bAr"));
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute("/foo/**", "foo");
+		addRoute("/foo/**", "foo");
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
@@ -474,7 +464,7 @@ public class PreDecorationFilterTests {
 		this.request.setRequestURI("/api/foo/1");
 		ZuulRoute route = new ZuulRoute("/foo/**", "foo");
 		route.setSensitiveHeaders(Collections.singleton("X-Foo"));
-		this.routeLocator.addRoute(route);
+		addRoute(route);
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		@SuppressWarnings("unchecked")
@@ -491,7 +481,7 @@ public class PreDecorationFilterTests {
 		this.properties.setStripPrefix(true);
 		this.properties.setSensitiveHeaders(Collections.singleton("x-bar"));
 		this.request.setRequestURI("/api/foo/1");
-		this.routeLocator.addRoute("/foo/**", "foo");
+		addRoute("/foo/**", "foo");
 		RequestContext ctx = RequestContext.getCurrentContext();
 		ctx.set(ProxyRequestHelper.IGNORED_HEADERS,
 				new HashSet<>(Arrays.asList("x-foo")));
@@ -509,7 +499,7 @@ public class PreDecorationFilterTests {
 		this.properties.setPrefix("/api");
 		this.properties.setStripPrefix(true);
 		this.request.setRequestURI("/api/foo/ol%C3%A9%D7%93%D7%A8%D7%A2%D7%A7");
-		this.routeLocator.addRoute("/foo/**", "foo");
+		addRoute("/foo/**", "foo");
 		RequestContext ctx = RequestContext.getCurrentContext();
 		this.filter.run();
 		String decodedRequestURI = (String) ctx.get("requestURI");
@@ -530,7 +520,13 @@ public class PreDecorationFilterTests {
 	private void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
-
 	}
 
+	private void addRoute(String path, String location) {
+		addRoute(new ZuulRoute(path, location));
+	}
+
+	private void addRoute(ZuulRoute zuulRoute) {
+		this.properties.getRoutes().put(zuulRoute.getPath(), zuulRoute);
+	}
 }

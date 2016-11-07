@@ -16,6 +16,14 @@
 
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,14 +40,6 @@ import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -409,17 +409,6 @@ public class DiscoveryClientRouteLocatorTests {
 		assertMapping(routesMap, ASERVICE, "foo/" + ASERVICE);
 	}
 
-	@Test
-	public void testGetPhysicalRoutes() {
-		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties);
-		this.properties.getRoutes().put(ASERVICE,
-				new ZuulRoute("/" + ASERVICE + "/**", "http://" + ASERVICE));
-		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
-		assertMapping(routesMap, "http://" + ASERVICE, ASERVICE);
-	}
 
 	@Test
 	public void testGetDefaultRoute() {
@@ -430,18 +419,6 @@ public class DiscoveryClientRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertDefaultMapping(routesMap, ASERVICE);
-	}
-
-	@Test
-	public void testGetDefaultPhysicalRoute() {
-		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties);
-		this.properties.getRoutes().put(ASERVICE,
-				new ZuulRoute("/**", "http://" + ASERVICE));
-		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
-		assertDefaultMapping(routesMap, "http://" + ASERVICE);
 	}
 
 	@Test
@@ -530,7 +507,7 @@ public class DiscoveryClientRouteLocatorTests {
 	@Test
 	public void testIgnoredRouteIncludedIfConfiguredAndNotDiscovered() {
 		this.properties.getRoutes().put("foo",
-				new ZuulRoute("/foo/**", "http://foo.com"));
+				new ZuulRoute("fooSvc", "/foo/**", "foo", null, false, false, null));
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties);
 		this.properties.setIgnoredServices(Collections.singleton("*"));
@@ -549,21 +526,6 @@ public class DiscoveryClientRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
-	}
-
-	@Test
-	public void testAutoRoutesCanBeOverridden() {
-		ZuulRoute route = new ZuulRoute("/" + MYSERVICE + "/**",
-				"http://example.com/" + MYSERVICE);
-		this.properties.getRoutes().put(MYSERVICE, route);
-		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties);
-		given(this.discovery.getServices())
-				.willReturn(Collections.singletonList(MYSERVICE));
-		List<Route> routesMap = routeLocator.getRoutes();
-		assertNotNull("routesMap was null", routesMap);
-		assertFalse("routesMap was empty", routesMap.isEmpty());
-		assertMapping(routesMap, "http://example.com/" + MYSERVICE, MYSERVICE);
 	}
 
 	@Test

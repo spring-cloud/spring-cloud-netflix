@@ -23,9 +23,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.ZuulProxyConfiguration;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,21 +55,17 @@ public class CustomHostRoutingFilterTests {
 	private int port;
 
 	@Autowired
-	private DiscoveryClientRouteLocator routes;
-
-	@Autowired
-	private RoutesEndpoint endpoint;
+	private ZuulProperties properties;
 
 	@Before
 	public void setTestRequestcontext() {
+		addRoute("/self/**", "http://localhost:" + this.port + "/app");
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
 
 	@Test
 	public void getOnSelfViaCustomHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/app/self/get/1", String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -79,8 +74,6 @@ public class CustomHostRoutingFilterTests {
 
 	@Test
 	public void postOnSelfViaCustomHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-		this.endpoint.reset();
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
 		params.add("id", "2");
 		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
@@ -91,8 +84,6 @@ public class CustomHostRoutingFilterTests {
 
 	@Test
 	public void putOnSelfViaCustomHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/app/self/put/3", HttpMethod.PUT,
 				new HttpEntity<>((Void) null), String.class);
@@ -102,8 +93,6 @@ public class CustomHostRoutingFilterTests {
 
 	@Test
 	public void patchOnSelfViaCustomHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-		this.endpoint.reset();
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
 		params.add("patch", "5");
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
@@ -115,8 +104,6 @@ public class CustomHostRoutingFilterTests {
 
 	@Test
 	public void getOnSelfIgnoredHeaders() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
 				"http://localhost:" + this.port + "/app/self/get/1", String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -126,9 +113,6 @@ public class CustomHostRoutingFilterTests {
 
 	@Test
 	public void getOnSelfWithSessionCookie() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
-		this.endpoint.reset();
-
 		RestTemplate restTemplate = new RestTemplate();
 
 		ResponseEntity<String> result1 = restTemplate.getForEntity(
@@ -139,6 +123,10 @@ public class CustomHostRoutingFilterTests {
 
 		assertEquals("SetCookie 1", result1.getBody());
 		assertEquals("GetCookie 1", result2.getBody());
+	}
+
+	private void addRoute(String path, String location) {
+		this.properties.getRoutes().put(path, new ZuulRoute(path, location));
 	}
 
 }

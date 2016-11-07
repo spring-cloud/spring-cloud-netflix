@@ -17,6 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeThat;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +46,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.context.annotation.Bean;
@@ -65,15 +73,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assume.assumeThat;
 
 /**
  * @author Spencer Gibb
@@ -85,7 +89,7 @@ public abstract class ZuulProxyTestBase {
 	protected int port;
 
 	@Autowired
-	protected DiscoveryClientRouteLocator routes;
+	protected RouteLocator routes;
 
 	@Autowired
 	protected RoutesEndpoint endpoint;
@@ -101,8 +105,15 @@ public abstract class ZuulProxyTestBase {
 		this.myErrorController.clear();
 	}
 
+	@Autowired
+	private ZuulProperties properties;
+
 	@Before
 	public void setTestRequestcontext() {
+		addRoute("/root/**", "http://localhost:" + this.port + "/");
+		addRoute("/self/**", "http://localhost:" + this.port + "/local");
+		addRoute(new ZuulProperties.ZuulRoute("strip", "/strip/**", "strip",
+				"http://localhost:" + this.port + "/local", false, false, null));
 		RequestContext.testSetCurrentContext(null);
 		RequestContext.getCurrentContext().unset();
 	}
@@ -151,8 +162,6 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void deleteOnSelfViaSimpleHostRoutingFilter() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/1", HttpMethod.DELETE,
 				new HttpEntity<>((Void) null), String.class);
@@ -162,9 +171,6 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void stripPrefixFalseAppendsPath() {
-		this.routes.addRoute(new ZuulProperties.ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/local", false, false, null));
-		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/strip", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -237,11 +243,8 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void simpleHostRouteWithSpace() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
-
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/spa ce", HttpMethod.GET,
+				"http://localhost:" + this.port + "/root/spa ce", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello space", result.getBody());
@@ -249,12 +252,9 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void simpleHostRouteWithOriginalQueryString() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
-
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port
-						+ "/self/qstring?original=value1&original=value2",
+						+ "/root/qstring?original=value1&original=value2",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Received {original=[value1, value2]}", result.getBody());
@@ -262,12 +262,9 @@ public abstract class ZuulProxyTestBase {
 
 	@Test
 	public void simpleHostRouteWithOverriddenQString() {
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port);
-		this.endpoint.reset();
-
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port
-						+ "/self/qstring?override=true&different=key",
+						+ "/root/qstring?override=true&different=key",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Received {key=[overridden]}", result.getBody());
@@ -277,31 +274,36 @@ public abstract class ZuulProxyTestBase {
 	public void patchOnSelfViaSimpleHostRoutingFilter() {
 		assumeThat(supportsPatch(), is(true));
 
-		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/local");
-		this.endpoint.reset();
-
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/self/1", HttpMethod.PATCH,
 				new HttpEntity<>("TestPatch"), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Patched 1!", result.getBody());
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Test
 	public void javascriptEncodedFormParams() {
 		TestRestTemplate testRestTemplate = new TestRestTemplate();
 		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
+		converters.addAll(Arrays.asList(new StringHttpMessageConverter(),
 				new NoEncodingFormHttpMessageConverter()));
 		testRestTemplate.getRestTemplate().setMessageConverters(converters);
-		
+
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add("foo", "(bar)");
 		ResponseEntity<String> result = testRestTemplate.postForEntity(
 				"http://localhost:" + this.port + "/simple/local", map, String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted [(bar)] and Content-Length was: 13!", result.getBody());
+	}
+
+	private void addRoute(String path, String location) {
+		addRoute(new ZuulRoute(path, location));
+	}
+
+	private void addRoute(ZuulRoute zuulRoute) {
+		this.properties.getRoutes().put(zuulRoute.getPath(), zuulRoute);
 	}
 
 	public static abstract class AbstractZuulProxyApplication
@@ -322,9 +324,9 @@ public abstract class ZuulProxyTestBase {
 		public String local() {
 			return "Hello local";
 		}
-		
+
 		@RequestMapping(value = "/local", method = RequestMethod.POST)
-		public String postWithFormParam(HttpServletRequest request, 
+		public String postWithFormParam(HttpServletRequest request,
 				@RequestBody MultiValueMap<String, String> body) {
 			return "Posted " + body.get("foo") + " and Content-Length was: " + request.getContentLength() + "!";
 		}
@@ -470,7 +472,7 @@ public abstract class ZuulProxyTestBase {
 			};
 		}
 	}
-	
+
 	@Configuration
 	public class FormEncodedMessageConverterConfiguration extends WebMvcConfigurerAdapter {
 

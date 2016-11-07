@@ -18,16 +18,16 @@ package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.AbstractZuulRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.core.Ordered;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
@@ -39,18 +39,17 @@ import lombok.extern.apachecommons.CommonsLog;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Johannes Edmeier
  */
 @CommonsLog
-public class DiscoveryClientRouteLocator extends SimpleRouteLocator
-		implements RefreshableRouteLocator {
-
+public class DiscoveryClientRouteLocator extends AbstractZuulRouteLocator
+		implements RefreshableRouteLocator, Ordered {
 	public static final String DEFAULT_ROUTE = "/**";
-
+	private static final int DEFAULT_ORDER = 100;
 	private DiscoveryClient discovery;
-
 	private ZuulProperties properties;
-
 	private ServiceRouteMapper serviceRouteMapper;
+	private int order = DEFAULT_ORDER;
 
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties) {
@@ -76,60 +75,15 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		this.serviceRouteMapper = serviceRouteMapper;
 	}
 
-	public void addRoute(String path, String location) {
-		this.properties.getRoutes().put(path, new ZuulRoute(path, location));
-		refresh();
-	}
-
-	public void addRoute(ZuulRoute route) {
-		this.properties.getRoutes().put(route.getPath(), route);
-		refresh();
-	}
-
 	@Override
 	protected LinkedHashMap<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<String, ZuulRoute>();
-		routesMap.putAll(super.locateRoutes());
+		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
+		addStaticServices(routesMap);
 		if (this.discovery != null) {
-			Map<String, ZuulRoute> staticServices = new LinkedHashMap<String, ZuulRoute>();
-			for (ZuulRoute route : routesMap.values()) {
-				String serviceId = route.getServiceId();
-				if (serviceId == null) {
-					serviceId = route.getId();
-				}
-				if (serviceId != null) {
-					staticServices.put(serviceId, route);
-				}
-			}
-			// Add routes for discovery services by default
-			List<String> services = this.discovery.getServices();
-			String[] ignored = this.properties.getIgnoredServices()
-					.toArray(new String[0]);
-			for (String serviceId : services) {
-				// Ignore specifically ignored services and those that were manually
-				// configured
-				String key = "/" + mapRouteToService(serviceId) + "/**";
-				if (staticServices.containsKey(serviceId)
-						&& staticServices.get(serviceId).getUrl() == null) {
-					// Explicitly configured with no URL, cannot be ignored
-					// all static routes are already in routesMap
-					// Update location using serviceId if location is null
-					ZuulRoute staticRoute = staticServices.get(serviceId);
-					if (!StringUtils.hasText(staticRoute.getLocation())) {
-						staticRoute.setLocation(serviceId);
-					}
-				}
-				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
-						&& !routesMap.containsKey(key)) {
-					// Not ignored
-					routesMap.put(key, new ZuulRoute(key, serviceId));
-				}
-			}
+			addDiscoveryServices(routesMap);
 		}
-		if (routesMap.get(DEFAULT_ROUTE) != null) {
-			ZuulRoute defaultRoute = routesMap.get(DEFAULT_ROUTE);
-			// Move the defaultServiceId to the end
-			routesMap.remove(DEFAULT_ROUTE);
+		ZuulRoute defaultRoute = this.properties.getRoutes().get(DEFAULT_ROUTE);
+		if (defaultRoute != null) {
 			routesMap.put(DEFAULT_ROUTE, defaultRoute);
 		}
 		LinkedHashMap<String, ZuulRoute> values = new LinkedHashMap<>();
@@ -150,6 +104,38 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		return values;
 	}
 
+	private void addDiscoveryServices(LinkedHashMap<String, ZuulRoute> routesMap) {
+		// Add routes for discovery services by default
+		List<String> services = this.discovery.getServices();
+		String[] ignored = this.properties.getIgnoredServices()
+				.toArray(new String[this.properties.getIgnoredServices().size()]);
+		for (String serviceId : services) {
+			// Ignore specifically ignored services and those that were manually
+			// configured
+			if (!PatternMatchUtils.simpleMatch(ignored, serviceId)) {
+				// Not ignored
+				String key = "/" + mapRouteToService(serviceId) + "/**";
+				routesMap.put(key, new ZuulRoute(key, serviceId));
+			}
+		}
+	}
+
+	private void addStaticServices(LinkedHashMap<String, ZuulRoute> routesMap) {
+		for (ZuulRoute route : this.properties.getRoutes().values()) {
+			String serviceId = route.getServiceId();
+			if (serviceId == null) {
+				serviceId = route.getId();
+			}
+			if (serviceId != null && route.getUrl() == null) {
+				if (!StringUtils.hasText(route.getLocation())) {
+					// Update location using serviceId if location is null
+					route.setLocation(serviceId);
+				}
+				routesMap.put(route.getPath(), route);
+			}
+		}
+	}
+
 	@Override
 	public void refresh() {
 		doRefresh();
@@ -159,16 +145,12 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		return this.serviceRouteMapper.apply(serviceId);
 	}
 
-	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {
-		Map<String, ZuulRoute> routeEntries = this.properties.getRoutes();
-		for (ZuulRoute entry : routeEntries.values()) {
-			String route = entry.getPath();
-			if (routes.containsKey(route)) {
-				log.warn("Overwriting route " + route + ": already defined by "
-						+ routes.get(route));
-			}
-			routes.put(route, entry);
-		}
+	@Override
+	public int getOrder() {
+		return this.order;
 	}
 
+	public void setOrder(int order) {
+		this.order = order;
+	}
 }
