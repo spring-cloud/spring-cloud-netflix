@@ -16,27 +16,24 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.MultiValueMap;
-
 import com.netflix.client.ClientException;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 @CommonsLog
 public class RibbonRoutingFilter extends ZuulFilter {
@@ -45,6 +42,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	protected ProxyRequestHelper helper;
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
 	protected List<RibbonRequestCustomizer> requestCustomizers;
+	private boolean useServlet31 = true;
 
 	public RibbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory,
@@ -52,6 +50,12 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		this.helper = helper;
 		this.ribbonCommandFactory = ribbonCommandFactory;
 		this.requestCustomizers = requestCustomizers;
+		// To support Servlet API 3.0.1 we need to check if getcontentLengthLong exists
+		try {
+			HttpServletResponse.class.getMethod("getContentLengthLong");
+		} catch(NoSuchMethodException e) {
+			useServlet31 = false;
+		}
 	}
 
 	public RibbonRoutingFilter(RibbonCommandFactory<?> ribbonCommandFactory) {
@@ -119,8 +123,10 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		// remove double slashes
 		uri = uri.replace("//", "/");
 
+		long contentLength = useServlet31 ? request.getContentLengthLong(): request.getContentLength();
+
 		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
-				requestEntity, this.requestCustomizers, request.getContentLengthLong());
+				requestEntity, this.requestCustomizers, contentLength);
 	}
 
 	protected ClientHttpResponse forward(RibbonCommandContext context) throws Exception {
