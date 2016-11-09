@@ -53,6 +53,17 @@ public class SendResponseFilter extends ZuulFilter {
 	private static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
 			.getInstance()
 			.getBooleanProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH, false);
+	private boolean useServlet31 = true;
+
+	public SendResponseFilter() {
+		super();
+		// To support Servlet API 3.0.1 we need to check if setcontentLengthLong exists
+		try {
+			HttpServletResponse.class.getMethod("setContentLengthLong");
+		} catch(NoSuchMethodException e) {
+			useServlet31 = false;
+		}
+	}
 
 	@Override
 	public String filterType() {
@@ -208,13 +219,11 @@ public class SendResponseFilter extends ZuulFilter {
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
 			if ( contentLength != null && !ctx.getResponseGZipped()) {
-				// To support Servlet API 3.0.1 we need to check if setcontentLengthLong exists
-				try {
-					HttpServletResponse.class.getMethod("setContentLengthLong");
+				if(useServlet31) {
 					servletResponse.setContentLengthLong(contentLength);
-				} catch (NoSuchMethodException e) {
+				} else {
 					//Try and set some kind of content length if we can safely convert the Long to an int
-					if(isLongSafe(contentLength)) {
+					if (isLongSafe(contentLength)) {
 						servletResponse.setContentLength(contentLength.intValue());
 					}
 				}

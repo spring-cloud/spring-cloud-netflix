@@ -42,6 +42,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	protected ProxyRequestHelper helper;
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
 	protected List<RibbonRequestCustomizer> requestCustomizers;
+	private boolean useServlet31 = true;
 
 	public RibbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory,
@@ -49,6 +50,12 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		this.helper = helper;
 		this.ribbonCommandFactory = ribbonCommandFactory;
 		this.requestCustomizers = requestCustomizers;
+		// To support Servlet API 3.0.1 we need to check if getcontentLengthLong exists
+		try {
+			HttpServletResponse.class.getMethod("getContentLengthLong");
+		} catch(NoSuchMethodException e) {
+			useServlet31 = false;
+		}
 	}
 
 	public RibbonRoutingFilter(RibbonCommandFactory<?> ribbonCommandFactory) {
@@ -116,11 +123,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		// remove double slashes
 		uri = uri.replace("//", "/");
 
-		long contentLength = request.getContentLength();
-		try {
-			HttpServletRequest.class.getMethod("getContentLengthLong");
-			contentLength = request.getContentLengthLong();
-		} catch (NoSuchMethodException e) {/*doesn't matter*/}
+		long contentLength = useServlet31 ? request.getContentLengthLong(): request.getContentLength();
 
 		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
 				requestEntity, this.requestCustomizers, contentLength);
