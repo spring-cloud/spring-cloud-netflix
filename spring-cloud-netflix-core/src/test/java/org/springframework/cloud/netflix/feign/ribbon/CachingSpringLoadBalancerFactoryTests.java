@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -26,6 +23,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.retry.support.RetryTemplate;
+
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.times;

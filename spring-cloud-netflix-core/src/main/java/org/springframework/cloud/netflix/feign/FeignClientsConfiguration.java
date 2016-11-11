@@ -16,16 +16,16 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import com.netflix.hystrix.HystrixCommand;
 import feign.Contract;
 import feign.Feign;
+import feign.Logger;
 import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.hystrix.HystrixFeign;
+
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -42,17 +42,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
-
-import java.util.ArrayList;
-import java.util.List;
 import com.netflix.hystrix.HystrixCommand;
-
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.hystrix.HystrixFeign;
 
 /**
  * @author Dave Syer

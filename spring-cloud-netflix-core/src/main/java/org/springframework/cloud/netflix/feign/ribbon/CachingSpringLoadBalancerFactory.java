@@ -16,15 +16,17 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
+import java.util.Map;
+
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
-import java.util.Map;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
 
 /**
  * Factory for SpringLoadBalancer instances that caches the entries created.
@@ -39,6 +41,12 @@ public class CachingSpringLoadBalancerFactory {
 	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
+
+	public CachingSpringLoadBalancerFactory(SpringClientFactory factory) {
+		this.factory = factory;
+		this.retryTemplate = new RetryTemplate();
+		this.loadBalancedRetryPolicyFactory = new RibbonLoadBalancedRetryPolicyFactory(factory);
+	}
 
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory, RetryTemplate retryTemplate,
 											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {

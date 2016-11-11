@@ -16,18 +16,11 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.AbstractLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.LoadBalancerStats;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerStats;
 import feign.Client;
 import feign.Request;
 import feign.Request.Options;
 import feign.RequestTemplate;
+
 import org.hamcrest.CustomMatcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +29,14 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFac
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.retry.support.RetryTemplate;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.AbstractLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.LoadBalancerStats;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerStats;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;

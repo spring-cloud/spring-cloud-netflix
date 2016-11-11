@@ -30,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
@@ -97,11 +96,13 @@ public class FeignLoadBalancer extends
 		}
 		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
-						: new InterceptorRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
+						: new FeignRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
 		return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {
 			@Override
 			public RibbonResponse doWithRetry(RetryContext retryContext) throws IOException {
 				Request feignRequest = null;
+				//on retries the policy will choose the server and set it in the context
+				//extract the server and update the request being made
 				if(retryContext instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)retryContext).getServiceInstance();
 					if(service != null) {

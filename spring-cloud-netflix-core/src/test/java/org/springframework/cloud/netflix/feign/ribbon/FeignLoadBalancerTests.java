@@ -1,14 +1,17 @@
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
 import feign.Client;
 import feign.Request;
 import feign.Request.Options;
 import feign.RequestTemplate;
 import feign.Response;
 import lombok.SneakyThrows;
+
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -20,12 +23,9 @@ import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.retry.support.RetryTemplate;
-
-import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
 
 import static com.netflix.client.config.CommonClientConfigKey.ConnectTimeout;
 import static com.netflix.client.config.CommonClientConfigKey.IsSecure;
