@@ -31,6 +31,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.LinkedMultiValueMap;
 
 import static org.junit.Assert.assertEquals;
@@ -91,7 +92,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>());
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
