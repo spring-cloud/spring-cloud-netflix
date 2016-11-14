@@ -23,6 +23,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,7 +32,10 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.LinkedMultiValueMap;
+
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -45,7 +49,7 @@ import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnviron
 public class SimpleHostRoutingFilterTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-
+	
 	@After
 	public void clear() {
 		if (this.context != null) {
@@ -89,9 +93,11 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void deleteRequestBuiltWithBody() {
 		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>());
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(
+				new ByteArrayInputStream(new byte[] { 1 }));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri",
+				inputStreamEntity, new LinkedMultiValueMap<String, String>(),
+				new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
