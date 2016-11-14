@@ -989,7 +989,7 @@ class FooController {
 
     @Autowired
 	public FooController(
-			ResponseEntityDecoder decoder, SpringEncoder encoder, Client client) {
+			Decoder decoder, Encoder encoder, Client client) {
 		this.fooClient = Feign.builder().client(client)
 				.encoder(encoder)
 				.decoder(decoder)
