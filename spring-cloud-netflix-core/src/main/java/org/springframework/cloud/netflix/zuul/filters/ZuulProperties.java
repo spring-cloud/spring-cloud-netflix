@@ -124,7 +124,7 @@ public class ZuulProperties {
 	 */
 	private String servletPath = "/zuul";
 
-	private boolean ignoreLocalService = true; 
+	private boolean ignoreLocalService = true;
 
 	/**
 	 * Host properties controlling default connection pool properties.

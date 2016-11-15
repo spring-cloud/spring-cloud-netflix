@@ -327,10 +327,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				entityRequest.setEntity(entity);
 				break;
 			default:
-				httpRequest = new BasicHttpRequest(verb,
-						uriWithQueryString);
+				httpRequest = new BasicHttpRequest(verb, uriWithQueryString);
 				log.debug(uriWithQueryString);
-			}
+		}
 
 		httpRequest.setHeaders(convertHeaders(headers));
 		return httpRequest;

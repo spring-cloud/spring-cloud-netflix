@@ -1589,6 +1589,25 @@ $ curl -v -H "Transfer-Encoding: chunked" \
     -F "file=@mylarge.iso" localhost:9999/zuul/simple/file
 ----
 
+=== Query string encoding
+When processing the incoming request, query params are decoded so they can be available for possible modifications in
+Zuul filters. They are then reencoded when building the backend request in the route filters. The result
+can be different than the original input if it was encoded using Javascript `encodeURIComponent()` method for example.
+While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.
+
+To force the original encoding of the query string, it is possible to pass a special flag to `ZuulProperties` so
+that the query string is taken as is with the `HttpServletRequest::getQueryString` method : 
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  forceOriginalQueryStringEncoding: true
+----
+
+*Note:* This special flag only works with `SimpleHostRoutingFilter` and you loose the ability to easily override
+query parameters.
+
 === Plain Embedded Zuul
 
 You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
