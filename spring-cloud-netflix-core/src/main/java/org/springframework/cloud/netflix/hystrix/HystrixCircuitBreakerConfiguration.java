@@ -82,7 +82,7 @@ public class HystrixCircuitBreakerConfiguration {
 		}
 
 		@Bean
-		public HasFeatures hystrixFeature() {
+		public HasFeatures hystrixStreamFeature() {
 			return HasFeatures.namedFeature("Hystrix Stream Servlet", HystrixStreamEndpoint.class);
 		}
 	}
