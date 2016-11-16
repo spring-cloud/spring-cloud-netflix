@@ -114,7 +114,8 @@ public class ZuulProperties {
 	 * Flag to force the original query string encoding when building the backend URI in
 	 * SimpleHostRoutingFilter. When activated, query string will be built using
 	 * HttpServletRequest getQueryString() method instead of UriTemplate. Note that this
-	 * flag is not used in RibbonRoutingFilter with eureka discovered services.
+	 * flag is not used in RibbonRoutingFilter with services found via DiscoveryClient
+	 * (like Eureka).
 	 */
 	private boolean forceOriginalQueryStringEncoding = false;
 
