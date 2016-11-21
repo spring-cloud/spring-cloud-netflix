@@ -1549,9 +1549,10 @@ Example configuration:
 In this example we are strangling the "legacy" app which is mapped to
 all requests that do not match one of the other patterns. Paths in
 `/first/{all}` have been extracted into a new service with an external
-URL. And paths in `/second/{all}` are forwared so they can be handled
+URL. And paths in `/second/{all}` are forwarded so they can be handled
 locally, e.g. with a normal Spring `@RequestMapping`. Paths in
-`/third/{all}` are also forwarded, but with a different prefix
+`/third/{all}` are also 
+ded, but with a different prefix
 (i.e. `/third/foo` is forwarded to `/3rd/foo`).
 
 NOTE: The ignored patterns aren't completely ignored, they just
