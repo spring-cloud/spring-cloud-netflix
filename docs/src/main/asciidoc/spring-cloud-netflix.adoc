@@ -970,6 +970,26 @@ This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `
 
 Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
 
+NOTE: If you need to use `ThreadLocal` bound variables in your `RequestInterceptor`s you will need to either set the
+thread isolation strategy for Hystrix to `SEMAPHORE` or disable Hystrix in Feign.
+
+application.yml
+[source,yaml]
+----
+# To disable Hystrix in Feign
+feign:
+  hystrix:
+    enabled: false
+
+# To set thread isolation to SEMAPHORE
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+----
+
 === Creating Feign Clients Manually
 
 In some cases it might be necessary to customize your Feign Clients in a way that is not
