@@ -1748,6 +1748,38 @@ public class FooConfiguration {
 <div class="paragraph">
 <p>Default configurations can be specified in the <code>@EnableFeignClients</code> attribute <code>defaultConfiguration</code> in a similar manner as described above. The difference is that this configuration will apply to <em>all</em> feign clients.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+If you need to use <code>ThreadLocal</code> bound variables in your <code>RequestInterceptor`s you will need to either set the
+thread isolation strategy for Hystrix to `SEMAPHORE</code> or disable Hystrix in Feign.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>application.yml</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># To disable Hystrix in Feign
+feign:
+  hystrix:
+    enabled: false
+
+# To set thread isolation to SEMAPHORE
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_creating_feign_clients_manually">Creating Feign Clients Manually</h3>
