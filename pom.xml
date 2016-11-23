@@ -9,7 +9,7 @@
 		<relativePath />
 	</parent>
 	<artifactId>spring-cloud-netflix</artifactId>
-	<version>1.1.7.BUILD-SNAPSHOT</version>
+	<version>1.1.8.BUILD-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Spring Cloud Netflix</name>
 	<description>Spring Cloud Netflix</description>
