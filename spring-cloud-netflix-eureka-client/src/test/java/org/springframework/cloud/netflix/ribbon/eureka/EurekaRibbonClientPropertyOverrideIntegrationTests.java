@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
@@ -30,9 +29,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -41,10 +39,12 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Spencer Gibb
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = EurekaRibbonClientPropertyOverrideIntegrationTests.TestConfiguration.class)
 @DirtiesContext
 public class EurekaRibbonClientPropertyOverrideIntegrationTests {
@@ -72,7 +72,7 @@ public class EurekaRibbonClientPropertyOverrideIntegrationTests {
 
 	@Configuration
 	@RibbonClients
-	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
+	@ImportAutoConfiguration({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {

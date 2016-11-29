@@ -16,12 +16,11 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -35,7 +34,6 @@ import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
 import org.springframework.cloud.netflix.ribbon.eureka.RibbonClientPreprocessorIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -43,6 +41,8 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
@@ -83,14 +83,14 @@ public class RibbonClientPreprocessorIntegrationTests {
 
 	@Configuration
 	@RibbonClient("foo")
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
+	@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class PlainConfiguration {
 	}
 
 	@Configuration
 	@RibbonClient(name = "foo", configuration = FooConfiguration.class)
-	@Import({ PropertyPlaceholderAutoConfiguration.class,
+	@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
