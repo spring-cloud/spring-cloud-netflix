@@ -215,6 +215,14 @@ public class EurekaClientAutoConfigurationTests {
 		assertEquals("mytestupper", getInstanceConfig().getSecureVirtualHostName());
 	}
 
+	@Test
+	public void testInstanceNamePreferred() throws Exception {
+		EnvironmentTestUtils.addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestspringappname",
+				"eureka.instance.appname=mytesteurekaappname");
+		setupContext();
+		assertEquals("mytesteurekaappname", getInstanceConfig().getAppname());
+	}
+
 	private void testNonSecurePort(String propName) {
 		addEnvironment(this.context, propName + ":8888");
 		setupContext();

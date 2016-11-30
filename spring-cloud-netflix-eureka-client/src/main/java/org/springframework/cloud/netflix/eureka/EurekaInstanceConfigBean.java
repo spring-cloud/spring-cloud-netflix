@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -44,7 +43,7 @@ import lombok.Setter;
  */
 @Data
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware, InitializingBean {
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
 
 	private static final String UNKNOWN = "unknown";
 
@@ -331,10 +330,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	@Override
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
+		// set some defaults from the environment, but allow the defaults to use relaxed binding
 		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(this.environment, "spring.application.");
 		String springAppName = springPropertyResolver.getProperty("name");
 		if(StringUtils.hasText(springAppName)) {
