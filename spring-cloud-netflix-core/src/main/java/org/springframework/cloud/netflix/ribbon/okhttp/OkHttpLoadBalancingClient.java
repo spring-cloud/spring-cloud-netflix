@@ -16,21 +16,19 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
-
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
@@ -85,12 +83,13 @@ public class OkHttpLoadBalancingClient
 
 	OkHttpClient getOkHttpClient(IClientConfig configOverride, boolean secure) {
 		OkHttpClient.Builder builder = this.delegate.newBuilder();
-		if (configOverride != null) {
-			builder.connectTimeout(configOverride.get(
+		IClientConfig config = configOverride != null ? configOverride : this.config;
+		if (config != null) {
+			builder.connectTimeout(config.get(
 					CommonClientConfigKey.ConnectTimeout, this.connectTimeout), TimeUnit.MILLISECONDS);
-			builder.readTimeout(configOverride.get(
+			builder.readTimeout(config.get(
 					CommonClientConfigKey.ReadTimeout, this.readTimeout), TimeUnit.MILLISECONDS);
-			builder.followRedirects(configOverride.get(
+			builder.followRedirects(config.get(
 					CommonClientConfigKey.FollowRedirects, this.followRedirects));
 			if (secure) {
 				builder.followSslRedirects(configOverride.get(

@@ -114,6 +114,21 @@ public class RibbonLoadBalancingHttpClientTests {
 		assertThat(result.isRedirectsEnabled(), is(false));
 	}
 
+	@Test
+	public void testUpdatedTimeouts()
+			throws Exception {
+		SpringClientFactory factory = new SpringClientFactory();
+		RequestConfig result = getBuiltRequestConfig(Timeouts.class, null, factory);
+		assertThat(result.getConnectTimeout(), is(60000));
+		assertThat(result.getSocketTimeout(), is (50000));
+		IClientConfig config = factory.getClientConfig("service");
+		config.set(CommonClientConfigKey.ConnectTimeout, 60);
+		config.set(CommonClientConfigKey.ReadTimeout, 50);
+		result = getBuiltRequestConfig(Timeouts.class, null, factory);
+		assertThat(result.getConnectTimeout(), is(60));
+		assertThat(result.getSocketTimeout(), is (50));
+	}
+
 	@Configuration
 	protected static class UseDefaults {
 
@@ -164,8 +179,13 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	private RequestConfig getBuiltRequestConfig(Class<?> defaultConfigurationClass,
 			IClientConfig configOverride) throws Exception {
+		return getBuiltRequestConfig(defaultConfigurationClass, configOverride, new SpringClientFactory());
+	}
 
-		SpringClientFactory factory = new SpringClientFactory();
+	private RequestConfig getBuiltRequestConfig(Class<?> defaultConfigurationClass,
+												IClientConfig configOverride, SpringClientFactory factory)
+			throws Exception {
+
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
 				RibbonAutoConfiguration.class, defaultConfigurationClass));
 		HttpClient delegate = mock(HttpClient.class);
