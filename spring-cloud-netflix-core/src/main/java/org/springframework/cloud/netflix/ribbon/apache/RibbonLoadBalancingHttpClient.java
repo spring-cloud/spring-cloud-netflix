@@ -76,19 +76,12 @@ public class RibbonLoadBalancingHttpClient
 			final IClientConfig configOverride) throws Exception {
 		final RequestConfig.Builder builder = RequestConfig.custom();
 		IClientConfig config = configOverride != null ? configOverride : this.config;
-		if (config != null) {
-			builder.setConnectTimeout(config.get(
-					CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
-			builder.setSocketTimeout(config.get(
-					CommonClientConfigKey.ReadTimeout, this.readTimeout));
-			builder.setRedirectsEnabled(config.get(
-					CommonClientConfigKey.FollowRedirects, this.followRedirects));
-		}
-		else {
-			builder.setConnectTimeout(this.connectTimeout);
-			builder.setSocketTimeout(this.readTimeout);
-			builder.setRedirectsEnabled(this.followRedirects);
-		}
+		builder.setConnectTimeout(config.get(
+				CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
+		builder.setSocketTimeout(config.get(
+				CommonClientConfigKey.ReadTimeout, this.readTimeout));
+		builder.setRedirectsEnabled(config.get(
+				CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
 

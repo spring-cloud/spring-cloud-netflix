@@ -16,15 +16,17 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -84,25 +86,15 @@ public class OkHttpLoadBalancingClient
 	OkHttpClient getOkHttpClient(IClientConfig configOverride, boolean secure) {
 		OkHttpClient.Builder builder = this.delegate.newBuilder();
 		IClientConfig config = configOverride != null ? configOverride : this.config;
-		if (config != null) {
-			builder.connectTimeout(config.get(
-					CommonClientConfigKey.ConnectTimeout, this.connectTimeout), TimeUnit.MILLISECONDS);
-			builder.readTimeout(config.get(
-					CommonClientConfigKey.ReadTimeout, this.readTimeout), TimeUnit.MILLISECONDS);
-			builder.followRedirects(config.get(
+		builder.connectTimeout(config.get(
+				CommonClientConfigKey.ConnectTimeout, this.connectTimeout), TimeUnit.MILLISECONDS);
+		builder.readTimeout(config.get(
+				CommonClientConfigKey.ReadTimeout, this.readTimeout), TimeUnit.MILLISECONDS);
+		builder.followRedirects(config.get(
+				CommonClientConfigKey.FollowRedirects, this.followRedirects));
+		if (secure) {
+			builder.followSslRedirects(configOverride.get(
 					CommonClientConfigKey.FollowRedirects, this.followRedirects));
-			if (secure) {
-				builder.followSslRedirects(configOverride.get(
-						CommonClientConfigKey.FollowRedirects, this.followRedirects));
-			}
-		}
-		else {
-			builder.connectTimeout(this.connectTimeout, TimeUnit.MILLISECONDS);
-			builder.readTimeout(this.readTimeout, TimeUnit.MILLISECONDS);
-			builder.followRedirects(this.followRedirects);
-			if (secure) {
-				builder.followSslRedirects(this.followRedirects);
-			}
 		}
 
 		return builder.build();
