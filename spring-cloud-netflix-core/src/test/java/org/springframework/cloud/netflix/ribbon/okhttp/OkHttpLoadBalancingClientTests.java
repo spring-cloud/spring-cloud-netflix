@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.ribbon.okhttp;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import okhttp3.OkHttpClient;
 
 import org.junit.Test;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -31,6 +30,7 @@ import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 
+import okhttp3.OkHttpClient;
 
 /**
  * @author Spencer Gibb
