@@ -75,19 +75,13 @@ public class RibbonLoadBalancingHttpClient
 	public RibbonApacheHttpResponse execute(RibbonApacheHttpRequest request,
 			final IClientConfig configOverride) throws Exception {
 		final RequestConfig.Builder builder = RequestConfig.custom();
-		if (configOverride != null) {
-			builder.setConnectTimeout(configOverride.get(
-					CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
-			builder.setSocketTimeout(configOverride.get(
-					CommonClientConfigKey.ReadTimeout, this.readTimeout));
-			builder.setRedirectsEnabled(configOverride.get(
-					CommonClientConfigKey.FollowRedirects, this.followRedirects));
-		}
-		else {
-			builder.setConnectTimeout(this.connectTimeout);
-			builder.setSocketTimeout(this.readTimeout);
-			builder.setRedirectsEnabled(this.followRedirects);
-		}
+		IClientConfig config = configOverride != null ? configOverride : this.config;
+		builder.setConnectTimeout(config.get(
+				CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
+		builder.setSocketTimeout(config.get(
+				CommonClientConfigKey.ReadTimeout, this.readTimeout));
+		builder.setRedirectsEnabled(config.get(
+				CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
 
