@@ -30,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -75,6 +76,11 @@ public class FeignHttpClientUrlTests {
 	@Autowired
 	private UrlClient urlClient;
 
+	@Autowired
+	private BeanUrlClient beanClient;
+
+	@Autowired BeanUrlClientNoProtocol beanClientNoProtocol;
+
 	// this tests that
 	@FeignClient(name = "localappurl", url = "http://localhost:${server.port}/")
 	protected interface UrlClient {
@@ -82,15 +88,39 @@ public class FeignHttpClientUrlTests {
 		Hello getHello();
 	}
 
+	@FeignClient(name = "beanappurl", url = "#{SERVER_URL}")
+	protected interface BeanUrlClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		Hello getHello();
+	}
+
+	@FeignClient(name = "beanappurlnoprotocol", url = "#{SERVER_URL_NO_PROTOCOL}")
+	protected interface BeanUrlClientNoProtocol {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		Hello getHello();
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@EnableFeignClients(clients = { UrlClient.class })
+	@EnableFeignClients(clients = { UrlClient.class, BeanUrlClient.class, BeanUrlClientNoProtocol.class })
 	protected static class TestConfig {
+		@Value("${server.port}")
+		private int port;
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
 			return new Hello("hello world 1");
+		}
+
+		@Bean(name="SERVER_URL")
+		public String serverUrl() {
+			return "http://localhost:" + port + "/";
+		}
+
+		@Bean(name="SERVER_URL_NO_PROTOCOL")
+		public String serverUrlNoProtocol() {
+			return "localhost:" + port + "/";
 		}
 
 		@Bean
@@ -118,6 +148,20 @@ public class FeignHttpClientUrlTests {
 	public void testUrlHttpClient() {
 		assertNotNull("UrlClient was null", this.urlClient);
 		Hello hello = this.urlClient.getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
+
+	@Test
+	public void testBeanUrl() {
+		Hello hello = this.beanClient.getHello();
+		assertNotNull("hello was null", hello);
+		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
+	}
+
+	@Test
+	public void testBeanUrlNoProtocol() {
+		Hello hello = this.beanClientNoProtocol.getHello();
 		assertNotNull("hello was null", hello);
 		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
 	}
