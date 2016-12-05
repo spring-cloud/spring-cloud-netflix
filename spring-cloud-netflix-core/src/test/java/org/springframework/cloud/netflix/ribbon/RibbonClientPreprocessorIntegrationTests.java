@@ -29,7 +29,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
-import com.netflix.loadbalancer.NoOpPing;
+import com.netflix.loadbalancer.DummyPing;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
@@ -56,8 +56,8 @@ public class RibbonClientPreprocessorIntegrationTests {
 	}
 
 	@Test
-	public void pingDefaultsToNoOp() throws Exception {
-		NoOpPing.class.cast(getLoadBalancer().getPing());
+	public void pingDefaultsToDummy() throws Exception {
+		DummyPing.class.cast(getLoadBalancer().getPing());
 	}
 
 	@Test
