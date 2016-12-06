@@ -150,8 +150,10 @@ public class EurekaDiscoveryClientConfiguration implements SmartLifecycle, Order
 
 	@EventListener(ContextClosedEvent.class)
 	public void onApplicationEvent(ContextClosedEvent event) {
-		// register in case meta data changed
-		stop();
+		if( event.getApplicationContext() == this.context ) {
+			// register in case meta data changed
+			stop();
+		}
 	}
 
 	@Configuration
