@@ -52,7 +52,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	private void setupContext(Class<?>... config) {
-		this.context.register(PropertyPlaceholderAutoConfiguration.class);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class, EurekaDiscoveryClientConfiguration.class);
 		for (Class<?> value : config) {
 			this.context.register(value);
 		}

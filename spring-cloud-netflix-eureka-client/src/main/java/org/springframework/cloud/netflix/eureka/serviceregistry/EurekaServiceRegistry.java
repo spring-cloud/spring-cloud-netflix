@@ -15,13 +15,12 @@
  *
  */
 
-package org.springframework.cloud.netflix.eureka;
+package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.cloud.client.serviceregistry.AutoServiceRegistration;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 
 import com.netflix.appinfo.InstanceInfo;
@@ -29,7 +28,7 @@ import com.netflix.appinfo.InstanceInfo;
 /**
  * @author Spencer Gibb
  */
-public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration>, AutoServiceRegistration {
+public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration> {
 
 	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
 
