@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.archaius;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -72,8 +73,8 @@ public class ArchaiusAutoConfiguration {
 	@Autowired
 	private ConfigurableEnvironment env;
 
-	@Autowired
-	private List<AbstractConfiguration> externalConfigurations;
+	@Autowired(required = false)
+	private List<AbstractConfiguration> externalConfigurations = new ArrayList<>();
 
 	@PreDestroy
 	public void close() {
