@@ -13,6 +13,10 @@
 
 package org.springframework.cloud.netflix.metrics.spectator;
 
+import static org.junit.Assert.assertFalse;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
@@ -20,8 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.test.ImportAutoConfiguration;
 import org.springframework.cloud.netflix.metrics.MetricsHandlerInterceptor;
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
@@ -48,10 +52,6 @@ import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.BasicTimer;
 import com.netflix.servo.monitor.MonitorConfig;
 
-import static org.junit.Assert.assertFalse;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 /**
  * @author Jon Schneider
  */
@@ -74,8 +74,8 @@ public class SpectatorMetricsHandlerInterceptorIntegrationTests {
 
 	@Test
 	public void autoConfigurationWiresTheMetricsInterceptor() {
-		assertFalse(webAppContext.getBeansOfType(MetricsHandlerInterceptor.class)
-				.isEmpty());
+		assertFalse(
+				webAppContext.getBeansOfType(MetricsHandlerInterceptor.class).isEmpty());
 	}
 
 	@Before
