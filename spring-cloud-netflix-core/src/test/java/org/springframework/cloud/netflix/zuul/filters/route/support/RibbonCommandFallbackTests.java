@@ -19,7 +19,7 @@
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class RibbonCommandFallbackTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	protected int port;
 
 	@Test
@@ -52,7 +52,6 @@ public abstract class RibbonCommandFallbackTests {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		System.out.println("no fallback body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 }

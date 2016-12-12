@@ -77,9 +77,11 @@ public class SendResponseFilter extends ZuulFilter {
 
 	@Override
 	public boolean shouldFilter() {
-		return !RequestContext.getCurrentContext().getZuulResponseHeaders().isEmpty()
-				|| RequestContext.getCurrentContext().getResponseDataStream() != null
-				|| RequestContext.getCurrentContext().getResponseBody() != null;
+		RequestContext context = RequestContext.getCurrentContext();
+		return context.getThrowable() == null
+				&& (!context.getZuulResponseHeaders().isEmpty()
+					|| context.getResponseDataStream() != null
+					|| context.getResponseBody() != null);
 	}
 
 	@Override

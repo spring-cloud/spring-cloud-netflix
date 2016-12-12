@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.exception.ZuulException;
+import com.netflix.zuul.monitoring.MonitoringHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +40,7 @@ public class SendErrorFilterTests {
 
 	@Before
 	public void setTestRequestcontext() {
+		MonitoringHelper.initMocks();
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
@@ -58,7 +61,7 @@ public class SendErrorFilterTests {
 		RequestContext context = new RequestContext();
 		context.setRequest(request);
 		context.setResponse(new MockHttpServletResponse());
-		context.set("error.status_code", HttpStatus.NOT_FOUND.value());
+		context.setThrowable(new ZuulException(new RuntimeException(), HttpStatus.NOT_FOUND.value(), null));
 		RequestContext.testSetCurrentContext(context);
 		SendErrorFilter filter = new SendErrorFilter();
 		filter.setErrorPath("/error");

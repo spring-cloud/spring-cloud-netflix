@@ -34,7 +34,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -69,6 +68,7 @@ import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
+import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -91,7 +91,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
-	private static final String ERROR_STATUS_CODE = "error.status_code";
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
@@ -182,8 +181,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			setResponse(response);
 		}
 		catch (Exception ex) {
-			context.set(ERROR_STATUS_CODE, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", ex);
+			throw new ZuulRuntimeException(ex);
 		}
 		return null;
 	}
