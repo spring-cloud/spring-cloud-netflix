@@ -43,7 +43,7 @@ import lombok.extern.apachecommons.CommonsLog;
  */
 @CommonsLog
 public class CloudEurekaClient extends DiscoveryClient {
-	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
+	private static final Log log = LogFactory.getLog(CloudEurekaClient.class);
 
 	private final AtomicLong cacheRefreshedCount = new AtomicLong(0);
 
