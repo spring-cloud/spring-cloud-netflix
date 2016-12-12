@@ -170,7 +170,6 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			return this.contentLength;
 		}
 
-		@Override
 		public long getContentLengthLong() {
 			return getContentLength();
 		}

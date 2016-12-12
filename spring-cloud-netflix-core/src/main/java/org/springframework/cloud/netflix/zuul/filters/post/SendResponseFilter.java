@@ -16,17 +16,16 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import lombok.extern.apachecommons.CommonsLog;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.util.ReflectionUtils;
-
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -36,8 +35,6 @@ import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -56,6 +53,17 @@ public class SendResponseFilter extends ZuulFilter {
 	private static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
 			.getInstance()
 			.getBooleanProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH, false);
+	private boolean useServlet31 = true;
+
+	public SendResponseFilter() {
+		super();
+		// To support Servlet API 3.0.1 we need to check if setcontentLengthLong exists
+		try {
+			HttpServletResponse.class.getMethod("setContentLengthLong");
+		} catch(NoSuchMethodException e) {
+			useServlet31 = false;
+		}
+	}
 
 	@Override
 	public String filterType() {
@@ -137,8 +145,8 @@ public class SendResponseFilter extends ZuulFilter {
 										"gzip expected but not "
 												+ "received assuming unencoded response "
 												+ RequestContext.getCurrentContext()
-														.getRequest().getRequestURL()
-														.toString());
+												.getRequest().getRequestURL()
+												.toString());
 								inputStream = is;
 							}
 						}
@@ -210,10 +218,21 @@ public class SendResponseFilter extends ZuulFilter {
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
-			if (contentLength != null && !ctx.getResponseGZipped()) {
-				servletResponse.setContentLengthLong(contentLength);
+			if ( contentLength != null && !ctx.getResponseGZipped()) {
+				if(useServlet31) {
+					servletResponse.setContentLengthLong(contentLength);
+				} else {
+					//Try and set some kind of content length if we can safely convert the Long to an int
+					if (isLongSafe(contentLength)) {
+						servletResponse.setContentLength(contentLength.intValue());
+					}
+				}
 			}
 		}
+	}
+
+	private boolean isLongSafe(long value) {
+		return value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE;
 	}
 
 }
