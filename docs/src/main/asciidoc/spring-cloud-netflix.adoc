@@ -1836,7 +1836,7 @@ info:
 
 [[netflix-rxjava-springmvc]]
 == RxJava with Spring MVC
-Spring Cloud Netflix includes the https://github.com/ReactiveX/RxJava[RxJava].
+Spring Cloud Netflix includes https://github.com/ReactiveX/RxJava[RxJava].
 
 > RxJava is a Java VM implementation of http://reactivex.io/[Reactive Extensions]: a library for composing asynchronous and event-based programs by using observable sequences.
 
