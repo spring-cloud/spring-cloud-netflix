@@ -20,7 +20,6 @@ package org.springframework.cloud.netflix.ribbon.support;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 
-import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
@@ -33,7 +32,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
  * @author Spencer Gibb
  */
 public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest, T extends IResponse, D> extends
-		AbstractLoadBalancerAwareClient<S, T> {
+		SpringAbstractLoadBalancerAwareClient<S, T> {
 
 	protected int connectTimeout;
 
