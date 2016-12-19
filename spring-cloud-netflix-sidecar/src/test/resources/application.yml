@@ -11,7 +11,6 @@ sidecar:
 eureka:
   instance:
     app-group-name: mysidecargroup
-    hostname: mysidecarhost
   client:
     serviceUrl:
       defaultZone: http://user:password@localhost:8761/eureka/
