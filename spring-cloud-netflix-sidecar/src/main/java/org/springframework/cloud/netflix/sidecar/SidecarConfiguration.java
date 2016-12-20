@@ -118,7 +118,7 @@ public class SidecarConfiguration {
 				}
 				config.setHostname(hostname);
 			}
-			if (!StringUtils.hasText(ipAddress)) {
+			if (StringUtils.hasText(ipAddress)) {
 				config.setIpAddress(ipAddress);
 			}
 			String scheme = config.getSecurePortEnabled() ? "https" : "http";
