@@ -52,9 +52,6 @@ import static org.junit.Assert.assertNotNull;
 @DirtiesContext
 public class FeignClientEnvVarTests {
 
-	@Value("${local.server.port}")
-	private int port = 0;
-
 	@Autowired
 	private TestClient testClient;
 
