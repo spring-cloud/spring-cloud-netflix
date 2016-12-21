@@ -108,14 +108,6 @@ public class SidecarConfiguration {
 				hostname = this.hostname;
 			}
 			if (StringUtils.hasText(hostname)) {
-				if (!StringUtils.hasText(ipAddress)) {
-					try {
-						ipAddress = inetUtils.convertAddress(InetAddress.getByName(hostname)).getIpAddress();
-					} catch (UnknownHostException e) {
-						throw new IllegalStateException(
-								"Could not resolve IP address of sidecar application using hostname: " + hostname);
-					}
-				}
 				config.setHostname(hostname);
 			}
 			if (StringUtils.hasText(ipAddress)) {

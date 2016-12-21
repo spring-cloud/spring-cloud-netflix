@@ -31,8 +31,8 @@ public class SidecarApplicationTests {
 
 	@RunWith(SpringJUnit4ClassRunner.class)
 	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-			"spring.application.name=mytest", "spring.application.instance_id=1", "eureka.instance.hostname=mhhost",
-			"sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"eureka.instance.hostname=mhhost", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
 	public static class EurekaTestConfigBeanTest {
 		@Autowired
 		EurekaInstanceConfigBean config;
@@ -48,8 +48,8 @@ public class SidecarApplicationTests {
 
 	@RunWith(SpringJUnit4ClassRunner.class)
 	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-			"spring.application.name=mytest", "spring.application.instance_id=1", "sidecar.hostname=mhhost",
-			"sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"sidecar.hostname=mhhost", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
 	public static class NewPropertyEurekaTestConfigBeanTest {
 		@Autowired
 		EurekaInstanceConfigBean config;
@@ -65,8 +65,8 @@ public class SidecarApplicationTests {
 
 	@RunWith(SpringJUnit4ClassRunner.class)
 	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-			"spring.application.name=mytest", "spring.application.instance_id=1", "eureka.instance.hostname=mhhost1",
-			"sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
 	public static class BothPropertiesEurekaTestConfigBeanTest {
 		@Autowired
 		EurekaInstanceConfigBean config;
