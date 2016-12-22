@@ -57,8 +57,7 @@ public class CachingSpringLoadBalancerFactoryTests {
 		when(this.delegate.getClientConfig("client1")).thenReturn(config);
 		when(this.delegate.getClientConfig("client2")).thenReturn(config);
 
-		this.factory = new CachingSpringLoadBalancerFactory(this.delegate, new RetryTemplate(),
-				loadBalancedRetryPolicyFactory);
+		this.factory = new CachingSpringLoadBalancerFactory(this.delegate, loadBalancedRetryPolicyFactory);
 	}
 
 	@Test

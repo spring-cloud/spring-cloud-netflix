@@ -52,9 +52,8 @@ public class FeignRibbonClientAutoConfiguration {
 	@Bean
 	@Primary
 	public CachingSpringLoadBalancerFactory cachingLBClientFactory(
-			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory,
-			RetryTemplate retryTemplate) {
-		return new CachingSpringLoadBalancerFactory(factory, retryTemplate, retryPolicyFactory);
+			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory) {
+		return new CachingSpringLoadBalancerFactory(factory, retryPolicyFactory);
 	}
 
 	@Bean

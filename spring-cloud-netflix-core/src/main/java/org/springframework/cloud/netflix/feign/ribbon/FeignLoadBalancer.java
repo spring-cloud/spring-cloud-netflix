@@ -64,14 +64,11 @@ public class FeignLoadBalancer extends
 	private final int readTimeout;
 	private final IClientConfig clientConfig;
 	private final ServerIntrospector serverIntrospector;
-	private final RetryTemplate retryTemplate;
 	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	public FeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
-			ServerIntrospector serverIntrospector, RetryTemplate retryTemplate,
-							 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+			ServerIntrospector serverIntrospector, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(lb, clientConfig);
-		this.retryTemplate = retryTemplate;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
 		this.clientConfig = clientConfig;
@@ -95,6 +92,7 @@ public class FeignLoadBalancer extends
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
 		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+		RetryTemplate retryTemplate = new RetryTemplate();
 		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
 						: new FeignRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
 		return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {

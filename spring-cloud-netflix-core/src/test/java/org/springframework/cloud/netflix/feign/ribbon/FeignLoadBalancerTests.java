@@ -52,7 +52,6 @@ public class FeignLoadBalancerTests {
 	private IClientConfig config;
 	@Mock
 	private RibbonLoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
-	private RetryTemplate retryTemplate;
 
 	private FeignLoadBalancer feignLoadBalancer;
 
@@ -71,7 +70,6 @@ public class FeignLoadBalancerTests {
 				.thenReturn(true);
 		when(this.config.get(ConnectTimeout)).thenReturn(this.defaultConnectTimeout);
 		when(this.config.get(ReadTimeout)).thenReturn(this.defaultReadTimeout);
-		this.retryTemplate = new RetryTemplate();
 	}
 
 	@Test
@@ -79,7 +77,7 @@ public class FeignLoadBalancerTests {
 	public void testUriInsecure() {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector, retryTemplate, loadBalancedRetryPolicyFactory);
+				this.inspector, loadBalancedRetryPolicyFactory);
 		Request request = new RequestTemplate().method("GET").append("http://foo/")
 				.request();
 		RibbonRequest ribbonRequest = new RibbonRequest(this.delegate, request,
@@ -100,7 +98,7 @@ public class FeignLoadBalancerTests {
 	public void testSecureUriFromClientConfig() {
 		when(this.config.get(IsSecure)).thenReturn(true);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector, retryTemplate, loadBalancedRetryPolicyFactory);
+				this.inspector, loadBalancedRetryPolicyFactory);
 		Server server = new Server("foo", 7777);
 		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
 				new URI("http://foo/"));
@@ -122,7 +120,7 @@ public class FeignLoadBalancerTests {
 					public Map<String, String> getMetadata(Server server) {
 						return null;
 					}
-				}, retryTemplate, loadBalancedRetryPolicyFactory);
+				}, loadBalancedRetryPolicyFactory);
 		Server server = new Server("foo", 7777);
 		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
 				new URI("http://foo/"));
@@ -133,7 +131,7 @@ public class FeignLoadBalancerTests {
 	@SneakyThrows
 	public void testSecureUriFromClientConfigOverride() {
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector, retryTemplate, loadBalancedRetryPolicyFactory);
+				this.inspector, loadBalancedRetryPolicyFactory);
 		Server server = Mockito.mock(Server.class);
 		when(server.getPort()).thenReturn(443);
 		when(server.getHost()).thenReturn("foo");

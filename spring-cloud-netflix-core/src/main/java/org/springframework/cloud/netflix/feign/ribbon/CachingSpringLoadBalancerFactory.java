@@ -37,21 +37,18 @@ import com.netflix.loadbalancer.ILoadBalancer;
 public class CachingSpringLoadBalancerFactory {
 
 	private final SpringClientFactory factory;
-	private final RetryTemplate retryTemplate;
 	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
 
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory) {
 		this.factory = factory;
-		this.retryTemplate = new RetryTemplate();
 		this.loadBalancedRetryPolicyFactory = new RibbonLoadBalancedRetryPolicyFactory(factory);
 	}
 
-	public CachingSpringLoadBalancerFactory(SpringClientFactory factory, RetryTemplate retryTemplate,
+	public CachingSpringLoadBalancerFactory(SpringClientFactory factory,
 											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		this.factory = factory;
-		this.retryTemplate = retryTemplate;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
@@ -62,7 +59,7 @@ public class CachingSpringLoadBalancerFactory {
 		IClientConfig config = this.factory.getClientConfig(clientName);
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName, ServerIntrospector.class);
-		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector, retryTemplate,
+		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector,
 				loadBalancedRetryPolicyFactory);
 		this.cache.put(clientName, client);
 		return client;
