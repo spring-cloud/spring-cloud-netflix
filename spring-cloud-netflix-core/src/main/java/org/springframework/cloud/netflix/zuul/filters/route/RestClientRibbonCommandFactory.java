@@ -57,7 +57,7 @@ public class RestClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 		RestClient restClient = this.clientFactory.getClient(serviceId,
 				RestClient.class);
 		return new RestClientRibbonCommand(context.getServiceId(), restClient, context,
-				this.zuulProperties, fallbackProvider);
+				this.zuulProperties, fallbackProvider, clientFactory.getClientConfig(serviceId));
 	}
 
 	public SpringClientFactory getClientFactory() {

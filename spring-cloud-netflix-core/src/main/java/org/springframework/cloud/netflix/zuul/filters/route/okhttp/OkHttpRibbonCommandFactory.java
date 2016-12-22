@@ -55,7 +55,8 @@ public class OkHttpRibbonCommandFactory extends AbstractRibbonCommandFactory {
 				serviceId, OkHttpLoadBalancingClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new OkHttpRibbonCommand(serviceId, client, context, zuulProperties, fallbackProvider);
+		return new OkHttpRibbonCommand(serviceId, client, context, zuulProperties, fallbackProvider,
+				clientFactory.getClientConfig(serviceId));
 	}
 
 }

@@ -25,6 +25,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import com.netflix.client.config.IClientConfig;
 
 /**
  * @author Christian Lohmann
@@ -55,7 +56,8 @@ public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 				serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider);
+		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider,
+				clientFactory.getClientConfig(serviceId));
 	}
 
 }
