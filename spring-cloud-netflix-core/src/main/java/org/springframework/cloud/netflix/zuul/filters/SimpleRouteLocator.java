@@ -78,6 +78,11 @@ public class SimpleRouteLocator implements RouteLocator {
 	}
 
 	@Override
+	public PathMatcher getPathMatcher() {
+		return this.pathMatcher;
+	}
+
+	@Override
 	public Route getMatchingRoute(final String path) {
 
 		if (log.isDebugEnabled()) {
