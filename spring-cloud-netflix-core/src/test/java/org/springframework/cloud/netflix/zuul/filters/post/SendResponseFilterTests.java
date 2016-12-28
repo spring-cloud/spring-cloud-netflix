@@ -17,9 +17,13 @@
 package org.springframework.cloud.netflix.zuul.filters.post;
 
 import java.io.ByteArrayInputStream;
-import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 
-import com.netflix.zuul.context.RequestContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,9 +34,19 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.util.WebUtils;
 
+import com.netflix.zuul.context.RequestContext;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -62,6 +76,37 @@ public class SendResponseFilterTests {
 		String characterEncoding = "UTF-16";
 		String content = "\u00a5";
 		runFilter(characterEncoding, content, true);
+	}
+
+	@Test(timeout = 5000L)
+	public void closeInputStreamOnOutpusStreamError() throws Exception {
+		HttpServletResponse response = mock(HttpServletResponse.class);
+
+		RequestContext context = new RequestContext();
+		context.setRequest(new MockHttpServletRequest());
+		context.setResponse(response);
+		InputStream responseStream = spy(
+				new InfiniteInputStream("Hello\n".getBytes("UTF-8")));
+		context.setResponseDataStream(responseStream);
+		RequestContext.testSetCurrentContext(context);
+
+		SendResponseFilter filter = new SendResponseFilter();
+
+		ServletOutputStream zuuloutputstream = mock(ServletOutputStream.class);
+		doThrow(new IOException("Response to client closed")).when(zuuloutputstream)
+				.write(isA(byte[].class), anyInt(), anyInt());
+
+		when(response.getOutputStream()).thenReturn(zuuloutputstream);
+
+		try {
+			filter.run();
+		}
+		catch (UndeclaredThrowableException ex) {
+			assertThat(ex.getUndeclaredThrowable().getMessage(),
+					is("Response to client closed"));
+		}
+
+		verify(responseStream).close();
 	}
 
 	private void runFilter(String characterEncoding, String content, boolean streamContent) throws Exception {
@@ -97,6 +142,30 @@ public class SendResponseFilterTests {
 		RequestContext.testSetCurrentContext(context);
 		SendResponseFilter filter = new SendResponseFilter();
 		return filter;
+	}
+
+	private class InfiniteInputStream extends InputStream {
+
+		private InputStream in;
+		private byte[] bytes;
+
+		private InfiniteInputStream(byte[] bytes) {
+			this.bytes = bytes;
+		}
+
+		@Override
+		public int read() throws IOException {
+			if (this.in == null) {
+				this.in = new ByteArrayInputStream(this.bytes);
+			}
+			int read = this.in.read();
+			if (read != -1) {
+				return read;
+			}
+			this.in.close();
+			this.in = new ByteArrayInputStream(this.bytes);
+			return this.in.read();
+		}
 	}
 
 }

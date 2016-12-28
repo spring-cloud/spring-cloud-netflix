@@ -180,13 +180,8 @@ public class SendResponseFilter extends ZuulFilter {
 		byte[] bytes = new byte[INITIAL_STREAM_BUFFER_SIZE.get()];
 		int bytesRead = -1;
 		while ((bytesRead = zin.read(bytes)) != -1) {
-			try {
-				out.write(bytes, 0, bytesRead);
-				out.flush();
-			}
-			catch (IOException ex) {
-				// ignore
-			}
+			out.write(bytes, 0, bytesRead);
+			out.flush();
 			// doubles buffer size if previous read filled it
 			if (bytesRead == bytes.length) {
 				bytes = new byte[bytes.length * 2];
