@@ -4,6 +4,7 @@
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
 :all: {asterisk}{asterisk}
 :nofooter:
+:imagesdir: ./images
 = Spring Cloud Netflix
 
 *{spring-cloud-version}*
@@ -1974,7 +1975,7 @@ The counter records a single time-normalized statistic.
 A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency:
 
 .Request Latency
-image::RequestLatency.png []
+image::RequestLatency.png[]
 
 [source,java]
 ----
