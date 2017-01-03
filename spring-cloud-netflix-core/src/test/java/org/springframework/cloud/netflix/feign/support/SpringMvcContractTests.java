@@ -45,6 +45,8 @@ import feign.MethodMetadata;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * @author chadjaros
@@ -86,6 +88,21 @@ public class SpringMvcContractTests {
 	@Test
 	public void testProcessAnnotations_Simple() throws Exception {
 		Method method = TestTemplate_Simple.class.getDeclaredMethod("getTest",
+				String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test/{id}", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals(MediaType.APPLICATION_JSON_VALUE,
+				data.template().headers().get("Accept").iterator().next());
+
+		assertEquals("id", data.indexToName().get(0).iterator().next());
+	}
+        
+        @Test
+	public void testProcessAnnotations_SimpleGetMapping() throws Exception {
+		Method method = TestTemplate_Simple.class.getDeclaredMethod("getMappingTest",
 				String.class);
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
@@ -148,6 +165,20 @@ public class SpringMvcContractTests {
 	@Test
 	public void testProcessAnnotations_SimplePost() throws Exception {
 		Method method = TestTemplate_Simple.class.getDeclaredMethod("postTest",
+				TestObject.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("", data.template().url());
+		assertEquals("POST", data.template().method());
+		assertEquals(MediaType.APPLICATION_JSON_VALUE,
+				data.template().headers().get("Accept").iterator().next());
+
+	}
+        
+        @Test
+	public void testProcessAnnotations_SimplePostMapping() throws Exception {
+		Method method = TestTemplate_Simple.class.getDeclaredMethod("postMappingTest",
 				TestObject.class);
 		MethodMetadata data = this.contract
 				.parseAndValidateMetadata(method.getDeclaringClass(), method);
@@ -346,9 +377,15 @@ public class SpringMvcContractTests {
 
 		@RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 		TestObject getTest();
+                
+                @GetMapping(value = "/test/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+		ResponseEntity<TestObject> getMappingTest(@PathVariable("id") String id);
 
 		@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 		TestObject postTest(@RequestBody TestObject object);
+                
+                @PostMapping( produces = MediaType.APPLICATION_JSON_VALUE)
+		TestObject postMappingTest(@RequestBody TestObject object);
 	}
 
 	@RequestMapping("/prepend/{classId}")
@@ -388,7 +425,7 @@ public class SpringMvcContractTests {
 		@RequestMapping(path = "/test/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		ResponseEntity<TestObject> getTest(@RequestHeader("Authorization") String auth,
 				@PathVariable("id") String id, @RequestParam("amount") Integer amount);
-
+               
 		@RequestMapping(path = "/test2", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 		ResponseEntity<TestObject> getTest2(
 				@RequestHeader(name = "Authorization") String auth,
