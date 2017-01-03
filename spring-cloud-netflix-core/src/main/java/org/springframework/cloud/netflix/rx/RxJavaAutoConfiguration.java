@@ -47,11 +47,18 @@ public class RxJavaAutoConfiguration {
 		}
 
 		@Bean
-		public WebMvcConfigurerAdapter observableMVCConfiguration(final SingleReturnValueHandler singleReturnValueHandler) {
+		public CompletableReturnValueHandler completableReturnValueHandler() {
+			return new CompletableReturnValueHandler();
+		}
+
+		@Bean
+		public WebMvcConfigurerAdapter observableMVCConfiguration(final SingleReturnValueHandler singleReturnValueHandler,
+																  final CompletableReturnValueHandler completableReturnValueHandler) {
 			return new WebMvcConfigurerAdapter() {
 				@Override
 				public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
 					returnValueHandlers.add(singleReturnValueHandler);
+					returnValueHandlers.add(completableReturnValueHandler);
 				}
 			};
 		}

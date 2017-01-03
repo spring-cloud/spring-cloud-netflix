@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,29 +21,33 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import rx.Completable;
+import rx.Observable;
 import rx.Single;
 
 /**
- * A specialized {@link AbstractRxReturnValueHandler} that handles {@link Single}
- * return types.
+ * A specialized {@link AbstractRxReturnValueHandler} that handles {@link rx.Completable}
+ * return type.
  *
- * @author Spencer Gibb
- * @author Jakub Narloch
+ * @author Kyryl Sablin
  */
-public class SingleReturnValueHandler extends AbstractRxReturnValueHandler {
+public class CompletableReturnValueHandler extends AbstractRxReturnValueHandler {
 
 	@Override
 	protected boolean rxTypeIsAssignableFrom(Class<?> cls) {
-		return Single.class.isAssignableFrom(cls);
+		return Completable.class.isAssignableFrom(cls);
 	}
 
 	@Override
 	protected void startDeferredResultProcessing(Object returnValue, ModelAndViewContainer mavContainer,
 												 NativeWebRequest webRequest, ResponseEntity<?> responseEntity)
 			throws Exception {
-		final Single<?> single = Single.class.cast(returnValue);
+		final Completable completable = Completable.class.cast(returnValue);
 		WebAsyncUtils.getAsyncManager(webRequest).startDeferredResultProcessing(
-				convertToDeferredResult(responseEntity, single), mavContainer);
+				convertToDeferredResult(responseEntity, fromCompletable(completable)), mavContainer);
 	}
 
+	private Single<?> fromCompletable(Completable completable) {
+		return completable.toObservable().concatWith(Observable.just(null)).toSingle();
+	}
 }
