@@ -17,9 +17,7 @@
 package org.springframework.cloud.netflix.rx;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.async.WebAsyncUtils;
-import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import rx.Single;
 
@@ -38,12 +36,8 @@ public class SingleReturnValueHandler extends AbstractRxReturnValueHandler {
 	}
 
 	@Override
-	protected void startDeferredResultProcessing(Object returnValue, ModelAndViewContainer mavContainer,
-												 NativeWebRequest webRequest, ResponseEntity<?> responseEntity)
-			throws Exception {
+	protected DeferredResult<?> convertToDeferredResult(ResponseEntity<?> responseEntity, Object returnValue) {
 		final Single<?> single = Single.class.cast(returnValue);
-		WebAsyncUtils.getAsyncManager(webRequest).startDeferredResultProcessing(
-				convertToDeferredResult(responseEntity, single), mavContainer);
+		return convertSingleToDeferredResult(responseEntity, single);
 	}
-
 }

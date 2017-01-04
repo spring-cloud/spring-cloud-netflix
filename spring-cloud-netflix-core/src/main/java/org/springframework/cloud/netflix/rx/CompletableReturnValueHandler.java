@@ -17,9 +17,7 @@
 package org.springframework.cloud.netflix.rx;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.async.WebAsyncUtils;
-import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import rx.Completable;
 import rx.Observable;
@@ -39,15 +37,12 @@ public class CompletableReturnValueHandler extends AbstractRxReturnValueHandler 
 	}
 
 	@Override
-	protected void startDeferredResultProcessing(Object returnValue, ModelAndViewContainer mavContainer,
-												 NativeWebRequest webRequest, ResponseEntity<?> responseEntity)
-			throws Exception {
+	protected DeferredResult<?> convertToDeferredResult(ResponseEntity<?> responseEntity, Object returnValue) {
 		final Completable completable = Completable.class.cast(returnValue);
-		WebAsyncUtils.getAsyncManager(webRequest).startDeferredResultProcessing(
-				convertToDeferredResult(responseEntity, fromCompletable(completable)), mavContainer);
+		return convertSingleToDeferredResult(responseEntity, singleFromCompletable(completable));
 	}
 
-	private Single<?> fromCompletable(Completable completable) {
-		return completable.toObservable().concatWith(Observable.just(null)).toSingle();
+	private Single<?> singleFromCompletable(Completable completable) {
+		return completable.toObservable().concatWith(Observable.just("")).toSingle();
 	}
 }

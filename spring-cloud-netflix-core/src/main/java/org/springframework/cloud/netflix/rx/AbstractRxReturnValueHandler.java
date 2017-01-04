@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
@@ -69,7 +70,8 @@ abstract public class AbstractRxReturnValueHandler implements AsyncHandlerMethod
 			}
 		}
 
-		startDeferredResultProcessing(returnValue, mavContainer, webRequest, responseEntity);
+		WebAsyncUtils.getAsyncManager(webRequest).startDeferredResultProcessing(
+				convertToDeferredResult(responseEntity, returnValue), mavContainer);
 	}
 
 	private boolean isResponseEntity(MethodParameter returnType) {
@@ -81,13 +83,11 @@ abstract public class AbstractRxReturnValueHandler implements AsyncHandlerMethod
 		return false;
 	}
 
+	protected abstract boolean rxTypeIsAssignableFrom(Class<?> cls);
 
-	abstract protected boolean rxTypeIsAssignableFrom(Class<?> cls);
 
-	abstract protected void startDeferredResultProcessing(
-			Object returnValue, ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-			ResponseEntity<?> responseEntity)
-			throws Exception;
+	protected abstract DeferredResult<?> convertToDeferredResult(ResponseEntity<?> responseEntity, Object returnValue);
+
 
 	@SuppressWarnings("unchecked")
 	private ResponseEntity getResponseEntity(Object returnValue) {
@@ -98,7 +98,7 @@ abstract public class AbstractRxReturnValueHandler implements AsyncHandlerMethod
 		return null;
 	}
 
-	protected DeferredResult<?> convertToDeferredResult(
+	protected DeferredResult<?> convertSingleToDeferredResult(
 			final ResponseEntity<?> responseEntity, Single<?> single) {
 
 		// TODO: use lambda when java8 :-)
