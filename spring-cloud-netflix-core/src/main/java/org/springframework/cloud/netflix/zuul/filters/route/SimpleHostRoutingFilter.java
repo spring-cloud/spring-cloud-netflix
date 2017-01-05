@@ -245,6 +245,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
 		}
 		return httpClientBuilder.setConnectionManager(newConnectionManager())
+				.disableContentCompression()
 				.useSystemProperties().setDefaultRequestConfig(requestConfig)
 				.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
 				.setRedirectStrategy(new RedirectStrategy() {
