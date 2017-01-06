@@ -128,13 +128,26 @@ public class SimpleHostRoutingFilterTests {
 	public void httpClientDoesNotDecompressEncodedData() throws Exception {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/get/1", inputStreamEntity,
+		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/compressed/get/1", inputStreamEntity,
 				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>());
 
 		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
 		assertEquals(200, response.getStatusLine().getStatusCode());
 		byte[] responseBytes = IOUtils.toByteArray(response.getEntity().getContent());
 		assertTrue(Arrays.equals(GZIPCompression.compress("Get 1"), responseBytes));
+	}
+
+	@Test
+	public void httpClientPreservesUnencodedData() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/get/1", inputStreamEntity,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>());
+
+		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		String responseString = IOUtils.toString(response.getEntity().getContent());
+		assertTrue("Get 1".equals(responseString));
 	}
 
 	private void setupContext() {
@@ -166,10 +179,15 @@ class SampleApplication {
 		SpringApplication.run(SampleApplication.class, args);
 	}
 
-	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-	public byte[] get(@PathVariable String id, HttpServletResponse response) throws IOException {
+	@RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
+	public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
 		response.setHeader("content-encoding", "gzip");
 		return GZIPCompression.compress("Get " + id);
+	}
+
+	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+	public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
+		return "Get " + id;
 	}
 }
 
