@@ -155,7 +155,6 @@ public class SimpleHostRoutingFilterTests {
 			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties);
 		}
 	}
-
 }
 
 @Configuration
@@ -172,7 +171,6 @@ class SampleApplication {
 		response.setHeader("content-encoding", "gzip");
 		return GZIPCompression.compress("Get " + id);
 	}
-
 }
 
 class GZIPCompression {
