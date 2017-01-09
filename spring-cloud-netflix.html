@@ -2602,7 +2602,7 @@ but redirect some of the requests to new ones.</p>
 <p>In this example we are strangling the "legacy" app which is mapped to
 all requests that do not match one of the other patterns. Paths in
 <code>/first/**</code> have been extracted into a new service with an external
-URL. And paths in <code>/second/**</code> are forwared so they can be handled
+URL. And paths in <code>/second/**</code> are forwarded so they can be handled
 locally, e.g. with a normal Spring <code>@RequestMapping</code>. Paths in
 <code>/third/**</code> are also forwarded, but with a different prefix
 (i.e. <code>/third/foo</code> is forwarded to <code>/3rd/foo</code>).</p>
