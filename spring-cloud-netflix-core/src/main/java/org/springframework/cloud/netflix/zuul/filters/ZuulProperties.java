@@ -109,6 +109,15 @@ public class ZuulProperties {
 	 * see https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers
 	 */
 	private boolean ignoreSecurityHeaders = true;
+	
+	/**
+	 * Flag to force the original query string encoding when building the backend URI in
+	 * SimpleHostRoutingFilter. When activated, query string will be built using
+	 * HttpServletRequest getQueryString() method instead of UriTemplate. Note that this
+	 * flag is not used in RibbonRoutingFilter with services found via DiscoveryClient
+	 * (like Eureka).
+	 */
+	private boolean forceOriginalQueryStringEncoding = false;
 
 	/**
 	 * Path to install Zuul as a servlet (not part of Spring MVC). The servlet is more
