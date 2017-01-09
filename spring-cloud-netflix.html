@@ -2658,6 +2658,31 @@ do not do by default). E.g. on the command line:</p>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_query_string_encoding">Query String Encoding</h3>
+<div class="paragraph">
+<p>When processing the incoming request, query params are decoded so they can be available for possible modifications in
+Zuul filters. They are then re-encoded when building the backend request in the route filters. The result
+can be different than the original input if it was encoded using Javascript&#8217;s <code>encodeURIComponent()</code> method for example.
+While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.</p>
+</div>
+<div class="paragraph">
+<p>To force the original encoding of the query string, it is possible to pass a special flag to <code>ZuulProperties</code> so
+that the query string is taken as is with the <code>HttpServletRequest::getQueryString</code> method :</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+  forceOriginalQueryStringEncoding: true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Note:</strong> This special flag only works with <code>SimpleHostRoutingFilter</code> and you loose the ability to easily override
+query parameters with <code>RequestContext.getCurrentContext().setRequestQueryParams(someOverriddenParameters)</code> since
+the query string is now fetched directly on the original <code>HttpServletRequest</code>.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_plain_embedded_zuul">Plain Embedded Zuul</h3>
 <div class="paragraph">
 <p>You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
