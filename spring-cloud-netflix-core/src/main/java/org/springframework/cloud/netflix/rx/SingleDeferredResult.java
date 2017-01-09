@@ -29,18 +29,21 @@ import rx.Single;
  */
 class SingleDeferredResult<T> extends DeferredResult<T> {
 
-	private static final Object EMPTY_RESULT = new Object();
-
 	public SingleDeferredResult(Single<T> single) {
-		this(null, EMPTY_RESULT, single);
+		initSingle(single);
 	}
 
 	public SingleDeferredResult(long timeout, Single<T> single) {
-		this(timeout, EMPTY_RESULT, single);
+		super(timeout);
+		initSingle(single);
 	}
 
 	public SingleDeferredResult(Long timeout, Object timeoutResult, Single<T> single) {
 		super(timeout, timeoutResult);
+		initSingle(single);
+	}
+
+	private void initSingle(Single<T> single) {
 		Assert.notNull(single, "single can not be null");
 		new DeferredResultSubscriber<>(single.toObservable(), this);
 	}
