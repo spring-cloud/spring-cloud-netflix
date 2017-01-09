@@ -131,7 +131,12 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	}
 
 	protected boolean isSecure(final IClientConfig config) {
-		return (config != null) ? config.get(CommonClientConfigKey.IsSecure)
-				: this.secure;
+		if(config != null) {
+			Boolean result = config.get(CommonClientConfigKey.IsSecure);
+			if(result != null) {
+				return result;
+			}
+		}
+		return this.secure;
 	}
 }
