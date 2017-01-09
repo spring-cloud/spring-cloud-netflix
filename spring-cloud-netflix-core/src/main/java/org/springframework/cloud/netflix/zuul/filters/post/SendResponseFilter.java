@@ -48,7 +48,7 @@ public class SendResponseFilter extends ZuulFilter {
 
 	private static DynamicIntProperty INITIAL_STREAM_BUFFER_SIZE = DynamicPropertyFactory
 			.getInstance()
-			.getIntProperty(ZuulConstants.ZUUL_INITIAL_STREAM_BUFFER_SIZE, 1024);
+			.getIntProperty(ZuulConstants.ZUUL_INITIAL_STREAM_BUFFER_SIZE, 8192);
 
 	private static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
 			.getInstance()
@@ -65,6 +65,13 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 	}
 
+	private ThreadLocal<byte[]> buffers = new ThreadLocal<byte[]>() {
+		@Override
+		protected byte[] initialValue() {
+			return new byte[INITIAL_STREAM_BUFFER_SIZE.get()];
+		}
+	};
+	
 	@Override
 	public String filterType() {
 		return "post";
@@ -175,20 +182,15 @@ public class SendResponseFilter extends ZuulFilter {
 	}
 
 	private void writeResponse(InputStream zin, OutputStream out) throws Exception {
-		byte[] bytes = new byte[INITIAL_STREAM_BUFFER_SIZE.get()];
-		int bytesRead = -1;
-		while ((bytesRead = zin.read(bytes)) != -1) {
-			try {
+		try {
+			byte[] bytes = buffers.get();
+			int bytesRead = -1;
+			while ((bytesRead = zin.read(bytes)) != -1) {
 				out.write(bytes, 0, bytesRead);
-				out.flush();
 			}
-			catch (IOException ex) {
-				// ignore
-			}
-			// doubles buffer size if previous read filled it
-			if (bytesRead == bytes.length) {
-				bytes = new byte[bytes.length * 2];
-			}
+		}
+		catch(IOException ioe) {
+			log.warn("Error while sending response to client: "+ioe.getMessage());
 		}
 	}
 
