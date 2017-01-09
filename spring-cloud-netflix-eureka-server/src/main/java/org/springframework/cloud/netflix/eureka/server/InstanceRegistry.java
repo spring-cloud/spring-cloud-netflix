@@ -106,7 +106,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 			if (input.getName().equals(appName)) {
 				InstanceInfo instance = null;
 				for (InstanceInfo info : input.getInstances()) {
-					if (info.getHostName().equals(serverId)) {
+					if (info.getId().equals(serverId)) {
 						instance = info;
 						break;
 					}
