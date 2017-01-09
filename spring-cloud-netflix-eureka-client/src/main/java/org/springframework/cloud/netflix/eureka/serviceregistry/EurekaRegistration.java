@@ -15,7 +15,7 @@
  *
  */
 
-package org.springframework.cloud.netflix.eureka;
+package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -24,6 +24,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
+import org.springframework.cloud.netflix.eureka.CloudEurekaInstanceConfig;
+import org.springframework.cloud.netflix.eureka.InstanceInfoFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.Assert;
 

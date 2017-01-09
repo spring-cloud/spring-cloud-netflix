@@ -34,7 +34,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -69,6 +68,7 @@ import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
+import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -91,12 +91,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
 			.getInstance()
 			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
-	private static final String ERROR_STATUS_CODE = "error.status_code";
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
 
 	private boolean sslHostnameValidationEnabled;
+	private boolean forceOriginalQueryStringEncoding;
 
 	private ProxyRequestHelper helper;
 	private Host hostProperties;
@@ -120,6 +120,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		this.helper = helper;
 		this.hostProperties = properties.getHost();
 		this.sslHostnameValidationEnabled = properties.isSslHostnameValidationEnabled();
+		this.forceOriginalQueryStringEncoding = properties
+				.isForceOriginalQueryStringEncoding();
 	}
 
 	@PostConstruct
@@ -182,8 +184,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			setResponse(response);
 		}
 		catch (Exception ex) {
-			context.set(ERROR_STATUS_CODE, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			context.set("error.exception", ex);
+			throw new ZuulRuntimeException(ex);
 		}
 		return null;
 	}
@@ -278,7 +279,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				request.getContentType() != null
 						? ContentType.create(request.getContentType()) : null);
 
-		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params);
+		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params, request);
 		try {
 			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
@@ -295,41 +296,47 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	}
 
-	protected HttpRequest buildHttpRequest (String verb, String uri, InputStreamEntity entity,
-											MultiValueMap<String, String> headers, MultiValueMap<String, String> params)
-	{
+	protected HttpRequest buildHttpRequest(String verb, String uri,
+			InputStreamEntity entity, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, HttpServletRequest request) {
 		HttpRequest httpRequest;
+		String uriWithQueryString = uri + (this.forceOriginalQueryStringEncoding
+				? getEncodedQueryString(request) : this.helper.getQueryString(params));
 
 		switch (verb.toUpperCase()) {
 			case "POST":
-				HttpPost httpPost = new HttpPost(uri + this.helper.getQueryString(params));
+				HttpPost httpPost = new HttpPost(uriWithQueryString);
 				httpRequest = httpPost;
 				httpPost.setEntity(entity);
 				break;
 			case "PUT":
-				HttpPut httpPut = new HttpPut(uri + this.helper.getQueryString(params));
+				HttpPut httpPut = new HttpPut(uriWithQueryString);
 				httpRequest = httpPut;
 				httpPut.setEntity(entity);
 				break;
 			case "PATCH":
-				HttpPatch httpPatch = new HttpPatch(uri + this.helper.getQueryString(params));
+				HttpPatch httpPatch = new HttpPatch(uriWithQueryString);
 				httpRequest = httpPatch;
 				httpPatch.setEntity(entity);
 				break;
 			case "DELETE":
-				BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(verb,
-						uri + this.helper.getQueryString(params));
+				BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(
+						verb, uriWithQueryString);
 				httpRequest = entityRequest;
 				entityRequest.setEntity(entity);
 				break;
 			default:
-				httpRequest = new BasicHttpRequest(verb,
-						uri + this.helper.getQueryString(params));
-				log.debug(uri + this.helper.getQueryString(params));
+				httpRequest = new BasicHttpRequest(verb, uriWithQueryString);
+				log.debug(uriWithQueryString);
 		}
 
 		httpRequest.setHeaders(convertHeaders(headers));
 		return httpRequest;
+	}
+
+	private String getEncodedQueryString(HttpServletRequest request) {
+		String query = request.getQueryString();
+		return (query != null) ? "?" + query : "";
 	}
 
 	private MultiValueMap<String, String> revertHeaders(Header[] headers) {

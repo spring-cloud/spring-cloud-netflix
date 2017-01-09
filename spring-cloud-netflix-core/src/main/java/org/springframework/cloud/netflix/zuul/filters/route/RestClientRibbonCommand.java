@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 import org.springframework.util.MultiValueMap;
+import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.niws.client.http.RestClient;
@@ -46,6 +47,12 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 								   RibbonCommandContext context, ZuulProperties zuulProperties,
 								   ZuulFallbackProvider zuulFallbackProvider) {
 		super(commandKey, client, context, zuulProperties, zuulFallbackProvider);
+	}
+
+	public RestClientRibbonCommand(String commandKey, RestClient client,
+								   RibbonCommandContext context, ZuulProperties zuulProperties,
+								   ZuulFallbackProvider zuulFallbackProvider, IClientConfig config) {
+		super(commandKey, client, context, zuulProperties, zuulFallbackProvider, config);
 	}
 
 	@Deprecated

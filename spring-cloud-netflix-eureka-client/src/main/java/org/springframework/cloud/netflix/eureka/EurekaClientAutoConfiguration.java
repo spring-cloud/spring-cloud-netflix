@@ -40,8 +40,12 @@ import org.springframework.cloud.client.CommonsClientAutoConfiguration;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
+import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -70,6 +74,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
+@ConditionalOnBean(EurekaDiscoveryClientConfiguration.Marker.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
 		CommonsClientAutoConfiguration.class })
@@ -111,21 +116,15 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
-		RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
-		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
-		String springAppName = springPropertyResolver.getProperty("name");
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
-		if(StringUtils.hasText(springAppName)) {
-			instance.setAppname(springAppName);
-			instance.setVirtualHostName(springAppName);
-			instance.setSecureVirtualHostName(springAppName);
-		}
+
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
 			if (StringUtils.hasText(this.hostname)) {
 				instance.setHostname(this.hostname);
 			}
+			RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
 			String statusPageUrlPath = relaxedPropertyResolver.getProperty("statusPageUrlPath");
 			String healthCheckUrlPath = relaxedPropertyResolver.getProperty("healthCheckUrlPath");
 			if (StringUtils.hasText(statusPageUrlPath)) {
@@ -155,12 +154,21 @@ public class EurekaClientAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
 	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
 		return EurekaRegistration.builder(instanceConfig)
 				.with(applicationInfoManager)
 				.with(eurekaClient)
 				.with(healthCheckHandler)
 				.build();
+	}
+
+	@Bean
+	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry registry, EurekaRegistration registration) {
+		return new EurekaAutoServiceRegistration(context, registry, registration);
 	}
 
 	@Bean

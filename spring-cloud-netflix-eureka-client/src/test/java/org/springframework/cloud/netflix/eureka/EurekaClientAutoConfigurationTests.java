@@ -52,7 +52,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	private void setupContext(Class<?>... config) {
-		this.context.register(PropertyPlaceholderAutoConfiguration.class);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class, EurekaDiscoveryClientConfiguration.class);
 		for (Class<?> value : config) {
 			this.context.register(value);
 		}
@@ -204,6 +204,23 @@ public class EurekaClientAutoConfigurationTests {
 		assertEquals("mytest", getInstanceConfig().getAppname());
 		assertEquals("mytest", getInstanceConfig().getVirtualHostName());
 		assertEquals("mytest", getInstanceConfig().getSecureVirtualHostName());
+	}
+
+	@Test
+	public void testAppNameUpper() throws Exception {
+		EnvironmentTestUtils.addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestupper");
+		setupContext();
+		assertEquals("mytestupper", getInstanceConfig().getAppname());
+		assertEquals("mytestupper", getInstanceConfig().getVirtualHostName());
+		assertEquals("mytestupper", getInstanceConfig().getSecureVirtualHostName());
+	}
+
+	@Test
+	public void testInstanceNamePreferred() throws Exception {
+		EnvironmentTestUtils.addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestspringappname",
+				"eureka.instance.appname=mytesteurekaappname");
+		setupContext();
+		assertEquals("mytesteurekaappname", getInstanceConfig().getAppname());
 	}
 
 	private void testNonSecurePort(String propName) {

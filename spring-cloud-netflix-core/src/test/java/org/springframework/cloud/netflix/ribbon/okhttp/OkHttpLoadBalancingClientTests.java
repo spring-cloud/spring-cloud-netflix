@@ -84,9 +84,45 @@ public class OkHttpLoadBalancingClientTests {
 		assertThat(result.followRedirects(), is(false));
 	}
 
+	@Test
+	public void testTimeouts() throws Exception {
+		OkHttpClient result = getHttpClient(Timeouts.class, null);
+		assertThat(result.readTimeoutMillis(), is(50000));
+		assertThat(result.connectTimeoutMillis(), is(60000));
+	}
+
+	@Test
+	public void testTimeoutsOverride() throws Exception {
+		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
+		override.set(CommonClientConfigKey.ConnectTimeout, 60);
+		override.set(CommonClientConfigKey.ReadTimeout, 50);
+		OkHttpClient result = getHttpClient(Timeouts.class, override);
+		assertThat(result.readTimeoutMillis(), is(50));
+		assertThat(result.connectTimeoutMillis(), is(60));
+	}
+
+	@Test
+	public void testUpdatedTimeouts() throws Exception {
+		SpringClientFactory factory = new SpringClientFactory();
+		OkHttpClient result = getHttpClient(Timeouts.class, null, factory);
+		assertThat(result.readTimeoutMillis(), is(50000));
+		assertThat(result.connectTimeoutMillis(), is(60000));
+		IClientConfig config = factory.getClientConfig("service");
+		config.set(CommonClientConfigKey.ConnectTimeout, 60);
+		config.set(CommonClientConfigKey.ReadTimeout, 50);
+		result = getHttpClient(Timeouts.class, null, factory);
+		assertThat(result.readTimeoutMillis(), is(50));
+		assertThat(result.connectTimeoutMillis(), is(60));
+	}
+
 	private OkHttpClient getHttpClient(Class<?> defaultConfigurationClass,
 											   IClientConfig configOverride) throws Exception {
-		SpringClientFactory factory = new SpringClientFactory();
+		return getHttpClient(defaultConfigurationClass, configOverride, new SpringClientFactory());
+	}
+
+	private OkHttpClient getHttpClient(Class<?> defaultConfigurationClass,
+									   IClientConfig configOverride,
+									   SpringClientFactory factory) throws Exception {
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
 				RibbonAutoConfiguration.class, defaultConfigurationClass));
 
@@ -117,6 +153,17 @@ public class OkHttpLoadBalancingClientTests {
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.FollowRedirects, false);
+			return config;
+		}
+	}
+
+	@Configuration
+	protected static class Timeouts {
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
+			config.set(CommonClientConfigKey.ReadTimeout, 50000);
 			return config;
 		}
 	}

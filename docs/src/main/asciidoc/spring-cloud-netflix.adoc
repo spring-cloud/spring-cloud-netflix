@@ -4,6 +4,7 @@
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
 :all: {asterisk}{asterisk}
 :nofooter:
+:imagesdir: ./images
 = Spring Cloud Netflix
 
 *{spring-cloud-version}*
@@ -305,6 +306,33 @@ production it's probably better to stick with the default because
 there are some computations internally in the server that make
 assumptions about the lease renewal period.
 
+
+=== Zones
+
+If you have deployed Eureka clients to multiple zones than you may prefer that
+those clients leverage services within the same zone before trying services
+in another zone.  To do this you need to configure your Eureka clients correctly.
+
+First, you need to make sure you have Eureka servers deployed to each zone and that
+they are peers of each other.  See the section on <<spring-cloud-eureka-server-zones-and-regions,zones and regions>> 
+for more information.
+
+Next you need to tell Eureka which zone your service is in.  You can do this using
+the `metadataMap` property.  For example if `service 1` is deployed to both `zone 1`
+and `zone 2` you would need to set the following Eureka properties in `service 1`
+
+*Service 1 in Zone 1*
+```
+eureka.instance.metadataMap.zone = zone1
+eureka.client.preferSameZoneEureka = true
+```
+
+*Service 1 in Zone 2*
+```
+eureka.instance.metadataMap.zone = zone2
+eureka.client.preferSameZoneEureka = true
+```
+
 [[spring-cloud-eureka-server]]
 == Service Discovery: Eureka Server
 
@@ -362,6 +390,7 @@ dependencyManagement {
 ----
 ====
 
+[[spring-cloud-eureka-server-zones-and-regions]]
 === High Availability, Zones and Regions
 
 The Eureka server does not have a backend store, but the service
@@ -1609,6 +1638,26 @@ $ curl -v -H "Transfer-Encoding: chunked" \
     -F "file=@mylarge.iso" localhost:9999/zuul/simple/file
 ----
 
+=== Query String Encoding
+When processing the incoming request, query params are decoded so they can be available for possible modifications in
+Zuul filters. They are then re-encoded when building the backend request in the route filters. The result
+can be different than the original input if it was encoded using Javascript's `encodeURIComponent()` method for example.
+While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.
+
+To force the original encoding of the query string, it is possible to pass a special flag to `ZuulProperties` so
+that the query string is taken as is with the `HttpServletRequest::getQueryString` method : 
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  forceOriginalQueryStringEncoding: true
+----
+
+*Note:* This special flag only works with `SimpleHostRoutingFilter` and you loose the ability to easily override
+query parameters with `RequestContext.getCurrentContext().setRequestQueryParams(someOverriddenParameters)` since
+the query string is now fetched directly on the original `HttpServletRequest`.
+
 === Plain Embedded Zuul
 
 You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
@@ -1808,7 +1857,7 @@ info:
 
 [[netflix-rxjava-springmvc]]
 == RxJava with Spring MVC
-Spring Cloud Netflix includes the https://github.com/ReactiveX/RxJava[RxJava].
+Spring Cloud Netflix includes https://github.com/ReactiveX/RxJava[RxJava].
 
 > RxJava is a Java VM implementation of http://reactivex.io/[Reactive Extensions]: a library for composing asynchronous and event-based programs by using observable sequences.
 
@@ -1946,7 +1995,7 @@ The counter records a single time-normalized statistic.
 A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency:
 
 .Request Latency
-image::RequestLatency.png []
+image::RequestLatency.png[]
 
 [source,java]
 ----

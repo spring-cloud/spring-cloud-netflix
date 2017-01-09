@@ -69,9 +69,9 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 	}
 
 	@Test
-	public void pingOverridesToDummy() throws Exception {
-		DummyPing.class.cast(getLoadBalancer("foo2").getPing());
-		NoOpPing.class.cast(getLoadBalancer("bar").getPing());
+	public void pingOverridesToNoOp() throws Exception {
+		NoOpPing.class.cast(getLoadBalancer("foo2").getPing());
+		DummyPing.class.cast(getLoadBalancer("bar").getPing());
 	}
 
 	@Test

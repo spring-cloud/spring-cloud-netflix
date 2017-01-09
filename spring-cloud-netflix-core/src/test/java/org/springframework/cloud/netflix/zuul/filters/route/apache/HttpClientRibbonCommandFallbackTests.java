@@ -23,15 +23,18 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandFallbackTests;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import com.netflix.zuul.context.RequestContext;
+
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Ryan Baxter
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = RANDOM_PORT,
+		properties = {
 		"zuul.routes.simple: /simple/**", "zuul.routes.another: /another/twolevel/**",
 		"ribbon.ReadTimeout: 1"})
 @DirtiesContext

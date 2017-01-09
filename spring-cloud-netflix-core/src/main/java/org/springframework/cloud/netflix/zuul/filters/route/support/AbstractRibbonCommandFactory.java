@@ -32,7 +32,7 @@ public abstract class AbstractRibbonCommandFactory implements RibbonCommandFacto
 	private Map<String, ZuulFallbackProvider> fallbackProviderCache;
 
 	public AbstractRibbonCommandFactory(Set<ZuulFallbackProvider> fallbackProviders){
-		this.fallbackProviderCache = new HashMap<String, ZuulFallbackProvider>();
+		this.fallbackProviderCache = new HashMap<>();
 		for(ZuulFallbackProvider provider : fallbackProviders) {
 			fallbackProviderCache.put(provider.getRoute(), provider);
 		}

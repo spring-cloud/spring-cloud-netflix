@@ -55,7 +55,8 @@ public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 				serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider);
+		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider,
+				clientFactory.getClientConfig(serviceId));
 	}
 
 }

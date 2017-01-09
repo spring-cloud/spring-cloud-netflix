@@ -181,11 +181,21 @@ public class EurekaInstanceConfigBeanTests {
 	}
 
 	@Test
-	public void testVirtualHostName() throws Exception {
+	public void testDefaultVirtualHostName() throws Exception {
 		addEnvironment(this.context, "spring.application.name:myapp");
 		setupContext();
 		assertEquals("virtualHostName wrong", "myapp", getInstanceConfig().getVirtualHostName());
 		assertEquals("secureVirtualHostName wrong", "myapp", getInstanceConfig().getSecureVirtualHostName());
+
+	}
+
+	@Test
+	public void testCustomVirtualHostName() throws Exception {
+		addEnvironment(this.context, "spring.application.name:myapp", "eureka.instance.virtualHostName=myvirthost",
+				"eureka.instance.secureVirtualHostName=mysecurevirthost");
+		setupContext();
+		assertEquals("virtualHostName wrong", "myvirthost", getInstanceConfig().getVirtualHostName());
+		assertEquals("secureVirtualHostName wrong", "mysecurevirthost", getInstanceConfig().getSecureVirtualHostName());
 
 	}
 

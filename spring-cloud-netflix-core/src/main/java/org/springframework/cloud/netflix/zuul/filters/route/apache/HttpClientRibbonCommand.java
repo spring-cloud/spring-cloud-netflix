@@ -24,6 +24,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
+import com.netflix.client.config.IClientConfig;
 
 /**
  * @author Spencer Gibb
@@ -44,6 +45,15 @@ public class HttpClientRibbonCommand extends AbstractRibbonCommand<RibbonLoadBal
 								   final ZuulProperties zuulProperties,
 								   final ZuulFallbackProvider zuulFallbackProvider) {
 		super(commandKey, client, context, zuulProperties, zuulFallbackProvider);
+	}
+
+	public HttpClientRibbonCommand(final String commandKey,
+								   final RibbonLoadBalancingHttpClient client,
+								   final RibbonCommandContext context,
+								   final ZuulProperties zuulProperties,
+								   final ZuulFallbackProvider zuulFallbackProvider,
+								   final IClientConfig config) {
+		super(commandKey, client, context, zuulProperties, zuulFallbackProvider, config);
 	}
 
 	@Override

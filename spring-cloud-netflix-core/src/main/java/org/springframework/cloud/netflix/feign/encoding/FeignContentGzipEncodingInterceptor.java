@@ -71,7 +71,7 @@ public class FeignContentGzipEncodingInterceptor extends BaseRequestInterceptor 
     private boolean contentLengthExceedThreshold(Collection<String> contentLength) {
 
         try {
-            if (contentLength.size() != 1) {
+            if (contentLength == null || contentLength.size() != 1) {
                 return false;
             }
 

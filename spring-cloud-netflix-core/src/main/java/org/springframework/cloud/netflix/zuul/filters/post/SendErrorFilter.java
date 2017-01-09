@@ -18,18 +18,23 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import com.netflix.zuul.exception.ZuulException;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Spencer Gibb
  */
+//TODO: move to error package in Edgware
 @CommonsLog
 public class SendErrorFilter extends ZuulFilter {
 
@@ -40,7 +45,7 @@ public class SendErrorFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "post";
+		return "error";
 	}
 
 	@Override
@@ -52,7 +57,7 @@ public class SendErrorFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		// only forward to errorPath if it hasn't been forwarded to already
-		return ctx.containsKey("error.status_code")
+		return ctx.getThrowable() != null
 				&& !ctx.getBoolean(SEND_ERROR_FILTER_RAN, false);
 	}
 
@@ -60,20 +65,16 @@ public class SendErrorFilter extends ZuulFilter {
 	public Object run() {
 		try {
 			RequestContext ctx = RequestContext.getCurrentContext();
+			ZuulException exception = findZuulException(ctx.getThrowable());
 			HttpServletRequest request = ctx.getRequest();
 
-			int statusCode = (Integer) ctx.get("error.status_code");
-			request.setAttribute("javax.servlet.error.status_code", statusCode);
+			request.setAttribute("javax.servlet.error.status_code", exception.nStatusCode);
 
-			if (ctx.containsKey("error.exception")) {
-				Object e = ctx.get("error.exception");
-				log.warn("Error during filtering", Throwable.class.cast(e));
-				request.setAttribute("javax.servlet.error.exception", e);
-			}
+			log.warn("Error during filtering", exception);
+			request.setAttribute("javax.servlet.error.exception", exception);
 
-			if (ctx.containsKey("error.message")) {
-				String message = (String) ctx.get("error.message");
-				request.setAttribute("javax.servlet.error.message", message);
+			if (StringUtils.hasText(exception.errorCause)) {
+				request.setAttribute("javax.servlet.error.message", exception.errorCause);
 			}
 
 			RequestDispatcher dispatcher = request.getRequestDispatcher(
@@ -89,6 +90,26 @@ public class SendErrorFilter extends ZuulFilter {
 			ReflectionUtils.rethrowRuntimeException(ex);
 		}
 		return null;
+	}
+
+	ZuulException findZuulException(Throwable throwable) {
+		if (throwable.getCause() instanceof ZuulRuntimeException) {
+			// this was a failure initiated by one of the local filters
+			return (ZuulException) throwable.getCause().getCause();
+		}
+
+		if (throwable.getCause() instanceof ZuulException) {
+			// wrapped zuul exception
+			return (ZuulException) throwable.getCause();
+		}
+
+		if (throwable instanceof ZuulException) {
+			// exception thrown by zuul lifecycle
+			return (ZuulException) throwable;
+		}
+
+		// fallback, should never get here
+		return new ZuulException(throwable, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
 	}
 
 	public void setErrorPath(String errorPath) {

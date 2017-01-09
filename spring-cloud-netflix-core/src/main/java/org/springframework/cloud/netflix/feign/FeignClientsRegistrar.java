@@ -37,10 +37,12 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.ClassMetadata;
@@ -59,7 +61,7 @@ import org.springframework.util.StringUtils;
  * @author Venil Noronha
  */
 class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
-		ResourceLoaderAware, BeanClassLoaderAware {
+		ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
 	// and RibbonClientsConfigurationRegistgrar
@@ -67,6 +69,8 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	private ResourceLoader resourceLoader;
 
 	private ClassLoader classLoader;
+
+	private Environment environment;
 
 	public FeignClientsRegistrar() {
 	}
@@ -243,7 +247,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 
 	private String getUrl(Map<String, Object> attributes) {
 		String url = resolve((String) attributes.get("url"));
-		if (StringUtils.hasText(url)) {
+		if (StringUtils.hasText(url) && !(url.startsWith("#{") && url.endsWith("}"))) {
 			if (!url.contains("://")) {
 				url = "http://" + url;
 			}
@@ -272,7 +276,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	}
 
 	protected ClassPathScanningCandidateComponentProvider getScanner() {
-		return new ClassPathScanningCandidateComponentProvider(false) {
+		return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
 
 			@Override
 			protected boolean isCandidateComponent(
@@ -371,6 +375,11 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		registry.registerBeanDefinition(
 				name + "." + FeignClientSpecification.class.getSimpleName(),
 				builder.getBeanDefinition());
+	}
+
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
 	}
 
 	/**

@@ -16,12 +16,16 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -31,27 +35,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.InputStream;
-import java.net.URL;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Dave Syer
  * @author Spencer Gibb
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=hystrixstreamtest" })
 @DirtiesContext
 public class HystrixStreamEndpointTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port = 0;
 
 	@Test
@@ -69,12 +73,22 @@ public class HystrixStreamEndpointTests {
 		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
 
 		URL hystrixUrl = new URL(url + "/admin/hystrix.stream");
-		InputStream in = hystrixUrl.openStream();
-		byte[] buffer = new byte[1024];
-		in.read(buffer);
-		String contents = new String(buffer);
-		assertTrue(contents.contains("Hystrix"));
-		in.close();
+
+		List<String> data = new ArrayList<>();
+		for (int i = 0; i < 5; i++) {
+			try (InputStream in = hystrixUrl.openStream()) {
+				byte[] buffer = new byte[1024];
+				in.read(buffer);
+				data.add(new String(buffer));
+			}
+		}
+
+		for (String item : data) {
+			if (item.contains("data:")) {
+				return; // test passed
+			}
+		}
+		fail("/hystrix.stream didn't contain 'data:' was " + data);
 	}
 
 	@Configuration

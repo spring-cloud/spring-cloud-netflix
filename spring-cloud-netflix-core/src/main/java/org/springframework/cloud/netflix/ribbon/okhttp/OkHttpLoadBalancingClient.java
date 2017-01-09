@@ -85,25 +85,16 @@ public class OkHttpLoadBalancingClient
 
 	OkHttpClient getOkHttpClient(IClientConfig configOverride, boolean secure) {
 		OkHttpClient.Builder builder = this.delegate.newBuilder();
-		if (configOverride != null) {
-			builder.connectTimeout(configOverride.get(
-					CommonClientConfigKey.ConnectTimeout, this.connectTimeout), TimeUnit.MILLISECONDS);
-			builder.readTimeout(configOverride.get(
-					CommonClientConfigKey.ReadTimeout, this.readTimeout), TimeUnit.MILLISECONDS);
-			builder.followRedirects(configOverride.get(
+		IClientConfig config = configOverride != null ? configOverride : this.config;
+		builder.connectTimeout(config.get(
+				CommonClientConfigKey.ConnectTimeout, this.connectTimeout), TimeUnit.MILLISECONDS);
+		builder.readTimeout(config.get(
+				CommonClientConfigKey.ReadTimeout, this.readTimeout), TimeUnit.MILLISECONDS);
+		builder.followRedirects(config.get(
+				CommonClientConfigKey.FollowRedirects, this.followRedirects));
+		if (secure) {
+			builder.followSslRedirects(configOverride.get(
 					CommonClientConfigKey.FollowRedirects, this.followRedirects));
-			if (secure) {
-				builder.followSslRedirects(configOverride.get(
-						CommonClientConfigKey.FollowRedirects, this.followRedirects));
-			}
-		}
-		else {
-			builder.connectTimeout(this.connectTimeout, TimeUnit.MILLISECONDS);
-			builder.readTimeout(this.readTimeout, TimeUnit.MILLISECONDS);
-			builder.followRedirects(this.followRedirects);
-			if (secure) {
-				builder.followSslRedirects(this.followRedirects);
-			}
 		}
 
 		return builder.build();
