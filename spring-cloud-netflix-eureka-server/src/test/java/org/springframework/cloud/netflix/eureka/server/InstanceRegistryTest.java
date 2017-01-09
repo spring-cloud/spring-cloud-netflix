@@ -1,10 +1,5 @@
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -13,33 +8,42 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.cloud.netflix.eureka.server.InstanceRegistryTest.TestApplication;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceCanceledEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRenewedEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
 import com.netflix.discovery.shared.Application;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Bartlomiej Slota
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestApplication.class,
-		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+@SpringApplicationConfiguration(TestApplication.class)
+@WebIntegrationTest(randomPort = true,
 		value = {"spring.application.name=eureka", "logging.level.org.springframework."
 		+ "cloud.netflix.eureka.server.InstanceRegistry=DEBUG"})
 public class InstanceRegistryTest {
@@ -50,23 +54,28 @@ public class InstanceRegistryTest {
 	private static final String INSTANCE_ID = "my-host-name:8008";
 	private static final int PORT = 8008;
 
-	@SpyBean(PeerAwareInstanceRegistry.class)
+	@Autowired
+	private InstanceRegistry originalInstanceRegistry;
+
 	private InstanceRegistry instanceRegistry;
 
-	@MockBean
+	@Autowired
 	private ApplicationListener<EurekaInstanceRegisteredEvent>
 			instanceRegisteredEventListenerMock;
 
-	@MockBean
+	@Autowired
 	private ApplicationListener<EurekaInstanceCanceledEvent>
 			instanceCanceledEventListenerMock;
 
-	@MockBean
+	@Autowired
 	private ApplicationListener<EurekaInstanceRenewedEvent> instanceRenewedEventListener;
 
 	@Before
 	public void setup() {
 		applicationEvents.clear();
+
+		this.instanceRegistry = Mockito.spy(originalInstanceRegistry);
+
 		Answer applicationListenerAnswer = prepareListenerMockAnswer();
 		doAnswer(applicationListenerAnswer).when(instanceRegisteredEventListenerMock)
 				.onApplicationEvent(isA(EurekaInstanceRegisteredEvent.class));
@@ -160,7 +169,23 @@ public class InstanceRegistryTest {
 	@Configuration
 	@EnableAutoConfiguration
 	@EnableEurekaServer
+	@SuppressWarnings("unchecked")
 	protected static class TestApplication {
+		@Bean
+		public ApplicationListener<EurekaInstanceRegisteredEvent> instanceRegisteredEventListenerMock() {
+			return mock(ApplicationListener.class);
+		}
+
+		@Bean
+		public ApplicationListener<EurekaInstanceCanceledEvent> instanceCanceledEventListenerMock() {
+			return mock(ApplicationListener.class);
+		}
+
+		@Bean
+		public ApplicationListener<EurekaInstanceRenewedEvent> instanceRenewedEventListener() {
+			return mock(ApplicationListener.class);
+		}
+
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(TestApplication.class).run(args);
 		}
