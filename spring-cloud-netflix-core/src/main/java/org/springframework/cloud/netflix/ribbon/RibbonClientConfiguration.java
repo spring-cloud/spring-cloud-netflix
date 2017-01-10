@@ -30,6 +30,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.support.SpringRestClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -238,7 +239,7 @@ public class RibbonClientConfiguration {
 		setRibbonProperty(name, DeploymentContextBasedVipAddresses.key(), name);
 	}
 
-	static class OverrideRestClient extends RestClient {
+	static class OverrideRestClient extends SpringRestClient {
 
 		private IClientConfig config;
 		private ServerIntrospector serverIntrospector;
