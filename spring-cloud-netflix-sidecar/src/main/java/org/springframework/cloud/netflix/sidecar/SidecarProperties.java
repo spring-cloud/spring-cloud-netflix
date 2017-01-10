@@ -40,4 +40,8 @@ public class SidecarProperties {
 	@Min(1)
 	private int port;
 
+	private String hostname;
+
+	private String ipAddress;
+
 }

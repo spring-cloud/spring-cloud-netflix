@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.feign;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 import feign.MethodMetadata;
@@ -25,6 +26,7 @@ import feign.MethodMetadata;
  * Feign contract method parameter processor.
  *
  * @author Jakub Narloch
+ * @author Abhijit Sarkar
  */
 public interface AnnotatedParameterProcessor {
 
@@ -40,9 +42,10 @@ public interface AnnotatedParameterProcessor {
 	 *
 	 * @param context    the parameter context
 	 * @param annotation the annotation instance
+	 * @param method     the method that contains the annotation
 	 * @return whether the parameter is http
 	 */
-	boolean processArgument(AnnotatedParameterContext context, Annotation annotation);
+	boolean processArgument(AnnotatedParameterContext context, Annotation annotation, Method method);
 
 	/**
 	 * Specifies the parameter context.
