@@ -21,6 +21,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,8 @@ import static org.junit.Assert.fail;
 @DirtiesContext
 public class HystrixStreamEndpointTests {
 
+	private static final Log log = LogFactory.getLog(HystrixStreamEndpointTests.class);
+
 	@LocalServerPort
 	private int port = 0;
 
@@ -80,6 +84,8 @@ public class HystrixStreamEndpointTests {
 				byte[] buffer = new byte[1024];
 				in.read(buffer);
 				data.add(new String(buffer));
+			} catch (Exception e) {
+				log.error("Error getting hystrix stream, try " + i, e);
 			}
 		}
 
