@@ -36,6 +36,11 @@ public interface InvoiceClient {
 	@RequestMapping(value = "invoices", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<List<Invoice>> getInvoices();
 
+	@RequestMapping(value = "invoicesPaged", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	ResponseEntity<List<Invoice>> getInvoicesPaged(org.springframework.data.domain.Pageable pageable);
+
 	@RequestMapping(value = "invoices", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<List<Invoice>> saveInvoices(List<Invoice> invoices);
+
+
 }
