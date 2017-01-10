@@ -27,6 +27,8 @@ import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -100,6 +102,11 @@ public class RibbonLoadBalancingHttpClient
 	public URI reconstructURIWithServer(Server server, URI original) {
 		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
 		return super.reconstructURIWithServer(server, uri);
+	}
+
+	@Override
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(RibbonApacheHttpRequest request, IClientConfig requestConfig) {
+		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
 	}
 
 }

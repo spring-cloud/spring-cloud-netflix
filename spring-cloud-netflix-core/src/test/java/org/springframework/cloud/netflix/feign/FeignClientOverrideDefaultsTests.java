@@ -108,7 +108,7 @@ public class FeignClientOverrideDefaultsTests {
 
 	@Test
 	public void overrideRetryer() {
-		assertNull(this.context.getInstance("foo", Retryer.class));
+		assertEquals(Retryer.NEVER_RETRY, this.context.getInstance("foo", Retryer.class));
 		Retryer.Default.class.cast(this.context.getInstance("bar", Retryer.class));
 	}
 

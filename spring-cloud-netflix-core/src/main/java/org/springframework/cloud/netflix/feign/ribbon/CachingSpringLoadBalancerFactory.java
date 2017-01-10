@@ -18,8 +18,11 @@ package org.springframework.cloud.netflix.feign.ribbon;
 
 import java.util.Map;
 
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import com.netflix.client.config.IClientConfig;
@@ -34,11 +37,19 @@ import com.netflix.loadbalancer.ILoadBalancer;
 public class CachingSpringLoadBalancerFactory {
 
 	private final SpringClientFactory factory;
+	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
 
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory) {
 		this.factory = factory;
+		this.loadBalancedRetryPolicyFactory = new RibbonLoadBalancedRetryPolicyFactory(factory);
+	}
+
+	public CachingSpringLoadBalancerFactory(SpringClientFactory factory,
+											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+		this.factory = factory;
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
 	public FeignLoadBalancer create(String clientName) {
@@ -48,7 +59,8 @@ public class CachingSpringLoadBalancerFactory {
 		IClientConfig config = this.factory.getClientConfig(clientName);
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName, ServerIntrospector.class);
-		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector);
+		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector,
+				loadBalancedRetryPolicyFactory);
 		this.cache.put(clientName, client);
 		return client;
 	}
