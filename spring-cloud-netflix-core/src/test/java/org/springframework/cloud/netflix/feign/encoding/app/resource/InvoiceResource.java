@@ -50,6 +50,13 @@ public class InvoiceResource {
         return ResponseEntity.ok(invoices);
     }
 
+    @RequestMapping(value = "invoicesPaged", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Invoice>> getInvoicesPaged(org.springframework.data.domain.Pageable pageable) {
+
+        return ResponseEntity.ok(createInvoiceList(100));
+    }
+
+
     private List<Invoice> createInvoiceList(int count) {
         final List<Invoice> invoices = new ArrayList<>();
         for (int ind = 0; ind < count; ind++) {
