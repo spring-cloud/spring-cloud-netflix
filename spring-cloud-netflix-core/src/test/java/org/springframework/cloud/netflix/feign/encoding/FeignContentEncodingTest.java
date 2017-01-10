@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.Module;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,11 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.encoding.app.client.InvoiceClient;
 import org.springframework.cloud.netflix.feign.encoding.app.domain.Invoice;
+import org.springframework.cloud.netflix.feign.support.PageJacksonModule;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -77,7 +80,6 @@ public class FeignContentEncodingTest {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
 		assertEquals(invoices.size(), response.getBody().size());
-
 	}
 
 	@Test
@@ -87,14 +89,14 @@ public class FeignContentEncodingTest {
 		Pageable pageable = new PageRequest(0,10, Sort.Direction.ASC, "sortProperty");
 
 		// when
-		final ResponseEntity<List<Invoice>> response = this.invoiceClient
+		final ResponseEntity<Page<Invoice>> response = this.invoiceClient
 				.getInvoicesPaged(pageable);
 
 		// then
 		assertNotNull(response);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(pageable.getPageSize(), response.getBody().size());
+		assertEquals(pageable.getPageSize(), response.getBody().getSize());
 
 	}
 
@@ -103,7 +105,13 @@ public class FeignContentEncodingTest {
 	@SpringBootApplication(scanBasePackages = "org.springframework.cloud.netflix.feign.encoding.app")
 	@EnableSpringDataWebSupport
 	public static class Application {
+		@Bean
+		public Module pageJacksonModule(){
+			return new PageJacksonModule();
+		}
 	}
+
+
 
 	@Configuration
 	static class LocalRibbonClientConfiguration {

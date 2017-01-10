@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.Module;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -61,6 +62,7 @@ public class FeignClientsConfiguration {
 	@Autowired(required = false)
 	private Logger logger;
 
+
 	@Bean
 	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
@@ -70,7 +72,7 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
-		return new SpringDataEncoder(new SpringEncoder(this.messageConverters));
+		return new PageableSpringEncoder(new SpringEncoder(this.messageConverters));
 	}
 
 	@Bean

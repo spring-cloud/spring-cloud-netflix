@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.feign.encoding.app.resource;
 
 import org.springframework.cloud.netflix.feign.encoding.app.domain.Invoice;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +53,9 @@ public class InvoiceResource {
     }
 
     @RequestMapping(value = "invoicesPaged", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Invoice>> getInvoicesPaged(org.springframework.data.domain.Pageable pageable) {
-
-        PageImpl<Invoice> page = new PageImpl<>(createInvoiceList(pageable.getPageSize()));
-        return ResponseEntity.ok(page.getContent());
+    public ResponseEntity<Page<Invoice>> getInvoicesPaged(org.springframework.data.domain.Pageable pageable) {
+        Page<Invoice> page = new PageImpl<>(createInvoiceList(pageable.getPageSize()), pageable, 100);
+        return ResponseEntity.ok(page);
     }
 
 

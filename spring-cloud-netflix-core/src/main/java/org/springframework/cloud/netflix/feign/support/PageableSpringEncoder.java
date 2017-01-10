@@ -12,13 +12,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Provides support for encoding common spring data objects for feign requests.
+ * Provides support for encoding spring Pageable via composition.
  */
-public class SpringDataEncoder implements Encoder {
+public class PageableSpringEncoder implements Encoder {
 
     private final Encoder delegate;
 
-    public SpringDataEncoder(Encoder delegate){
+    public PageableSpringEncoder(Encoder delegate){
         this.delegate = delegate;
     }
 
