@@ -25,10 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
-import org.springframework.cloud.netflix.feign.support.ResponseEntityDecoder;
-import org.springframework.cloud.netflix.feign.support.SpringDecoder;
-import org.springframework.cloud.netflix.feign.support.SpringEncoder;
-import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
+import org.springframework.cloud.netflix.feign.support.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -73,7 +70,7 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
-		return new SpringEncoder(this.messageConverters);
+		return new SpringDataEncoder(new SpringEncoder(this.messageConverters));
 	}
 
 	@Bean
