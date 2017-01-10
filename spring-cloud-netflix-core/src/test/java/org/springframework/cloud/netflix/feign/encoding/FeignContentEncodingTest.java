@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -100,6 +101,7 @@ public class FeignContentEncodingTest {
 	@EnableFeignClients(clients = InvoiceClient.class)
 	@RibbonClient(name = "local", configuration = LocalRibbonClientConfiguration.class)
 	@SpringBootApplication(scanBasePackages = "org.springframework.cloud.netflix.feign.encoding.app")
+	@EnableSpringDataWebSupport
 	public static class Application {
 	}
 

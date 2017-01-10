@@ -71,8 +71,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-commons-core</artifactId>
-			<version>${spring-boot.version}</version>
+			<artifactId>spring-data-commons</artifactId>
 		</dependency>
 		<!-- archaius dependencies that are now runtime -->
 		<dependency>
