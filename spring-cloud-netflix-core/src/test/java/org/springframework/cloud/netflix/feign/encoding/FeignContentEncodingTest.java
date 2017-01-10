@@ -35,6 +35,9 @@ import org.springframework.cloud.netflix.feign.encoding.app.domain.Invoice;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -73,6 +76,24 @@ public class FeignContentEncodingTest {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertNotNull(response.getBody());
 		assertEquals(invoices.size(), response.getBody().size());
+
+	}
+
+	@Test
+	public void testPageable(){
+
+		// given
+		Pageable pageable = new PageRequest(0,10, Sort.Direction.ASC, "sortProperty");
+
+		// when
+		final ResponseEntity<List<Invoice>> response = this.invoiceClient
+				.getInvoicesPaged(pageable);
+
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertNotNull(response.getBody());
+		assertEquals(pageable.getPageSize(), response.getBody().size());
 
 	}
 
