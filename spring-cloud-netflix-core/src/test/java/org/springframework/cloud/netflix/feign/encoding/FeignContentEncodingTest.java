@@ -105,10 +105,6 @@ public class FeignContentEncodingTest {
 	@SpringBootApplication(scanBasePackages = "org.springframework.cloud.netflix.feign.encoding.app")
 	@EnableSpringDataWebSupport
 	public static class Application {
-		@Bean
-		public Module pageJacksonModule(){
-			return new PageJacksonModule();
-		}
 	}
 
 
