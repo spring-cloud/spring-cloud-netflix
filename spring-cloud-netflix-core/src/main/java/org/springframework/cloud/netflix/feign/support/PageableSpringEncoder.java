@@ -20,6 +20,12 @@ public class PageableSpringEncoder implements Encoder {
 
     private final Encoder delegate;
 
+    /**
+     * Creates a new PageableSpringEncoder with the given delegate for fallback.
+     * If no delegate is provided and this encoder cant handle the request,
+     * an EncodeException is thrown.
+     * @param delegate The optional delegate.
+     */
     public PageableSpringEncoder(Encoder delegate){
         this.delegate = delegate;
     }
@@ -27,21 +33,33 @@ public class PageableSpringEncoder implements Encoder {
     @Override
     public void encode(Object object, Type bodyType, RequestTemplate template) throws EncodeException {
 
-        if(object instanceof Pageable){
-            Pageable pageable = (Pageable)object;
-            template.query("page", pageable.getPageNumber() + "");
-            template.query("size", pageable.getPageSize() + "");
+        if(supports(object, bodyType, template)){
+            try {
+                Pageable pageable = (Pageable)object;
+                template.query("page", pageable.getPageNumber() + "");
+                template.query("size", pageable.getPageSize() + "");
 
-            if(pageable.getSort() != null) {
-                Collection<String> existingSorts = template.queries().get("sort");
-                List<String> sortQueries  = existingSorts != null ? new ArrayList<>(existingSorts) : new ArrayList<String>();
-                for (Sort.Order order : pageable.getSort()) {
-                    sortQueries.add(order.getProperty() + "," + order.getDirection());
+                if(pageable.getSort() != null) {
+                    Collection<String> existingSorts = template.queries().get("sort");
+                    List<String> sortQueries  = existingSorts != null ? new ArrayList<>(existingSorts) : new ArrayList<String>();
+                    for (Sort.Order order : pageable.getSort()) {
+                        sortQueries.add(order.getProperty() + "," + order.getDirection());
+                    }
+                    template.query("sort", sortQueries);
                 }
-                template.query("sort", sortQueries);
+            }catch (Exception e){
+                throw new EncodeException("Failed to encode the given Pageable!", e);
             }
         }else{
-            delegate.encode(object, bodyType, template);
+            if(delegate != null){
+                delegate.encode(object, bodyType, template);
+            }else{
+                throw new EncodeException("PageableSpringEncoder does not support the given object "+object.getClass()+" and no delegate was provided for fallback!");
+            }
         }
+    }
+
+    public boolean supports(Object object, Type bodyType, RequestTemplate template){
+        return object instanceof Pageable;
     }
 }

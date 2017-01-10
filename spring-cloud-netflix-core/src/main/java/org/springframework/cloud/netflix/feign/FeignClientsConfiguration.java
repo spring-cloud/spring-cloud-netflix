@@ -72,7 +72,7 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
-		return new PageableSpringEncoder(new SpringEncoder(this.messageConverters));
+		return new SpringEncoder(this.messageConverters);
 	}
 
 	@Bean
