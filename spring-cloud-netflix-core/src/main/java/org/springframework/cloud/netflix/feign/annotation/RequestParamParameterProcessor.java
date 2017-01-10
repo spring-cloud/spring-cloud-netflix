@@ -17,7 +17,9 @@
 package org.springframework.cloud.netflix.feign.annotation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +33,7 @@ import feign.MethodMetadata;
  * {@link RequestParam} parameter processor.
  *
  * @author Jakub Narloch
+ * @author Abhijit Sarkar
  * @see AnnotatedParameterProcessor
  */
 public class RequestParamParameterProcessor implements AnnotatedParameterProcessor {
@@ -43,22 +46,28 @@ public class RequestParamParameterProcessor implements AnnotatedParameterProcess
 	}
 
 	@Override
-	public boolean processArgument(AnnotatedParameterContext context,
-			Annotation annotation) {
+	public boolean processArgument(AnnotatedParameterContext context, Annotation annotation, Method method) {
+		int parameterIndex = context.getParameterIndex();
+		Class<?> parameterType = method.getParameterTypes()[parameterIndex];
+		MethodMetadata data = context.getMethodMetadata();
+
+		if (Map.class.isAssignableFrom(parameterType)) {
+			checkState(data.queryMapIndex() == null, "Query map can only be present once.");
+			data.queryMapIndex(parameterIndex);
+
+			return true;
+		}
+
 		RequestParam requestParam = ANNOTATION.cast(annotation);
 		String name = requestParam.value();
-		if (emptyToNull(name) != null) {
-			context.setParameterName(name);
+		checkState(emptyToNull(name) != null,
+				"RequestParam.value() was empty on parameter %s",
+				parameterIndex);
+		context.setParameterName(name);
 
-			MethodMetadata data = context.getMethodMetadata();
-			Collection<String> query = context.setTemplateParameter(name,
-					data.template().queries().get(name));
-			data.template().query(name, query);
-		} else {
-			// supports `Map` types
-			MethodMetadata data = context.getMethodMetadata();
-			data.queryMapIndex(context.getParameterIndex());
-		}
+		Collection<String> query = context.setTemplateParameter(name,
+				data.template().queries().get(name));
+		data.template().query(name, query);
 		return true;
 	}
 }
