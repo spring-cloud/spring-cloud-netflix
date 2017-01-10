@@ -14,6 +14,8 @@ import java.util.List;
 /**
  * This jackson module provides support to deserialize spring {Page<T>}
  * objects.
+ *
+ * @author Pascal Büttiker
  */
 public class PageJacksonModule extends Module {
 
@@ -34,7 +36,6 @@ public class PageJacksonModule extends Module {
 
         @JsonDeserialize(as = SimplePageImpl.class)
         private interface PageMixIn{ }
-
 
 
         static class SimplePageImpl<T> implements Page<T> {

@@ -13,6 +13,8 @@ import java.util.List;
 
 /**
  * Provides support for encoding spring Pageable via composition.
+ *
+ * @author Pascal Büttiker
  */
 public class PageableSpringEncoder implements Encoder {
 
