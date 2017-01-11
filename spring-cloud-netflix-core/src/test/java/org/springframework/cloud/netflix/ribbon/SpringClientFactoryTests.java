@@ -23,9 +23,13 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.IClientConfigAware;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 import com.netflix.niws.client.http.RestClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
@@ -35,6 +39,31 @@ import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnviron
  */
 public class SpringClientFactoryTests {
 
+	public static class ClientConfigInjectedByConstructor {
+		
+		private IClientConfig clientConfig;
+
+		public ClientConfigInjectedByConstructor(IClientConfig clientConfig) {
+			this.clientConfig = clientConfig;
+		}
+	}
+	
+	public static class ClientConfigInjectedByInitMethod implements IClientConfigAware {
+		
+		private IClientConfig clientConfig;
+
+		@Override
+		public void initWithNiwsConfig(IClientConfig clientConfig) {
+			this.clientConfig = clientConfig;
+		}
+	}
+	
+	public static class NoClientConfigAware {
+		
+		public NoClientConfigAware() {
+			// no client config
+		}
+	}
 
 	@Test
 	public void testConfigureRetry() {
@@ -64,5 +93,26 @@ public class SpringClientFactoryTests {
 		assertEquals(CookiePolicy.IGNORE_COOKIES, jerseyClient.getClientHandler()
 				.getHttpClient().getParams().getParameter(ClientPNames.COOKIE_POLICY));
 		factory.destroy();
+	}
+	
+	@Test
+	public void testInstantiateWithConfigInjectByConstructor() {
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		ClientConfigInjectedByConstructor instance = SpringClientFactory.instantiateWithConfig(ClientConfigInjectedByConstructor.class, clientConfig);
+		assertThat(instance.clientConfig).isSameAs(clientConfig);
+	}
+	
+	@Test
+	public void testInstantiateWithConfigInjectedByInitMethod() {
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		ClientConfigInjectedByInitMethod instance = SpringClientFactory.instantiateWithConfig(ClientConfigInjectedByInitMethod.class, clientConfig);
+		assertThat(instance.clientConfig).isSameAs(clientConfig);
+	}
+	
+	@Test
+	public void testInstantiateWithoutConfig() {
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		NoClientConfigAware instance = SpringClientFactory.instantiateWithConfig(NoClientConfigAware.class, clientConfig);
+		assertThat(instance).isNotNull();
 	}
 }
