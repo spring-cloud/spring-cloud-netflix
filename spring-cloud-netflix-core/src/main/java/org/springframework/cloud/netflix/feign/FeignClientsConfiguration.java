@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 
@@ -77,7 +78,7 @@ public class FeignClientsConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass(name = "org.springframework.data.domain.Pageable")
+	@ConditionalOnClass(Pageable.class)
 	@ConditionalOnMissingBean
 	public Encoder feignEncoderPageable() {
 		return new PageableSpringEncoder(new SpringEncoder(this.messageConverters));

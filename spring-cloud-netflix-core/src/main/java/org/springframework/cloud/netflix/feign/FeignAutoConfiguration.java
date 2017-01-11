@@ -35,6 +35,7 @@ import feign.Client;
 import feign.Feign;
 import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
+import org.springframework.data.domain.Page;
 
 /**
  * @author Spencer Gibb
@@ -60,6 +61,7 @@ public class FeignAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnClass(Page.class)
 	public Module pageJacksonModule(){
 		return new PageJacksonModule();
 	}
