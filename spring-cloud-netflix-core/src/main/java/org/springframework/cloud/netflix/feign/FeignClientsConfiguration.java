@@ -62,7 +62,6 @@ public class FeignClientsConfiguration {
 	@Autowired(required = false)
 	private Logger logger;
 
-
 	@Bean
 	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
