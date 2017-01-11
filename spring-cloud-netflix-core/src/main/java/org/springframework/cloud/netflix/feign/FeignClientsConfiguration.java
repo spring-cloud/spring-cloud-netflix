@@ -24,6 +24,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.cloud.netflix.feign.support.*;
@@ -69,9 +70,17 @@ public class FeignClientsConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingClass("org.springframework.data.domain.Pageable")
 	@ConditionalOnMissingBean
 	public Encoder feignEncoder() {
 		return new SpringEncoder(this.messageConverters);
+	}
+
+	@Bean
+	@ConditionalOnClass(name = "org.springframework.data.domain.Pageable")
+	@ConditionalOnMissingBean
+	public Encoder feignEncoderPageable() {
+		return new PageableSpringEncoder(new SpringEncoder(this.messageConverters));
 	}
 
 	@Bean

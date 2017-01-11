@@ -45,7 +45,6 @@ import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttp
 public class SpringEncoder implements Encoder {
 
 	private ObjectFactory<HttpMessageConverters> messageConverters;
-	private PageableSpringEncoder pageableSpringEncoder = new PageableSpringEncoder(null);
 
 	public SpringEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
 		this.messageConverters = messageConverters;
@@ -56,67 +55,58 @@ public class SpringEncoder implements Encoder {
 			throws EncodeException {
 		// template.body(conversionService.convert(object, String.class));
 		if (requestBody != null) {
-			if(pageableSpringEncoder.supports(requestBody, bodyType, request)){
-				pageableSpringEncoder.encode(requestBody, bodyType, request);
-			}else{
-				encodeWithMessageConverters(requestBody, bodyType, request);
+			Class<?> requestType = requestBody.getClass();
+			Collection<String> contentTypes = request.headers().get("Content-Type");
+
+			MediaType requestContentType = null;
+			if (contentTypes != null && !contentTypes.isEmpty()) {
+				String type = contentTypes.iterator().next();
+				requestContentType = MediaType.valueOf(type);
 			}
-		}
-	}
 
+			for (HttpMessageConverter<?> messageConverter : this.messageConverters
+					.getObject().getConverters()) {
+				if (messageConverter.canWrite(requestType, requestContentType)) {
+					if (log.isDebugEnabled()) {
+						if (requestContentType != null) {
+							log.debug("Writing [" + requestBody + "] as \""
+									+ requestContentType + "\" using ["
+									+ messageConverter + "]");
+						}
+						else {
+							log.debug("Writing [" + requestBody + "] using ["
+									+ messageConverter + "]");
+						}
 
-	private void encodeWithMessageConverters(Object requestBody, Type bodyType, RequestTemplate request){
-		Class<?> requestType = requestBody.getClass();
-		Collection<String> contentTypes = request.headers().get("Content-Type");
-
-		MediaType requestContentType = null;
-		if (contentTypes != null && !contentTypes.isEmpty()) {
-			String type = contentTypes.iterator().next();
-			requestContentType = MediaType.valueOf(type);
-		}
-
-		for (HttpMessageConverter<?> messageConverter : this.messageConverters
-				.getObject().getConverters()) {
-			if (messageConverter.canWrite(requestType, requestContentType)) {
-				if (log.isDebugEnabled()) {
-					if (requestContentType != null) {
-						log.debug("Writing [" + requestBody + "] as \""
-								+ requestContentType + "\" using ["
-								+ messageConverter + "]");
-					}
-					else {
-						log.debug("Writing [" + requestBody + "] using ["
-								+ messageConverter + "]");
 					}
 
-				}
+					FeignOutputMessage outputMessage = new FeignOutputMessage(request);
+					try {
+						@SuppressWarnings("unchecked")
+						HttpMessageConverter<Object> copy = (HttpMessageConverter<Object>) messageConverter;
+						copy.write(requestBody, requestContentType, outputMessage);
+					}
+					catch (IOException ex) {
+						throw new EncodeException("Error converting request body", ex);
+					}
+					// clear headers
+					request.headers(null);
+					// converters can modify headers, so update the request
+					// with the modified headers
+					request.headers(getHeaders(outputMessage.getHeaders()));
 
-				FeignOutputMessage outputMessage = new FeignOutputMessage(request);
-				try {
-					@SuppressWarnings("unchecked")
-					HttpMessageConverter<Object> copy = (HttpMessageConverter<Object>) messageConverter;
-					copy.write(requestBody, requestContentType, outputMessage);
+					request.body(outputMessage.getOutputStream().toByteArray(),
+							Charset.forName("UTF-8")); // TODO: set charset
+					return;
 				}
-				catch (IOException ex) {
-					throw new EncodeException("Error converting request body", ex);
-				}
-				// clear headers
-				request.headers(null);
-				// converters can modify headers, so update the request
-				// with the modified headers
-				request.headers(getHeaders(outputMessage.getHeaders()));
-
-				request.body(outputMessage.getOutputStream().toByteArray(),
-						Charset.forName("UTF-8")); // TODO: set charset
-				return;
 			}
+			String message = "Could not write request: no suitable HttpMessageConverter "
+					+ "found for request type [" + requestType.getName() + "]";
+			if (requestContentType != null) {
+				message += " and content type [" + requestContentType + "]";
+			}
+			throw new EncodeException(message);
 		}
-		String message = "Could not write request: no suitable HttpMessageConverter "
-				+ "found for request type [" + requestType.getName() + "]";
-		if (requestContentType != null) {
-			message += " and content type [" + requestContentType + "]";
-		}
-		throw new EncodeException(message);
 	}
 
 	private class FeignOutputMessage implements HttpOutputMessage {
