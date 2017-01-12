@@ -16,23 +16,42 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import java.io.ByteArrayInputStream;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -43,9 +62,16 @@ import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnviron
  * @author Andreas Kluth
  * @author Spencer Gibb
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = SampleApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
+		"server.contextPath: /app" })
+@DirtiesContext
 public class SimpleHostRoutingFilterTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
+	@Value("${local.server.port}")
+	private int port;
 
 	@After
 	public void clear() {
@@ -99,6 +125,32 @@ public class SimpleHostRoutingFilterTests {
 		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
 	}
 
+	@Test
+	public void httpClientDoesNotDecompressEncodedData() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/compressed/get/1", inputStreamEntity,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		byte[] responseBytes = IOUtils.toByteArray(response.getEntity().getContent());
+		assertTrue(Arrays.equals(GZIPCompression.compress("Get 1"), responseBytes));
+	}
+
+	@Test
+	public void httpClientPreservesUnencodedData() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/get/1", inputStreamEntity,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
+		assertEquals(200, response.getStatusLine().getStatusCode());
+		String responseString = IOUtils.toString(response.getEntity().getContent());
+		assertTrue("Get 1".equals(responseString));
+	}
+
 	private void setupContext() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
@@ -116,5 +168,40 @@ public class SimpleHostRoutingFilterTests {
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties) {
 			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties);
 		}
+	}
+}
+
+@Configuration
+@EnableAutoConfiguration
+@RestController
+class SampleApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SampleApplication.class, args);
+	}
+
+	@RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
+	public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
+		response.setHeader("content-encoding", "gzip");
+		return GZIPCompression.compress("Get " + id);
+	}
+
+	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+	public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
+		return "Get " + id;
+	}
+}
+
+class GZIPCompression {
+
+	public static byte[] compress(final String str) throws IOException {
+		if ((str == null) || (str.length() == 0)) {
+			return null;
+		}
+		ByteArrayOutputStream obj = new ByteArrayOutputStream();
+		GZIPOutputStream gzip = new GZIPOutputStream(obj);
+		gzip.write(str.getBytes("UTF-8"));
+		gzip.close();
+		return obj.toByteArray();
 	}
 }
