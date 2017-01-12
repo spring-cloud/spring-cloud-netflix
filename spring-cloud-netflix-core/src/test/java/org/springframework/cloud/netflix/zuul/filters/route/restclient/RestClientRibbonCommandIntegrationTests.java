@@ -32,8 +32,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.SneakyThrows;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +47,6 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
@@ -85,6 +82,8 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.client.http.RestClient;
 
+import lombok.SneakyThrows;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
@@ -96,7 +95,7 @@ import com.netflix.niws.client.http.RestClient;
 public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 	@Autowired
-	RouteLocator routeLocator;
+	DiscoveryClientRouteLocator routeLocator;
 
 	@Override
 	protected boolean supportsPatch() {
@@ -252,17 +251,17 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		assertTrue("ribbonCommandFactory not a MyRibbonCommandFactory",
 				this.ribbonCommandFactory instanceof TestConfig.MyRibbonCommandFactory);
 	}
-	
+
 	@Override
 	@SuppressWarnings("deprecation")
 	@Test
 	public void javascriptEncodedFormParams() {
 		TestRestTemplate testRestTemplate = new TestRestTemplate();
 		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
+		converters.addAll(Arrays.asList(new StringHttpMessageConverter(),
 				new NoEncodingFormHttpMessageConverter()));
 		testRestTemplate.getRestTemplate().setMessageConverters(converters);
-		
+
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add("foo", "(bar)");
 		ResponseEntity<String> result = testRestTemplate.postForEntity(
@@ -306,7 +305,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		public ResponseEntity<String> addHeader(HttpServletRequest request) {
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("X-Header", "FOO");
-			ResponseEntity<String> result = new ResponseEntity<String>(
+			ResponseEntity<String> result = new ResponseEntity<>(
 					request.getRequestURI(), headers, HttpStatus.OK);
 			return result;
 		}
@@ -337,7 +336,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@Bean
-		public RouteLocator routeLocator(DiscoveryClient discoveryClient,
+		public DiscoveryClientRouteLocator discoveryRouteLocator(
+				DiscoveryClient discoveryClient,
 				ZuulProperties zuulProperties) {
 			return new MyRouteLocator("/", discoveryClient, zuulProperties);
 		}
