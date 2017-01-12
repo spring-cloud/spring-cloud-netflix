@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.netflix.feign.support.PageableSpringEncoder;
 import org.springframework.cloud.netflix.feign.support.ResponseEntityDecoder;
 import org.springframework.cloud.netflix.feign.support.SpringEncoder;
 import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
@@ -57,7 +58,8 @@ public class EnableFeignClientsTests {
 
 	@Test
 	public void encoderDefaultCorrect() {
-		SpringEncoder.class.cast(this.feignContext.getInstance("foo", Encoder.class));
+		// This works since the Pageable is always on the class-path in test phase
+		PageableSpringEncoder.class.cast(this.feignContext.getInstance("foo", Encoder.class));
 	}
 
 	@Test
