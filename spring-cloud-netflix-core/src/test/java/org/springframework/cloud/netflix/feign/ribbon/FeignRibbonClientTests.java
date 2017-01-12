@@ -16,19 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.hamcrest.CustomMatcher;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
@@ -37,11 +24,24 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
-
 import feign.Client;
 import feign.Request;
 import feign.Request.Options;
 import feign.RequestTemplate;
+import org.hamcrest.CustomMatcher;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.retry.support.RetryTemplate;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Dave Syer
@@ -51,6 +51,7 @@ public class FeignRibbonClientTests {
 
 	private AbstractLoadBalancer loadBalancer = mock(AbstractLoadBalancer.class);
 	private Client delegate = mock(Client.class);
+	private RibbonLoadBalancedRetryPolicyFactory retryPolicyFactory = mock(RibbonLoadBalancedRetryPolicyFactory.class);
 
 	private SpringClientFactory factory = new SpringClientFactory() {
 		@Override
@@ -79,7 +80,8 @@ public class FeignRibbonClientTests {
 
 	// Even though we don't maintain FeignRibbonClient, keep these tests
 	// around to make sure the expected behaviour doesn't break
-	private Client client = new LoadBalancerFeignClient(this.delegate, new CachingSpringLoadBalancerFactory(this.factory), this.factory);
+	private Client client = new LoadBalancerFeignClient(this.delegate, new CachingSpringLoadBalancerFactory(this.factory,
+			new RetryTemplate(), retryPolicyFactory), this.factory);
 
 	@Before
 	public void init() {

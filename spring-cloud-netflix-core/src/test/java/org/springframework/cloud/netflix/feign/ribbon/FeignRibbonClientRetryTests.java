@@ -16,14 +16,11 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +41,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the Feign Retryer, not ribbon retry.
@@ -58,7 +56,8 @@ import lombok.NoArgsConstructor;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FeignRibbonClientRetryTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=feignclientretrytest", "feign.okhttp.enabled=false",
-		"feign.httpclient.enabled=false", "feign.hystrix.enabled=false", })
+		"feign.httpclient.enabled=false", "feign.hystrix.enabled=false", "localapp.ribbon.MaxAutoRetries=2",
+        "localapp.ribbon.MaxAutoRetriesNextServer=3"})
 @DirtiesContext
 public class FeignRibbonClientRetryTests {
 

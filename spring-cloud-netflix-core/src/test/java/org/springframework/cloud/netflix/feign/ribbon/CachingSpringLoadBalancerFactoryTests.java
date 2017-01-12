@@ -16,20 +16,21 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.retry.support.RetryTemplate;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -38,6 +39,9 @@ public class CachingSpringLoadBalancerFactoryTests {
 
 	@Mock
 	private SpringClientFactory delegate;
+
+	@Mock
+	private RibbonLoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	private CachingSpringLoadBalancerFactory factory;
 
@@ -52,7 +56,8 @@ public class CachingSpringLoadBalancerFactoryTests {
 		when(this.delegate.getClientConfig("client1")).thenReturn(config);
 		when(this.delegate.getClientConfig("client2")).thenReturn(config);
 
-		this.factory = new CachingSpringLoadBalancerFactory(this.delegate);
+		this.factory = new CachingSpringLoadBalancerFactory(this.delegate, new RetryTemplate(),
+				loadBalancedRetryPolicyFactory);
 	}
 
 	@Test

@@ -16,14 +16,15 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import java.util.Map;
-
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.util.ConcurrentReferenceHashMap;
-
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.util.ConcurrentReferenceHashMap;
+
+import java.util.Map;
 
 /**
  * Factory for SpringLoadBalancer instances that caches the entries created.
@@ -34,11 +35,16 @@ import com.netflix.loadbalancer.ILoadBalancer;
 public class CachingSpringLoadBalancerFactory {
 
 	private final SpringClientFactory factory;
+	private final RetryTemplate retryTemplate;
+	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
 
-	public CachingSpringLoadBalancerFactory(SpringClientFactory factory) {
+	public CachingSpringLoadBalancerFactory(SpringClientFactory factory, RetryTemplate retryTemplate,
+											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		this.factory = factory;
+		this.retryTemplate = retryTemplate;
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
 	public FeignLoadBalancer create(String clientName) {
@@ -48,7 +54,8 @@ public class CachingSpringLoadBalancerFactory {
 		IClientConfig config = this.factory.getClientConfig(clientName);
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName, ServerIntrospector.class);
-		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector);
+		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector, retryTemplate,
+				loadBalancedRetryPolicyFactory);
 		this.cache.put(clientName, client);
 		return client;
 	}

@@ -16,44 +16,65 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientException;
 import com.netflix.client.ClientRequest;
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-
 import feign.Client;
 import feign.Request;
 import feign.Response;
 import feign.Util;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
+import org.springframework.retry.policy.NeverRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 public class FeignLoadBalancer extends
-		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
+		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> implements
+		ServiceInstanceChooser {
 
 	private final int connectTimeout;
 	private final int readTimeout;
 	private final IClientConfig clientConfig;
 	private final ServerIntrospector serverIntrospector;
+	private final RetryTemplate retryTemplate;
+	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	public FeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
-			ServerIntrospector serverIntrospector) {
+			ServerIntrospector serverIntrospector, RetryTemplate retryTemplate,
+							 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(lb, clientConfig);
-		this.setRetryHandler(RetryHandler.DEFAULT);
+		this.retryTemplate = retryTemplate;
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
 		this.clientConfig = clientConfig;
 		this.connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
 		this.readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
@@ -61,9 +82,9 @@ public class FeignLoadBalancer extends
 	}
 
 	@Override
-	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride)
+	public RibbonResponse execute(final RibbonRequest request, IClientConfig configOverride)
 			throws IOException {
-		Request.Options options;
+		final Request.Options options;
 		if (configOverride != null) {
 			options = new Request.Options(
 					configOverride.get(CommonClientConfigKey.ConnectTimeout,
@@ -74,32 +95,57 @@ public class FeignLoadBalancer extends
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
-		Response response = request.client().execute(request.toRequest(), options);
-		return new RibbonResponse(request.getUri(), response);
+		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
+						: new InterceptorRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
+		return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {
+			@Override
+			public RibbonResponse doWithRetry(RetryContext retryContext) throws IOException {
+				Request feignRequest = null;
+				if(retryContext instanceof LoadBalancedRetryContext) {
+					ServiceInstance service = ((LoadBalancedRetryContext)retryContext).getServiceInstance();
+					if(service != null) {
+						feignRequest = ((RibbonRequest)request.replaceUri(reconstructURIWithServer(new Server(service.getHost(), service.getPort()), request.getUri()))).toRequest();
+					}
+				}
+				if(feignRequest == null) {
+					feignRequest = request.toRequest();
+				}
+				Response response = request.client().execute(feignRequest, options);
+				return new RibbonResponse(request.getUri(), response);
+			}
+		});
 	}
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
 			RibbonRequest request, IClientConfig requestConfig) {
-		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations,
-				false)) {
-			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
-					requestConfig);
-		}
-		if (!request.toRequest().method().equals("GET")) {
-			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
-					requestConfig);
-		}
-		else {
-			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
-					requestConfig);
-		}
+//		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations,
+//				false)) {
+//			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+//					requestConfig);
+//		}
+//		if (!request.toRequest().method().equals("GET")) {
+//			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
+//					requestConfig);
+//		}
+//		else {
+//			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+//					requestConfig);
+//		}
+		return new RequestSpecificRetryHandler(false, false, this.getRetryHandler(), requestConfig);
 	}
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
 		URI uri = updateToHttpsIfNeeded(original, this.clientConfig, this.serverIntrospector, server);
 		return super.reconstructURIWithServer(server, uri);
+	}
+
+	@Override
+	public ServiceInstance choose(String serviceId) {
+		return new RibbonLoadBalancerClient.RibbonServer(serviceId,
+				this.getLoadBalancer().chooseServer(serviceId));
 	}
 
 	static class RibbonRequest extends ClientRequest implements Cloneable {
@@ -127,6 +173,33 @@ public class FeignLoadBalancer extends
 
 		Client client() {
 			return this.client;
+		}
+
+		HttpRequest toHttpRequest() {
+			return new HttpRequest() {
+				@Override
+				public HttpMethod getMethod() {
+					return HttpMethod.resolve(RibbonRequest.this.toRequest().method());
+				}
+
+				@Override
+				public URI getURI() {
+					return RibbonRequest.this.getUri();
+				}
+
+				@Override
+				public HttpHeaders getHeaders() {
+					Map<String, List<String>> headers = new HashMap<String, List<String>>();
+					Map<String, Collection<String>> feignHeaders = RibbonRequest.this.toRequest().headers();
+					for(String key : feignHeaders.keySet()) {
+						headers.put(key, new ArrayList<String>(feignHeaders.get(key)));
+					}
+					HttpHeaders httpHeaders = new HttpHeaders();
+					httpHeaders.putAll(headers);
+					return httpHeaders;
+
+				}
+			};
 		}
 
 		@Override
