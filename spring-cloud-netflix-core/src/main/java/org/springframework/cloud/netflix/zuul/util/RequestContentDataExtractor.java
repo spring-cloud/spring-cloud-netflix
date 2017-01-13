@@ -33,7 +33,7 @@ public class RequestContentDataExtractor {
 
             if (!queryParams.contains(key)) {
                 for (String value : entry.getValue()) {
-                    builder.add(entry.getKey(), value);
+                    builder.add(key, value);
                 }
             }
         }
