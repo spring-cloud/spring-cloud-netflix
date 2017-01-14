@@ -179,7 +179,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		private synchronized void buildContentData() {
 			try {
 				MultiValueMap<String, Object> builder = RequestContentDataExtractor.extract(this.request);
-				FormHttpOutputMessage         data    = new FormHttpOutputMessage();
+				FormHttpOutputMessage data = new FormHttpOutputMessage();
 
 				this.contentType = MediaType.valueOf(this.request.getContentType());
 				data.getHeaders().setContentType(this.contentType);
