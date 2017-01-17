@@ -294,7 +294,7 @@ public class SpringMvcContractTests {
 		assertEquals("/test", data.template().url());
 		assertEquals("GET", data.template().method());
 		assertEquals("[{id}]", data.template().queries().get("id").toString());
-		assertNull(data.indexToExpander().get(0));
+		assertNotNull(data.indexToExpander().get(0));
 	}
 
 	@Test

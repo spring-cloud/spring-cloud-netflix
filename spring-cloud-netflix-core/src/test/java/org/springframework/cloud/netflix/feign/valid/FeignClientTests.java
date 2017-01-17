@@ -29,6 +29,7 @@ import java.lang.reflect.Proxy;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Future;
@@ -138,6 +139,11 @@ public class FeignClientTests {
 		public OtherArg(String value) {
 			this.value = value;
 		}
+
+		@Override
+		public String toString() {
+			return value;
+		}
 	}
 
 	@FeignClient(name = "localapp", configuration = TestClientConfig.class)
@@ -186,6 +192,9 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, path = "/tostring2")
 		String getToString(@RequestParam("arg") OtherArg arg);
+
+		@RequestMapping(method = RequestMethod.GET, path = "/tostringcollection")
+		Collection<String> getToString(@RequestParam("arg") Collection<OtherArg> args);
 	}
 
 	public static class TestClientConfig {
@@ -325,6 +334,9 @@ public class FeignClientTests {
 
 						@Override
 						public String print(OtherArg object, Locale locale) {
+							if("foo".equals(object.value)) {
+								return "bar";
+							}
 							return object.value;
 						}
 
@@ -415,6 +427,15 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.GET, path = "/tostring2")
 		String getToString(@RequestParam("arg") OtherArg arg) {
 			return arg.value;
+		}
+
+		@RequestMapping(method = RequestMethod.GET, path = "/tostringcollection")
+		Collection<String> getToString(@RequestParam("arg") Collection<OtherArg> args) {
+			List<String> result = new ArrayList<>();
+			for(OtherArg arg : args) {
+				result.add(arg.value);
+			}
+			return result;
 		}
 
 		public static void main(String[] args) {
@@ -570,7 +591,14 @@ public class FeignClientTests {
 		assertEquals(Arg.A.toString(), testClient.getToString(Arg.A));
 		assertEquals(Arg.B.toString(), testClient.getToString(Arg.B));
 
-		assertEquals("foo", testClient.getToString(new OtherArg("foo")));
+		assertEquals("bar", testClient.getToString(new OtherArg("foo")));
+		List<OtherArg> args = new ArrayList<>();
+		args.add(new OtherArg("foo"));
+		args.add(new OtherArg("goo"));
+		List<String> expectedResult = new ArrayList<>();
+		expectedResult.add("bar");
+		expectedResult.add("goo");
+		assertEquals(expectedResult, testClient.getToString(args));
 	}
 
 	@Test
