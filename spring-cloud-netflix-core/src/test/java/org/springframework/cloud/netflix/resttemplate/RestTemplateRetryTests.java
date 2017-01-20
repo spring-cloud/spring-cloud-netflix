@@ -95,7 +95,7 @@ public class RestTemplateRetryTests {
 
 		assertTrue(badServer1Stats.isCircuitBreakerTripped());
 		assertTrue(badServer2Stats.isCircuitBreakerTripped());
-		assertThat(targetConnectionCount).isGreaterThanOrEqualTo(goodServerStats.getTotalRequestsCount());
+		assertThat(targetConnectionCount).isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
 
 		// Wait for any timeout thread to finish.
 
@@ -141,7 +141,7 @@ public class RestTemplateRetryTests {
 
 		assertTrue(badServer1Stats.isCircuitBreakerTripped());
 		assertTrue(badServer2Stats.isCircuitBreakerTripped());
-		assertThat(targetConnectionCount).isGreaterThanOrEqualTo(goodServerStats.getTotalRequestsCount());
+		assertThat(targetConnectionCount).isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
 		assertEquals(numCalls, hits);
 		logger.debug("Retry Hits: " + hits);
 	}
