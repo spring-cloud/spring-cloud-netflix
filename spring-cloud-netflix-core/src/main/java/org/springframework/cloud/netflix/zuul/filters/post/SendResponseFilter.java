@@ -199,30 +199,28 @@ public class SendResponseFilter extends ZuulFilter {
 	private void addResponseHeaders() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletResponse servletResponse = context.getResponse();
-		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
-		@SuppressWarnings("unchecked")
-		List<String> rd = (List<String>) RequestContext.getCurrentContext()
-				.get("routingDebug");
-		if (rd != null) {
-			StringBuilder debugHeader = new StringBuilder();
-			for (String it : rd) {
-				debugHeader.append("[[[" + it + "]]]");
-			}
-			if (INCLUDE_DEBUG_HEADER.get()) {
+		if (INCLUDE_DEBUG_HEADER.get()) {
+			@SuppressWarnings("unchecked")
+			List<String> rd = (List<String>) context.get("routingDebug");
+			if (rd != null) {
+				StringBuilder debugHeader = new StringBuilder();
+				for (String it : rd) {
+					debugHeader.append("[[[" + it + "]]]");
+				}
 				servletResponse.addHeader("X-Zuul-Debug-Header", debugHeader.toString());
 			}
 		}
+		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();
 		if (zuulResponseHeaders != null) {
 			for (Pair<String, String> it : zuulResponseHeaders) {
 				servletResponse.addHeader(it.first(), it.second());
 			}
 		}
-		RequestContext ctx = RequestContext.getCurrentContext();
-		Long contentLength = ctx.getOriginContentLength();
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
 		if (SET_CONTENT_LENGTH.get()) {
-			if ( contentLength != null && !ctx.getResponseGZipped()) {
+			Long contentLength = context.getOriginContentLength();
+			if ( contentLength != null && !context.getResponseGZipped()) {
 				if(useServlet31) {
 					servletResponse.setContentLengthLong(contentLength);
 				} else {

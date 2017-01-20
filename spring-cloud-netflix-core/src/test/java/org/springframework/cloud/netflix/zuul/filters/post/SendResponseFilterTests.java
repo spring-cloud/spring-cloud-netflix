@@ -19,6 +19,9 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import java.io.ByteArrayInputStream;
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.config.ConfigurationManager;
+import com.netflix.zuul.constants.ZuulConstants;
+import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 
 import org.junit.After;
@@ -62,6 +65,33 @@ public class SendResponseFilterTests {
 		String characterEncoding = "UTF-16";
 		String content = "\u00a5";
 		runFilter(characterEncoding, content, true);
+	}
+
+	@Test
+	public void runWithDebugHeader() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER, true);
+
+		SendResponseFilter filter = createFilter("hello", null, new MockHttpServletResponse(), false);
+		Debug.addRoutingDebug("test");
+		filter.run();
+
+		String debugHeader = RequestContext.getCurrentContext().getResponse()
+				.getHeader("X-Zuul-Debug-Header");
+		assertThat("wrong debug header", debugHeader, equalTo("[[[test]]]"));
+	}
+
+	@Test
+	public void runWithOriginContentLength() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH, true);
+
+		SendResponseFilter filter = createFilter("hello", null, new MockHttpServletResponse(), false);
+		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
+		RequestContext.getCurrentContext().setResponseGZipped(false);
+		filter.run();
+
+		String contentLength = RequestContext.getCurrentContext().getResponse()
+				.getHeader("Content-Length");
+		assertThat("wrong origin content length", contentLength, equalTo("6"));
 	}
 
 	private void runFilter(String characterEncoding, String content, boolean streamContent) throws Exception {
