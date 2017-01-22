@@ -249,6 +249,7 @@ public class ZuulProperties {
 			this.stripPrefix = stripPrefix;
 			this.retryable = retryable;
 			this.sensitiveHeaders = sensitiveHeaders;
+			this.customSensitiveHeaders = sensitiveHeaders != null;
 		}
 
 		public ZuulRoute(String text) {
