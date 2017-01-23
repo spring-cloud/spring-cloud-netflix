@@ -72,6 +72,7 @@ public class ZuulPropertiesTests {
 		assertTrue(this.zuul.getRoutes().get("foo").getSensitiveHeaders().isEmpty());
 		assertTrue(this.zuul.getSensitiveHeaders()
 				.containsAll(Arrays.asList("Cookie", "Set-Cookie", "Authorization")));
+		assertFalse(route.isCustomSensitiveHeaders());
 	}
 
 	@Test
@@ -83,6 +84,21 @@ public class ZuulPropertiesTests {
 		ZuulRoute foo = this.zuul.getRoutes().get("foo");
 		assertTrue(foo.getSensitiveHeaders().contains("x-foo"));
 		assertFalse(foo.getSensitiveHeaders().contains("Cookie"));
+		assertTrue(foo.isCustomSensitiveHeaders());
+		assertTrue(this.zuul.getSensitiveHeaders().contains("x-bar"));
+		assertFalse(this.zuul.getSensitiveHeaders().contains("Cookie"));
+	}
+
+	@Test
+	public void createWithSensitiveHeaders() {
+		this.zuul.setSensitiveHeaders(Collections.singleton("x-bar"));
+		ZuulRoute route = new ZuulRoute("foo", "/path", "foo", "/path",
+				false, false, Collections.singleton("x-foo"));
+		this.zuul.getRoutes().put("foo", route);
+		ZuulRoute foo = this.zuul.getRoutes().get("foo");
+		assertTrue(foo.getSensitiveHeaders().contains("x-foo"));
+		assertFalse(foo.getSensitiveHeaders().contains("Cookie"));
+		assertTrue(foo.isCustomSensitiveHeaders());
 		assertTrue(this.zuul.getSensitiveHeaders().contains("x-bar"));
 		assertFalse(this.zuul.getSensitiveHeaders().contains("Cookie"));
 	}
