@@ -21,6 +21,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration;
@@ -101,15 +102,34 @@ public class ZuulConfiguration {
 		return new ZuulRefreshListener();
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(name = "zuulServlet")
-	public ServletRegistrationBean zuulServlet() {
-		ServletRegistrationBean servlet = new ServletRegistrationBean(new ZuulServlet(),
-				this.zuulProperties.getServletPattern());
-		// The whole point of exposing this servlet is to provide a route that doesn't
-		// buffer requests.
-		servlet.addInitParameter("buffer-requests", "false");
-		return servlet;
+	@Configuration
+	@ConditionalOnMissingClass("org.springframework.boot.context.embedded.ServletRegistrationBean")
+	protected static class SpringBoot15Config {
+		@Bean
+		@ConditionalOnMissingBean(name = "zuulServlet")
+		public ServletRegistrationBean zuulServlet(ZuulProperties zuulProperties) {
+			ServletRegistrationBean servlet = new ServletRegistrationBean(new ZuulServlet(),
+					zuulProperties.getServletPattern());
+			// The whole point of exposing this servlet is to provide a route that doesn't
+			// buffer requests.
+			servlet.addInitParameter("buffer-requests", "false");
+			return servlet;
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(name = "org.springframework.boot.context.embedded.ServletRegistrationBean")
+	protected static class SpringBoot1314Config {
+		@Bean
+		@ConditionalOnMissingBean(name = "zuulServlet")
+		public org.springframework.boot.context.embedded.ServletRegistrationBean zuulServlet(ZuulProperties zuulProperties) {
+			org.springframework.boot.context.embedded.ServletRegistrationBean servlet = new org.springframework.boot.context.embedded.ServletRegistrationBean(new ZuulServlet(),
+					zuulProperties.getServletPattern());
+			// The whole point of exposing this servlet is to provide a route that doesn't
+			// buffer requests.
+			servlet.addInitParameter("buffer-requests", "false");
+			return servlet;
+		}
 	}
 
 	// pre filters

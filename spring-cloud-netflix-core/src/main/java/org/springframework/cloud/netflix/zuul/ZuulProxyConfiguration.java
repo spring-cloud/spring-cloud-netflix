@@ -108,10 +108,13 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		return new ZuulDiscoveryRefreshListener();
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(ServiceRouteMapper.class)
-	public ServiceRouteMapper serviceRouteMapper() {
-		return new SimpleServiceRouteMapper();
+	@Configuration
+	protected static class ServiceRouteMapperConfiguration {
+		@Bean
+		@ConditionalOnMissingBean(ServiceRouteMapper.class)
+		public ServiceRouteMapper serviceRouteMapper() {
+			return new SimpleServiceRouteMapper();
+		}
 	}
 
 	@Configuration

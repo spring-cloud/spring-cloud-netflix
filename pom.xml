@@ -142,6 +142,7 @@
 		<module>spring-cloud-starter-turbine-amqp</module>
 		<module>spring-cloud-starter-turbine-stream</module>
 		<module>spring-cloud-starter-zuul</module>
+		<module>spring-cloud-netflix-integration-tests</module>
 		<module>docs</module>
 	</modules>
 	<profiles>

@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,12 +23,15 @@ import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.ext.Provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -64,6 +66,8 @@ import com.netflix.eureka.resources.ServerCodecs;
 import com.sun.jersey.api.core.DefaultResourceConfig;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
+import static java.util.Collections.singletonList;
+
 /**
  * @author Gunnar Hillert
  */
@@ -73,6 +77,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 @EnableConfigurationProperties({ EurekaDashboardProperties.class, InstanceRegistryProperties.class })
 @PropertySource("classpath:/eureka/server.properties")
 public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
+	public static final String EUREKA_JERSEY_URL_PATTERN = EurekaConstants.DEFAULT_PREFIX + "/*";
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server
 	 */
@@ -187,24 +192,60 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * Register the Jersey filter
 	 */
-	@Bean
-	public FilterRegistrationBean jerseyFilterRegistration(
-			javax.ws.rs.core.Application eurekaJerseyApp) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
-		bean.setFilter(new ServletContainer(eurekaJerseyApp));
-		bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-		bean.setUrlPatterns(
-				Collections.singletonList(EurekaConstants.DEFAULT_PREFIX + "/*"));
+	@Configuration
+	@ConditionalOnMissingClass("org.springframework.boot.context.embedded.FilterRegistrationBean")
+	protected static class SpringBoot15Config {
+		@Bean
+		public FilterRegistrationBean jerseyFilterRegistration(
+				Application eurekaJerseyApp) {
+			FilterRegistrationBean bean = new FilterRegistrationBean();
+			bean.setFilter(new ServletContainer(eurekaJerseyApp));
+			bean.setOrder(Ordered.LOWEST_PRECEDENCE);
+			bean.setUrlPatterns(singletonList(EUREKA_JERSEY_URL_PATTERN));
 
-		return bean;
+			return bean;
+		}
+
+		@Bean
+		public FilterRegistrationBean traceFilterRegistration(
+				@Qualifier("webRequestLoggingFilter") Filter filter) {
+			FilterRegistrationBean bean = new FilterRegistrationBean();
+			bean.setFilter(filter);
+			bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
+			return bean;
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(name = "org.springframework.boot.context.embedded.FilterRegistrationBean")
+	protected static class SpringBoot1314Config {
+		@Bean
+		public org.springframework.boot.context.embedded.FilterRegistrationBean jerseyFilterRegistration(
+				Application eurekaJerseyApp) {
+			org.springframework.boot.context.embedded.FilterRegistrationBean bean = new org.springframework.boot.context.embedded.FilterRegistrationBean();
+			bean.setFilter(new ServletContainer(eurekaJerseyApp));
+			bean.setOrder(Ordered.LOWEST_PRECEDENCE);
+			bean.setUrlPatterns(singletonList(EUREKA_JERSEY_URL_PATTERN));
+
+			return bean;
+		}
+
+		@Bean
+		public org.springframework.boot.context.embedded.FilterRegistrationBean traceFilterRegistration(
+				@Qualifier("webRequestLoggingFilter") Filter filter) {
+			org.springframework.boot.context.embedded.FilterRegistrationBean bean = new org.springframework.boot.context.embedded.FilterRegistrationBean();
+			bean.setFilter(filter);
+			bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
+			return bean;
+		}
 	}
 
 	/**
-	 * Construct a Jersey {@link javax.ws.rs.core.Application} with all the resources
+	 * Construct a Jersey {@link Application} with all the resources
 	 * required by the Eureka server.
 	 */
 	@Bean
-	public javax.ws.rs.core.Application jerseyApplication(Environment environment,
+	public Application jerseyApplication(Environment environment,
 			ResourceLoader resourceLoader) {
 
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(
@@ -241,12 +282,4 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 		return rc;
 	}
 
-	@Bean
-	public FilterRegistrationBean traceFilterRegistration(
-			@Qualifier("webRequestLoggingFilter") Filter filter) {
-		FilterRegistrationBean bean = new FilterRegistrationBean();
-		bean.setFilter(filter);
-		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
-		return bean;
-	}
 }
