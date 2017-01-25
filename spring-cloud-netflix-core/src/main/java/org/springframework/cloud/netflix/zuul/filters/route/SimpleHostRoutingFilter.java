@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -273,9 +274,21 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		HttpHost httpHost = getHttpHost(host);
 		uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
 		int contentLength = request.getContentLength();
-		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength,
-				request.getContentType() != null
-						? ContentType.create(request.getContentType()) : null);
+
+		ContentType contentType = null;
+
+		if (request.getContentType() != null) {
+			String contentTypeString = request.getContentType();
+			Charset charset = null;
+			if (contentTypeString.contains(";charset=")) {
+				final String[] split = contentTypeString.split(";charset=");
+				contentTypeString = split[0];
+				charset = Charset.forName(split[1]);
+			}
+			contentType = ContentType.create(contentTypeString, charset);
+		}
+
+		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength, contentType);
 
 		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params);
 		try {
