@@ -77,7 +77,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		InstanceInfo info = registration.getApplicationInfoManager().getInfo();
 
 		//TODO: howto deal with delete properly?
-		if ("RESET_OVERRIDE".equalsIgnoreCase(status)) {
+		if ("CANCEL_OVERRIDE".equalsIgnoreCase(status)) {
 			registration.getEurekaClient().cancelOverrideStatus(info);
 			return;
 		}
