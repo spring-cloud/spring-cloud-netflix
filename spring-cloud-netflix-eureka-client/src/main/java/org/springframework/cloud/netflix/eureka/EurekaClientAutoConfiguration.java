@@ -41,6 +41,7 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.noop.NoopDiscoveryClientAutoConfiguration;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
+import org.springframework.cloud.client.serviceregistry.ServiceRegistryAutoConfiguration;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
@@ -77,7 +78,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @ConditionalOnBean(EurekaDiscoveryClientConfiguration.Marker.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
-		CommonsClientAutoConfiguration.class })
+		CommonsClientAutoConfiguration.class, ServiceRegistryAutoConfiguration.class })
 @AutoConfigureAfter(name = "org.springframework.cloud.autoconfigure.RefreshAutoConfiguration")
 public class EurekaClientAutoConfiguration {
 
