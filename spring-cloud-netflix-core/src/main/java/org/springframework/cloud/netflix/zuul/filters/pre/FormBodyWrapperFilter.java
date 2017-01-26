@@ -186,16 +186,33 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			try {
 				MultiValueMap<String, Object> builder = new LinkedMultiValueMap<String, Object>();
 				Set<String> queryParams = findQueryParams();
-				for (Entry<String, String[]> entry : this.request.getParameterMap()
-						.entrySet()) {
-					if (!queryParams.contains(entry.getKey())) {
-						for (String value : entry.getValue()) {
-							builder.add(entry.getKey(), value);
+				if (! (this.request instanceof MultipartRequest)) {
+					for (Entry<String, String[]> entry : this.request.getParameterMap()
+							.entrySet()) {
+						if (!queryParams.contains(entry.getKey())) {
+							for (String value : entry.getValue()) {
+								builder.add(entry.getKey(), value);
+							}
 						}
 					}
 				}
 				if (this.request instanceof MultipartRequest) {
 					MultipartRequest multi = (MultipartRequest) this.request;
+					for (Entry<String, String[]> entry : this.request.getParameterMap()
+							.entrySet()) {
+						if (!queryParams.contains(entry.getKey())) {
+							HttpHeaders headers = new HttpHeaders();
+							if(multi.getMultipartContentType(entry.getKey()) != null){
+								headers.setContentType(MediaType.valueOf(
+										multi.getMultipartContentType(entry.getKey())));
+							}
+							for (String value : entry.getValue()) {
+								HttpEntity<String> entity = new HttpEntity<String>(value, headers);
+								builder.add(entry.getKey(), entity);
+							}
+						}
+					}
+
 					for (Entry<String, List<MultipartFile>> parts : multi
 							.getMultiFileMap().entrySet()) {
 						for (MultipartFile file : parts.getValue()) {
