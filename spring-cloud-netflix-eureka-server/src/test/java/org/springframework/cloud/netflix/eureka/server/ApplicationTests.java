@@ -52,7 +52,7 @@ import com.netflix.eureka.resources.ServerCodecs;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.jmx.enabled=true" })
+		"spring.jmx.enabled=true", "management.security.enabled=false" })
 public class ApplicationTests {
 
 	@Value("${local.server.port}")

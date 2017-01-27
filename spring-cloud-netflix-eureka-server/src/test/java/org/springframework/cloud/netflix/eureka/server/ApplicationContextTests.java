@@ -42,7 +42,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka", "server.contextPath=/context" })
+		"spring.application.name=eureka", "server.contextPath=/context",
+		"management.security.enabled=false" })
 public class ApplicationContextTests {
 
 	@Value("${local.server.port}")
