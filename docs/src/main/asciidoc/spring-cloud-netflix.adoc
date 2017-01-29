@@ -1554,17 +1554,29 @@ Security. The assumption in this case is that the downstream services
 might add these headers too, and we want the values from the proxy.
 To not discard these well known security headers in case Spring Security is on the classpath you can set `zuul.ignoreSecurityHeaders` to `false`. This can be useful if you disabled the HTTP Security response headers in Spring Security and want the values provided by downstream services
 
-=== The Routes Endpoint
+=== Management Endpoints
 
 If you are using `@EnableZuulProxy` with tha Spring Boot Actuator you
-will enable (by default) an additional endpoint, available via HTTP as
-`/routes`. A GET to this endpoint will return a list of the mapped
+will enable (by default) two additional endpoints:
+
+* Routes
+* Filters
+
+==== Routes Endpoint
+
+A GET to the routes endpoint at `/routes` will return a list of the mapped
 routes. A POST will force a refresh of the existing routes (e.g. in
 case there have been changes in the service catalog).
 
 NOTE: the routes should respond automatically to changes in the
 service catalog, but the POST to /routes is a way to force the change
 to happen immediately.
+
+==== Filters Endpoint
+
+A GET to the filters endpoint at `/filters` will return a map of Zuul
+filters by type. For each filter type in the map, you will find a list
+of all the filters of that type, along with their details.
 
 === Strangulation Patterns and Local Forwards
 

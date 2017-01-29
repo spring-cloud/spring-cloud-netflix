@@ -32,6 +32,8 @@ import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.endpoints.FiltersEndpoint;
+import org.springframework.cloud.netflix.zuul.endpoints.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.TraceProxyRequestHelper;
@@ -129,14 +131,19 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
-	protected static class RoutesEndpointConfiguration {
+	protected static class EndpointConfiguration {
 
 		@Autowired(required = false)
 		private TraceRepository traces;
 
 		@Bean
-		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
+		public RoutesEndpoint routesEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
+		}
+
+		@Bean
+		public FiltersEndpoint filtersEndpoint() {
+			return new FiltersEndpoint();
 		}
 
 		@Bean

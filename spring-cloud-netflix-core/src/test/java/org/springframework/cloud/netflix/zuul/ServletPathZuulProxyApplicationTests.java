@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul;
 import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +29,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.endpoints.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +45,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
 
 import com.netflix.zuul.context.RequestContext;
 
