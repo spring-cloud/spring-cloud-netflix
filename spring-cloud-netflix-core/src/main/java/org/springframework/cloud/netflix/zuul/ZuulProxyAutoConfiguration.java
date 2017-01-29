@@ -37,6 +37,9 @@ import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionMa
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.endpoints.FiltersEndpoint;
+import org.springframework.cloud.netflix.zuul.endpoints.RoutesEndpoint;
+import org.springframework.cloud.netflix.zuul.endpoints.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.TraceProxyRequestHelper;
@@ -154,20 +157,25 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
-	protected static class RoutesEndpointConfiguration {
+	protected static class EndpointConfiguration {
 
 		@Autowired(required = false)
 		private TraceRepository traces;
 
 		@Bean
-		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
+		public RoutesEndpoint routesEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
 		}
 
 		@Bean
-		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator,
+		public RoutesMvcEndpoint routesMvcEndpoint(RouteLocator routeLocator,
 				RoutesEndpoint endpoint) {
 			return new RoutesMvcEndpoint(endpoint, routeLocator);
+		}
+
+		@Bean
+		public FiltersEndpoint filtersEndpoint() {
+			return new FiltersEndpoint();
 		}
 
 		@Bean

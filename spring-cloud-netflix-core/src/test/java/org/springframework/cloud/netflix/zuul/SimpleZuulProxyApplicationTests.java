@@ -25,7 +25,6 @@ import com.netflix.zuul.context.RequestContext;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,6 +34,7 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.endpoints.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;

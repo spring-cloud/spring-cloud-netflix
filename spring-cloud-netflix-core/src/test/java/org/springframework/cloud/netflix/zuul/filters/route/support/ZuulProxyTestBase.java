@@ -48,7 +48,7 @@ import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
+import org.springframework.cloud.netflix.zuul.endpoints.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
