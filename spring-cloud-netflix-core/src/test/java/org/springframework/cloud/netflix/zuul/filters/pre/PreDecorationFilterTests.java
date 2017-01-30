@@ -104,7 +104,7 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
-	public void xForwardedHostAppends() throws Exception {
+	public void xForwardedHostAndProtoAppend() throws Exception {
 		this.properties.setPrefix("/api");
 		this.request.setRequestURI("/api/foo/1");
 		this.request.setRemoteAddr("5.6.7.8");
@@ -117,6 +117,38 @@ public class PreDecorationFilterTests {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("example.com,localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("443,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+	}
+
+    @Test
+    public void xForwardedHostOnlyAppends() throws Exception {
+        this.properties.setPrefix("/api");
+        this.request.setRequestURI("/api/foo/1");
+        this.request.setRemoteAddr("5.6.7.8");
+        this.request.setServerPort(8080);
+        this.request.addHeader("X-Forwarded-Host", "example.com");
+        this.routeLocator.addRoute(
+                new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+        this.filter.run();
+        RequestContext ctx = RequestContext.getCurrentContext();
+        assertEquals("example.com,localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+        assertEquals("8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+        assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+    }
+
+	@Test
+	public void xForwardedProtoOnlyAppends() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.request.addHeader("X-Forwarded-Proto", "https");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 	}
 

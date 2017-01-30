@@ -184,6 +184,8 @@ public class PreDecorationFilter extends ZuulFilter {
 			} else {
 				port = request.getHeader("X-Forwarded-Port") + "," + port;
 			}
+		}
+		if (hasHeader(request, "X-Forwarded-Proto")) {
 			proto = request.getHeader("X-Forwarded-Proto") + "," + proto;
 		}
 		ctx.addZuulRequestHeader("X-Forwarded-Host", host);
