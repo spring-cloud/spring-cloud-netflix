@@ -111,6 +111,11 @@ public class EurekaRegistration implements Registration {
 
 	}
 
+	@Override
+	public String getServiceId() {
+		return this.instanceConfig.getAppname();
+	}
+
 	public CloudEurekaClient getEurekaClient() {
 		if (this.cloudEurekaClient.get() == null) {
 			try {
