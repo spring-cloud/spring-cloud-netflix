@@ -278,14 +278,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		ContentType contentType = null;
 
 		if (request.getContentType() != null) {
-			String contentTypeString = request.getContentType();
-			Charset charset = null;
-			if (contentTypeString.contains(";charset=")) {
-				final String[] split = contentTypeString.split(";charset=");
-				contentTypeString = split[0];
-				charset = Charset.forName(split[1]);
-			}
-			contentType = ContentType.create(contentTypeString, charset);
+			contentType = ContentType.parse(request.getContentType());
 		}
 
 		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength, contentType);
