@@ -976,6 +976,7 @@ Spring Cloud Netflix _does not_ provide the following beans by default for feign
 * `ErrorDecoder`
 * `Request.Options`
 * `Collection<RequestInterceptor>`
+* `SetterFactory`
 
 Creating a bean of one of those type and placing it in a `@FeignClient` configuration (such as `FooConfiguration` above) allows you to override each one of the beans described.  Example:
 
