@@ -49,6 +49,7 @@ public class MetricsInterceptorConfiguration {
 
 	@Configuration
 	@ConditionalOnWebApplication
+	@ConditionalOnClass(WebMvcConfigurerAdapter.class)
 	static class MetricsWebResourceConfiguration extends WebMvcConfigurerAdapter {
 		@Bean
 		MetricsHandlerInterceptor servoMonitoringWebResourceInterceptor() {
