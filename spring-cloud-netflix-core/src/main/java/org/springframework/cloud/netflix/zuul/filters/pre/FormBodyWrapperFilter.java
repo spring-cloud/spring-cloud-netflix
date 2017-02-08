@@ -20,10 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
@@ -46,8 +42,13 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 import com.netflix.zuul.http.ServletInputStreamWrapper;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
 /**
- * @author Spencer Gibb
+ * Pre {@link ZuulFilter} that parses form data and reencodes it for downstream services
+ *
+ * @author Dave Syer
  */
 public class FormBodyWrapperFilter extends ZuulFilter {
 
@@ -69,12 +70,12 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "pre";
+		return PRE_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return -1;
+		return FORM_BODY_WRAPPER_FILTER_ORDER;
 	}
 
 	@Override

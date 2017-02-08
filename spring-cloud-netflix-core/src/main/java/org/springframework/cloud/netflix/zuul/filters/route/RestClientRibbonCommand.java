@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.MultiValueMap;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
@@ -68,7 +69,7 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 	protected HttpRequest createRequest() throws Exception {
 		final InputStream requestEntity;
 		// ApacheHttpClient4Handler does not support body in delete requests
-		if (getContext().getMethod().equalsIgnoreCase("DELETE")) {
+		if (getContext().getMethod().equalsIgnoreCase(HttpMethod.DELETE.toString())) {
 			requestEntity = null;
 		} else {
 			requestEntity = this.context.getRequestEntity();

@@ -25,7 +25,13 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.DEBUG_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
 /**
+ * Pre {@link ZuulFilter} that sets {@link RequestContext} debug attributes to true if
+ * the "debug" request parameter is set.
+ *
  * @author Spencer Gibb
  */
 public class DebugFilter extends ZuulFilter {
@@ -38,12 +44,12 @@ public class DebugFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "pre";
+		return PRE_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return 1;
+		return DEBUG_FILTER_ORDER;
 	}
 
 	@Override

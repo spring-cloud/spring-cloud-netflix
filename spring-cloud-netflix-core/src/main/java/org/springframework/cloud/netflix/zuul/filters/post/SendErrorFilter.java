@@ -20,24 +20,29 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netflix.zuul.exception.ZuulException;
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.util.StringUtils;
+import com.netflix.zuul.exception.ZuulException;
+
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ERROR_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_ERROR_FILTER_ORDER;
 
 /**
+ * Error {@link ZuulFilter} that forwards to /error (by default) if {@link RequestContext#getThrowable()} is not null.
+ *
  * @author Spencer Gibb
  */
 //TODO: move to error package in Edgware
-@CommonsLog
 public class SendErrorFilter extends ZuulFilter {
 
+	private static final Log log = LogFactory.getLog(SendErrorFilter.class);
 	protected static final String SEND_ERROR_FILTER_RAN = "sendErrorFilter.ran";
 
 	@Value("${error.path:/error}")
@@ -45,12 +50,12 @@ public class SendErrorFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "error";
+		return ERROR_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return 0;
+		return SEND_ERROR_FILTER_ORDER;
 	}
 
 	@Override

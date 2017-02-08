@@ -17,12 +17,8 @@
 package org.springframework.cloud.netflix.zuul.filters.post;
 
 import java.io.ByteArrayInputStream;
-import javax.servlet.http.HttpServletRequest;
 
-import com.netflix.config.ConfigurationManager;
-import com.netflix.zuul.constants.ZuulConstants;
-import com.netflix.zuul.context.Debug;
-import com.netflix.zuul.context.RequestContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,9 +29,15 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.util.WebUtils;
 
+import com.netflix.config.ConfigurationManager;
+import com.netflix.zuul.constants.ZuulConstants;
+import com.netflix.zuul.context.Debug;
+import com.netflix.zuul.context.RequestContext;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
 
 /**
  * @author Spencer Gibb
@@ -76,7 +78,7 @@ public class SendResponseFilterTests {
 		filter.run();
 
 		String debugHeader = RequestContext.getCurrentContext().getResponse()
-				.getHeader("X-Zuul-Debug-Header");
+				.getHeader(X_ZUUL_DEBUG_HEADER);
 		assertThat("wrong debug header", debugHeader, equalTo("[[[test]]]"));
 	}
 

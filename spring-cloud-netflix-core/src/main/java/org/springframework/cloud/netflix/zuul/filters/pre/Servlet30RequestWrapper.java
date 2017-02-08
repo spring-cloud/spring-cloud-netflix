@@ -20,6 +20,9 @@ import com.netflix.zuul.http.HttpServletRequestWrapper;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * A Servlet 3.0 compliant wrapper.
+ */
 class Servlet30RequestWrapper extends HttpServletRequestWrapper {
 	private HttpServletRequest request;
 

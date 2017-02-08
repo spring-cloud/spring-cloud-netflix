@@ -16,16 +16,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ReflectionUtils;
+
 import com.netflix.config.DynamicBooleanProperty;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -36,11 +39,21 @@ import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTING_DEBUG_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
+
 /**
+ * Post {@link ZuulFilter} that writes responses from proxied requests to the current response.
+ *
  * @author Spencer Gibb
+ * @author Dave Syer
+ * @author Ryan Baxter
  */
-@CommonsLog
 public class SendResponseFilter extends ZuulFilter {
+
+	private static final Log log = LogFactory.getLog(SendResponseFilter.class);
 
 	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
 			.getInstance()
@@ -74,12 +87,12 @@ public class SendResponseFilter extends ZuulFilter {
 	
 	@Override
 	public String filterType() {
-		return "post";
+		return POST_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return 1000;
+		return SEND_RESPONSE_FILTER_ORDER;
 	}
 
 	@Override
@@ -201,13 +214,13 @@ public class SendResponseFilter extends ZuulFilter {
 		HttpServletResponse servletResponse = context.getResponse();
 		if (INCLUDE_DEBUG_HEADER.get()) {
 			@SuppressWarnings("unchecked")
-			List<String> rd = (List<String>) context.get("routingDebug");
+			List<String> rd = (List<String>) context.get(ROUTING_DEBUG_KEY);
 			if (rd != null) {
 				StringBuilder debugHeader = new StringBuilder();
 				for (String it : rd) {
 					debugHeader.append("[[[" + it + "]]]");
 				}
-				servletResponse.addHeader("X-Zuul-Debug-Header", debugHeader.toString());
+				servletResponse.addHeader(X_ZUUL_DEBUG_HEADER, debugHeader.toString());
 			}
 		}
 		List<Pair<String, String>> zuulResponseHeaders = context.getZuulResponseHeaders();

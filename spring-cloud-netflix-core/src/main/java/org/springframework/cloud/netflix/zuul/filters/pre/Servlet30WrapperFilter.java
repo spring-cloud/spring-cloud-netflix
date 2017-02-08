@@ -28,7 +28,12 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVLET_30_WRAPPER_FILTER_ORDER;
+
 /**
+ * Pre {@link ZuulFilter} that wraps requests in a Servlet 3.0 compliant wrapper.
+ * Zuul's default wrapper is only Servlet 2.5 compliant.
  * @author Spencer Gibb
  */
 public class Servlet30WrapperFilter extends ZuulFilter {
@@ -49,12 +54,12 @@ public class Servlet30WrapperFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "pre";
+		return PRE_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return -2;
+		return SERVLET_30_WRAPPER_FILTER_ORDER;
 	}
 
 	@Override

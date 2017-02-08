@@ -24,6 +24,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
@@ -37,10 +39,23 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 
-import lombok.extern.apachecommons.CommonsLog;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_ENTITY_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RETRYABLE_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RIBBON_ROUTING_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
 
-@CommonsLog
+/**
+ * Route {@link ZuulFilter} that uses Ribbon, Hystrix and pluggable http clients to send requests.
+ * ServiceIds are found in the {@link RequestContext} attribute {@link org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#SERVICE_ID_KEY}.
+ *
+ * @author Spencer Gibb
+ * @author Dave Syer
+ * @author Ryan Baxter
+ */
 public class RibbonRoutingFilter extends ZuulFilter {
+
+	private static final Log log = LogFactory.getLog(RibbonRoutingFilter.class);
 
 	protected ProxyRequestHelper helper;
 	protected RibbonCommandFactory<?> ribbonCommandFactory;
@@ -67,18 +82,18 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "route";
+		return ROUTE_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return 10;
+		return RIBBON_ROUTING_FILTER_ORDER;
 	}
 
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		return (ctx.getRouteHost() == null && ctx.get("serviceId") != null
+		return (ctx.getRouteHost() == null && ctx.get(SERVICE_ID_KEY) != null
 				&& ctx.sendZuulResponse());
 	}
 
@@ -113,8 +128,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 			context.setChunkedRequestBody();
 		}
 
-		String serviceId = (String) context.get("serviceId");
-		Boolean retryable = (Boolean) context.get("retryable");
+		String serviceId = (String) context.get(SERVICE_ID_KEY);
+		Boolean retryable = (Boolean) context.get(RETRYABLE_KEY);
 
 		String uri = this.helper.buildZuulRequestURI(request);
 
@@ -182,7 +197,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		InputStream requestEntity = null;
 		try {
 			requestEntity = (InputStream) RequestContext.getCurrentContext()
-					.get("requestEntity");
+					.get(REQUEST_ENTITY_KEY);
 			if (requestEntity == null) {
 				requestEntity = request.getInputStream();
 			}

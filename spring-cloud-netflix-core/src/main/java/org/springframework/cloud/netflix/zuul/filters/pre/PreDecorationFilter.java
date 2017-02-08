@@ -21,24 +21,50 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
 import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 
-import lombok.extern.apachecommons.CommonsLog;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_LOCATION_PREFIX;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_PORT;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_SCHEME;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTP_PORT;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTP_SCHEME;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PROXY_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RETRYABLE_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_FOR_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_HOST_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PORT_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PREFIX_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PROTO_HEADER;
 
-@CommonsLog
 public class PreDecorationFilter extends ZuulFilter {
 
-	public static final int FILTER_ORDER = 5;
+	private static final Log log = LogFactory.getLog(PreDecorationFilter.class);
+
+	/**
+	 * @deprecated use {@link FilterConstants#PRE_DECORATION_FILTER_ORDER}
+	 */
+	@Deprecated
+	public static final int FILTER_ORDER = PRE_DECORATION_FILTER_ORDER;
 
 	private RouteLocator routeLocator;
 
@@ -61,20 +87,19 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	@Override
 	public int filterOrder() {
-		return FILTER_ORDER;
+		return PRE_DECORATION_FILTER_ORDER;
 	}
 
 	@Override
 	public String filterType() {
-		return "pre";
+		return PRE_TYPE;
 	}
 
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		return !ctx.containsKey("forward.to") // a filter has already forwarded
-				&& !ctx.containsKey("serviceId"); // a filter has already determined
-													// serviceId
+		return !ctx.containsKey(FORWARD_TO_KEY) // a filter has already forwarded
+				&& !ctx.containsKey(SERVICE_ID_KEY); // a filter has already determined serviceId
 	}
 
 	@Override
@@ -85,8 +110,8 @@ public class PreDecorationFilter extends ZuulFilter {
 		if (route != null) {
 			String location = route.getLocation();
 			if (location != null) {
-				ctx.put("requestURI", route.getPath());
-				ctx.put("proxy", route.getId());
+				ctx.put(REQUEST_URI_KEY, route.getPath());
+				ctx.put(PROXY_KEY, route.getId());
 				if (!route.isCustomSensitiveHeaders()) {
 					this.proxyRequestHelper
 							.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));
@@ -96,28 +121,28 @@ public class PreDecorationFilter extends ZuulFilter {
 				}
 
 				if (route.getRetryable() != null) {
-					ctx.put("retryable", route.getRetryable());
+					ctx.put(RETRYABLE_KEY, route.getRetryable());
 				}
 
-				if (location.startsWith("http:") || location.startsWith("https:")) {
+				if (location.startsWith(HTTP_SCHEME+":") || location.startsWith(HTTPS_SCHEME+":")) {
 					ctx.setRouteHost(getUrl(location));
-					ctx.addOriginResponseHeader("X-Zuul-Service", location);
+					ctx.addOriginResponseHeader(SERVICE_HEADER, location);
 				}
-				else if (location.startsWith("forward:")) {
-					ctx.set("forward.to",
-							StringUtils.cleanPath(location.substring("forward:".length()) + route.getPath()));
+				else if (location.startsWith(FORWARD_LOCATION_PREFIX)) {
+					ctx.set(FORWARD_TO_KEY,
+							StringUtils.cleanPath(location.substring(FORWARD_LOCATION_PREFIX.length()) + route.getPath()));
 					ctx.setRouteHost(null);
 					return null;
 				}
 				else {
 					// set serviceId for use in filters.route.RibbonRequest
-					ctx.set("serviceId", location);
+					ctx.set(SERVICE_ID_KEY, location);
 					ctx.setRouteHost(null);
-					ctx.addOriginResponseHeader("X-Zuul-ServiceId", location);
+					ctx.addOriginResponseHeader(SERVICE_ID_HEADER, location);
 				}
 				if (this.properties.isAddProxyHeaders()) {
 					addProxyHeaders(ctx, route);
-					String xforwardedfor = ctx.getRequest().getHeader("X-Forwarded-For");
+					String xforwardedfor = ctx.getRequest().getHeader(X_FORWARDED_FOR_HEADER);
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
 					if (xforwardedfor == null) {
 						xforwardedfor = remoteAddr;
@@ -125,10 +150,10 @@ public class PreDecorationFilter extends ZuulFilter {
 					else if (!xforwardedfor.contains(remoteAddr)) { // Prevent duplicates
 						xforwardedfor += ", " + remoteAddr;
 					}
-					ctx.addZuulRequestHeader("X-Forwarded-For", xforwardedfor);
+					ctx.addZuulRequestHeader(X_FORWARDED_FOR_HEADER, xforwardedfor);
 				}
 				if (this.properties.isAddHostHeader()) {
-					ctx.addZuulRequestHeader("Host", toHostHeader(ctx.getRequest()));
+					ctx.addZuulRequestHeader(HttpHeaders.HOST, toHostHeader(ctx.getRequest()));
 				}
 			}
 		}
@@ -157,7 +182,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			}
 			String forwardURI = fallbackPrefix + fallBackUri;
 			forwardURI = forwardURI.replaceAll("//", "/");
-			ctx.set("forward.to", forwardURI);
+			ctx.set(FORWARD_TO_KEY, forwardURI);
 		}
 		return null;
 	}
@@ -167,30 +192,30 @@ public class PreDecorationFilter extends ZuulFilter {
 		String host = toHostHeader(request);
 		String port = String.valueOf(request.getServerPort());
 		String proto = request.getScheme();
-		if (hasHeader(request, "X-Forwarded-Host")) {
-			host = request.getHeader("X-Forwarded-Host") + "," + host;
-			if (!hasHeader(request, "X-Forwarded-Port")) {
-				if (hasHeader(request, "X-Forwarded-Proto")) {
+		if (hasHeader(request, X_FORWARDED_HOST_HEADER)) {
+			host = request.getHeader(X_FORWARDED_HOST_HEADER) + "," + host;
+			if (!hasHeader(request, X_FORWARDED_PORT_HEADER)) {
+				if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
 					StringBuilder builder = new StringBuilder();
-					for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader("X-Forwarded-Proto"))) {
+					for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader(X_FORWARDED_PROTO_HEADER))) {
 						if (builder.length()>0) {
 							builder.append(",");
 						}
-						builder.append("https".equals(previous) ? "443" : "80");
+						builder.append(HTTPS_SCHEME.equals(previous) ? HTTPS_PORT : HTTP_PORT);
 					}
 					builder.append(",").append(port);
 					port = builder.toString();
 				}
 			} else {
-				port = request.getHeader("X-Forwarded-Port") + "," + port;
+				port = request.getHeader(X_FORWARDED_PORT_HEADER) + "," + port;
 			}
 		}
-		if (hasHeader(request, "X-Forwarded-Proto")) {
-			proto = request.getHeader("X-Forwarded-Proto") + "," + proto;
+		if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
+			proto = request.getHeader(X_FORWARDED_PROTO_HEADER) + "," + proto;
 		}
-		ctx.addZuulRequestHeader("X-Forwarded-Host", host);
-		ctx.addZuulRequestHeader("X-Forwarded-Port", port);
-		ctx.addZuulRequestHeader(ZuulHeaders.X_FORWARDED_PROTO, proto);
+		ctx.addZuulRequestHeader(X_FORWARDED_HOST_HEADER, host);
+		ctx.addZuulRequestHeader(X_FORWARDED_PORT_HEADER, port);
+		ctx.addZuulRequestHeader(X_FORWARDED_PROTO_HEADER, proto);
 		addProxyPrefix(ctx, route);
 	}
 
@@ -199,7 +224,7 @@ public class PreDecorationFilter extends ZuulFilter {
 	}
 
 	private void addProxyPrefix(RequestContext ctx, Route route) {
-		String forwardedPrefix = ctx.getRequest().getHeader("X-Forwarded-Prefix");
+		String forwardedPrefix = ctx.getRequest().getHeader(X_FORWARDED_PREFIX_HEADER);
 		String contextPath = ctx.getRequest().getContextPath();
 		String prefix = StringUtils.hasLength(forwardedPrefix) ? forwardedPrefix
 				: (StringUtils.hasLength(contextPath) ? contextPath : null);
@@ -217,14 +242,14 @@ public class PreDecorationFilter extends ZuulFilter {
 			prefix = newPrefixBuilder.toString();
 		}
 		if (prefix != null) {
-			ctx.addZuulRequestHeader("X-Forwarded-Prefix", prefix);
+			ctx.addZuulRequestHeader(X_FORWARDED_PREFIX_HEADER, prefix);
 		}
 	}
 
 	private String toHostHeader(HttpServletRequest request) {
 		int port = request.getServerPort();
-		if ((port == 80 && "http".equals(request.getScheme()))
-				|| (port == 443 && "https".equals(request.getScheme()))) {
+		if ((port == HTTP_PORT && HTTP_SCHEME.equals(request.getScheme()))
+				|| (port == HTTPS_PORT && HTTPS_SCHEME.equals(request.getScheme()))) {
 			return request.getServerName();
 		}
 		else {

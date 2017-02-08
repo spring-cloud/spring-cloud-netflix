@@ -23,7 +23,15 @@ import org.springframework.util.ReflectionUtils;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_FORWARD_FILTER_ORDER;
+
 /**
+ * Route {@link ZuulFilter} that forwards requests using the {@link RequestDispatcher}.
+ * Forwarding location is located in the {@link RequestContext} attribute {@link org.springframework.cloud.netflix.zuul.filters.support.FilterConstants#FORWARD_TO_KEY}.
+ * Useful for forwarding to endpoints in the current application.
+ *
  * @author Dave Syer
  */
 public class SendForwardFilter extends ZuulFilter {
@@ -32,18 +40,18 @@ public class SendForwardFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "route";
+		return ROUTE_TYPE;
 	}
 
 	@Override
 	public int filterOrder() {
-		return 500;
+		return SEND_FORWARD_FILTER_ORDER;
 	}
 
 	@Override
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		return ctx.containsKey("forward.to")
+		return ctx.containsKey(FORWARD_TO_KEY)
 				&& !ctx.getBoolean(SEND_FORWARD_FILTER_RAN, false);
 	}
 
@@ -51,7 +59,7 @@ public class SendForwardFilter extends ZuulFilter {
 	public Object run() {
 		try {
 			RequestContext ctx = RequestContext.getCurrentContext();
-			String path = (String) ctx.get("forward.to");
+			String path = (String) ctx.get(FORWARD_TO_KEY);
 			RequestDispatcher dispatcher = ctx.getRequest().getRequestDispatcher(path);
 			if (dispatcher != null) {
 				ctx.set(SEND_FORWARD_FILTER_RAN, true);

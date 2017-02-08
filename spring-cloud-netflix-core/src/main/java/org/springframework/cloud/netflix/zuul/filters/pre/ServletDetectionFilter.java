@@ -26,6 +26,9 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 import com.netflix.zuul.http.ZuulServlet;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVLET_DETECTION_FILTER_ORDER;
+
 /**
  * Detects whether a request is ran through the {@link DispatcherServlet} or {@link ZuulServlet}.
  * The purpose was to detect this up-front at the very beginning of Zuul filter processing
@@ -41,7 +44,7 @@ public class ServletDetectionFilter extends ZuulFilter {
 
 	@Override
 	public String filterType() {
-		return "pre";
+		return PRE_TYPE;
 	}
 
 	/**
@@ -50,7 +53,7 @@ public class ServletDetectionFilter extends ZuulFilter {
 	 */
 	@Override
 	public int filterOrder() {
-		return -3;
+		return SERVLET_DETECTION_FILTER_ORDER;
 	}
 
 	@Override

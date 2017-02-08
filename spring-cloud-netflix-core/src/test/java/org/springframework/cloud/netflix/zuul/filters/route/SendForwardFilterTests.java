@@ -28,6 +28,7 @@ import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
 
 /**
  * @author Dave Syer
@@ -56,7 +57,7 @@ public class SendForwardFilterTests {
 		RequestContext context = new RequestContext();
 		context.setRequest(request);
 		context.setResponse(new MockHttpServletResponse());
-		context.set("forward.to", "/foo");
+		context.set(FORWARD_TO_KEY, "/foo");
 		RequestContext.testSetCurrentContext(context);
 		SendForwardFilter filter = new SendForwardFilter();
 		return filter;
