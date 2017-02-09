@@ -32,20 +32,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
 		"hystrix.command.default.execution.timeout.enabled: false", /* Disable hystrix so its timeout doesnt get in the way */
 		"ribbon.ReadTimeout: 1000", /* Make sure ribbon will timeout before the thread is done sleeping */
-		"zuul.routes.retryable: /retryable/another/twolevel/**", /* Use /another because there is no fallback configured */
+		"zuul.routes.retryable: /retryable/**",
 		"zuul.routes.retryable.retryable: true",
 		"retryable.ribbon.OkToRetryOnAllOperations: true",
 		"retryable.ribbon.MaxAutoRetries: 1",
 		"retryable.ribbon.MaxAutoRetriesNextServer: 1",
-		"zuul.routes.getretryable: /getretryable/another/twolevel/**", /* Use /another because there is no fallback configured */
+		"zuul.routes.getretryable: /getretryable/**",
 		"zuul.routes.getretryable.retryable: true",
 		"getretryable.ribbon.MaxAutoRetries: 1",
 		"getretryable.ribbon.MaxAutoRetriesNextServer: 1",
-		"zuul.routes.disableretry: /disableretry/another/twolevel/**",
+		"zuul.routes.disableretry: /disableretry/**",
 		"zuul.routes.disableretry.retryable: false", /* This will override the global */
 		"disableretry.ribbon.MaxAutoRetries: 1",
 		"disableretry.ribbon.MaxAutoRetriesNextServer: 1",
-		"zuul.routes.globalretrydisabled: /globalretrydisabled/another/twolevel/**",
+		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
 		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
 		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1"
 })

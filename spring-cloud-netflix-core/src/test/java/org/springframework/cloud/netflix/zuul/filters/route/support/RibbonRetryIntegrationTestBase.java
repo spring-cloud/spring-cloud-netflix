@@ -61,7 +61,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	@Test
 	public void retryable() {
-		String uri = "/retryable/another/twolevel/everyothererror";
+		String uri = "/retryable/everyothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -70,7 +70,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	@Test
 	public void postRetryOK() {
-		String uri = "/retryable/another/twolevel/posteveryothererror";
+		String uri = "/retryable/posteveryothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
@@ -79,7 +79,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	@Test
 	public void getRetryable() {
-		String uri = "/getretryable/another/twolevel/everyothererror";
+		String uri = "/getretryable/everyothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -88,7 +88,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	@Test
 	public void postNotRetryable() {
-		String uri = "/getretryable/another/twolevel/posteveryothererror";
+		String uri = "/getretryable/posteveryothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
@@ -97,7 +97,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	@Test
 	public void disbaleRetry() {
-		String uri = "/disableretry/another/twolevel/everyothererror";
+		String uri = "/disableretry/everyothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -106,7 +106,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 	@Test
 	public void globalRetryDisabled() {
-		String uri = "/globalretrydisabled/another/twolevel/everyothererror";
+		String uri = "/globalretrydisabled/everyothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
