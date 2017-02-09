@@ -2888,10 +2888,20 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 <div class="ulist">
 <ul>
 <li>
-<p><code>RibbonRoutingFilter</code>: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the <code>RequestContext</code> attribute <code>FilterConstants.SERVICE_ID_KEY</code>.</p>
+<p><code>RibbonRoutingFilter</code>: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the <code>RequestContext</code> attribute <code>FilterConstants.SERVICE_ID_KEY</code>. This filter can use different HTTP clients. They are:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Apache <code>HttpClient</code>. This is the default client.</p>
 </li>
 <li>
-<p>Describe different Ribbon HTTP clients</p>
+<p>Squareup <code>OkHttpClient</code> v3. This is enabled by having the <code>com.squareup.okhttp3:okhttp</code> library on the classpath and setting <code>ribbon.okhttp.enabled=true</code>.</p>
+</li>
+<li>
+<p>Netflix Ribbon HTTP client. This is enabled by setting <code>ribbon.restclient.enabled=true</code>. This client has limitations, such as it doesn&#8217;t support the PATCH method, but also has built-in retry.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p><code>SimpleHostRoutingFilter</code>: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in <code>RequestContext.getRouteHost()</code>.</p>
