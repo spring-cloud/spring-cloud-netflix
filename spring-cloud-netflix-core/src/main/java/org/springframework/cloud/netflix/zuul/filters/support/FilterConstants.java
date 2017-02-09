@@ -17,10 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul.filters.support;
 
-import com.netflix.zuul.ZuulFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
+
+import com.netflix.zuul.ZuulFilter;
 
 /**
  * @author Spencer Gibb
@@ -28,6 +29,11 @@ import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
 public interface FilterConstants {
 
 	// KEY constants -----------------------------------
+
+	/**
+	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use in {@link org.springframework.cloud.netflix.zuul.filters.pre.ServletDetectionFilter}
+	 */
+	String IS_DISPATCHER_SERVLET_REQUEST_KEY = "isDispatcherServletRequest";
 
 	/**
 	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use in {@link org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter}

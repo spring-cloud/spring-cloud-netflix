@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import com.netflix.zuul.ZuulFilter;
@@ -26,6 +25,7 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 import com.netflix.zuul.http.ZuulServlet;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVLET_DETECTION_FILTER_ORDER;
 
@@ -67,9 +67,9 @@ public class ServletDetectionFilter extends ZuulFilter {
 		HttpServletRequest request = ctx.getRequest();
 		if (!(request instanceof HttpServletRequestWrapper) 
 		        && isDispatcherServletRequest(request)) {
-		    ctx.set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, true);
+		    ctx.set(IS_DISPATCHER_SERVLET_REQUEST_KEY, true);
 		} else {
-		    ctx.set(RequestUtils.IS_DISPATCHERSERVLETREQUEST, false);
+		    ctx.set(IS_DISPATCHER_SERVLET_REQUEST_KEY, false);
 		}
 
 		return null;

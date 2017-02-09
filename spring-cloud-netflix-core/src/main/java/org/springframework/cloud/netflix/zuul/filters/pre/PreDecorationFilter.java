@@ -56,6 +56,10 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PREFIX_HEADER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PROTO_HEADER;
 
+/**
+ * Pre {@link ZuulFilter} that determines where and how to route based on the supplied {@link RouteLocator}.
+ * Also sets various proxy related headers for downstream requests.
+ */
 public class PreDecorationFilter extends ZuulFilter {
 
 	private static final Log log = LogFactory.getLog(PreDecorationFilter.class);
