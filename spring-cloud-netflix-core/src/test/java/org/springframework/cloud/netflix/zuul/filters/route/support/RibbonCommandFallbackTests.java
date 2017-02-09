@@ -52,7 +52,6 @@ public abstract class RibbonCommandFallbackTests {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		System.out.println("no fallback body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 }

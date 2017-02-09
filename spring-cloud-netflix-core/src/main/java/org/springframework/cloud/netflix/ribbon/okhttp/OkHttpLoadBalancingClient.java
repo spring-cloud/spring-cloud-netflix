@@ -19,8 +19,13 @@ package org.springframework.cloud.netflix.ribbon.okhttp;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.support.RetryableLoadBalancingClient;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
@@ -36,9 +41,10 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 
 /**
  * @author Spencer Gibb
+ * @author Ryan Baxter
  */
 public class OkHttpLoadBalancingClient
-		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
+		extends RetryableLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
 
 	@Deprecated
 	public OkHttpLoadBalancingClient() {
@@ -55,6 +61,12 @@ public class OkHttpLoadBalancingClient
 		super(config, serverIntrospector);
 	}
 
+	public OkHttpLoadBalancingClient(IClientConfig config,
+									 ServerIntrospector serverIntrospector,
+									 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+		super(config, serverIntrospector, loadBalancedRetryPolicyFactory);
+	}
+
 	public OkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config,
 									 ServerIntrospector serverIntrospector) {
 		super(delegate, config, serverIntrospector);
@@ -66,21 +78,36 @@ public class OkHttpLoadBalancingClient
 	}
 
 	@Override
-	public OkHttpRibbonResponse execute(OkHttpRibbonRequest ribbonRequest,
+	public OkHttpRibbonResponse execute(final OkHttpRibbonRequest ribbonRequest,
 			final IClientConfig configOverride) throws Exception {
-		boolean secure = isSecure(configOverride);
+		return this.executeWithRetry(ribbonRequest, new RetryCallback() {
+			@Override
+			public OkHttpRibbonResponse doWithRetry(RetryContext context) throws Exception {
+				//on retries the policy will choose the server and set it in the context
+				//extract the server and update the request being made
+				OkHttpRibbonRequest newRequest = ribbonRequest;
+				if(context instanceof LoadBalancedRetryContext) {
+					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
+					if(service != null) {
+						//Reconstruct the request URI using the host and port set in the retry context
+						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
+								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
+								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
+								newRequest.getURI().getFragment()));
+					}
+				}
+				if (isSecure(configOverride)) {
+					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
+							.scheme("https").build().toUri();
+					newRequest = newRequest.withNewUri(secureUri);
+				}
+				OkHttpClient httpClient = getOkHttpClient(configOverride, secure);
 
-		if (secure) {
-			final URI secureUri = UriComponentsBuilder.fromUri(ribbonRequest.getUri())
-					.scheme("https").build().toUri();
-			ribbonRequest = ribbonRequest.withNewUri(secureUri);
-		}
-
-		OkHttpClient httpClient = getOkHttpClient(configOverride, secure);
-
-		final Request request = ribbonRequest.toRequest();
-		Response response = httpClient.newCall(request).execute();
-		return new OkHttpRibbonResponse(response, ribbonRequest.getUri());
+				final Request request = newRequest.toRequest();
+				Response response = httpClient.newCall(request).execute();
+				return new OkHttpRibbonResponse(response, newRequest.getUri());
+			}
+		});
 	}
 
 	OkHttpClient getOkHttpClient(IClientConfig configOverride, boolean secure) {

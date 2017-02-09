@@ -375,7 +375,6 @@ public abstract class ZuulProxyTestBase {
 				e.printStackTrace();
 			}
 			return "slow";
-
 		}
 
 		@Bean
@@ -506,8 +505,8 @@ public abstract class ZuulProxyTestBase {
 
 		@Bean
 		public ServerList<Server> ribbonServerList() {
-														   return new StaticServerList<>(new Server("localhost", this.port));
-																															 }
+			return new StaticServerList<>(new Server("localhost", this.port));
+		}
 
 	}
 
