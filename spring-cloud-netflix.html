@@ -2870,7 +2870,7 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 <p>Creates a <code>DiscoveryClientRouteLocator</code> that loads route definitions from a <code>DiscoveryClient</code> (like Eureka), as well as from properties. A route is created for each <code>serviceId</code> from the <code>DiscoveryClient</code>. As new services are added, the routes will be refreshed.</p>
 </div>
 <div class="paragraph">
-<p>In addition to the filters describe above, the following filters are installed (as normal Spring Beans):</p>
+<p>In addition to the filters described above, the following filters are installed (as normal Spring Beans):</p>
 </div>
 <div class="paragraph">
 <p>Pre filters:</p>
@@ -2878,7 +2878,7 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 <div class="ulist">
 <ul>
 <li>
-<p><code>PreDecorationFilter</code>: This filter determines where and how to route based on the supplied <code>RouteLocator</code>. It also sets various proxy related headers for downstream requests.</p>
+<p><code>PreDecorationFilter</code>: This filter determines where and how to route based on the supplied <code>RouteLocator</code>. It also sets various proxy-related headers for downstream requests.</p>
 </li>
 </ul>
 </div>
@@ -2888,10 +2888,10 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 <div class="ulist">
 <ul>
 <li>
-<p><code>RibbonRoutingFilter</code>: This filter uses Ribbon, Hystrix and pluggable http clients to send requests. Service ids are found in the <code>RequestContext</code> attribute <code>FilterConstants.SERVICE_ID_KEY</code>.</p>
+<p><code>RibbonRoutingFilter</code>: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the <code>RequestContext</code> attribute <code>FilterConstants.SERVICE_ID_KEY</code>.</p>
 </li>
 <li>
-<p>Describe different ribbon http clients</p>
+<p>Describe different Ribbon HTTP clients</p>
 </li>
 <li>
 <p><code>SimpleHostRoutingFilter</code>: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in <code>RequestContext.getRouteHost()</code>.</p>
@@ -2902,7 +2902,7 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 <div class="sect3">
 <h4 id="_how_to_write_a_pre_filter">How to Write a Pre Filter</h4>
 <div class="paragraph">
-<p>Pre filters are used to setup data in the <code>RequestContext</code> for use in filters downstream. The main use case is to set information required for route filters`</p>
+<p>Pre filters are used to set up data in the <code>RequestContext</code> for use in filters downstream. The main use case is to set information required for route filters.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -3028,13 +3028,13 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 </div>
 </div>
 <div class="paragraph">
-<p>The above filter translates Servlet request information into OkHttp3 request information, executes an http request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.</p>
+<p>The above filter translates Servlet request information into OkHttp3 request information, executes an HTTP request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_how_to_write_a_post_filter">How to Write a Post Filter</h4>
 <div class="paragraph">
-<p>Post filters typically manipulate the response. In the filter below, we add a random <code>UUID</code> as the <code>X-Foo</code> header. Other manipulations, such as transforming the response body are much more complex and compute intensive.</p>
+<p>Post filters typically manipulate the response. In the filter below, we add a random <code>UUID</code> as the <code>X-Foo</code> header. Other manipulations, such as transforming the response body, are much more complex and compute-intensive.</p>
 </div>
 <div class="listingblock">
 <div class="content">
