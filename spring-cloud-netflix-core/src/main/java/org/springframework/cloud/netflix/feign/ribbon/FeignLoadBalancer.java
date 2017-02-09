@@ -97,11 +97,13 @@ public class FeignLoadBalancer extends
 		}
 		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
-						: new InterceptorRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
+						: new FeignRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
 		return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {
 			@Override
 			public RibbonResponse doWithRetry(RetryContext retryContext) throws IOException {
 				Request feignRequest = null;
+				//on retries the policy will choose the server and set it in the context
+				// extract the server and update the request being made
 				if(retryContext instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)retryContext).getServiceInstance();
 					if(service != null) {
@@ -120,19 +122,6 @@ public class FeignLoadBalancer extends
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
 			RibbonRequest request, IClientConfig requestConfig) {
-//		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations,
-//				false)) {
-//			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
-//					requestConfig);
-//		}
-//		if (!request.toRequest().method().equals("GET")) {
-//			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
-//					requestConfig);
-//		}
-//		else {
-//			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
-//					requestConfig);
-//		}
 		return new RequestSpecificRetryHandler(false, false, this.getRetryHandler(), requestConfig);
 	}
 

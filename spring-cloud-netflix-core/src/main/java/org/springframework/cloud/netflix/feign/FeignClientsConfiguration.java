@@ -105,10 +105,16 @@ public class FeignClientsConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
+	public Retryer feignRetryer() {
+		return Retryer.NEVER_RETRY;
+	}
+
+	@Bean
 	@Scope("prototype")
 	@ConditionalOnMissingBean
-	public Feign.Builder feignBuilder() {
-		return Feign.builder().retryer(Retryer.NEVER_RETRY);
+	public Feign.Builder feignBuilder(Retryer retryer) {
+		return Feign.builder().retryer(retryer);
 	}
 
 	@Bean
