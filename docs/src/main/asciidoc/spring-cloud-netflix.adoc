@@ -1799,22 +1799,22 @@ Error filters:
 
 Creates a `DiscoveryClientRouteLocator` that loads route definitions from a `DiscoveryClient` (like Eureka), as well as from properties. A route is created for each `serviceId` from the `DiscoveryClient`. As new services are added, the routes will be refreshed.
 
-In addition to the filters describe above, the following filters are installed (as normal Spring Beans):
+In addition to the filters described above, the following filters are installed (as normal Spring Beans):
 
 Pre filters:
 
-- `PreDecorationFilter`: This filter determines where and how to route based on the supplied `RouteLocator`. It also sets various proxy related headers for downstream requests.
+- `PreDecorationFilter`: This filter determines where and how to route based on the supplied `RouteLocator`. It also sets various proxy-related headers for downstream requests.
 
 Route filters:
 
-- `RibbonRoutingFilter`: This filter uses Ribbon, Hystrix and pluggable http clients to send requests. Service ids are found in the `RequestContext` attribute `FilterConstants.SERVICE_ID_KEY`.
-  - Describe different ribbon http clients
+- `RibbonRoutingFilter`: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the `RequestContext` attribute `FilterConstants.SERVICE_ID_KEY`.
+  - Describe different Ribbon HTTP clients
 
 - `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
 
 ==== How to Write a Pre Filter
 
-Pre filters are used to setup data in the `RequestContext` for use in filters downstream. The main use case is to set information required for route filters`
+Pre filters are used to set up data in the `RequestContext` for use in filters downstream. The main use case is to set information required for route filters.
 
 [source,java]
 ----
@@ -1935,11 +1935,11 @@ public class OkHttpRoutingFilter extends ZuulFilter {
 }
 ----
 
-The above filter translates Servlet request information into OkHttp3 request information, executes an http request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.
+The above filter translates Servlet request information into OkHttp3 request information, executes an HTTP request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.
 
 ==== How to Write a Post Filter
 
-Post filters typically manipulate the response. In the filter below, we add a random `UUID` as the `X-Foo` header. Other manipulations, such as transforming the response body are much more complex and compute intensive.
+Post filters typically manipulate the response. In the filter below, we add a random `UUID` as the `X-Foo` header. Other manipulations, such as transforming the response body, are much more complex and compute-intensive.
 
 [source,java]
 ----
