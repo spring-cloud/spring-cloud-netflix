@@ -1754,7 +1754,71 @@ zuul:
     customers: /customers/**
 ----
 
-=== Polyglot support with Sidecar
+[[zuul-developer-guide]]
+=== Zuul Developer Guide
+
+For a general overview of how Zuul works, please see https://github.com/Netflix/zuul/wiki/How-it-Works[the Zuul Wiki].
+
+==== The Zuul Servlet
+
+Zuul is implemented as a Servlet. For the general cases, Zuul is embedded into the Spring Dispatch mechanism. This allows Spring MVC to be in control of the routing. In this case, Zuul is configured to buffer requests. If there is a need to go through Zuul without buffering requests (e.g. for large file uploads), the Servlet is also installed outside of the Spring Dispatcher. By default, this is located at `/zuul`. This path can be changed with the `zuul.servlet-path` property.
+
+==== Zuul RequestContext
+
+To pass information between filters, Zuul uses a https://github.com/Netflix/zuul/blob/1.x/zuul-core/src/main/java/com/netflix/zuul/context/RequestContext.java[`RequestContext`]. Its data is held in a `ThreadLocal` specific to each request. Information about where to route requests, errors and the actual `HttpServletRequest` and `HttpServletResponse` are stored there. The `RequestContext` extends `ConcurrentHashMap`, so anything can be stored in the context. https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java[`FilterConstants`] contains the keys that are used by the filters installed by Spring Cloud Netflix (more on these later).
+
+==== `@EnableZuulProxy` vs. `@EnableZuulServer`
+
+Spring Cloud Netflix installs a number of filters based on which annotation was used to enable Zuul. `@EnableZuulProxy` is a superset of `@EnableZuulServer`. In other words, `@EnableZuulProxy` contains all filters installed by `@EnableZuulServer`. The additional filters in the "proxy" enable routing functionality. If you want a "blank" Zuul, you should use `@EnableZuulServer`.
+
+==== `@EnableZuulServer` Filters
+
+Creates a `SimpleRouteLocator` that loads route definitions from Spring Boot configuration files.
+
+The following filters are installed (as normal Spring Beans):
+
+Pre filters:
+
+- `ServletDetectionFilter`: Detects if the request is through the Spring Dispatcher. Sets boolean with key `FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY`.
+- `FormBodyWrapperFilter`: Parses form data and reencodes it for downstream requests.
+- `DebugFilter`: if the `debug` request parameter is set, this filter sets `RequestContext.setDebugRouting()` and `RequestContext.setDebugRequest()` to true.
+
+Route filters:
+
+- `SendForwardFilter`: This filter forwards requests using the Servlet `RequestDispatcher`. The forwarding location is stored in the `RequestContext` attribute `FilterConstants.FORWARD_TO_KEY`. This is useful for forwarding to endpoints in the current application.
+
+Post filters:
+
+- `SendResponseFilter`: Writes responses from proxied requests to the current response.
+
+Error filters:
+
+- `SendErrorFilter`: Forwards to /error (by default) if `RequestContext.getThrowable()` is not null. The default forwarding path (`/error`) can be changed by setting the `error.path` property.
+
+==== `@EnableZuulProxy` Filters
+
+Creates a `DiscoveryClientRouteLocator` that loads route definitions from a `DiscoveryClient` (like Eureka), as well as from properties. A route is created for each `serviceId` from the `DiscoveryClient`. As new services are added, the routes will be refreshed.
+
+In addition to the filters describe above, the following filters are installed (as normal Spring Beans):
+
+Pre filters:
+
+- `PreDecorationFilter`: This filter determines where and how to route based on the supplied `RouteLocator`. It also sets various proxy related headers for downstream requests.
+
+Route filters:
+
+- `RibbonRoutingFilter`: This filter uses Ribbon, Hystrix and pluggable http clients to send requests. Service ids are found in the `RequestContext` attribute `FilterConstants.SERVICE_ID_KEY`.
+  - Describe different ribbon http clients
+
+- `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
+
+- TODO: Describe howto write a general pre route determining filter
+- TODO: Describe howto write a general routing filter
+- TODO: Describe howto write a general post response manipulation filter
+- TODO: Describe how errors work
+
+
+== Polyglot support with Sidecar
 
 Do you have non-jvm languages you want to take advantage of Eureka, Ribbon and
 Config Server?  The Spring Cloud Netflix Sidecar was inspired by
