@@ -18,24 +18,50 @@
 package org.springframework.cloud.netflix.ribbon.support;
 
 import com.netflix.client.ClientRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
+import org.springframework.util.MultiValueMap;
 
 import java.net.URI;
 
 /**
  * @author Spencer Gibb
+ * @author Ryan Baxter
  */
-public abstract class ContextAwareRequest extends ClientRequest {
+public abstract class ContextAwareRequest extends ClientRequest implements HttpRequest {
 	protected final RibbonCommandContext context;
+	private HttpHeaders httpHeaders;
 
 	public ContextAwareRequest(RibbonCommandContext context) {
 		this.context = context;
+		MultiValueMap<String, String> headers = context.getHeaders();
+		this.httpHeaders = new HttpHeaders();
+		for(String key : headers.keySet()) {
+			this.httpHeaders.put(key, headers.get(key));
+		}
 		this.uri = context.uri();
 		this.isRetriable = context.getRetryable();
 	}
 
 	public RibbonCommandContext getContext() {
 		return context;
+	}
+
+	@Override
+	public HttpMethod getMethod() {
+		return HttpMethod.valueOf(context.getMethod());
+	}
+
+	@Override
+	public URI getURI() {
+		return this.getUri();
+	}
+
+	@Override
+	public HttpHeaders getHeaders() {
+		return httpHeaders;
 	}
 
 	protected RibbonCommandContext newContext(URI uri) {

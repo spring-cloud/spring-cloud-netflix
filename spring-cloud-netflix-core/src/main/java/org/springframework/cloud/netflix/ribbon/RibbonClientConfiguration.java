@@ -28,6 +28,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.context.annotation.Bean;
@@ -126,9 +127,10 @@ public class RibbonClientConfiguration {
 		@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 		public RibbonLoadBalancingHttpClient ribbonLoadBalancingHttpClient(
 				IClientConfig config, ServerIntrospector serverIntrospector,
-				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
+				ILoadBalancer loadBalancer, RetryHandler retryHandler,
+				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 			RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
-					config, serverIntrospector);
+					config, serverIntrospector, loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			Monitors.registerObject("Client_" + this.name, client);
@@ -147,9 +149,9 @@ public class RibbonClientConfiguration {
 		@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 		public OkHttpLoadBalancingClient okHttpLoadBalancingClient(IClientConfig config,
 				ServerIntrospector serverIntrospector, ILoadBalancer loadBalancer,
-				RetryHandler retryHandler) {
+				RetryHandler retryHandler, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 			OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(config,
-					serverIntrospector);
+					serverIntrospector, loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			Monitors.registerObject("Client_" + this.name, client);
