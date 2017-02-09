@@ -1812,10 +1812,166 @@ Route filters:
 
 - `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
 
-- TODO: Describe howto write a general pre route determining filter
-- TODO: Describe howto write a general routing filter
-- TODO: Describe howto write a general post response manipulation filter
-- TODO: Describe how errors work
+==== How to Write a Pre Filter
+
+Pre filters are used to setup data in the `RequestContext` for use in filters downstream. The main use case is to set information required for route filters`
+
+[source,java]
+----
+public class QueryParamPreFilter extends ZuulFilter {
+	@Override
+	public int filterOrder() {
+		return PRE_DECORATION_FILTER_ORDER - 1; // run before PreDecoration
+	}
+
+	@Override
+	public String filterType() {
+		return PRE_TYPE;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		RequestContext ctx = RequestContext.getCurrentContext();
+		return !ctx.containsKey(FORWARD_TO_KEY) // a filter has already forwarded
+				&& !ctx.containsKey(SERVICE_ID_KEY); // a filter has already determined serviceId
+	}
+    @Override
+    public Object run() {
+        RequestContext ctx = RequestContext.getCurrentContext();
+		HttpServletRequest request = ctx.getRequest();
+		if (request.getParameter("foo") != null) {
+		    // put the serviceId in `RequestContext`
+    		ctx.put(SERVICE_ID_KEY, request.getParameter("foo"));
+    	}
+        return null;
+    }
+}
+----
+
+The filter above populates `SERVICE_ID_KEY` from the `foo` request parameter. In reality, it's not a good idea to do that kind of direct mapping, but the service id should be looked up from the value of `foo` instead.
+
+Now that `SERVICE_ID_KEY` is populated, `PreDecorationFilter` won't run and `RibbonRoutingFilter` will. If you wanted to route to a full URL instead, call `ctx.setRouteHost(url)` instead.
+
+==== How to Write a Route Filter
+
+Route filters are run after pre filters and are used to make requests to other services. Much of the work here is to translate request and response data to and from the client required model.
+
+[source,java]
+----
+public class OkHttpRoutingFilter extends ZuulFilter {
+	@Autowired
+	private ProxyRequestHelper helper;
+
+	@Override
+	public String filterType() {
+		return ROUTE_TYPE;
+	}
+
+	@Override
+	public int filterOrder() {
+		return SIMPLE_HOST_ROUTING_FILTER_ORDER - 1;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		return RequestContext.getCurrentContext().getRouteHost() != null
+				&& RequestContext.getCurrentContext().sendZuulResponse();
+	}
+
+    @Override
+    public Object run() {
+		OkHttpClient httpClient = new OkHttpClient.Builder()
+				// customize
+				.build();
+
+		RequestContext context = RequestContext.getCurrentContext();
+		HttpServletRequest request = context.getRequest();
+
+		String method = request.getMethod();
+
+		String uri = this.helper.buildZuulRequestURI(request);
+
+		Headers.Builder headers = new Headers.Builder();
+		Enumeration<String> headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String name = headerNames.nextElement();
+			Enumeration<String> values = request.getHeaders(name);
+
+			while (values.hasMoreElements()) {
+				String value = values.nextElement();
+				headers.add(name, value);
+			}
+		}
+
+		InputStream inputStream = request.getInputStream();
+
+		RequestBody requestBody = null;
+		if (inputStream != null && HttpMethod.permitsRequestBody(method)) {
+			MediaType mediaType = null;
+			if (headers.get("Content-Type") != null) {
+				mediaType = MediaType.parse(headers.get("Content-Type"));
+			}
+			requestBody = RequestBody.create(mediaType, StreamUtils.copyToByteArray(inputStream));
+		}
+
+		Request.Builder builder = new Request.Builder()
+				.headers(headers.build())
+				.url(uri)
+				.method(method, requestBody);
+
+		Response response = httpClient.newCall(builder.build()).execute();
+
+		LinkedMultiValueMap<String, String> responseHeaders = new LinkedMultiValueMap<>();
+
+		for (Map.Entry<String, List<String>> entry : response.headers().toMultimap().entrySet()) {
+			responseHeaders.put(entry.getKey(), entry.getValue());
+		}
+
+		this.helper.setResponse(response.code(), response.body().byteStream(),
+				responseHeaders);
+		context.setRouteHost(null); // prevent SimpleHostRoutingFilter from running
+		return null;
+    }
+}
+----
+
+The above filter translates Servlet request information into OkHttp3 request information, executes an http request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.
+
+==== How to Write a Post Filter
+
+Post filters typically manipulate the response. In the filter below, we add a random `UUID` as the `X-Foo` header. Other manipulations, such as transforming the response body are much more complex and compute intensive.
+
+[source,java]
+----
+public class AddResponseHeaderFilter extends ZuulFilter {
+	@Override
+	public String filterType() {
+		return POST_TYPE;
+	}
+
+	@Override
+	public int filterOrder() {
+		return SEND_RESPONSE_FILTER_ORDER - 1;
+	}
+
+	@Override
+	public boolean shouldFilter() {
+		return true;
+	}
+
+	@Override
+	public Object run() {
+		RequestContext context = RequestContext.getCurrentContext();
+    	HttpServletResponse servletResponse = context.getResponse();
+		servletResponse.addHeader("X-Foo", UUID.randomUUID().toString());
+		return null;
+	}
+}
+----
+
+==== How Zuul Errors Work
+
+If an exception is thrown during any portion of the Zuul filter lifecycle, the error filters are executed. The `SendErrorFilter` is only run if `RequestContext.getThrowable()` is not `null`. It then sets specific `javax.servlet.error.*` attributes in the request and forwards the request to the Spring Boot error page.
 
 
 == Polyglot support with Sidecar
