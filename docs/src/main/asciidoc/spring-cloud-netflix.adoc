@@ -1807,10 +1807,12 @@ Pre filters:
 
 Route filters:
 
-- `RibbonRoutingFilter`: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the `RequestContext` attribute `FilterConstants.SERVICE_ID_KEY`.
-  - Describe different Ribbon HTTP clients
+* `RibbonRoutingFilter`: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the `RequestContext` attribute `FilterConstants.SERVICE_ID_KEY`. This filter can use different HTTP clients. They are:
+** Apache `HttpClient`. This is the default client.
+** Squareup `OkHttpClient` v3. This is enabled by having the `com.squareup.okhttp3:okhttp` library on the classpath and setting `ribbon.okhttp.enabled=true`.
+** Netflix Ribbon HTTP client. This is enabled by setting `ribbon.restclient.enabled=true`. This client has limitations, such as it doesn't support the PATCH method, but also has built-in retry.
 
-- `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
+* `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
 
 ==== How to Write a Pre Filter
 
