@@ -17,14 +17,17 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import org.springframework.util.Assert;
+
 import feign.Feign;
 import feign.Target;
 import feign.hystrix.FallbackFactory;
 import feign.hystrix.HystrixFeign;
-import org.springframework.util.Assert;
+import feign.hystrix.SetterFactory;
 
 /**
  * @author Spencer Gibb
+ * @author Erik Kringen
  */
 @SuppressWarnings("unchecked")
 class HystrixTargeter implements Targeter {
@@ -36,6 +39,11 @@ class HystrixTargeter implements Targeter {
 			return feign.target(target);
 		}
 		feign.hystrix.HystrixFeign.Builder builder = (feign.hystrix.HystrixFeign.Builder) feign;
+		SetterFactory setterFactory = getOptional(factory.getName(), context,
+			SetterFactory.class);
+		if (setterFactory != null) {
+			builder.setterFactory(setterFactory);
+		}
 		Class<?> fallback = factory.getFallback();
 		if (fallback != void.class) {
 			return targetWithFallback(factory.getName(), context, target, builder, fallback);
@@ -94,5 +102,10 @@ class HystrixTargeter implements Targeter {
 						beanType, targetType, feignClientName));
 		}
 		return (T) fallbackInstance;
+	}
+
+	private <T> T getOptional(String feignClientName, FeignContext context,
+		Class<T> beanType) {
+		return context.getInstance(feignClientName, beanType);
 	}
 }
