@@ -31,6 +31,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
@@ -52,10 +53,16 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  */
 public class FormBodyWrapperFilter extends ZuulFilter {
 
+	private FormHttpMessageConverter formHttpMessageConverter;
 	private Field requestField;
 	private Field servletRequestField;
 
 	public FormBodyWrapperFilter() {
+		this(new AllEncompassingFormHttpMessageConverter());
+	}
+
+	public FormBodyWrapperFilter(FormHttpMessageConverter formHttpMessageConverter) {
+		this.formHttpMessageConverter = formHttpMessageConverter;
 		this.requestField = ReflectionUtils.findField(HttpServletRequestWrapper.class,
 				"req", HttpServletRequest.class);
 		this.servletRequestField = ReflectionUtils.findField(ServletRequestWrapper.class,
@@ -139,8 +146,6 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		private int contentLength;
 
-		private AllEncompassingFormHttpMessageConverter converter = new AllEncompassingFormHttpMessageConverter();
-
 		public FormBodyRequestWrapper(HttpServletRequest request) {
 			super(request);
 			this.request = request;
@@ -184,7 +189,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 				this.contentType = MediaType.valueOf(this.request.getContentType());
 				data.getHeaders().setContentType(this.contentType);
-				this.converter.write(builder, this.contentType, data);
+				FormBodyWrapperFilter.this.formHttpMessageConverter.write(builder, this.contentType, data);
 				// copy new content type including multipart boundary
 				this.contentType = data.getHeaders().getContentType();
 				this.contentData = data.getInput();
