@@ -16,16 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -41,51 +40,56 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SimpleZuulServerApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        classes = SimpleZuulServerApplication.class,
+        webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
 
-	@Value("${local.server.port}")
-	private int port;
+    @LocalServerPort
+    private int port;
 
-	@Autowired
-	private RouteLocator routes;
+    @Autowired
+    private TestRestTemplate testRestTemplate;
 
-	private String getRoute(String path) {
-		return this.routes.getMatchingRoute(path).getLocation();
-	}
+    @Autowired
+    private RouteLocator routes;
 
-	@Before
-	public void setTestRequestcontext() {
-		RequestContext context = new RequestContext();
-		RequestContext.testSetCurrentContext(context);
-	}
+    private String getRoute(String path) {
+        return this.routes.getMatchingRoute(path).getLocation();
+    }
 
-	@Test
-	public void bindRoute() {
-		assertNotNull(getRoute("/testing123/**"));
-	}
+    @Before
+    public void setTestRequestContext() {
+        RequestContext context = new RequestContext();
+        RequestContext.testSetCurrentContext(context);
+    }
 
-	@Test
-	public void getOnSelf() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Hello world", result.getBody());
-	}
+    @Test
+    public void bindRoute() {
+        assertNotNull(getRoute("/testing123/**"));
+    }
 
-	@Test
-	public void getOnSelfViaFilter() {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/testing123/1", HttpMethod.GET,
-				new HttpEntity<Void>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-	}
+    @Test
+    public void getOnSelf() {
+        ResponseEntity<String> result = testRestTemplate.exchange(
+                "/", HttpMethod.GET,
+                new HttpEntity<>((Void) null), String.class);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("Hello world", result.getBody());
+    }
+
+    @Test
+    public void getOnSelfViaFilter() {
+        ResponseEntity<String> result = testRestTemplate.exchange(
+                "/testing123/1", HttpMethod.GET,
+                new HttpEntity<>((Void) null), String.class);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+    }
 
 }
 
@@ -96,43 +100,43 @@ public class SimpleZuulServerApplicationTests {
 @EnableZuulServer
 class SimpleZuulServerApplication {
 
-	@RequestMapping("/local")
-	public String local() {
-		return "Hello local";
-	}
+    @RequestMapping("/local")
+    public String local() {
+        return "Hello local";
+    }
 
-	@RequestMapping("/")
-	public String home() {
-		return "Hello world";
-	}
+    @RequestMapping("/")
+    public String home() {
+        return "Hello world";
+    }
 
-	@Bean
-	public ZuulFilter sampleFilter() {
-		return new ZuulFilter() {
-			@Override
-			public String filterType() {
-				return "pre";
-			}
+    @Bean
+    public ZuulFilter sampleFilter() {
+        return new ZuulFilter() {
+            @Override
+            public String filterType() {
+                return "pre";
+            }
 
-			@Override
-			public boolean shouldFilter() {
-				return true;
-			}
+            @Override
+            public boolean shouldFilter() {
+                return true;
+            }
 
-			@Override
-			public Object run() {
-				return null;
-			}
+            @Override
+            public Object run() {
+                return null;
+            }
 
-			@Override
-			public int filterOrder() {
-				return 0;
-			}
-		};
-	}
+            @Override
+            public int filterOrder() {
+                return 0;
+            }
+        };
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(SimpleZuulServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SimpleZuulServerApplication.class, args);
+    }
 
 }

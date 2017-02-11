@@ -39,52 +39,52 @@ import static org.mockito.Mockito.mock;
  */
 public class ZuulProxyConfigurationTests {
 
-	@Test
-	public void testDefaultsToApacheHttpClient() {
-		testClient(HttpClientRibbonCommandFactory.class, null);
-		testClient(HttpClientRibbonCommandFactory.class, "zuul.ribbon.httpclient.enabled=true");
-		testClient(HttpClientRibbonCommandFactory.class, "ribbon.httpclient.enabled=true");
-	}
+    @Test
+    public void testDefaultsToApacheHttpClient() {
+        testClient(HttpClientRibbonCommandFactory.class, null);
+        testClient(HttpClientRibbonCommandFactory.class, "zuul.ribbon.httpclient.enabled=true");
+        testClient(HttpClientRibbonCommandFactory.class, "ribbon.httpclient.enabled=true");
+    }
 
-	@Test
-	public void testEnableRestClient() {
-		testClient(RestClientRibbonCommandFactory.class, "zuul.ribbon.restclient.enabled=true");
-		testClient(RestClientRibbonCommandFactory.class, "ribbon.restclient.enabled=true");
-	}
+    @Test
+    public void testEnableRestClient() {
+        testClient(RestClientRibbonCommandFactory.class, "zuul.ribbon.restclient.enabled=true");
+        testClient(RestClientRibbonCommandFactory.class, "ribbon.restclient.enabled=true");
+    }
 
-	@Test
-	public void testEnableOkHttpClient() {
-		testClient(OkHttpRibbonCommandFactory.class, "zuul.ribbon.okhttp.enabled=true");
-		testClient(OkHttpRibbonCommandFactory.class, "ribbon.okhttp.enabled=true");
-	}
+    @Test
+    public void testEnableOkHttpClient() {
+        testClient(OkHttpRibbonCommandFactory.class, "zuul.ribbon.okhttp.enabled=true");
+        testClient(OkHttpRibbonCommandFactory.class, "ribbon.okhttp.enabled=true");
+    }
 
-	void testClient(Class<?> clientType, String property) {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(TestConfig.class, ZuulProxyConfiguration.class);
-		if (property != null) {
-			EnvironmentTestUtils.addEnvironment(context, property);
-		}
-		context.refresh();
-		RibbonCommandFactory factory = context.getBean(RibbonCommandFactory.class);
-		assertThat("RibbonCommandFactory is wrong type for property: "+property, factory, is(instanceOf(clientType)));
-		context.close();
-	}
+    void testClient(Class<?> clientType, String property) {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.register(TestConfig.class, ZuulProxyConfiguration.class);
+        if (property != null) {
+            EnvironmentTestUtils.addEnvironment(context, property);
+        }
+        context.refresh();
+        RibbonCommandFactory factory = context.getBean(RibbonCommandFactory.class);
+        assertThat("RibbonCommandFactory is wrong type for property: " + property, factory, is(instanceOf(clientType)));
+        context.close();
+    }
 
-	static class TestConfig {
-		@Bean
-		ServerProperties serverProperties() {
-			return new ServerProperties();
-		}
+    static class TestConfig {
+        @Bean
+        ServerProperties serverProperties() {
+            return new ServerProperties();
+        }
 
-		@Bean
-		SpringClientFactory springClientFactory() {
-			return mock(SpringClientFactory.class);
-		}
+        @Bean
+        SpringClientFactory springClientFactory() {
+            return mock(SpringClientFactory.class);
+        }
 
-		@Bean
-		DiscoveryClient discoveryClient() {
-			return mock(DiscoveryClient.class);
-		}
-	}
+        @Bean
+        DiscoveryClient discoveryClient() {
+            return mock(DiscoveryClient.class);
+        }
+    }
 
 }
