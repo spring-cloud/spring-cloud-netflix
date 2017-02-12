@@ -45,51 +45,51 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(
-        classes = SimpleZuulServerApplication.class,
-        webEnvironment = WebEnvironment.RANDOM_PORT)
+		classes = SimpleZuulServerApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
 
-    @LocalServerPort
-    private int port;
+	@LocalServerPort
+	private int port;
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
-    @Autowired
-    private RouteLocator routes;
+	@Autowired
+	private RouteLocator routes;
 
-    private String getRoute(String path) {
-        return this.routes.getMatchingRoute(path).getLocation();
-    }
+	private String getRoute(String path) {
+		return this.routes.getMatchingRoute(path).getLocation();
+	}
 
-    @Before
-    public void setTestRequestContext() {
-        RequestContext context = new RequestContext();
-        RequestContext.testSetCurrentContext(context);
-    }
+	@Before
+	public void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
-    @Test
-    public void bindRoute() {
-        assertNotNull(getRoute("/testing123/**"));
-    }
+	@Test
+	public void bindRoute() {
+		assertNotNull(getRoute("/testing123/**"));
+	}
 
-    @Test
-    public void getOnSelf() {
-        ResponseEntity<String> result = testRestTemplate.exchange(
-                "/", HttpMethod.GET,
-                new HttpEntity<>((Void) null), String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Hello world", result.getBody());
-    }
+	@Test
+	public void getOnSelf() {
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Hello world", result.getBody());
+	}
 
-    @Test
-    public void getOnSelfViaFilter() {
-        ResponseEntity<String> result = testRestTemplate.exchange(
-                "/testing123/1", HttpMethod.GET,
-                new HttpEntity<>((Void) null), String.class);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-    }
+	@Test
+	public void getOnSelfViaFilter() {
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/testing123/1", HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+	}
 
 }
 
@@ -100,43 +100,43 @@ public class SimpleZuulServerApplicationTests {
 @EnableZuulServer
 class SimpleZuulServerApplication {
 
-    @RequestMapping("/local")
-    public String local() {
-        return "Hello local";
-    }
+	@RequestMapping("/local")
+	public String local() {
+		return "Hello local";
+	}
 
-    @RequestMapping("/")
-    public String home() {
-        return "Hello world";
-    }
+	@RequestMapping("/")
+	public String home() {
+		return "Hello world";
+	}
 
-    @Bean
-    public ZuulFilter sampleFilter() {
-        return new ZuulFilter() {
-            @Override
-            public String filterType() {
-                return "pre";
-            }
+	@Bean
+	public ZuulFilter sampleFilter() {
+		return new ZuulFilter() {
+			@Override
+			public String filterType() {
+				return "pre";
+			}
 
-            @Override
-            public boolean shouldFilter() {
-                return true;
-            }
+			@Override
+			public boolean shouldFilter() {
+				return true;
+			}
 
-            @Override
-            public Object run() {
-                return null;
-            }
+			@Override
+			public Object run() {
+				return null;
+			}
 
-            @Override
-            public int filterOrder() {
-                return 0;
-            }
-        };
-    }
+			@Override
+			public int filterOrder() {
+				return 0;
+			}
+		};
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(SimpleZuulServerApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(SimpleZuulServerApplication.class, args);
+	}
 
 }

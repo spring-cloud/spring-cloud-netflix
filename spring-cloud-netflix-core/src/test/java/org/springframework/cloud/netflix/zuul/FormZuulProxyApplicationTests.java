@@ -37,12 +37,20 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
@@ -56,147 +64,147 @@ import static org.springframework.util.StreamUtils.copyToString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(
-        classes = FormZuulProxyApplication.class,
-        webEnvironment = WebEnvironment.RANDOM_PORT,
-        value = {"zuul.routes.simple:/simple/**"})
+		classes = FormZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = {"zuul.routes.simple:/simple/**"})
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
-    @Inject
-    private TestRestTemplate restTemplate;
+	@Inject
+	private TestRestTemplate restTemplate;
 
-    @Before
-    public void setTestRequestContext() {
-        RequestContext.testSetCurrentContext(new RequestContext());
-    }
+	@Before
+	public void setTestRequestContext() {
+		RequestContext.testSetCurrentContext(new RequestContext());
+	}
 
-    @Test
-    public void postWithForm() {
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-        form.set("foo", "bar");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+	@Test
+	public void postWithForm() {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+		form.set("foo", "bar");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        ResponseEntity result = sendPost("/simple/form", form, headers);
+		ResponseEntity result = sendPost("/simple/form", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! {foo=[bar]}", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {foo=[bar]}", result.getBody());
+	}
 
-    @Test
-    public void postWithMultipartForm() {
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-        form.set("foo", "bar");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+	@Test
+	public void postWithMultipartForm() {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+		form.set("foo", "bar");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        ResponseEntity result = sendPost("/simple/form", form, headers);
+		ResponseEntity result = sendPost("/simple/form", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! {foo=[bar]}", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {foo=[bar]}", result.getBody());
+	}
 
-    @Test
-    public void postWithMultipartFile() {
-        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+	@Test
+	public void postWithMultipartFile() {
+		MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 
-        HttpHeaders part = new HttpHeaders();
-        part.setContentType(MediaType.TEXT_PLAIN);
-        part.setContentDispositionFormData("file", "foo.txt");
+		HttpHeaders part = new HttpHeaders();
+		part.setContentType(MediaType.TEXT_PLAIN);
+		part.setContentDispositionFormData("file", "foo.txt");
 
-        form.set("foo", new HttpEntity<>("bar".getBytes(), part));
+		form.set("foo", new HttpEntity<>("bar".getBytes(), part));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        ResponseEntity result = sendPost("/simple/file", form, headers);
+		ResponseEntity result = sendPost("/simple/file", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! bar", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! bar", result.getBody());
+	}
 
-    @Test
-    public void postWithMultipartFileAndForm() {
-        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+	@Test
+	public void postWithMultipartFileAndForm() {
+		MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 
-        HttpHeaders part = new HttpHeaders();
-        part.setContentType(MediaType.TEXT_PLAIN);
-        part.setContentDispositionFormData("file", "foo.txt");
-        form.set("foo", new HttpEntity<>("bar".getBytes(), part));
+		HttpHeaders part = new HttpHeaders();
+		part.setContentType(MediaType.TEXT_PLAIN);
+		part.setContentDispositionFormData("file", "foo.txt");
+		form.set("foo", new HttpEntity<>("bar".getBytes(), part));
 
-        form.set("field", "data");
+		form.set("field", "data");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        ResponseEntity result = sendPost("/simple/fileandform", form, headers);
+		ResponseEntity result = sendPost("/simple/fileandform", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! bar!field!data", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! bar!field!data", result.getBody());
+	}
 
-    @Test
-    public void postWithMultipartApplicationJson() {
-        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+	@Test
+	public void postWithMultipartApplicationJson() {
+		MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
 
-        HttpHeaders partHeaders = new HttpHeaders();
-        partHeaders.setContentType(MediaType.APPLICATION_JSON);
-        form.set("field", new HttpEntity<>("{foo=[bar]}", partHeaders));
+		HttpHeaders partHeaders = new HttpHeaders();
+		partHeaders.setContentType(MediaType.APPLICATION_JSON);
+		form.set("field", new HttpEntity<>("{foo=[bar]}", partHeaders));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        ResponseEntity result = sendPost("/simple/json", form, headers);
+		ResponseEntity result = sendPost("/simple/json", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! {foo=[bar]} as application/json", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {foo=[bar]} as application/json", result.getBody());
+	}
 
-    @Test
-    public void postWithUTF8Form() {
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+	@Test
+	public void postWithUTF8Form() {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
-        form.set("foo", "bar");
+		form.set("foo", "bar");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
-        ResponseEntity result = sendPost("/simple/form", form, headers);
+		ResponseEntity result = sendPost("/simple/form", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! {foo=[bar]}", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {foo=[bar]}", result.getBody());
+	}
 
-    @Test
-    public void postWithUrlParams() throws Exception {
-        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+	@Test
+	public void postWithUrlParams() throws Exception {
+		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
-        form.set("foo", "bar");
+		form.set("foo", "bar");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
-        ResponseEntity result = sendPost("/simple/form?uriParam=uriValue", form, headers);
+		ResponseEntity result = sendPost("/simple/form?uriParam=uriValue", form, headers);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! {uriParam=[uriValue], foo=[bar]}", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {uriParam=[uriValue], foo=[bar]}", result.getBody());
+	}
 
-    @Test
-    public void getWithUrlParams() throws Exception {
-        ResponseEntity<String> result = sendGet("/simple/form?uriParam=uriValue");
+	@Test
+	public void getWithUrlParams() throws Exception {
+		ResponseEntity<String> result = sendGet("/simple/form?uriParam=uriValue");
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Posted! {uriParam=[uriValue]}", result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals("Posted! {uriParam=[uriValue]}", result.getBody());
+	}
 
-    private ResponseEntity<String> sendPost(String url, MultiValueMap form, HttpHeaders headers) {
-        return restTemplate.postForEntity(url, new HttpEntity<>(form, headers), String.class);
-    }
+	private ResponseEntity<String> sendPost(String url, MultiValueMap form, HttpHeaders headers) {
+		return restTemplate.postForEntity(url, new HttpEntity<>(form, headers), String.class);
+	}
 
-    private ResponseEntity<String> sendGet(String url) {
-        return restTemplate.getForEntity(url, String.class);
-    }
+	private ResponseEntity<String> sendGet(String url) {
+		return restTemplate.getForEntity(url, String.class);
+	}
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan
@@ -205,93 +213,93 @@ public class FormZuulProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @RibbonClients({
-        @RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
-        @RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class)})
+		@RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
+		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class)})
 @Slf4j
 class FormZuulProxyApplication {
 
-    @RequestMapping(value = "/form", method = RequestMethod.POST)
-    public String accept(@RequestParam MultiValueMap<String, String> form)
-            throws IOException {
-        return "Posted! " + form;
-    }
+	@RequestMapping(value = "/form", method = RequestMethod.POST)
+	public String accept(@RequestParam MultiValueMap<String, String> form)
+			throws IOException {
+		return "Posted! " + form;
+	}
 
-    @RequestMapping(value = "/form", method = RequestMethod.GET)
-    public String get(@RequestParam MultiValueMap<String, String> form)
-            throws IOException {
-        return "Posted! " + form;
-    }
+	@RequestMapping(value = "/form", method = RequestMethod.GET)
+	public String get(@RequestParam MultiValueMap<String, String> form)
+			throws IOException {
+		return "Posted! " + form;
+	}
 
-    // TODO: Why does this not work if you add @RequestParam as above?
-    @RequestMapping(value = "/file", method = RequestMethod.POST)
-    public String file(@RequestParam(required = false) MultipartFile file)
-            throws IOException {
+	// TODO: Why does this not work if you add @RequestParam as above?
+	@RequestMapping(value = "/file", method = RequestMethod.POST)
+	public String file(@RequestParam(required = false) MultipartFile file)
+			throws IOException {
 
-        return "Posted! " + copyToString(file.getInputStream(), defaultCharset());
-    }
+		return "Posted! " + copyToString(file.getInputStream(), defaultCharset());
+	}
 
-    @RequestMapping(value = "/fileandform", method = RequestMethod.POST)
-    public String fileAndForm(@RequestParam MultipartFile file, @RequestParam String field)
-            throws IOException {
+	@RequestMapping(value = "/fileandform", method = RequestMethod.POST)
+	public String fileAndForm(@RequestParam MultipartFile file, @RequestParam String field)
+			throws IOException {
 
-        return "Posted! " + copyToString(file.getInputStream(), defaultCharset()) + "!field!" + field;
-    }
+		return "Posted! " + copyToString(file.getInputStream(), defaultCharset()) + "!field!" + field;
+	}
 
-    @RequestMapping(value = "/json", method = RequestMethod.POST)
-    public String fileAndJson(@RequestPart Part field)
-            throws IOException {
+	@RequestMapping(value = "/json", method = RequestMethod.POST)
+	public String fileAndJson(@RequestPart Part field)
+			throws IOException {
 
-        return "Posted! " + copyToString(field.getInputStream(), defaultCharset()) + " as " + field.getContentType();
-    }
+		return "Posted! " + copyToString(field.getInputStream(), defaultCharset()) + " as " + field.getContentType();
+	}
 
-    @Bean
-    public ZuulFilter sampleFilter() {
-        return new ZuulFilter() {
+	@Bean
+	public ZuulFilter sampleFilter() {
+		return new ZuulFilter() {
 
-            @Override
-            public String filterType() {
-                return "pre";
-            }
+			@Override
+			public String filterType() {
+				return "pre";
+			}
 
-            @Override
-            public boolean shouldFilter() {
-                return true;
-            }
+			@Override
+			public boolean shouldFilter() {
+				return true;
+			}
 
-            @Override
-            public Object run() {
-                return null;
-            }
+			@Override
+			public Object run() {
+				return null;
+			}
 
-            @Override
-            public int filterOrder() {
-                return 0;
-            }
+			@Override
+			public int filterOrder() {
+				return 0;
+			}
 
-        };
-    }
+		};
+	}
 
-    @Bean
-    public TraceRepository traceRepository() {
-        return new InMemoryTraceRepository() {
-            @Override
-            public void add(Map<String, Object> map) {
-                if (map.containsKey("body")) {
-                    map.get("body");
-                }
-                super.add(map);
-            }
-        };
-    }
+	@Bean
+	public TraceRepository traceRepository() {
+		return new InMemoryTraceRepository() {
+			@Override
+			public void add(Map<String, Object> map) {
+				if (map.containsKey("body")) {
+					map.get("body");
+				}
+				super.add(map);
+			}
+		};
+	}
 
-    public static void main(String[] args) {
-        new SpringApplicationBuilder(FormZuulProxyApplication.class)
-                .properties("zuul.routes.simple:/simple/**",
-                        "zuul.routes.direct.url:http://localhost:9999",
-                        "multipart.maxFileSize:4096MB",
-                        "multipart.maxRequestSize:4096MB")
-                .run(args);
-    }
+	public static void main(String[] args) {
+		new SpringApplicationBuilder(FormZuulProxyApplication.class)
+				.properties("zuul.routes.simple:/simple/**",
+						"zuul.routes.direct.url:http://localhost:9999",
+						"multipart.maxFileSize:4096MB",
+						"multipart.maxRequestSize:4096MB")
+				.run(args);
+	}
 
 }
 
@@ -299,12 +307,12 @@ class FormZuulProxyApplication {
 @Configuration
 class FormRibbonClientConfiguration {
 
-    @LocalServerPort
-    private int port;
+	@LocalServerPort
+	private int port;
 
-    @Bean
-    public ServerList<Server> ribbonServerList() {
-        return new StaticServerList<>(new Server("localhost", this.port));
-    }
+	@Bean
+	public ServerList<Server> ribbonServerList() {
+		return new StaticServerList<>(new Server("localhost", this.port));
+	}
 
 }

@@ -22,7 +22,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,129 +48,129 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(
-        classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class,
-        webEnvironment = WebEnvironment.RANDOM_PORT,
-        value = {"zuul.forceOriginalQueryStringEncoding: true"})
+		classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = {"zuul.forceOriginalQueryStringEncoding: true"})
 @DirtiesContext
 public class SimpleZuulProxyApplicationTests {
 
-    @LocalServerPort
-    private int port;
+	@LocalServerPort
+	private int port;
 
-    @Autowired
-    private TestRestTemplate testRestTemplate;
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
-    @Autowired
-    private DiscoveryClientRouteLocator routes;
+	@Autowired
+	private DiscoveryClientRouteLocator routes;
 
-    @Autowired
-    private RoutesEndpoint endpoint;
+	@Autowired
+	private RoutesEndpoint endpoint;
 
-    @Before
-    public void setTestRequestContext() {
-        RequestContext context = new RequestContext();
-        RequestContext.testSetCurrentContext(context);
+	@Before
+	public void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
 
-        this.routes.addRoute("/foo/**", "http://localhost:" + this.port + "/bar");
-        this.endpoint.reset();
-    }
+		this.routes.addRoute("/foo/**", "http://localhost:" + this.port + "/bar");
+		this.endpoint.reset();
+	}
 
-    @Test
-    public void getOnSelfViaSimpleHostRoutingFilter() {
-        ResponseEntity<String> result = executeSimpleRequest(HttpMethod.GET);
+	@Test
+	public void getOnSelfViaSimpleHostRoutingFilter() {
+		ResponseEntity<String> result = executeSimpleRequest(HttpMethod.GET);
 
-        assertResponseCodeAndBody(result, "get bar");
-    }
+		assertResponseCodeAndBody(result, "get bar");
+	}
 
-    @Test
-    public void postOnSelfViaSimpleHostRoutingFilter() {
-        ResponseEntity<String> result = executeSimpleRequest(HttpMethod.POST);
+	@Test
+	public void postOnSelfViaSimpleHostRoutingFilter() {
+		ResponseEntity<String> result = executeSimpleRequest(HttpMethod.POST);
 
-        assertResponseCodeAndBody(result, "post bar");
-    }
+		assertResponseCodeAndBody(result, "post bar");
+	}
 
-    @Test
-    public void putOnSelfViaSimpleHostRoutingFilter() {
-        ResponseEntity<String> result = executeSimpleRequest(HttpMethod.PUT);
+	@Test
+	public void putOnSelfViaSimpleHostRoutingFilter() {
+		ResponseEntity<String> result = executeSimpleRequest(HttpMethod.PUT);
 
-        assertResponseCodeAndBody(result, "put bar");
-    }
+		assertResponseCodeAndBody(result, "put bar");
+	}
 
-    @Test
-    public void patchOnSelfViaSimpleHostRoutingFilter() {
-        ResponseEntity<String> result = executeSimpleRequest(HttpMethod.PATCH);
+	@Test
+	public void patchOnSelfViaSimpleHostRoutingFilter() {
+		ResponseEntity<String> result = executeSimpleRequest(HttpMethod.PATCH);
 
-        assertResponseCodeAndBody(result, "patch bar");
-    }
+		assertResponseCodeAndBody(result, "patch bar");
+	}
 
-    @Test
-    public void deleteOnSelfViaSimpleHostRoutingFilter() {
-        ResponseEntity<String> result = executeSimpleRequest(HttpMethod.DELETE);
+	@Test
+	public void deleteOnSelfViaSimpleHostRoutingFilter() {
+		ResponseEntity<String> result = executeSimpleRequest(HttpMethod.DELETE);
 
-        assertResponseCodeAndBody(result, "delete bar");
-    }
+		assertResponseCodeAndBody(result, "delete bar");
+	}
 
-    @Test
-    @Ignore
-    public void getOnSelfWithComplexQueryParam() throws URISyntaxException {
-        String encodedQueryString = "foo=%7B%22project%22%3A%22stream%22%2C%22logger%22%3A%22javascript%22%2C%22platform%22%3A%22javascript%22%2C%22request%22%3A%7B%22url%22%3A%22https%3A%2F%2Ffoo%2Fadmin";
-        ResponseEntity<String> result = testRestTemplate.exchange(
-                new URI("/foo?" + encodedQueryString), HttpMethod.GET,
-                new HttpEntity<>((Void) null), String.class);
+	@Test
+	@Ignore
+	public void getOnSelfWithComplexQueryParam() throws URISyntaxException {
+		String encodedQueryString = "foo=%7B%22project%22%3A%22stream%22%2C%22logger%22%3A%22javascript%22%2C%22platform%22%3A%22javascript%22%2C%22request%22%3A%7B%22url%22%3A%22https%3A%2F%2Ffoo%2Fadmin";
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				new URI("/foo?" + encodedQueryString), HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(encodedQueryString, result.getBody());
-    }
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals(encodedQueryString, result.getBody());
+	}
 
-    private void assertResponseCodeAndBody(ResponseEntity<String> result,
-                                           String expectedBody) {
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(expectedBody, result.getBody());
-    }
+	private void assertResponseCodeAndBody(ResponseEntity<String> result,
+										   String expectedBody) {
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertEquals(expectedBody, result.getBody());
+	}
 
-    private ResponseEntity<String> executeSimpleRequest(HttpMethod httpMethod) {
-        ResponseEntity<String> result = testRestTemplate.exchange(
-                "/foo?id=bar", httpMethod,
-                new HttpEntity<>((Void) null), String.class);
-        return result;
-    }
+	private ResponseEntity<String> executeSimpleRequest(HttpMethod httpMethod) {
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/foo?id=bar", httpMethod,
+				new HttpEntity<>((Void) null), String.class);
+		return result;
+	}
 
-    // Don't use @SpringBootApplication because we don't want to component scan
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-    @EnableZuulProxy
-    static class SimpleZuulProxyApplication {
+	// Don't use @SpringBootApplication because we don't want to component scan
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	@EnableZuulProxy
+	static class SimpleZuulProxyApplication {
 
-        @RequestMapping(value = "/bar", method = RequestMethod.GET)
-        public String get(@RequestParam String id) {
-            return "get " + id;
-        }
+		@RequestMapping(value = "/bar", method = RequestMethod.GET)
+		public String get(@RequestParam String id) {
+			return "get " + id;
+		}
 
-        @RequestMapping(value = "/bar", method = RequestMethod.GET, params = {"foo"})
-        public String complexGet(@RequestParam String foo, HttpServletRequest request) {
-            return request.getQueryString();
-        }
+		@RequestMapping(value = "/bar", method = RequestMethod.GET, params = {"foo"})
+		public String complexGet(@RequestParam String foo, HttpServletRequest request) {
+			return request.getQueryString();
+		}
 
-        @RequestMapping(value = "/bar", method = RequestMethod.POST)
-        public String post(@RequestParam String id) {
-            return "post " + id;
-        }
+		@RequestMapping(value = "/bar", method = RequestMethod.POST)
+		public String post(@RequestParam String id) {
+			return "post " + id;
+		}
 
-        @RequestMapping(value = "/bar", method = RequestMethod.PUT)
-        public String put(@RequestParam String id) {
-            return "put " + id;
-        }
+		@RequestMapping(value = "/bar", method = RequestMethod.PUT)
+		public String put(@RequestParam String id) {
+			return "put " + id;
+		}
 
-        @RequestMapping(value = "/bar", method = RequestMethod.DELETE)
-        public String delete(@RequestParam String id) {
-            return "delete " + id;
-        }
+		@RequestMapping(value = "/bar", method = RequestMethod.DELETE)
+		public String delete(@RequestParam String id) {
+			return "delete " + id;
+		}
 
-        @RequestMapping(value = "/bar", method = RequestMethod.PATCH)
-        public String patch(@RequestParam String id) {
-            return "patch " + id;
-        }
+		@RequestMapping(value = "/bar", method = RequestMethod.PATCH)
+		public String patch(@RequestParam String id) {
+			return "patch " + id;
+		}
 
-    }
+	}
 }
