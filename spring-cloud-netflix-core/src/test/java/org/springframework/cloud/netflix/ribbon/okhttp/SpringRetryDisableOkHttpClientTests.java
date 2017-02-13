@@ -15,10 +15,10 @@
  *  * limitations under the License.
  *
  */
-
-package org.springframework.cloud.netflix.ribbon;
+package org.springframework.cloud.netflix.ribbon.okhttp;
 
 import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,8 @@ import org.springframework.cloud.ClassPathExclusions;
 import org.springframework.cloud.FilteredClassPathRunner;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,14 +41,15 @@ import static org.hamcrest.Matchers.instanceOf;
  */
 @RunWith(FilteredClassPathRunner.class)
 @ClassPathExclusions({"spring-retry-*.jar", "spring-boot-starter-aop-*.jar"})
-public class SpringRetryDisabledTests {
+public class SpringRetryDisableOkHttpClientTests {
 
 	private ConfigurableApplicationContext context;
 
 	@Before
 	public void setUp() {
-		context = new SpringApplicationBuilder().web(false)
+		context = new SpringApplicationBuilder().web(false).properties("ribbon.okhttp.enabled=true")
 				.sources(RibbonAutoConfiguration.class,LoadBalancerAutoConfiguration.class, RibbonClientConfiguration.class).run();
+
 	}
 
 	@After
@@ -62,8 +64,8 @@ public class SpringRetryDisabledTests {
 		Map<String, LoadBalancedRetryPolicyFactory> factories =  context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
 		assertThat(factories.values(), hasSize(1));
 		assertThat(factories.values().toArray()[0], instanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class));
-		Map<String, RibbonLoadBalancingHttpClient> clients =  context.getBeansOfType(RibbonLoadBalancingHttpClient.class);
+		Map<String, OkHttpLoadBalancingClient> clients =  context.getBeansOfType(OkHttpLoadBalancingClient.class);
 		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0], instanceOf(RibbonLoadBalancingHttpClient.class));
+		assertThat(clients.values().toArray()[0], instanceOf(OkHttpLoadBalancingClient.class));
 	}
 }
