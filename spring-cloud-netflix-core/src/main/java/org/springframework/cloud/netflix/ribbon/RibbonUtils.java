@@ -71,7 +71,7 @@ public class RibbonUtils {
 	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config, ServerIntrospector serverIntrospector,
 			Server server) {
 		String scheme = uri.getScheme();
-		if (!"https".equals(scheme) && isSecure(config, serverIntrospector, server)) {
+		if (!"".equals(uri.toString()) && !"https".equals(scheme) && isSecure(config, serverIntrospector, server)) {
 			UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri).scheme("https");
 			if (uri.getRawQuery() != null) {
 				// When building the URI, UriComponentsBuilder verify the allowed characters and does not 
