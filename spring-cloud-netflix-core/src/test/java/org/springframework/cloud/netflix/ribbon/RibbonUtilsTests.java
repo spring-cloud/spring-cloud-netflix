@@ -110,6 +110,14 @@ public class RibbonUtilsTests {
 				"https://foo/%20bar?hello=1%202")));
 	}
 
+	@Test
+	public void emptyStringUri() throws URISyntaxException {
+		URI original = new URI("");
+		URI updated = updateToHttpsIfNeeded(original, SECURE_CONFIG, SECURE_INTROSPECTOR, SERVER);
+		Assert.assertThat("URI should be the emptry string", updated, is(new URI(
+				"")));
+	}
+
 	static DefaultClientConfigImpl getConfig(boolean value) {
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 		config.setProperty(CommonClientConfigKey.IsSecure, value);
