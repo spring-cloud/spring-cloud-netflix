@@ -31,7 +31,7 @@ import com.netflix.zuul.context.RequestContext;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = OkHttpRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = RibbonCommandFallbackTests.TestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.simple: /simple/**", "zuul.routes.another: /another/twolevel/**",
 		"ribbon.ReadTimeout: 1"})
 @DirtiesContext
