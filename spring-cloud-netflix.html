@@ -2452,6 +2452,23 @@ path rendering the <code>users</code> path unreachable.</p>
 deprecated Ribbon <code>RestClient</code>. To use <code>RestClient</code> or to use the <code>okhttp3.OkHttpClient</code> set
 <code>ribbon.restclient.enabled=true</code> or <code>ribbon.okhttp.enabled=true</code> respectively.</p>
 </div>
+<div class="sect3">
+<h4 id="_retrying_failed_requests">Retrying Failed Requests</h4>
+<div class="paragraph">
+<p>When using the Apache Http Client or the OK HTTP Client you can enable them to automatically
+retry failed requests by adding <a href="https://github.com/spring-projects/spring-retry">Spring Retry</a>
+to your application&#8217;s classpath.  When Zuul uses Ribbon, Zuul will honor some of the Ribbon
+configuration values related to retrying failed requests. The properties you can use are
+<code>client.ribbon.MaxAutoRetries</code>, <code>client.ribbon.MaxAutoRetriesNextServer</code>, and
+<code>client.ribbon.OkToRetryOnAllOperations</code>. See the <a href="https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties">Ribbon documentation</a>
+for a description of what there properties do.</p>
+</div>
+<div class="paragraph">
+<p>You can turn off Zuul&#8217;s retry functionality by setting <code>zuul.retryable</code> to <code>false</code>.  You
+can also disable retry functionality on route by route basis by setting
+<code>zuul.routes.routename.retryable</code> to <code>false</code>.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_cookies_and_sensitive_headers">Cookies and Sensitive Headers</h3>
