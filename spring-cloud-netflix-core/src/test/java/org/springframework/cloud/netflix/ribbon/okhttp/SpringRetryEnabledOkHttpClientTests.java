@@ -15,32 +15,35 @@
  *  * limitations under the License.
  *
  */
-
-package org.springframework.cloud.netflix.ribbon;
+package org.springframework.cloud.netflix.ribbon.okhttp;
 
 import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.apache.RetryableRibbonLoadBalancingHttpClient;
-import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(value = {"ribbon.okhttp.enabled: true"})
 @ContextConfiguration(classes = {RibbonAutoConfiguration.class, RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class})
-public class SpringRetryEnabledTests implements ApplicationContextAware {
+public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAware {
 
 	private ApplicationContext context;
 
@@ -49,9 +52,9 @@ public class SpringRetryEnabledTests implements ApplicationContextAware {
 		Map<String, LoadBalancedRetryPolicyFactory> factories =  context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
 		assertThat(factories.values(), hasSize(1));
 		assertThat(factories.values().toArray()[0], instanceOf(RibbonLoadBalancedRetryPolicyFactory.class));
-		Map<String, RibbonLoadBalancingHttpClient> clients =  context.getBeansOfType(RibbonLoadBalancingHttpClient.class);
+		Map<String, OkHttpLoadBalancingClient> clients =  context.getBeansOfType(OkHttpLoadBalancingClient.class);
 		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0], instanceOf(RetryableRibbonLoadBalancingHttpClient.class));
+		assertThat(clients.values().toArray()[0], instanceOf(RetryableOkHttpLoadBalancingClient.class));
 	}
 
 	@Override
