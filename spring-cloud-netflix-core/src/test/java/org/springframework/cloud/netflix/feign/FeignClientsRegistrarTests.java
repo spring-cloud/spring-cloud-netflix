@@ -20,6 +20,7 @@ package org.springframework.cloud.netflix.feign;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -70,6 +71,7 @@ public class FeignClientsRegistrarTests {
 
 	private String testGetName(String name) {
 		FeignClientsRegistrar registrar = new FeignClientsRegistrar();
+		registrar.setEnvironment(new MockEnvironment());
 		return registrar.getName(Collections.<String, Object>singletonMap("name", name));
 	}
 }

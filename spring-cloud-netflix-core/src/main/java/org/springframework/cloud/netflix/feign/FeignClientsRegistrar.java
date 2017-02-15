@@ -237,10 +237,8 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	}
 
 	private String resolve(String value) {
-		if (StringUtils.hasText(value)
-				&& this.resourceLoader instanceof ConfigurableApplicationContext) {
-			return ((ConfigurableApplicationContext) this.resourceLoader).getEnvironment()
-					.resolvePlaceholders(value);
+		if (StringUtils.hasText(value)) {
+			return this.environment.resolvePlaceholders(value);
 		}
 		return value;
 	}
