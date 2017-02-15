@@ -1479,6 +1479,20 @@ The default HTTP client used by zuul is now backed by the Apache HTTP Client ins
 deprecated Ribbon `RestClient`. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
 `ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
 
+==== Retrying Failed Requests
+
+When using the Apache Http Client or the OK HTTP Client you can enable them to automatically
+retry failed requests by adding https://github.com/spring-projects/spring-retry[Spring Retry]
+to your application's classpath.  When Zuul uses Ribbon, Zuul will honor some of the Ribbon
+configuration values related to retrying failed requests. The properties you can use are
+`client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and
+`client.ribbon.OkToRetryOnAllOperations`. See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation]
+for a description of what there properties do.
+
+You can turn off Zuul's retry functionality by setting `zuul.retryable` to `false`.  You
+can also disable retry functionality on route by route basis by setting
+`zuul.routes.routename.retryable` to `false`.
+
 === Cookies and Sensitive Headers
 
 It's OK to share headers between services in the same system, but you

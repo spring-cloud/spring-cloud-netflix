@@ -28,9 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.loadbalancer.AsyncLoadBalancerAutoConfiguration;
@@ -38,11 +38,9 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.RestTemplateCustomizer;
-import org.springframework.cloud.client.loadbalancer.RetryLoadBalancerInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
@@ -88,6 +86,12 @@ public class RibbonAutoConfiguration {
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
 	public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
 		return new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
+	public LoadBalancedRetryPolicyFactory neverRetryPolicyFactory() {
+		return new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
 	}
 
 	@Bean

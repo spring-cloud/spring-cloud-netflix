@@ -1,6 +1,5 @@
 /*
- *
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+package org.springframework.cloud.netflix.ribbon.okhttp;
 
-package org.springframework.cloud.netflix.ribbon.support;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
+import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
@@ -30,57 +32,32 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
-import com.netflix.client.IResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
 /**
- * A load balancing client which uses Spring Retry to retry failed requests.
+ * An OK HTTP client which leverages Spring Retry to retry failed request.
  * @author Ryan Baxter
  */
-public abstract class RetryableLoadBalancingClient<S extends ContextAwareRequest, T extends IResponse, D>
-		extends AbstractLoadBalancingClient<S, T, D> implements ServiceInstanceChooser {
+public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClient implements ServiceInstanceChooser {
 
-	protected LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory =
-			new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
+	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
-	@Deprecated
-	public RetryableLoadBalancingClient() {
-		super();
-	}
-
-	@Deprecated
-	public RetryableLoadBalancingClient(final ILoadBalancer lb) {
-		super(lb);
-	}
-
-	public RetryableLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector) {
+	public RetryableOkHttpLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector,
+									 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(config, serverIntrospector);
-	}
-
-	public RetryableLoadBalancingClient(D delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
-		super(delegate, config, serverIntrospector);
-	}
-
-	public RetryableLoadBalancingClient(IClientConfig iClientConfig, ServerIntrospector serverIntrospector,
-										 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-		this(iClientConfig, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
-	/**
-	 * Executes a {@link S} using Spring Retry.
-	 * @param request The request to execute.
-	 * @param callback The retry callback to use.
-	 * @return The response.
-	 * @throws Exception Thrown if there is an error making the request and a retry cannot be completed successfully.
-	 */
-	protected T executeWithRetry(S request, RetryCallback<T, IOException> callback) throws Exception {
+	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request,
+													RetryCallback<OkHttpRibbonResponse, IOException> callback)
+			throws Exception {
 		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = request.getContext() == null ? true :
@@ -91,6 +68,39 @@ public abstract class RetryableLoadBalancingClient<S extends ContextAwareRequest
 	}
 
 	@Override
+	public OkHttpRibbonResponse execute(final OkHttpRibbonRequest ribbonRequest,
+										final IClientConfig configOverride) throws Exception {
+		return this.executeWithRetry(ribbonRequest, new RetryCallback() {
+			@Override
+			public OkHttpRibbonResponse doWithRetry(RetryContext context) throws Exception {
+				//on retries the policy will choose the server and set it in the context
+				//extract the server and update the request being made
+				OkHttpRibbonRequest newRequest = ribbonRequest;
+				if(context instanceof LoadBalancedRetryContext) {
+					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
+					if(service != null) {
+						//Reconstruct the request URI using the host and port set in the retry context
+						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
+								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
+								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
+								newRequest.getURI().getFragment()));
+					}
+				}
+				if (isSecure(configOverride)) {
+					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
+							.scheme("https").build().toUri();
+					newRequest = newRequest.withNewUri(secureUri);
+				}
+				OkHttpClient httpClient = getOkHttpClient(configOverride, secure);
+
+				final Request request = newRequest.toRequest();
+				Response response = httpClient.newCall(request).execute();
+				return new OkHttpRibbonResponse(response, newRequest.getUri());
+			}
+		});
+	}
+
+	@Override
 	public ServiceInstance choose(String serviceId) {
 		Server server = this.getLoadBalancer().chooseServer(serviceId);
 		return new RibbonLoadBalancerClient.RibbonServer(serviceId,
@@ -98,7 +108,7 @@ public abstract class RetryableLoadBalancingClient<S extends ContextAwareRequest
 	}
 
 	@Override
-	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(S request, IClientConfig requestConfig) {
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(OkHttpRibbonRequest request, IClientConfig requestConfig) {
 		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
 	}
 
@@ -107,5 +117,4 @@ public abstract class RetryableLoadBalancingClient<S extends ContextAwareRequest
 			super(request, policy, serviceInstanceChooser, serviceName);
 		}
 	}
-
 }
