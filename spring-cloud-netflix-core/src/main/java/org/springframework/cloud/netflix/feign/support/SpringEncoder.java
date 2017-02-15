@@ -95,8 +95,12 @@ public class SpringEncoder implements Encoder {
 					// with the modified headers
 					request.headers(getHeaders(outputMessage.getHeaders()));
 
-					request.body(outputMessage.getOutputStream().toByteArray(),
-							Charset.forName("UTF-8")); // TODO: set charset
+                    // do not use charset for binary data
+                    if (requestContentType.isCompatibleWith(MediaType.APPLICATION_OCTET_STREAM)) {
+                        request.body(outputMessage.getOutputStream().toByteArray(), null);
+                    } else {
+                        request.body(outputMessage.getOutputStream().toByteArray(), Charset.forName("UTF-8"));
+                    }
 					return;
 				}
 			}
