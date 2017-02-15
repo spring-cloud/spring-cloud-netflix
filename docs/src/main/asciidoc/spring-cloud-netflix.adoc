@@ -976,6 +976,7 @@ Spring Cloud Netflix _does not_ provide the following beans by default for feign
 * `ErrorDecoder`
 * `Request.Options`
 * `Collection<RequestInterceptor>`
+* `SetterFactory`
 
 Creating a bean of one of those type and placing it in a `@FeignClient` configuration (such as `FooConfiguration` above) allows you to override each one of the beans described.  Example:
 
@@ -1766,6 +1767,56 @@ And here is what the route configuration would look like.
 zuul:
   routes:
     customers: /customers/**
+----
+
+If you would like to provide a default fallback for all routes than you can create a bean of
+type `ZuulFallbackProvider` and have the `getRoute` method return `*` or `null`.
+
+[source,java]
+----
+class MyFallbackProvider implements ZuulFallbackProvider {
+    @Override
+    public String getRoute() {
+        return "*";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse() {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return HttpStatus.OK;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return 200;
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return "OK";
+            }
+
+            @Override
+            public void close() {
+
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}
 ----
 
 [[zuul-developer-guide]]

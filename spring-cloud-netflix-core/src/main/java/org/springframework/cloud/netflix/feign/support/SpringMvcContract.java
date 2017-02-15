@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.netflix.feign.AnnotatedParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.PathVariableParameterProcessor;
 import org.springframework.cloud.netflix.feign.annotation.RequestHeaderParameterProcessor;
@@ -324,9 +323,7 @@ public class SpringMvcContract extends Contract.BaseContract
 		// has a parameter name
 		return parameterNames != null && parameterNames.length > parameterIndex
 				// has a type
-				&& parameterTypes != null && parameterTypes.length > parameterIndex
-				// and it is a simple property
-				&& BeanUtils.isSimpleProperty(parameterTypes[parameterIndex].getClass());
+				&& parameterTypes != null && parameterTypes.length > parameterIndex;
 	}
 
 	private class SimpleAnnotatedParameterContext

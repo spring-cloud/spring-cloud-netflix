@@ -25,6 +25,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -68,14 +69,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
 import feign.Client;
+import feign.Feign;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import feign.Target;
 import feign.hystrix.FallbackFactory;
+import feign.hystrix.SetterFactory;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -85,6 +91,7 @@ import rx.Single;
 /**
  * @author Spencer Gibb
  * @author Jakub Narloch
+ * @author Erik Kringen
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FeignClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -123,6 +130,9 @@ public class FeignClientTests {
 	@Autowired
 	@Qualifier("localapp3FeignClient")
 	HystrixClient namedHystrixClient;
+
+	@Autowired
+	HystrixSetterFactoryClient hystrixSetterFactoryClient;
 
 	protected enum Arg {
 		A, B;
@@ -298,18 +308,47 @@ public class FeignClientTests {
 		}
 	}
 
+	@FeignClient(name = "localapp5", configuration = TestHystrixSetterFactoryClientConfig.class)
+	protected interface HystrixSetterFactoryClient {
+		@RequestMapping(method = RequestMethod.GET, path = "/hellos")
+		HystrixCommand<List<Hello>> getHellosHystrix();
+	}
+
+	public static class TestHystrixSetterFactoryClientConfig {
+		public static final String SETTER_PREFIX = "SETTER-";
+		@Bean
+		public SetterFactory commandKeyIsRequestLineSetterFactory() {
+			return new SetterFactory() {
+				@Override public HystrixCommand.Setter create(Target<?> target,
+					Method method) {
+					String groupKey = SETTER_PREFIX + target.name();
+					RequestMapping requestMapping = method
+						.getAnnotation(RequestMapping.class);
+					String commandKey =
+						SETTER_PREFIX + requestMapping.method()[0] + " " + requestMapping
+							.path()[0];
+					return HystrixCommand.Setter
+						.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
+						.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
+				}
+			};
+		}
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
 	@EnableFeignClients(clients = { TestClientServiceId.class, TestClient.class,
-			DecodingTestClient.class, HystrixClient.class, HystrixClientWithFallBackFactory.class },
-			defaultConfiguration = TestDefaultFeignConfig.class)
+		DecodingTestClient.class, HystrixClient.class, HystrixClientWithFallBackFactory.class,
+		HystrixSetterFactoryClient.class},
+		defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClients({
-			@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
-			@RibbonClient(name = "localapp4", configuration = LocalRibbonClientConfiguration.class)
+		@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
+		@RibbonClient(name = "localapp1", configuration = LocalRibbonClientConfiguration.class),
+		@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class),
+		@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
+		@RibbonClient(name = "localapp4", configuration = LocalRibbonClientConfiguration.class),
+		@RibbonClient(name = "localapp5", configuration = LocalRibbonClientConfiguration.class)
 	})
 	protected static class Application {
 
@@ -525,12 +564,16 @@ public class FeignClientTests {
 	}
 
 	@Test
-	public void testHystrixCommand() {
+	public void testHystrixCommand() throws NoSuchMethodException {
 		HystrixCommand<List<Hello>> command = this.testClient.getHellosHystrix();
 		assertNotNull("command was null", command);
 		assertEquals(
-				"Hystrix command group name should match the name of the feign client",
-				"localapp", command.getCommandGroup().name());
+			"Hystrix command group name should match the name of the feign client",
+			"localapp", command.getCommandGroup().name());
+		String configKey = Feign.configKey(TestClient.class,
+			TestClient.class.getMethod("getHellosHystrix", (Class<?>[]) null));
+		assertEquals("Hystrix command key name should match the feign config key",
+			configKey, command.getCommandKey().name());
 		List<Hello> hellos = command.execute();
 		assertNotNull("hellos was null", hellos);
 		assertEquals("hellos didn't match", hellos, getHelloList());
@@ -656,6 +699,25 @@ public class FeignClientTests {
 	@Test
 	public void namedFeignClientWorks() {
 		assertNotNull("namedHystrixClient was null", this.namedHystrixClient);
+	}
+
+	@Test
+	public void testHystrixSetterFactory() {
+		HystrixCommand<List<Hello>> command = this.hystrixSetterFactoryClient
+			.getHellosHystrix();
+		assertNotNull("command was null", command);
+		String setterPrefix = TestHystrixSetterFactoryClientConfig.SETTER_PREFIX;
+		assertEquals(
+			"Hystrix command group name should match the name of the feign client with a prefix of "
+				+ setterPrefix, setterPrefix + "localapp5",
+			command.getCommandGroup().name());
+		assertEquals(
+			"Hystrix command key name should match the request method (space) request path with a prefix of "
+				+ setterPrefix, setterPrefix + "GET /hellos",
+			command.getCommandKey().name());
+		List<Hello> hellos = command.execute();
+		assertNotNull("hellos was null", hellos);
+		assertEquals("hellos didn't match", hellos, getHelloList());
 	}
 
 	@Data

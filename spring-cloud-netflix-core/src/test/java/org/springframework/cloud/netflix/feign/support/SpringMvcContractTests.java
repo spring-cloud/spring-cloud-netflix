@@ -298,6 +298,19 @@ public class SpringMvcContractTests {
 	}
 
 	@Test
+	public void testProcessAnnotations_ListParamsWithoutName() throws Exception {
+		Method method = TestTemplate_ListParamsWithoutName.class.getDeclaredMethod("getTest",
+				List.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals("[{id}]", data.template().queries().get("id").toString());
+		assertNotNull(data.indexToExpander().get(0));
+	}
+
+	@Test
 	public void testProcessAnnotations_MapParams() throws Exception {
 		Method method = TestTemplate_MapParams.class.getDeclaredMethod("getTest",
 				Map.class);
@@ -455,6 +468,11 @@ public class SpringMvcContractTests {
 	public interface TestTemplate_ListParams {
 		@RequestMapping(value = "/test", method = RequestMethod.GET)
 		ResponseEntity<TestObject> getTest(@RequestParam("id") List<String> id);
+	}
+
+	public interface TestTemplate_ListParamsWithoutName {
+		@RequestMapping(value = "/test", method = RequestMethod.GET)
+		ResponseEntity<TestObject> getTest(@RequestParam List<String> id);
 	}
 
 	public interface TestTemplate_MapParams {
