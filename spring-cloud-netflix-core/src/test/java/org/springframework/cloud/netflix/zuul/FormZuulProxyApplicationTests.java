@@ -16,8 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static java.nio.charset.Charset.defaultCharset;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.util.StreamUtils.copyToString;
+
 import java.io.IOException;
 import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.Part;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,18 +63,13 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
-import static java.nio.charset.Charset.defaultCharset;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.util.StreamUtils.copyToString;
-
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
-import javax.servlet.http.Part;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple:/simple/**" })
+@SpringBootTest(
+		classes = FormZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = {"zuul.routes.simple:/simple/**"})
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
@@ -215,7 +217,7 @@ public class FormZuulProxyApplicationTests {
 @EnableZuulProxy
 @RibbonClients({
 		@RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
-		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class) })
+		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class)})
 @Slf4j
 class FormZuulProxyApplication {
 
@@ -297,7 +299,8 @@ class FormZuulProxyApplication {
 		new SpringApplicationBuilder(FormZuulProxyApplication.class)
 				.properties("zuul.routes.simple:/simple/**",
 						"zuul.routes.direct.url:http://localhost:9999",
-						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
+						"multipart.maxFileSize:4096MB",
+						"multipart.maxRequestSize:4096MB")
 				.run(args);
 	}
 

@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,8 +28,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -49,13 +49,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.zuul.context.RequestContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"server.port: 0", "zuul.forceOriginalQueryStringEncoding: true" })
+@SpringBootTest(
+		classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = {"zuul.forceOriginalQueryStringEncoding: true"})
 @DirtiesContext
 public class SimpleZuulProxyApplicationTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port;
+
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
 	@Autowired
 	private DiscoveryClientRouteLocator routes;
@@ -64,7 +69,7 @@ public class SimpleZuulProxyApplicationTests {
 	private RoutesEndpoint endpoint;
 
 	@Before
-	public void setTestRequestcontext() {
+	public void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 
@@ -111,23 +116,23 @@ public class SimpleZuulProxyApplicationTests {
 	@Ignore
 	public void getOnSelfWithComplexQueryParam() throws URISyntaxException {
 		String encodedQueryString = "foo=%7B%22project%22%3A%22stream%22%2C%22logger%22%3A%22javascript%22%2C%22platform%22%3A%22javascript%22%2C%22request%22%3A%7B%22url%22%3A%22https%3A%2F%2Ffoo%2Fadmin";
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				new URI("http://localhost:" + this.port + "/foo?" + encodedQueryString),
-				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				new URI("/foo?" + encodedQueryString), HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals(encodedQueryString, result.getBody());
 	}
 
 	private void assertResponseCodeAndBody(ResponseEntity<String> result,
-			String expectedBody) {
+										   String expectedBody) {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals(expectedBody, result.getBody());
 	}
 
 	private ResponseEntity<String> executeSimpleRequest(HttpMethod httpMethod) {
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/foo?id=bar", httpMethod,
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/foo?id=bar", httpMethod,
 				new HttpEntity<>((Void) null), String.class);
 		return result;
 	}
@@ -144,7 +149,7 @@ public class SimpleZuulProxyApplicationTests {
 			return "get " + id;
 		}
 
-		@RequestMapping(value = "/bar", method = RequestMethod.GET, params = { "foo" })
+		@RequestMapping(value = "/bar", method = RequestMethod.GET, params = {"foo"})
 		public String complexGet(@RequestParam String foo, HttpServletRequest request) {
 			return request.getQueryString();
 		}

@@ -17,6 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
@@ -28,11 +33,6 @@ import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRib
 import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonCommandFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Spencer Gibb
@@ -66,7 +66,7 @@ public class ZuulProxyConfigurationTests {
 		}
 		context.refresh();
 		RibbonCommandFactory factory = context.getBean(RibbonCommandFactory.class);
-		assertThat("RibbonCommandFactory is wrong type for property: "+property, factory, is(instanceOf(clientType)));
+		assertThat("RibbonCommandFactory is wrong type for property: " + property, factory, is(instanceOf(clientType)));
 		context.close();
 	}
 

@@ -25,11 +25,12 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -62,15 +63,18 @@ import com.netflix.zuul.context.RequestContext;
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = "zuul.routes.simple:/simple/**")
+@SpringBootTest(
+		classes = FormZuulServletProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = "zuul.routes.simple:/simple/**")
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
-	@Value("${local.server.port}")
-	private int port;
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
 	@Before
-	public void setTestRequestcontext() {
+	public void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
@@ -81,8 +85,8 @@ public class FormZuulServletProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simple/form", HttpMethod.POST,
 				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -94,8 +98,8 @@ public class FormZuulServletProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simple/form", HttpMethod.POST,
 				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -112,8 +116,8 @@ public class FormZuulServletProxyApplicationTests {
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		headers.set("Transfer-Encoding", "chunked");
 		headers.setContentLength(-1);
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/zuul/simple/file", HttpMethod.POST,
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simple/file", HttpMethod.POST,
 				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! bar", result.getBody());
@@ -126,8 +130,8 @@ public class FormZuulServletProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/zuul/simple/form", HttpMethod.POST,
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/zuul/simple/form", HttpMethod.POST,
 				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -163,8 +167,7 @@ class FormZuulServletProxyApplication {
 				while (inputStream.read(buffer) >= 0) {
 					log.info("Read more bytes");
 				}
-			}
-			else {
+			} else {
 				bytes = file.getBytes();
 			}
 		}
@@ -216,7 +219,8 @@ class FormZuulServletProxyApplication {
 				.properties("zuul.routes.simple:/zuul/simple/**",
 						"zuul.routes.direct.url:http://localhost:9999",
 						"zuul.routes.direct.path:/zuul/direct/**",
-						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
+						"multipart.maxFileSize:4096MB",
+						"multipart.maxRequestSize:4096MB")
 				.run(args);
 	}
 
@@ -226,7 +230,7 @@ class FormZuulServletProxyApplication {
 @Configuration
 class ServletFormRibbonClientConfiguration {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port;
 
 	@Bean

@@ -22,8 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -44,13 +44,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.zuul.context.RequestContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ContextPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"server.contextPath: /app" })
+@SpringBootTest(
+		classes = ContextPathZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = {"server.contextPath: /app"})
 @DirtiesContext
 public class ContextPathZuulProxyApplicationTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port;
+
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
 	@Autowired
 	private DiscoveryClientRouteLocator routes;
@@ -59,7 +64,7 @@ public class ContextPathZuulProxyApplicationTests {
 	private RoutesEndpoint endpoint;
 
 	@Before
-	public void setTestRequestcontext() {
+	public void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
@@ -68,7 +73,7 @@ public class ContextPathZuulProxyApplicationTests {
 	public void getOnSelfViaSimpleHostRoutingFilter() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
+		ResponseEntity<String> result = testRestTemplate.exchange(
 				"http://localhost:" + this.port + "/app/self/1", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -80,7 +85,7 @@ public class ContextPathZuulProxyApplicationTests {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
 				"http://localhost:" + this.port + "/app/local", false, false, null));
 		this.endpoint.reset();
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
+		ResponseEntity<String> result = testRestTemplate.exchange(
 				"http://localhost:" + this.port + "/app/strip", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());

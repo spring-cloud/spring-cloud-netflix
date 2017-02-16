@@ -6,8 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -37,14 +37,18 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RetryableZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple.path: /simple/**", "zuul.routes.simple.retryable: true",
-		"ribbon.OkToRetryOnAllOperations: true" })
+@SpringBootTest(
+		classes = RetryableZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		value = {
+				"zuul.routes.simple.path: /simple/**",
+				"zuul.routes.simple.retryable: true",
+				"ribbon.OkToRetryOnAllOperations: true"})
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
 
-	@Value("${local.server.port}")
-	private int port;
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
 	@Autowired
 	@SuppressWarnings("unused")
@@ -55,7 +59,7 @@ public class RetryableZuulProxyApplicationTests {
 	private RoutesEndpoint endpoint;
 
 	@Before
-	public void setTestRequestcontext() {
+	public void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
@@ -66,10 +70,9 @@ public class RetryableZuulProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple", HttpMethod.POST,
-				new HttpEntity<MultiValueMap<String, String>>(form, headers),
-				String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange(
+				"/simple", HttpMethod.POST,
+				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
 	}
@@ -120,7 +123,7 @@ class RetryableZuulProxyApplication {
 @Configuration
 class RetryableRibbonClientConfiguration {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port;
 
 	@Bean
