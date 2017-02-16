@@ -106,4 +106,9 @@ public @interface FeignClient {
 	 */
 	String path() default "";
 
+	/**
+	 * Whether to mark the feign proxy as a primary bean. Defaults to false.
+	 */
+	boolean primary() default true;
+
 }
