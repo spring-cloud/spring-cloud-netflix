@@ -2,10 +2,12 @@ package org.springframework.cloud.netflix.feign.support;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 import org.junit.Test;
@@ -63,8 +65,22 @@ public class SpringEncoderTests {
 
 		String header = contentTypeHeader.iterator().next();
 		assertThat("content type header is wrong", header, is("application/mytype"));
+		
+		assertThat("request charset is null", request.charset(), is(notNullValue()));
+		assertThat("request charset is wrong", request.charset(), is(Charset.forName("UTF-8")));
 	}
 
+	@Test
+	public void testBinaryData() {
+		SpringEncoder encoder = this.context.getInstance("foo", SpringEncoder.class);
+		assertThat(encoder, is(notNullValue()));
+		RequestTemplate request = new RequestTemplate();
+
+		encoder.encode("hi".getBytes(), null, request);
+
+		assertThat("request charset is not null", request.charset(), is(nullValue()));
+	}
+	
 	class MediaTypeMatcher extends ArgumentMatcher<MediaType> {
 
 		private MediaType mediaType;
@@ -129,7 +145,10 @@ public class SpringEncoderTests {
 
 			@Override
 			public boolean canWrite(Class<?> clazz, MediaType mediaType) {
-				return true;
+				if (clazz == String.class) {
+					return true;
+				}
+				return false;
 			}
 
 			@Override

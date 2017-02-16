@@ -28,6 +28,7 @@ import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 
 import feign.RequestTemplate;
@@ -95,8 +96,12 @@ public class SpringEncoder implements Encoder {
 					// with the modified headers
 					request.headers(getHeaders(outputMessage.getHeaders()));
 
-					request.body(outputMessage.getOutputStream().toByteArray(),
-							Charset.forName("UTF-8")); // TODO: set charset
+					// do not use charset for binary data
+					if (messageConverter instanceof ByteArrayHttpMessageConverter) {
+						request.body(outputMessage.getOutputStream().toByteArray(), null);
+					} else {
+						request.body(outputMessage.getOutputStream().toByteArray(), Charset.forName("UTF-8"));
+					}
 					return;
 				}
 			}
