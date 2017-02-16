@@ -16,11 +16,16 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import lombok.extern.slf4j.Slf4j;
+import static java.nio.charset.Charset.defaultCharset;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.util.StreamUtils.copyToString;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.Part;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,14 +58,12 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.inject.Inject;
-import javax.servlet.http.Part;
-import java.io.IOException;
-import java.util.Map;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
-import static java.nio.charset.Charset.defaultCharset;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.util.StreamUtils.copyToString;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(

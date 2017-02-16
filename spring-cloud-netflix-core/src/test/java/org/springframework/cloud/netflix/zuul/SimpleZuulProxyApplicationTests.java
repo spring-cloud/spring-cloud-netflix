@@ -16,7 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.assertEquals;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,11 +46,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import static org.junit.Assert.assertEquals;
+import com.netflix.zuul.context.RequestContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(

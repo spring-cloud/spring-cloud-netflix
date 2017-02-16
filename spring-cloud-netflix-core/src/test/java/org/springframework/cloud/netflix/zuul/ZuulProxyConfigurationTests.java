@@ -17,6 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
@@ -29,62 +34,57 @@ import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonC
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 /**
  * @author Spencer Gibb
  */
 public class ZuulProxyConfigurationTests {
 
-    @Test
-    public void testDefaultsToApacheHttpClient() {
-        testClient(HttpClientRibbonCommandFactory.class, null);
-        testClient(HttpClientRibbonCommandFactory.class, "zuul.ribbon.httpclient.enabled=true");
-        testClient(HttpClientRibbonCommandFactory.class, "ribbon.httpclient.enabled=true");
-    }
+	@Test
+	public void testDefaultsToApacheHttpClient() {
+		testClient(HttpClientRibbonCommandFactory.class, null);
+		testClient(HttpClientRibbonCommandFactory.class, "zuul.ribbon.httpclient.enabled=true");
+		testClient(HttpClientRibbonCommandFactory.class, "ribbon.httpclient.enabled=true");
+	}
 
-    @Test
-    public void testEnableRestClient() {
-        testClient(RestClientRibbonCommandFactory.class, "zuul.ribbon.restclient.enabled=true");
-        testClient(RestClientRibbonCommandFactory.class, "ribbon.restclient.enabled=true");
-    }
+	@Test
+	public void testEnableRestClient() {
+		testClient(RestClientRibbonCommandFactory.class, "zuul.ribbon.restclient.enabled=true");
+		testClient(RestClientRibbonCommandFactory.class, "ribbon.restclient.enabled=true");
+	}
 
-    @Test
-    public void testEnableOkHttpClient() {
-        testClient(OkHttpRibbonCommandFactory.class, "zuul.ribbon.okhttp.enabled=true");
-        testClient(OkHttpRibbonCommandFactory.class, "ribbon.okhttp.enabled=true");
-    }
+	@Test
+	public void testEnableOkHttpClient() {
+		testClient(OkHttpRibbonCommandFactory.class, "zuul.ribbon.okhttp.enabled=true");
+		testClient(OkHttpRibbonCommandFactory.class, "ribbon.okhttp.enabled=true");
+	}
 
-    void testClient(Class<?> clientType, String property) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.register(TestConfig.class, ZuulProxyConfiguration.class);
-        if (property != null) {
-            EnvironmentTestUtils.addEnvironment(context, property);
-        }
-        context.refresh();
-        RibbonCommandFactory factory = context.getBean(RibbonCommandFactory.class);
-        assertThat("RibbonCommandFactory is wrong type for property: " + property, factory, is(instanceOf(clientType)));
-        context.close();
-    }
+	void testClient(Class<?> clientType, String property) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(TestConfig.class, ZuulProxyConfiguration.class);
+		if (property != null) {
+			EnvironmentTestUtils.addEnvironment(context, property);
+		}
+		context.refresh();
+		RibbonCommandFactory factory = context.getBean(RibbonCommandFactory.class);
+		assertThat("RibbonCommandFactory is wrong type for property: " + property, factory, is(instanceOf(clientType)));
+		context.close();
+	}
 
-    static class TestConfig {
-        @Bean
-        ServerProperties serverProperties() {
-            return new ServerProperties();
-        }
+	static class TestConfig {
+		@Bean
+		ServerProperties serverProperties() {
+			return new ServerProperties();
+		}
 
-        @Bean
-        SpringClientFactory springClientFactory() {
-            return mock(SpringClientFactory.class);
-        }
+		@Bean
+		SpringClientFactory springClientFactory() {
+			return mock(SpringClientFactory.class);
+		}
 
-        @Bean
-        DiscoveryClient discoveryClient() {
-            return mock(DiscoveryClient.class);
-        }
-    }
+		@Bean
+		DiscoveryClient discoveryClient() {
+			return mock(DiscoveryClient.class);
+		}
+	}
 
 }
