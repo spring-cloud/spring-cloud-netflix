@@ -35,7 +35,6 @@ import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.retry.support.RetryTemplate;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -81,7 +80,7 @@ public class FeignRibbonClientTests {
 	// Even though we don't maintain FeignRibbonClient, keep these tests
 	// around to make sure the expected behaviour doesn't break
 	private Client client = new LoadBalancerFeignClient(this.delegate, new CachingSpringLoadBalancerFactory(this.factory,
-			new RetryTemplate(), retryPolicyFactory), this.factory);
+			retryPolicyFactory), this.factory);
 
 	@Before
 	public void init() {

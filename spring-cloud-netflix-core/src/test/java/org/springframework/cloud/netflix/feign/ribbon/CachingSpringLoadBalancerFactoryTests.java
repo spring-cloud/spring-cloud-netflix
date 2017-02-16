@@ -25,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-import org.springframework.retry.support.RetryTemplate;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.times;
@@ -56,7 +55,7 @@ public class CachingSpringLoadBalancerFactoryTests {
 		when(this.delegate.getClientConfig("client1")).thenReturn(config);
 		when(this.delegate.getClientConfig("client2")).thenReturn(config);
 
-		this.factory = new CachingSpringLoadBalancerFactory(this.delegate, new RetryTemplate(),
+		this.factory = new CachingSpringLoadBalancerFactory(this.delegate,
 				loadBalancedRetryPolicyFactory);
 	}
 

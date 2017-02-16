@@ -28,7 +28,6 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.retry.support.RetryTemplate;
 
 import com.netflix.loadbalancer.ILoadBalancer;
 
@@ -52,16 +51,8 @@ public class FeignRibbonClientAutoConfiguration {
 	@Bean
 	@Primary
 	public CachingSpringLoadBalancerFactory cachingLBClientFactory(
-			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory,
-			RetryTemplate retryTemplate) {
-		return new CachingSpringLoadBalancerFactory(factory, retryTemplate, retryPolicyFactory);
-	}
-
-	@Bean
-	public RetryTemplate retryTemplate() {
-		RetryTemplate template = new RetryTemplate();
-		template.setThrowLastExceptionOnExhausted(true);
-		return template;
+			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory) {
+		return new CachingSpringLoadBalancerFactory(factory, retryPolicyFactory);
 	}
 
 	@Bean
