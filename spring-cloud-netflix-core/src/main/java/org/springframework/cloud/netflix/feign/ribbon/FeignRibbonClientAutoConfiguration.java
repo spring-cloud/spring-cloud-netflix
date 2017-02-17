@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
@@ -50,9 +51,18 @@ public class FeignRibbonClientAutoConfiguration {
 
 	@Bean
 	@Primary
+	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate")
 	public CachingSpringLoadBalancerFactory cachingLBClientFactory(
+			SpringClientFactory factory) {
+		return new CachingSpringLoadBalancerFactory(factory);
+	}
+
+	@Bean
+	@Primary
+	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
+	public CachingSpringLoadBalancerFactory retryabeCachingLBClientFactory(
 			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory) {
-		return new CachingSpringLoadBalancerFactory(factory, retryPolicyFactory);
+		return new CachingSpringLoadBalancerFactory(factory, retryPolicyFactory, true);
 	}
 
 	@Bean
