@@ -1430,20 +1430,6 @@ The default HTTP client used by zuul is now backed by the Apache HTTP Client ins
 deprecated Ribbon `RestClient`. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
 `ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
 
-==== Retrying Failed Requests
-
-When using the Apache Http Client or the OK HTTP Client you can enable them to automatically
-retry failed requests by adding https://github.com/spring-projects/spring-retry[Spring Retry]
-to your application's classpath.  When Zuul uses Ribbon, Zuul will honor some of the Ribbon
-configuration values related to retrying failed requests. The properties you can use are
-`client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and
-`client.ribbon.OkToRetryOnAllOperations`. See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation]
-for a description of what there properties do.
-
-You can turn off Zuul's retry functionality by setting `zuul.retryable` to `false`.  You
-can also disable retry functionality on route by route basis by setting
-`zuul.routes.routename.retryable` to `false`.
-
 === Cookies and Sensitive Headers
 
 It's OK to share headers between services in the same system, but you
@@ -2042,3 +2028,28 @@ TIP: After executing several requests against your service, you can gather some 
 The Atlas wiki contains a link:https://github.com/Netflix/atlas/wiki/Single-Line[compilation of sample queries] for various scenarios.
 
 Make sure to check out the link:https://github.com/Netflix/atlas/wiki/Alerting-Philosophy[alerting philosophy] and docs on using link:https://github.com/Netflix/atlas/wiki/DES[double exponential smoothing] to generate dynamic alert thresholds.
+
+[[retrying-failed-requests]]
+=== Retrying Failed Requests
+
+Spring Cloud Netflix offers a variety of ways to make HTTP requests.  You can use a load balanced
+`RestTemplate`, Ribbon, or Feign.  No matter how you choose to your HTTP requests, there is always
+a chance the request may fail.  When a request fails you may want to have the request retried
+automatically.  To accomplish this when using Sping Cloud Netflix you need to include
+https://github.com/spring-projects/spring-retry[Spring Retry] on your application's classpath.
+When Spring Retry is present load balanced `RestTemplates`, Feign, and Zuul will automatically
+retry any failed requests (assuming you configuration allows it to).
+
+==== Configuration
+
+Anytime Ribbon is used with Spring Retry you can control the retry functionality by configuring
+certain Ribbon properties.  The properties you can use are
+`client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and
+`client.ribbon.OkToRetryOnAllOperations`. See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation]
+for a description of what there properties do.
+
+==== Zuul
+
+You can turn off Zuul's retry functionality by setting `zuul.retryable` to `false`.  You
+can also disable retry functionality on route by route basis by setting
+`zuul.routes.routename.retryable` to `false`.

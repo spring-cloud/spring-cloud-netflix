@@ -20,9 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonRequest;
 import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonResponse;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.retry.support.RetryTemplate;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -50,8 +48,6 @@ public class FeignLoadBalancerTests {
 	private ILoadBalancer lb;
 	@Mock
 	private IClientConfig config;
-	@Mock
-	private RibbonLoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
 	private FeignLoadBalancer feignLoadBalancer;
 
@@ -77,7 +73,7 @@ public class FeignLoadBalancerTests {
 	public void testUriInsecure() {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector, loadBalancedRetryPolicyFactory);
+				this.inspector);
 		Request request = new RequestTemplate().method("GET").append("http://foo/")
 				.request();
 		RibbonRequest ribbonRequest = new RibbonRequest(this.delegate, request,
@@ -98,7 +94,7 @@ public class FeignLoadBalancerTests {
 	public void testSecureUriFromClientConfig() {
 		when(this.config.get(IsSecure)).thenReturn(true);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector, loadBalancedRetryPolicyFactory);
+				this.inspector);
 		Server server = new Server("foo", 7777);
 		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
 				new URI("http://foo/"));
@@ -120,7 +116,7 @@ public class FeignLoadBalancerTests {
 					public Map<String, String> getMetadata(Server server) {
 						return null;
 					}
-				}, loadBalancedRetryPolicyFactory);
+				});
 		Server server = new Server("foo", 7777);
 		URI uri = this.feignLoadBalancer.reconstructURIWithServer(server,
 				new URI("http://foo/"));
@@ -131,7 +127,7 @@ public class FeignLoadBalancerTests {
 	@SneakyThrows
 	public void testSecureUriFromClientConfigOverride() {
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
-				this.inspector, loadBalancedRetryPolicyFactory);
+				this.inspector);
 		Server server = Mockito.mock(Server.class);
 		when(server.getPort()).thenReturn(443);
 		when(server.getHost()).thenReturn("foo");

@@ -29,26 +29,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.RetryContext;
-import org.springframework.retry.policy.NeverRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientException;
 import com.netflix.client.ClientRequest;
-import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -57,20 +47,17 @@ import com.netflix.loadbalancer.Server;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 public class FeignLoadBalancer extends
-		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> implements
-		ServiceInstanceChooser {
+		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
 
-	private final int connectTimeout;
-	private final int readTimeout;
-	private final IClientConfig clientConfig;
-	private final ServerIntrospector serverIntrospector;
-	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
+	protected int connectTimeout;
+	protected int readTimeout;
+	protected IClientConfig clientConfig;
+	protected ServerIntrospector serverIntrospector;
 
 	public FeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
-			ServerIntrospector serverIntrospector, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+							 ServerIntrospector serverIntrospector) {
 		super(lb, clientConfig);
-		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
-		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
+		this.setRetryHandler(RetryHandler.DEFAULT);
 		this.clientConfig = clientConfig;
 		this.connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
 		this.readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
@@ -78,9 +65,9 @@ public class FeignLoadBalancer extends
 	}
 
 	@Override
-	public RibbonResponse execute(final RibbonRequest request, IClientConfig configOverride)
+	public RibbonResponse execute(RibbonRequest request, IClientConfig configOverride)
 			throws IOException {
-		final Request.Options options;
+		Request.Options options;
 		if (configOverride != null) {
 			options = new Request.Options(
 					configOverride.get(CommonClientConfigKey.ConnectTimeout,
@@ -91,47 +78,32 @@ public class FeignLoadBalancer extends
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
-		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
-		RetryTemplate retryTemplate = new RetryTemplate();
-		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
-						: new FeignRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
-		return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {
-			@Override
-			public RibbonResponse doWithRetry(RetryContext retryContext) throws IOException {
-				Request feignRequest = null;
-				//on retries the policy will choose the server and set it in the context
-				//extract the server and update the request being made
-				if(retryContext instanceof LoadBalancedRetryContext) {
-					ServiceInstance service = ((LoadBalancedRetryContext)retryContext).getServiceInstance();
-					if(service != null) {
-						feignRequest = ((RibbonRequest)request.replaceUri(reconstructURIWithServer(new Server(service.getHost(), service.getPort()), request.getUri()))).toRequest();
-					}
-				}
-				if(feignRequest == null) {
-					feignRequest = request.toRequest();
-				}
-				Response response = request.client().execute(feignRequest, options);
-				return new RibbonResponse(request.getUri(), response);
-			}
-		});
+		Response response = request.client().execute(request.toRequest(), options);
+		return new RibbonResponse(request.getUri(), response);
 	}
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
 			RibbonRequest request, IClientConfig requestConfig) {
-		return new RequestSpecificRetryHandler(false, false, this.getRetryHandler(), requestConfig);
+		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations,
+				false)) {
+			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+					requestConfig);
+		}
+		if (!request.toRequest().method().equals("GET")) {
+			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
+					requestConfig);
+		}
+		else {
+			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
+					requestConfig);
+		}
 	}
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
 		URI uri = updateToHttpsIfNeeded(original, this.clientConfig, this.serverIntrospector, server);
 		return super.reconstructURIWithServer(server, uri);
-	}
-
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId,
-				this.getLoadBalancer().chooseServer(serviceId));
 	}
 
 	static class RibbonRequest extends ClientRequest implements Cloneable {
@@ -187,6 +159,7 @@ public class FeignLoadBalancer extends
 				}
 			};
 		}
+
 
 		@Override
 		public Object clone() {

@@ -38,6 +38,7 @@ public class CachingSpringLoadBalancerFactory {
 
 	private final SpringClientFactory factory;
 	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
+	private boolean enableRetry = false;
 
 	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
 
@@ -52,6 +53,13 @@ public class CachingSpringLoadBalancerFactory {
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
+	public CachingSpringLoadBalancerFactory(SpringClientFactory factory,
+											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, boolean enableRetry) {
+		this.factory = factory;
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.enableRetry = enableRetry;
+	}
+
 	public FeignLoadBalancer create(String clientName) {
 		if (this.cache.containsKey(clientName)) {
 			return this.cache.get(clientName);
@@ -59,8 +67,8 @@ public class CachingSpringLoadBalancerFactory {
 		IClientConfig config = this.factory.getClientConfig(clientName);
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName, ServerIntrospector.class);
-		FeignLoadBalancer client = new FeignLoadBalancer(lb, config, serverIntrospector,
-				loadBalancedRetryPolicyFactory);
+		FeignLoadBalancer client = enableRetry ? new RetryableFeignLoadBalancer(lb, config, serverIntrospector,
+				loadBalancedRetryPolicyFactory) : new FeignLoadBalancer(lb, config, serverIntrospector);
 		this.cache.put(clientName, client);
 		return client;
 	}
