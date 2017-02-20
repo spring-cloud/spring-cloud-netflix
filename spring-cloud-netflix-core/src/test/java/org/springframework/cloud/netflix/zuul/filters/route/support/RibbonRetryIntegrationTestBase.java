@@ -18,6 +18,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 
@@ -47,11 +49,14 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class RibbonRetryIntegrationTestBase {
 
+	private final Logger LOG = Logger.getLogger(RibbonRetryIntegrationTestBase.class.getName());
+
 	@Value("${local.server.port}")
 	protected int port;
 
 	@Before
 	public void setup() {
+		RequestContext.getCurrentContext().clear();
 		String uri = "/resetError";
 		new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
@@ -101,6 +106,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
+		LOG.info("Response Body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 
@@ -110,6 +116,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
+		LOG.info("Response Body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 
