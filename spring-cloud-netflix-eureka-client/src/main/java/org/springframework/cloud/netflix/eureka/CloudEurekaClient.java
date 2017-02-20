@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
-import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.ReflectionUtils;
 
@@ -34,16 +33,13 @@ import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * Subclass of {@link DiscoveryClient} that sends a {@link HeartbeatEvent} when
  * {@link CloudEurekaClient#onCacheRefreshed()} is called.
  * @author Spencer Gibb
  */
-@CommonsLog
 public class CloudEurekaClient extends DiscoveryClient {
-	private static final Log log = LogFactory.getLog(EurekaServiceRegistry.class);
+	private static final Log log = LogFactory.getLog(CloudEurekaClient.class);
 
 	private final AtomicLong cacheRefreshedCount = new AtomicLong(0);
 
