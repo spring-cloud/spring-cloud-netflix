@@ -18,6 +18,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,8 @@ import static org.junit.Assert.assertEquals;
  * @author Ryan Baxter
  */
 public abstract class RibbonRetryIntegrationTestBase {
+
+	private final Logger LOG = Logger.getLogger(RibbonRetryIntegrationTestBase.class.getName());
 
 	@Value("${local.server.port}")
 	protected int port;
@@ -101,6 +104,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
+		LOG.info("Response Body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 
@@ -110,6 +114,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
+		LOG.info("Response Body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
 
