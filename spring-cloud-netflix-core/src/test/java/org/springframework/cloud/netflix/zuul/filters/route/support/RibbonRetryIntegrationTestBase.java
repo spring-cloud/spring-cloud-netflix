@@ -18,7 +18,8 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +50,7 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class RibbonRetryIntegrationTestBase {
 
-	private final Logger LOG = Logger.getLogger(RibbonRetryIntegrationTestBase.class.getName());
+	private final Log LOG = LogFactory.getLog(RibbonRetryIntegrationTestBase.class.getName());
 
 	@Value("${local.server.port}")
 	protected int port;
