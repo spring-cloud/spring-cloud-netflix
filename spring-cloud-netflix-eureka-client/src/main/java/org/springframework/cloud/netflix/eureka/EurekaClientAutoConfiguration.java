@@ -91,6 +91,9 @@ public class EurekaClientAutoConfiguration {
 	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
 	private String hostname;
 
+	@Value("${eureka.instance.prefer-ip-address:${eureka.instance.preferIpAddress:false}}")
+	boolean preferIpAddress;
+
 	@Autowired
 	private ConfigurableEnvironment env;
 
@@ -120,6 +123,7 @@ public class EurekaClientAutoConfiguration {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
+		instance.setPreferIpAddress(preferIpAddress);
 
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
 			if (StringUtils.hasText(this.hostname)) {
