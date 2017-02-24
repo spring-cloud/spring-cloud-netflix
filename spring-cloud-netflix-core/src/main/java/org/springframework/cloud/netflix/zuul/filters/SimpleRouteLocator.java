@@ -54,7 +54,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
 		this.properties = properties;
-		if (servletPath != null && StringUtils.hasText(servletPath)) {
+		if (StringUtils.hasText(servletPath)) {
 			this.dispatcherServletPath = servletPath;
 		}
 
