@@ -56,7 +56,7 @@ public class LocalApplicationHealthCheckHandlerTests {
     }
 
     @Test
-    public void unkownMappingWorks() {
+    public void unknownMappingWorks() {
         assertStatus(InstanceStatus.UNKNOWN, Health.unknown());
     }
 
