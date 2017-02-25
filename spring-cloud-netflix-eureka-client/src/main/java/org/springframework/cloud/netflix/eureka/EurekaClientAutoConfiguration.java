@@ -88,12 +88,6 @@ public class EurekaClientAutoConfiguration {
 	@Value("${management.port:${MANAGEMENT_PORT:${server.port:${SERVER_PORT:${PORT:8080}}}}}")
 	private int managementPort;
 
-	@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
-	private String hostname;
-
-	@Value("${eureka.instance.prefer-ip-address:${eureka.instance.preferIpAddress:false}}")
-	boolean preferIpAddress;
-
 	@Autowired
 	private ConfigurableEnvironment env;
 
@@ -120,16 +114,18 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
+		RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
+		String hostname = relaxedPropertyResolver.getProperty("hostname");
+		boolean preferIpAddress = Boolean.parseBoolean(relaxedPropertyResolver.getProperty("preferIpAddress"));
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
 		instance.setPreferIpAddress(preferIpAddress);
 
 		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
-			if (StringUtils.hasText(this.hostname)) {
-				instance.setHostname(this.hostname);
+			if (StringUtils.hasText(hostname)) {
+				instance.setHostname(hostname);
 			}
-			RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
 			String statusPageUrlPath = relaxedPropertyResolver.getProperty("statusPageUrlPath");
 			String healthCheckUrlPath = relaxedPropertyResolver.getProperty("healthCheckUrlPath");
 			if (StringUtils.hasText(statusPageUrlPath)) {
