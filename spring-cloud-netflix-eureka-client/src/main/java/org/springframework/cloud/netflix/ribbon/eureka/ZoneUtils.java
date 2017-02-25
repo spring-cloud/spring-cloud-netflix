@@ -30,15 +30,8 @@ public class ZoneUtils {
 	 * @return The approximate zone
 	 */
 	public static String extractApproximateZone(String host) {
-		if (!host.contains(".")) {
-			return host;
-		}
 		String[] split = StringUtils.split(host, ".");
-		StringBuilder builder = new StringBuilder(split[1]);
-		for (int i = 2; i < split.length; i++) {
-			builder.append(".").append(split[i]);
-		}
-		return builder.toString();
+		return split == null ? host : split[1];
 	}
 
 }
