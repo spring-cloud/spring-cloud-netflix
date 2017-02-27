@@ -235,6 +235,9 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX,
 				EurekaConstants.DEFAULT_PREFIX + "/(fonts|images|css|js)/.*");
 
+		propsAndFeatures.put(ServletContainer.PROPERTY_FILTER_CONTEXT_PATH,
+				EurekaConstants.DEFAULT_PREFIX);
+
 		DefaultResourceConfig rc = new DefaultResourceConfig(classes);
 		rc.setPropertiesAndFeatures(propsAndFeatures);
 
