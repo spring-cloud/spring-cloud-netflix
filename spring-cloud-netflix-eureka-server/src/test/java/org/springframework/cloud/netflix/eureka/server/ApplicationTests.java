@@ -106,7 +106,7 @@ public class ApplicationTests {
 	@Test
 	public void customCodecWorks() throws Exception {
 		assertThat("serverCodecs is wrong type", this.serverCodecs,
-				is(instanceOf(EurekaServerConfiguration.CloudServerCodecs.class)));
+				is(instanceOf(EurekaServerAutoConfiguration.CloudServerCodecs.class)));
 		CodecWrapper codec = this.serverCodecs.getFullJsonCodec();
 		assertThat("codec is wrong type", codec, is(instanceOf(CloudJacksonJson.class)));
 

@@ -29,12 +29,12 @@ import javax.ws.rs.ext.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -66,13 +66,15 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 /**
  * @author Gunnar Hillert
+ * @author Biju Kunjummen
  */
 @Configuration
 @Import(EurekaServerInitializerConfiguration.class)
-@EnableDiscoveryClient
-@EnableConfigurationProperties({ EurekaDashboardProperties.class, InstanceRegistryProperties.class })
+@ConditionalOnBean(EurekaServerMarkerConfiguration.Marker.class)
+@EnableConfigurationProperties({ EurekaDashboardProperties.class,
+		InstanceRegistryProperties.class })
 @PropertySource("classpath:/eureka/server.properties")
-public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
+public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server
 	 */
@@ -98,7 +100,8 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public HasFeatures eurekaServerFeature() {
-		return HasFeatures.namedFeature("Eureka Server", EurekaServerConfiguration.class);
+		return HasFeatures.namedFeature("Eureka Server",
+				EurekaServerAutoConfiguration.class);
 	}
 
 	@Configuration
@@ -163,6 +166,7 @@ public class EurekaServerConfiguration extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public PeerEurekaNodes peerEurekaNodes(PeerAwareInstanceRegistry registry,
 			ServerCodecs serverCodecs) {
 		return new PeerEurekaNodes(registry, this.eurekaServerConfig,
