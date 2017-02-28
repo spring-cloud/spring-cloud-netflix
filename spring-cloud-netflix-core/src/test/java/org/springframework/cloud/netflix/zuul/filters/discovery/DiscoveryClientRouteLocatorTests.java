@@ -602,6 +602,19 @@ public class DiscoveryClientRouteLocatorTests {
 	}
 
 	@Test
+	public void testLocalServiceExceptionIgnored() {
+		given(this.discovery.getServices())
+				.willReturn(Collections.<String>emptyList());
+		given(this.discovery.getLocalServiceInstance()).willThrow(new RuntimeException());
+
+		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
+				this.discovery, this.properties);
+
+		// if no exception is thrown in constructor, this is a success
+		routeLocator.locateRoutes();
+	}
+
+	@Test
 	public void testRegExServiceRouteMapperNoServiceIdMatches() {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(MYSERVICE));

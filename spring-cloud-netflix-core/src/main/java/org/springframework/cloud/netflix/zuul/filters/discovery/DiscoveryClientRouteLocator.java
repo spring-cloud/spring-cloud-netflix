@@ -57,7 +57,12 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		super(servletPath, properties);
 
 		if (properties.isIgnoreLocalService()) {
-			ServiceInstance instance = discovery.getLocalServiceInstance();
+			ServiceInstance instance = null;
+			try {
+				instance = discovery.getLocalServiceInstance();
+			} catch (Exception e) {
+				log.warn("Error locating local service instance", e);
+			}
 			if (instance != null) {
 				String localServiceId = instance.getServiceId();
 				if (!properties.getIgnoredServices().contains(localServiceId)) {
