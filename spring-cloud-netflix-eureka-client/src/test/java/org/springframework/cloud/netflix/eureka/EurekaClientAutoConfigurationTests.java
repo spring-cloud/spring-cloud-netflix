@@ -125,6 +125,20 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void statusPageUrlAndPreferIpAddress() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "eureka.instance.hostname=foo",
+				"eureka.instance.preferIpAddress:true");
+
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+
+		assertEquals("statusPageUrl is wrong", "http://" + instance.getIpAddress() + ":9999/info",
+				instance.getStatusPageUrl());
+	}
+
+	@Test
 	public void healthCheckUrlPathAndManagementPortKabobCase() {
 		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
