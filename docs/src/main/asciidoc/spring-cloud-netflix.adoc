@@ -912,10 +912,8 @@ balancer (see <<spring-cloud-ribbon,below for details of Ribbon
 support>>). You can also specify a URL using the `url` attribute
 (absolute value or just a hostname). The name of the bean in the
 application context is the fully qualified name of the interface.
-An alias is also created which is the 'name' attribute plus 'FeignClient'.
-For the example above, `@Qualifier("storesFeignClient")` could be used to
-reference the bean. If you want to change the default `@Qualifier` value,
-this can be done with the `qualifier` value in `@FeignClient`.
+To specify your own alias value you can use the `qualifier` value
+of the `@FeignClient` annotation.
 
 The Ribbon client above will want to discover the physical addresses
 for the "stores" service. If your application is a Eureka client then
