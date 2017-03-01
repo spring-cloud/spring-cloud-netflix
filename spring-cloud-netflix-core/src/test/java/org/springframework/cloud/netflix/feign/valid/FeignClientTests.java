@@ -97,7 +97,8 @@ import rx.Single;
 @SpringBootTest(classes = FeignClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=feignclienttest",
 		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
-		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
+		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false",
+        "feign.hystrix.enabled=true"})
 @DirtiesContext
 public class FeignClientTests {
 

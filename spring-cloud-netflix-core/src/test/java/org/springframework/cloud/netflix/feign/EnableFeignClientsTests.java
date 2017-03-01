@@ -35,7 +35,6 @@ import feign.Feign;
 import feign.Logger;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
-import feign.hystrix.HystrixFeign;
 import feign.slf4j.Slf4jLogger;
 
 /**
@@ -73,7 +72,7 @@ public class EnableFeignClientsTests {
 
 	@Test
 	public void builderDefaultCorrect() {
-		HystrixFeign.Builder.class
+		Feign.Builder.class
 				.cast(this.feignContext.getInstance("foo", Feign.Builder.class));
 	}
 
