@@ -16,7 +16,10 @@
 
 package org.springframework.cloud.netflix.feign.invalid;
 
+import feign.Feign;
 import feign.hystrix.FallbackFactory;
+import feign.hystrix.HystrixFeign;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -128,6 +131,10 @@ public class FeignClientValidationTests {
 			}
 		}
 
+		@Bean
+		public Feign.Builder feignBuilder() {
+			return HystrixFeign.builder();
+		}
 	}
 
 	@Test
@@ -156,6 +163,11 @@ public class FeignClientValidationTests {
 		}
 
 		class Dummy {
+		}
+
+		@Bean
+		public Feign.Builder feignBuilder() {
+			return HystrixFeign.builder();
 		}
 
 	}
@@ -187,6 +199,11 @@ public class FeignClientValidationTests {
 				return null;
 			}
 		}
+
+		@Bean
+		public Feign.Builder feignBuilder() {
+			return HystrixFeign.builder();
+		}
 	}
 
 	@Test
@@ -215,6 +232,11 @@ public class FeignClientValidationTests {
 		}
 
 		class Dummy {
+		}
+
+		@Bean
+		public Feign.Builder feignBuilder() {
+			return HystrixFeign.builder();
 		}
 
 	}
@@ -250,6 +272,11 @@ public class FeignClientValidationTests {
 			public String create(Throwable cause) {
 				return "tryinToTrickYa";
 			}
+		}
+
+		@Bean
+		public Feign.Builder feignBuilder() {
+			return HystrixFeign.builder();
 		}
 
 	}

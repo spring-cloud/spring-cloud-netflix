@@ -1062,9 +1062,7 @@ NOTE: `PROD-SVC` is the name of the service the Clients will be making requests 
 [[spring-cloud-feign-hystrix]]
 === Feign Hystrix Support
 
-If Hystrix is on the classpath, by default Feign will wrap all methods with a circuit breaker. Returning a `com.netflix.hystrix.HystrixCommand` is also available. This lets you use reactive patterns (with a call to `.toObservable()` or `.observe()` or asynchronous use (with a call to `.queue()`).
-
-To disable Hystrix support for Feign, set `feign.hystrix.enabled=false`.
+If Hystrix is on the classpath and `feign.hystrix.enabled=true`, Feign will wrap all methods with a circuit breaker. Returning a `com.netflix.hystrix.HystrixCommand` is also available. This lets you use reactive patterns (with a call to `.toObservable()` or `.observe()` or asynchronous use (with a call to `.queue()`).
 
 To disable Hystrix support on a per-client basis create a vanilla `Feign.Builder` with the "prototype" scope, e.g.:
 

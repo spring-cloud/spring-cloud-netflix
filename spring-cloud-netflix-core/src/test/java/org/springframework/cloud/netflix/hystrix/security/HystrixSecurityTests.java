@@ -40,7 +40,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
-@SpringBootTest(classes = HystrixSecurityApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = "username.ribbon.listOfServers=localhost:${local.server.port}")
+@SpringBootTest(classes = HystrixSecurityApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {"username.ribbon.listOfServers=localhost:${local.server.port}","feign.hystrix.enabled=true"})
 public class HystrixSecurityTests {
 	@Autowired
 	private CustomConcurrenyStrategy customConcurrenyStrategy;
