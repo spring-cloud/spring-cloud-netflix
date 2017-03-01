@@ -1882,10 +1882,7 @@ provided by Spring Cloud Netflix.
 <div class="sect2">
 <h3 id="spring-cloud-feign-hystrix">Feign Hystrix Support</h3>
 <div class="paragraph">
-<p>If Hystrix is on the classpath, by default Feign will wrap all methods with a circuit breaker. Returning a <code>com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code>.toObservable()</code> or <code>.observe()</code> or asynchronous use (with a call to <code>.queue()</code>).</p>
-</div>
-<div class="paragraph">
-<p>To disable Hystrix support for Feign, set <code>feign.hystrix.enabled=false</code>.</p>
+<p>If Hystrix is on the classpath and <code>feign.hystrix.enabled=true</code>, Feign will wrap all methods with a circuit breaker. Returning a <code>com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code>.toObservable()</code> or <code>.observe()</code> or asynchronous use (with a call to <code>.queue()</code>).</p>
 </div>
 <div class="paragraph">
 <p>To disable Hystrix support on a per-client basis create a vanilla <code>Feign.Builder</code> with the "prototype" scope, e.g.:</p>
@@ -1901,6 +1898,20 @@ public class FooConfiguration {
 	}
 }</code></pre>
 </div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Prior to the Spring Cloud Dalston release, if Hystrix was on the classpath Feign would have wrapped
+all methods in a circuit breaker by default.  This default behavior was changed in Spring Cloud Dalston in
+favor for an opt-in approach.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
