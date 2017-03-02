@@ -24,7 +24,6 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
-import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.MonitorConfig;
 import com.netflix.servo.tag.SmallTagMap;
 import com.netflix.servo.tag.Tags;
@@ -41,18 +40,15 @@ public class MetricsClientHttpRequestInterceptor implements ClientHttpRequestInt
 	 * Boot (Actuator) provides a more general purpose abstraction for dimensional metrics
 	 * systems, this can be moved there and rewritten against that abstraction.
 	 */
-	private final MonitorRegistry registry;
+	private final ServoMonitorCache servoMonitorCache;
 
 	private final Collection<MetricsTagProvider> tagProviders;
 
-	private final ServoMonitorCache servoMonitorCache;
-
 	private final String metricName;
 
-	public MetricsClientHttpRequestInterceptor(MonitorRegistry registry,
+	public MetricsClientHttpRequestInterceptor(
 			Collection<MetricsTagProvider> tagProviders,
 			ServoMonitorCache servoMonitorCache, String metricName) {
-		this.registry = registry;
 		this.tagProviders = tagProviders;
 		this.servoMonitorCache = servoMonitorCache;
 		this.metricName = metricName;
