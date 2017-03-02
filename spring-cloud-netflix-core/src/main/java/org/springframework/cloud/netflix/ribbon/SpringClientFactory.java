@@ -115,5 +115,9 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 		return instantiateWithConfig(getContext(name), type, config);
 	}
 
+	@Override
+	protected void createAndCacheContexts() {
+		super.createAndCacheContexts();
+	}
 }
 
