@@ -15,7 +15,6 @@ package org.springframework.cloud.netflix.metrics;
 
 import java.util.ArrayList;
 
-import com.netflix.servo.MonitorRegistry;
 import org.aspectj.lang.JoinPoint;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
@@ -85,9 +84,9 @@ public class MetricsInterceptorConfiguration {
 
 		@Bean
 		MetricsClientHttpRequestInterceptor spectatorLoggingClientHttpRequestInterceptor(
-				MonitorRegistry registry, Collection<MetricsTagProvider> tagProviders,
+				Collection<MetricsTagProvider> tagProviders,
 				ServoMonitorCache servoMonitorCache) {
-			return new MetricsClientHttpRequestInterceptor(registry, tagProviders,
+			return new MetricsClientHttpRequestInterceptor(tagProviders,
 					servoMonitorCache, this.metricName);
 		}
 
