@@ -43,6 +43,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
 
 /**
  * @author Spencer Gibb
@@ -290,7 +291,7 @@ public class ProxyRequestHelperTests {
 		request.setCharacterEncoding("UTF-8");
 		final RequestContext context = RequestContext.getCurrentContext();
 		context.setRequest(request);
-		context.set("requestURI", decodedURI);
+		context.set(REQUEST_URI_KEY, decodedURI);
 
 		final String requestURI = new ProxyRequestHelper().buildZuulRequestURI(request);
 		assertThat(requestURI, equalTo(encodedURI));
@@ -304,7 +305,7 @@ public class ProxyRequestHelperTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", encodedURI);
 		final RequestContext context = RequestContext.getCurrentContext();
 		context.setRequest(request);
-		context.set("requestURI", decodedURI);
+		context.set(REQUEST_URI_KEY, decodedURI);
 
 		final String requestURI = new ProxyRequestHelper().buildZuulRequestURI(request);
 		assertThat(requestURI, equalTo(encodedURI));
@@ -318,7 +319,7 @@ public class ProxyRequestHelperTests {
 		request.setCharacterEncoding("UTF-8");
 
 		RequestContext context = RequestContext.getCurrentContext();
-		context.set("requestURI", requestURI);
+		context.set(REQUEST_URI_KEY, requestURI);
 
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 
@@ -334,7 +335,7 @@ public class ProxyRequestHelperTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
 
 		RequestContext context = RequestContext.getCurrentContext();
-		context.set("requestURI", requestURI);
+		context.set(REQUEST_URI_KEY, requestURI);
 
 		ProxyRequestHelper helper = new ProxyRequestHelper();
 

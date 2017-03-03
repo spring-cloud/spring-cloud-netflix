@@ -51,7 +51,7 @@ public interface FilterConstants {
 	String REQUEST_ENTITY_KEY = "requestEntity";
 
 	/**
-	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use in TODO: determine use
+	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use in to override the path of the request.
 	 */
 	String REQUEST_URI_KEY = "requestURI";
 

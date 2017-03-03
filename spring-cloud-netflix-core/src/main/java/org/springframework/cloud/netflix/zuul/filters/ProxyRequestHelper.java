@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
-import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -44,6 +41,10 @@ import org.springframework.web.util.WebUtils;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
+
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
+import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -88,7 +89,7 @@ public class ProxyRequestHelper {
 	public String buildZuulRequestURI(HttpServletRequest request) {
 		RequestContext context = RequestContext.getCurrentContext();
 		String uri = request.getRequestURI();
-		String contextURI = (String) context.get("requestURI");
+		String contextURI = (String) context.get(REQUEST_URI_KEY);
 		if (contextURI != null) {
 			try {
 				uri = UriUtils.encodePath(contextURI, characterEncoding(request));

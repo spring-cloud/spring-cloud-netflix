@@ -1917,6 +1917,8 @@ The filter above populates `SERVICE_ID_KEY` from the `foo` request parameter. In
 
 Now that `SERVICE_ID_KEY` is populated, `PreDecorationFilter` won't run and `RibbonRoutingFilter` will. If you wanted to route to a full URL instead, call `ctx.setRouteHost(url)` instead.
 
+To modify the path that routing filters will forward to, set the `REQUEST_URI_KEY`.
+
 ==== How to Write a Route Filter
 
 Route filters are run after pre filters and are used to make requests to other services. Much of the work here is to translate request and response data to and from the client required model.
