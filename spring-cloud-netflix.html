@@ -3029,6 +3029,9 @@ type <code>ZuulFallbackProvider</code> and have the <code>getRoute</code> method
 <div class="paragraph">
 <p>Now that <code>SERVICE_ID_KEY</code> is populated, <code>PreDecorationFilter</code> won&#8217;t run and <code>RibbonRoutingFilter</code> will. If you wanted to route to a full URL instead, call <code>ctx.setRouteHost(url)</code> instead.</p>
 </div>
+<div class="paragraph">
+<p>To modify the path that routing filters will forward to, set the <code>REQUEST_URI_KEY</code>.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_how_to_write_a_route_filter">How to Write a Route Filter</h4>
