@@ -26,6 +26,7 @@
 		<turbine.version>1.0.0</turbine.version>
 		<eureka-jersey.version>1.19.1</eureka-jersey.version>
 		<xstream.version>1.4.9</xstream.version>
+		<okhttp3.version>3.6.0</okhttp3.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -430,7 +431,12 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>3.3.1</version>
+				<version>${okhttp3.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>logging-interceptor</artifactId>
+				<version>${okhttp3.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
