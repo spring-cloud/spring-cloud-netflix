@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Biju Kunjummen
@@ -43,7 +41,6 @@ public class RibbonApplicationContextInitializerTests {
 		assertThat(foo).isNotNull();
 	}
 
-	@Configuration
 	static class FooConfig {
 
 		@Bean

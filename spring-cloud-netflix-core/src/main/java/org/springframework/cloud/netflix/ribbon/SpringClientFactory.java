@@ -80,29 +80,28 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	}
 
 	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
-			Class<C> clazz, IClientConfig config) {
+										Class<C> clazz, IClientConfig config) {
 		C result = null;
-
+		
 		try {
 			Constructor<C> constructor = clazz.getConstructor(IClientConfig.class);
 			result = constructor.newInstance(config);
-		}
-		catch (Throwable e) {
+		} catch (Throwable e) {
 			// Ignored
 		}
-
+		
 		if (result == null) {
 			result = BeanUtils.instantiate(clazz);
-
+			
 			if (result instanceof IClientConfigAware) {
 				((IClientConfigAware) result).initWithNiwsConfig(config);
 			}
-
+			
 			if (context != null) {
 				context.getAutowireCapableBeanFactory().autowireBean(result);
 			}
 		}
-
+		
 		return result;
 	}
 
@@ -120,4 +119,6 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	protected AnnotationConfigApplicationContext getContext(String name) {
 		return super.getContext(name);
 	}
+
 }
+

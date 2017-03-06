@@ -164,7 +164,7 @@ public class ZuulConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "zuul.context.startup.enabled", matchIfMissing = false)
+	@ConditionalOnProperty(value = "zuul.ribbon.eager-load", matchIfMissing = false)
 	public ZuulRouteApplicationContextInitializer zuulRoutesApplicationContextInitiazer(
 			SpringClientFactory springClientFactory) {
 		return new ZuulRouteApplicationContextInitializer(springClientFactory,
