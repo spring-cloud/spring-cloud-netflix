@@ -62,6 +62,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -455,8 +456,11 @@ public class FeignClientTests {
 		}
 
 		@RequestMapping(method = RequestMethod.POST, consumes = "application/vnd.io.spring.cloud.test.v1+json", produces = "application/vnd.io.spring.cloud.test.v1+json", path = "/complex")
-		String complex(String body) {
-			return "{\"value\":\"OK\"}";
+		String complex(@RequestBody String body, @RequestHeader("Content-Length") int contentLength) {
+			if (contentLength <= 0) {
+				throw new IllegalArgumentException("Invalid Content-Length "+ contentLength);
+			}
+			return body;
 		}
 
 		@RequestMapping(method = RequestMethod.GET, path = "/tostring")

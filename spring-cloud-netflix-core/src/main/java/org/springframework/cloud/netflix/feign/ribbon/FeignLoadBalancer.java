@@ -120,8 +120,6 @@ public class FeignLoadBalancer extends
 		private Request toRequest(Request request) {
 			Map<String, Collection<String>> headers = new LinkedHashMap<>(
 					request.headers());
-			// Apache client barfs if you set the content length
-			headers.remove(Util.CONTENT_LENGTH);
 			return Request.create(request.method(),getUri().toASCIIString(),headers,request.body(),request.charset());
 		}
 

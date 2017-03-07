@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,17 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.feign.valid;
-
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +44,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import feign.Client;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -60,11 +61,11 @@ import lombok.NoArgsConstructor;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FeignHttpClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = FeignOkHttpTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=feignclienttest", "feign.hystrix.enabled=false",
-		"feign.okhttp.enabled=false" })
+		"feign.okhttp.enabled=true" })
 @DirtiesContext
-public class FeignHttpClientTests {
+public class FeignOkHttpTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;
@@ -150,7 +151,7 @@ public class FeignHttpClientTests {
 		assertThat(this.feignClient, is(instanceOf(LoadBalancerFeignClient.class)));
 		LoadBalancerFeignClient client = (LoadBalancerFeignClient) this.feignClient;
 		Client delegate = client.getDelegate();
-		assertThat(delegate, is(instanceOf(feign.httpclient.ApacheHttpClient.class)));
+		assertThat(delegate, is(instanceOf(feign.okhttp.OkHttpClient.class)));
 	}
 
 	@Test
