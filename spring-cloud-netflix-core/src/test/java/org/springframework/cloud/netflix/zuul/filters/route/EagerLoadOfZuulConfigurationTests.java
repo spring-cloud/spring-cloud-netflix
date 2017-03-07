@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(value = { "zuul.routes.myroute.service-id=eager",
-		"zuul.ribbon.eager-load=true" })
+		"zuul.ribbon.eager-load.enabled=true" })
 @DirtiesContext
 public class EagerLoadOfZuulConfigurationTests {
 

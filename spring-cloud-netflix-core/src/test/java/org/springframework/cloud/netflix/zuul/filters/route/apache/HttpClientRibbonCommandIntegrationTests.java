@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ import com.netflix.loadbalancer.ServerList;
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
 		"zuul.routes.singleton: /singleton/**",
-		"zuul.routes.singleton.sensitiveHeaders: ","zuul.context.startup.enabled: true" })
+		"zuul.routes.singleton.sensitiveHeaders: " })
 @DirtiesContext
 public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
