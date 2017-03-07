@@ -18,16 +18,14 @@ package org.springframework.cloud.netflix.ribbon;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,52 +35,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {RibbonAutoConfiguration.class,
-		ArchaiusAutoConfiguration.class, RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class})
+@SpringBootTest(properties = {
+	"ribbon.eager-load.enabled=true",
+	"ribbon.eager-load.serviceIds=testspec1,testspec2"
+})
 @DirtiesContext
-public class RibbonApplicationContextInitializerTests {
-
-	@Autowired
-	private SpringClientFactory springClientFactory;
+public class RibbonClientsEagerInitializationTest {
 
 	@Test
-	public void testContextShouldInitalizeChildContexts() {
-
-		// Context should have been initialized and an instance of Foo created
-		assertThat(Foo.getInstanceCount()).isEqualTo(1);
-		ApplicationContext ctx = springClientFactory.getContext("testspec");
-
-		assertThat(Foo.getInstanceCount()).isEqualTo(1);
-		Foo foo = ctx.getBean("foo", Foo.class);
-		assertThat(foo).isNotNull();
+	public void contextsShouldBeInitialized() {
+		assertThat(Foo1.getInstanceCount()).isEqualTo(2);
 	}
 
 	static class FooConfig {
-
 		@Bean
-		public Foo foo() {
-			return new Foo();
+		public Foo1 foo() {
+			return new Foo1();
 		}
-
 	}
 
 	@Configuration
-	@RibbonClient(name="testspec", configuration = FooConfig.class)
-	static class RibbonInitializerConfig {
-
-		@Bean
-		public RibbonApplicationContextInitializer ribbonApplicationContextInitializer(
-				SpringClientFactory springClientFactory) {
-			return new RibbonApplicationContextInitializer(springClientFactory,
-					Arrays.asList("testspec"));
-		}
-
+	@EnableAutoConfiguration
+	@RibbonClients(
+		value = {
+			@RibbonClient(name="testspec1", configuration = FooConfig.class),
+			@RibbonClient(name="testspec2", configuration = FooConfig.class),
+			@RibbonClient(name="testspec3", configuration = FooConfig.class),
+		})
+	static class RibbonConfig {
 	}
 
-	static class Foo {
+	static class Foo1 {
 		private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger();
 
-		public Foo() {
+		public Foo1() {
 			INSTANCE_COUNT.incrementAndGet();
 		}
 
