@@ -36,7 +36,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(FeignClientEncodingProperties.class)
 @ConditionalOnClass(Feign.class)
-@ConditionalOnBean(ApacheHttpClient.class)
 @ConditionalOnProperty(value = "feign.compression.request.enabled", matchIfMissing = false)
 @AutoConfigureBefore(FeignAutoConfiguration.class)
 public class FeignContentGzipEncodingAutoConfiguration {
