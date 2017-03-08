@@ -53,7 +53,7 @@ import com.netflix.ribbon.Ribbon;
  * @author Dave Syer
  */
 @Configuration
-@ConditionalOnClass({ IClient.class, RestTemplate.class })
+@ConditionalOnClass({ IClient.class, RestTemplate.class, Ribbon.class})
 @RibbonClients
 @AutoConfigureAfter(name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
 @AutoConfigureBefore(LoadBalancerAutoConfiguration.class)
