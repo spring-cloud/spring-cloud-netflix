@@ -34,7 +34,6 @@ public class RibbonDisabledTests {
 
 	@Test(expected = ArrayStoreException.class)
 	public void testRibbonDisabled() {
-		AntPathMatcher matcher = new AntPathMatcher();
 			new SpringApplicationBuilder().web(false)
 					.sources(RibbonAutoConfiguration.class).run();
 	}
