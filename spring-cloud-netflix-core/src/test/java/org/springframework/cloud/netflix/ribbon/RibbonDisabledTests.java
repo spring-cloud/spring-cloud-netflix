@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.ClassPathExclusions;
 import org.springframework.cloud.FilteredClassPathRunner;
-import org.springframework.util.AntPathMatcher;
 
 /**
  * @author Ryan Baxter
