@@ -1976,7 +1976,7 @@ There is a limitation with the implementation of fallbacks in Feign and how Hyst
 <div class="sect2">
 <h3 id="_feign_and_code_primary_code">Feign and <code>@Primary</code></h3>
 <div class="paragraph">
-<p>When using Feign with Hystrix fallbacks, there are multiple beans in the <code>ApplicationContext</code> of the same type. This will cause <code>@Autowired</code> to work because there isn&#8217;t exactly one bean, or one marked as primary. To work around this, Spring Cloud Netflix marks all Feign instances as <code>@Primary</code>, so Spring Framework will know which bean to inject. In some cases, this may not be desirable. To turn off this behavior set the <code>primary</code> attribute of <code>@FeignClient</code> to false.</p>
+<p>When using Feign with Hystrix fallbacks, there are multiple beans in the <code>ApplicationContext</code> of the same type. This will cause <code>@Autowired</code> to not work because there isn&#8217;t exactly one bean, or one marked as primary. To work around this, Spring Cloud Netflix marks all Feign instances as <code>@Primary</code>, so Spring Framework will know which bean to inject. In some cases, this may not be desirable. To turn off this behavior set the <code>primary</code> attribute of <code>@FeignClient</code> to false.</p>
 </div>
 <div class="listingblock">
 <div class="content">
