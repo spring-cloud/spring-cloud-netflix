@@ -60,7 +60,7 @@ import lombok.SneakyThrows;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
-		"spring.cloud.netflix.metrics.enabled=false", "ribbon.http.client.enabled=true" })
+		"spring.cloud.netflix.metrics.enabled=false", "ribbon.http.client.enabled=true, myclient.ribbon.ReadTimeout=5000" })
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
@@ -148,7 +148,10 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	@RibbonClient(value = "simple", configuration = SimpleRibbonClientConfiguration.class)
+	@RibbonClients({
+			@RibbonClient(value = "simple", configuration = SimpleRibbonClientConfiguration.class),
+	@RibbonClient("myclient")}
+			)
 	public static class App {
 
 		@LoadBalanced

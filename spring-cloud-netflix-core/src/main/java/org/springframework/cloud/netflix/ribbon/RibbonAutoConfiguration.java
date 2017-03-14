@@ -77,6 +77,11 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
+	public SpringClientFactoryEagerInitializer ribbonClientIntializer() {
+		return new SpringClientFactoryEagerInitializer(springClientFactory());
+	}
+
+	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
 	public LoadBalancerClient loadBalancerClient() {
 		return new RibbonLoadBalancerClient(springClientFactory());
