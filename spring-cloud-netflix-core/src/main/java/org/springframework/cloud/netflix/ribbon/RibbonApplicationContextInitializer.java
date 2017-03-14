@@ -31,18 +31,20 @@ public class RibbonApplicationContextInitializer
 		implements ApplicationListener<ApplicationReadyEvent> {
 
 	private final SpringClientFactory springClientFactory;
-	private final List<String> serviceIds;
+	
+	//List of Ribbon client names
+	private final List<String> clientNames;
 
 	public RibbonApplicationContextInitializer(SpringClientFactory springClientFactory,
-			List<String> serviceIds) {
+			List<String> clientNames) {
 		this.springClientFactory = springClientFactory;
-		this.serviceIds = serviceIds;
+		this.clientNames = clientNames;
 	}
 
 	private void initialize() {
-		if (serviceIds != null) {
-			for (String serviceId : serviceIds) {
-				this.springClientFactory.getContext(serviceId);
+		if (clientNames != null) {
+			for (String clientName : clientNames) {
+				this.springClientFactory.getContext(clientName);
 			}
 		}
 	}

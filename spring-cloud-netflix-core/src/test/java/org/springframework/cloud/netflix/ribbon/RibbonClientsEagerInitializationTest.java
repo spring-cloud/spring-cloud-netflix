@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {
 	"ribbon.eager-load.enabled=true",
-	"ribbon.eager-load.serviceIds=testspec1,testspec2"
+	"ribbon.eager-load.clients=testspec1,testspec2"
 })
 @DirtiesContext
 public class RibbonClientsEagerInitializationTest {

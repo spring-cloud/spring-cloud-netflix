@@ -29,7 +29,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "ribbon.eager-load")
 public class RibbonEagerLoadProperties {
 	private boolean enabled = false;
-	private List<String> serviceIds;
+	private List<String> clients;
 
 	public boolean isEnabled() {
 		return enabled;
@@ -39,11 +39,11 @@ public class RibbonEagerLoadProperties {
 		this.enabled = enabled;
 	}
 
-	public List<String> getServiceIds() {
-		return serviceIds;
+	public List<String> getClients() {
+		return clients;
 	}
 
-	public void setServiceIds(List<String> serviceIds) {
-		this.serviceIds = serviceIds;
+	public void setClients(List<String> clients) {
+		this.clients = clients;
 	}
 }
