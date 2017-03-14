@@ -737,6 +737,7 @@ Spring Cloud Netflix provides the following beans by default for ribbon
 * `ServerList<Server>` ribbonServerList: `ConfigurationBasedServerList`
 * `ServerListFilter<Server>` ribbonServerListFilter: `ZonePreferenceServerListFilter`
 * `ILoadBalancer` ribbonLoadBalancer: `ZoneAwareLoadBalancer`
+* `ServerListUpdater` ribbonServerListUpdater: `PollingServerListUpdater`
 
 Creating a bean of one of those type and placing it in a `@RibbonClient`
 configuration (such as `FooConfiguration` above) allows you to override each

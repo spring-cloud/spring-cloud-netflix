@@ -48,10 +48,11 @@ import com.netflix.loadbalancer.DummyPing;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.IPing;
 import com.netflix.loadbalancer.IRule;
-import com.netflix.loadbalancer.LoadBalancerBuilder;
+import com.netflix.loadbalancer.PollingServerListUpdater;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListFilter;
+import com.netflix.loadbalancer.ServerListUpdater;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
@@ -228,17 +229,20 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	public ServerListUpdater ribbonServerListUpdater(IClientConfig config) {
+		return new PollingServerListUpdater(config);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
 			ServerList<Server> serverList, ServerListFilter<Server> serverListFilter,
-			IRule rule, IPing ping) {
+			IRule rule, IPing ping, ServerListUpdater serverListUpdater) {
 		if (this.propertiesFactory.isSet(ILoadBalancer.class, name)) {
 			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
 		}
-		ZoneAwareLoadBalancer<Server> balancer = LoadBalancerBuilder.newBuilder()
-				.withClientConfig(config).withRule(rule).withPing(ping)
-				.withServerListFilter(serverListFilter).withDynamicServerList(serverList)
-				.buildDynamicServerListLoadBalancer();
-		return balancer;
+		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList,
+				serverListFilter, serverListUpdater);
 	}
 
 	@Bean
