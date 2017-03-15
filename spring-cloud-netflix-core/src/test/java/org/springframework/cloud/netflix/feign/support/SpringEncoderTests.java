@@ -40,7 +40,7 @@ import lombok.Data;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringEncoderTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=springencodertest", "spring.jmx.enabled=true" })
+		"spring.application.name=springencodertest", "spring.jmx.enabled=false" })
 @DirtiesContext
 public class SpringEncoderTests {
 

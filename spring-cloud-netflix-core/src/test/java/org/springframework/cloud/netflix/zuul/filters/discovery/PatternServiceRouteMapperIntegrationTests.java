@@ -45,7 +45,7 @@ import com.netflix.zuul.context.RequestContext;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=regex-test-application", "spring.jmx.enabled=true",
+		"spring.application.name=regex-test-application", "spring.jmx.enabled=false",
 		"eureka.client.enabled=false" })
 @DirtiesContext
 public class PatternServiceRouteMapperIntegrationTests {
