@@ -27,31 +27,21 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.OverrideRestClient;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.PollingServerListUpdater;
 import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerListUpdater;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -194,26 +184,6 @@ public class RibbonClientConfigurationTests {
 	private <T> boolean hasInstance(ListableBeanFactory lbf, Class<T> requiredType) {
 		return BeanFactoryUtils.beanNamesForTypeIncludingAncestors(lbf,
 				requiredType).length > 0;
-	}
-
-	@Test
-	public void testLoadBalancerConstruction() {
-		ConfigurableApplicationContext context = new SpringApplicationBuilder(TestLBConfig.class).properties(
-				"test.ribbon.ServerListRefreshInterval=999")
-				.run();
-
-		SpringClientFactory clientFactory = context.getBean(SpringClientFactory.class);
-		ILoadBalancer loadBalancer = clientFactory.getInstance("test", ILoadBalancer.class);
-		assertThat(loadBalancer, is(instanceOf(ZoneAwareLoadBalancer.class)));
-		ZoneAwareLoadBalancer lb = (ZoneAwareLoadBalancer) loadBalancer;
-		ServerListUpdater serverListUpdater = (PollingServerListUpdater) ReflectionTestUtils.getField(loadBalancer, "serverListUpdater");
-		Long refreshIntervalMs = (Long) ReflectionTestUtils.getField(serverListUpdater, "refreshIntervalMs");
-		assertThat(refreshIntervalMs, equalTo(999L));
-
-		ServerListUpdater updater = clientFactory.getInstance("test", ServerListUpdater.class);
-		assertThat(updater, is(sameInstance(serverListUpdater)));
-
-		context.close();
 	}
 
 	@Configuration
