@@ -864,6 +864,21 @@ public class MyClass {
 }
 ----
 
+[[ribbon-child-context-eager-load]]
+=== Caching of Ribbon Configuration
+
+Each Ribbon named client has a corresponding child Application Context that Spring Cloud maintains, this application context is lazily loaded up on the first request to the named client.
+This lazy loading behavior can be changed to instead eagerly load up these child Application contexts at startup by specifying the names of the Ribbon clients.
+
+.application.yml
+----
+ribbon:
+  eager-load:
+    enabled: true
+    clients: client1, client2, client3
+----
+
+
 [[spring-cloud-feign]]
 == Declarative REST Client: Feign
 
@@ -2041,6 +2056,18 @@ public class AddResponseHeaderFilter extends ZuulFilter {
 
 If an exception is thrown during any portion of the Zuul filter lifecycle, the error filters are executed. The `SendErrorFilter` is only run if `RequestContext.getThrowable()` is not `null`. It then sets specific `javax.servlet.error.*` attributes in the request and forwards the request to the Spring Boot error page.
 
+==== Zuul Eager Application Context Loading
+
+Zuul internally uses Ribbon for calling the remote url's and Ribbon clients are by default lazily loaded up by Spring Cloud on first call.
+This behavior can be changed for Zuul using the following configuration and will result in the child Ribbon related Application contexts being eagerly loaded up at application startup time.
+
+.application.yml
+----
+zuul:
+  ribbon:
+    eager-load:
+      enabled: true
+----
 
 == Polyglot support with Sidecar
 

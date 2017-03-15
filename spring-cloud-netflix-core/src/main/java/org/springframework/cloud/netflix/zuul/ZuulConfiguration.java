@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration;
@@ -31,6 +32,7 @@ import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
@@ -58,6 +60,7 @@ import com.netflix.zuul.http.ZuulServlet;
 /**
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Biju Kunjummen
  */
 @Configuration
 @EnableConfigurationProperties({ ZuulProperties.class })
@@ -159,6 +162,14 @@ public class ZuulConfiguration {
 	@Bean
 	public SendForwardFilter sendForwardFilter() {
 		return new SendForwardFilter();
+	}
+
+	@Bean
+	@ConditionalOnProperty(value = "zuul.ribbon.eager-load.enabled", matchIfMissing = false)
+	public ZuulRouteApplicationContextInitializer zuulRoutesApplicationContextInitiazer(
+			SpringClientFactory springClientFactory) {
+		return new ZuulRouteApplicationContextInitializer(springClientFactory,
+				zuulProperties);
 	}
 
 	@Configuration

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.loadbalancer.AsyncLoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
@@ -53,16 +54,21 @@ import com.netflix.ribbon.Ribbon;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Biju Kunjummen
  */
 @Configuration
 @ConditionalOnClass({ IClient.class, RestTemplate.class, AsyncRestTemplate.class, Ribbon.class})
 @RibbonClients
 @AutoConfigureAfter(name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
 @AutoConfigureBefore({LoadBalancerAutoConfiguration.class, AsyncLoadBalancerAutoConfiguration.class})
+@EnableConfigurationProperties(RibbonEagerLoadProperties.class)
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
+	
+	@Autowired
+	private RibbonEagerLoadProperties ribbonEagerLoadProperties;
 
 	@Bean
 	public HasFeatures ribbonFeature() {
@@ -98,6 +104,13 @@ public class RibbonAutoConfiguration {
 	@ConditionalOnMissingBean
 	public PropertiesFactory propertiesFactory() {
 		return new PropertiesFactory();
+	}
+	
+	@Bean
+	@ConditionalOnProperty(value = "ribbon.eager-load.enabled", matchIfMissing = false)
+	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
+		return new RibbonApplicationContextInitializer(springClientFactory(),
+				ribbonEagerLoadProperties.getClients());
 	}
 
 	@Configuration
