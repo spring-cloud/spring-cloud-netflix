@@ -49,7 +49,7 @@ import lombok.NoArgsConstructor;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringDecoderTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=springdecodertest", "spring.jmx.enabled=true" })
+		"spring.application.name=springdecodertest", "spring.jmx.enabled=false" })
 @DirtiesContext
 public class SpringDecoderTests extends FeignClientFactoryBean {
 

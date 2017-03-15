@@ -41,7 +41,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MetricsRestTemplateTests.App.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
+		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=false",
 		"ribbon.http.client.enabled=true" })
 @DirtiesContext
 public class MetricsRestTemplateTests extends RibbonClientHttpRequestFactoryTests {
