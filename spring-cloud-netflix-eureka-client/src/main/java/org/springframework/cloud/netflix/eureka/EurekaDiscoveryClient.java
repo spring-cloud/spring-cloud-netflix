@@ -90,11 +90,12 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public List<ServiceInstance> getInstances(String serviceId) {
-		List<InstanceInfo> infos = this.eurekaClient.getInstancesByVipAddress(serviceId,
-				false);
+		Application application = this.eurekaClient.getApplication(serviceId);
 		List<ServiceInstance> instances = new ArrayList<>();
-		for (InstanceInfo info : infos) {
-			instances.add(new EurekaServiceInstance(info));
+		if (application != null) {
+			for (InstanceInfo info : application.getInstances()) {
+				instances.add(new EurekaServiceInstance(info));
+			}
 		}
 		return instances;
 	}
