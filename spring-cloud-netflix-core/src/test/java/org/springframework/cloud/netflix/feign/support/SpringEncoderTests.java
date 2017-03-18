@@ -81,7 +81,7 @@ public class SpringEncoderTests {
 		assertThat("request charset is not null", request.charset(), is(nullValue()));
 	}
 	
-	class MediaTypeMatcher extends ArgumentMatcher<MediaType> {
+	class MediaTypeMatcher implements ArgumentMatcher<MediaType> {
 
 		private MediaType mediaType;
 
@@ -90,10 +90,9 @@ public class SpringEncoderTests {
 		}
 
 		@Override
-		public boolean matches(Object argument) {
-			if (argument instanceof MediaType) {
-				MediaType other = (MediaType) argument;
-				return this.mediaType.equals(other);
+		public boolean matches(MediaType argument) {
+			if (argument != null) {
+				return this.mediaType.equals(argument);
 			}
 			return false;
 		}

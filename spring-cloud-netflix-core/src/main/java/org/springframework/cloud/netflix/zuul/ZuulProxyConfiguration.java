@@ -78,14 +78,14 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
 	public DiscoveryClientRouteLocator discoveryRouteLocator() {
-		return new DiscoveryClientRouteLocator(this.server.getServletPrefix(), this.discovery, this.zuulProperties,
+		return new DiscoveryClientRouteLocator(this.server.getServlet().getServletPrefix(), this.discovery, this.zuulProperties,
 				this.serviceRouteMapper);
 	}
 
 	// pre filters
 	@Bean
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
-		return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(), this.zuulProperties,
+		return new PreDecorationFilter(routeLocator, this.server.getServlet().getServletPrefix(), this.zuulProperties,
 				proxyRequestHelper);
 	}
 

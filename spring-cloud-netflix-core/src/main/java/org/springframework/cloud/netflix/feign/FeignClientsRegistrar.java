@@ -206,7 +206,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	private void validate(Map<String, Object> attributes) {
 		AnnotationAttributes annotation = AnnotationAttributes.fromMap(attributes);
 		// This blows up if an aliased property is overspecified
-		annotation.getAliasedString("name", FeignClient.class, null);
+		// FIXME annotation.getAliasedString("name", FeignClient.class, null);
 	}
 
 	/* for testing */ String getName(Map<String, Object> attributes) {

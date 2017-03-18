@@ -23,9 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorController;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -66,7 +65,7 @@ import com.netflix.zuul.http.ZuulServlet;
 @EnableConfigurationProperties({ ZuulProperties.class })
 @ConditionalOnClass(ZuulServlet.class)
 // Make sure to get the ServerProperties from the same place as a normal web app would
-@Import(ServerPropertiesAutoConfiguration.class)
+// FIXME @Import(ServerPropertiesAutoConfiguration.class)
 public class ZuulConfiguration {
 
 	@Autowired
@@ -93,7 +92,7 @@ public class ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
 	public SimpleRouteLocator simpleRouteLocator() {
-		return new SimpleRouteLocator(this.server.getServletPrefix(),
+		return new SimpleRouteLocator(this.server.getServlet().getServletPrefix(),
 				this.zuulProperties);
 	}
 

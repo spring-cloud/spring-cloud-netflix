@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
+import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistration;
 import org.springframework.context.ApplicationContext;
@@ -109,10 +109,10 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 		return this.order;
 	}
 
-	@EventListener(EmbeddedServletContainerInitializedEvent.class)
-	public void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
-		// TODO: take SSL into account when Spring Boot 1.2 is available
-		int localPort = event.getEmbeddedServletContainer().getPort();
+	@EventListener(ServletWebServerInitializedEvent.class)
+	public void onApplicationEvent(ServletWebServerInitializedEvent event) {
+		// TODO: take SSL into account
+		int localPort = event.getWebServer().getPort();
 		if (this.port.get() == 0) {
 			log.info("Updating port to " + localPort);
 			this.port.compareAndSet(0, localPort);
