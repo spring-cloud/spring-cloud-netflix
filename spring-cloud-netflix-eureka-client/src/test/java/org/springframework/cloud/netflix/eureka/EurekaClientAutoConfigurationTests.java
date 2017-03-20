@@ -32,11 +32,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
-
-import java.net.URI;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
@@ -88,9 +83,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		URI uri = URI.create(instance.getStatusPageUrl());
-		assertEquals("Wrong port " + instance.getStatusPageUrl(),
-				9999, uri.getPort());
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().contains("9999"));
 	}
 
 	@Test
