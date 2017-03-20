@@ -125,7 +125,7 @@ public class EurekaClientAutoConfiguration {
 		instance.setInstanceId(getDefaultInstanceId(this.env));
 		instance.setPreferIpAddress(preferIpAddress);
 
-		if (this.managementPort != this.nonSecurePort && this.managementPort != 0) {
+		if (this.managementPort != this.nonSecurePort && this.managementPort != 0 || !this.managementContextPath.equals("")) {
 			if (StringUtils.hasText(hostname)) {
 				instance.setHostname(hostname);
 			}
