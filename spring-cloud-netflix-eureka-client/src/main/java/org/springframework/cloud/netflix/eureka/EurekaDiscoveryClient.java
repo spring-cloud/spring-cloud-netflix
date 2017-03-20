@@ -104,7 +104,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		private InstanceInfo instance;
 
 		public EurekaServiceInstance(InstanceInfo instance) {
-                        Assert.notNull(instance, "Service instance required");
+			Assert.notNull(instance, "Service instance required");
 			this.instance = instance;
 		}
 
