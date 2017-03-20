@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
+import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -30,8 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
+import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -84,8 +85,9 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("9999"));
+		URI uri = URI.create(instance.getStatusPageUrl());
+		assertEquals("Wrong port " + instance.getStatusPageUrl(),
+				9999, uri.getPort());
 	}
 
 	@Test
@@ -110,6 +112,54 @@ public class EurekaClientAutoConfigurationTests {
 				.getBean(EurekaInstanceConfigBean.class);
 		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
 				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+	}
+
+	@Test
+	public void statusPageUrlPathAndManagementPortAndContextPath() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "management.contextPath=/manage",
+				"eureka.instance.statusPageUrlPath=/myStatusPage");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().endsWith(":9999/manage/myStatusPage"));
+	}
+
+	@Test
+	public void healthCheckUrlPathAndManagementPortAndContextPath() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "management.contextPath=/manage",
+				"eureka.instance.healthCheckUrlPath=/myHealthCheck");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().endsWith(":9999/manage/myHealthCheck"));
+	}
+
+	@Test
+	public void statusPageUrlPathAndManagementPortAndContextPathKebobCase() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "management.context-path=/manage",
+				"eureka.instance.statusPageUrlPath=/myStatusPage");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().endsWith(":9999/manage/myStatusPage"));
+	}
+
+	@Test
+	public void healthCheckUrlPathAndManagementPortAndContextPathKebobCase() {
+		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "management.context-path=/manage",
+				"eureka.instance.healthCheckUrlPath=/myHealthCheck");
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().endsWith(":9999/manage/myHealthCheck"));
 	}
 
 	@Test

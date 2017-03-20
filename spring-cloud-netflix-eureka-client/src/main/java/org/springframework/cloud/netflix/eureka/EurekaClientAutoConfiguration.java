@@ -88,6 +88,9 @@ public class EurekaClientAutoConfiguration {
 	@Value("${management.port:${MANAGEMENT_PORT:${server.port:${SERVER_PORT:${PORT:8080}}}}}")
 	private int managementPort;
 
+	@Value("${management.contextPath:${management.context-path:${MANAGEMENT_CONTEXT_PATH:${server.contextPath:${SERVER_CONTEXT_PATH:${CONTEXT_PATH:}}}}}}")
+	String managementContextPath;
+
 	@Autowired
 	private ConfigurableEnvironment env;
 
@@ -136,9 +139,9 @@ public class EurekaClientAutoConfiguration {
 			}
 			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
 			instance.setStatusPageUrl(scheme + "://" + instance.getHostname() + ":"
-					+ this.managementPort + instance.getStatusPageUrlPath());
+					+ this.managementPort + this.managementContextPath + instance.getStatusPageUrlPath());
 			instance.setHealthCheckUrl(scheme + "://" + instance.getHostname() + ":"
-					+ this.managementPort + instance.getHealthCheckUrlPath());
+					+ this.managementPort + this.managementContextPath + instance.getHealthCheckUrlPath());
 		}
 		return instance;
 	}
