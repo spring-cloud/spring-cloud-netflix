@@ -88,13 +88,13 @@ public class FeignHttpClientUrlTests {
 		Hello getHello();
 	}
 
-	@FeignClient(name = "beanappurl", url = "#{SERVER_URL}")
+	@FeignClient(name = "beanappurl", url = "#{SERVER_URL}path")
 	protected interface BeanUrlClient {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
 	}
 
-	@FeignClient(name = "beanappurlnoprotocol", url = "#{SERVER_URL_NO_PROTOCOL}")
+	@FeignClient(name = "beanappurlnoprotocol", url = "#{SERVER_URL_NO_PROTOCOL}path")
 	protected interface BeanUrlClientNoProtocol {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		Hello getHello();
@@ -111,6 +111,11 @@ public class FeignHttpClientUrlTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
 			return new Hello("hello world 1");
+		}
+
+		@RequestMapping(method = RequestMethod.GET, value = "/path/hello")
+		public Hello getHelloWithPath() {
+			return getHello();
 		}
 
 		@Bean(name="SERVER_URL")
