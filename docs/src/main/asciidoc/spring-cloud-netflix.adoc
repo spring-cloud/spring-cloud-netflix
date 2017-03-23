@@ -1893,6 +1893,10 @@ Route filters:
 
 * `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
 
+==== Custom Zuul Filter examples
+
+Most of the following "How to Write" examples below are included https://github.com/spring-cloud-samples/sample-zuul-filters[Sample Zuul Filters] project. There are also examples of manipulating the request or response body in that repository.
+
 ==== How to Write a Pre Filter
 
 Pre filters are used to set up data in the `RequestContext` for use in filters downstream. The main use case is to set information required for route filters.
