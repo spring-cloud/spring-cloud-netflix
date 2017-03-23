@@ -21,6 +21,7 @@ import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
+import com.netflix.client.ClientException;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
@@ -28,6 +29,16 @@ import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.reactive.LoadBalancerCommand;
+import com.netflix.loadbalancer.reactive.ServerOperation;
+import org.springframework.http.HttpMethod;
+import rx.Observable;
+import rx.Subscriber;
+
+import java.net.URI;
+
+import static org.apache.commons.lang.BooleanUtils.toBooleanDefaultIfNull;
 
 /**
  * @author Spencer Gibb
@@ -106,6 +117,45 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 				DefaultClientConfigImpl.DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
 	}
 
+	@Override
+	public T execute(S request, IClientConfig requestConfig) throws Exception {
+		return executeInternal(request, requestConfig);
+	}
+
+	@Override
+	public T executeWithLoadBalancer(S request, IClientConfig requestConfig) throws ClientException {
+		try {
+			return getExecutionWithLoadBalancerObservable(request, requestConfig)
+					.toBlocking()
+					.single();
+		} catch (Exception e) {
+			Throwable t = e.getCause();
+			if (t instanceof ClientException) {
+				throw (ClientException) t;
+			} else {
+				throw new ClientException(e);
+			}
+		}
+	}
+
+	public Observable<T> getExecutionWithLoadBalancerObservable(S request, IClientConfig requestConfig) {
+		RequestSpecificRetryHandler handler = getRequestSpecificRetryHandler(request, config);
+
+		LoadBalancerCommand<T> command = LoadBalancerCommand.<T>builder()
+				.withLoadBalancerContext(this)
+				.withRetryHandler(handler)
+				.withLoadBalancerURI(request.getURI())
+				.build();
+
+		try {
+			return command.submit(getServerOperation(request, requestConfig));
+		} catch (Exception e) {
+			return Observable.error(e);
+		}
+	}
+
+	protected abstract T executeInternal(S request, IClientConfig requestConfig) throws Exception;
+
 	protected abstract D createDelegate(IClientConfig config);
 
 	public D getDelegate() {
@@ -113,21 +163,18 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	}
 
 	@Override
-	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
-			final S request, final IClientConfig requestConfig) {
-		if (this.okToRetryOnAllOperations) {
-			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
-					requestConfig);
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(S request, IClientConfig requestConfig) {
+		boolean retryable = request.getContext() == null
+				|| toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
+
+		if (retryable) {
+			boolean okToRetryOnAllErrors = okToRetryOnAllOperations || request.getMethod() == HttpMethod.GET;
+			RetryHandler retryHandler = getRetryHandler();
+
+			return new RequestSpecificRetryHandler(false, okToRetryOnAllErrors, retryHandler, requestConfig);
 		}
 
-		if (!request.getContext().getMethod().equals("GET")) {
-			return new RequestSpecificRetryHandler(true, false, this.getRetryHandler(),
-					requestConfig);
-		}
-		else {
-			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
-					requestConfig);
-		}
+		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
 	}
 
 	protected boolean isSecure(final IClientConfig config) {
@@ -138,5 +185,36 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 			}
 		}
 		return this.secure;
+	}
+
+	protected ServerOperation<T> getServerOperation(final S request, final IClientConfig requestConfig) {
+		return new ServerOperation<T>() {
+
+			@Override
+			public Observable<T> call(final Server server) {
+				return Observable.create(new Observable.OnSubscribe<T>() {
+
+					@Override
+					public void call(Subscriber<? super T> subscriber) {
+						URI finalUri = reconstructURIWithServer(server, request.getURI());
+						S requestForServer = (S) request.replaceUri(finalUri);
+
+						try {
+							T response = AbstractLoadBalancingClient.this.executeInternal(requestForServer, requestConfig);
+							if (!subscriber.isUnsubscribed()) {
+								subscriber.onNext(response);
+								subscriber.onCompleted();
+							} else {
+								response.close();
+							}
+						} catch (Exception e) {
+							if (!subscriber.isUnsubscribed()) {
+								subscriber.onError(e);
+							}
+						}
+					}
+				});
+			}
+		};
 	}
 }

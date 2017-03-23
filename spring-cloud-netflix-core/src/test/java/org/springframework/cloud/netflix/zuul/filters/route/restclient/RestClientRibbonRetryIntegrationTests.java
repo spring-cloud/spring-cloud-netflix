@@ -1,36 +1,32 @@
 /*
+ * Copyright 2013-2016 the original author or authors.
  *
- *  * Copyright 2013-2016 the original author or authors.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
-package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
+package org.springframework.cloud.netflix.zuul.filters.route.restclient;
 
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonRetryIntegrationTestBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,15 +34,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * @author Ryan Baxter
+ * @author Roman Terentiev
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = {OkHttpRibbonRetryIntegrationTests.RetryableTestConfig.class, OkHttpRibbonRetryIntegrationTests.RibbonClientsConfiguration.class},
+@SpringBootTest(classes = {RestClientRibbonRetryIntegrationTests.RetryableTestConfig.class, RestClientRibbonRetryIntegrationTests.RibbonClientsConfiguration.class},
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		value = {
 				"zuul.retryable: false", /* Disable retry by default, have each route enable it */
-				"ribbon.okhttp.enabled: true",
+				"ribbon.restclient.enabled: true",
 				"hystrix.command.default.execution.timeout.enabled: false", /* Disable hystrix so its timeout doesnt get in the way */
 				"ribbon.ReadTimeout: 1000", /* Make sure ribbon will timeout before the thread is done sleeping */
 				"zuul.routes.retryable: /retryable/**",
@@ -74,7 +69,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 				"stopretry.ribbon.MaxAutoRetriesNextServer: 0"
 })
 @DirtiesContext
-public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
+public class RestClientRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
+
+	@Test
+	@Ignore("RestClientRibbonCommand extends AbstractRibbonCommand, that does not propagate hystrix timeout")
+	@Override
+	public void stopRetryAfterHystixTimeout() throws InterruptedException {
+	}
 
 	@Configuration
 	@RibbonClients({
@@ -84,6 +85,7 @@ public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTes
 			@RibbonClient(name = "getretryable", configuration = RibbonClientConfiguration.class),
 			@RibbonClient(name = "stopretry", configuration = RibbonClientConfiguration.class)})
 	public static class RibbonClientsConfiguration {
+
 	}
 
 	@Configuration
@@ -95,17 +97,6 @@ public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTes
 		@Bean
 		public ServerList<Server> ribbonServerList() {
 			return new StaticServerList<>(new Server("localhost", this.port));
-		}
-
-		@Bean
-		public OkHttpLoadBalancingClient okHttpLoadBalancingClient(IClientConfig config,
-																   ServerIntrospector serverIntrospector,
-																   ILoadBalancer loadBalancer,
-																   RetryHandler retryHandler) {
-			OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(config, serverIntrospector);
-			client.setLoadBalancer(loadBalancer);
-			client.setRetryHandler(retryHandler);
-			return client;
 		}
 	}
 }

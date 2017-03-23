@@ -149,7 +149,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 		RibbonCommand command = this.ribbonCommandFactory.create(context);
 		try {
-			ClientHttpResponse response = command.execute();
+			ClientHttpResponse response = command.toObservable().toBlocking().single();
 			this.helper.appendDebug(info, response.getStatusCode().value(),
 					response.getHeaders());
 			return response;

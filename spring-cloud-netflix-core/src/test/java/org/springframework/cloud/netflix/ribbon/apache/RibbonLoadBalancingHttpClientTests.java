@@ -182,6 +182,28 @@ public class RibbonLoadBalancingHttpClientTests {
 		}
 	}
 
+	@Test
+	public void testExecuteWithLoadBalancer() throws Exception {
+		ServerIntrospector introspector = mock(ServerIntrospector.class);
+		HttpClient delegate = mock(HttpClient.class);
+		HttpResponse response = mock(HttpResponse.class);
+		doThrow(new IOException("boom")).doReturn(response).when(delegate).execute(any(HttpUriRequest.class));
+		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
+		clientConfig.setClientName("foo");
+		clientConfig.set(CommonClientConfigKey.OkToRetryOnAllOperations, true);
+
+		ILoadBalancer lb = mock(ILoadBalancer.class);
+		doReturn(new Server("foo.com", 8000)).when(lb).chooseServer(any());
+
+		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(delegate, clientConfig, introspector);
+		client.setLoadBalancer(lb);
+
+		RibbonApacheHttpRequest request = getHttpRequest();
+
+		client.executeWithLoadBalancer(request);
+		verify(delegate, times(2)).execute(any(HttpUriRequest.class));
+	}
+
 	private RetryableRibbonLoadBalancingHttpClient setupClientForRetry(int retriesNextServer, int retriesSameServer,
 															  boolean retryable, boolean retryOnAllOps,
 															  String serviceName, String host, int port,
@@ -385,23 +407,11 @@ public class RibbonLoadBalancingHttpClientTests {
 
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
 				RibbonAutoConfiguration.class, defaultConfigurationClass));
-		String serviceName = "foo";
-		String host = serviceName;
-		int port = 80;
-		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
-		RibbonLoadBalancingHttpClient client = factory.getClient("service",
-				RibbonLoadBalancingHttpClient.class);
 
-		ReflectionTestUtils.setField(client, "delegate", delegate);
-		ReflectionTestUtils.setField(client, "lb", loadBalancer);
-		given(delegate.execute(any(HttpUriRequest.class))).willReturn(
-				mock(HttpResponse.class));
-		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
-		doReturn(uri).when(request).getURI();
-		doReturn(request).when(request).withNewUri(any(URI.class));
-		given(request.toRequest(any(RequestConfig.class))).willReturn(
-				mock(HttpUriRequest.class));
+		RibbonLoadBalancingHttpClient client = getClient(factory);
+		given(client.getDelegate().execute(any(HttpUriRequest.class))).willReturn(mock(HttpResponse.class));
+
+		RibbonApacheHttpRequest request = getHttpRequest();
 
 		client.execute(request, configOverride);
 
@@ -411,4 +421,25 @@ public class RibbonLoadBalancingHttpClientTests {
 		return requestConfigCaptor.getValue();
 	}
 
+	private RibbonLoadBalancingHttpClient getClient(SpringClientFactory factory) throws IOException {
+		HttpClient delegate = mock(HttpClient.class);
+		RibbonLoadBalancingHttpClient client = factory.getClient("service",
+				RibbonLoadBalancingHttpClient.class);
+
+		ReflectionTestUtils.setField(client, "delegate", delegate);
+		ReflectionTestUtils.setField(client, "lb", loadBalancer);
+
+		return client;
+	}
+
+	private RibbonApacheHttpRequest getHttpRequest() throws Exception {
+		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+		doReturn(new URI("http://foo:80")).when(request).getURI();
+		doReturn(request).when(request).withNewUri(any(URI.class));
+		doReturn(request).when(request).replaceUri(any(URI.class));
+		given(request.toRequest(any(RequestConfig.class))).willReturn(
+				mock(HttpUriRequest.class));
+
+		return request;
+	}
 }

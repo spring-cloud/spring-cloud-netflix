@@ -67,7 +67,7 @@ public class OkHttpLoadBalancingClient
 	}
 
 	@Override
-	public OkHttpRibbonResponse execute(OkHttpRibbonRequest ribbonRequest,
+	protected OkHttpRibbonResponse executeInternal(OkHttpRibbonRequest ribbonRequest,
 			final IClientConfig configOverride) throws Exception {
 		boolean secure = isSecure(configOverride);
 		if (secure) {

@@ -26,11 +26,12 @@ import com.netflix.loadbalancer.ServerList;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.okhttp.RetryableOkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonRetryIntegrationTestBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,8 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = {OkHttpRibbonRetryIntegrationTests.RetryableTestConfig.class, OkHttpRibbonRetryIntegrationTests.RibbonClientsConfiguration.class},
+@SpringBootTest(classes = {RetryableOkHttpRibbonRetryIntegrationTests.RetryableTestConfig.class, RetryableOkHttpRibbonRetryIntegrationTests.RibbonClientsConfiguration.class},
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		value = {
 				"zuul.retryable: false", /* Disable retry by default, have each route enable it */
@@ -74,7 +74,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 				"stopretry.ribbon.MaxAutoRetriesNextServer: 0"
 })
 @DirtiesContext
-public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
+public class RetryableOkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
 
 	@Configuration
 	@RibbonClients({
@@ -98,11 +98,13 @@ public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTes
 		}
 
 		@Bean
-		public OkHttpLoadBalancingClient okHttpLoadBalancingClient(IClientConfig config,
-																   ServerIntrospector serverIntrospector,
-																   ILoadBalancer loadBalancer,
-																   RetryHandler retryHandler) {
-			OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(config, serverIntrospector);
+		public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(IClientConfig config,
+																			ServerIntrospector serverIntrospector,
+																			ILoadBalancer loadBalancer,
+																			RetryHandler retryHandler,
+																			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+			RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(config,
+					serverIntrospector, loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			return client;

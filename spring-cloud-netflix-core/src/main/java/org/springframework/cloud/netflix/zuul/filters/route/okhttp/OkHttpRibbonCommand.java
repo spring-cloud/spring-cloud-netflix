@@ -23,14 +23,14 @@ import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonResponse;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
-import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
+import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractObservableRibbonCommand;
 import com.netflix.client.config.IClientConfig;
 
 /**
  * @author Spencer Gibb
  * @author Ryan Baxter
  */
-public class OkHttpRibbonCommand extends AbstractRibbonCommand<OkHttpLoadBalancingClient, OkHttpRibbonRequest, OkHttpRibbonResponse> {
+public class OkHttpRibbonCommand extends AbstractObservableRibbonCommand<OkHttpLoadBalancingClient, OkHttpRibbonRequest, OkHttpRibbonResponse> {
 
 	public OkHttpRibbonCommand(final String commandKey,
 								final OkHttpLoadBalancingClient client,
