@@ -140,6 +140,11 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 		}
 
 		@Bean
+		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator, RoutesEndpoint endpoint) {
+			return new RoutesMvcEndpoint(endpoint, routeLocator);
+		}
+
+		@Bean
 		public ProxyRequestHelper proxyRequestHelper(ZuulProperties zuulProperties) {
 			TraceProxyRequestHelper helper = new TraceProxyRequestHelper();
 			if (this.traces != null) {
