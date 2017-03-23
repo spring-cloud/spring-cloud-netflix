@@ -40,7 +40,7 @@ public class RoutesEndpointTests {
 	private RouteLocator locator;
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		this.locator = new RouteLocator() {
 			@Override
 			public Collection<String> getIgnoredPaths() {

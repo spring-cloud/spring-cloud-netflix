@@ -35,13 +35,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ManagedResource(description = "Can be used to reset the reverse proxy routes")
 public class RoutesMvcEndpoint extends EndpointMvcAdapter implements ApplicationEventPublisherAware {
 
-	private RoutesEndpoint endpoint;
 	private RouteLocator routes;
 	private ApplicationEventPublisher publisher;
 
 	public RoutesMvcEndpoint(RoutesEndpoint endpoint, RouteLocator routes) {
 		super(endpoint);
-		this.endpoint = endpoint;
 		this.routes = routes;
 	}
 
