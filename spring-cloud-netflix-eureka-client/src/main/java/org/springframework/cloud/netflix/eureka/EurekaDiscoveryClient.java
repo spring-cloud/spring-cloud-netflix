@@ -27,6 +27,7 @@ import java.util.Map;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.util.Assert;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
@@ -102,7 +103,8 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	public static class EurekaServiceInstance implements ServiceInstance {
 		private InstanceInfo instance;
 
-		EurekaServiceInstance(InstanceInfo instance) {
+		public EurekaServiceInstance(InstanceInfo instance) {
+			Assert.notNull(instance, "Service instance required");
 			this.instance = instance;
 		}
 
