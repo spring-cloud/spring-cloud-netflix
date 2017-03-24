@@ -2595,7 +2595,8 @@ To not discard these well known security headers in case Spring Security is on t
 will enable (by default) an additional endpoint, available via HTTP as
 <code>/routes</code>. A GET to this endpoint will return a list of the mapped
 routes. A POST will force a refresh of the existing routes (e.g. in
-case there have been changes in the service catalog).</p>
+case there have been changes in the service catalog).  You can disable
+this endpoint by setting <code>endpoints.routes.enabled</code> to <code>false</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
