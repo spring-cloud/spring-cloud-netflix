@@ -1589,7 +1589,8 @@ If you are using `@EnableZuulProxy` with tha Spring Boot Actuator you
 will enable (by default) an additional endpoint, available via HTTP as
 `/routes`. A GET to this endpoint will return a list of the mapped
 routes. A POST will force a refresh of the existing routes (e.g. in
-case there have been changes in the service catalog).
+case there have been changes in the service catalog).  You can disable
+this endpoint by setting `endpoints.routes.enabled` to `false`.
 
 NOTE: the routes should respond automatically to changes in the
 service catalog, but the POST to /routes is a way to force the change
