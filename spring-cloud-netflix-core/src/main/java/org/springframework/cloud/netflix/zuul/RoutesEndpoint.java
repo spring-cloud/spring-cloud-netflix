@@ -20,74 +20,43 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.Endpoint;
-import org.springframework.boot.actuate.endpoint.mvc.MvcEndpoint;
+import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * Endpoint to display and reset the zuul proxy routes
+ * Endpoint to display the zuul proxy routes
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Ryan Baxter
  */
-@ManagedResource(description = "Can be used to list and reset the reverse proxy routes")
-public class RoutesEndpoint implements MvcEndpoint, ApplicationEventPublisherAware {
+@ManagedResource(description = "Can be used to list the reverse proxy routes")
+@ConfigurationProperties(prefix = "endpoints.routes")
+public class RoutesEndpoint extends AbstractEndpoint<Map<String, String>> {
+
+	private static final String ID = "routes";
 
 	private RouteLocator routes;
 
 	private ApplicationEventPublisher publisher;
 
-	@Override
-	public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
-		this.publisher = publisher;
-	}
-
 	@Autowired
 	public RoutesEndpoint(RouteLocator routes) {
+		super(ID, true);
 		this.routes = routes;
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	@ResponseBody
-	@ManagedOperation
-	public Map<String, String> reset() {
-		this.publisher.publishEvent(new RoutesRefreshedEvent(this.routes));
-		return getRoutes();
-	}
-
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
 	@ManagedAttribute
-	public Map<String, String> getRoutes() {
+	public Map<String, String> invoke() {
 		Map<String, String> map = new LinkedHashMap<>();
 		for (Route route : this.routes.getRoutes()) {
 			map.put(route.getFullPath(), route.getLocation());
 		}
 		return map;
 	}
-
-	@Override
-	public String getPath() {
-		return "/routes";
-	}
-
-	@Override
-	public boolean isSensitive() {
-		return true;
-	}
-
-	@Override
-	public Class<? extends Endpoint<?>> getEndpointType() {
-		return null;
-	}
-
 }
