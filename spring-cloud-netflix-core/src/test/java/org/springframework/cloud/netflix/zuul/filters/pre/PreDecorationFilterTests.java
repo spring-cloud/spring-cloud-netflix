@@ -152,7 +152,7 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("443,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 	}
 
