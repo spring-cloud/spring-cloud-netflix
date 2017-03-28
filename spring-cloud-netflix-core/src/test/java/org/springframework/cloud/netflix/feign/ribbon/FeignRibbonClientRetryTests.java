@@ -138,7 +138,7 @@ class LocalRibbonClientConfiguration {
 
 	@Bean
 	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("ocr-participants-cf-new.cfapps.io", 80),
+		return new StaticServerList<>(new Server("mybadhost", 80),
 				new Server("mybadhost2", 10002),
 				new Server("mybadhost3", 10003), new Server("localhost", this.port));
 	}
