@@ -186,15 +186,11 @@ public class ZuulConfiguration {
 		private Map<String, ZuulFilter> filters;
 
 		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer() {
-			return new ZuulFilterInitializer(this.filters);
+		public ZuulFilterInitializer zuulFilterInitializer(
+				CounterFactory counterFactory, TracerFactory tracerFactory) {
+			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory);
 		}
 
-		@Bean
-		public ZuulMetricsInitializer zuulMetricsInitializer(
-				CounterFactory counterFactory, TracerFactory tracerFactory) {
-			return new ZuulMetricsInitializer(counterFactory, tracerFactory);
-		}
 	}
 
 	@Configuration

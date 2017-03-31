@@ -27,6 +27,8 @@ import org.springframework.util.ReflectionUtils;
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
+import com.netflix.zuul.monitoring.CounterFactory;
+import com.netflix.zuul.monitoring.TracerFactory;
 
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -38,16 +40,25 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class ZuulFilterInitializer implements ServletContextListener {
 
-	private Map<String, ZuulFilter> filters;
+	private final Map<String, ZuulFilter> filters;
+	private final CounterFactory counterFactory;
+	private final TracerFactory tracerFactory;
 
-	public ZuulFilterInitializer(Map<String, ZuulFilter> filters) {
+	public ZuulFilterInitializer(Map<String, ZuulFilter> filters,
+								 CounterFactory counterFactory,
+								 TracerFactory tracerFactory) {
 		this.filters = filters;
+		this.counterFactory = counterFactory;
+		this.tracerFactory = tracerFactory;
 	}
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 
 		log.info("Starting filter initializer context listener");
+
+		TracerFactory.initialize(tracerFactory);
+		CounterFactory.initialize(counterFactory);
 
 		FilterRegistry registry = FilterRegistry.instance();
 
