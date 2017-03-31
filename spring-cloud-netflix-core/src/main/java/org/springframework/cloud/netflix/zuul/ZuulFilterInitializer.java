@@ -75,6 +75,9 @@ public class ZuulFilterInitializer implements ServletContextListener {
 			registry.remove(entry.getKey());
 		}
 		clearLoaderCache();
+
+		TracerFactory.initialize(null);
+		CounterFactory.initialize(null);
 	}
 
 	private void clearLoaderCache() {
