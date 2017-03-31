@@ -33,6 +33,8 @@ import com.netflix.zuul.monitoring.TracerFactory;
 
 import org.junit.Test;
 
+import java.lang.reflect.Constructor;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,17 +48,20 @@ public class ZuulFilterInitializerTests {
 	private Map<String, ZuulFilter> filters = getFilters();
 	private CounterFactory counterFactory = mock(CounterFactory.class);
 	private TracerFactory tracerFactory = mock(TracerFactory.class);
+	private FilterLoader filterLoader = new FilterLoader();
+	private FilterRegistry filterRegistry = getFilterRegistry();
+
 	private final ZuulFilterInitializer initializer = new ZuulFilterInitializer(filters,
-			counterFactory, tracerFactory);
+			counterFactory, tracerFactory, filterLoader, filterRegistry);
 
 	@Test
-	public void shouldSetupOnContextInitializedEvent()
-			throws Exception {
+	public void shouldSetupOnContextInitializedEvent() throws Exception {
 		initializer.contextInitialized(DUMMY_SERVLET_CONTEXT_EVENT);
 
 		assertEquals(tracerFactory, TracerFactory.instance());
 		assertEquals(counterFactory, CounterFactory.instance());
-		assertThat(FilterRegistry.instance().getAllFilters()).containsAll(filters.values());
+		assertThat(filterRegistry.getAllFilters())
+				.containsAll(filters.values());
 	}
 
 	@Test
@@ -73,8 +78,7 @@ public class ZuulFilterInitializerTests {
 	private Map getHashFiltersByType() {
 		Field field = ReflectionUtils.findField(FilterLoader.class, "hashFiltersByType");
 		ReflectionUtils.makeAccessible(field);
-		return (Map) ReflectionUtils.getField(field,
-				FilterLoader.getInstance());
+		return (Map) ReflectionUtils.getField(field, FilterLoader.getInstance());
 	}
 
 	private Map<String, ZuulFilter> getFilters() {
@@ -82,5 +86,17 @@ public class ZuulFilterInitializerTests {
 		filters.put("key1", mock(ZuulFilter.class));
 		filters.put("key2", mock(ZuulFilter.class));
 		return filters;
+	}
+
+	private FilterRegistry getFilterRegistry() {
+		try {
+			Constructor<FilterRegistry> constructor = FilterRegistry.class
+					.getDeclaredConstructor(new Class[0]);
+			constructor.setAccessible(true);
+			return constructor.newInstance(new Object[0]);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

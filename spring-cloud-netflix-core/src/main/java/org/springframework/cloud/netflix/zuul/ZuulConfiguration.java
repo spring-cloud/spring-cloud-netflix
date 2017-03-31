@@ -59,6 +59,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import com.netflix.zuul.FilterLoader;
+import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.http.ZuulServlet;
 import com.netflix.zuul.monitoring.CounterFactory;
@@ -188,7 +190,9 @@ public class ZuulConfiguration {
 		@Bean
 		public ZuulFilterInitializer zuulFilterInitializer(
 				CounterFactory counterFactory, TracerFactory tracerFactory) {
-			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory);
+			FilterLoader filterLoader = FilterLoader.getInstance();
+			FilterRegistry filterRegistry = FilterRegistry.instance();
+			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory, filterLoader, filterRegistry);
 		}
 
 	}
