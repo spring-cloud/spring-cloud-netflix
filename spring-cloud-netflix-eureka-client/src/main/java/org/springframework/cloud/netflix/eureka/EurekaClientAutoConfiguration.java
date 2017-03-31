@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -26,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
@@ -131,6 +131,7 @@ public class EurekaClientAutoConfiguration {
 
 		int managementPort = Integer.valueOf(propertyResolver.getProperty("management.port", String.valueOf(nonSecurePort)));
 		String managementContextPath = propertyResolver.getProperty("management.contextPath", propertyResolver.getProperty("server.contextPath", "/"));
+		Integer jmxPort = propertyResolver.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(propertyResolver));
@@ -162,7 +163,19 @@ public class EurekaClientAutoConfiguration {
 			instance.setStatusPageUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getStatusPageUrlPath(), '/')).toString());
 			instance.setHealthCheckUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getHealthCheckUrlPath(), '/')).toString());
 		}
+		setupMetadataMap(instance, managementPort, jmxPort);
 		return instance;
+	}
+
+	private void setupMetadataMap(EurekaInstanceConfigBean instance, int managementPort,
+			Integer jmxPort) {
+		Map<String, String> metadataMap = instance.getMetadataMap();
+		if (metadataMap.get("management.port") == null && managementPort != 0) {
+			metadataMap.put("management.port", String.valueOf(managementPort));
+		}
+		if (metadataMap.get("jmx.port") == null && jmxPort != null) {
+			metadataMap.put("jmx.port", String.valueOf(jmxPort));
+		}
 	}
 
 	@Bean

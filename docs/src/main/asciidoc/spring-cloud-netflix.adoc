@@ -669,8 +669,9 @@ in order for the Hystrix Dashboard to make a successful connection to the stream
 
 Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
 
-NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `homePageUrl` entry in Eureka, then appending `/hystrix.stream` to it. This means that if `spring-boot-actuator` is running on its own port (which is the default), the call to `/hystrix.stream` will fail. 
-To make turbine find the Hystrix stream at the correct port, you need to add `management.port` to the instances' metadata: 
+NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `hostName` and `port` entries in Eureka, then appending `/hystrix.stream` to it.
+If the instance's metadata contains `management.port`, it will be used instead of the `port` value for the `/hystrix.stream` endpoint.
+By default, metadata entry `management.port` is equal to the `management.port` configuration property, it can be overridden though with following configuration:
 ----
 eureka:
   instance:
