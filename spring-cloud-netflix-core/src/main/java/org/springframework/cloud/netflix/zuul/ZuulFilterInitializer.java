@@ -22,13 +22,13 @@ import java.util.Map;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import lombok.extern.apachecommons.CommonsLog;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
-import com.netflix.zuul.monitoring.MonitoringHelper;
+
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * @author Spencer Gibb
@@ -48,9 +48,6 @@ public class ZuulFilterInitializer implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent sce) {
 
 		log.info("Starting filter initializer context listener");
-
-		// FIXME: mocks monitoring infrastructure as we don't need it for this simple app
-		MonitoringHelper.initMocks();
 
 		FilterRegistry registry = FilterRegistry.instance();
 
