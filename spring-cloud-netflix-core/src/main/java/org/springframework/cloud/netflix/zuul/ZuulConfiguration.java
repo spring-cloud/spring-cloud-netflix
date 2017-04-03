@@ -21,10 +21,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration;
@@ -198,7 +195,14 @@ public class ZuulConfiguration {
 	}
 
 	@Configuration
-	protected static class ZuulEmptyMetricsConfiguration {
+	protected static class ZuulMetricsConfiguration {
+
+		@ConditionalOnClass(CounterService.class)
+		@ConditionalOnBean(CounterService.class)
+		@Bean
+		public CounterFactory counterFactory(CounterService counterService) {
+			return new DefaultCounterFactory(counterService);
+		}
 
 		@ConditionalOnMissingBean(CounterFactory.class)
 		@Bean
@@ -210,18 +214,6 @@ public class ZuulConfiguration {
 		@Bean
 		public TracerFactory tracerFactory() {
 			return new EmptyTracerFactory();
-		}
-
-	}
-
-	@ConditionalOnClass(CounterService.class)
-	@Configuration
-	protected static class ZuulMetricsConfiguration {
-
-		@ConditionalOnBean(CounterService.class)
-		@Bean
-		public CounterFactory counterFactory(CounterService counterService) {
-			return new DefaultCounterFactory(counterService);
 		}
 
 	}
