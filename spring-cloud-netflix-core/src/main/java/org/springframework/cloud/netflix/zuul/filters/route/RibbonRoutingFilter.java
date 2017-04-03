@@ -111,7 +111,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
-		if (request.getContentLength() < 0) {
+		if (request.getContentLength() < 0 && !verb.equalsIgnoreCase("GET")) {
 			context.setChunkedRequestBody();
 		}
 

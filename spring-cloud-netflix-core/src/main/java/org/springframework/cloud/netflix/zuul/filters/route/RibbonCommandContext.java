@@ -21,36 +21,24 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author Spencer Gibb
  */
-@Data
-@RequiredArgsConstructor
-@AllArgsConstructor
 public class RibbonCommandContext {
-	@NonNull
 	private final String serviceId;
-	@NonNull
 	private final String method;
-	@NonNull
 	private final String uri;
 	private final Boolean retryable;
-	@NonNull
 	private final MultiValueMap<String, String> headers;
-	@NonNull
 	private final MultiValueMap<String, String> params;
 	private final InputStream requestEntity;
-	@NonNull
 	private final List<RibbonRequestCustomizer> requestCustomizers;
 	private Long contentLength;
 
@@ -63,6 +51,34 @@ public class RibbonCommandContext {
 			MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
 				new ArrayList<RibbonRequestCustomizer>(), null);
+	}
+
+	public RibbonCommandContext(String serviceId, String method, String uri,
+								Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity,
+								List<RibbonRequestCustomizer> requestCustomizers) {
+		this(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, null);
+	}
+
+	public RibbonCommandContext(String serviceId, String method, String uri,
+								Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity,
+								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
+		Assert.notNull(serviceId, "serviceId may not be null");
+		Assert.notNull(method, "method may not be null");
+		Assert.notNull(uri, "uri may not be null");
+		Assert.notNull(headers, "headers may not be null");
+		Assert.notNull(params, "params may not be null");
+		Assert.notNull(requestCustomizers, "requestCustomizers may not be null");
+		this.serviceId = serviceId;
+		this.method = method;
+		this.uri = uri;
+		this.retryable = retryable;
+		this.headers = headers;
+		this.params = params;
+		this.requestEntity = requestEntity;
+		this.requestCustomizers = requestCustomizers;
+		this.contentLength = contentLength;
 	}
 
 	public URI uri() {
@@ -82,5 +98,82 @@ public class RibbonCommandContext {
 	@Deprecated
 	public String getVerb() {
 		return this.method;
+	}
+
+	public String getServiceId() {
+		return serviceId;
+	}
+
+	public String getMethod() {
+		return method;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public Boolean getRetryable() {
+		return retryable;
+	}
+
+	public MultiValueMap<String, String> getHeaders() {
+		return headers;
+	}
+
+	public MultiValueMap<String, String> getParams() {
+		return params;
+	}
+
+	public InputStream getRequestEntity() {
+		return requestEntity;
+	}
+
+	public List<RibbonRequestCustomizer> getRequestCustomizers() {
+		return requestCustomizers;
+	}
+
+	public Long getContentLength() {
+		return contentLength;
+	}
+
+	public void setContentLength(Long contentLength) {
+		this.contentLength = contentLength;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		RibbonCommandContext that = (RibbonCommandContext) o;
+		return Objects.equals(serviceId, that.serviceId) &&
+				Objects.equals(method, that.method) &&
+				Objects.equals(uri, that.uri) &&
+				Objects.equals(retryable, that.retryable) &&
+				Objects.equals(headers, that.headers) &&
+				Objects.equals(params, that.params) &&
+				Objects.equals(requestEntity, that.requestEntity) &&
+				Objects.equals(requestCustomizers, that.requestCustomizers) &&
+				Objects.equals(contentLength, that.contentLength);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, contentLength);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("RibbonCommandContext{");
+		sb.append("serviceId='").append(serviceId).append('\'');
+		sb.append(", method='").append(method).append('\'');
+		sb.append(", uri='").append(uri).append('\'');
+		sb.append(", retryable=").append(retryable);
+		sb.append(", headers=").append(headers);
+		sb.append(", params=").append(params);
+		sb.append(", requestEntity=").append(requestEntity);
+		sb.append(", requestCustomizers=").append(requestCustomizers);
+		sb.append(", contentLength=").append(contentLength);
+		sb.append('}');
+		return sb.toString();
 	}
 }
