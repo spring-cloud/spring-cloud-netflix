@@ -17,53 +17,57 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import com.netflix.zuul.context.RequestContext;
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
+import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.http.client.ClientHttpResponse;
-import com.netflix.client.AbstractLoadBalancerAwareClient;
-import com.netflix.client.ClientRequest;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpResponse;
-import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.zuul.context.RequestContext;
+import com.netflix.hystrix.HystrixObservableCommand;
+import rx.Observable;
+import rx.functions.Func0;
+import rx.functions.Func1;
 
 import static org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory.getHystrixCommandPropertiesSetter;
 
 /**
- * @author Spencer Gibb
+ * @author Roman Terentiev
  */
-public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwareClient<RQ, RS>, RQ extends ClientRequest, RS extends HttpResponse>
-		extends HystrixCommand<ClientHttpResponse> implements RibbonCommand {
+public abstract class AbstractObservableRibbonCommand<LBC extends AbstractLoadBalancingClient<RQ, RS, ?>, RQ extends ContextAwareRequest, RS extends HttpResponse>
+		extends HystrixObservableCommand<ClientHttpResponse> implements RibbonCommand {
 
 	protected final LBC client;
 	protected RibbonCommandContext context;
 	protected ZuulFallbackProvider zuulFallbackProvider;
 	protected IClientConfig config;
 
-	public AbstractRibbonCommand(LBC client, RibbonCommandContext context,
-			ZuulProperties zuulProperties) {
+	public AbstractObservableRibbonCommand(LBC client, RibbonCommandContext context,
+										   ZuulProperties zuulProperties) {
 		this("default", client, context, zuulProperties);
 	}
 
-	public AbstractRibbonCommand(String commandKey, LBC client,
-			RibbonCommandContext context, ZuulProperties zuulProperties) {
+	public AbstractObservableRibbonCommand(String commandKey, LBC client,
+										   RibbonCommandContext context, ZuulProperties zuulProperties) {
 		this(commandKey, client, context, zuulProperties, null);
 	}
 
-	public AbstractRibbonCommand(String commandKey, LBC client,
-								 RibbonCommandContext context, ZuulProperties zuulProperties,
-								 ZuulFallbackProvider fallbackProvider) {
+	public AbstractObservableRibbonCommand(String commandKey, LBC client,
+										   RibbonCommandContext context, ZuulProperties zuulProperties,
+										   ZuulFallbackProvider fallbackProvider) {
 		this(commandKey, client, context, zuulProperties, fallbackProvider, null);
 	}
 
-	public AbstractRibbonCommand(String commandKey, LBC client,
-								 RibbonCommandContext context, ZuulProperties zuulProperties,
-								 ZuulFallbackProvider fallbackProvider, IClientConfig config) {
+	public AbstractObservableRibbonCommand(String commandKey, LBC client,
+										   RibbonCommandContext context, ZuulProperties zuulProperties,
+										   ZuulFallbackProvider fallbackProvider, IClientConfig config) {
 		super(getSetter(commandKey, zuulProperties));
 		this.client = client;
 		this.context = context;
@@ -78,41 +82,49 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	}
 
 	@Override
-	protected ClientHttpResponse run() throws Exception {
-		final RequestContext context = RequestContext.getCurrentContext();
+	protected Observable<ClientHttpResponse> construct() {
+		return Observable.defer(new Func0<Observable<ClientHttpResponse>>() {
 
-		RQ request = createRequest();
-		RS response = this.client.executeWithLoadBalancer(request, config);
+			@Override
+			public Observable<ClientHttpResponse> call() {
+				try {
+					RQ request = createRequest();
 
-		context.set("ribbonResponse", response);
-
-		// Explicitly close the HttpResponse if the Hystrix command timed out to
-		// release the underlying HTTP connection held by the response.
-		//
-		if (this.isResponseTimedOut()) {
-			if (response != null) {
-				response.close();
+					return client
+							.getExecutionWithLoadBalancerObservable(request, config)
+							.map(toClientHttpResponse());
+				} catch (Exception e) {
+					return Observable.error(e);
+				}
 			}
-		}
-
-		return new RibbonHttpResponse(response);
+		});
 	}
 
 	@Override
-	protected ClientHttpResponse getFallback() {
-		if(zuulFallbackProvider != null) {
-			return zuulFallbackProvider.fallbackResponse();
+	protected Observable<ClientHttpResponse> resumeWithFallback() {
+		if (zuulFallbackProvider != null) {
+			return Observable.just(zuulFallbackProvider.fallbackResponse());
 		}
-		return super.getFallback();
+
+		return super.resumeWithFallback();
 	}
 
-	public LBC getClient() {
-		return client;
-	}
-
-	public RibbonCommandContext getContext() {
+	protected RibbonCommandContext getContext() {
 		return context;
 	}
 
 	protected abstract RQ createRequest() throws Exception;
+
+	private Func1<RS, ClientHttpResponse> toClientHttpResponse() {
+		return new Func1<RS, ClientHttpResponse>() {
+
+			@Override
+			public ClientHttpResponse call(RS rs) {
+				RequestContext context = RequestContext.getCurrentContext();
+				context.set("ribbonResponse", rs);
+
+				return new RibbonHttpResponse(rs);
+			}
+		};
+	}
 }

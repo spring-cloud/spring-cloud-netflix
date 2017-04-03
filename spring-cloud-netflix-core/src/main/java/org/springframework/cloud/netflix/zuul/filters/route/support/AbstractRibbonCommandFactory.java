@@ -21,8 +21,13 @@ package org.springframework.cloud.netflix.zuul.filters.route.support;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import com.netflix.config.DynamicIntProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.zuul.constants.ZuulConstants;
 
 /**
  * @author Ryan Baxter
@@ -50,5 +55,23 @@ public abstract class AbstractRibbonCommandFactory implements RibbonCommandFacto
 			provider = defaultFallbackProvider;
 		}
 		return provider;
+	}
+
+	protected static HystrixCommandProperties.Setter getHystrixCommandPropertiesSetter(String commandKey,
+																					   ZuulProperties zuulProperties) {
+		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
+				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy());
+		if (zuulProperties.getRibbonIsolationStrategy() == HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE){
+			final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
+			// we want to default to semaphore-isolation since this wraps
+			// 2 others commands that are already thread isolated
+			final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
+					.getIntProperty(name, zuulProperties.getSemaphore().getMaxSemaphores());
+			setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
+		} else	{
+			// TODO Find out is some parameters can be set here
+		}
+
+		return setter;
 	}
 }

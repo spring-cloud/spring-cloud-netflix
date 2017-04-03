@@ -25,11 +25,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -37,11 +33,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertEquals;
 
@@ -58,10 +52,12 @@ public abstract class RibbonRetryIntegrationTestBase {
 	@Before
 	public void setup() {
 		RequestContext.getCurrentContext().clear();
-		String uri = "/resetError";
-		new TestRestTemplate().exchange(
+		String uri = "/reset";
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
+
+		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
 
@@ -72,6 +68,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertNumberOfRequests(2);
 	}
 
 	@Test
@@ -81,6 +78,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertNumberOfRequests(2);
 	}
 
 	@Test
@@ -90,6 +88,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertNumberOfRequests(2);
 	}
 
 	@Test
@@ -99,6 +98,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertNumberOfRequests(1);
 	}
 
 	@Test
@@ -109,6 +109,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				new HttpEntity<>((Void) null), String.class);
 		LOG.info("Response Body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertNumberOfRequests(1);
 	}
 
 	@Test
@@ -119,6 +120,33 @@ public abstract class RibbonRetryIntegrationTestBase {
 				new HttpEntity<>((Void) null), String.class);
 		LOG.info("Response Body: " + result.getBody());
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertNumberOfRequests(1);
+	}
+
+	@Test
+	public void stopRetryAfterHystixTimeout() throws InterruptedException {
+		String url = "http://localhost:" + this.port + "/stopretry/failbytimeout";
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				url, HttpMethod.GET, new HttpEntity<>((Void) null), String.class
+		);
+
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+
+		// Wait 1 second before asserting. If retry operation was not aborted, there should be more
+		// requests than expected
+		Thread.sleep(1000L);
+
+		// Ribbon timeout is 100ms. Hystrix timeout is 350ms. We should see 4 requests.
+		assertNumberOfRequests(4);
+	}
+
+	private void assertNumberOfRequests(int expected) {
+		String url;
+		url = "http://localhost:" + this.port + "/numberofrequests";
+		ResponseEntity<Integer> actual = new TestRestTemplate().exchange(
+				url, HttpMethod.GET, new HttpEntity<>((Void) null), Integer.class
+		);
+		assertEquals(expected, actual.getBody().intValue());
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -126,22 +154,20 @@ public abstract class RibbonRetryIntegrationTestBase {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
-	@RibbonClients({
-			@RibbonClient(name = "retryable", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "disableretry", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "globalretrydisabled", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "getretryable", configuration = RibbonClientConfiguration.class)})
 	public static class RetryableTestConfig {
 
-		private boolean error = true;
+		private volatile boolean error = true;
+		private volatile int numberOfRequests = 0;
 
-		@RequestMapping("/resetError")
-		public void resetError() {
+		@RequestMapping("/reset")
+		public void reset() {
 			error = true;
+			numberOfRequests = 0;
 		}
 
 		@RequestMapping("/everyothererror")
 		public ResponseEntity<String> timeout() {
+			numberOfRequests++;
 			boolean shouldError = error;
 			error = !error;
 			try {
@@ -161,18 +187,20 @@ public abstract class RibbonRetryIntegrationTestBase {
 			return timeout();
 		}
 
-	}
-
-	@Configuration
-	public static class RibbonClientConfiguration {
-
-		@Value("${local.server.port}")
-		private int port;
-
-		@Bean
-		public ServerList<Server> ribbonServerList() {
-			return new StaticServerList<>(new Server("localhost", this.port));
+		@RequestMapping("/numberofrequests")
+		public ResponseEntity<Integer> numberOfRequests() {
+			return new ResponseEntity<>(numberOfRequests, HttpStatus.OK);
 		}
 
+		@RequestMapping("/failbytimeout")
+		public ResponseEntity<String> failbytimeout() {
+			numberOfRequests++;
+			try {
+				Thread.sleep(80000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return new ResponseEntity<>("ok", HttpStatus.OK);
+		}
 	}
 }

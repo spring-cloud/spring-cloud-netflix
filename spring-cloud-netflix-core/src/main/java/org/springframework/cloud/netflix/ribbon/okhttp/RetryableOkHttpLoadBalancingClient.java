@@ -15,31 +15,20 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import java.io.IOException;
 import java.net.URI;
-import org.apache.commons.lang.BooleanUtils;
+import java.net.URISyntaxException;
+
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
-import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.http.HttpRequest;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.RetryContext;
-import org.springframework.retry.policy.NeverRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.RetryHandler;
+import org.springframework.cloud.netflix.ribbon.support.RetryableClientObservable;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
+import rx.Observable;
+import rx.functions.Func0;
 
 /**
  * An OK HTTP client which leverages Spring Retry to retry failed request.
@@ -55,66 +44,71 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
-	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request,
-													RetryCallback<OkHttpRibbonResponse, IOException> callback)
-			throws Exception {
-		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
-		RetryTemplate retryTemplate = new RetryTemplate();
-		boolean retryable = request.getContext() == null ? true :
-				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
-		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()
-				: new RetryPolicy(request, retryPolicy, this, this.getClientName()));
-		return retryTemplate.execute(callback);
+	@Override
+	public ServiceInstance choose(String serviceId) {
+		Server server = this.getLoadBalancer().chooseServer(serviceId);
+		return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
 	}
 
 	@Override
-	public OkHttpRibbonResponse execute(final OkHttpRibbonRequest ribbonRequest,
-										final IClientConfig configOverride) throws Exception {
-		return this.executeWithRetry(ribbonRequest, new RetryCallback() {
-			@Override
-			public OkHttpRibbonResponse doWithRetry(RetryContext context) throws Exception {
-				//on retries the policy will choose the server and set it in the context
-				//extract the server and update the request being made
-				OkHttpRibbonRequest newRequest = ribbonRequest;
-				if(context instanceof LoadBalancedRetryContext) {
-					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if(service != null) {
-						//Reconstruct the request URI using the host and port set in the retry context
-						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
-								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
-								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
-								newRequest.getURI().getFragment()));
-					}
-				}
-				if (isSecure(configOverride)) {
-					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
-							.scheme("https").build().toUri();
-					newRequest = newRequest.withNewUri(secureUri);
-				}
-				OkHttpClient httpClient = getOkHttpClient(configOverride, secure);
+	public OkHttpRibbonResponse execute(OkHttpRibbonRequest request, IClientConfig requestConfig) throws Exception {
+		try {
+			return Observable.create(new RetryableOkHttpClientExecutionObservable(request, requestConfig))
+					.toBlocking()
+					.single();
+		} catch (Exception e) {
+			Throwable t = e.getCause();
+			if (t instanceof IOException) {
+				throw (IOException) t;
+			} else {
+				throw new IOException(e);
+			}
+		}
+	}
 
-				final Request request = newRequest.toRequest();
-				Response response = httpClient.newCall(request).execute();
-				return new OkHttpRibbonResponse(response, newRequest.getUri());
+	@Override
+	public Observable<OkHttpRibbonResponse> getExecutionWithLoadBalancerObservable(final OkHttpRibbonRequest request,
+																				   final IClientConfig requestConfig) {
+		return Observable.defer(new Func0<Observable<OkHttpRibbonResponse>>() {
+
+			@Override
+			public Observable<OkHttpRibbonResponse> call() {
+				String serviceId = getClientName();
+				ServiceInstance service = choose(serviceId);
+				try {
+					OkHttpRibbonRequest newRequest = reconstruct(request, service);
+					return Observable.create(new RetryableOkHttpClientExecutionObservable(newRequest, requestConfig));
+				} catch (URISyntaxException e) {
+					return Observable.error(e);
+				}
 			}
 		});
 	}
 
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId,
-				server);
+	private OkHttpRibbonRequest reconstruct(OkHttpRibbonRequest request, ServiceInstance service)
+			throws URISyntaxException {
+		return request.withNewUri(new URI(service.getUri().getScheme(),
+				request.getURI().getUserInfo(), service.getHost(), service.getPort(),
+				request.getURI().getPath(), request.getURI().getQuery(),
+				request.getURI().getFragment()));
 	}
 
-	@Override
-	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(OkHttpRibbonRequest request, IClientConfig requestConfig) {
-		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
-	}
+	private class RetryableOkHttpClientExecutionObservable extends RetryableClientObservable<OkHttpRibbonRequest, OkHttpRibbonResponse> {
 
-	static class RetryPolicy extends FeignRetryPolicy {
-		public RetryPolicy(HttpRequest request, LoadBalancedRetryPolicy policy, ServiceInstanceChooser serviceInstanceChooser, String serviceName) {
-			super(request, policy, serviceInstanceChooser, serviceName);
+		public RetryableOkHttpClientExecutionObservable(OkHttpRibbonRequest request, IClientConfig requestConfig) {
+			super(clientName, RetryableOkHttpLoadBalancingClient.this, loadBalancedRetryPolicyFactory, request, requestConfig);
+		}
+
+		@Override
+		protected OkHttpRibbonRequest reconstruct(OkHttpRibbonRequest request, ServiceInstance service)
+				throws URISyntaxException {
+			return RetryableOkHttpLoadBalancingClient.this.reconstruct(request, service);
+		}
+
+		@Override
+		protected OkHttpRibbonResponse executeInternal(OkHttpRibbonRequest request, IClientConfig requestConfig)
+				throws Exception {
+			return RetryableOkHttpLoadBalancingClient.this.executeInternal(request, requestConfig);
 		}
 	}
 }
