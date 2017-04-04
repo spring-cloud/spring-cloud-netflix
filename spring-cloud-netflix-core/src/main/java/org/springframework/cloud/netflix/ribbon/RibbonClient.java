@@ -63,6 +63,6 @@ public @interface RibbonClient {
 	 *
 	 * @see RibbonClientConfiguration for the defaults
 	 */
-	Class<?>[] configuration() default {};
+	Class<?>[] configuration() default {RibbonClientConfiguration.class};
 
 }
