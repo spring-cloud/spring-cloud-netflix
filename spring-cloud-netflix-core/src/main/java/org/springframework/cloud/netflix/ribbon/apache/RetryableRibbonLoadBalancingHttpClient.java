@@ -29,6 +29,7 @@ import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.support.RetryableStatusCodeException;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
@@ -65,7 +66,8 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
-		return this.executeWithRetry(request, new RetryCallback() {
+		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+		RetryCallback retryCallback = new RetryCallback() {
 			@Override
 			public RibbonApacheHttpResponse doWithRetry(RetryContext context) throws Exception {
 				//on retries the policy will choose the server and set it in the context
@@ -88,13 +90,17 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				}
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
+				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
+					throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
+							httpResponse.getStatusLine().getStatusCode());
+				}
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}
-		});
+		};
+		return this.executeWithRetry(request, retryPolicy, retryCallback);
 	}
 
-	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, RetryCallback<RibbonApacheHttpResponse, IOException> callback) throws Exception {
-		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy, RetryCallback<RibbonApacheHttpResponse, IOException> callback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = request.getContext() == null ? true :
 				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);

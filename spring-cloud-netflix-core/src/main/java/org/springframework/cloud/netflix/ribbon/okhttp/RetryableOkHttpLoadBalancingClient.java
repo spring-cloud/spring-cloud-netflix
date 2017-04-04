@@ -19,7 +19,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.io.IOException;
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
@@ -30,6 +29,7 @@ import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.support.RetryableStatusCodeException;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
@@ -55,10 +55,9 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
-	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request,
-													RetryCallback<OkHttpRibbonResponse, IOException> callback)
+	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request, LoadBalancedRetryPolicy retryPolicy,
+													RetryCallback<OkHttpRibbonResponse, Exception> callback)
 			throws Exception {
-		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = request.getContext() == null ? true :
 				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
@@ -70,7 +69,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 	@Override
 	public OkHttpRibbonResponse execute(final OkHttpRibbonRequest ribbonRequest,
 										final IClientConfig configOverride) throws Exception {
-		return this.executeWithRetry(ribbonRequest, new RetryCallback() {
+		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+		RetryCallback<OkHttpRibbonResponse, Exception> retryCallback  = new RetryCallback<OkHttpRibbonResponse, Exception>() {
 			@Override
 			public OkHttpRibbonResponse doWithRetry(RetryContext context) throws Exception {
 				//on retries the policy will choose the server and set it in the context
@@ -95,9 +95,13 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 
 				final Request request = newRequest.toRequest();
 				Response response = httpClient.newCall(request).execute();
+				if(retryPolicy.retryableStatusCode(response.code())) {
+					throw new RetryableStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName, response.code());
+				}
 				return new OkHttpRibbonResponse(response, newRequest.getUri());
 			}
-		});
+		};
+		return this.executeWithRetry(ribbonRequest, retryPolicy, retryCallback);
 	}
 
 	@Override

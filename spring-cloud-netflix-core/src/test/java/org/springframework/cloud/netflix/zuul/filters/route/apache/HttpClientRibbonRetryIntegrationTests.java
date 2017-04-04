@@ -47,7 +47,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"disableretry.ribbon.MaxAutoRetriesNextServer: 1",
 		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
 		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
-		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1"
+		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1",
+		"retryable.ribbon.retryableStatusCodes: 404,403"
 })
 @DirtiesContext
 public class HttpClientRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {

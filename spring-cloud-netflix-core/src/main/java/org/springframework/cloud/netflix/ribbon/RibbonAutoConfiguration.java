@@ -90,12 +90,14 @@ public class RibbonAutoConfiguration {
 
 	@Bean
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnMissingBean
 	public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
 		return new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
 	}
 
 	@Bean
 	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnMissingBean
 	public LoadBalancedRetryPolicyFactory neverRetryPolicyFactory() {
 		return new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
 	}
