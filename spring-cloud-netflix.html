@@ -1183,6 +1183,18 @@ for details on the properties available.</p>
 </div>
 <div class="title">Figure 3. Hystrix Dashboard</div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hystrix_timeouts_and_ribbon_clients">Hystrix Timeouts And Ribbon Clients</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When using Hystrix commands that wrap Ribbon clients you want to make sure your Hystrix timeout
+is configured to be longer than the configured Ribbon timeout, including any potential
+retries that might be made.  For example, if your Ribbon connection timeout is one second and
+the Ribbon client might retry the request three times, than your Hystrix timeout should
+be slightly more than three seconds.</p>
+</div>
 <div class="sect2">
 <h3 id="netflix-hystrix-dashboard-starter">How to Include Hystrix Dashboard</h3>
 <div class="paragraph">
@@ -3782,6 +3794,22 @@ certain Ribbon properties.  The properties you can use are
 <code>client.ribbon.MaxAutoRetries</code>, <code>client.ribbon.MaxAutoRetriesNextServer</code>, and
 <code>client.ribbon.OkToRetryOnAllOperations</code>. See the <a href="https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties">Ribbon documentation</a>
 for a description of what there properties do.</p>
+</div>
+<div class="paragraph">
+<p>In addition you may want to retry requests when certain status codes are returned in the
+response.  You can list the response codes you would like the Ribbon client to retry using the
+ property <code>clientName.ribbon.retryableStatusCodes</code>.  For example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">clientName:
+  ribbon:
+    retryableStatusCodes: 404,502</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can also create a bean of type <code>LoadBalancedRetryPolicy</code> and implement the <code>retryableStatusCode</code>
+method to determine whether you want to retry a request given the status code.</p>
 </div>
 </div>
 <div class="sect3">
