@@ -25,8 +25,15 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +44,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.loadbalancer.Server;
@@ -68,6 +76,15 @@ public abstract class RibbonRetryIntegrationTestBase {
 	@Test
 	public void retryable() {
 		String uri = "/retryable/everyothererror";
+		ResponseEntity<String> result = new TestRestTemplate().exchange(
+				"http://localhost:" + this.port + uri, HttpMethod.GET,
+				new HttpEntity<>((Void) null), String.class);
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+	}
+
+	@Test
+	public void retryableFourOFour() {
+		String uri = "/retryable/404everyothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
@@ -161,6 +178,17 @@ public abstract class RibbonRetryIntegrationTestBase {
 			return timeout();
 		}
 
+		@RequestMapping("/404everyothererror")
+		@ResponseStatus(HttpStatus.NOT_FOUND)
+		public ResponseEntity<String> fourOFourError() {
+			boolean shouldError = error;
+			error = !error;
+				if(shouldError) {
+					return new ResponseEntity<String>("not found", HttpStatus.NOT_FOUND);
+				}
+			return new ResponseEntity<String>("no error", HttpStatus.OK);
+		}
+
 	}
 
 	@Configuration
@@ -173,6 +201,46 @@ public abstract class RibbonRetryIntegrationTestBase {
 		public ServerList<Server> ribbonServerList() {
 			return new StaticServerList<>(new Server("localhost", this.port));
 		}
+	}
 
+	@Configuration
+	public static class FourOFourRetryableRibbonConfiguration extends RibbonClientConfiguration {
+
+		@Bean
+		public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(SpringClientFactory factory) {
+			return new MyRibbonRetryPolicyFactory(factory);
+		}
+
+		public static class MyRibbonRetryPolicyFactory extends RibbonLoadBalancedRetryPolicyFactory {
+
+			private SpringClientFactory factory;
+
+			public MyRibbonRetryPolicyFactory(SpringClientFactory clientFactory) {
+				super(clientFactory);
+				this.factory = clientFactory;
+			}
+
+			@Override
+			public LoadBalancedRetryPolicy create(String serviceId, ServiceInstanceChooser loadBalanceChooser) {
+				RibbonLoadBalancerContext lbContext = this.factory
+						.getLoadBalancerContext(serviceId);
+				return new MyLoadBalancedRetryPolicy(serviceId, lbContext, loadBalanceChooser);
+			}
+
+			class MyLoadBalancedRetryPolicy extends RibbonLoadBalancedRetryPolicy {
+
+				public MyLoadBalancedRetryPolicy(String serviceId, RibbonLoadBalancerContext context, ServiceInstanceChooser loadBalanceChooser) {
+					super(serviceId, context, loadBalanceChooser);
+				}
+
+				@Override
+				public boolean retryableStatusCode( int statusCode) {
+					if(statusCode == HttpStatus.NOT_FOUND.value()) {
+						return true;
+					}
+					return super.retryableStatusCode(statusCode);
+				}
+			}
+		}
 	}
 }
