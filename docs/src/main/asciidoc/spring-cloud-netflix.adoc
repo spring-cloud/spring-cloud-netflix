@@ -605,6 +605,14 @@ One of the main benefits of Hystrix is the set of metrics it gathers about each 
 .Hystrix Dashboard
 image::Hystrix.png[]
 
+== Hystrix Timeouts And Ribbon Clients
+
+When using Hystrix commands that wrap Ribbon clients you want to make sure your Hystrix timeout
+is configured to be longer than the configured Ribbon timeout, including any potential
+retries that might be made.  For example, if your Ribbon connection timeout is one second and
+the Ribbon client might retry the request three times, than your Hystrix timeout should
+be slightly more than three seconds.
+
 
 [[netflix-hystrix-dashboard-starter]]
 === How to Include Hystrix Dashboard
