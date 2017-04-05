@@ -93,8 +93,8 @@ h3.sectionHeader {
 	color: brown;
 }
 
-dependencies .badRequest {
-	color: lightSeaGreen;
+.badRequest {
+	color: #00CC99;
 }
 
 @media screen and (max-width: 1100px) {

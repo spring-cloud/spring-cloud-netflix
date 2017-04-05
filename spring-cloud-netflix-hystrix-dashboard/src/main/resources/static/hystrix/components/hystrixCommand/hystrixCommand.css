@@ -126,8 +126,8 @@
 	color: red;	
 }
 
-dependencies .badRequest {
-	color: lightSeaGreen;
+.badRequest {
+	color: #00CC99;
 }
 
 .dependencies .rejected {
