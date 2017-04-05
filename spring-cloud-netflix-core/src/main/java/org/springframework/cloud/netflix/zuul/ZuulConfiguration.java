@@ -20,9 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration;
@@ -44,6 +43,9 @@ import org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.ServletDetectionFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
+import org.springframework.cloud.netflix.zuul.metrics.DefaultCounterFactory;
+import org.springframework.cloud.netflix.zuul.metrics.EmptyCounterFactory;
+import org.springframework.cloud.netflix.zuul.metrics.EmptyTracerFactory;
 import org.springframework.cloud.netflix.zuul.web.ZuulController;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
@@ -54,8 +56,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import com.netflix.zuul.FilterLoader;
+import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.http.ZuulServlet;
+import com.netflix.zuul.monitoring.CounterFactory;
+import com.netflix.zuul.monitoring.TracerFactory;
 
 /**
  * @author Spencer Gibb
@@ -179,8 +185,35 @@ public class ZuulConfiguration {
 		private Map<String, ZuulFilter> filters;
 
 		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer() {
-			return new ZuulFilterInitializer(this.filters);
+		public ZuulFilterInitializer zuulFilterInitializer(
+				CounterFactory counterFactory, TracerFactory tracerFactory) {
+			FilterLoader filterLoader = FilterLoader.getInstance();
+			FilterRegistry filterRegistry = FilterRegistry.instance();
+			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory, filterLoader, filterRegistry);
+		}
+
+	}
+
+	@Configuration
+	protected static class ZuulMetricsConfiguration {
+
+		@ConditionalOnClass(CounterService.class)
+		@ConditionalOnBean(CounterService.class)
+		@Bean
+		public CounterFactory counterFactory(CounterService counterService) {
+			return new DefaultCounterFactory(counterService);
+		}
+
+		@ConditionalOnMissingBean(CounterFactory.class)
+		@Bean
+		public CounterFactory counterFactory() {
+			return new EmptyCounterFactory();
+		}
+
+		@ConditionalOnMissingBean(TracerFactory.class)
+		@Bean
+		public TracerFactory tracerFactory() {
+			return new EmptyTracerFactory();
 		}
 
 	}
