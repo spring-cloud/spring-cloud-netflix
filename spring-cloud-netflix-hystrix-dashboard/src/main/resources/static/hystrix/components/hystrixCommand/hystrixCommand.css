@@ -126,6 +126,10 @@
 	color: red;	
 }
 
+.badRequest {
+	color: #00CC99;
+}
+
 .dependencies .rejected {
 	color: purple;
 }
