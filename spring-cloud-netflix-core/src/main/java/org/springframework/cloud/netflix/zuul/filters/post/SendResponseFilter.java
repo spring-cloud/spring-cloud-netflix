@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import lombok.extern.apachecommons.CommonsLog;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,7 +38,11 @@ import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
 
 /**
+ * Post {@link ZuulFilter} that writes responses from proxied requests to the current response.
+ *
  * @author Spencer Gibb
+ * @author Dave Syer
+ * @author Ryan Baxter
  */
 @CommonsLog
 public class SendResponseFilter extends ZuulFilter {
@@ -84,9 +89,11 @@ public class SendResponseFilter extends ZuulFilter {
 
 	@Override
 	public boolean shouldFilter() {
-		return !RequestContext.getCurrentContext().getZuulResponseHeaders().isEmpty()
-				|| RequestContext.getCurrentContext().getResponseDataStream() != null
-				|| RequestContext.getCurrentContext().getResponseBody() != null;
+		RequestContext context = RequestContext.getCurrentContext();
+		return context.getThrowable() == null
+				&& (!context.getZuulResponseHeaders().isEmpty()
+					|| context.getResponseDataStream() != null
+					|| context.getResponseBody() != null);
 	}
 
 	@Override
@@ -169,28 +176,33 @@ public class SendResponseFilter extends ZuulFilter {
 			}
 		}
 		finally {
+			/**
+			* Closing the wrapping InputStream itself has no effect on closing the underlying tcp connection since it's a wrapped stream. I guess for http
+			* keep-alive. When closing the wrapping stream it tries to reach the end of the current request, which is impossible for infinite http streams. So
+			* instead of closing the InputStream we close the HTTP response.
+			*
+			* @author Johannes Edmeier
+			*/
 			try {
-				if (is != null) {
-					is.close();
+				Object zuulResponse = RequestContext.getCurrentContext()
+						.get("zuulResponse");
+				if (zuulResponse instanceof Closeable) {
+					((Closeable) zuulResponse).close();
 				}
 				outStream.flush();
 				// The container will close the stream for us
 			}
 			catch (IOException ex) {
+				log.warn("Error while sending response to client: " + ex.getMessage());
 			}
 		}
 	}
 
 	private void writeResponse(InputStream zin, OutputStream out) throws Exception {
-		try {
-			byte[] bytes = buffers.get();
-			int bytesRead = -1;
-			while ((bytesRead = zin.read(bytes)) != -1) {
-				out.write(bytes, 0, bytesRead);
-			}
-		}
-		catch(IOException ioe) {
-			log.warn("Error while sending response to client: "+ioe.getMessage());
+		byte[] bytes = buffers.get();
+		int bytesRead = -1;
+		while ((bytesRead = zin.read(bytes)) != -1) {
+			out.write(bytes, 0, bytesRead);
 		}
 	}
 
