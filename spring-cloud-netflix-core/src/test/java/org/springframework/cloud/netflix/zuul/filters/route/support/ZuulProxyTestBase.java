@@ -37,7 +37,7 @@ import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorContro
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
+import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -88,7 +88,7 @@ public abstract class ZuulProxyTestBase {
 	protected DiscoveryClientRouteLocator routes;
 
 	@Autowired
-	protected RoutesEndpoint endpoint;
+	protected RoutesMvcEndpoint endpoint;
 
 	@Autowired
 	protected RibbonCommandFactory<?> ribbonCommandFactory;

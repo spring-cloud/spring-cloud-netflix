@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon.apache;
 import java.io.IOException;
 import java.net.URI;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
@@ -185,7 +187,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	private RetryableRibbonLoadBalancingHttpClient setupClientForRetry(int retriesNextServer, int retriesSameServer,
 															  boolean retryable, boolean retryOnAllOps,
 															  String serviceName, String host, int port,
-															  HttpClient delegate, ILoadBalancer lb) throws Exception {
+															  HttpClient delegate, ILoadBalancer lb, String statusCodes) throws Exception {
 		ServerIntrospector introspector = mock(ServerIntrospector.class);
 		RetryHandler retryHandler = new DefaultLoadBalancerRetryHandler(retriesSameServer, retriesNextServer, retryable);
 		doReturn(new Server(host, port)).when(lb).chooseServer(eq(serviceName));
@@ -193,10 +195,12 @@ public class RibbonLoadBalancingHttpClientTests {
 		clientConfig.set(CommonClientConfigKey.OkToRetryOnAllOperations, retryOnAllOps);
 		clientConfig.set(CommonClientConfigKey.MaxAutoRetriesNextServer, retriesNextServer);
 		clientConfig.set(CommonClientConfigKey.MaxAutoRetries, retriesSameServer);
+		clientConfig.set(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES, statusCodes);
 		clientConfig.setClientName(serviceName);
 		RibbonLoadBalancerContext context = new RibbonLoadBalancerContext(lb, clientConfig, retryHandler);
 		SpringClientFactory clientFactory = mock(SpringClientFactory.class);
 		doReturn(context).when(clientFactory).getLoadBalancerContext(eq(serviceName));
+		doReturn(clientConfig).when(clientFactory).getClientConfig(eq(serviceName));
 		LoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
 		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(clientConfig, introspector, factory);
 		client.setLoadBalancer(lb);
@@ -217,10 +221,13 @@ public class RibbonLoadBalancingHttpClientTests {
 		URI uri = new URI("http://" + host + ":" + port);
 		HttpClient delegate = mock(HttpClient.class);
 		final HttpResponse response = mock(HttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(response).getStatusLine();
 		doThrow(new IOException("boom")).doReturn(response).when(delegate).execute(any(HttpUriRequest.class));
 		ILoadBalancer lb = mock(ILoadBalancer.class);
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
-				serviceName, host, port, delegate, lb);
+				serviceName, host, port, delegate, lb, "");
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(uri).when(request).getURI();
 		doReturn(method).when(request).getMethod();
@@ -246,11 +253,14 @@ public class RibbonLoadBalancingHttpClientTests {
 		URI uri = new URI("http://" + host + ":" + port);
 		HttpClient delegate = mock(HttpClient.class);
 		final HttpResponse response = mock(HttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(response).getStatusLine();
 		doThrow(new IOException("boom")).doThrow(new IOException("boom again")).doReturn(response).
 				when(delegate).execute(any(HttpUriRequest.class));
 		ILoadBalancer lb = mock(ILoadBalancer.class);
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
-				serviceName, host, port, delegate, lb);
+				serviceName, host, port, delegate, lb, "");
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(uri).when(request).getURI();
 		doReturn(method).when(request).getMethod();
@@ -276,11 +286,14 @@ public class RibbonLoadBalancingHttpClientTests {
 		URI uri = new URI("http://" + host + ":" + port);
 		HttpClient delegate = mock(HttpClient.class);
 		final HttpResponse response = mock(HttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(response).getStatusLine();
 		doThrow(new IOException("boom")).doThrow(new IOException("boom again")).doReturn(response).
 				when(delegate).execute(any(HttpUriRequest.class));
 		ILoadBalancer lb = mock(ILoadBalancer.class);
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
-				serviceName, host, port, delegate, lb);
+				serviceName, host, port, delegate, lb, "");
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(method).when(request).getMethod();
 		doReturn(uri).when(request).getURI();
@@ -309,7 +322,7 @@ public class RibbonLoadBalancingHttpClientTests {
 				when(delegate).execute(any(HttpUriRequest.class));
 		ILoadBalancer lb = mock(ILoadBalancer.class);
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
-				serviceName, host, port, delegate, lb);
+				serviceName, host, port, delegate, lb, "");
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(method).when(request).getMethod();
 		doReturn(uri).when(request).getURI();
@@ -324,6 +337,42 @@ public class RibbonLoadBalancingHttpClientTests {
 			verify(delegate, times(1)).execute(any(HttpUriRequest.class));
 			verify(lb, times(0)).chooseServer(eq(serviceName));
 		}
+	}
+
+	@Test
+	public void testRetryOnStatusCode() throws Exception {
+		int retriesNextServer = 0;
+		int retriesSameServer = 1;
+		boolean retryable = true;
+		boolean retryOnAllOps = false;
+		String serviceName = "foo";
+		String host = serviceName;
+		int port = 80;
+		HttpMethod method = HttpMethod.GET;
+		URI uri = new URI("http://" + host + ":" + port);
+		HttpClient delegate = mock(HttpClient.class);
+		final HttpResponse response = mock(HttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(response).getStatusLine();
+		final HttpResponse fourOFourResponse = mock(HttpResponse.class);
+		StatusLine fourOFourStatusLine = mock(StatusLine.class);
+		doReturn(404).when(fourOFourStatusLine).getStatusCode();
+		doReturn(fourOFourStatusLine).when(fourOFourResponse).getStatusLine();
+		doReturn(fourOFourResponse).doReturn(response).when(delegate).execute(any(HttpUriRequest.class));
+		ILoadBalancer lb = mock(ILoadBalancer.class);
+		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
+				serviceName, host, port, delegate, lb, "404");
+		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+		doReturn(uri).when(request).getURI();
+		doReturn(method).when(request).getMethod();
+		doReturn(request).when(request).withNewUri(any(URI.class));
+		HttpUriRequest uriRequest = mock(HttpUriRequest.class);
+		doReturn(uri).when(uriRequest).getURI();
+		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
+		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
+		verify(delegate, times(2)).execute(any(HttpUriRequest.class));
+		verify(lb, times(0)).chooseServer(eq(serviceName));
 	}
 
 	@Configuration
@@ -395,8 +444,12 @@ public class RibbonLoadBalancingHttpClientTests {
 
 		ReflectionTestUtils.setField(client, "delegate", delegate);
 		ReflectionTestUtils.setField(client, "lb", loadBalancer);
+		HttpResponse httpResponse  = mock(HttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(httpResponse).getStatusLine();
 		given(delegate.execute(any(HttpUriRequest.class))).willReturn(
-				mock(HttpResponse.class));
+				httpResponse);
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(uri).when(request).getURI();
 		doReturn(request).when(request).withNewUri(any(URI.class));

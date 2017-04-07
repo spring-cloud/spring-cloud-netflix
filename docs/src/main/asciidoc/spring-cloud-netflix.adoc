@@ -605,6 +605,14 @@ One of the main benefits of Hystrix is the set of metrics it gathers about each 
 .Hystrix Dashboard
 image::Hystrix.png[]
 
+== Hystrix Timeouts And Ribbon Clients
+
+When using Hystrix commands that wrap Ribbon clients you want to make sure your Hystrix timeout
+is configured to be longer than the configured Ribbon timeout, including any potential
+retries that might be made.  For example, if your Ribbon connection timeout is one second and
+the Ribbon client might retry the request three times, than your Hystrix timeout should
+be slightly more than three seconds.
+
 
 [[netflix-hystrix-dashboard-starter]]
 === How to Include Hystrix Dashboard
@@ -1589,7 +1597,8 @@ If you are using `@EnableZuulProxy` with tha Spring Boot Actuator you
 will enable (by default) an additional endpoint, available via HTTP as
 `/routes`. A GET to this endpoint will return a list of the mapped
 routes. A POST will force a refresh of the existing routes (e.g. in
-case there have been changes in the service catalog).
+case there have been changes in the service catalog).  You can disable
+this endpoint by setting `endpoints.routes.enabled` to `false`.
 
 NOTE: the routes should respond automatically to changes in the
 service catalog, but the POST to /routes is a way to force the change
@@ -1892,6 +1901,10 @@ Route filters:
 ** Netflix Ribbon HTTP client. This is enabled by setting `ribbon.restclient.enabled=true`. This client has limitations, such as it doesn't support the PATCH method, but also has built-in retry.
 
 * `SimpleHostRoutingFilter`: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in `RequestContext.getRouteHost()`.
+
+==== Custom Zuul Filter examples
+
+Most of the following "How to Write" examples below are included https://github.com/spring-cloud-samples/sample-zuul-filters[Sample Zuul Filters] project. There are also examples of manipulating the request or response body in that repository.
 
 ==== How to Write a Pre Filter
 
@@ -2447,6 +2460,22 @@ certain Ribbon properties.  The properties you can use are
 `client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and
 `client.ribbon.OkToRetryOnAllOperations`. See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation]
 for a description of what there properties do.
+
+In addition you may want to retry requests when certain status codes are returned in the
+response.  You can list the response codes you would like the Ribbon client to retry using the
+ property `clientName.ribbon.retryableStatusCodes`.  For example
+
+[source,yaml]
+----
+clientName:
+  ribbon:
+    retryableStatusCodes: 404,502
+----
+
+You can also create a bean of type `LoadBalancedRetryPolicy` and implement the `retryableStatusCode`
+method to determine whether you want to retry a request given the status code.
+
+
 
 ==== Zuul
 

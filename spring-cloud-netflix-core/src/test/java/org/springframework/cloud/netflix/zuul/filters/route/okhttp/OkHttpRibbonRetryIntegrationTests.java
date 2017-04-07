@@ -36,6 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"zuul.routes.retryable: /retryable/**",
 		"zuul.routes.retryable.retryable: true",
 		"retryable.ribbon.OkToRetryOnAllOperations: true",
+		"retryable.ribbon.retryableStatusCodes: 404",
 		"retryable.ribbon.MaxAutoRetries: 1",
 		"retryable.ribbon.MaxAutoRetriesNextServer: 1",
 		"zuul.routes.getretryable: /getretryable/**",

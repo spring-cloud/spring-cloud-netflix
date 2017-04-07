@@ -22,7 +22,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
+import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -59,7 +59,7 @@ public class PatternServiceRouteMapperIntegrationTests {
 	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
-	private RoutesEndpoint endpoint;
+	private RoutesMvcEndpoint endpoint;
 
 	@Before
 	public void setTestRequestcontext() {

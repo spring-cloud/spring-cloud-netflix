@@ -29,6 +29,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.support.RetryableStatusCodeException;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.policy.NeverRetryPolicy;
@@ -69,7 +70,7 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
 		}
-		LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		RetryTemplate retryTemplate = new RetryTemplate();
 		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
 				: new FeignRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
@@ -89,6 +90,9 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 					feignRequest = request.toRequest();
 				}
 				Response response = request.client().execute(feignRequest, options);
+				if(retryPolicy.retryableStatusCode(response.status())) {
+					throw new RetryableStatusCodeException(RetryableFeignLoadBalancer.this.getClientName(), response.status());
+				}
 				return new RibbonResponse(request.getUri(), response);
 			}
 		});

@@ -248,7 +248,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 
 	private String getUrl(Map<String, Object> attributes) {
 		String url = resolve((String) attributes.get("url"));
-		if (StringUtils.hasText(url) && !(url.startsWith("#{") && url.endsWith("}"))) {
+		if (StringUtils.hasText(url) && !(url.startsWith("#{") && url.contains("}"))) {
 			if (!url.contains("://")) {
 				url = "http://" + url;
 			}

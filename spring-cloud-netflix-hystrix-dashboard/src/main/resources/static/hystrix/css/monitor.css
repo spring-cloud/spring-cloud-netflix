@@ -93,6 +93,10 @@ h3.sectionHeader {
 	color: brown;
 }
 
+.badRequest {
+	color: #00CC99;
+}
+
 @media screen and (max-width: 1100px) {
 	.container {
 		padding-left: 5px;

@@ -66,7 +66,7 @@ public class SimpleZuulProxyApplicationTests {
 	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
-	private RoutesEndpoint endpoint;
+	private RoutesMvcEndpoint endpoint;
 
 	@Before
 	public void setTestRequestContext() {

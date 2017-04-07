@@ -86,6 +86,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         doReturn(nextServer).when(config).getPropertyAsInteger(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
         doReturn(retryOnAllOps).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), anyBoolean());
         doReturn(retryOnAllOps).when(config).getPropertyAsBoolean(eq(CommonClientConfigKey.OkToRetryOnAllOperations), anyBoolean());
+        doReturn("").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
         doReturn(server.getServiceId()).when(config).getClientName();
         doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
         clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
@@ -97,6 +98,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
         assertThat(policy.canRetryNextServer(context), is(true));
         assertThat(policy.canRetrySameServer(context), is(false));
+        assertThat(policy.retryableStatusCode(400), is(false));
     }
 
     @Test
@@ -112,6 +114,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         doReturn(nextServer).when(config).getPropertyAsInteger(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
         doReturn(retryOnAllOps).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), anyBoolean());
         doReturn(retryOnAllOps).when(config).getPropertyAsBoolean(eq(CommonClientConfigKey.OkToRetryOnAllOperations), anyBoolean());
+        doReturn("").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
         doReturn(server.getServiceId()).when(config).getClientName();
         doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
         clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
@@ -123,6 +126,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
         assertThat(policy.canRetryNextServer(context), is(false));
         assertThat(policy.canRetrySameServer(context), is(false));
+        assertThat(policy.retryableStatusCode(400), is(false));
     }
 
     @Test
@@ -138,6 +142,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         doReturn(nextServer).when(config).getPropertyAsInteger(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
         doReturn(retryOnAllOps).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), anyBoolean());
         doReturn(retryOnAllOps).when(config).getPropertyAsBoolean(eq(CommonClientConfigKey.OkToRetryOnAllOperations), anyBoolean());
+        doReturn("").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
         doReturn(server.getServiceId()).when(config).getClientName();
         doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
         clientFactory.getLoadBalancerContext(server.getServiceId()).initWithNiwsConfig(config);
@@ -149,6 +154,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
         assertThat(policy.canRetryNextServer(context), is(true));
         assertThat(policy.canRetrySameServer(context), is(true));
+        assertThat(policy.retryableStatusCode(400), is(false));
     }
 
     @Test
@@ -161,6 +167,7 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
         doReturn(nextServer).when(config).get(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
         doReturn(false).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), eq(false));
         doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
+        doReturn("").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
         clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
         RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
         RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
@@ -189,7 +196,30 @@ public class RibbonLoadBalancedRetryPolicyFactoryTest {
             }
         }
         assertThat(context.isExhaustedOnly(), is(true));
+        assertThat(policy.retryableStatusCode(400), is(false));
         verify(context, times(4)).setServiceInstance(any(ServiceInstance.class));
+    }
+
+    @Test
+    public void testRetryableStatusCodest() throws Exception {
+        int sameServer = 3;
+        int nextServer = 3;
+        RibbonServer server = getRibbonServer();
+        IClientConfig config = mock(IClientConfig.class);
+        doReturn(sameServer).when(config).get(eq(CommonClientConfigKey.MaxAutoRetries), anyInt());
+        doReturn(nextServer).when(config).get(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
+        doReturn(false).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), eq(false));
+        doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
+        doReturn("404,502,foo, ,").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
+        clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
+        RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+        RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
+        LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+        HttpRequest request = mock(HttpRequest.class);
+        doReturn(HttpMethod.GET).when(request).getMethod();
+        assertThat(policy.retryableStatusCode(400), is(false));
+        assertThat(policy.retryableStatusCode(404), is(true));
+        assertThat(policy.retryableStatusCode(502), is(true));
     }
 
     protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(

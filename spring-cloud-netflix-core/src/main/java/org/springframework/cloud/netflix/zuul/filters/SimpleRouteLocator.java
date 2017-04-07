@@ -199,7 +199,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 			// do nothing
 		}
 
-		log.debug("adjustedPath=" + path);
+		log.debug("adjustedPath=" + adjustedPath);
 		return adjustedPath;
 	}
 
