@@ -36,12 +36,12 @@
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
-            <exclusions>
+            <!--<exclusions>
 				<exclusion>
 					<groupId>commons-logging</groupId>
 					<artifactId>commons-logging</artifactId>
 				</exclusion>
-			</exclusions>
+			</exclusions>-->
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

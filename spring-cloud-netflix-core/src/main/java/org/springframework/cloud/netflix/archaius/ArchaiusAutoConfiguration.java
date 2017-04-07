@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.archaius;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
@@ -35,6 +36,7 @@ import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -70,12 +72,6 @@ public class ArchaiusAutoConfiguration {
 
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
-	@Autowired
-	private ConfigurableEnvironment env;
-
-	@Autowired(required = false)
-	private List<AbstractConfiguration> externalConfigurations = new ArrayList<>();
-
 	@PreDestroy
 	public void close() {
 		setStatic(ConfigurationManager.class, "instance", null);
@@ -87,10 +83,12 @@ public class ArchaiusAutoConfiguration {
 	}
 
 	@Bean
-	public ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration() {
-		ConfigurableEnvironmentConfiguration envConfig = new ConfigurableEnvironmentConfiguration(
-				this.env);
-		configureArchaius(envConfig);
+	public static ConfigurableEnvironmentConfiguration configurableEnvironmentConfiguration(ConfigurableEnvironment env,
+																							ApplicationContext context) {
+		Map<String, AbstractConfiguration> abstractConfigurationMap = context.getBeansOfType(AbstractConfiguration.class);
+		List<AbstractConfiguration> externalConfigurations = new ArrayList<>(abstractConfigurationMap.values());
+		ConfigurableEnvironmentConfiguration envConfig = new ConfigurableEnvironmentConfiguration(env);
+		configureArchaius(envConfig, env, externalConfigurations);
 		return envConfig;
 	}
 
@@ -130,9 +128,9 @@ public class ArchaiusAutoConfiguration {
 		}
 	}
 
-	protected void configureArchaius(ConfigurableEnvironmentConfiguration envConfig) {
+	protected static void configureArchaius(ConfigurableEnvironmentConfiguration envConfig, ConfigurableEnvironment env, List<AbstractConfiguration> externalConfigurations) {
 		if (initialized.compareAndSet(false, true)) {
-			String appName = this.env.getProperty("spring.application.name");
+			String appName = env.getProperty("spring.application.name");
 			if (appName == null) {
 				appName = "application";
 				log.warn("No spring.application.name found, defaulting to 'application'");
@@ -143,8 +141,8 @@ public class ArchaiusAutoConfiguration {
 
 			// support to add other Configurations (Jdbc, DynamoDb, Zookeeper, jclouds,
 			// etc...)
-			if (this.externalConfigurations != null) {
-				for (AbstractConfiguration externalConfig : this.externalConfigurations) {
+			if (externalConfigurations != null) {
+				for (AbstractConfiguration externalConfig : externalConfigurations) {
 					config.addConfiguration(externalConfig);
 				}
 			}
@@ -184,7 +182,7 @@ public class ArchaiusAutoConfiguration {
 		}
 	}
 
-	private void addArchaiusConfiguration(ConcurrentCompositeConfiguration config) {
+	private static void addArchaiusConfiguration(ConcurrentCompositeConfiguration config) {
 		if (ConfigurationManager.isConfigurationInstalled()) {
 			AbstractConfiguration installedConfiguration = ConfigurationManager
 					.getConfigInstance();
