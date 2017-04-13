@@ -63,8 +63,8 @@ public class PrivatePartialAccessFilter extends ZuulFilter {
             return false;
         }
         String key = getKey(request.getServletPath().split("/"));
-        Optional<ZuulProperties.ZuulRoute> accessLevel = Optional.ofNullable(properties.getRoutes().get(key));
-        return accessLevel.filter(zuulRoute -> "partial-private".equals(zuulRoute.getSecureAccessLevel())).isPresent();
+        ZuulProperties.ZuulRoute accessLevel = properties.getRoutes().get(key);
+        return accessLevel != null && "partial-private".equals(accessLevel.getSecureAccessLevel());
     }
 
     @Override

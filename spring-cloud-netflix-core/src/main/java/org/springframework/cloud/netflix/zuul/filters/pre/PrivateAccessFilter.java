@@ -58,8 +58,8 @@ public class PrivateAccessFilter extends ZuulFilter {
             return false;
         }
         String key = getKey(request.getServletPath().split("/"));
-        Optional<ZuulProperties.ZuulRoute> accessLevel = Optional.ofNullable(properties.getRoutes().get(key));
-        return accessLevel.filter(zuulRoute -> "private".equals(zuulRoute.getSecureAccessLevel())).isPresent();
+        ZuulProperties.ZuulRoute accessLevel = properties.getRoutes().get(key);
+        return accessLevel != null && "private".equals(accessLevel.getSecureAccessLevel());
     }
 
     @Override
