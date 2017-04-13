@@ -53,6 +53,21 @@ zuul:
     stores:
       url: http://localhost:8081
       path: /stores/**
+    machine:
+      path: /machine/**
+      secure-access-level: partial-exposed
+    machine-without-config:
+      path: /machine-without-config/**
+      secure-access-level: partial-exposed
+    book:
+      path: /book/**
+      secure-access-level: partial-private
+    book-without-config:
+      path: /book-without-config/**
+      secure-access-level: partial-private
+    reservation:
+      path: /reservation/**
+      secure-access-level: private
 hystrix:
   shareSecurityContext: true
 feignClient:
@@ -65,3 +80,11 @@ security:
   user:
     username: user
     password: password
+partial-exposed:
+  paths:
+    machine:
+        - /machine/api
+partial-private:
+  paths:
+    book:
+        - /book/api

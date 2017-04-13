@@ -40,6 +40,7 @@ import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStr
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Mathias Düsterhöft
+ * @author Kevin Van Houtte
  */
 @Data
 @ConfigurationProperties("zuul")
@@ -209,6 +210,11 @@ public class ZuulProperties {
 		 * a service, but not both.
 		 */
 		private String serviceId;
+
+		/**
+		 * Authentication Access to the route downstream: partial-exposed,partial-private,private or none
+		 */
+		private String secureAccessLevel;
 
 		/**
 		 * A full physical URL to map to the route. An alternative is to use a service ID
