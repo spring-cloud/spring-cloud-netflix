@@ -144,7 +144,8 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
 				retryable,
-				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null);
+				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null, 
+				this.properties.isStripPrefix() || route.isStripPrefix());
 	}
 
 	/**
