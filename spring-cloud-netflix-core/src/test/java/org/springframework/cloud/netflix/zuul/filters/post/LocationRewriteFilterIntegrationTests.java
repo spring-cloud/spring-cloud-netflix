@@ -31,7 +31,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -68,7 +67,6 @@ public class LocationRewriteFilterIntegrationTests {
 		String url = "http://localhost:" + port + "/service/redirectingUri";
 		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
 				String.class);
-		System.out.println("response1 = " + response);
 		List<String> locationHeaders = response.getHeaders().get("Location");
 
 		assertThat(locationHeaders).hasSize(1);
@@ -92,8 +90,8 @@ public class LocationRewriteFilterIntegrationTests {
 		}
 
 		@Bean
-		public LocationRewriteFilter locationRewriteFilter(RouteLocator routeLocator) {
-			return new LocationRewriteFilter(routeLocator);
+		public LocationRewriteFilter locationRewriteFilter() {
+			return new LocationRewriteFilter();
 		}
 
 	}

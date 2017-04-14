@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import lombok.Data;
 public class Route {
 
 	public Route(String id, String path, String location, String prefix,
-			Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
+			Boolean retryable, Set<String> ignoredHeaders) {
 		this.id = id;
 		this.prefix = StringUtils.hasText(prefix) ? prefix : "";
 		this.path = path;
@@ -41,6 +41,11 @@ public class Route {
 				this.sensitiveHeaders.add(header.toLowerCase());
 			}
 		}
+	}
+	
+	public Route(String id, String path, String location, String prefix,
+		Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
+		this(id, path, location, prefix, retryable, ignoredHeaders);
 		this.prefixStripped = prefixStripped;
 	}
 
@@ -60,7 +65,7 @@ public class Route {
 
 	private boolean customSensitiveHeaders;
 	
-	private boolean prefixStripped;
+	private boolean prefixStripped = true;
 
 	public boolean isCustomSensitiveHeaders() {
 		return this.customSensitiveHeaders;

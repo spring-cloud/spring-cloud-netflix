@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class ZuulHandlerMappingTests {
 	@Test
 	public void mappedPath() throws Exception {
 		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
-				.singletonList(new Route("foo", "/foo/**", "foo", "", null, null, true)));
+				.singletonList(new Route("foo", "/foo/**", "foo", "", null, null)));
 		this.request.setServletPath("/foo/");
 		this.mapping.setDirty(true);
 		assertNotNull(this.mapping.getHandler(this.request));
@@ -64,7 +64,7 @@ public class ZuulHandlerMappingTests {
 	@Test
 	public void defaultPath() throws Exception {
 		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
-				.singletonList(new Route("default", "/**", "foo", "", null, null, true)));
+				.singletonList(new Route("default", "/**", "foo", "", null, null)));
 		;
 		this.request.setServletPath("/");
 		this.mapping.setDirty(true);
@@ -74,7 +74,7 @@ public class ZuulHandlerMappingTests {
 	@Test
 	public void errorPath() throws Exception {
 		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
-				.singletonList(new Route("default", "/**", "foo", "", null, null, true)));
+				.singletonList(new Route("default", "/**", "foo", "", null, null)));
 		this.request.setServletPath("/error");
 		this.mapping.setDirty(true);
 		assertNull(this.mapping.getHandler(this.request));

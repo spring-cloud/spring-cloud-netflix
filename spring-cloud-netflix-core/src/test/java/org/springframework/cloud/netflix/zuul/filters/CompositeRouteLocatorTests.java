@@ -61,7 +61,7 @@ public class CompositeRouteLocatorTests {
 	}
 
 	private Route createRoute(String id, String path) {
-		return new Route(id, path, null, null, false, Collections.<String>emptySet(), true);
+		return new Route(id, path, null, null, false, Collections.<String>emptySet());
 	}
 
 	private static class TestRouteLocator implements RouteLocator {

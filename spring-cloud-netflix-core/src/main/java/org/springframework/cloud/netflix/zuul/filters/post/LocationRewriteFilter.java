@@ -19,10 +19,13 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import com.netflix.util.Pair;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UrlPathHelper;
@@ -40,12 +43,22 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 public class LocationRewriteFilter extends ZuulFilter {
 
 	private final UrlPathHelper urlPathHelper = new UrlPathHelper();
-	private final RouteLocator routeLocator;
+
+	@Autowired
+	private ZuulProperties zuulProperties;
+
+	@Autowired
+	private RouteLocator routeLocator;
 
 	private static final String LOCATION_HEADER = "Location";
 
-	public LocationRewriteFilter(RouteLocator routeLocator) {
+	public LocationRewriteFilter() {
+	}
+
+	public LocationRewriteFilter(ZuulProperties zuulProperties,
+			RouteLocator routeLocator) {
 		this.routeLocator = routeLocator;
+		this.zuulProperties = zuulProperties;
 	}
 
 	@Override
@@ -84,9 +97,8 @@ public class LocationRewriteFilter extends ZuulFilter {
 
 				UriComponents redirectedUriComps = redirectedUriBuilder.build();
 
-				String newPath = route.isPrefixStripped()
-						? "/" + route.getPrefix() + "/" + redirectedUriComps.getPath()
-						: redirectedUriComps.getPath();
+				String newPath = getRestoredPath(this.zuulProperties, route,
+						redirectedUriComps);
 
 				String modifiedLocation = redirectedUriBuilder
 						.scheme(originalRequestUri.getScheme())
@@ -98,6 +110,33 @@ public class LocationRewriteFilter extends ZuulFilter {
 			}
 		}
 		return null;
+	}
+
+	private String getRestoredPath(ZuulProperties zuulProperties, Route route,
+			UriComponents redirectedUriComps) {
+		StringBuilder path = new StringBuilder();
+		String redirectedPathWithoutGlobal = hasGlobalPrefix(zuulProperties)
+				? redirectedUriComps.getPath()
+						.substring(("/" + zuulProperties.getPrefix()).length())
+				: redirectedUriComps.getPath();
+		if (hasGlobalPrefix(zuulProperties)) {
+			path.append("/" + zuulProperties.getPrefix());
+		}
+		else {
+			path.append(zuulProperties.isStripPrefix()
+					&& StringUtils.hasText(zuulProperties.getPrefix())
+							? "/" + zuulProperties.getPrefix() : "");
+		}
+
+		path.append(route.isPrefixStripped() ? "/" + route.getPrefix() : "")
+				.append(redirectedPathWithoutGlobal);
+
+		return path.toString();
+	}
+
+	private boolean hasGlobalPrefix(ZuulProperties zuulProperties) {
+		return (!zuulProperties.isStripPrefix()
+				&& StringUtils.hasText(zuulProperties.getPrefix()));
 	}
 
 	private Pair<String, String> locationHeader(RequestContext ctx) {
