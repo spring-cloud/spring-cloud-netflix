@@ -10,3 +10,7 @@ sample-pages
 spring-cloud-*/
 target/
 docs/
+*.iml
+*.ipr
+*.iws
+.shelf
