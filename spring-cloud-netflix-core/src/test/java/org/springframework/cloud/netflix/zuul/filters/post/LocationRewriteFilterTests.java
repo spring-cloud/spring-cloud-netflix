@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.monitoring.MonitoringHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -40,52 +39,73 @@ import static org.mockito.Mockito.when;
 
 public class LocationRewriteFilterTests {
 
+	private final String ZUUL_HOST = "myzuul.com";
+	private final String ZUUL_SCHEME = "https";
+	private final int ZUUL_PORT = 8443;
+	private final String ZUUL_BASE_URL = String.format("%s://%s:%d", ZUUL_SCHEME,
+			ZUUL_HOST, ZUUL_PORT);
+
+	private final String SERVER_HOST = "someserver.com";
+	private final String SERVER_SCHEME = "http";
+	private final int SERVER_PORT = 8564;
+	private final String SERVER_BASE_URL = String.format("%s://%s:%d", SERVER_SCHEME,
+			SERVER_HOST, SERVER_PORT);
+
 	@Before
 	public void before() {
-		MonitoringHelper.initMocks();
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
 
 	@Test
-	public void shouldRewriteLocationHeadersWithPrefixIfForwardedWithNoPrefix() {
+	public void shouldRewriteLocationHeadersWithRoutePrefix() {
 		RequestContext context = RequestContext.getCurrentContext();
 		ZuulProperties zuulProperties = new ZuulProperties();
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/redirectingUri", "service1", "prefix", false,
 						Collections.EMPTY_SET, true),
-				"/prefix/redirectingUri", "/redirectingUri",
-				"/redirectedUri;someparam?param1=abc");
+				"/prefix/redirectingUri", "/redirectedUri;someparam?param1=abc");
 		filter.run();
-		assertThat(getLocationHeader(context).second()).isEqualTo(
-				"https://myzuul.com:8443/prefix/redirectedUri;someparam?param1=abc");
+		assertThat(getLocationHeader(context).second()).isEqualTo(String
+				.format("%s/prefix/redirectedUri;someparam?param1=abc", ZUUL_BASE_URL));
 	}
 
 	@Test
 	public void shouldBeUntouchedIfNoRoutesFound() {
 		RequestContext context = RequestContext.getCurrentContext();
 		ZuulProperties zuulProperties = new ZuulProperties();
-		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
-			null,
-			"/prefix/redirectingUri", "/redirectingUri",
-			"/redirectedUri;someparam?param1=abc");
+		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties, null,
+				"/prefix/redirectingUri", "/redirectedUri;someparam?param1=abc");
 		filter.run();
 		assertThat(getLocationHeader(context).second()).isEqualTo(
-			"http://some.server.com:8564/redirectedUri;someparam?param1=abc");
+				String.format("%s/redirectedUri;someparam?param1=abc", SERVER_BASE_URL));
 	}
 
 	@Test
-	public void shouldRewriteLocationHeadersNoAdditionalPrefixIfPrefixIsNotStripped() {
+	public void shouldRewriteLocationHeadersIfPrefixIsNotStripped() {
 		RequestContext context = RequestContext.getCurrentContext();
 		ZuulProperties zuulProperties = new ZuulProperties();
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "prefix",
 						false, Collections.EMPTY_SET, false),
-				"/prefix/redirectingUri", "/redirectingUri",
+				"/prefix/redirectingUri",
 				"/something/redirectedUri;someparam?param1=abc");
 		filter.run();
-		assertThat(getLocationHeader(context).second()).isEqualTo(
-				"https://myzuul.com:8443/something/redirectedUri;someparam?param1=abc");
+		assertThat(getLocationHeader(context).second()).isEqualTo(String.format(
+				"%s/something/redirectedUri;someparam?param1=abc", ZUUL_BASE_URL));
+	}
+
+	@Test
+	public void shouldRewriteLocationHeadersIfPrefixIsEmpty() {
+		RequestContext context = RequestContext.getCurrentContext();
+		ZuulProperties zuulProperties = new ZuulProperties();
+		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
+				new Route("service1", "/something/redirectingUri", "service1", "", false,
+						Collections.EMPTY_SET, true),
+				"/redirectingUri", "/something/redirectedUri;someparam?param1=abc");
+		filter.run();
+		assertThat(getLocationHeader(context).second()).isEqualTo(String.format(
+				"%s/something/redirectedUri;someparam?param1=abc", ZUUL_BASE_URL));
 	}
 
 	@Test
@@ -97,11 +117,12 @@ public class LocationRewriteFilterTests {
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "prefix",
 						false, Collections.EMPTY_SET, true),
-				"/global/prefix/redirectingUri", "/redirectingUri",
+				"/global/prefix/redirectingUri",
 				"/something/redirectedUri;someparam?param1=abc");
 		filter.run();
-		assertThat(getLocationHeader(context).second()).isEqualTo(
-				"https://myzuul.com:8443/global/prefix/something/redirectedUri;someparam?param1=abc");
+		assertThat(getLocationHeader(context).second()).isEqualTo(String.format(
+				"%s/global/prefix/something/redirectedUri;someparam?param1=abc",
+				ZUUL_BASE_URL));
 	}
 
 	@Test
@@ -113,26 +134,27 @@ public class LocationRewriteFilterTests {
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "prefix",
 						false, Collections.EMPTY_SET, true),
-				"/global/prefix/redirectingUri", "/global/redirectingUri",
+				"/global/prefix/redirectingUri",
 				"/global/something/redirectedUri;someparam?param1=abc");
 		filter.run();
-		assertThat(getLocationHeader(context).second()).isEqualTo(
-				"https://myzuul.com:8443/global/prefix/something/redirectedUri;someparam?param1=abc");
+		assertThat(getLocationHeader(context).second()).isEqualTo(String.format(
+				"%s/global/prefix/something/redirectedUri;someparam?param1=abc",
+				ZUUL_BASE_URL));
 	}
 
 	private LocationRewriteFilter setFilterUpWith(RequestContext context,
 			ZuulProperties zuulProperties, Route route, String toZuulRequestUri,
-			String toServerRequestUri, String redirectedUri) {
+			String redirectedUri) {
 		MockHttpServletRequest httpServletRequest = new MockHttpServletRequest();
 		httpServletRequest.setRequestURI(toZuulRequestUri);
-		httpServletRequest.setServerName("myzuul.com");
-		httpServletRequest.setScheme("https");
-		httpServletRequest.setServerPort(8443);
+		httpServletRequest.setServerName(ZUUL_HOST);
+		httpServletRequest.setScheme(ZUUL_SCHEME);
+		httpServletRequest.setServerPort(ZUUL_PORT);
 		context.setRequest(httpServletRequest);
 
 		MockHttpServletResponse httpServletResponse = new MockHttpServletResponse();
-		context.getZuulResponseHeaders().add(
-				new Pair<>("Location", "http://some.server.com:8564" + redirectedUri));
+		context.getZuulResponseHeaders().add(new Pair<>("Location",
+				String.format("%s%s", SERVER_BASE_URL, redirectedUri)));
 		context.setResponse(httpServletResponse);
 
 		RouteLocator routeLocator = mock(RouteLocator.class);

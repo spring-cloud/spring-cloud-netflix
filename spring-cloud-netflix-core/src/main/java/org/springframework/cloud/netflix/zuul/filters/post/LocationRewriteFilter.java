@@ -115,28 +115,36 @@ public class LocationRewriteFilter extends ZuulFilter {
 	private String getRestoredPath(ZuulProperties zuulProperties, Route route,
 			UriComponents redirectedUriComps) {
 		StringBuilder path = new StringBuilder();
-		String redirectedPathWithoutGlobal = hasGlobalPrefix(zuulProperties)
+		String redirectedPathWithoutGlobal = downstreamHasGlobalPrefix(zuulProperties)
 				? redirectedUriComps.getPath()
 						.substring(("/" + zuulProperties.getPrefix()).length())
 				: redirectedUriComps.getPath();
-		if (hasGlobalPrefix(zuulProperties)) {
+
+		if (downstreamHasGlobalPrefix(zuulProperties)) {
 			path.append("/" + zuulProperties.getPrefix());
 		}
 		else {
-			path.append(zuulProperties.isStripPrefix()
-					&& StringUtils.hasText(zuulProperties.getPrefix())
-							? "/" + zuulProperties.getPrefix() : "");
+			path.append(zuulHasGlobalPrefix(zuulProperties)
+					? "/" + zuulProperties.getPrefix() : "");
 		}
 
-		path.append(route.isPrefixStripped() ? "/" + route.getPrefix() : "")
+		path.append(downstreamHasRoutePrefix(route) ? "" : "/" + route.getPrefix())
 				.append(redirectedPathWithoutGlobal);
 
 		return path.toString();
 	}
 
-	private boolean hasGlobalPrefix(ZuulProperties zuulProperties) {
+	private boolean downstreamHasGlobalPrefix(ZuulProperties zuulProperties) {
 		return (!zuulProperties.isStripPrefix()
 				&& StringUtils.hasText(zuulProperties.getPrefix()));
+	}
+
+	private boolean zuulHasGlobalPrefix(ZuulProperties zuulProperties) {
+		return StringUtils.hasText(zuulProperties.getPrefix());
+	}
+
+	private boolean downstreamHasRoutePrefix(Route route) {
+		return (!route.isPrefixStripped() && StringUtils.hasText(route.getPrefix()));
 	}
 
 	private Pair<String, String> locationHeader(RequestContext ctx) {
