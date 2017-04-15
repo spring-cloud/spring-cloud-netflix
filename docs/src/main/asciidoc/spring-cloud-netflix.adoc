@@ -264,6 +264,34 @@ not be started yet). It is initialized in a `SmartLifecycle` (with
 another `SmartLifecycle` with higher phase.
 ====
 
+==== EurekaClient without Jersey
+
+By default, EurekaClient uses Jersey for HTTP communication. If you wish 
+to avoid dependencies from Jersey, you can exclude it from your dependencies.
+Spring Cloud will auto configure a transport client based on Spring 
+`RestTemplate`.
+
+----
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-eureka</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-apache-client4</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+----
+
 === Alternatives to the native Netflix EurekaClient
 
 You don't have to use the raw Netflix `EurekaClient` and usually it
