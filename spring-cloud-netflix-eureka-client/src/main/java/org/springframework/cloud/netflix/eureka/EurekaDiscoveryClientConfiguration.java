@@ -62,10 +62,18 @@ public class EurekaDiscoveryClientConfiguration {
 	protected static class EurekaClientConfigurationRefresher {
 
 		@Autowired(required = false)
+		private EurekaClient eurekaClient;
+
+		@Autowired(required = false)
 		private EurekaAutoServiceRegistration autoRegistration;
 
 		@EventListener(RefreshScopeRefreshedEvent.class)
 		public void onApplicationEvent(RefreshScopeRefreshedEvent event) {
+			//This will force the creation of the EurkaClient bean if not already created
+			//to make sure the client will be reregistered after a refresh event
+			if(eurekaClient != null) {
+				eurekaClient.getApplications();
+			}
 			if (autoRegistration != null) {
 				// register in case meta data changed
 				this.autoRegistration.stop();
