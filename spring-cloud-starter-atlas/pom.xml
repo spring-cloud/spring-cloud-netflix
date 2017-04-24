@@ -9,8 +9,9 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-atlas</artifactId>
+	<packaging>pom</packaging>
 	<name>spring-cloud-starter-atlas</name>
-	<description>Spring Cloud Starter Atlas</description>
+	<description>Spring Cloud Starter Atlas (deprecated, please use spring-cloud-starter-netflix-atlas</description>
 	<url>https://projects.spring.io/spring-cloud</url>
 	<organization>
 		<name>Pivotal Software, Inc.</name>
@@ -22,19 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netflix-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.servo</groupId>
-			<artifactId>servo-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-smile</artifactId>
+			<artifactId>spring-cloud-starter-netflix-atlas</artifactId>
 		</dependency>
 	</dependencies>
 </project>

@@ -136,6 +136,7 @@
 		<module>spring-cloud-starter-feign</module>
 		<module>spring-cloud-starter-hystrix</module>
 		<module>spring-cloud-starter-hystrix-dashboard</module>
+		<module>spring-cloud-starter-netflix</module>
 		<module>spring-cloud-starter-ribbon</module>
 		<module>spring-cloud-starter-spectator</module>
 		<module>spring-cloud-starter-turbine</module>

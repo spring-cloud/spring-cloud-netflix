@@ -146,7 +146,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		}
 
 		throw new IllegalStateException(
-				"No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-ribbon?");
+				"No Feign Client for loadBalancing defined. Did you forget to include spring-cloud-starter-netflix-ribbon?");
 	}
 
 	@Override
