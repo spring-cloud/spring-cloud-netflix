@@ -44,7 +44,7 @@ public interface ServiceRouteMapper {
 		}
 		
 		public DynamicRoute(String serviceId) {
-			this(serviceId, serviceId, true, false, null);
+			this("/" + serviceId + "/**", serviceId, true, false, null);
 		}
 
 		private String path;
