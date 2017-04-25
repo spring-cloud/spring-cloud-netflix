@@ -673,7 +673,7 @@ public class DiscoveryClientRouteLocatorTests {
 
 		PatternServiceRouteMapper regExServiceRouteMapper = new PatternServiceRouteMapper(
 				this.routeRegexMapper.getServicePattern(), this.routeRegexMapper.getRoutePattern(), 
-				this.routeRegexMapper.isStripPrefix(), this.routeRegexMapper.isretryable(),
+				this.routeRegexMapper.isStripPrefix(), this.routeRegexMapper.isRetryable(),
 				this.routeRegexMapper.getSensitiveHeaders());
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties, regExServiceRouteMapper);
@@ -681,7 +681,7 @@ public class DiscoveryClientRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
-		assertTrue(getRoute(routesMap, getMapping("rest-service-v1").isCustomSensitiveHeaders()));
+		assertTrue(getRoute(routesMap, getMapping("rest-service-v1")).isCustomSensitiveHeaders());
 	}
 
 	@Test
@@ -691,7 +691,7 @@ public class DiscoveryClientRouteLocatorTests {
 
 		PatternServiceRouteMapper regExServiceRouteMapper = new PatternServiceRouteMapper(
 				this.routeRegexMapper.getServicePattern(), this.routeRegexMapper.getRoutePattern(), 
-				this.routeRegexMapper.isStripPrefix(), this.routeRegexMapper.isretryable(),
+				this.routeRegexMapper.isStripPrefix(), this.routeRegexMapper.isRetryable(),
 				this.routeRegexMapper.getSensitiveHeaders());
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
 				this.discovery, this.properties, regExServiceRouteMapper);
@@ -699,7 +699,7 @@ public class DiscoveryClientRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
-		assertTrue(getRoute(routesMap, getMapping("rest-service-v1").isCustomSensitiveHeaders()));
+		assertTrue(getRoute(routesMap, getMapping("rest-service-v1")).isCustomSensitiveHeaders());
 		
 	}
 
