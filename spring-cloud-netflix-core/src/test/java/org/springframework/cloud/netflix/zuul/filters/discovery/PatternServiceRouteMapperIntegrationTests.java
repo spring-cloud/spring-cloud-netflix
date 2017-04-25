@@ -115,7 +115,7 @@ class SampleCustomZuulProxyApplication {
 	public PatternServiceRouteMapper serviceRouteMapper() {
 		return new PatternServiceRouteMapper(
 				"(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
-				"${version}/${domain}/${name}");
+				"${version}/${domain}/${name}", true, false, null);
 	}
 
 	public static void main(String[] args) {

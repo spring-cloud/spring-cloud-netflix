@@ -17,8 +17,10 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -80,6 +82,26 @@ public class DiscoveryClientRouteLocatorTests {
 
 	private RegexMapper regexMapper = new RegexMapper();
 
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class RouteRegexMapper {
+		private boolean enabled = false;
+
+		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
+
+		private String routePattern = "${version}/${name}";
+		
+		private boolean stripPrefix = true;
+
+		private boolean retryable;
+
+		private Set<String> sensitiveHeaders = new HashSet<>();
+	}
+
+	private RouteRegexMapper routeRegexMapper = new RouteRegexMapper();
+
+	
 	@Before
 	public void init() {
 		initMocks(this);
@@ -642,6 +664,43 @@ public class DiscoveryClientRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
+	}
+
+	@Test
+	public void testServiceRouteMapperNoServiceIdMatches() {
+		given(this.discovery.getServices())
+				.willReturn(Collections.singletonList(MYSERVICE));
+
+		PatternServiceRouteMapper regExServiceRouteMapper = new PatternServiceRouteMapper(
+				this.routeRegexMapper.getServicePattern(), this.routeRegexMapper.getRoutePattern(), 
+				this.routeRegexMapper.isStripPrefix(), this.routeRegexMapper.isretryable(),
+				this.routeRegexMapper.getSensitiveHeaders());
+		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
+				this.discovery, this.properties, regExServiceRouteMapper);
+		List<Route> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, MYSERVICE);
+		assertTrue(getRoute(routesMap, getMapping("rest-service-v1").isCustomSensitiveHeaders()));
+	}
+
+	@Test
+	public void testServiceRouteMapperServiceIdMatches() {
+		given(this.discovery.getServices())
+				.willReturn(Collections.singletonList("rest-service-v1"));
+
+		PatternServiceRouteMapper regExServiceRouteMapper = new PatternServiceRouteMapper(
+				this.routeRegexMapper.getServicePattern(), this.routeRegexMapper.getRoutePattern(), 
+				this.routeRegexMapper.isStripPrefix(), this.routeRegexMapper.isretryable(),
+				this.routeRegexMapper.getSensitiveHeaders());
+		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
+				this.discovery, this.properties, regExServiceRouteMapper);
+		List<Route> routesMap = routeLocator.getRoutes();
+		assertNotNull("routesMap was null", routesMap);
+		assertFalse("routesMap was empty", routesMap.isEmpty());
+		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
+		assertTrue(getRoute(routesMap, getMapping("rest-service-v1").isCustomSensitiveHeaders()));
+		
 	}
 
 	protected void assertMapping(List<Route> routesMap, String serviceId) {

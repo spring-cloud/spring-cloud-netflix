@@ -113,7 +113,6 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 			for (String serviceId : services) {
 				// Ignore specifically ignored services and those that were manually
 				// configured
-				String key = "/" + mapRouteToService(serviceId) + "/**";
 				if (staticServices.containsKey(serviceId)
 						&& staticServices.get(serviceId).getUrl() == null) {
 					// Explicitly configured with no URL, cannot be ignored
@@ -124,10 +123,11 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 						staticRoute.setLocation(serviceId);
 					}
 				}
+				final ZuulRoute dynamicRoute = this.serviceRouteMapper.applyRoute(serviceId);
 				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
-						&& !routesMap.containsKey(key)) {
+						&& !routesMap.containsKey(dynamicRoute.getLocation())) {
 					// Not ignored
-					routesMap.put(key, new ZuulRoute(key, serviceId));
+					routesMap.put(dynamicRoute.getLocation(), dynamicRoute);
 				}
 			}
 		}
@@ -158,10 +158,6 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 	@Override
 	public void refresh() {
 		doRefresh();
-	}
-
-	protected String mapRouteToService(String serviceId) {
-		return this.serviceRouteMapper.apply(serviceId);
 	}
 
 	protected void addConfiguredRoutes(Map<String, ZuulRoute> routes) {

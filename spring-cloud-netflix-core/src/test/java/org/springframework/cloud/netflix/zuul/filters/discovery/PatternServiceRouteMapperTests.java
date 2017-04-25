@@ -32,6 +32,8 @@ public class PatternServiceRouteMapperTests {
 
 		assertEquals("service version convention", "v1/rest/service",
 				toTest.apply("rest-service-v1"));
+		assertEquals("service version convention", "v1/rest/service",
+				toTest.applyRoute("rest-service-v1"));
 	}
 
 	@Test
@@ -42,6 +44,8 @@ public class PatternServiceRouteMapperTests {
 		// No version here
 		assertEquals("No matches for this service id", "rest-service",
 				toTest.apply("rest-service"));
+		assertEquals("No matches for this service id", "rest-service",
+				toTest.applyRoute("rest-service"));
 	}
 
 	@Test
@@ -54,5 +58,9 @@ public class PatternServiceRouteMapperTests {
 				toTest.apply("domain-service-v1"));
 		assertEquals("No matches for this service id", "v1/domain",
 				toTest.apply("domain-v1"));
+		assertEquals("No matches for this service id", "v1/domain/service",
+				toTest.applyRoute("domain-service-v1"));
+		assertEquals("No matches for this service id", "v1/domain",
+				toTest.applyRoute("domain-v1"));
 	}
 }

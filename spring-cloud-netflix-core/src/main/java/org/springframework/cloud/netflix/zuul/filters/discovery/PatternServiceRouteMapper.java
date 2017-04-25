@@ -1,12 +1,15 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Stéphane Leroy
+ * @author Saiyed Zaidi
  *
  * This service route mapper use Java 7 RegEx named group feature to rewrite a discovered
  * service Id into a route.
@@ -32,20 +35,40 @@ public class PatternServiceRouteMapper implements ServiceRouteMapper {
 	 */
 	private String routePattern;
 
+	private boolean stripPrefix = true;
+
+	private boolean retryable;
+
+	private Set<String> sensitiveHeaders;
+
 	public PatternServiceRouteMapper(String servicePattern, String routePattern) {
 		this.servicePattern = Pattern.compile(servicePattern);
 		this.routePattern = routePattern;
 	}
 
+	public PatternServiceRouteMapper(String servicePattern, String routePattern, boolean stripPrefix, boolean retryable,
+			Set<String> sensitiveHeaders) {
+		this(servicePattern, routePattern);
+		this.stripPrefix = stripPrefix;
+		this.retryable = retryable;
+		this.routePattern = routePattern;
+		this.sensitiveHeaders = sensitiveHeaders;
+	}
+
 	/**
-	 * Use servicePattern to extract groups and routePattern to construct the route.
+	 * Use servicePattern to extract groups and routePattern to construct the
+	 * route.
 	 *
 	 * If there is no matches, the serviceId is returned.
 	 *
-	 * @param serviceId service discovered name
+	 * @param serviceId
+	 *            service discovered name
 	 * @return route path
+	 * @deprecated Replaced by the {@link #applyRoute(String) applyRoute}
+	 *             method.
 	 */
 	@Override
+	@Deprecated
 	public String apply(String serviceId) {
 		Matcher matcher = this.servicePattern.matcher(serviceId);
 		String route = matcher.replaceFirst(this.routePattern);
@@ -56,6 +79,18 @@ public class PatternServiceRouteMapper implements ServiceRouteMapper {
 	/**
 	 * Route with regex and replace can be a bit messy when used with conditional named
 	 * group. We clean here first and trailing '/' and remove multiple consecutive '/'
+	 */
+	public ZuulRoute applyRoute(String serviceId) {
+		String path = "/" + apply(serviceId) + "/**";
+		ZuulRoute zRoute = new PatternRoute(path, serviceId, stripPrefix, retryable, sensitiveHeaders);
+		return zRoute;
+	}
+
+	/**
+	 * Route with regex and replace can be a bit messy when used with
+	 * conditional named group. We clean here first and trailing '/' and remove
+	 * multiple consecutive '/'
+	 * 
 	 * @param route
 	 * @return
 	 */
@@ -68,5 +103,16 @@ public class PatternServiceRouteMapper implements ServiceRouteMapper {
 			routeToClean = routeToClean.substring(0, routeToClean.length() - 1);
 		}
 		return routeToClean;
+	}
+
+	private class PatternRoute extends ZuulRoute {
+
+		public PatternRoute(String path, String location, boolean stripPrefix, boolean retryable,
+				Set<String> sensitiveHeaders) {
+			super((path.startsWith("/") ? path.substring(1) : path).replace("/*", "").replace("*", ""), path, location,
+					null, stripPrefix, retryable, sensitiveHeaders);
+
+		}
+
 	}
 }
