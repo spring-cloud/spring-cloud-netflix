@@ -681,7 +681,6 @@ public class DiscoveryClientRouteLocatorTests {
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
 		assertMapping(routesMap, MYSERVICE);
-		assertTrue(getRoute(routesMap, getMapping("rest-service-v1")).isCustomSensitiveHeaders());
 	}
 
 	@Test
@@ -698,9 +697,7 @@ public class DiscoveryClientRouteLocatorTests {
 		List<Route> routesMap = routeLocator.getRoutes();
 		assertNotNull("routesMap was null", routesMap);
 		assertFalse("routesMap was empty", routesMap.isEmpty());
-		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");
-		assertTrue(getRoute(routesMap, getMapping("rest-service-v1")).isCustomSensitiveHeaders());
-		
+		assertMapping(routesMap, "rest-service-v1", "v1/rest-service");	
 	}
 
 	protected void assertMapping(List<Route> routesMap, String serviceId) {

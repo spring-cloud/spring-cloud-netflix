@@ -1,7 +1,5 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-
 /**
  * @author Stéphane Leroy
  * @author Saiyed Zaidi
@@ -15,7 +13,7 @@ public class SimpleServiceRouteMapper implements ServiceRouteMapper {
 	}
 	
 	@Override
-	public ZuulRoute applyRoute(String serviceId) {
-		return new ZuulRoute(serviceId, serviceId);
+	public DynamicRoute applyRoute(String serviceId) {
+		return new DynamicRoute(serviceId);
 	}
 }

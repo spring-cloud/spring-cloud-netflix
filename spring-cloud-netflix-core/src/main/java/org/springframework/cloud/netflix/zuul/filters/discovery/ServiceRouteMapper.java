@@ -1,5 +1,7 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import java.util.Set;
+
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
 /**
@@ -29,5 +31,27 @@ public interface ServiceRouteMapper {
 	 *            service discovered name
 	 * @return route
 	 */
-	ZuulRoute applyRoute(String serviceId);
+	DynamicRoute applyRoute(String serviceId);
+	
+	
+	public class DynamicRoute extends ZuulRoute {
+
+		public DynamicRoute(String path, String location, boolean stripPrefix, boolean retryable,
+				Set<String> sensitiveHeaders) {
+			super((path.startsWith("/") ? path.substring(1) : path).replace("/*", "").replace("*", ""), path, location,
+					null, stripPrefix, retryable, sensitiveHeaders);
+			this.path = path;
+		}
+		
+		public DynamicRoute(String serviceId) {
+			this(serviceId, serviceId, true, false, null);
+		}
+
+		private String path;
+		
+		public String getPath(){
+			return path;
+		}
+
+	}
 }

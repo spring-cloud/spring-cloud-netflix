@@ -80,10 +80,9 @@ public class PatternServiceRouteMapper implements ServiceRouteMapper {
 	 * Route with regex and replace can be a bit messy when used with conditional named
 	 * group. We clean here first and trailing '/' and remove multiple consecutive '/'
 	 */
-	public ZuulRoute applyRoute(String serviceId) {
+	public DynamicRoute applyRoute(String serviceId) {
 		String path = "/" + apply(serviceId) + "/**";
-		ZuulRoute zRoute = new PatternRoute(path, serviceId, stripPrefix, retryable, sensitiveHeaders);
-		return zRoute;
+		return new DynamicRoute(path, serviceId, stripPrefix, retryable, sensitiveHeaders);
 	}
 
 	/**
@@ -103,16 +102,5 @@ public class PatternServiceRouteMapper implements ServiceRouteMapper {
 			routeToClean = routeToClean.substring(0, routeToClean.length() - 1);
 		}
 		return routeToClean;
-	}
-
-	private class PatternRoute extends ZuulRoute {
-
-		public PatternRoute(String path, String location, boolean stripPrefix, boolean retryable,
-				Set<String> sensitiveHeaders) {
-			super((path.startsWith("/") ? path.substring(1) : path).replace("/*", "").replace("*", ""), path, location,
-					null, stripPrefix, retryable, sensitiveHeaders);
-
-		}
-
 	}
 }

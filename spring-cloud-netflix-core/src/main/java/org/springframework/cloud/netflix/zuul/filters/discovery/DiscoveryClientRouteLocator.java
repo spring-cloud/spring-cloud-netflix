@@ -28,6 +28,7 @@ import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper.DynamicRoute;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
@@ -123,11 +124,11 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 						staticRoute.setLocation(serviceId);
 					}
 				}
-				final ZuulRoute dynamicRoute = this.serviceRouteMapper.applyRoute(serviceId);
+				final DynamicRoute dynamicRoute = this.serviceRouteMapper.applyRoute(serviceId);
 				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
-						&& !routesMap.containsKey(dynamicRoute.getLocation())) {
+						&& !routesMap.containsKey(dynamicRoute.getPath())) {
 					// Not ignored
-					routesMap.put(dynamicRoute.getLocation(), dynamicRoute);
+					routesMap.put(dynamicRoute.getPath(), dynamicRoute);
 				}
 			}
 		}
