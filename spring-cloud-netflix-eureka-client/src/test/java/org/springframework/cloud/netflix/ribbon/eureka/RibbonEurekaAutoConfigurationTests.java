@@ -30,6 +30,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +43,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = RibbonEurekaAutoConfigurationTests.EurekaClientDisabledApp.class,
 		properties = { "eureka.client.enabled=false", "spring.application.name=eurekadisabledtest" },
 		webEnvironment = RANDOM_PORT)
+@DirtiesContext
 public class RibbonEurekaAutoConfigurationTests {
 
 	@Autowired

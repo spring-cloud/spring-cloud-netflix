@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,11 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
 
 /**
+ * Spring configuration for configuring Ribbon defaults to be Eureka based 
+ * if Eureka client is enabled
+ * 
  * @author Dave Syer
+ * @author Biju Kunjummen
  */
 @Configuration
 @EnableConfigurationProperties
@@ -65,8 +69,11 @@ public class RibbonEurekaAutoConfiguration {
 		@ConditionalOnBean(SpringClientFactory.class)
 		@ConditionalOnProperty(value = "ribbon.eureka.enabled", matchIfMissing = true)
 		static class Defaults {}
-
+		
 		@ConditionalOnBean(EurekaClient.class)
 		static class EurekaBeans {}
+
+		@ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
+		static class OnEurekaClientEnabled {}
 	}
 }
