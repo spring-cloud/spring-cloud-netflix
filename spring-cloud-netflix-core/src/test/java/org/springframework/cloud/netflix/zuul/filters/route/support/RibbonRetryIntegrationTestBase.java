@@ -119,7 +119,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 	}
 
 	@Test
-	public void disbaleRetry() {
+	public void disableRetry() {
 		String uri = "/disableretry/everyothererror";
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
