@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import feign.Client;
 import feign.Request;
 import feign.Response;
-import feign.Util;
 
 import java.io.IOException;
 import java.net.URI;
