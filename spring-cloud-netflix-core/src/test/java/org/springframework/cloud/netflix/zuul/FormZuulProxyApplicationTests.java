@@ -63,7 +63,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"zuul.routes.simple:/simple/**" })
 @DirtiesContext
 public class FormZuulProxyApplicationTests {

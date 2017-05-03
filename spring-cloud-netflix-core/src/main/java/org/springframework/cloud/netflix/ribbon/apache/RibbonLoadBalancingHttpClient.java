@@ -104,6 +104,7 @@ public class RibbonLoadBalancingHttpClient extends
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(RibbonApacheHttpRequest request, IClientConfig requestConfig) {
-		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
+		return new RequestSpecificRetryHandler(false, false,
+				RetryHandler.DEFAULT, requestConfig);
 	}
 }
