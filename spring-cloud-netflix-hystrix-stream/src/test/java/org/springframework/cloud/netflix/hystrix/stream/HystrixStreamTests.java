@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.hystrix.stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,6 +40,12 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 @DirtiesContext
 public class HystrixStreamTests {
 
+	@Autowired
+	private HystrixStreamTask task;
+
+	@Autowired
+	private Application application;
+
 	@EnableAutoConfiguration
 	@EnableCircuitBreaker
 	@RestController
@@ -58,7 +65,8 @@ public class HystrixStreamTests {
 
 	@Test
 	public void contextLoads() {
-
+		this.application.hello();
+		this.task.gatherMetrics();
 	}
 
 }
