@@ -16,16 +16,7 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
-import feign.FeignException;
-import feign.Response;
-import feign.codec.DecodeException;
-import feign.codec.Decoder;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.HttpMessageConverterExtractor;
+import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +24,17 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
-import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.HttpMessageConverterExtractor;
+
+import feign.FeignException;
+import feign.Response;
+import feign.codec.DecodeException;
+import feign.codec.Decoder;
 
 /**
  * @author Spencer Gibb
