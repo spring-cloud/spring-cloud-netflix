@@ -61,6 +61,22 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		this.zuulServletPath = properties.getServletPath();
 	}
 
+	public ZuulProperties getProperties() {
+		return properties;
+	}
+
+	public PathMatcher getPathMatcher() {
+		return pathMatcher;
+	}
+
+	public String getDispatcherServletPath() {
+		return dispatcherServletPath;
+	}
+
+	public String getZuulServletPath() {
+		return zuulServletPath;
+	}
+
 	@Override
 	public List<Route> getRoutes() {
 		if (this.routes.get() == null) {
@@ -121,7 +137,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	}
 
-	private Route getRoute(ZuulRoute route, String path) {
+	protected Route getRoute(ZuulRoute route, String path) {
 		if (route == null) {
 			return null;
 		}
