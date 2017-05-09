@@ -47,9 +47,10 @@ public class SpringDecoder implements Decoder {
 	}
 
 	@Override
-	public Object decode(final Response response, Type type) throws IOException,
-			FeignException {
-		if (type instanceof Class || type instanceof ParameterizedType || type instanceof WildcardType) {
+	public Object decode(final Response response, Type type)
+			throws IOException, FeignException {
+		if (type instanceof Class || type instanceof ParameterizedType
+				|| type instanceof WildcardType) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
 					type, this.messageConverters.getObject().getConverters());
