@@ -152,7 +152,56 @@ public class PreDecorationFilterTests {
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("443,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+	}
+
+	@Test
+	public void xForwardedProtoHttpOnlyAppends() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.request.addHeader("X-Forwarded-Proto", "http");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("80,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("http,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+	}
+
+	@Test
+	public void xForwardedPortOnlyAppends() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.request.addHeader("X-Forwarded-Port", "456");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("456,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+	}
+
+	@Test
+	public void xForwardedPortAndProtoAppends() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.request.addHeader("X-Forwarded-Proto", "https");
+		this.request.addHeader("X-Forwarded-Port", "456");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertEquals("456,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
 	}
 

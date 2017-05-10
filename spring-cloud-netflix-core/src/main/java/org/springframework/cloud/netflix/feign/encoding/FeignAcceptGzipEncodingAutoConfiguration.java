@@ -18,7 +18,8 @@ package org.springframework.cloud.netflix.feign.encoding;
 
 import feign.Feign;
 import feign.httpclient.ApacheHttpClient;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,7 +39,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(Feign.class)
 @ConditionalOnBean(ApacheHttpClient.class)
 @ConditionalOnProperty(value = "feign.compression.response.enabled", matchIfMissing = false)
-@AutoConfigureBefore(FeignAutoConfiguration.class)
+@AutoConfigureAfter(FeignAutoConfiguration.class)
 public class FeignAcceptGzipEncodingAutoConfiguration {
 
     @Bean

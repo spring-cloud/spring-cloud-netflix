@@ -198,21 +198,21 @@ public class PreDecorationFilter extends ZuulFilter {
 		String proto = request.getScheme();
 		if (hasHeader(request, X_FORWARDED_HOST_HEADER)) {
 			host = request.getHeader(X_FORWARDED_HOST_HEADER) + "," + host;
-			if (!hasHeader(request, X_FORWARDED_PORT_HEADER)) {
-				if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
-					StringBuilder builder = new StringBuilder();
-					for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader(X_FORWARDED_PROTO_HEADER))) {
-						if (builder.length()>0) {
-							builder.append(",");
-						}
-						builder.append(HTTPS_SCHEME.equals(previous) ? HTTPS_PORT : HTTP_PORT);
+		}
+		if (!hasHeader(request, X_FORWARDED_PORT_HEADER)) {
+			if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
+				StringBuilder builder = new StringBuilder();
+				for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader(X_FORWARDED_PROTO_HEADER))) {
+					if (builder.length()>0) {
+						builder.append(",");
 					}
-					builder.append(",").append(port);
-					port = builder.toString();
+					builder.append(HTTPS_SCHEME.equals(previous) ? HTTPS_PORT : HTTP_PORT);
 				}
-			} else {
-				port = request.getHeader(X_FORWARDED_PORT_HEADER) + "," + port;
+				builder.append(",").append(port);
+				port = builder.toString();
 			}
+		} else {
+			port = request.getHeader(X_FORWARDED_PORT_HEADER) + "," + port;
 		}
 		if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
 			proto = request.getHeader(X_FORWARDED_PROTO_HEADER) + "," + proto;
