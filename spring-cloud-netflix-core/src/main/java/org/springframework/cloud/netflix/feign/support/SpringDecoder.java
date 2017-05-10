@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
@@ -47,9 +48,10 @@ public class SpringDecoder implements Decoder {
 	}
 
 	@Override
-	public Object decode(final Response response, Type type) throws IOException,
-			FeignException {
-		if (type instanceof Class || type instanceof ParameterizedType) {
+	public Object decode(final Response response, Type type)
+			throws IOException, FeignException {
+		if (type instanceof Class || type instanceof ParameterizedType
+				|| type instanceof WildcardType) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor(
 					type, this.messageConverters.getObject().getConverters());
