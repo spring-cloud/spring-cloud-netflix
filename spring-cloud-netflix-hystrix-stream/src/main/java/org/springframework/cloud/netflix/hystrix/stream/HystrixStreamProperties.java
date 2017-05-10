@@ -19,13 +19,10 @@ package org.springframework.cloud.netflix.hystrix.stream;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 
-import lombok.Data;
-
 /**
  * @author Spencer Gibb
  */
 @ConfigurationProperties("hystrix.stream.queue")
-@Data
 public class HystrixStreamProperties {
 
 	/** Flag to indicate that Hystrix Stream is enabled. Default is true. */
@@ -51,5 +48,69 @@ public class HystrixStreamProperties {
 
 	/** The size of the metrics queue. This queue drains to the stream. Defaults to 1000. */
 	private int size = 1000;
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public boolean isPrefixMetricName() {
+		return prefixMetricName;
+	}
+
+	public void setPrefixMetricName(boolean prefixMetricName) {
+		this.prefixMetricName = prefixMetricName;
+	}
+
+	public boolean isSendId() {
+		return sendId;
+	}
+
+	public void setSendId(boolean sendId) {
+		this.sendId = sendId;
+	}
+
+	public String getDestination() {
+		return destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+
+	public String getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+	}
+
+	public long getSendRate() {
+		return sendRate;
+	}
+
+	public void setSendRate(long sendRate) {
+		this.sendRate = sendRate;
+	}
+
+	public long getGatherRate() {
+		return gatherRate;
+	}
+
+	public void setGatherRate(long gatherRate) {
+		this.gatherRate = gatherRate;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
 
 }
