@@ -22,7 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -71,7 +70,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		for (String url : this.routes.get().keySet()) {
 			ZuulRoute route = this.routes.get().get(url);
 			String path = route.getPath();
-			values.add(getRoute(Optional.ofNullable(route), path));
+			values.add(getRoute(route, path));
 		}
 		return values;
 	}
@@ -108,29 +107,28 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 		String adjustedPath = adjustPath(path);
 
-		Optional<ZuulRoute> route = getZuulRoute(adjustedPath);
+		ZuulRoute route = getZuulRoute(adjustedPath);
 
 		return getRoute(route, adjustedPath);
 	}
 
-	protected Optional<ZuulRoute> getZuulRoute(String adjustedPath) {
+	protected ZuulRoute getZuulRoute(String adjustedPath) {
 		if (!matchesIgnoredPatterns(adjustedPath)) {
 			for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
 				String pattern = entry.getKey();
 				log.debug("Matching pattern:" + pattern);
 				if (this.pathMatcher.match(pattern, adjustedPath)) {
-					return Optional.of(entry.getValue());
+					return entry.getValue();
 				}
 			}
 		}
-		return Optional.empty();
+		return null;
 	}
 
-	protected Route getRoute(Optional<ZuulRoute> routeOptional, String path) {
-		if (!routeOptional.isPresent()) {
+	protected Route getRoute(ZuulRoute route, String path) {
+		if (route == null) {
 			return null;
 		}
-		final ZuulRoute route = routeOptional.get();
 		if (log.isDebugEnabled()) {
 			log.debug("route matched=" + route);
 		}
