@@ -1107,7 +1107,7 @@ favor for an opt-in approach.
 [[spring-cloud-feign-hystrix-fallback]]
 === Feign Hystrix Fallbacks
 
-Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given `@FeignClient` set the `fallback` attribute to the class name that implements the fallback.
+Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given `@FeignClient` set the `fallback` attribute to the class name that implements the fallback. You also need to declare your implementation as a Spring bean.
 
 [source,java,indent=0]
 ----
