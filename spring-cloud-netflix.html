@@ -1948,7 +1948,7 @@ favor for an opt-in approach.
 <div class="sect2">
 <h3 id="spring-cloud-feign-hystrix-fallback">Feign Hystrix Fallbacks</h3>
 <div class="paragraph">
-<p>Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given <code>@FeignClient</code> set the <code>fallback</code> attribute to the class name that implements the fallback.</p>
+<p>Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given <code>@FeignClient</code> set the <code>fallback</code> attribute to the class name that implements the fallback. You also need to declare your implementation as a Spring bean.</p>
 </div>
 <div class="listingblock">
 <div class="content">
