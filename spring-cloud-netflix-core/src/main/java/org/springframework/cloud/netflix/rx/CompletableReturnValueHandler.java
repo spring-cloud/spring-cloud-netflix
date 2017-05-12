@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,30 @@ package org.springframework.cloud.netflix.rx;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import rx.Completable;
+import rx.Observable;
 import rx.Single;
 
 /**
- * A specialized {@link AbstractRxReturnValueHandler} that handles {@link Single}
- * return types.
+ * A specialized {@link AbstractRxReturnValueHandler} that handles {@link rx.Completable}
+ * return type.
  *
- * @author Spencer Gibb
- * @author Jakub Narloch
+ * @author Kyryl Sablin
  */
-public class SingleReturnValueHandler extends AbstractRxReturnValueHandler {
+public class CompletableReturnValueHandler extends AbstractRxReturnValueHandler {
 
 	@Override
 	protected boolean rxTypeIsAssignableFrom(Class<?> cls) {
-		return Single.class.isAssignableFrom(cls);
+		return Completable.class.isAssignableFrom(cls);
 	}
 
 	@Override
 	protected DeferredResult<?> convertToDeferredResult(ResponseEntity<?> responseEntity, Object returnValue) {
-		final Single<?> single = Single.class.cast(returnValue);
-		return convertSingleToDeferredResult(responseEntity, single);
+		final Completable completable = Completable.class.cast(returnValue);
+		return convertSingleToDeferredResult(responseEntity, singleFromCompletable(completable));
+	}
+
+	private Single<?> singleFromCompletable(Completable completable) {
+		return completable.toObservable().concatWith(Observable.just("")).toSingle();
 	}
 }
