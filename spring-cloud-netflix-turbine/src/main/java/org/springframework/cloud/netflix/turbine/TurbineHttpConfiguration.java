@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.turbine;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -37,6 +38,7 @@ import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
 @Configuration
 @EnableConfigurationProperties
 @EnableDiscoveryClient
+@ConditionalOnProperty(name = "turbine.enabled", matchIfMissing = true)
 public class TurbineHttpConfiguration {
 
 	@Bean
@@ -44,9 +46,22 @@ public class TurbineHttpConfiguration {
 		return HasFeatures.namedFeature("Turbine (HTTP)", TurbineHttpConfiguration.class);
 	}
 
-	@Bean
-	public ServletRegistrationBean turbineStreamServlet() {
-		return new ServletRegistrationBean(new TurbineStreamServlet(), "/turbine.stream");
+	@Configuration
+	@ConditionalOnMissingClass("org.springframework.boot.context.embedded.ServletRegistrationBean")
+	protected static class SpringBoot15Config {
+		@Bean
+		public ServletRegistrationBean turbineStreamServlet() {
+			return new ServletRegistrationBean(new TurbineStreamServlet(), "/turbine.stream");
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(name = "org.springframework.boot.context.embedded.ServletRegistrationBean")
+	protected static class SpringBoot1314Config {
+		@Bean
+		public org.springframework.boot.context.embedded.ServletRegistrationBean turbineStreamServlet() {
+			return new org.springframework.boot.context.embedded.ServletRegistrationBean(new TurbineStreamServlet(), "/turbine.stream");
+		}
 	}
 
 	@Bean

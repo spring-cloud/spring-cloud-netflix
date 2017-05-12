@@ -35,6 +35,8 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -54,6 +56,8 @@ import lombok.extern.apachecommons.CommonsLog;
 @Configuration
 @EnableConfigurationProperties(HystrixDashboardProperties.class)
 public class HystrixDashboardConfiguration {
+
+	public static final String PROXY_STREAM_MAPPING = "/proxy.stream";
 
 	private static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
 
@@ -83,12 +87,30 @@ public class HystrixDashboardConfiguration {
 		return configurer;
 	}
 
-	@Bean
-	public ServletRegistrationBean proxyStreamServlet() {
-		ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
-		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(dashboardProperties
-				.isEnableIgnoreConnectionCloseHeader());
-		return new ServletRegistrationBean(proxyStreamServlet, "/proxy.stream");
+	@Configuration
+	@ConditionalOnMissingClass("org.springframework.boot.context.embedded.ServletRegistrationBean")
+	protected static class SpringBoot15Config {
+		@Bean
+		public ServletRegistrationBean proxyStreamServlet(HystrixDashboardProperties dashboardProperties) {
+			ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
+			proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(dashboardProperties
+					.isEnableIgnoreConnectionCloseHeader());
+			return new ServletRegistrationBean(proxyStreamServlet, PROXY_STREAM_MAPPING);
+		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(name = "org.springframework.boot.context.embedded.ServletRegistrationBean")
+	protected static class SpringBoot1314Config {
+		@Bean
+		public org.springframework.boot.context.embedded.ServletRegistrationBean proxyStreamServlet(
+				HystrixDashboardProperties dashboardProperties) {
+			ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
+			proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(dashboardProperties
+					.isEnableIgnoreConnectionCloseHeader());
+			return new org.springframework.boot.context.embedded.ServletRegistrationBean(proxyStreamServlet,
+					PROXY_STREAM_MAPPING);
+		}
 	}
 
 	@Bean

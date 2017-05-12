@@ -1,0 +1,14 @@
+server.port: 8761
+
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+  server:
+    numberRegistrySyncRetries: 0
+    waitTimeInMsWhenSyncEmpty: 0
+
+turbine.enabled: true
+
+logging.level:
+  com.netflix.eureka: DEBUG

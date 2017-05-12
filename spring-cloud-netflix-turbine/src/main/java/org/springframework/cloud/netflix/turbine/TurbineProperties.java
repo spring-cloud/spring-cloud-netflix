@@ -30,6 +30,7 @@ import lombok.Data;
 @Data
 @ConfigurationProperties("turbine")
 public class TurbineProperties {
+	private String enabled;
 
 	private String clusterNameExpression;
 
