@@ -21,8 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
@@ -225,8 +224,7 @@ public class EurekaInstanceConfigBeanTests {
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 			EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
-			RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
-			String springAppName = springPropertyResolver.getProperty("name");
+			String springAppName = this.env.getProperty("spring.application.name", "");
 			if(StringUtils.hasText(springAppName)) {
 				configBean.setSecureVirtualHostName(springAppName);
 				configBean.setVirtualHostName(springAppName);

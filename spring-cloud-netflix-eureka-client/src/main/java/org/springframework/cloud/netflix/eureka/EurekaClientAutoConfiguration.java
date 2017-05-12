@@ -33,7 +33,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
@@ -111,12 +110,15 @@ public class EurekaClientAutoConfiguration {
 		return client;
 	}
 
+	private String getProperty(String property) {
+		return this.env.containsProperty(property) ? this.env.getProperty(property) : "";
+	}
+
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
-		RelaxedPropertyResolver relaxedPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
-		String hostname = relaxedPropertyResolver.getProperty("hostname");
-		boolean preferIpAddress = Boolean.parseBoolean(relaxedPropertyResolver.getProperty("preferIpAddress"));
+		String hostname = getProperty("eureka.instance.hostname");
+		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.preferIpAddress"));
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
@@ -126,8 +128,8 @@ public class EurekaClientAutoConfiguration {
 			if (StringUtils.hasText(hostname)) {
 				instance.setHostname(hostname);
 			}
-			String statusPageUrlPath = relaxedPropertyResolver.getProperty("statusPageUrlPath");
-			String healthCheckUrlPath = relaxedPropertyResolver.getProperty("healthCheckUrlPath");
+			String statusPageUrlPath = getProperty("eureka.instance.statusPageUrlPath");
+			String healthCheckUrlPath = getProperty("eureka.instance.healthCheckUrlPath");
 			if (StringUtils.hasText(statusPageUrlPath)) {
 				instance.setStatusPageUrlPath(statusPageUrlPath);
 			}

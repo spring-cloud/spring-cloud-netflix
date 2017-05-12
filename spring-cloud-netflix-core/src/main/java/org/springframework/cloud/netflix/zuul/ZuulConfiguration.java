@@ -25,8 +25,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorController;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -54,7 +54,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
 
@@ -101,7 +100,7 @@ public class ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
 	public SimpleRouteLocator simpleRouteLocator() {
-		return new SimpleRouteLocator(this.server.getServlet().getServletPrefix(),
+		return new SimpleRouteLocator(this.server.getServletPrefix(),
 				this.zuulProperties);
 	}
 

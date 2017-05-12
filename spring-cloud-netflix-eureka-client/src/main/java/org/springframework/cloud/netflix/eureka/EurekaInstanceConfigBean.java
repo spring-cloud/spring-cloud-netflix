@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtils.HostInfo;
@@ -331,8 +330,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
 		// set some defaults from the environment, but allow the defaults to use relaxed binding
-		RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(this.environment, "spring.application.");
-		String springAppName = springPropertyResolver.getProperty("name");
+		String springAppName = this.environment.getProperty("spring.application.name", "");
 		if(StringUtils.hasText(springAppName)) {
 			setAppname(springAppName);
 			setVirtualHostName(springAppName);
