@@ -16,13 +16,12 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -125,14 +124,14 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		// configure feign builder from properties if exists
 		FeignClientProperties properties = applicationContext.getBean(FeignClientProperties.class);
 		if (properties != null) {
-			FeignClientProperties.FeignClientConfiguration defaultConfiguration = properties.getConfig().get(this.name);
-			if (defaultConfiguration != null) {
-				configureUsingProperties(defaultConfiguration, builder);
+			FeignClientProperties.FeignClientConfiguration defaultConfig = properties.getConfig().get(properties.getDefaultConfig());
+			if (defaultConfig != null) {
+				configureUsingProperties(defaultConfig, builder);
 			}
 
-			FeignClientProperties.FeignClientConfiguration configuration = properties.getConfig().get(this.name);
-			if (configuration != null) {
-				configureUsingProperties(configuration, builder);
+			FeignClientProperties.FeignClientConfiguration feignConfig = properties.getConfig().get(this.name);
+			if (feignConfig != null) {
+				configureUsingProperties(feignConfig, builder);
 			}
 		}
 
@@ -149,41 +148,32 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		}
 
 		if (config.getRetryer() != null) {
-			Retryer retryer = getOrInstantiate(config.getRetryer(), Retryer.class);
+			Retryer retryer = getOrInstantiate(config.getRetryer());
 			builder.retryer(retryer);
 		}
 
-		if(config.getErrorDecoder() != null){
-			ErrorDecoder errorDecoder = getOrInstantiate(config.getErrorDecoder(), ErrorDecoder.class);
+		if (config.getErrorDecoder() != null) {
+			ErrorDecoder errorDecoder = getOrInstantiate(config.getErrorDecoder());
 			builder.errorDecoder(errorDecoder);
 		}
 
-		if(config.getRequestInterceptors() != null && !config.getRequestInterceptors().isEmpty()){
-			List<RequestInterceptor> interceptors = new ArrayList<>(config.getRequestInterceptors().size());
-			for(String bean : config.getRequestInterceptors()){
-				RequestInterceptor interceptor = getOrInstantiate(bean, RequestInterceptor.class);
-				interceptors.add(interceptor);
+		if (config.getRequestInterceptors() != null && !config.getRequestInterceptors().isEmpty()) {
+			// this will add request interceptor to builder, not replace existing
+			for (Class<RequestInterceptor> bean : config.getRequestInterceptors()) {
+				RequestInterceptor interceptor = getOrInstantiate(bean);
+				builder.requestInterceptor(interceptor);
 			}
-			builder.requestInterceptors(interceptors);
 		}
 	}
 
-	private <T> T getOrInstantiate(String bean, Class<T> tClass) {
-		T instance = applicationContext.getBean(bean, tClass);
-		if (instance != null) {
-			return instance;
-		} else {
+	private <T> T getOrInstantiate(Class<T> tClass) {
+		try {
+			return applicationContext.getBean(tClass);
+		} catch (NoSuchBeanDefinitionException e) {
 			try {
-				Class<?> aClass = Class.forName(bean);
-				instance = tClass.cast(applicationContext.getBean(aClass));
-				if (instance != null) {
-					return instance;
-				} else {
-					instance = tClass.cast(aClass.newInstance());
-					return instance;
-				}
-			} catch (Exception e) {
-				throw new IllegalStateException(e.getMessage(), e);
+				return tClass.cast(tClass.newInstance());
+			} catch (Exception exception) {
+				throw new IllegalStateException(e.getMessage(), exception);
 			}
 		}
 	}

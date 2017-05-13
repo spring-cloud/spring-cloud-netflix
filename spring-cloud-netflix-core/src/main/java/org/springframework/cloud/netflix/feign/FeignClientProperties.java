@@ -16,6 +16,9 @@
 package org.springframework.cloud.netflix.feign;
 
 import feign.Logger;
+import feign.RequestInterceptor;
+import feign.Retryer;
+import feign.codec.ErrorDecoder;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -30,25 +33,25 @@ import java.util.Map;
 @ConfigurationProperties("feign.client")
 public class FeignClientProperties {
 
-  private String defaultConfig = "default";
+	private String defaultConfig = "default";
 
-  private Map<String, FeignClientConfiguration> config = new HashMap<>();
+	private Map<String, FeignClientConfiguration> config = new HashMap<>();
 
-  @Data
-  public static class FeignClientConfiguration {
+	@Data
+	public static class FeignClientConfiguration {
 
-    private Logger.Level loggerLevel = Logger.Level.NONE;
+		private Logger.Level loggerLevel;
 
-    private Integer connectTimeout = 10000;
+		private Integer connectTimeout;
 
-    private Integer readTimeout = 60000;
+		private Integer readTimeout;
 
-    private String retryer;
+		private Class<Retryer> retryer;
 
-    private String errorDecoder;
+		private Class<ErrorDecoder> errorDecoder;
 
-    private List<String> requestInterceptors;
+		private List<Class<RequestInterceptor>> requestInterceptors;
 
-  }
+	}
 
 }
