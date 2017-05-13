@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.feign;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
@@ -120,7 +122,70 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			builder.decode404();
 		}
 
+		// configure feign builder from properties if exists
+		FeignClientProperties properties = applicationContext.getBean(FeignClientProperties.class);
+		if (properties != null) {
+			FeignClientProperties.FeignClientConfiguration defaultConfiguration = properties.getConfig().get(this.name);
+			if (defaultConfiguration != null) {
+				configureUsingProperties(defaultConfiguration, builder);
+			}
+
+			FeignClientProperties.FeignClientConfiguration configuration = properties.getConfig().get(this.name);
+			if (configuration != null) {
+				configureUsingProperties(configuration, builder);
+			}
+		}
+
 		return builder;
+	}
+
+	protected void configureUsingProperties(FeignClientProperties.FeignClientConfiguration config, Feign.Builder builder) {
+		if (config.getLoggerLevel() != null) {
+			builder.logLevel(config.getLoggerLevel());
+		}
+
+		if (config.getConnectTimeout() != null && config.getReadTimeout() != null) {
+			builder.options(new Request.Options(config.getConnectTimeout(), config.getReadTimeout()));
+		}
+
+		if (config.getRetryer() != null) {
+			Retryer retryer = getOrInstantiate(config.getRetryer(), Retryer.class);
+			builder.retryer(retryer);
+		}
+
+		if(config.getErrorDecoder() != null){
+			ErrorDecoder errorDecoder = getOrInstantiate(config.getErrorDecoder(), ErrorDecoder.class);
+			builder.errorDecoder(errorDecoder);
+		}
+
+		if(config.getRequestInterceptors() != null && !config.getRequestInterceptors().isEmpty()){
+			List<RequestInterceptor> interceptors = new ArrayList<>(config.getRequestInterceptors().size());
+			for(String bean : config.getRequestInterceptors()){
+				RequestInterceptor interceptor = getOrInstantiate(bean, RequestInterceptor.class);
+				interceptors.add(interceptor);
+			}
+			builder.requestInterceptors(interceptors);
+		}
+	}
+
+	private <T> T getOrInstantiate(String bean, Class<T> tClass) {
+		T instance = applicationContext.getBean(bean, tClass);
+		if (instance != null) {
+			return instance;
+		} else {
+			try {
+				Class<?> aClass = Class.forName(bean);
+				instance = tClass.cast(applicationContext.getBean(aClass));
+				if (instance != null) {
+					return instance;
+				} else {
+					instance = tClass.cast(aClass.newInstance());
+					return instance;
+				}
+			} catch (Exception e) {
+				throw new IllegalStateException(e.getMessage(), e);
+			}
+		}
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {
