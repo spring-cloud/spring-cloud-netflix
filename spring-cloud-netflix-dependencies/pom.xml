@@ -234,11 +234,6 @@
 				</exclusions>
 			</dependency>
 			<dependency>
-				<groupId>javax-inject</groupId>
-				<artifactId>javax-inject</artifactId>
-				<version>1</version>
-			</dependency>
-			<dependency>
 				<groupId>com.netflix.eureka</groupId>
 				<artifactId>eureka-core</artifactId>
 				<version>${eureka.version}</version>
