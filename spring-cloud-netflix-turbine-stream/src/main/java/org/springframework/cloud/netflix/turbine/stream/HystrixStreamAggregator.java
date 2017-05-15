@@ -20,15 +20,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rx.subjects.PublishSubject;
 
@@ -38,70 +39,70 @@ import rx.subjects.PublishSubject;
 @Component // needed for ServiceActivator to be picked up
 public class HystrixStreamAggregator {
 
-	private static final Log log = LogFactory.getLog(HystrixStreamAggregator.class);
+    private static final Log log = LogFactory.getLog(HystrixStreamAggregator.class);
 
-	private ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-	private PublishSubject<Map<String, Object>> subject;
+    private PublishSubject<Map<String, Object>> subject;
 
-	@Autowired
-	public HystrixStreamAggregator(ObjectMapper objectMapper,
-			PublishSubject<Map<String, Object>> subject) {
-		this.objectMapper = objectMapper;
-		this.subject = subject;
-	}
+    @Autowired
+    public HystrixStreamAggregator(ObjectMapper objectMapper,
+            PublishSubject<Map<String, Object>> subject) {
+        this.objectMapper = objectMapper;
+        this.subject = subject;
+    }
 
-	@ServiceActivator(inputChannel = TurbineStreamClient.INPUT)
-	public void sendToSubject(@Payload String payload) {
-		if (payload.startsWith("\"")) {
-			// Legacy payload from an Angel client
-			payload = payload.substring(1, payload.length() - 1);
-			payload = payload.replace("\\\"", "\"");
-		}
-		try {
-			if (payload.startsWith("[")) {
-				@SuppressWarnings("unchecked")
-				List<Map<String, Object>> list = this.objectMapper.readValue(payload,
-						List.class);
-				for (Map<String, Object> map : list) {
-					sendMap(map);
-				}
-			}
-			else {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> map = this.objectMapper.readValue(payload, Map.class);
-				sendMap(map);
-			}
-		}
-		catch (IOException ex) {
-			log.error("Error receiving hystrix stream payload: " + payload, ex);
-		}
-	}
+    @ServiceActivator(inputChannel = TurbineStreamClient.INPUT)
+    public void sendToSubject(@Payload String payload) {
+        if (payload.startsWith("\"")) {
+            // Legacy payload from an Angel client
+            payload = payload.substring(1, payload.length() - 1);
+            payload = payload.replace("\\\"", "\"");
+        }
+        try {
+            if (payload.startsWith("[")) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> list = this.objectMapper.readValue(payload,
+                        List.class);
+                for (Map<String, Object> map : list) {
+                    sendMap(map);
+                }
+            }
+            else {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> map = this.objectMapper.readValue(payload, Map.class);
+                sendMap(map);
+            }
+        }
+        catch (IOException ex) {
+            log.error("Error receiving hystrix stream payload: " + payload, ex);
+        }
+    }
 
-	private void sendMap(Map<String, Object> map) {
-		Map<String, Object> data = getPayloadData(map);
-		if (log.isDebugEnabled()) {
-			log.debug("Received hystrix stream payload: " + data);
-		}
-		this.subject.onNext(data);
-	}
+    private void sendMap(Map<String, Object> map) {
+        Map<String, Object> data = getPayloadData(map);
+        if (log.isDebugEnabled()) {
+            log.debug("Received hystrix stream payload: " + data);
+        }
+        this.subject.onNext(data);
+    }
 
-	public static Map<String, Object> getPayloadData(Map<String, Object> jsonMap) {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> origin = (Map<String, Object>) jsonMap.get("origin");
-		String instanceId = null;
-		if (origin.containsKey("id")) {
-			instanceId = origin.get("id").toString();
-		}
-		if (!StringUtils.hasText(instanceId)) {
-			// TODO: instanceid template
-			instanceId = origin.get("serviceId") + ":" + origin.get("host") + ":"
-					+ origin.get("port");
-		}
-		@SuppressWarnings("unchecked")
-		Map<String, Object> data = (Map<String, Object>) jsonMap.get("data");
-		data.put("instanceId", instanceId);
-		return data;
-	}
+    public static Map<String, Object> getPayloadData(Map<String, Object> jsonMap) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> origin = (Map<String, Object>) jsonMap.get("origin");
+        String instanceId = null;
+        if (origin.containsKey("id")) {
+            instanceId = origin.get("id").toString();
+        }
+        if (!StringUtils.hasText(instanceId)) {
+            // TODO: instanceid template
+            instanceId = origin.get("serviceId") + ":" + origin.get("host") + ":"
+                    + origin.get("port");
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> data = (Map<String, Object>) jsonMap.get("data");
+        data.put("instanceId", instanceId);
+        return data;
+    }
 
 }

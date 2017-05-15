@@ -15,6 +15,7 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 		<turbine.version>2.0.0-DP.2</turbine.version>
+		<spring-cloud-contract.version>1.0.5.RELEASE</spring-cloud-contract.version>
 	</properties>
 	<build>
 		<plugins>
@@ -102,6 +103,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+			<version>${spring-cloud-contract.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
