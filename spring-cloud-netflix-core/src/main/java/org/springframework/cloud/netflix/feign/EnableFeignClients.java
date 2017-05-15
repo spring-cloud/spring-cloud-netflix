@@ -32,12 +32,13 @@ import org.springframework.context.annotation.Import;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Eko Kurniawan Khannedy
  * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(FeignClientsRegistrar.class)
+@Import({FeignClientHealthConfiguration.class, FeignClientsRegistrar.class})
 public @interface EnableFeignClients {
 
 	/**
