@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.hystrix.stream;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.hystrix.HystrixCircuitBreaker;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,13 +29,11 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.config.BindingProperties;
-import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
+import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.netflix.hystrix.HystrixCircuitBreaker;
 
 /**
  * Autoconfiguration for a Spring Cloud Hystrix on Spring Cloud Stream. Enabled by default
@@ -55,7 +55,7 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 public class HystrixStreamAutoConfiguration {
 
 	@Autowired
-	private ChannelBindingServiceProperties bindings;
+	private BindingServiceProperties bindings;
 
 	@Autowired
 	private HystrixStreamProperties properties;
@@ -95,7 +95,8 @@ public class HystrixStreamAutoConfiguration {
 
 	@Bean
 	public HystrixStreamTask hystrixStreamTask(DiscoveryClient discoveryClient) {
-		return new HystrixStreamTask(this.outboundChannel, discoveryClient, this.properties);
+		return new HystrixStreamTask(this.outboundChannel, discoveryClient,
+				this.properties);
 	}
 
 }
