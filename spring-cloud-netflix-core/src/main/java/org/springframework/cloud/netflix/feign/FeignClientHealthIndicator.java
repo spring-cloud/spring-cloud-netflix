@@ -55,7 +55,7 @@ public class FeignClientHealthIndicator extends AbstractHealthIndicator
 						.withDetail("responseBody", responseEntity.getBody());
 			} else {
 				builder.up()
-						.withDetail("body", result);
+						.withDetail("responseBody", result);
 			}
 		} catch (Exception ex) {
 			builder.down(ex);
