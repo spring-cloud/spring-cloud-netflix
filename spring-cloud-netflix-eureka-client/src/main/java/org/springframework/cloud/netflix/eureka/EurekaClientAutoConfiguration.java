@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -24,6 +25,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
@@ -271,4 +273,14 @@ public class EurekaClientAutoConfiguration {
 
 	}
 
+	@Configuration
+	@ConditionalOnClass(Endpoint.class)
+	protected static class EurekaHealthIndicatorConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
+														   EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
+			return new EurekaHealthIndicator(eurekaClient, instanceConfig, clientConfig);
+		}
+	}
 }
