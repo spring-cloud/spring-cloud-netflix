@@ -1020,7 +1020,7 @@ public class FooConfiguration {
 
 This replaces the `SpringMvcContract` with `feign.Contract.Default` and adds a `RequestInterceptor` to the collection of `RequestInterceptor`.
 
-`@FeignClient` also can be configured using configuration properties. If we create both `@Configuration` bean and configuration properties, configuration properties will win. It will override `@Configuration` values.
+`@FeignClient` also can be configured using configuration properties.
 
 application.yml
 [source,yaml]
@@ -1054,6 +1054,10 @@ feign:
         readTimeout: 5000
         loggerLevel: basic
 ----
+
+If we create both `@Configuration` bean and configuration properties, configuration properties will win.
+It will override `@Configuration` values. But if you want to change the priority to `@Configuration`,
+you can change `feign.client.primary` to `false`.
 
 NOTE: If you need to use `ThreadLocal` bound variables in your `RequestInterceptor`s you will need to either set the
 thread isolation strategy for Hystrix to `SEMAPHORE` or disable Hystrix in Feign.

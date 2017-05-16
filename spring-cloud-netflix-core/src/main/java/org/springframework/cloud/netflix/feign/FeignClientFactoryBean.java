@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.feign;
 
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,6 +46,7 @@ import lombok.EqualsAndHashCode;
 /**
  * @author Spencer Gibb
  * @author Venil Noronha
+ * @author Eko Kurniawan Khannedy
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -75,7 +77,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		Assert.hasText(this.name, "Name must be set");
 	}
 
-
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.applicationContext = context;
@@ -94,7 +95,33 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 				.contract(get(context, Contract.class));
 		// @formatter:on
 
-		// optional values
+		configureFeign(context, builder);
+
+		if (decode404) {
+			builder.decode404();
+		}
+
+		return builder;
+	}
+
+	protected void configureFeign(FeignContext context, Feign.Builder builder) {
+		FeignClientProperties properties = applicationContext.getBean(FeignClientProperties.class);
+		if (properties != null) {
+			if (properties.isPrimary()) {
+				configureUsingConfiguration(context, builder);
+				configureUsingProperties(properties.getConfig().get(properties.getDefaultConfig()), builder);
+				configureUsingProperties(properties.getConfig().get(this.name), builder);
+			} else {
+				configureUsingProperties(properties.getConfig().get(properties.getDefaultConfig()), builder);
+				configureUsingProperties(properties.getConfig().get(this.name), builder);
+				configureUsingConfiguration(context, builder);
+			}
+		} else {
+			configureUsingConfiguration(context, builder);
+		}
+	}
+
+	protected void configureUsingConfiguration(FeignContext context, Feign.Builder builder) {
 		Logger.Level level = getOptional(context, Logger.Level.class);
 		if (level != null) {
 			builder.logLevel(level);
@@ -116,29 +143,13 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		if (requestInterceptors != null) {
 			builder.requestInterceptors(requestInterceptors.values());
 		}
-
-		if (decode404) {
-			builder.decode404();
-		}
-
-		// configure feign builder from properties if exists
-		FeignClientProperties properties = applicationContext.getBean(FeignClientProperties.class);
-		if (properties != null) {
-			FeignClientProperties.FeignClientConfiguration defaultConfig = properties.getConfig().get(properties.getDefaultConfig());
-			if (defaultConfig != null) {
-				configureUsingProperties(defaultConfig, builder);
-			}
-
-			FeignClientProperties.FeignClientConfiguration feignConfig = properties.getConfig().get(this.name);
-			if (feignConfig != null) {
-				configureUsingProperties(feignConfig, builder);
-			}
-		}
-
-		return builder;
 	}
 
 	protected void configureUsingProperties(FeignClientProperties.FeignClientConfiguration config, Feign.Builder builder) {
+		if (config == null) {
+			return;
+		}
+
 		if (config.getLoggerLevel() != null) {
 			builder.logLevel(config.getLoggerLevel());
 		}
@@ -170,11 +181,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		try {
 			return applicationContext.getBean(tClass);
 		} catch (NoSuchBeanDefinitionException e) {
-			try {
-				return tClass.cast(tClass.newInstance());
-			} catch (Exception exception) {
-				throw new IllegalStateException(e.getMessage(), exception);
-			}
+			return BeanUtils.instantiateClass(tClass);
 		}
 	}
 
