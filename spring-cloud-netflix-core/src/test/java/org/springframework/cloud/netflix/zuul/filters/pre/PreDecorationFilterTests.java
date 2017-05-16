@@ -124,6 +124,24 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void xForwardedForProtoAndPortAppend() throws Exception {
+		this.properties.setPrefix("/api");
+		this.request.setRequestURI("/api/foo/1");
+		this.request.setRemoteAddr("5.6.7.8");
+		this.request.setServerPort(8080);
+		this.request.addHeader("X-Forwarded-For", "1.2.3.4");
+		this.request.addHeader("X-Forwarded-Proto", "https");
+		this.request.addHeader("X-Forwarded-Port", "443");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("1.2.3.4, 5.6.7.8", ctx.getZuulRequestHeaders().get("x-forwarded-for"));
+		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertEquals("443,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
+	}
+
+	@Test
 	public void xForwardedHostOnlyAppends() throws Exception {
 		this.properties.setPrefix("/api");
 		this.request.setRequestURI("/api/foo/1");

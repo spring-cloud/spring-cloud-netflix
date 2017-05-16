@@ -198,6 +198,8 @@ public class PreDecorationFilter extends ZuulFilter {
 		String proto = request.getScheme();
 		if (hasHeader(request, X_FORWARDED_HOST_HEADER)) {
 			host = request.getHeader(X_FORWARDED_HOST_HEADER) + "," + host;
+		}
+		if (hasHeader(request, X_FORWARDED_HOST_HEADER) || hasHeader(request, X_FORWARDED_FOR_HEADER)) {
 			if (!hasHeader(request, X_FORWARDED_PORT_HEADER)) {
 				if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
 					StringBuilder builder = new StringBuilder();
