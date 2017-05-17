@@ -1,14 +1,28 @@
+/*
+ * Copyright 2013-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-import feign.Client;
-import feign.Request;
-import feign.Request.Options;
-import feign.RequestTemplate;
-import feign.Response;
-import lombok.SneakyThrows;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -19,11 +33,9 @@ import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer.RibbonRe
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
 
 import static com.netflix.client.config.CommonClientConfigKey.ConnectTimeout;
 import static com.netflix.client.config.CommonClientConfigKey.IsSecure;
@@ -39,6 +51,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+
+import feign.Client;
+import feign.Request;
+import feign.Request.Options;
+import feign.RequestTemplate;
+import feign.Response;
+import lombok.SneakyThrows;
 
 public class FeignLoadBalancerTests {
 
@@ -66,12 +85,14 @@ public class FeignLoadBalancerTests {
 				.thenReturn(true);
 		when(this.config.get(ConnectTimeout)).thenReturn(this.defaultConnectTimeout);
 		when(this.config.get(ReadTimeout)).thenReturn(this.defaultReadTimeout);
+		when(this.config.get(OkToRetryOnAllOperations, false)).thenReturn(true);
 	}
 
 	@Test
 	@SneakyThrows
 	public void testUriInsecure() {
 		when(this.config.get(IsSecure)).thenReturn(false);
+
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
 		Request request = new RequestTemplate().method("GET").append("http://foo/")

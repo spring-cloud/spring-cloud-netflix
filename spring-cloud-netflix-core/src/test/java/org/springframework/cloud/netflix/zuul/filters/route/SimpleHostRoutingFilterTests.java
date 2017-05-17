@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -36,8 +37,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
@@ -69,7 +70,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SampleApplication.class,
 		webEnvironment = RANDOM_PORT,
-		properties = "server.contextPath: /app")
+		properties = "server.servlet.contextPath: /app")
 @DirtiesContext
 public class SimpleHostRoutingFilterTests {
 

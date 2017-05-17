@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -118,7 +119,7 @@ public class EurekaClientAutoConfiguration {
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
 		String hostname = getProperty("eureka.instance.hostname");
-		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.preferIpAddress"));
+		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(this.nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(this.env));
@@ -128,8 +129,8 @@ public class EurekaClientAutoConfiguration {
 			if (StringUtils.hasText(hostname)) {
 				instance.setHostname(hostname);
 			}
-			String statusPageUrlPath = getProperty("eureka.instance.statusPageUrlPath");
-			String healthCheckUrlPath = getProperty("eureka.instance.healthCheckUrlPath");
+			String statusPageUrlPath = getProperty("eureka.instance.status-page-url-path");
+			String healthCheckUrlPath = getProperty("eureka.instance.health-check-url-path");
 			if (StringUtils.hasText(statusPageUrlPath)) {
 				instance.setStatusPageUrlPath(statusPageUrlPath);
 			}

@@ -37,7 +37,7 @@ import com.netflix.eureka.resources.ServerCodecs;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = EurekaCustomPeerNodesTest.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka", "server.contextPath=/context",
+		"spring.application.name=eureka", "server.servlet.contextPath=/context",
 		"management.security.enabled=false" })
 public class EurekaCustomPeerNodesTest {
 
@@ -58,7 +58,7 @@ public class EurekaCustomPeerNodesTest {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(ApplicationContextTests.Application.class)
 					.properties("spring.application.name=eureka",
-							"server.contextPath=/context")
+							"server.servlet.contextPath=/context")
 					.run(args);
 		}
 

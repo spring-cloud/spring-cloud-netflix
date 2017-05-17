@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
@@ -39,7 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = { "spring.application.name=hystrix-dashboard",
-		"server.contextPath=/context" })
+		"server.servlet.contextPath=/context" })
 public class HystrixDashboardContextTests {
 
 	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";
@@ -99,7 +100,7 @@ public class HystrixDashboardContextTests {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=hystrix-dashboard",
-					"server.contextPath=/context").run();
+					"server.servlet.contextPath=/context").run();
 		}
 	}
 

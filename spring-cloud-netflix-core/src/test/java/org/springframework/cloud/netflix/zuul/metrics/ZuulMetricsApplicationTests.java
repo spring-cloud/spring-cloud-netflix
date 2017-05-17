@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.zuul.metrics;
@@ -38,11 +39,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
 		ZuulMetricsApplicationTests.ZuulMetricsApplicationTestsConfiguration.class,
-		ZuulMetricsApplicationTests.ZuulConfig.class }, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+		ZuulMetricsApplicationTests.ZuulConfig.class }, webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class ZuulMetricsApplicationTests {
 
@@ -88,11 +90,6 @@ public class ZuulMetricsApplicationTests {
 
 	@Configuration
 	static class ZuulMetricsApplicationTestsConfiguration {
-
-		@Bean
-		public ServerProperties serverProperties() {
-			return new ServerProperties();
-		}
 
 		@Bean
 		public CounterService counterService() {

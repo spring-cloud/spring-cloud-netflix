@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.ribbon.apache;
@@ -61,6 +62,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Sébastien Nussbaumer
@@ -176,6 +178,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(delegate, clientConfig,
 				introspector);
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+		when(request.toRequest(any(RequestConfig.class))).thenReturn(mock(HttpUriRequest.class));
 		try {
 			client.execute(request, null);
 			fail("Expected IOException");

@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -25,8 +26,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorController;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -100,7 +101,7 @@ public class ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
 	public SimpleRouteLocator simpleRouteLocator() {
-		return new SimpleRouteLocator(this.server.getServletPrefix(),
+		return new SimpleRouteLocator(this.server.getServlet().getServletPrefix(),
 				this.zuulProperties);
 	}
 
@@ -124,7 +125,7 @@ public class ZuulConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServlet")
 	public ServletRegistrationBean zuulServlet() {
-		ServletRegistrationBean servlet = new ServletRegistrationBean(new ZuulServlet(),
+		ServletRegistrationBean<ZuulServlet> servlet = new ServletRegistrationBean<>(new ZuulServlet(),
 				this.zuulProperties.getServletPattern());
 		// The whole point of exposing this servlet is to provide a route that doesn't
 		// buffer requests.

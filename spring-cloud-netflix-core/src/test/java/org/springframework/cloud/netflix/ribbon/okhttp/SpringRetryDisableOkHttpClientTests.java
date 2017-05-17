@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
@@ -21,8 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.cloud.ClassPathExclusions;
-import org.springframework.cloud.FilteredClassPathRunner;
+import org.springframework.cloud.test.ClassPathExclusions;
+import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -36,7 +37,7 @@ import static org.hamcrest.Matchers.instanceOf;
 /**
  * @author Ryan Baxter
  */
-@RunWith(FilteredClassPathRunner.class)
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({"spring-retry-*.jar", "spring-boot-starter-aop-*.jar"})
 public class SpringRetryDisableOkHttpClientTests {
 

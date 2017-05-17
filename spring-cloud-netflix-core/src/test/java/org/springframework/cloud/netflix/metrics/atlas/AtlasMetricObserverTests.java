@@ -1,14 +1,18 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.metrics.atlas;
@@ -161,7 +165,7 @@ public class AtlasMetricObserverTests {
 
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 		mockServer
-				.expect(MockRestRequestMatchers.requestTo("atlas/api/v1/publish"))
+				.expect(MockRestRequestMatchers.requestTo("/atlas/api/v1/publish"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
 				.andRespond(MockRestResponseCreators.withBadRequest().body("foo0 is bad for some reason"));
 
@@ -185,7 +189,7 @@ public class AtlasMetricObserverTests {
 
 		MockRestServiceServer mockServer = MockRestServiceServer.createServer(restTemplate);
 		mockServer
-				.expect(MockRestRequestMatchers.requestTo("atlas/api/v1/publish"))
+				.expect(MockRestRequestMatchers.requestTo("/atlas/api/v1/publish"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
 				.andRespond(
 						MockRestResponseCreators.withStatus(HttpStatus.ACCEPTED)
@@ -226,7 +230,7 @@ public class AtlasMetricObserverTests {
 			int totalBatchesExpected) {
 		for (int i = 0; i < totalBatchesExpected; i++) {
 			mockServer
-					.expect(MockRestRequestMatchers.requestTo("atlas/api/v1/publish"))
+					.expect(MockRestRequestMatchers.requestTo("/atlas/api/v1/publish"))
 					.andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
 					.andRespond(
 							MockRestResponseCreators.withSuccess("{\"status\" : \"OK\"}",
