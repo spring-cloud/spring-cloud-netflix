@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 
@@ -40,6 +41,7 @@ import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStr
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Mathias Düsterhöft
+ * @author Bilal Alp
  */
 @Data
 @ConfigurationProperties("zuul")
@@ -326,6 +328,14 @@ public class ZuulProperties {
 		 * The maximum number of connections that can be used by a single route.
 		 */
 		private int maxPerRouteConnections = 20;
+		/**
+		 * The lifetime for the connection pool.
+		 */
+		private long timeToLive = -1;
+		/**
+		 * The time unit for timeToLive.
+		 */
+		private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 	}
 	
 	@Data
