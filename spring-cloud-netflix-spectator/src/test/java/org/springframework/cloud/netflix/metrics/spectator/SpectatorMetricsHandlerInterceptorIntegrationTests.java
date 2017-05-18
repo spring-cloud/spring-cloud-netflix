@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.cloud.netflix.metrics.MetricsHandlerInterceptor;
 import org.springframework.cloud.netflix.metrics.servo.ServoMonitorCache;
 import org.springframework.context.annotation.Bean;
