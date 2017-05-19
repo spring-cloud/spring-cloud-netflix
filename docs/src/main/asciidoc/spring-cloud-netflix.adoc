@@ -1604,6 +1604,102 @@ NOTE: the routes should respond automatically to changes in the
 service catalog, but the POST to /routes is a way to force the change
 to happen immediately.
 
+=== The Routes Security Configuration
+To increase our performance, we implement a custom configuration security mechanism for making less network hops,
+a mechanism implemented on zuul where you can configure which route needs private, public or partial authentication. +
+Every route in zuul to a downstream service will have security configured based on how secure the endpoints has to be.
+
+.Secure Access Level Configuration
+|===
+| Property name |Description |Possible values |Default value
+
+| zuul.routes.<route>.secure-access-level
+
+| Extra security mechanism to secure the endpoints in a microservice on gateway level
+
+| private, partial-exposed, partial-private and public/none
+
+| public/none
+
+|===
+
+
+[NOTE]
+====
+The configuration only works if the route and path name are the same.
+====
+
+
+[source, json]
+.gateway.yml
+----
+zuul:
+  routes:
+    stores:
+      path: /stores/**
+      secure-access-level:
+    machine:
+      path: /machine/**
+      secure-access-level: partial-exposed
+    book:
+      path: /book/**
+      secure-access-level: partial-private
+    reservation:
+      path: /reservation/**
+      retryable: true
+      service-id: msrental
+      secure-access-level: private
+----
+
+==== Public secure access level route
+When your route is at public security level, the in- and out coming requests are exposed and won't need full authentication. +
+The secure access level is by default public, when you add a service route, all the endpoints will be exposed.
+
+==== Full secure access level route
+When your route is at full security level, the in- and out coming requests need full authentication of the client.
+The gateway will use a filter to check if there is an authorization header.
+If there is none, the gateway will block the request and returns a 403 forbidden.
+
+==== Partial exposed secure access level route
+When your route is at partial-expose level,
+all endpoints you configure in your yml will be public and won't need full authentication.
+The endpoints you don't configure are private and will need full authentication.
+
+[source, xml]
+.gateway.yml
+----
+partial-exposed: # <1>
+    paths:
+        machine: # <2>
+            - /machine/api # <3>
+            - /machine/example
+        booking:
+            - /booking/api
+----
+
+<1> The secure access level you want to configure
+<2> The route you want to configure (only works if the route has secure-access-level: partial-exposed!)
+<3> List of endpoints in your route downstream that you want to expose
+
+==== Partial private secure access level route
+When your route is at partial-private level,
+all endpoints you configure in your yml will be private and will need full authentication.
+The endpoint you don't configure will be public and won't need full authentication
+
+[source, xml]
+.gateway.yml
+----
+partial-private: # <1>
+    paths:
+        book: # <2>
+            - /book/api # <3>
+            - /book/example
+----
+
+<1> The secure access level you want to configure
+<2> The route you want to configure (only works if the route has secure-access-level: partial-private!)
+<3> List of endpoints in your route downstream that you want to privatise and need full authentication
+
 === Strangulation Patterns and Local Forwards
 
 A common pattern when migrating an existing application or API is to
