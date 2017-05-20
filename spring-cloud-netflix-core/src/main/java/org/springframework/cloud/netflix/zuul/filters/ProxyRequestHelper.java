@@ -157,22 +157,14 @@ public class ProxyRequestHelper {
 		}
 
 		boolean isOriginResponseGzipped = false;
-        if (headers.containsKey(CONTENT_ENCODING)) {
-            List<String> collection = headers.get(CONTENT_ENCODING);
-            for (String header : collection) {
-                if (HTTPRequestUtils.getInstance().isGzipped(header)) {
-                    isOriginResponseGzipped = true;
-                    break;
-                }
-            }
-        }
-		context.setResponseGZipped(isOriginResponseGzipped);
-
 		for (Entry<String, List<String>> header : headers.entrySet()) {
 			String name = header.getKey();
 			for (String value : header.getValue()) {
-				context.addOriginResponseHeader(name, value);
-				if (name.equalsIgnoreCase(CONTENT_LENGTH)) {
+				if (name.equalsIgnoreCase(HttpHeaders.CONTENT_ENCODING)
+						&& HTTPRequestUtils.getInstance().isGzipped(value)) {
+					isOriginResponseGzipped = true;
+				}
+				if (name.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
 					context.setOriginContentLength(value);
 				}
 				if (isIncludedHeader(name)) {
@@ -180,6 +172,7 @@ public class ProxyRequestHelper {
 				}
 			}
 		}
+		context.setResponseGZipped(isOriginResponseGzipped);
 	}
 
 	public void addIgnoredHeaders(String... names) {
