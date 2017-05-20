@@ -156,23 +156,16 @@ public class ProxyRequestHelper {
 			context.setResponseDataStream(entity);
 		}
 
-		HttpHeaders httpHeaders = new HttpHeaders();
-		for (Entry<String, List<String>> header : headers.entrySet()) {
-			List<String> values = header.getValue();
-			for (String value : values) {
-				httpHeaders.add(header.getKey(), value);
-			}
-		}
 		boolean isOriginResponseGzipped = false;
-		if (httpHeaders.containsKey(CONTENT_ENCODING)) {
-			List<String> collection = httpHeaders.get(CONTENT_ENCODING);
-			for (String header : collection) {
-				if (HTTPRequestUtils.getInstance().isGzipped(header)) {
-					isOriginResponseGzipped = true;
-					break;
-				}
-			}
-		}
+        if (headers.containsKey(CONTENT_ENCODING)) {
+            List<String> collection = headers.get(CONTENT_ENCODING);
+            for (String header : collection) {
+                if (HTTPRequestUtils.getInstance().isGzipped(header)) {
+                    isOriginResponseGzipped = true;
+                    break;
+                }
+            }
+        }
 		context.setResponseGZipped(isOriginResponseGzipped);
 
 		for (Entry<String, List<String>> header : headers.entrySet()) {
