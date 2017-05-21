@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,14 @@ package org.springframework.cloud.netflix.hystrix.stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.SpringApplication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,18 +33,30 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = HystrixStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"server.port=0", "spring.jmx.enabled=true" })
+		"server.port=0", "spring.jmx.enabled=true", "spring.application.name=mytestapp" })
 @DirtiesContext
 public class HystrixStreamTests {
+
+	@Autowired
+	private HystrixStreamTask task;
+
+	@Autowired
+	private Application application;
+	
+	@Autowired
+	private DiscoveryClient discoveryClient;
 
 	@EnableAutoConfiguration
 	@EnableCircuitBreaker
 	@RestController
+	@Configuration
 	public static class Application {
 
 		@HystrixCommand
@@ -49,16 +64,17 @@ public class HystrixStreamTests {
 		public String hello() {
 			return "Hello World";
 		}
-
-		public static void main(String[] args) {
-			SpringApplication.run(Application.class, args);
-		}
-
 	}
 
 	@Test
 	public void contextLoads() {
-
+		this.application.hello();
+		//It is important that local service instance resolves for metrics 
+		//origin details to be populated
+		ServiceInstance localServiceInstance = discoveryClient.getLocalServiceInstance();
+		assertThat(localServiceInstance).isNotNull();
+		assertThat(localServiceInstance.getServiceId()).isEqualTo("mytestapp");
+		this.task.gatherMetrics();
 	}
 
 }

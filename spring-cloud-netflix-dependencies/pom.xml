@@ -16,8 +16,8 @@
 	<properties>
 		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.6.2</eureka.version>
-		<feign.version>9.4.0</feign.version>
-		<hystrix.version>1.5.10</hystrix.version>
+		<feign.version>9.5.0</feign.version>
+		<hystrix.version>1.5.12</hystrix.version>
 		<ribbon.version>2.2.2</ribbon.version>
 		<servo.version>0.10.1</servo.version>
 		<zuul.version>1.3.0</zuul.version>
@@ -232,11 +232,6 @@
 						<artifactId>annotations</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>javax-inject</groupId>
-				<artifactId>javax-inject</artifactId>
-				<version>1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.eureka</groupId>

@@ -19,9 +19,11 @@ package org.springframework.cloud.netflix.feign;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -109,6 +112,19 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
+	public void testWildcardTypeDecode() {
+		ResponseEntity<?> wildcard = testClient().getWildcard();
+		assertNotNull("wildcard was null", wildcard);
+		assertEquals("wrong status code", HttpStatus.OK, wildcard.getStatusCode());
+		Object wildcardBody = wildcard.getBody();
+		assertNotNull("wildcardBody was null", wildcardBody);
+		assertTrue("wildcard not an instance of Map", wildcardBody instanceof Map);
+		Map<String, String> hello = (Map<String, String>) wildcardBody;
+		assertEquals("first hello didn't match", "wildcard", hello.get("message"));
+	}
+
+	@Test
 	public void testResponseEntityVoid() {
 		ResponseEntity<Void> response = testClient().getHelloVoid();
 		assertNotNull("response was null", response);
@@ -156,6 +172,9 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 
 		@RequestMapping(method = RequestMethod.GET, value = "/hellonotfound")
 		ResponseEntity<String> getNotFound();
+
+		@GetMapping("/helloWildcard")
+		ResponseEntity<?> getWildcard();
 	}
 
 	@Configuration
@@ -197,6 +216,11 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		@Override
 		public ResponseEntity<String> getNotFound() {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String) null);
+		}
+
+		@Override
+		public ResponseEntity<?> getWildcard() {
+			return ResponseEntity.ok(new Hello("wildcard"));
 		}
 
 		public static void main(String[] args) {

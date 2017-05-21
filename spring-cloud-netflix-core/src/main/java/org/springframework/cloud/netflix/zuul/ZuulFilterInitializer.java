@@ -33,9 +33,10 @@ import com.netflix.zuul.monitoring.TracerFactory;
 import lombok.extern.apachecommons.CommonsLog;
 
 /**
+ * Initializes various Zuul components including {@link ZuulFilter}.
+ *
  * @author Spencer Gibb
  *
- * TODO: .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
  */
 @CommonsLog
 public class ZuulFilterInitializer implements ServletContextListener {
@@ -91,17 +92,4 @@ public class ZuulFilterInitializer implements ServletContextListener {
 		cache.clear();
 	}
 
-	/*
-	 * private void initGroovyFilterManager() {
-	 * 
-	 * //TODO: support groovy filters loaded from filesystem in proxy
-	 * FilterLoader.getInstance().setCompiler(new GroovyCompiler());
-	 * 
-	 * final String scriptRoot = props.getFilterRoot();
-	 * log.info("Using file system script: " + scriptRoot);
-	 * 
-	 * try { FilterFileManager.setFilenameFilter(new GroovyFileFilter());
-	 * FilterFileManager.init(5, scriptRoot + "/pre", scriptRoot + "/route", scriptRoot +
-	 * "/post" ); } catch (Exception e) { throw new RuntimeException(e); } }
-	 */
 }
