@@ -216,10 +216,8 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		}
 	}
 
-	private void registerHealthIndicator(BeanDefinitionRegistry registry,
-																			 String feignClass,
-																			 String feignName,
-																			 String healthMethod) {
+	private void registerHealthIndicator(BeanDefinitionRegistry registry, String feignClass,
+																			 String feignName, String healthMethod) {
 		try {
 			FeignClientHealthConfiguration.FeignClientHealthRegistrar healthRegistrar =
 					beanFactory.getBean(FeignClientHealthConfiguration.FeignClientHealthRegistrar.class);
