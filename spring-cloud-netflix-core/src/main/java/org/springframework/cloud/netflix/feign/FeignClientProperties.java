@@ -54,6 +54,8 @@ public class FeignClientProperties {
 
 		private List<Class<RequestInterceptor>> requestInterceptors;
 
+		private Boolean decode404;
+
 	}
 
 }

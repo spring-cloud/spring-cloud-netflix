@@ -97,10 +97,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 
 		configureFeign(context, builder);
 
-		if (decode404) {
-			builder.decode404();
-		}
-
 		return builder;
 	}
 
@@ -143,6 +139,10 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		if (requestInterceptors != null) {
 			builder.requestInterceptors(requestInterceptors.values());
 		}
+
+		if (decode404) {
+			builder.decode404();
+		}
 	}
 
 	protected void configureUsingProperties(FeignClientProperties.FeignClientConfiguration config, Feign.Builder builder) {
@@ -173,6 +173,12 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			for (Class<RequestInterceptor> bean : config.getRequestInterceptors()) {
 				RequestInterceptor interceptor = getOrInstantiate(bean);
 				builder.requestInterceptor(interceptor);
+			}
+		}
+
+		if (config.getDecode404() != null) {
+			if (config.getDecode404()) {
+				builder.decode404();
 			}
 		}
 	}
