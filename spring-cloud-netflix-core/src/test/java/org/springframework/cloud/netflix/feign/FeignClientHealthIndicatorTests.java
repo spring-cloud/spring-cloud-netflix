@@ -64,14 +64,22 @@ public class FeignClientHealthIndicatorTests {
 	}
 
 	@Test
-	public void testUp() {
+	public void testHealthy() {
 		HealthIndicator indicator = applicationContext.getBean("healthClientHealthIndicator", HealthIndicator.class);
 		Health health = indicator.health();
 
 		assertEquals(Status.UP, health.getStatus());
-		assertEquals(HttpStatus.OK.value(), health.getDetails().get("code"));
-		assertEquals(HttpStatus.OK.getReasonPhrase(), health.getDetails().get("status"));
-		assertEquals("OK", health.getDetails().get("body"));
+		assertEquals(HttpStatus.OK.value(), health.getDetails().get("statusCode"));
+		assertEquals("OK", health.getDetails().get("responseBody"));
+	}
+
+	@Test
+	public void testBasic() {
+		HealthIndicator indicator = applicationContext.getBean("basicClientHealthIndicator", HealthIndicator.class);
+		Health health = indicator.health();
+
+		assertEquals(Status.UP, health.getStatus());
+		assertEquals("OK", health.getDetails().get("responseBody"));
 	}
 
 	@Test
@@ -88,6 +96,13 @@ public class FeignClientHealthIndicatorTests {
 		ResponseEntity<String> health();
 	}
 
+	@FeignClient(name = "basicClient", url = "http://localhost:${server.port}", health = "basic")
+	protected interface BasicClient {
+
+		@RequestMapping(method = RequestMethod.GET, value = "/basic")
+		String basic();
+	}
+
 	@FeignClient(name = "downClient", url = "http://localhost:${server.port}", health = "down")
 	protected interface DownClient {
 
@@ -98,9 +113,9 @@ public class FeignClientHealthIndicatorTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@Import({FeignAutoConfiguration.class})
-	@EnableFeignClients(clients = {HealthClient.class, DownClient.class})
+	@EnableFeignClients(clients = {HealthClient.class, DownClient.class, BasicClient.class})
 	@RestController
-	protected static class Application implements HealthClient, DownClient {
+	protected static class Application implements HealthClient, DownClient, BasicClient {
 
 		@Override
 		public ResponseEntity<String> health() {
@@ -110,6 +125,11 @@ public class FeignClientHealthIndicatorTests {
 		@Override
 		public ResponseEntity<String> down() {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("KO");
+		}
+
+		@Override
+		public String basic() {
+			return "OK";
 		}
 	}
 
