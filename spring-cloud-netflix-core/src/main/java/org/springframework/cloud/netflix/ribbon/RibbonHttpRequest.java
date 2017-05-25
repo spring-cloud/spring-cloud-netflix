@@ -60,6 +60,11 @@ public class RibbonHttpRequest extends AbstractClientHttpRequest {
 	}
 
 	@Override
+	public String getMethodValue() {
+		return getMethod().name();
+	}
+
+	@Override
 	public URI getURI() {
 		return uri;
 	}

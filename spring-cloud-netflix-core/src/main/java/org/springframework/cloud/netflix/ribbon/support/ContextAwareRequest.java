@@ -55,6 +55,11 @@ public abstract class ContextAwareRequest extends ClientRequest implements HttpR
 	}
 
 	@Override
+	public String getMethodValue() {
+		return getMethod().name();
+	}
+
+	@Override
 	public URI getURI() {
 		return this.getUri();
 	}

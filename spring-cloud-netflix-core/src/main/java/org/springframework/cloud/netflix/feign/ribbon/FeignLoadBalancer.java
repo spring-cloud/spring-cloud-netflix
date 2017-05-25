@@ -138,6 +138,11 @@ public class FeignLoadBalancer extends
 				}
 
 				@Override
+				public String getMethodValue() {
+					return getMethod().name();
+				}
+
+				@Override
 				public URI getURI() {
 					return RibbonRequest.this.getUri();
 				}
