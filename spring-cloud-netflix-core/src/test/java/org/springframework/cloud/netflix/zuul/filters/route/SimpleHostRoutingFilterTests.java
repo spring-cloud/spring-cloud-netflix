@@ -30,15 +30,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.Configurable;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -72,7 +76,8 @@ import static org.springframework.util.StreamUtils.copyToString;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SampleApplication.class,
 		webEnvironment = RANDOM_PORT,
-		properties = "server.contextPath: /app")
+		properties = {"server.contextPath: /app", "zuul.host.socket-timeout-millis=11000",
+				"zuul.host.connect-timeout-millis=2100"})
 @DirtiesContext
 public class SimpleHostRoutingFilterTests {
 
@@ -86,6 +91,16 @@ public class SimpleHostRoutingFilterTests {
 		if (this.context != null) {
 			this.context.close();
 		}
+	}
+
+	@Test
+	public void timeoutPropertiesAreApplied() {
+		setupContext();
+		CloseableHttpClient httpClient = getFilter().newClient();
+		Assertions.assertThat(httpClient).isInstanceOf(Configurable.class);
+		RequestConfig config = ((Configurable) httpClient).getConfig();
+		assertEquals(11000, config.getSocketTimeout());
+		assertEquals(2100, config.getConnectTimeout());
 	}
 
 	@Test
