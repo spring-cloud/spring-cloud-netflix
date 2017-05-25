@@ -17,34 +17,35 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.hystrix.dashboard.HystrixDashboardContextTests.Application;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Dave Syer
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = { "spring.application.name=hystrix-dashboard",
-		"server.servlet.contextPath=/context" })
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "spring.application.name=hystrix-dashboard",
+		"server.servlet.context-path=/context" })
 public class HystrixDashboardContextTests {
 
 	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port = 0;
 
 	@Test
@@ -100,7 +101,7 @@ public class HystrixDashboardContextTests {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class).properties(
 					"spring.application.name=hystrix-dashboard",
-					"server.servlet.contextPath=/context").run();
+					"server.servlet.context-path=/context").run();
 		}
 	}
 

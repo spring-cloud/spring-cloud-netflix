@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,10 +23,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.eureka.server.ApplicationServletPathTests.Application;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -38,11 +34,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.application.name=eureka", "server.servletPath=/servlet",
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
+		"spring.application.name=eureka", "server.servlet.path=/servlet",
 		"management.security.enabled=false" })
 public class ApplicationServletPathTests {
 
@@ -56,7 +56,7 @@ public class ApplicationServletPathTests {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(Application.class)
 					.properties("spring.application.name=eureka",
-							"server.servletPath=/servlet")
+							"server.servlet.path=/servlet")
 					.run(args);
 		}
 	}
@@ -106,7 +106,7 @@ public class ApplicationServletPathTests {
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/servlet/env", HttpMethod.GET,
+				"http://localhost:" + this.port + "/servlet/application/env", HttpMethod.GET,
 				new HttpEntity<>("parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}

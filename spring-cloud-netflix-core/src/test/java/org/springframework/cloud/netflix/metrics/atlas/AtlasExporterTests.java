@@ -51,7 +51,7 @@ public class AtlasExporterTests {
 		MockRestServiceServer mockServer = MockRestServiceServer
 				.createServer(this.restTemplate);
 
-		mockServer.expect(MockRestRequestMatchers.requestTo("atlas/api/v1/publish"))
+		mockServer.expect(MockRestRequestMatchers.requestTo("/atlas/api/v1/publish"))
 				.andExpect(MockRestRequestMatchers.method(HttpMethod.POST))
 				.andRespond(MockRestResponseCreators.withSuccess("{\"status\" : \"OK\"}",
 						MediaType.APPLICATION_JSON));

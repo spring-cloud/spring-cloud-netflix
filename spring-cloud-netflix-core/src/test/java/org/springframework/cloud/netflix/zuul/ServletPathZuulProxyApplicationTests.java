@@ -53,7 +53,7 @@ import com.netflix.zuul.context.RequestContext;
 @SpringBootTest(
 		classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class,
 		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = {"server.servletPath: /app"})
+		properties = {"server.servlet.path: /app"})
 @DirtiesContext
 public class ServletPathZuulProxyApplicationTests {
 

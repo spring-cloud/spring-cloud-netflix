@@ -78,7 +78,8 @@ import com.netflix.loadbalancer.ServerList;
 @SpringBootTest(classes = HttpClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
 		"zuul.routes.another: /another/twolevel/**", "zuul.routes.simple: /simple/**",
-		"zuul.routes.singleton: /singleton/**",
+		"zuul.routes.singleton.id: singleton",
+		"zuul.routes.singleton.path: /singleton/**",
 		"zuul.routes.singleton.sensitiveHeaders: " })
 @DirtiesContext
 public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {

@@ -75,6 +75,11 @@
 			<artifactId>commons-configuration</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<!-- end archaius deps -->
 		<dependency>
 			<groupId>com.netflix.servo</groupId>

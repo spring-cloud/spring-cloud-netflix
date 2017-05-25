@@ -173,6 +173,11 @@
 				<artifactId>commons-configuration</artifactId>
 				<version>1.8</version>
 			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.1.1</version>
+			</dependency>
 			<!-- end archaius deps -->
 			<dependency>
 				<groupId>com.sun.jersey</groupId>

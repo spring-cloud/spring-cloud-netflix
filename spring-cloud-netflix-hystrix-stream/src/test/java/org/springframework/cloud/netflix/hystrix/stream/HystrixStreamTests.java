@@ -35,8 +35,8 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = HystrixStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"server.port=0", "spring.jmx.enabled=true" })
+@SpringBootTest(classes = HystrixStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "spring.jmx.enabled=true" })
 @DirtiesContext
 public class HystrixStreamTests {
 
