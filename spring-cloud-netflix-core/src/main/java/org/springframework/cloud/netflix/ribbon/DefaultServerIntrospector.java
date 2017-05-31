@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.netflix.loadbalancer.Server;
@@ -25,10 +27,11 @@ import com.netflix.loadbalancer.Server;
  * @author Spencer Gibb
  */
 public class DefaultServerIntrospector implements ServerIntrospector {
+	private static final List<Integer> SECURE_PORTS = Arrays.asList(443, 8443);
+
 	@Override
 	public boolean isSecure(Server server) {
-		// Can we do better?
-		return (""+server.getPort()).endsWith("443");
+		return SECURE_PORTS.contains(server.getPort());
 	}
 
 	@Override
