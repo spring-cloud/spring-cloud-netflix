@@ -23,7 +23,10 @@ import java.io.IOException;
 /**
  * Exception to be thrown when the status code is deemed to be retryable.
  * @author Ryan Baxter
+ * @deprecated Use {@link org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException} instead
  */
+//TODO Remove in Edgeware
+@Deprecated
 public class RetryableStatusCodeException extends IOException {
 
 	private static final String MESSAGE = "Service %s returned a status code of %d";
