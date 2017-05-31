@@ -21,6 +21,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +37,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DefaultServerIntrospectorTest.TestConfiguration.class)
-@TestPropertySource(properties = { "ribbon.securePorts=12345" })
+@TestPropertySource(properties = { "ribbon.securePorts=12345,556" })
 public class DefaultServerIntrospectorTest {
 
 	@Autowired
@@ -46,12 +48,14 @@ public class DefaultServerIntrospectorTest {
 		Server serverMock = mock(Server.class);
 		when(serverMock.getPort()).thenReturn(12345);
 		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
-
+		when(serverMock.getPort()).thenReturn(556);
+		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
 		when(serverMock.getPort()).thenReturn(443);
 		Assert.assertFalse(serverIntrospector.isSecure(serverMock));
 	}
 
 	@Configuration
+	@EnableConfigurationProperties(ServerIntrospectorProperties.class)
 	protected static class TestConfiguration {
 		@Bean
 		public DefaultServerIntrospector defaultServerIntrospector(){
