@@ -31,7 +31,7 @@ import java.util.Map;
 public class DefaultServerIntrospector implements ServerIntrospector {
 
 	@Autowired
-	ServerIntrospectorProperties serverIntrospectorProperties;
+	private ServerIntrospectorProperties serverIntrospectorProperties;
 
 	@Override
 	public boolean isSecure(Server server) {
