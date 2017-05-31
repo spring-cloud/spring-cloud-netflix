@@ -74,11 +74,6 @@ public class HystrixSecurityAutoConfiguration {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
-		@ConditionalOnProperty(name = "feign.hystrix.enabled", matchIfMissing = false)
-		static class HystrixEnabled {
-
-		}
-
 		@ConditionalOnProperty(name = "hystrix.shareSecurityContext")
 		static class ShareSecurityContext {
 

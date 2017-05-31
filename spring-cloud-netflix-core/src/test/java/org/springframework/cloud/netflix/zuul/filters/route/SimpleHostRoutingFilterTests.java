@@ -20,8 +20,10 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,9 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.Configurable;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +56,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -70,7 +77,8 @@ import static org.springframework.util.StreamUtils.copyToString;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SampleApplication.class,
 		webEnvironment = RANDOM_PORT,
-		properties = "server.servlet.contextPath: /app")
+		properties = {"server.servlet.contextPath: /app", "zuul.host.socket-timeout-millis=11000",
+				"zuul.host.connect-timeout-millis=2100"})
 @DirtiesContext
 public class SimpleHostRoutingFilterTests {
 
@@ -87,12 +95,36 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
+	public void timeoutPropertiesAreApplied() {
+		setupContext();
+		CloseableHttpClient httpClient = getFilter().newClient();
+		Assertions.assertThat(httpClient).isInstanceOf(Configurable.class);
+		RequestConfig config = ((Configurable) httpClient).getConfig();
+		assertEquals(11000, config.getSocketTimeout());
+		assertEquals(2100, config.getConnectTimeout());
+	}
+
+	@Test
 	public void connectionPropertiesAreApplied() {
-		addEnvironment(this.context, "zuul.host.maxTotalConnections=100", "zuul.host.maxPerRouteConnections=10");
+		addEnvironment(this.context, "zuul.host.maxTotalConnections=100",
+				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
+				"zuul.host.timeUnit=SECONDS");
 		setupContext();
 		PoolingHttpClientConnectionManager connMgr = getFilter().newConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
+		Object pool = getField(connMgr, "pool");
+		Long timeToLive = getField(pool, "timeToLive");
+		TimeUnit timeUnit = getField(pool, "tunit");
+		assertEquals(new Long(5), timeToLive);
+		assertEquals(TimeUnit.SECONDS, timeUnit);
+	}
+
+	protected <T> T getField(Object target, String name) {
+		Field field = ReflectionUtils.findField(target.getClass(), name);
+		ReflectionUtils.makeAccessible(field);
+		Object value = ReflectionUtils.getField(field, target);
+		return (T)value;
 	}
 
 	@Test

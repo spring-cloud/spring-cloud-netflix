@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.hystrix.security;
 
 import java.util.Base64;
 
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Tests that a secured web service returning values using a feign client properly access
  * the security context from a hystrix command.
@@ -40,7 +44,9 @@ import org.springframework.web.client.RestTemplate;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext
-@SpringBootTest(classes = HystrixSecurityApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {"username.ribbon.listOfServers=localhost:${local.server.port}","feign.hystrix.enabled=true"})
+@SpringBootTest(classes = HystrixSecurityApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = { "username.ribbon.listOfServers=localhost:${local.server.port}",
+				"feign.hystrix.enabled=true"})
 public class HystrixSecurityTests {
 	@Autowired
 	private CustomConcurrenyStrategy customConcurrenyStrategy;
@@ -53,6 +59,12 @@ public class HystrixSecurityTests {
 
 	@Value("${security.user.password}")
 	private String password;
+
+	@Test
+	public void testSecurityConcurrencyStrategyInstalled() {
+		HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance().getConcurrencyStrategy();
+		assertThat(concurrencyStrategy).isInstanceOf(SecurityContextConcurrencyStrategy.class);
+	}
 
 	@Test
 	public void testFeignHystrixSecurity() {
