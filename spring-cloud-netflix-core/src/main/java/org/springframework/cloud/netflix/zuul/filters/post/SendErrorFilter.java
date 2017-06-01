@@ -87,6 +87,7 @@ public class SendErrorFilter extends ZuulFilter {
 			if (dispatcher != null) {
 				ctx.set(SEND_ERROR_FILTER_RAN, true);
 				if (!ctx.getResponse().isCommitted()) {
+					ctx.setResponseStatusCode(exception.nStatusCode);
 					dispatcher.forward(request, ctx.getResponse());
 				}
 			}

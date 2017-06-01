@@ -29,6 +29,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.netflix.zuul.context.RequestContext;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -81,5 +82,18 @@ public class SendErrorFilterTests {
 		assertTrue("shouldFilter returned false", filter.shouldFilter());
 		filter.run();
 		assertFalse("shouldFilter returned true", filter.shouldFilter());
+	}
+
+	@Test
+	public void setResponseCode() {
+		SendErrorFilter filter = createSendErrorFilter(new MockHttpServletRequest());
+		filter.run();
+
+		RequestContext ctx = RequestContext.getCurrentContext();
+		int resCode = ctx.getResponse().getStatus();
+		int ctxCode = ctx.getResponseStatusCode();
+
+		assertEquals("invalid response code: " + resCode, HttpStatus.NOT_FOUND.value(), resCode);
+		assertEquals("invalid response code in RequestContext: " + ctxCode, resCode, ctxCode);
 	}
 }
