@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.springframework.cloud.netflix.zuul.metrics;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.ClassPathExclusions;
-import org.springframework.cloud.netflix.zuul.ZuulConfiguration;
+import org.springframework.cloud.netflix.zuul.ZuulServerAutoConfiguration;
+import org.springframework.cloud.netflix.zuul.ZuulServerMarkerConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +43,7 @@ public class ZuulEmptyMetricsApplicationTests {
 	public void setUp() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(ZuulEmptyMetricsApplicationTestsConfiguration.class,
-				ZuulConfiguration.class);
+			ZuulServerMarkerConfiguration.class, ZuulServerAutoConfiguration.class);
 		context.refresh();
 
 		this.context = context;

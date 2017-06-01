@@ -8,7 +8,9 @@ org.springframework.cloud.netflix.hystrix.HystrixAutoConfiguration,\
 org.springframework.cloud.netflix.hystrix.security.HystrixSecurityAutoConfiguration,\
 org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration,\
 org.springframework.cloud.netflix.rx.RxJavaAutoConfiguration,\
-org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration
+org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration,\
+org.springframework.cloud.netflix.zuul.ZuulServerAutoConfiguration,\
+org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfiguration
 
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration

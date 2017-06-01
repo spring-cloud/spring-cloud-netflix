@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -53,12 +54,14 @@ import org.springframework.context.annotation.Import;
 /**
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Biju Kunjummen
  */
 @Configuration
 @Import({ RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.OkHttpRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class })
-public class ZuulProxyConfiguration extends ZuulConfiguration {
+@ConditionalOnBean(ZuulProxyMarkerConfiguration.Marker.class)
+public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@SuppressWarnings("rawtypes")
 	@Autowired(required = false)
@@ -72,7 +75,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 
 	@Override
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyAutoConfiguration.class);
 	}
 
 	@Bean
@@ -98,6 +101,7 @@ public class ZuulProxyConfiguration extends ZuulConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(SimpleHostRoutingFilter.class)
 	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties) {
 		return new SimpleHostRoutingFilter(helper, zuulProperties);
 	}
