@@ -61,7 +61,7 @@ import com.netflix.ribbon.Ribbon;
 @RibbonClients
 @AutoConfigureAfter(name = "org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration")
 @AutoConfigureBefore({LoadBalancerAutoConfiguration.class, AsyncLoadBalancerAutoConfiguration.class})
-@EnableConfigurationProperties(RibbonEagerLoadProperties.class)
+@EnableConfigurationProperties({RibbonEagerLoadProperties.class, ServerIntrospectorProperties.class})
 public class RibbonAutoConfiguration {
 
 	@Autowired(required = false)

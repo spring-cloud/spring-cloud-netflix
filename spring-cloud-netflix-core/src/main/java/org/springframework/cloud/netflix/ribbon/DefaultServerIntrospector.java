@@ -16,19 +16,30 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import java.util.Collections;
-import java.util.Map;
-
 import com.netflix.loadbalancer.Server;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Spencer Gibb
  */
 public class DefaultServerIntrospector implements ServerIntrospector {
+
+	private ServerIntrospectorProperties serverIntrospectorProperties = new ServerIntrospectorProperties();
+
+	@Autowired(required = false)
+	public void setServerIntrospectorProperties(ServerIntrospectorProperties serverIntrospectorProperties){
+		this.serverIntrospectorProperties = serverIntrospectorProperties;
+	}
+
 	@Override
 	public boolean isSecure(Server server) {
-		// Can we do better?
-		return (""+server.getPort()).endsWith("443");
+		return serverIntrospectorProperties.getSecurePorts().contains(server.getPort());
 	}
 
 	@Override
