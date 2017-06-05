@@ -67,18 +67,17 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
 import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
+import org.springframework.context.event.EventListener;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_SCHEME;
@@ -98,14 +97,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private static final Log log = LogFactory.getLog(SimpleHostRoutingFilter.class);
 
-	private static final DynamicIntProperty SOCKET_TIMEOUT = DynamicPropertyFactory
-			.getInstance()
-			.getIntProperty(ZuulConstants.ZUUL_HOST_SOCKET_TIMEOUT_MILLIS, 10000);
-
-	private static final DynamicIntProperty CONNECTION_TIMEOUT = DynamicPropertyFactory
-			.getInstance()
-			.getIntProperty(ZuulConstants.ZUUL_HOST_CONNECT_TIMEOUT_MILLIS, 2000);
-
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
 
@@ -117,9 +108,18 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private PoolingHttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
 
-	private final Runnable clientloader = new Runnable() {
-		@Override
-		public void run() {
+	@EventListener
+	public void onPropertyChange(EnvironmentChangeEvent event) {
+		boolean createNewClient = false;
+
+		for (String key : event.getKeys()) {
+			if (key.startsWith("zuul.host.")) {
+				createNewClient = true;
+				break;
+			}
+		}
+
+		if (createNewClient) {
 			try {
 				SimpleHostRoutingFilter.this.httpClient.close();
 			}
@@ -128,7 +128,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			}
 			SimpleHostRoutingFilter.this.httpClient = newClient();
 		}
-	};
+	}
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties) {
 		this.helper = helper;
@@ -141,8 +141,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	@PostConstruct
 	private void initialize() {
 		this.httpClient = newClient();
-		SOCKET_TIMEOUT.addCallback(this.clientloader);
-		CONNECTION_TIMEOUT.addCallback(this.clientloader);
 		this.connectionManagerTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -251,8 +249,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	protected CloseableHttpClient newClient() {
 		final RequestConfig requestConfig = RequestConfig.custom()
-				.setSocketTimeout(SOCKET_TIMEOUT.get())
-				.setConnectTimeout(CONNECTION_TIMEOUT.get())
+				.setSocketTimeout(this.hostProperties.getSocketTimeoutMillis())
+				.setConnectTimeout(this.hostProperties.getConnectTimeoutMillis())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
