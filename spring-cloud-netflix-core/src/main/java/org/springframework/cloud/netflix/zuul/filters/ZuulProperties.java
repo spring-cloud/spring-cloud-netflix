@@ -329,6 +329,14 @@ public class ZuulProperties {
 		 */
 		private int maxPerRouteConnections = 20;
 		/**
+		 * The socket timeout in millis. Defaults to 10000.
+		 */
+		private int socketTimeoutMillis = 10000;
+		/**
+		 * The connection timeout in millis. Defaults to 2000.
+		 */
+		private int connectTimeoutMillis = 2000;
+		/**
 		 * The lifetime for the connection pool.
 		 */
 		private long timeToLive = -1;

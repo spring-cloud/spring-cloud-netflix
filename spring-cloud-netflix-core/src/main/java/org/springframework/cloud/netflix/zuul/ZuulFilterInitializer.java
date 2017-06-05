@@ -19,8 +19,8 @@ package org.springframework.cloud.netflix.zuul;
 import java.lang.reflect.Field;
 import java.util.Map;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.springframework.util.ReflectionUtils;
 
@@ -39,7 +39,7 @@ import lombok.extern.apachecommons.CommonsLog;
  *
  */
 @CommonsLog
-public class ZuulFilterInitializer implements ServletContextListener {
+public class ZuulFilterInitializer {
 
 	private final Map<String, ZuulFilter> filters;
 	private final CounterFactory counterFactory;
@@ -59,10 +59,9 @@ public class ZuulFilterInitializer implements ServletContextListener {
 		this.filterRegistry = filterRegistry;
 	}
 
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-
-		log.info("Starting filter initializer context listener");
+	@PostConstruct
+	public void contextInitialized() {
+		log.info("Starting filter initializer");
 
 		TracerFactory.initialize(tracerFactory);
 		CounterFactory.initialize(counterFactory);
@@ -72,9 +71,9 @@ public class ZuulFilterInitializer implements ServletContextListener {
 		}
 	}
 
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		log.info("Stopping filter initializer context listener");
+	@PreDestroy
+	public void contextDestroyed() {
+		log.info("Stopping filter initializer");
 		for (Map.Entry<String, ZuulFilter> entry : this.filters.entrySet()) {
 			filterRegistry.remove(entry.getKey());
 		}
