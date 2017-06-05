@@ -148,8 +148,6 @@ public class ArchaiusAutoConfiguration {
 					config.addConfiguration(externalConfig);
 				}
 			}
-			config.addConfiguration(envConfig,
-					ConfigurableEnvironmentConfiguration.class.getSimpleName());
 
 			// below come from ConfigurationManager.createDefaultConfigInstance()
 			DynamicURLConfiguration defaultURLConfig = new DynamicURLConfiguration();
@@ -160,6 +158,8 @@ public class ArchaiusAutoConfiguration {
 				log.error("Cannot create config from " + defaultURLConfig, ex);
 			}
 
+			config.addConfiguration(envConfig,
+					ConfigurableEnvironmentConfiguration.class.getSimpleName());
 			// TODO: sys/env above urls?
 			if (!Boolean.getBoolean(DISABLE_DEFAULT_SYS_CONFIG)) {
 				SystemConfiguration sysConfig = new SystemConfiguration();
