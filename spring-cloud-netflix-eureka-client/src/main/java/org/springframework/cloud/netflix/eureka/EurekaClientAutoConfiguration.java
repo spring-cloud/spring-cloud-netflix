@@ -25,6 +25,8 @@ import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -84,6 +86,8 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @AutoConfigureAfter(name = "org.springframework.cloud.autoconfigure.RefreshAutoConfiguration")
 public class EurekaClientAutoConfiguration {
 
+	private static final Log log = LogFactory.getLog(EurekaClientAutoConfiguration.class);
+
 	private ConfigurableEnvironment env;
 	@Autowired(required = false)
 	private HealthCheckHandler healthCheckHandler;
@@ -123,7 +127,7 @@ public class EurekaClientAutoConfiguration {
 		String managementContextPath = env.getProperty("management.context-path", env.getProperty("server.servlet.context-path", "/"));
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(nonSecurePort);
-		instance.setInstanceId(getDefaultInstanceId(propertyResolver));
+		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
 		if (managementPort != nonSecurePort && managementPort != 0) {
 			if (StringUtils.hasText(hostname)) {
@@ -141,9 +145,13 @@ public class EurekaClientAutoConfiguration {
 				instance.setHealthCheckUrlPath(healthCheckUrlPath);
 			}
 			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
-			URL base = new URL(scheme, instance.getHostname(), managementPort, managementContextPath);
-			instance.setStatusPageUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getStatusPageUrlPath(), '/')).toString());
-			instance.setHealthCheckUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getHealthCheckUrlPath(), '/')).toString());
+			try {
+				URL base = new URL(scheme, instance.getHostname(), managementPort, managementContextPath);
+				instance.setStatusPageUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getStatusPageUrlPath(), '/')).toString());
+				instance.setHealthCheckUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getHealthCheckUrlPath(), '/')).toString());
+			} catch (MalformedURLException e) {
+				log.error("Unable to set status page or health check url.", e);
+			}
 		}
 		return instance;
 	}
