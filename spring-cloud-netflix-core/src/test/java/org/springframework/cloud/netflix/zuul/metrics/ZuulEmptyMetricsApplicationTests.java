@@ -19,7 +19,8 @@ package org.springframework.cloud.netflix.zuul.metrics;
 
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.test.ClassPathExclusions;
-import org.springframework.cloud.netflix.zuul.ZuulConfiguration;
+import org.springframework.cloud.netflix.zuul.ZuulServerAutoConfiguration;
+import org.springframework.cloud.netflix.zuul.ZuulServerMarkerConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +44,7 @@ public class ZuulEmptyMetricsApplicationTests {
 	public void setUp() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(ZuulEmptyMetricsApplicationTestsConfiguration.class,
-				ZuulConfiguration.class);
+			ZuulServerMarkerConfiguration.class, ZuulServerAutoConfiguration.class);
 		context.refresh();
 
 		this.context = context;

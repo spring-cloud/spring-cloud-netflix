@@ -73,9 +73,10 @@ import com.netflix.zuul.monitoring.TracerFactory;
 @Configuration
 @EnableConfigurationProperties({ ZuulProperties.class })
 @ConditionalOnClass(ZuulServlet.class)
+@ConditionalOnBean(ZuulServerMarkerConfiguration.Marker.class)
 // Make sure to get the ServerProperties from the same place as a normal web app would
 // FIXME @Import(ServerPropertiesAutoConfiguration.class)
-public class ZuulConfiguration {
+public class ZuulServerAutoConfiguration {
 
 	@Autowired
 	protected ZuulProperties zuulProperties;
@@ -88,7 +89,7 @@ public class ZuulConfiguration {
 
 	@Bean
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Simple)", ZuulConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Simple)", ZuulServerAutoConfiguration.class);
 	}
 
 	@Bean

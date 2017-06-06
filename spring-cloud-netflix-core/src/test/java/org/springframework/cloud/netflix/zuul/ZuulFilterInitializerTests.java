@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContextEvent;
-
+import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -31,19 +31,12 @@ import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
 
-import org.junit.Test;
-
-import java.lang.reflect.Constructor;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ZuulFilterInitializerTests {
-
-	private static final ServletContextEvent DUMMY_SERVLET_CONTEXT_EVENT = mock(
-			ServletContextEvent.class);
 
 	private Map<String, ZuulFilter> filters = getFilters();
 	private CounterFactory counterFactory = mock(CounterFactory.class);
@@ -56,7 +49,7 @@ public class ZuulFilterInitializerTests {
 
 	@Test
 	public void shouldSetupOnContextInitializedEvent() throws Exception {
-		initializer.contextInitialized(DUMMY_SERVLET_CONTEXT_EVENT);
+		initializer.contextInitialized();
 
 		assertEquals(tracerFactory, TracerFactory.instance());
 		assertEquals(counterFactory, CounterFactory.instance());
@@ -66,7 +59,7 @@ public class ZuulFilterInitializerTests {
 
 	@Test
 	public void shouldCleanupOnContextDestroyed() throws Exception {
-		initializer.contextDestroyed(DUMMY_SERVLET_CONTEXT_EVENT);
+		initializer.contextDestroyed();
 
 		assertEquals(null, ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
 		assertEquals(null,

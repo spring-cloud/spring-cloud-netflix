@@ -41,7 +41,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
-import org.springframework.cloud.netflix.zuul.ZuulProxyConfiguration;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;
@@ -203,10 +202,9 @@ class SampleCustomZuulProxyApplication {
 
 	@Configuration
 	@EnableZuulProxy
-	protected static class CustomZuulProxyConfig extends ZuulProxyConfiguration {
+	protected static class CustomZuulProxyConfig {
 
 		@Bean
-		@Override
 		public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
 				ZuulProperties zuulProperties) {
 			return new CustomHostRoutingFilter(helper, zuulProperties);
