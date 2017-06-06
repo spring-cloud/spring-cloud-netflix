@@ -91,6 +91,7 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 				}
 				Response response = request.client().execute(feignRequest, options);
 				if(retryPolicy.retryableStatusCode(response.status())) {
+					response.close();
 					throw new RetryableStatusCodeException(RetryableFeignLoadBalancer.this.getClientName(), response.status());
 				}
 				return new RibbonResponse(request.getUri(), response);
