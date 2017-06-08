@@ -32,12 +32,14 @@ import org.apache.commons.configuration.event.ConfigurationListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
@@ -66,6 +68,7 @@ import lombok.extern.apachecommons.CommonsLog;
 @ConditionalOnClass({ ConcurrentCompositeConfiguration.class,
 		ConfigurationBuilder.class })
 @CommonsLog
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class ArchaiusAutoConfiguration {
 
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
