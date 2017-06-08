@@ -71,7 +71,7 @@ public class RetryableZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		ResponseEntity<String> result = testRestTemplate.exchange(
-				"/simple", HttpMethod.POST,
+				"/simple/poster", HttpMethod.POST,
 				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -87,7 +87,7 @@ public class RetryableZuulProxyApplicationTests {
 @RibbonClient(name = "simple", configuration = RetryableRibbonClientConfiguration.class)
 class RetryableZuulProxyApplication {
 
-	@RequestMapping(value = "/", method = RequestMethod.POST)
+	@RequestMapping(value = "/poster", method = RequestMethod.POST)
 	public String delete(@RequestBody MultiValueMap<String, String> form) {
 		return "Posted! " + form;
 	}
