@@ -43,7 +43,8 @@ import com.netflix.zuul.context.RequestContext;
 		value = {
 				"zuul.routes.simple.path: /simple/**",
 				"zuul.routes.simple.retryable: true",
-				"ribbon.OkToRetryOnAllOperations: true"})
+				"ribbon.OkToRetryOnAllOperations: true",
+				"simple.ribbon.retryableStatusCodes: 404"})
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
 
