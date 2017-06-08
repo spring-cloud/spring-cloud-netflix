@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
@@ -48,7 +47,8 @@ import com.netflix.zuul.context.RequestContext;
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
 
-	private RestTemplate testRestTemplate;
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
 	@Autowired
 	@SuppressWarnings("unused")
@@ -58,14 +58,10 @@ public class RetryableZuulProxyApplicationTests {
 	@SuppressWarnings("unused")
 	private RoutesEndpoint endpoint;
 
-	@LocalServerPort
-	private int port;
-
 	@Before
 	public void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
-		testRestTemplate = new RestTemplateBuilder().build();
 	}
 
 	@Test
@@ -75,7 +71,7 @@ public class RetryableZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		ResponseEntity<String> result = testRestTemplate.exchange(
-				"http://localhost:" + port + "/simple", HttpMethod.POST,
+				"/simple", HttpMethod.POST,
 				new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
