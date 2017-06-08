@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -73,7 +74,7 @@ public class SendResponseFilter extends ZuulFilter {
 		super();
 		// To support Servlet API 3.1 we need to check if setContentLengthLong exists
 		try {
-			HttpServletResponse.class.getMethod("setContentLengthLong");
+			HttpServletRequest.class.getMethod("setContentLengthLong");
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;
 		}
