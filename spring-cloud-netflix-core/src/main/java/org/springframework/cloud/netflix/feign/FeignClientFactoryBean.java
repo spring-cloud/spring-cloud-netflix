@@ -103,7 +103,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	protected void configureFeign(FeignContext context, Feign.Builder builder) {
 		FeignClientProperties properties = applicationContext.getBean(FeignClientProperties.class);
 		if (properties != null) {
-			if (properties.isPrimary()) {
+			if (properties.isDefaultToProperties()) {
 				configureUsingConfiguration(context, builder);
 				configureUsingProperties(properties.getConfig().get(properties.getDefaultConfig()), builder);
 				configureUsingProperties(properties.getConfig().get(this.name), builder);
