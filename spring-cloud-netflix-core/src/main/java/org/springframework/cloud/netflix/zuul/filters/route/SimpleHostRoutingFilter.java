@@ -46,9 +46,6 @@ import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -65,7 +62,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
@@ -86,12 +82,14 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
 
 /**
- * Route {@link ZuulFilter} that sends requests to predetermined URLs via apache {@link HttpClient}.
- * URLs are found in {@link RequestContext#getRouteHost()}.
+ * Route {@link ZuulFilter} that sends requests to predetermined URLs via apache
+ * {@link org.apache.http.client.HttpClient}. URLs are found in
+ * {@link RequestContext#getRouteHost()}.
  *
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Bilal Alp
+ * @author Gary Yao
  */
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
@@ -182,7 +180,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		MultiValueMap<String, String> params = this.helper
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
-		InputStream requestEntity = getRequestBody(request);
 		if (request.getContentLength() < 0) {
 			context.setChunkedRequestBody();
 		}
@@ -192,7 +189,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 		try {
 			CloseableHttpResponse response = forward(this.httpClient, verb, uri, request,
-					headers, params, requestEntity);
+					headers, params);
 			setResponse(response);
 		}
 		catch (Exception ex) {
@@ -280,8 +277,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,
 			String uri, HttpServletRequest request, MultiValueMap<String, String> headers,
-			MultiValueMap<String, String> params, InputStream requestEntity)
+			MultiValueMap<String, String> params)
 			throws Exception {
+		InputStream requestEntity = getRequestBody(request);
 		Map<String, Object> info = this.helper.debug(verb, uri, headers, params,
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
@@ -298,21 +296,13 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength, contentType);
 
 		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params, request);
-		try {
-			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
-					+ httpHost.getSchemeName());
-			CloseableHttpResponse zuulResponse = forwardRequest(httpclient, httpHost,
-					httpRequest);
-			this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
-					revertHeaders(zuulResponse.getAllHeaders()));
-			return zuulResponse;
-		}
-		finally {
-			// When HttpClient instance is no longer needed,
-			// shut down the connection manager to ensure
-			// immediate deallocation of all system resources
-			// httpclient.getConnectionManager().shutdown();
-		}
+		log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
+				+ httpHost.getSchemeName());
+		CloseableHttpResponse zuulResponse = forwardRequest(httpclient, httpHost,
+				httpRequest);
+		this.helper.appendDebug(info, zuulResponse.getStatusLine().getStatusCode(),
+				revertHeaders(zuulResponse.getAllHeaders()));
+		return zuulResponse;
 	}
 
 	protected HttpRequest buildHttpRequest(String verb, String uri,
@@ -322,32 +312,10 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		String uriWithQueryString = uri + (this.forceOriginalQueryStringEncoding
 				? getEncodedQueryString(request) : this.helper.getQueryString(params));
 
-		switch (verb.toUpperCase()) {
-			case "POST":
-				HttpPost httpPost = new HttpPost(uriWithQueryString);
-				httpRequest = httpPost;
-				httpPost.setEntity(entity);
-				break;
-			case "PUT":
-				HttpPut httpPut = new HttpPut(uriWithQueryString);
-				httpRequest = httpPut;
-				httpPut.setEntity(entity);
-				break;
-			case "PATCH":
-				HttpPatch httpPatch = new HttpPatch(uriWithQueryString);
-				httpRequest = httpPatch;
-				httpPatch.setEntity(entity);
-				break;
-			case "DELETE":
-				BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(
-						verb, uriWithQueryString);
-				httpRequest = entityRequest;
-				entityRequest.setEntity(entity);
-				break;
-			default:
-				httpRequest = new BasicHttpRequest(verb, uriWithQueryString);
-				log.debug(uriWithQueryString);
-		}
+		BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(
+				verb, uriWithQueryString);
+		httpRequest = entityRequest;
+		entityRequest.setEntity(entity);
 
 		httpRequest.setHeaders(convertHeaders(headers));
 		return httpRequest;
@@ -392,14 +360,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private InputStream getRequestBody(HttpServletRequest request) {
-		InputStream requestEntity = null;
 		try {
-			requestEntity = request.getInputStream();
+			return request.getInputStream();
 		}
 		catch (IOException ex) {
-			// no requestBody is ok.
+			throw new ZuulRuntimeException(ex);
 		}
-		return requestEntity;
 	}
 
 	private String getVerb(HttpServletRequest request) {

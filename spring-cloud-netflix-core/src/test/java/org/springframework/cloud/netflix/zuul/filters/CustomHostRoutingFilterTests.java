@@ -20,14 +20,21 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.http.HttpHost;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,11 +59,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.zuul.context.RequestContext;
@@ -90,6 +93,25 @@ public class CustomHostRoutingFilterTests {
 				"http://localhost:" + this.port + "/app/self/get/1", String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Get 1", result.getBody());
+	}
+
+	@Test
+	public void getWithBodyOnSelfViaCustomHostRoutingFilter() throws IOException {
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app");
+		this.endpoint.reset();
+
+		// BasicHttpEntityEnclosingRequest is needed because default
+		// ClientHttpRequestFactory returns HttpGet, which does not allow a body
+		final BasicHttpEntityEnclosingRequest getWithBody = new BasicHttpEntityEnclosingRequest(
+				"GET", "/app/self/get-with-body");
+		getWithBody.setEntity(new StringEntity("aBody"));
+		try (CloseableHttpResponse httpResponse = HttpClients.createMinimal()
+				.execute(new HttpHost("localhost", this.port), getWithBody)) {
+			assertEquals(HttpStatus.OK,
+					HttpStatus.valueOf(httpResponse.getStatusLine().getStatusCode()));
+			assertEquals("GetWithBody aBody",
+					EntityUtils.toString(httpResponse.getEntity()));
+		}
 	}
 
 	@Test
@@ -168,6 +190,11 @@ class SampleCustomZuulProxyApplication {
 		response.setHeader("X-Ignored", "foo");
 		response.setHeader("X-NotIgnored", "bar");
 		return "Get " + id;
+	}
+
+	@RequestMapping(value = "/get-with-body", method = RequestMethod.GET)
+	public String getWithBody(@RequestBody String body) {
+		return "GetWithBody " + body;
 	}
 
 	@RequestMapping(value = "/cookie/{id}", method = RequestMethod.GET)
