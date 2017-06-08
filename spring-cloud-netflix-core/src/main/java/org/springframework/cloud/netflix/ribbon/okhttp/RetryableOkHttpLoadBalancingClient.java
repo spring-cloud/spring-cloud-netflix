@@ -96,6 +96,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				final Request request = newRequest.toRequest();
 				Response response = httpClient.newCall(request).execute();
 				if(retryPolicy.retryableStatusCode(response.code())) {
+					response.close();
 					throw new RetryableStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName, response.code());
 				}
 				return new OkHttpRibbonResponse(response, newRequest.getUri());

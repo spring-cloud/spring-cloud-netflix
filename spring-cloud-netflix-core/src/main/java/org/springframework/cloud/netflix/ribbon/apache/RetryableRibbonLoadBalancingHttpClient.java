@@ -20,6 +20,7 @@ import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
@@ -91,6 +92,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
+					if(CloseableHttpResponse.class.isInstance(httpResponse)) {
+						((CloseableHttpResponse)httpResponse).close();
+					}
 					throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
 							httpResponse.getStatusLine().getStatusCode());
 				}
