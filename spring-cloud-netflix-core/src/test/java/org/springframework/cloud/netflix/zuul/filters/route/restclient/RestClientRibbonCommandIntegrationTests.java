@@ -398,7 +398,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				if (this.errorCode == 503) {
 					throw new ClientException(ClientException.ErrorType.SERVER_THROTTLED);
 				}
-				return new MockClientHttpResponse((byte[]) null,
+				return new MockClientHttpResponse(new byte[0],
 						HttpStatus.valueOf(this.errorCode));
 			}
 		}
