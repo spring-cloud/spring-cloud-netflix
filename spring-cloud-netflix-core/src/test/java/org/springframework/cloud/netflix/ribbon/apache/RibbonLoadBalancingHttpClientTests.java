@@ -23,6 +23,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.After;
@@ -288,7 +289,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		HttpMethod method = HttpMethod.POST;
 		URI uri = new URI("http://" + host + ":" + port);
 		HttpClient delegate = mock(HttpClient.class);
-		final HttpResponse response = mock(HttpResponse.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(response).getStatusLine();
@@ -304,6 +305,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		HttpUriRequest uriRequest = mock(HttpUriRequest.class);
 		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
 		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
+		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(1)).chooseServer(eq(serviceName));
 	}
@@ -320,7 +322,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		HttpMethod method = HttpMethod.POST;
 		URI uri = new URI("http://" + host + ":" + port);
 		HttpClient delegate = mock(HttpClient.class);
-		final HttpResponse response = mock(HttpResponse.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		doThrow(new IOException("boom")).doThrow(new IOException("boom again")).doReturn(response).
 				when(delegate).execute(any(HttpUriRequest.class));
 		ILoadBalancer lb = mock(ILoadBalancer.class);
@@ -337,6 +339,7 @@ public class RibbonLoadBalancingHttpClientTests {
 			client.execute(request, null);
 			fail("Expected IOException");
 		} catch(IOException e) {} finally {
+			verify(response, times(0)).close();
 			verify(delegate, times(1)).execute(any(HttpUriRequest.class));
 			verify(lb, times(0)).chooseServer(eq(serviceName));
 		}
@@ -358,7 +361,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(response).getStatusLine();
-		final HttpResponse fourOFourResponse = mock(HttpResponse.class);
+		final CloseableHttpResponse fourOFourResponse = mock(CloseableHttpResponse.class);
 		StatusLine fourOFourStatusLine = mock(StatusLine.class);
 		doReturn(404).when(fourOFourStatusLine).getStatusCode();
 		doReturn(fourOFourStatusLine).when(fourOFourResponse).getStatusLine();
@@ -374,6 +377,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		doReturn(uri).when(uriRequest).getURI();
 		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
 		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
+		verify(fourOFourResponse, times(1)).close();
 		verify(delegate, times(2)).execute(any(HttpUriRequest.class));
 		verify(lb, times(0)).chooseServer(eq(serviceName));
 	}
