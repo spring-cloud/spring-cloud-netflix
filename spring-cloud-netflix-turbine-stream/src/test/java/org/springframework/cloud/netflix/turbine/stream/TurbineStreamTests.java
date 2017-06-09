@@ -63,7 +63,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 		// TODO: we don't need this if we harmonize the turbine and hystrix destinations
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
-		"logging.level.org.springframework.cloud.netflix.turbine=DEBUG",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
 		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream" })
 @AutoConfigureStubRunner
@@ -140,9 +139,9 @@ public class TurbineStreamTests {
 				latch.countDown();
 				builder.append(new String(bytes, 0, read));
 			}
-			log.info("Building: " + builder);
+			log.debug("Building: " + builder);
 		}
-		log.info("Done: " + builder);
+		log.debug("Done: " + builder);
 		return ResponseEntity.status(response.getStatusCode())
 				.headers(response.getHeaders()).body(builder.toString());
 	}
