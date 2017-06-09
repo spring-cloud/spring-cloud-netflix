@@ -45,17 +45,15 @@ public class HystrixContractUtils {
 		assertThat(origin.get("host")).isNotNull();
 		assertThat(origin.get("port")).isNotNull();
 		assertThat(origin.get("serviceId")).isEqualTo("application");
-		// TODO: should be server.port?
+		// TODO: should be server.port (but in a test it's a random port so -1)?
 		assertThat(origin.get("id")).isEqualTo("application:-1");
 	}
 
-	public static void checkData(Map<String, Object> data) {
+	public static void checkData(Map<String, Object> data, String group, String name) {
 		assertThat(data.get("type")).isEqualTo("HystrixCommand");
-		// TODO: should be application.hello
-		assertThat(data.get("name")).asString().startsWith("application.");
+		assertThat(data.get("name")).asString().isEqualTo(name);
 		assertThat(data.get("group")).isNotNull();
-		// TODO: should be TestApplication
-		// assertThat(data.get("group")).isEqualTo(TestApplication.class.getSimpleName());
+		assertThat(data.get("group")).isEqualTo(group);
 		assertThat(data.get("errorCount")).isEqualTo(0);
 		assertThat(data.get("errorPercentage")).isEqualTo(0);
 		assertThat(data.get("requestCount")).isInstanceOf(java.lang.Integer.class);
