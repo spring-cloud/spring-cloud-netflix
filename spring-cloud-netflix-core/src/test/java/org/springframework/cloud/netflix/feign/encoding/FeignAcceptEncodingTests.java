@@ -16,14 +16,16 @@
 
 package org.springframework.cloud.netflix.feign.encoding;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.loadbalancer.BaseLoadBalancer;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,11 +39,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the response compression.
@@ -50,7 +52,8 @@ import com.netflix.loadbalancer.Server;
  */
 @SpringBootTest(classes = FeignAcceptEncodingTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"feign.compression.response.enabled=true" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
+@DirtiesContext
 public class FeignAcceptEncodingTests {
 
 	@Autowired

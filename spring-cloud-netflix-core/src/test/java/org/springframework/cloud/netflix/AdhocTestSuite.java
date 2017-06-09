@@ -20,11 +20,9 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.springframework.cloud.netflix.feign.encoding.FeignAcceptEncodingTests;
-import org.springframework.cloud.netflix.metrics.servo.ServoMetricReaderTests;
-import org.springframework.cloud.netflix.ribbon.RibbonInterceptorTests;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClientTests;
-import org.springframework.cloud.netflix.zuul.ZuulProxyConfigurationTests;
+
+import org.springframework.cloud.netflix.zuul.FormZuulServletProxyApplicationTests;
+import org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfigurationTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -32,8 +30,8 @@ import org.springframework.cloud.netflix.zuul.ZuulProxyConfigurationTests;
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ RibbonLoadBalancerClientTests.class, RibbonInterceptorTests.class, FeignAcceptEncodingTests.class,
-	ServoMetricReaderTests.class, ZuulProxyConfigurationTests.class })
+@SuiteClasses({ ZuulProxyAutoConfigurationTests.class,
+		FormZuulServletProxyApplicationTests.class })
 @Ignore
 public class AdhocTestSuite {
 
