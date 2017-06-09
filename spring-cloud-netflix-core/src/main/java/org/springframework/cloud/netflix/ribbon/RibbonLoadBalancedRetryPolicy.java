@@ -18,17 +18,17 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
-import org.springframework.util.StringUtils;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.config.IClientConfigKey;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
+import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link LoadBalancedRetryPolicy} for Ribbon clients.
@@ -60,7 +60,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
         for(String code : retryableStatusCodesArray) {
             if(!StringUtils.isEmpty(code)) {
                 try {
-                    retryableStatusCodes.add(Integer.valueOf(code));
+                    retryableStatusCodes.add(Integer.valueOf(code.trim()));
                 } catch (NumberFormatException e) {
                     //TODO log
                 }
