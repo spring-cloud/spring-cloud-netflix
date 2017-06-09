@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
@@ -27,12 +28,12 @@ import org.springframework.cloud.test.ModifiedClassPathRunner;
  * @author Ryan Baxter
  */
 @RunWith(ModifiedClassPathRunner.class)
-@ClassPathExclusions({"ribbon-{version:\\d.*}.jar"})
+@ClassPathExclusions( {"ribbon-{version:\\d.*}.jar"} )
 public class RibbonDisabledTests {
 
 	@Test(expected = ArrayStoreException.class)
 	public void testRibbonDisabled() {
-		new SpringApplicationBuilder().web(false)
-				.sources(RibbonAutoConfiguration.class).run();
+		new SpringApplicationBuilder().web(false).sources(RibbonAutoConfiguration.class)
+				.run().close();
 	}
 }

@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,7 @@ import org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,24 +41,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@DirtiesContext
 public class ZuulProxyAutoConfigurationTests {
-	
+
 	@Autowired
 	private RouteLocator routeLocator;
-	
+
 	@Autowired(required = false)
 	private RibbonRoutingFilter ribbonRoutingFilter;
-	
+
 	@Test
 	public void testAutoConfiguredBeans() {
 		assertThat(routeLocator).isInstanceOf(CompositeRouteLocator.class);
 		assertThat(this.ribbonRoutingFilter).isNotNull();
 	}
-	
-	
+
 	@Configuration
 	@EnableAutoConfiguration
 	@EnableZuulProxy
 	static class TestConfig {
-	}	
+	}
 }

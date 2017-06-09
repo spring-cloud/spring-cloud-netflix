@@ -18,10 +18,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.context.RequestContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -47,10 +52,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.context.RequestContext;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -67,11 +68,9 @@ public abstract class RibbonRetryIntegrationTestBase {
 	public void setup() {
 		RequestContext.getCurrentContext().clear();
 		String uri = "/resetError";
-		new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + uri, HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+		new TestRestTemplate().exchange("http://localhost:" + this.port + uri,
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 	}
-
 
 	@Test
 	public void retryable() {
@@ -147,8 +146,10 @@ public abstract class RibbonRetryIntegrationTestBase {
 			@RibbonClient(name = "retryable", configuration = RibbonClientConfiguration.class),
 			@RibbonClient(name = "disableretry", configuration = RibbonClientConfiguration.class),
 			@RibbonClient(name = "globalretrydisabled", configuration = RibbonClientConfiguration.class),
-			@RibbonClient(name = "getretryable", configuration = RibbonClientConfiguration.class)})
+			@RibbonClient(name = "getretryable", configuration = RibbonClientConfiguration.class) })
 	public static class RetryableTestConfig {
+
+		private final Log LOG = LogFactory.getLog(RetryableTestConfig.class);
 
 		private boolean error = true;
 
@@ -162,13 +163,14 @@ public abstract class RibbonRetryIntegrationTestBase {
 			boolean shouldError = error;
 			error = !error;
 			try {
-				if(shouldError) {
+				if (shouldError) {
 					Thread.sleep(80000);
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
 			}
-
+			catch (InterruptedException e) {
+				LOG.info(e);
+				Thread.currentThread().interrupt();
+			}
 
 			return new ResponseEntity<String>("no error", HttpStatus.OK);
 		}
@@ -183,9 +185,9 @@ public abstract class RibbonRetryIntegrationTestBase {
 		public ResponseEntity<String> fourOFourError() {
 			boolean shouldError = error;
 			error = !error;
-				if(shouldError) {
-					return new ResponseEntity<String>("not found", HttpStatus.NOT_FOUND);
-				}
+			if (shouldError) {
+				return new ResponseEntity<String>("not found", HttpStatus.NOT_FOUND);
+			}
 			return new ResponseEntity<String>("no error", HttpStatus.OK);
 		}
 
@@ -204,14 +206,17 @@ public abstract class RibbonRetryIntegrationTestBase {
 	}
 
 	@Configuration
-	public static class FourOFourRetryableRibbonConfiguration extends RibbonClientConfiguration {
+	public static class FourOFourRetryableRibbonConfiguration
+			extends RibbonClientConfiguration {
 
 		@Bean
-		public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(SpringClientFactory factory) {
+		public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(
+				SpringClientFactory factory) {
 			return new MyRibbonRetryPolicyFactory(factory);
 		}
 
-		public static class MyRibbonRetryPolicyFactory extends RibbonLoadBalancedRetryPolicyFactory {
+		public static class MyRibbonRetryPolicyFactory
+				extends RibbonLoadBalancedRetryPolicyFactory {
 
 			private SpringClientFactory factory;
 
@@ -221,21 +226,25 @@ public abstract class RibbonRetryIntegrationTestBase {
 			}
 
 			@Override
-			public LoadBalancedRetryPolicy create(String serviceId, ServiceInstanceChooser loadBalanceChooser) {
+			public LoadBalancedRetryPolicy create(String serviceId,
+					ServiceInstanceChooser loadBalanceChooser) {
 				RibbonLoadBalancerContext lbContext = this.factory
 						.getLoadBalancerContext(serviceId);
-				return new MyLoadBalancedRetryPolicy(serviceId, lbContext, loadBalanceChooser);
+				return new MyLoadBalancedRetryPolicy(serviceId, lbContext,
+						loadBalanceChooser);
 			}
 
 			class MyLoadBalancedRetryPolicy extends RibbonLoadBalancedRetryPolicy {
 
-				public MyLoadBalancedRetryPolicy(String serviceId, RibbonLoadBalancerContext context, ServiceInstanceChooser loadBalanceChooser) {
+				public MyLoadBalancedRetryPolicy(String serviceId,
+						RibbonLoadBalancerContext context,
+						ServiceInstanceChooser loadBalanceChooser) {
 					super(serviceId, context, loadBalanceChooser);
 				}
 
 				@Override
-				public boolean retryableStatusCode( int statusCode) {
-					if(statusCode == HttpStatus.NOT_FOUND.value()) {
+				public boolean retryableStatusCode(int statusCode) {
+					if (statusCode == HttpStatus.NOT_FOUND.value()) {
 						return true;
 					}
 					return super.retryableStatusCode(statusCode);
