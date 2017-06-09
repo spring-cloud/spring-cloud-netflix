@@ -50,7 +50,14 @@ public class HystrixContractUtils {
 	}
 
 	public static void checkData(Map<String, Object> data, String group, String name) {
+		if (!data.get("type").equals("HystrixCommand")) {
+			assertThat(data.get("type")).isEqualTo("HystrixThreadPool");
+			return;
+		}
 		assertThat(data.get("type")).isEqualTo("HystrixCommand");
+		if (!data.get("name").equals(name)) {
+			return;
+		}
 		assertThat(data.get("name")).asString().isEqualTo(name);
 		assertThat(data.get("group")).isNotNull();
 		assertThat(data.get("group")).isEqualTo(group);
