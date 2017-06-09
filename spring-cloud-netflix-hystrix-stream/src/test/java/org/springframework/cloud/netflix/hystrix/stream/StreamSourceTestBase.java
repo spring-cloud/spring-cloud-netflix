@@ -30,7 +30,7 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.contract.verifier.messaging.boot.AutoConfigureMessageVerifier;
 import org.springframework.cloud.netflix.hystrix.contract.HystrixContractUtils;
 import org.springframework.cloud.netflix.hystrix.stream.StreamSourceTestBase.TestApplication;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Marius Bogoevici
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMessageVerifier
 public abstract class StreamSourceTestBase {
@@ -54,16 +54,18 @@ public abstract class StreamSourceTestBase {
 	}
 
 	public void assertOrigin(Object input) {
+		System.err.println(input);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> origin = (Map<String, Object>) input;
 		HystrixContractUtils.checkOrigin(origin);
 	}
 
 	public void assertData(Object input) {
-		System.err.println(input);
+		// System.err.println(input);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> data = (Map<String, Object>) input;
-		HystrixContractUtils.checkData(data);
+		HystrixContractUtils.checkData(data, TestApplication.class.getSimpleName(),
+				"application.hello");
 	}
 
 	@EnableAutoConfiguration

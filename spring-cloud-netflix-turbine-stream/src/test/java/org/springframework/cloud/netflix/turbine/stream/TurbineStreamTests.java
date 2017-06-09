@@ -146,6 +146,10 @@ public class TurbineStreamTests {
 				.headers(response.getHeaders()).body(builder.toString());
 	}
 
+	/**
+	 * Special interceptor that prevents the response from being closed and allows us to
+	 * assert on the contents of an event stream.
+	 */
 	private class NonClosingInterceptor implements ClientHttpRequestInterceptor {
 
 		private class NonClosingResponse implements ClientHttpResponse {
