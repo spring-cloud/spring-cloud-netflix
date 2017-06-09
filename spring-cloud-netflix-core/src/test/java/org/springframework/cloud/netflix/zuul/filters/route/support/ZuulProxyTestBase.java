@@ -27,9 +27,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.servlet.http.HttpServletRequest;
+
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.BasicErrorController;
@@ -43,6 +53,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonRetryIntegrationTestBase.RetryableTestConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -65,10 +76,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -214,12 +221,13 @@ public abstract class ZuulProxyTestBase {
 	public void ribbonDeleteWithBody() {
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/simple/deletewithbody", HttpMethod.DELETE,
-				new HttpEntity<>("deleterequestbody"), String.class);
+				"http://localhost:" + this.port + "/simple/deletewithbody",
+				HttpMethod.DELETE, new HttpEntity<>("deleterequestbody"), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		if (supportsDeleteWithBody()) {
 			assertEquals("Deleted deleterequestbody", result.getBody());
-		} else {
+		}
+		else {
 			assertEquals("Deleted null", result.getBody());
 		}
 	}
@@ -286,16 +294,16 @@ public abstract class ZuulProxyTestBase {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Patched 1!", result.getBody());
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Test
 	public void javascriptEncodedFormParams() {
 		TestRestTemplate testRestTemplate = new TestRestTemplate();
 		ArrayList<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.addAll(Arrays.asList(new StringHttpMessageConverter(), 
+		converters.addAll(Arrays.asList(new StringHttpMessageConverter(),
 				new NoEncodingFormHttpMessageConverter()));
 		testRestTemplate.getRestTemplate().setMessageConverters(converters);
-		
+
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add("foo", "(bar)");
 		ResponseEntity<String> result = testRestTemplate.postForEntity(
@@ -307,9 +315,11 @@ public abstract class ZuulProxyTestBase {
 	public static abstract class AbstractZuulProxyApplication
 			extends DelegatingWebMvcConfiguration {
 
+		private final Log LOG = LogFactory.getLog(RetryableTestConfig.class);
+
 		@RequestMapping(value = "/local/{id}", method = RequestMethod.PATCH)
 		public String patch(@PathVariable final String id,
-							@RequestBody final String body) {
+				@RequestBody final String body) {
 			return "Patched " + id + "!";
 		}
 
@@ -322,11 +332,12 @@ public abstract class ZuulProxyTestBase {
 		public String local() {
 			return "Hello local";
 		}
-		
+
 		@RequestMapping(value = "/local", method = RequestMethod.POST)
-		public String postWithFormParam(HttpServletRequest request, 
+		public String postWithFormParam(HttpServletRequest request,
 				@RequestBody MultiValueMap<String, String> body) {
-			return "Posted " + body.get("foo") + " and Content-Length was: " + request.getContentLength() + "!";
+			return "Posted " + body.get("foo") + " and Content-Length was: "
+					+ request.getContentLength() + "!";
 		}
 
 		@RequestMapping(value = "/deletewithbody", method = RequestMethod.DELETE)
@@ -371,8 +382,10 @@ public abstract class ZuulProxyTestBase {
 		public String slow() {
 			try {
 				Thread.sleep(80000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			}
+			catch (InterruptedException e) {
+				LOG.info(e);
+				Thread.currentThread().interrupt();
 			}
 			return "slow";
 		}
@@ -422,7 +435,6 @@ public abstract class ZuulProxyTestBase {
 			return mapping;
 		}
 
-
 	}
 
 	public static class FallbackProvider implements ZuulFallbackProvider {
@@ -469,14 +481,16 @@ public abstract class ZuulProxyTestBase {
 			};
 		}
 	}
-	
+
 	@Configuration
-	public class FormEncodedMessageConverterConfiguration extends WebMvcConfigurerAdapter {
+	public class FormEncodedMessageConverterConfiguration
+			extends WebMvcConfigurerAdapter {
 
 		@Override
 		public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
 			FormHttpMessageConverter converter = new FormHttpMessageConverter();
-			MediaType mediaType = new MediaType("application", "x-www-form-urlencoded", Charset.forName("UTF-8"));
+			MediaType mediaType = new MediaType("application", "x-www-form-urlencoded",
+					Charset.forName("UTF-8"));
 			converter.setSupportedMediaTypes(Arrays.asList(mediaType));
 			converters.add(converter);
 			super.configureMessageConverters(converters);
@@ -492,8 +506,8 @@ public abstract class ZuulProxyTestBase {
 
 		@Bean
 		public ServerList<Server> ribbonServerList() {
-														   return new StaticServerList<>(new Server("localhost", this.port));
-																															 }
+			return new StaticServerList<>(new Server("localhost", this.port));
+		}
 
 	}
 
@@ -516,12 +530,13 @@ public abstract class ZuulProxyTestBase {
 		AtomicBoolean controllerUsed = new AtomicBoolean();
 
 		public MyErrorController(ErrorAttributes errorAttributes) {
-																		super(errorAttributes, new ErrorProperties());
-																													  }
+			super(errorAttributes, new ErrorProperties());
+		}
 
 		@Override
 		public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-			String errorUri = (String) request.getAttribute("javax.servlet.error.request_uri");
+			String errorUri = (String) request
+					.getAttribute("javax.servlet.error.request_uri");
 
 			if (errorUri != null && errorUri.equals(this.uriToMatch.get())) {
 				controllerUsed.set(true);
@@ -531,15 +546,15 @@ public abstract class ZuulProxyTestBase {
 		}
 
 		public void setUriToMatch(String uri) {
-													this.uriToMatch.set(uri);
-																			 }
+			this.uriToMatch.set(uri);
+		}
 
 		public boolean wasControllerUsed() {
-												 return this.controllerUsed.get();
-																				  }
+			return this.controllerUsed.get();
+		}
 
 		public void clear() {
-								  this.controllerUsed.set(false);
-																 }
+			this.controllerUsed.set(false);
+		}
 	}
 }
