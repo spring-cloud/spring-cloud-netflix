@@ -92,6 +92,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Bilal Alp
+ * @author Stefan Pfaffel
  */
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
@@ -203,23 +204,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	protected PoolingHttpClientConnectionManager newConnectionManager() {
 		try {
-			final SSLContext sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
-				@Override
-				public void checkClientTrusted(X509Certificate[] x509Certificates,
-						String s) throws CertificateException {
-				}
-
-				@Override
-				public void checkServerTrusted(X509Certificate[] x509Certificates,
-						String s) throws CertificateException {
-				}
-
-				@Override
-				public X509Certificate[] getAcceptedIssuers() {
-					return null;
-				}
-			} }, new SecureRandom());
+			final SSLContext sslContext = sslContext();
 
 			RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
 					.<ConnectionSocketFactory> create()
@@ -245,6 +230,27 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	protected SSLContext sslContext() throws Exception{
+		final SSLContext sslContext = SSLContext.getInstance("SSL");
+			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+				@Override
+				public void checkClientTrusted(X509Certificate[] x509Certificates,
+						String s) throws CertificateException {
+				}
+
+				@Override
+				public void checkServerTrusted(X509Certificate[] x509Certificates,
+						String s) throws CertificateException {
+				}
+
+				@Override
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+			} }, new SecureRandom());
+		return sslContext;
 	}
 
 	protected CloseableHttpClient newClient() {
