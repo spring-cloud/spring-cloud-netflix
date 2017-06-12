@@ -16,18 +16,19 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.junit.Rule;
+import org.junit.Test;
+
+import org.springframework.boot.test.rule.OutputCapture;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-
-import java.util.Map;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.boot.test.rule.OutputCapture;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rx.subjects.PublishSubject;
 
@@ -49,6 +50,15 @@ public class HystrixStreamAggregatorTests {
 			assertThat(map.get("type"), equalTo("HystrixCommand"));
 		});
 		this.aggregator.sendToSubject(PAYLOAD);
+		this.output.expect(not(containsString("ERROR")));
+	}
+
+	@Test
+	public void messageWrappedInArray() throws Exception {
+		this.publisher.subscribe(map -> {
+			assertThat(map.get("type"), equalTo("HystrixCommand"));
+		});
+		this.aggregator.sendToSubject("[" + PAYLOAD + "]");
 		this.output.expect(not(containsString("ERROR")));
 	}
 
