@@ -1,9 +1,10 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,6 +24,11 @@ public class PatternServiceRouteMapperTests {
 	public void setTestRequestcontext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test

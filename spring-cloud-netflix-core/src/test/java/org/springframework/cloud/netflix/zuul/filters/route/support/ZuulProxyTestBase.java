@@ -37,6 +37,7 @@ import com.netflix.zuul.context.RequestContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -112,6 +113,11 @@ public abstract class ZuulProxyTestBase {
 	public void setTestRequestcontext() {
 		RequestContext.testSetCurrentContext(null);
 		RequestContext.getCurrentContext().unset();
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	/**

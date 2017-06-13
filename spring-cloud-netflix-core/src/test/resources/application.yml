@@ -4,9 +4,6 @@ server:
     enabled: true
     min-response-size: 1024
     mime-types: application/xml,application/json
-logging:
-  level:
-    org.springframework.web: INFO
 spring:
   application:
     name: testclient

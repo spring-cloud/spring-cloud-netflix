@@ -17,19 +17,21 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URI;
 
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Configuration;
@@ -47,13 +49,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT,
-		properties = {"server.servlet.path: /app"})
+@SpringBootTest(classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+		"server.servlet.path: /app" })
 @DirtiesContext
 public class ServletPathZuulProxyApplicationTests {
 
@@ -75,14 +75,17 @@ public class ServletPathZuulProxyApplicationTests {
 		RequestContext.testSetCurrentContext(context);
 	}
 
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
+	}
+
 	@Test
 	public void getOnSelfViaSimpleHostRoutingFilter() {
-		this.routes.addRoute("/self/**",
-				"http://localhost:" + this.port + "/app/local");
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
-		ResponseEntity<String> result = testRestTemplate.exchange(
-				"/app/self/1", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange("/app/self/1",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten 1!", result.getBody());
 	}
@@ -90,42 +93,37 @@ public class ServletPathZuulProxyApplicationTests {
 	@Test
 	public void optionsOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = testRestTemplate.exchange(
-				RequestEntity
-						.options(new URI("/app/local/1"))
+				RequestEntity.options(new URI("/app/local/1"))
 						.header("Origin", "http://localhost:9000")
-						.header("Access-Control-Request-Method", "GET")
-						.build(),
+						.header("Access-Control-Request-Method", "GET").build(),
 				String.class);
 		HttpHeaders httpHeaders = result.getHeaders();
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("http://localhost:9000", httpHeaders.getFirst("Access-Control-Allow-Origin"));
+		assertEquals("http://localhost:9000",
+				httpHeaders.getFirst("Access-Control-Allow-Origin"));
 	}
 
 	@Test
 	public void optionsOnSelf() throws Exception {
-		this.routes.addRoute("/self/**",
-				"http://localhost:" + this.port + "/app/local");
+		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
 		ResponseEntity<String> result = testRestTemplate.exchange(
-				RequestEntity
-						.options(new URI("/app/self/1"))
+				RequestEntity.options(new URI("/app/self/1"))
 						.header("Origin", "http://localhost:9000")
-						.header("Access-Control-Request-Method", "GET")
-						.build(),
+						.header("Access-Control-Request-Method", "GET").build(),
 				String.class);
 		HttpHeaders httpHeaders = result.getHeaders();
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("http://localhost:9000", httpHeaders.getFirst("Access-Control-Allow-Origin"));
+		assertEquals("http://localhost:9000",
+				httpHeaders.getFirst("Access-Control-Allow-Origin"));
 	}
 
 	@Test
 	public void contentOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = testRestTemplate.exchange(
-				RequestEntity
-						.get(new URI("/app/local/1"))
-						.build(), String.class);
+				RequestEntity.get(new URI("/app/local/1")).build(), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Gotten 1!", result.getBody());
 	}
@@ -135,9 +133,8 @@ public class ServletPathZuulProxyApplicationTests {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
 				"http://localhost:" + this.port + "/app/local", false, false, null));
 		this.endpoint.reset();
-		ResponseEntity<String> result = testRestTemplate.exchange(
-				"/app/strip", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange("/app/strip",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		// Prefix not stripped to it goes to /local/strip
 		assertEquals("Gotten strip!", result.getBody());

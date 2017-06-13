@@ -17,9 +17,15 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -40,10 +46,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.context.RequestContext;
-
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -61,10 +63,16 @@ public class ZuulProxyApplicationTests {
 		RequestContext.testSetCurrentContext(context);
 	}
 
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
+	}
+
 	@Test
 	public void getHasCorrectTransferEncoding() {
 		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/simple/transferencoding", String.class);
+				"http://localhost:" + this.port + "/simple/transferencoding",
+				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
 	}
@@ -72,8 +80,8 @@ public class ZuulProxyApplicationTests {
 	@Test
 	public void postHasCorrectTransferEncoding() {
 		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
-				"http://localhost:" + this.port + "/simple/transferencoding", new HttpEntity<>("hello"),
-				String.class);
+				"http://localhost:" + this.port + "/simple/transferencoding",
+				new HttpEntity<>("hello"), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
 	}
@@ -87,7 +95,8 @@ public class ZuulProxyApplicationTests {
 	static class ZuulProxyApplication {
 
 		@RequestMapping(value = "/transferencoding", method = RequestMethod.GET)
-		public String get(@RequestHeader(name = "Transfer-Encoding", required = false) String transferEncoding) {
+		public String get(
+				@RequestHeader(name = "Transfer-Encoding", required = false) String transferEncoding) {
 			if (transferEncoding == null) {
 				return "missing";
 			}
@@ -95,8 +104,9 @@ public class ZuulProxyApplicationTests {
 		}
 
 		@RequestMapping(value = "/transferencoding", method = RequestMethod.POST)
-		public String post(@RequestHeader(name = "Transfer-Encoding", required = false) String transferEncoding,
-						   @RequestBody String hello) {
+		public String post(
+				@RequestHeader(name = "Transfer-Encoding", required = false) String transferEncoding,
+				@RequestBody String hello) {
 			if (transferEncoding == null) {
 				return "missing";
 			}
@@ -119,4 +129,3 @@ public class ZuulProxyApplicationTests {
 
 	}
 }
-

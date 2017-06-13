@@ -22,10 +22,14 @@ import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,15 +49,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.assertEquals;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = {"zuul.forceOriginalQueryStringEncoding: true"})
+@SpringBootTest(classes = SimpleZuulProxyApplicationTests.SimpleZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"zuul.forceOriginalQueryStringEncoding: true" })
 @DirtiesContext
 public class SimpleZuulProxyApplicationTests {
 
@@ -76,6 +78,11 @@ public class SimpleZuulProxyApplicationTests {
 
 		this.routes.addRoute("/foo/**", "http://localhost:" + this.port + "/bar");
 		this.endpoint.reset();
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
@@ -126,15 +133,14 @@ public class SimpleZuulProxyApplicationTests {
 	}
 
 	private void assertResponseCodeAndBody(ResponseEntity<String> result,
-										   String expectedBody) {
+			String expectedBody) {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals(expectedBody, result.getBody());
 	}
 
 	private ResponseEntity<String> executeSimpleRequest(HttpMethod httpMethod) {
-		ResponseEntity<String> result = testRestTemplate.exchange(
-				"/foo?id=bar", httpMethod,
-				new HttpEntity<>((Void) null), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange("/foo?id=bar",
+				httpMethod, new HttpEntity<>((Void) null), String.class);
 		return result;
 	}
 
@@ -150,7 +156,7 @@ public class SimpleZuulProxyApplicationTests {
 			return "get " + id;
 		}
 
-		@RequestMapping(value = "/bar", method = RequestMethod.GET, params = {"foo"})
+		@RequestMapping(value = "/bar", method = RequestMethod.GET, params = { "foo" })
 		public String complexGet(@RequestParam String foo, HttpServletRequest request) {
 			return request.getQueryString();
 		}
