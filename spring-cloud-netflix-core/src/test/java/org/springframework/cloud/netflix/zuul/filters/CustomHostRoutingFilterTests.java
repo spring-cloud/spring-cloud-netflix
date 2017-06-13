@@ -16,21 +16,21 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.netflix.zuul.context.RequestContext;
 
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -59,7 +59,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.netflix.zuul.context.RequestContext;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -80,6 +82,11 @@ public class CustomHostRoutingFilterTests {
 	public void setTestRequestcontext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test

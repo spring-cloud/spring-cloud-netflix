@@ -16,11 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
+import com.netflix.zuul.context.RequestContext;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.embedded.LocalServerPort;
@@ -41,13 +43,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = ContextPathZuulProxyApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = {"server.contextPath: /app"})
+@SpringBootTest(classes = ContextPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"server.contextPath: /app" })
 @DirtiesContext
 public class ContextPathZuulProxyApplicationTests {
 
@@ -67,6 +67,11 @@ public class ContextPathZuulProxyApplicationTests {
 	public void setTestRequestContext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test

@@ -20,9 +20,13 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -30,8 +34,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
-
-import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -84,6 +86,11 @@ public class DiscoveryClientRouteLocatorTests {
 	public void init() {
 		initMocks(this);
 		setTestRequestcontext(); // re-initialize Zuul context for each test
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
@@ -603,8 +610,7 @@ public class DiscoveryClientRouteLocatorTests {
 
 	@Test
 	public void testLocalServiceExceptionIgnored() {
-		given(this.discovery.getServices())
-				.willReturn(Collections.<String>emptyList());
+		given(this.discovery.getServices()).willReturn(Collections.<String>emptyList());
 		given(this.discovery.getLocalServiceInstance()).willThrow(new RuntimeException());
 
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
@@ -680,6 +686,5 @@ public class DiscoveryClientRouteLocatorTests {
 	private void setTestRequestcontext() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
-
 	}
 }

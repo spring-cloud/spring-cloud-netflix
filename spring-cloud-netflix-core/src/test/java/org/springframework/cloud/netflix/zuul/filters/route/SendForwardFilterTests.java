@@ -18,13 +18,14 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.context.RequestContext;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,7 +38,7 @@ public class SendForwardFilterTests {
 
 	@After
 	public void reset() {
-		RequestContext.testSetCurrentContext(null);
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Before

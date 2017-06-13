@@ -22,7 +22,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.springframework.cloud.netflix.zuul.FormZuulServletProxyApplicationTests;
-import org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfigurationTests;
+import org.springframework.cloud.netflix.zuul.filters.route.LazyLoadOfZuulConfigurationTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -30,8 +30,8 @@ import org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfigurationTests;
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ ZuulProxyAutoConfigurationTests.class,
-		FormZuulServletProxyApplicationTests.class })
+@SuiteClasses({ FormZuulServletProxyApplicationTests.class,
+		LazyLoadOfZuulConfigurationTests.class })
 @Ignore
 public class AdhocTestSuite {
 

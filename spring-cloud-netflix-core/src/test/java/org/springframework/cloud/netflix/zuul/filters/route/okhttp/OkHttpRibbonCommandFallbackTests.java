@@ -18,14 +18,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 
+import com.netflix.zuul.context.RequestContext;
+
 import org.junit.Before;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandFallbackTests;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.netflix.zuul.context.RequestContext;
 
 /**
  * @author Ryan Baxter
@@ -33,12 +34,11 @@ import com.netflix.zuul.context.RequestContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RibbonCommandFallbackTests.TestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.simple: /simple/**", "zuul.routes.another: /another/twolevel/**",
-		"ribbon.ReadTimeout: 1"})
+		"ribbon.ReadTimeout: 1" })
 @DirtiesContext
 public class OkHttpRibbonCommandFallbackTests extends RibbonCommandFallbackTests {
 	@Before
 	public void init() {
-		RequestContext.testSetCurrentContext(null);
-		RequestContext.getCurrentContext().unset();
+		RequestContext.getCurrentContext().clear();
 	}
 }
