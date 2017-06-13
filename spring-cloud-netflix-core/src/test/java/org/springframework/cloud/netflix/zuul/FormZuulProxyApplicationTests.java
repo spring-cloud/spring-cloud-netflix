@@ -16,19 +16,22 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static java.nio.charset.Charset.defaultCharset;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.util.StreamUtils.copyToString;
-
 import java.io.IOException;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.Part;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -58,18 +61,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
+import static java.nio.charset.Charset.defaultCharset;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.util.StreamUtils.copyToString;
 
 import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = FormZuulProxyApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT,
-		value = {"zuul.routes.simple:/simple/**"})
+@SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+		"zuul.routes.simple:/simple/**" })
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
@@ -79,6 +79,11 @@ public class FormZuulProxyApplicationTests {
 	@Before
 	public void setTestRequestContext() {
 		RequestContext.testSetCurrentContext(new RequestContext());
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
@@ -170,7 +175,8 @@ public class FormZuulProxyApplicationTests {
 		form.set("foo", "bar");
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
+		headers.setContentType(MediaType.valueOf(
+				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
 		ResponseEntity result = sendPost("/simple/form", form, headers);
 
@@ -185,7 +191,8 @@ public class FormZuulProxyApplicationTests {
 		form.set("foo", "bar");
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
+		headers.setContentType(MediaType.valueOf(
+				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
 		ResponseEntity result = sendPost("/simple/form?uriParam=uriValue", form, headers);
 
@@ -201,8 +208,10 @@ public class FormZuulProxyApplicationTests {
 		assertEquals("Posted! {uriParam=[uriValue]}", result.getBody());
 	}
 
-	private ResponseEntity<String> sendPost(String url, MultiValueMap form, HttpHeaders headers) {
-		return restTemplate.postForEntity(url, new HttpEntity<>(form, headers), String.class);
+	private ResponseEntity<String> sendPost(String url, MultiValueMap form,
+			HttpHeaders headers) {
+		return restTemplate.postForEntity(url, new HttpEntity<>(form, headers),
+				String.class);
 	}
 
 	private ResponseEntity<String> sendGet(String url) {
@@ -217,7 +226,7 @@ public class FormZuulProxyApplicationTests {
 @EnableZuulProxy
 @RibbonClients({
 		@RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
-		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class)})
+		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class) })
 @Slf4j
 class FormZuulProxyApplication {
 
@@ -242,17 +251,18 @@ class FormZuulProxyApplication {
 	}
 
 	@RequestMapping(value = "/fileandform", method = RequestMethod.POST)
-	public String fileAndForm(@RequestParam MultipartFile file, @RequestParam String field)
-			throws IOException {
+	public String fileAndForm(@RequestParam MultipartFile file,
+			@RequestParam String field) throws IOException {
 
-		return "Posted! " + copyToString(file.getInputStream(), defaultCharset()) + "!field!" + field;
+		return "Posted! " + copyToString(file.getInputStream(), defaultCharset())
+				+ "!field!" + field;
 	}
 
 	@RequestMapping(value = "/json", method = RequestMethod.POST)
-	public String fileAndJson(@RequestPart Part field)
-			throws IOException {
+	public String fileAndJson(@RequestPart Part field) throws IOException {
 
-		return "Posted! " + copyToString(field.getInputStream(), defaultCharset()) + " as " + field.getContentType();
+		return "Posted! " + copyToString(field.getInputStream(), defaultCharset())
+				+ " as " + field.getContentType();
 	}
 
 	@Bean
@@ -299,8 +309,7 @@ class FormZuulProxyApplication {
 		new SpringApplicationBuilder(FormZuulProxyApplication.class)
 				.properties("zuul.routes.simple:/simple/**",
 						"zuul.routes.direct.url:http://localhost:9999",
-						"multipart.maxFileSize:4096MB",
-						"multipart.maxRequestSize:4096MB")
+						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
 				.run(args);
 	}
 

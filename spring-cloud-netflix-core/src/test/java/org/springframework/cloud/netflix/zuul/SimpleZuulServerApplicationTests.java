@@ -16,12 +16,14 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -41,13 +43,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = SimpleZuulServerApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = SimpleZuulServerApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
 
@@ -70,6 +70,11 @@ public class SimpleZuulServerApplicationTests {
 		RequestContext.testSetCurrentContext(context);
 	}
 
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
+	}
+
 	@Test
 	public void bindRoute() {
 		assertNotNull(getRoute("/testing123/**"));
@@ -77,8 +82,7 @@ public class SimpleZuulServerApplicationTests {
 
 	@Test
 	public void getOnSelf() {
-		ResponseEntity<String> result = testRestTemplate.exchange(
-				"/", HttpMethod.GET,
+		ResponseEntity<String> result = testRestTemplate.exchange("/", HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Hello world", result.getBody());
@@ -86,9 +90,8 @@ public class SimpleZuulServerApplicationTests {
 
 	@Test
 	public void getOnSelfViaFilter() {
-		ResponseEntity<String> result = testRestTemplate.exchange(
-				"/testing123/1", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange("/testing123/1",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 

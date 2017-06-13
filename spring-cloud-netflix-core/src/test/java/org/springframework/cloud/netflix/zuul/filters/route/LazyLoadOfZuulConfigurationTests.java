@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-
 package org.springframework.cloud.netflix.zuul.filters.route;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.context.RequestContext;
+
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,8 +43,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -50,6 +53,11 @@ public class LazyLoadOfZuulConfigurationTests {
 
 	@Value("${local.server.port}")
 	protected int port;
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
+	}
 
 	@Test
 	public void testEagerLoading() {
