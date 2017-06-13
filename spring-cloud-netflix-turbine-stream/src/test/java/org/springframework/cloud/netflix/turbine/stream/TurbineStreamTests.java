@@ -64,7 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream" })
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:1.4.0.BUILD-SNAPSHOT}:stubs" })
 @AutoConfigureStubRunner
 public class TurbineStreamTests {
 
