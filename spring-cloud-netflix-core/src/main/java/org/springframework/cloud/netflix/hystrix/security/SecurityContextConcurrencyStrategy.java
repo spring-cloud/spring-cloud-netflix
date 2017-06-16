@@ -21,6 +21,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.netflix.hystrix.HystrixThreadPoolProperties;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 
 import com.netflix.hystrix.HystrixThreadPoolKey;
@@ -66,6 +67,13 @@ public class SecurityContextConcurrencyStrategy extends HystrixConcurrencyStrate
 						maximumPoolSize, keepAliveTime, unit, workQueue)
 				: super.getThreadPool(threadPoolKey, corePoolSize, maximumPoolSize,
 						keepAliveTime, unit, workQueue);
+	}
+
+	@Override
+	public ThreadPoolExecutor getThreadPool(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties threadPoolProperties) {
+		return existingConcurrencyStrategy != null
+				? existingConcurrencyStrategy.getThreadPool(threadPoolKey, threadPoolProperties)
+				: super.getThreadPool(threadPoolKey, threadPoolProperties);
 	}
 
 	@Override
