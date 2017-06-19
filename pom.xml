@@ -26,7 +26,7 @@
 		<jackson.version>2.7.3</jackson.version>
 		<spring-cloud-commons.version>1.2.3.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>1.4.0.BUILD-SNAPSHOT</spring-cloud-config.version>
-		<spring-cloud-stream.version>Chelsea.BUILD-SNAPSHOT</spring-cloud-stream.version>
+		<spring-cloud-stream.version>Ditmars.BUILD-SNAPSHOT</spring-cloud-stream.version>
 
 		<!-- Sonar -->
 		<surefire.plugin.version>2.19.1</surefire.plugin.version>
