@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Collection;
 
+import feign.codec.Encoder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
@@ -53,7 +54,7 @@ public class SpringEncoderTests {
 
 	@Test
 	public void testCustomHttpMessageConverter() {
-		SpringEncoder encoder = this.context.getInstance("foo", SpringEncoder.class);
+		Encoder encoder = this.context.getInstance("foo", Encoder.class);
 		assertThat(encoder, is(notNullValue()));
 		RequestTemplate request = new RequestTemplate();
 

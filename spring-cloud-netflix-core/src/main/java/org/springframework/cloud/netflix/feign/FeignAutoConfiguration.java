@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.feign;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.Module;
 import org.apache.http.client.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -26,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.netflix.feign.support.PageJacksonModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,6 +35,7 @@ import feign.Client;
 import feign.Feign;
 import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
+import org.springframework.data.domain.Page;
 
 /**
  * @author Spencer Gibb
@@ -55,6 +58,12 @@ public class FeignAutoConfiguration {
 		FeignContext context = new FeignContext();
 		context.setConfigurations(this.configurations);
 		return context;
+	}
+
+	@Bean
+	@ConditionalOnClass(Page.class)
+	public Module pageJacksonModule(){
+		return new PageJacksonModule();
 	}
 
 	@Configuration
