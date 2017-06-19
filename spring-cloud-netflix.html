@@ -465,7 +465,7 @@ normally removed from the registry.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 @ComponentScan
 @EnableAutoConfiguration
 @EnableEurekaClient
@@ -696,7 +696,7 @@ implementing your own <code>com.netflix.appinfo.HealthCheckHandler</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Bean
 @Profile("!default")
 public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
   EurekaInstanceConfigBean b = new EurekaInstanceConfigBean(inetUtils);
@@ -840,7 +840,7 @@ and <code>zone 2</code> you would need to set the following Eureka properties in
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>eureka.instance.metadataMap.zone = zone1
+<pre class="prettyprint highlight"><code>eureka.instance.metadataMap.zone = zone1
 eureka.client.preferSameZoneEureka = true</code></pre>
 </div>
 </div>
@@ -849,7 +849,7 @@ eureka.client.preferSameZoneEureka = true</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>eureka.instance.metadataMap.zone = zone2
+<pre class="prettyprint highlight"><code>eureka.instance.metadataMap.zone = zone2
 eureka.client.preferSameZoneEureka = true</code></pre>
 </div>
 </div>
@@ -874,7 +874,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@SpringBootApplication
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@SpringBootApplication
 @EnableEurekaServer
 public class Application {
 
@@ -905,7 +905,7 @@ normal Eureka functionality under <code>/eureka/*</code>.</p>
 <div class="listingblock">
 <div class="title">build.gradle</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">buildscript {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">buildscript {
   dependencies {
     classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
   }
@@ -1120,7 +1120,7 @@ for details on the properties available.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@HystrixCommand(fallbackMethod = "stubMyService",
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@HystrixCommand(fallbackMethod = "stubMyService",
     commandProperties = {
       @HystrixProperty(name="execution.isolation.strategy", value="SEMAPHORE")
     }
@@ -1143,7 +1143,7 @@ for details on the properties available.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
+<pre class="prettyprint highlight"><code class="language-json" data-lang="json">{
     "hystrix": {
         "openCircuitBreakers": [
             "StoreIntegration::getStoresByLocationLink"
@@ -1162,7 +1162,7 @@ for details on the properties available.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
+<pre class="prettyprint highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
         &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
         &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
     &lt;/dependency&gt;</code></pre>
@@ -1344,7 +1344,7 @@ declaring additional configuration (on top of the
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 @RibbonClient(name = "foo", configuration = FooConfiguration.class)
 public class TestConfiguration {
 }</code></pre>
@@ -1409,7 +1409,7 @@ one of the beans described.  Example:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 public class FooConfiguration {
     @Bean
     public IPing ribbonPing(IClientConfig config) {
@@ -1576,7 +1576,7 @@ disable the use of Eureka in Ribbon.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class MyClass {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">public class MyClass {
     @Autowired
     private LoadBalancerClient loadBalancer;
 
@@ -1625,7 +1625,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 @ComponentScan
 @EnableAutoConfiguration
 @EnableEurekaClient
@@ -1642,7 +1642,7 @@ public class Application {
 <div class="listingblock">
 <div class="title">StoreClient.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient("stores")
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@FeignClient("stores")
 public interface StoreClient {
     @RequestMapping(method = RequestMethod.GET, value = "/stores")
     List&lt;Store&gt; getStores();
@@ -1682,7 +1682,7 @@ in your external configuration (see
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "stores", configuration = FooConfiguration.class)
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@FeignClient(name = "stores", configuration = FooConfiguration.class)
 public interface StoreClient {
     //..
 }</code></pre>
@@ -1732,7 +1732,7 @@ Previously, using the <code>url</code> attribute, did not require the <code>name
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "${feign.name}", url = "${feign.url}")
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@FeignClient(name = "${feign.name}", url = "${feign.url}")
 public interface StoreClient {
     //..
 }</code></pre>
@@ -1796,7 +1796,7 @@ public interface StoreClient {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 public class FooConfiguration {
     @Bean
     public Contract feignContract() {
@@ -1834,7 +1834,7 @@ thread isolation strategy for Hystrix to `SEMAPHORE</code> or disable Hystrix in
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"># To disable Hystrix in Feign
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"># To disable Hystrix in Feign
 feign:
   hystrix:
     enabled: false
@@ -1860,7 +1860,7 @@ a separate request interceptor.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Import(FeignClientsConfiguration.class)
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Import(FeignClientsConfiguration.class)
 class FooController {
 
 	private FooClient fooClient;
@@ -1920,7 +1920,7 @@ provided by Spring Cloud Netflix.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 public class FooConfiguration {
     @Bean
 	@Scope("prototype")
@@ -1952,7 +1952,7 @@ favor for an opt-in approach.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", fallback = HystrixClientFallback.class)
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", fallback = HystrixClientFallback.class)
 protected interface HystrixClient {
     @RequestMapping(method = RequestMethod.GET, value = "/hello")
     Hello iFailSometimes();
@@ -1971,7 +1971,7 @@ static class HystrixClientFallback implements HystrixClient {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)
 protected interface HystrixClient {
 	@RequestMapping(method = RequestMethod.GET, value = "/hello")
 	Hello iFailSometimes();
@@ -2011,7 +2011,7 @@ There is a limitation with the implementation of fallbacks in Feign and how Hyst
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", primary = false)
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@FeignClient(name = "hello", primary = false)
 public interface HelloClient {
 	// methods here
 }</code></pre>
@@ -2027,7 +2027,7 @@ This allows grouping common operations into convenient base interfaces.</p>
 <div class="listingblock">
 <div class="title">UserService.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public interface UserService {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">public interface UserService {
 
     @RequestMapping(method = RequestMethod.GET, value ="/users/{id}")
     User getUser(@PathVariable("id") long id);
@@ -2037,7 +2037,7 @@ This allows grouping common operations into convenient base interfaces.</p>
 <div class="listingblock">
 <div class="title">UserResource.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RestController
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RestController
 public class UserResource implements UserService {
 
 }</code></pre>
@@ -2046,7 +2046,7 @@ public class UserResource implements UserService {
 <div class="listingblock">
 <div class="title">UserClient.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">package project.user;
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">package project.user;
 
 @FeignClient("users")
 public interface UserClient extends UserService {
@@ -2078,7 +2078,7 @@ Feign requests. You can do this by enabling one of the properties:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
 feign.compression.response.enabled=true</code></pre>
 </div>
 </div>
@@ -2087,7 +2087,7 @@ feign.compression.response.enabled=true</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">feign.compression.request.enabled=true
 feign.compression.request.mime-types=text/xml,application/xml,application/json
 feign.compression.request.min-request-size=2048</code></pre>
 </div>
@@ -2104,7 +2104,7 @@ feign.compression.request.min-request-size=2048</code></pre>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">logging.level.project.user.UserClient: DEBUG</code></pre>
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">logging.level.project.user.UserClient: DEBUG</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2131,7 +2131,7 @@ feign.compression.request.min-request-size=2048</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Configuration
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
 public class FooConfiguration {
     @Bean
     Logger.Level feignLoggerLevel() {
@@ -2152,7 +2152,7 @@ public class FooConfiguration {
 <div class="listingblock">
 <div class="title">Archaius Example</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">class ArchaiusTest {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">class ArchaiusTest {
     DynamicStringProperty myprop = DynamicPropertyFactory
             .getInstance()
             .getStringProperty("my.prop");
@@ -2290,7 +2290,7 @@ configured routes map, then it will be unignored. Example:</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   ignoredServices: '*'
   routes:
     users: /myusers/**</code></pre>
@@ -2307,7 +2307,7 @@ following:</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users: /myusers/**</code></pre>
 </div>
@@ -2323,7 +2323,7 @@ and the serviceId independently:</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
@@ -2343,7 +2343,7 @@ level, but "/myusers/**" matches hierarchically.</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
@@ -2359,7 +2359,7 @@ see <a href="#spring-cloud-ribbon-without-eureka">above for more information</a>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">zuul:
   routes:
     users:
       path: /myusers/**
@@ -2382,7 +2382,7 @@ variables from serviceId and inject them into a route pattern.</p>
 <div class="listingblock">
 <div class="title">ApplicationConfiguration.java</div>
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Bean
 public PatternServiceRouteMapper serviceRouteMapper() {
     return new PatternServiceRouteMapper(
         "(?&lt;name&gt;^.+)-(?&lt;version&gt;v.+$)",
@@ -2409,7 +2409,7 @@ the service-specific prefix from individual routes, e.g.</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
@@ -2460,7 +2460,7 @@ span all services and supersede any other route specification.</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   ignoredPatterns: /**/admin/**
   routes:
     users: /myusers/**</code></pre>
@@ -2486,7 +2486,7 @@ file as the ordering will be lost using a properties file. For example:
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
@@ -2542,7 +2542,7 @@ route, e.g.</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
@@ -2574,7 +2574,7 @@ want to pass cookie or authorization headers to your back end. Example:</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     users:
       path: /myusers/**
@@ -2640,7 +2640,7 @@ but redirect some of the requests to new ones.</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     first:
       path: /first/**
@@ -2698,7 +2698,7 @@ balancer, e.g.</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
 ribbon:
   ConnectTimeout: 3000
   ReadTimeout: 60000</code></pre>
@@ -2730,7 +2730,7 @@ that the query string is taken as is with the <code>HttpServletRequest::getQuery
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   forceOriginalQueryStringEncoding: true</code></pre>
 </div>
 </div>
@@ -2757,7 +2757,7 @@ ignored. For example:</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml"> zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml"> zuul:
   routes:
     api: /api/**</code></pre>
 </div>
@@ -2788,7 +2788,7 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">class MyFallbackProvider implements ZuulFallbackProvider {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">class MyFallbackProvider implements ZuulFallbackProvider {
     @Override
     public String getRoute() {
         return "customers";
@@ -2838,7 +2838,7 @@ as a fallback.  Here is a very simple <code>ZuulFallbackProvider</code> implemen
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">zuul:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">zuul:
   routes:
     customers: /customers/**</code></pre>
 </div>
@@ -2849,7 +2849,7 @@ type <code>ZuulFallbackProvider</code> and have the <code>getRoute</code> method
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">class MyFallbackProvider implements ZuulFallbackProvider {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">class MyFallbackProvider implements ZuulFallbackProvider {
     @Override
     public String getRoute() {
         return "*";
@@ -3031,7 +3031,7 @@ type <code>ZuulFallbackProvider</code> and have the <code>getRoute</code> method
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class QueryParamPreFilter extends ZuulFilter {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">public class QueryParamPreFilter extends ZuulFilter {
 	@Override
 	public int filterOrder() {
 		return PRE_DECORATION_FILTER_ORDER - 1; // run before PreDecoration
@@ -3078,7 +3078,7 @@ type <code>ZuulFallbackProvider</code> and have the <code>getRoute</code> method
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class OkHttpRoutingFilter extends ZuulFilter {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">public class OkHttpRoutingFilter extends ZuulFilter {
 	@Autowired
 	private ProxyRequestHelper helper;
 
@@ -3166,7 +3166,7 @@ type <code>ZuulFallbackProvider</code> and have the <code>getRoute</code> method
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">public class AddResponseHeaderFilter extends ZuulFilter {
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">public class AddResponseHeaderFilter extends ZuulFilter {
 	@Override
 	public String filterType() {
 		return POST_TYPE;
@@ -3251,7 +3251,7 @@ indicator.  It should return a json document like the following:</p>
 <div class="listingblock">
 <div class="title">health-uri-document</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
+<pre class="prettyprint highlight"><code class="language-json" data-lang="json">{
   "status":"UP"
 }</code></pre>
 </div>
@@ -3262,7 +3262,7 @@ indicator.  It should return a json document like the following:</p>
 <div class="listingblock">
 <div class="title">application.yml</div>
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">server:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">server:
   port: 5678
 spring:
   application:
@@ -3282,7 +3282,7 @@ on port 5678) at <code><a href="http://localhost:5678/hosts/{serviceId}" class="
 <div class="listingblock">
 <div class="title">/hosts/customers</div>
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">[
+<pre class="prettyprint highlight"><code class="language-json" data-lang="json">[
     {
         "host": "myhost",
         "port": 9000,
@@ -3319,7 +3319,7 @@ might result in a YAML document like the following</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">eureka:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
@@ -3352,7 +3352,7 @@ info:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
 public Single&lt;String&gt; single() {
 	return Single.just("single value");
 }
@@ -3379,7 +3379,7 @@ public Single&lt;Object&gt; error() {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
 public Single&lt;String&gt; single() {
     return Observable.just("single value").toSingle();
 }
@@ -3414,7 +3414,7 @@ public Observable&lt;String&gt; timeout() {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/sse")
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/sse")
 public SseEmitter single() {
 	return RxResponse.sse(Observable.just("single value"));
 }
@@ -3453,7 +3453,7 @@ public SseEmitter event() {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
+<pre class="prettyprint highlight"><code class="language-json" data-lang="json">{
     "counter.status.200.root": 20,
     "counter.status.400.root": 3,
     "counter.status.200.star-star": 5,
@@ -3474,7 +3474,7 @@ public SseEmitter event() {
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
+<pre class="prettyprint highlight"><code class="language-json" data-lang="json">{
     "root(status=200,stastic=count)": 20,
     "root(status=200,stastic=max)": 0.7265630630000001,
     "root(status=200,stastic=totalOfSquares)": 0.04759702862580789,
@@ -3547,7 +3547,7 @@ Avoid using hardcoded url parameters within <code>RestTemplate</code>.  When tar
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">// recommended
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// recommended
 String orderid = "1";
 restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
 
@@ -3563,7 +3563,7 @@ restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.clas
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
+<pre class="prettyprint highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
         &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
         &lt;artifactId&gt;spring-cloud-starter-spectator&lt;/artifactId&gt;
     &lt;/dependency&gt;</code></pre>
@@ -3582,7 +3582,7 @@ restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.clas
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">// create a counter with a name and a set of tags
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// create a counter with a name and a set of tags
 Counter counter = registry.counter("counterName", "tagKey1", "tagValue1", ...);
 counter.increment(); // increment when an event occurs
 counter.increment(10); // increment by a discrete amount</code></pre>
@@ -3605,7 +3605,7 @@ counter.increment(10); // increment by a discrete amount</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">// create a timer with a name and a set of tags
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// create a timer with a name and a set of tags
 Timer timer = registry.timer("timerName", "tagKey1", "tagValue1", ...);
 
 // execute an operation and time it at the same time
@@ -3634,7 +3634,7 @@ timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
 registry.gauge("gaugeName", pool, Pool::numberOfRunningThreads);
 
 // manually sample a value in code at periodic intervals -- last resort!
@@ -3649,7 +3649,7 @@ registry.gauge("gaugeName", Arrays.asList("tagKey1", "tagValue1", ...), 1000);</
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">// the registry will automatically sample this gauge periodically
 DistributionSummary ds = registry.distributionSummary("dsName", "tagKey1", "tagValue1", ...);
 ds.record(request.sizeInBytes());</code></pre>
 </div>
@@ -3686,7 +3686,7 @@ If your code is compiled on Java 8, please use Spectator instead of Servo as Spe
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">MonitorConfig config = MonitorConfig.builder("timerName").withTag("tagKey1", "tagValue1").build();
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">MonitorConfig config = MonitorConfig.builder("timerName").withTag("tagKey1", "tagValue1").build();
 
 // somewhere we should cache this Monitor by MonitorConfig
 Timer timer = new BasicTimer(config);
@@ -3716,7 +3716,7 @@ monitorRegistry.register(timer);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Bean
 AtlasTagProvider atlasCommonTags(
     @Value("${spring.application.name}") String appName) {
   return () -&gt; Collections.singletonMap("app", appName);
@@ -3731,7 +3731,7 @@ AtlasTagProvider atlasCommonTags(
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl -LO https://github.com/Netflix/atlas/releases/download/v1.4.2/atlas-1.4.2-standalone.jar
+<pre class="prettyprint highlight"><code class="language-bash" data-lang="bash">$ curl -LO https://github.com/Netflix/atlas/releases/download/v1.4.2/atlas-1.4.2-standalone.jar
 $ java -jar atlas-1.4.2-standalone.jar</code></pre>
 </div>
 </div>
@@ -3752,7 +3752,7 @@ An Atlas standalone node running on an r3.2xlarge (61GB RAM) can handle roughly 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl http://ATLAS/api/v1/tags</code></pre>
+<pre class="prettyprint highlight"><code class="language-bash" data-lang="bash">$ curl http://ATLAS/api/v1/tags</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -3802,7 +3802,7 @@ response.  You can list the response codes you would like the Ribbon client to r
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">clientName:
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">clientName:
   ribbon:
     retryableStatusCodes: 404,502</code></pre>
 </div>
@@ -3824,5 +3824,8 @@ can also disable retry functionality on route by route basis by setting
 </div>
 </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
+<script>prettyPrint()</script>
 </body>
 </html>
