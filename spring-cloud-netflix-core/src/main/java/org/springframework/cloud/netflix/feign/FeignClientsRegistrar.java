@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -59,9 +63,10 @@ import org.springframework.util.StringUtils;
  * @author Spencer Gibb
  * @author Jakub Narloch
  * @author Venil Noronha
+ * @author Eko Kurniawan Khannedy
  */
 class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
-		ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
+		ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware, BeanFactoryAware {
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
 	// and RibbonClientsConfigurationRegistgrar
@@ -71,6 +76,8 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	private ClassLoader classLoader;
 
 	private Environment environment;
+
+	private BeanFactory beanFactory;
 
 	public FeignClientsRegistrar() {
 	}
@@ -201,6 +208,23 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className,
 				new String[] { alias });
 		BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
+
+		// register health indicator for feign client
+		String healthMethod = (String) attributes.get("health");
+		if (StringUtils.hasText(healthMethod)) {
+			registerHealthIndicator(registry, className, name, healthMethod);
+		}
+	}
+
+	private void registerHealthIndicator(BeanDefinitionRegistry registry, String feignClass,
+																			 String feignName, String healthMethod) {
+		try {
+			FeignClientHealthConfiguration.FeignClientHealthRegistrar healthRegistrar =
+					beanFactory.getBean(FeignClientHealthConfiguration.FeignClientHealthRegistrar.class);
+			healthRegistrar.register(registry, feignClass, feignName, healthMethod);
+		} catch (NoSuchBeanDefinitionException ex) {
+			// health indicator feature is not active
+		}
 	}
 
 	private void validate(Map<String, Object> attributes) {
@@ -336,7 +360,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		}
 		return basePackages;
 	}
-	
+
 	private String getQualifier(Map<String, Object> client) {
 		if (client == null) {
 			return null;
@@ -381,6 +405,11 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	@Override
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.beanFactory = beanFactory;
 	}
 
 	/**

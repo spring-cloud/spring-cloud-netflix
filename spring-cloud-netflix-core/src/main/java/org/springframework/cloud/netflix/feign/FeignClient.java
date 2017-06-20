@@ -32,6 +32,7 @@ import org.springframework.core.annotation.AliasFor;
  *
  * @author Spencer Gibb
  * @author Venil Noronha
+ * @author Eko Kurniawan Khannedy
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -110,5 +111,10 @@ public @interface FeignClient {
 	 * Whether to mark the feign proxy as a primary bean. Defaults to true.
 	 */
 	boolean primary() default true;
+
+	/**
+	 * Health check method for feign health indicator
+	 */
+	String health() default "";
 
 }

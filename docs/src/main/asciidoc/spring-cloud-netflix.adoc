@@ -1257,6 +1257,24 @@ public class FooConfiguration {
 }
 ----
 
+=== Feign Health Indicator
+
+`@FeignClient` also has `health` attribute for registering `HealthIndicator` automatically.
+We can set the value of `health` with method name in feign class.
+This feature only active if we include `actuator` module in our spring project.
+
+.Example @FeignClient with health indicator
+[source,java]
+----
+@FeignClient(name = "fooClient", health = "healthMethod")
+public interface FooClient {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/health")
+    ResponseEntity<String> healthMethod();
+
+}
+----
+
 == External Configuration: Archaius
 
 https://github.com/Netflix/archaius[Archaius] is the Netflix client side configuration library.  It is the library used by all of the Netflix OSS components for configuration.  Archaius is an extension of the http://commons.apache.org/proper/commons-configuration[Apache Commons Configuration] project.  It allows updates to configuration by either polling a source for changes or for a source to push changes to the client.  Archaius uses Dynamic<Type>Property classes as handles to properties.
