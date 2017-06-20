@@ -54,9 +54,9 @@ import rx.functions.Func1;
  * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ObservableReturnValueHandlerTest.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ObservableReturnValueHandlerTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class ObservableReturnValueHandlerTest {
+public class ObservableReturnValueHandlerTests {
 
     @Value("${local.server.port}")
     private int port = 0;

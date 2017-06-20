@@ -53,9 +53,9 @@ import rx.Observable;
  * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ObservableSseEmitterTest.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = ObservableSseEmitterTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class ObservableSseEmitterTest {
+public class ObservableSseEmitterTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Ryan Baxter
  */
-public class RetryableStatusCodeExceptionTest {
+public class RetryableStatusCodeExceptionTests {
 
 	@Test
 	public void testMessage() {

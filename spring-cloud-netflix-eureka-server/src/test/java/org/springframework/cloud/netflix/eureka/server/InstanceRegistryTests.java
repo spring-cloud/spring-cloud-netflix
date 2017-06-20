@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.cloud.netflix.eureka.server.InstanceRegistryTest.TestApplication;
+import org.springframework.cloud.netflix.eureka.server.InstanceRegistryTests.TestApplication;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceCanceledEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRegisteredEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRenewedEvent;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.doReturn;
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		value = {"spring.application.name=eureka", "logging.level.org.springframework."
 		+ "cloud.netflix.eureka.server.InstanceRegistry=DEBUG"})
-public class InstanceRegistryTest {
+public class InstanceRegistryTests {
 
 	private static final String APP_NAME = "MY-APP-NAME";
 	private static final String HOST_NAME = "my-host-name";

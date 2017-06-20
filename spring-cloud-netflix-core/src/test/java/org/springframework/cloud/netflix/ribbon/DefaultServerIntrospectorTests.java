@@ -25,6 +25,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.mockito.Mockito.mock;
@@ -34,21 +35,21 @@ import static org.mockito.Mockito.when;
  * @author Rico Pahlisch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = DefaultServerIntrospectorDefaultTest.TestConfiguration.class)
-public class DefaultServerIntrospectorDefaultTest {
+@SpringBootTest(classes = DefaultServerIntrospectorTests.TestConfiguration.class)
+@TestPropertySource(properties = { "ribbon.securePorts=12345,556" })
+public class DefaultServerIntrospectorTests {
 
 	@Autowired
 	private ServerIntrospector serverIntrospector;
 
 	@Test
-	public void testDefaultSslPorts(){
+	public void testSecurePortConfiguration(){
 		Server serverMock = mock(Server.class);
+		when(serverMock.getPort()).thenReturn(12345);
+		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
+		when(serverMock.getPort()).thenReturn(556);
+		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
 		when(serverMock.getPort()).thenReturn(443);
-		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
-		when(serverMock.getPort()).thenReturn(8443);
-		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
-
-		when(serverMock.getPort()).thenReturn(16443);
 		Assert.assertFalse(serverIntrospector.isSecure(serverMock));
 	}
 
