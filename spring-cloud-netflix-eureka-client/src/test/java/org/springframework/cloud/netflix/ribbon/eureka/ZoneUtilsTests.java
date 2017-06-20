@@ -23,7 +23,7 @@ import org.junit.Test;
  * @author Ryan Baxter
  *
  */
-public class ZoneUtilsTest {
+public class ZoneUtilsTests {
 
 	@Test
 	public void extractApproximateZoneTest() {

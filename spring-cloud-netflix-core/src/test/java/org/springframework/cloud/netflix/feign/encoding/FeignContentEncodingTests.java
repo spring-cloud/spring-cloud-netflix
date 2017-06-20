@@ -48,12 +48,12 @@ import com.netflix.loadbalancer.Server;
  *
  * @author Jakub Narloch
  */
-@SpringBootTest(classes = FeignContentEncodingTest.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = FeignContentEncodingTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"feign.compression.request.enabled=true",
 		"hystrix.command.default.execution.isolation.strategy=SEMAPHORE",
 		"ribbon.OkToRetryOnAllOperations=false" })
 @RunWith(SpringJUnit4ClassRunner.class)
-public class FeignContentEncodingTest {
+public class FeignContentEncodingTests {
 
 	@Autowired
 	private InvoiceClient invoiceClient;

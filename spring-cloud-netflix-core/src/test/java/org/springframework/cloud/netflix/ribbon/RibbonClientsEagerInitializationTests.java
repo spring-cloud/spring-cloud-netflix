@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 	"ribbon.eager-load.clients=testspec1,testspec2"
 })
 @DirtiesContext
-public class RibbonClientsEagerInitializationTest {
+public class RibbonClientsEagerInitializationTests {
 
 	@Test
 	public void contextsShouldBeInitialized() {

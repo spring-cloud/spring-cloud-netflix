@@ -44,9 +44,9 @@ import rx.Single;
  * @author Jakub Narloch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SingleReturnValueHandlerTest.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = SingleReturnValueHandlerTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
-public class SingleReturnValueHandlerTest {
+public class SingleReturnValueHandlerTests {
 
 	@Value("${local.server.port}")
 	private int port = 0;

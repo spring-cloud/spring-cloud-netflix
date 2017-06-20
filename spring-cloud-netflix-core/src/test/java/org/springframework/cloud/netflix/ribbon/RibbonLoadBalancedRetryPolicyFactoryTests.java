@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Ryan Baxter
  */
-public class RibbonLoadBalancedRetryPolicyFactoryTest {
+public class RibbonLoadBalancedRetryPolicyFactoryTests {
 
     @Mock
     private SpringClientFactory clientFactory;
