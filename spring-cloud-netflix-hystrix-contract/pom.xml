@@ -29,7 +29,6 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-contract-verifier</artifactId>
-			<version>${spring-cloud-contract.version}</version>
 		</dependency>
 	</dependencies>
 </project>
