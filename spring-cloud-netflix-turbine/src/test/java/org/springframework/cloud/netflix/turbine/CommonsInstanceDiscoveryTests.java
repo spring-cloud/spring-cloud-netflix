@@ -31,7 +31,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Spencer Gibb
  */
-public class CommonsInstanceDiscoveryTest {
+public class CommonsInstanceDiscoveryTests {
 
 	private DiscoveryClient discoveryClient;
 	private TurbineProperties turbineProperties;

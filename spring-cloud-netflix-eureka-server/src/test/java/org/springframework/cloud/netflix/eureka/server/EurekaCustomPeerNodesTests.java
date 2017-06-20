@@ -36,10 +36,10 @@ import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.ServerCodecs;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = EurekaCustomPeerNodesTest.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=eureka", "server.contextPath=/context",
 		"management.security.enabled=false" })
-public class EurekaCustomPeerNodesTest {
+public class EurekaCustomPeerNodesTests {
 
 	 @Autowired
 	 private PeerEurekaNodes peerEurekaNodes;

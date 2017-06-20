@@ -74,7 +74,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Ryan Baxter
  */
-public class RetryableFeignLoadBalancerTest {
+public class RetryableFeignLoadBalancerTests {
 	@Mock
 	private ILoadBalancer lb;
 	@Mock

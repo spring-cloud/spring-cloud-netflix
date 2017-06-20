@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Ryan Baxter
  */
-public class ContextAwareRequestTest {
+public class ContextAwareRequestTests {
 
 	private RibbonCommandContext context;
 	private ContextAwareRequest request;

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Spencer Gibb
  */
-public class EurekaInstanceDiscoveryTest {
+public class EurekaInstanceDiscoveryTests {
 
 	private EurekaClient eurekaClient;
 	private TurbineProperties turbineProperties;
