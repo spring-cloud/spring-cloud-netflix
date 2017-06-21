@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.server.doc;
 
+import java.util.UUID;
+
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.netflix.appinfo.ApplicationInfoManager;
 
@@ -26,12 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyIterable;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.cloud.netflix.eureka.server.doc.RequestVerifierFilter.verify;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class EmptyAppsTests extends AbstractDocumentationTests {
+public class AppRegistrationTests extends AbstractDocumentationTests {
 
 	@Autowired
 	private EurekaInstanceConfigBean instanceConfig;
@@ -41,7 +45,7 @@ public class EmptyAppsTests extends AbstractDocumentationTests {
 	@Test
 	public void addApp() throws Exception {
 		instanceConfig.setAppname("foo");
-		instanceConfig.setInstanceId("unique-id");
+		instanceConfig.setInstanceId(UUID.randomUUID().toString());
 		instanceConfig.setHostname("foo.example.com");
 		applicationInfoManager.initComponent(instanceConfig);
 		assure("add-app", applicationInfoManager.getInfo())
@@ -50,6 +54,12 @@ public class EmptyAppsTests extends AbstractDocumentationTests {
 						.json("$.instance.instanceId")
 						.json("$.instance.dataCenterInfo.name"))
 				.when().post("/eureka/apps/FOO").then().assertThat().statusCode(is(204));
+		assure("starting-app").accept("application/json").when().get("/eureka/apps")
+				.then().assertThat()
+				.body("applications.application", hasSize(1),
+						"applications.application[0].instance[0].status",
+						equalTo("STARTING"))
+				.statusCode(is(200));
 		assure("up-app")
 				.filter(verify(
 						WireMock.put(WireMock.urlPathMatching("/eureka/apps/FOO/.*"))
@@ -58,6 +68,9 @@ public class EmptyAppsTests extends AbstractDocumentationTests {
 				.put("/eureka/apps/FOO/{id}/status?value={value}",
 						applicationInfoManager.getInfo().getInstanceId(), "UP")
 				.then().assertThat().statusCode(is(200));
+		assure("one-app").accept("application/json").when().get("/eureka/apps").then()
+				.assertThat().body("applications.application", hasSize(1))
+				.statusCode(is(200));
 		assure("delete-app").when()
 				.delete("/eureka/apps/FOO/{id}",
 						applicationInfoManager.getInfo().getInstanceId())
