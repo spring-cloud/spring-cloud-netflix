@@ -20,6 +20,8 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.specification.RequestSpecification;
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 
 import org.junit.After;
@@ -33,6 +35,7 @@ import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.contract.wiremock.restdocs.WireMockSnippet;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.cloud.netflix.eureka.server.doc.AbstractDocumentationTests.Application;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +64,12 @@ public abstract class AbstractDocumentationTests {
 	@Autowired
 	private PeerAwareInstanceRegistryImpl registry;
 
+	@Autowired
+	private EurekaInstanceConfigBean instanceConfig;
+
+	@Autowired
+	private ApplicationInfoManager applicationInfoManager;
+
 	@Rule
 	public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation(
 			"target/generated-snippets");
@@ -72,6 +81,18 @@ public abstract class AbstractDocumentationTests {
 		registry.initializedResponseCache();
 	}
 
+	protected void register(String name, String id) {
+		registry.register(getInstance(name, id), false);
+	}
+
+	protected InstanceInfo getInstance(String name, String id) {
+		instanceConfig.setAppname(name);
+		instanceConfig.setInstanceId(id);
+		instanceConfig.setHostname("foo.example.com");
+		applicationInfoManager.initComponent(instanceConfig);
+		return applicationInfoManager.getInfo();
+	}
+
 	private RestDocumentationFilter filter(String name) {
 		return RestAssuredRestDocumentation.document(name,
 				preprocessRequest(modifyUris().host("eureka.example.com").removePort(),
@@ -79,11 +100,11 @@ public abstract class AbstractDocumentationTests {
 				preprocessResponse(prettyPrint()));
 	}
 
-	private RequestSpecification document(Filter... filters) {
-		return document(null, filters);
+	private RequestSpecification spec(Filter... filters) {
+		return spec(null, filters);
 	}
 
-	private RequestSpecification document(Object body, Filter... filters) {
+	private RequestSpecification spec(Object body, Filter... filters) {
 		RequestSpecBuilder builder = new RequestSpecBuilder()
 				.addFilter(documentationConfiguration(this.restDocumentation).snippets()
 						.withAdditionalDefaults(new WireMockSnippet()));
@@ -97,19 +118,25 @@ public abstract class AbstractDocumentationTests {
 		return spec;
 	}
 
-	protected RequestSpecification assure(String name, Object body) {
-		RestDocumentationFilter filter = filter(name);
-		RequestSpecification assured = RestAssured.given(document(body, filter));
+	protected RequestSpecification document() {
+		return document("{method-name}");
+	}
+
+	protected RequestSpecification document(Object body) {
+		RestDocumentationFilter filter = filter("{method-name}");
+		RequestSpecification assured = RestAssured.given(spec(body, filter));
 		return assured.filter(filter);
 	}
 
-	protected RequestSpecification assure(String name) {
+	protected RequestSpecification document(String name, Object body) {
 		RestDocumentationFilter filter = filter(name);
-		return RestAssured.given(document(filter)).filter(filter);
+		RequestSpecification assured = RestAssured.given(spec(body, filter));
+		return assured.filter(filter);
 	}
 
-	protected RequestSpecification assure() {
-		return assure("{method-name}");
+	protected RequestSpecification document(String name) {
+		RestDocumentationFilter filter = filter(name);
+		return RestAssured.given(spec(filter)).filter(filter);
 	}
 
 	@Configuration
