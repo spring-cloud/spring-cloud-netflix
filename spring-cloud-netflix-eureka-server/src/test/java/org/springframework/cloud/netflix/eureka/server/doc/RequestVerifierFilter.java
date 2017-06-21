@@ -223,12 +223,20 @@ class WireMockRestAssuredRequestAdapter implements Request {
 
 	@Override
 	public String getHeader(String key) {
-		return request.getHeaders().getValue(key);
+		String value = request.getHeaders().getValue(key);
+		if ("accept".equals(key.toLowerCase()) && "*/*".equals(value)) {
+			return null;
+		}
+		return value;
 	}
 
 	@Override
 	public HttpHeader header(String key) {
-		return new HttpHeader(key, request.getHeaders().getValue(key));
+		String value = request.getHeaders().getValue(key);
+		if ("accept".equals(key.toLowerCase()) && "*/*".equals(value)) {
+			return null;
+		}
+		return new HttpHeader(key, value);
 	}
 
 	@Override
@@ -240,6 +248,10 @@ class WireMockRestAssuredRequestAdapter implements Request {
 	public HttpHeaders getHeaders() {
 		List<HttpHeader> headers = new ArrayList<>();
 		for (Header header : request.getHeaders()) {
+			String value = header.getValue();
+			if ("accept".equals(header.getName().toLowerCase()) && "*/*".equals(value)) {
+				continue;
+			}
 			headers.add(new HttpHeader(header.getName(), header.getValue()));
 		}
 		return new HttpHeaders(headers);
@@ -247,6 +259,10 @@ class WireMockRestAssuredRequestAdapter implements Request {
 
 	@Override
 	public boolean containsHeader(String key) {
+		String value = request.getHeaders().getValue(key);
+		if ("accept".equals(key.toLowerCase()) && "*/*".equals(value)) {
+			return false;
+		}
 		return request.getHeaders().hasHeaderWithName(key);
 	}
 
@@ -254,6 +270,10 @@ class WireMockRestAssuredRequestAdapter implements Request {
 	public Set<String> getAllHeaderKeys() {
 		Set<String> headers = new LinkedHashSet<>();
 		for (Header header : request.getHeaders()) {
+			String value = header.getValue();
+			if ("accept".equals(header.getName().toLowerCase()) && "*/*".equals(value)) {
+				continue;
+			}
 			headers.add(header.getName());
 		}
 		return headers;
