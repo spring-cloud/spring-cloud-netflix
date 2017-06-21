@@ -20,10 +20,13 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.specification.RequestSpecification;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.LocalServerPort;
@@ -38,6 +41,7 @@ import org.springframework.restdocs.restassured.RestAssuredRestDocumentation;
 import org.springframework.restdocs.restassured.RestDocumentationFilter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -54,9 +58,19 @@ public abstract class AbstractDocumentationTests {
 	@LocalServerPort
 	private int port = 0;
 
+	@Autowired
+	private PeerAwareInstanceRegistryImpl registry;
+
 	@Rule
 	public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation(
 			"target/generated-snippets");
+
+	@After
+	public void init() {
+		registry.clearRegistry();
+		ReflectionTestUtils.setField(registry, "responseCache", null);
+		registry.initializedResponseCache();
+	}
 
 	private RestDocumentationFilter filter(String name) {
 		return RestAssuredRestDocumentation.document(name,
