@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.server.doc;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.netflix.appinfo.ApplicationInfoManager;
 
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyIterable;
+import static org.springframework.cloud.netflix.eureka.server.doc.RequestVerifierFilter.verify;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class EmptyAppsTests extends AbstractDocumentationTests {
@@ -42,8 +44,20 @@ public class EmptyAppsTests extends AbstractDocumentationTests {
 		instanceConfig.setInstanceId("unique-id");
 		instanceConfig.setHostname("foo.example.com");
 		applicationInfoManager.initComponent(instanceConfig);
-		assure("add-app", applicationInfoManager.getInfo()).when()
-				.post("/eureka/apps/FOO").then().assertThat().statusCode(is(204));
+		assure("add-app", applicationInfoManager.getInfo())
+				.filter(verify("$.instance.app").json("$.instance.hostName")
+						.json("$.instance[?(@.status=='STARTING')]")
+						.json("$.instance.instanceId")
+						.json("$.instance.dataCenterInfo.name"))
+				.when().post("/eureka/apps/FOO").then().assertThat().statusCode(is(204));
+		assure("up-app")
+				.filter(verify(
+						WireMock.put(WireMock.urlPathMatching("/eureka/apps/FOO/.*"))
+								.withQueryParam("value", WireMock.matching("UP"))))
+				.when()
+				.put("/eureka/apps/FOO/{id}/status?value={value}",
+						applicationInfoManager.getInfo().getInstanceId(), "UP")
+				.then().assertThat().statusCode(is(200));
 		assure("delete-app").when()
 				.delete("/eureka/apps/FOO/{id}",
 						applicationInfoManager.getInfo().getInstanceId())
