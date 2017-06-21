@@ -151,7 +151,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>copy-resources</id>
+						<id>copy-docs</id>
 						<phase>prepare-package</phase>
 						<goals>
 							<goal>copy-resources</goal>
@@ -220,13 +220,6 @@
 						</configuration>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.springframework.restdocs</groupId>
-						<artifactId>spring-restdocs-asciidoctor</artifactId>
-						<version>1.1.3.RELEASE</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

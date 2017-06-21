@@ -85,7 +85,8 @@ public abstract class AbstractDocumentationTests {
 
 	protected RequestSpecification assure(String name, Object body) {
 		RestDocumentationFilter filter = filter(name);
-		return RestAssured.given(document(body, filter)).filter(filter);
+		RequestSpecification assured = RestAssured.given(document(body, filter));
+		return assured.filter(filter);
 	}
 
 	protected RequestSpecification assure(String name) {
