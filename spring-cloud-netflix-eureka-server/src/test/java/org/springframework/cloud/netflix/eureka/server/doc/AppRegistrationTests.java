@@ -18,13 +18,17 @@ package org.springframework.cloud.netflix.eureka.server.doc;
 
 import java.util.UUID;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -36,7 +40,7 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 
 	@Test
 	public void startingApp() throws Exception {
-		register("foo", UUID.randomUUID().toString());
+		register("foo");
 		document().accept("application/json").when().get("/eureka/apps").then()
 				.assertThat()
 				.body("applications.application", hasSize(1),
@@ -47,7 +51,7 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 
 	@Test
 	public void addInstance() throws Exception {
-		document(getInstance("foo", UUID.randomUUID().toString()))
+		document(instance("foo"))
 				.filter(verify("$.instance.app").json("$.instance.hostName")
 						.json("$.instance[?(@.status=='STARTING')]")
 						.json("$.instance.instanceId")
@@ -57,20 +61,26 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 
 	@Test
 	public void setStatus() throws Exception {
-		String id = UUID.randomUUID().toString();
-		register("foo", id);
+		String id = register("foo").getInstanceId();
 		document()
-				.filter(verify(
-						WireMock.put(WireMock.urlPathMatching("/eureka/apps/FOO/.*"))
-								.withQueryParam("value", WireMock.matching("UP"))))
+				.filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*/status"))
+						.withQueryParam("value", matching("UP"))))
 				.when().put("/eureka/apps/FOO/{id}/status?value={value}", id, "UP").then()
 				.assertThat().statusCode(is(200));
 	}
 
 	@Test
 	public void allApps() throws Exception {
-		register("foo", UUID.randomUUID().toString());
+		register("foo");
 		document().accept("application/json").when().get("/eureka/apps").then()
+				.assertThat().body("applications.application", hasSize(1))
+				.statusCode(is(200));
+	}
+
+	@Test
+	public void delta() throws Exception {
+		register("foo");
+		document().accept("application/json").when().get("/eureka/apps/delta").then()
 				.assertThat().body("applications.application", hasSize(1))
 				.statusCode(is(200));
 	}
@@ -79,32 +89,45 @@ public class AppRegistrationTests extends AbstractDocumentationTests {
 	public void oneInstance() throws Exception {
 		String id = UUID.randomUUID().toString();
 		register("foo", id);
-		document()
-				.filter(verify(
-						WireMock.get(WireMock.urlPathMatching("/eureka/apps/FOO/.*"))))
+		document().filter(verify(get(urlPathMatching("/eureka/apps/FOO/.*"))))
 				.accept("application/json").when().get("/eureka/apps/FOO/{id}", id).then()
 				.assertThat().body("instance.app", equalTo("FOO")).statusCode(is(200));
 	}
 
 	@Test
+	public void lookupInstance() throws Exception {
+		String id = register("foo").getInstanceId();
+		document().filter(verify(get(urlPathMatching("/eureka/instances/.*"))))
+				.accept("application/json").when().get("/eureka/instances/{id}", id)
+				.then().assertThat().body("instance.app", equalTo("FOO"))
+				.statusCode(is(200));
+	}
+
+	@Test
 	public void renew() throws Exception {
-		String id = UUID.randomUUID().toString();
-		register("foo", id);
-		document()
-				.filter(verify(
-						WireMock.put(WireMock.urlPathMatching("/eureka/apps/FOO/.*"))))
+		String id = register("foo").getInstanceId();
+		document().filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*"))))
 				.accept("application/json").when().put("/eureka/apps/FOO/{id}", id).then()
 				.assertThat().statusCode(is(200));
 	}
 
 	@Test
-	public void deleteInstance() throws Exception {
-		String id = UUID.randomUUID().toString();
-		register("foo", id);
+	public void updateMetadata() throws Exception {
+		String id = register("foo").getInstanceId();
 		document()
-				.filter(verify(
-						WireMock.delete(WireMock.urlPathMatching("/eureka/apps/FOO/.*"))))
-				.when().delete("/eureka/apps/FOO/{id}", id).then().assertThat()
+				.filter(verify(put(urlPathMatching("/eureka/apps/FOO/.*/metadata"))
+						.withQueryParam("key", matching(".*"))))
+				.accept("application/json").when()
+				.put("/eureka/apps/FOO/{id}/metadata?key=value", id).then().assertThat()
+				.statusCode(is(200));
+		assertThat(instance().getMetadata()).containsEntry("key", "value");
+	}
+
+	@Test
+	public void deleteInstance() throws Exception {
+		String id = register("foo").getInstanceId();
+		document().filter(verify(delete(urlPathMatching("/eureka/apps/FOO/.*")))).when()
+				.delete("/eureka/apps/FOO/{id}", id).then().assertThat()
 				.statusCode(is(200));
 	}
 

@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.eureka.server.doc;
 
+import java.util.UUID;
+
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.filter.Filter;
@@ -53,7 +55,7 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 import static org.springframework.restdocs.restassured.operation.preprocess.RestAssuredPreprocessors.modifyUris;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.DEFINED_PORT, value = {
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.jmx.enabled=true", "management.security.enabled=false" })
 @DirtiesContext
 public abstract class AbstractDocumentationTests {
@@ -81,15 +83,28 @@ public abstract class AbstractDocumentationTests {
 		registry.initializedResponseCache();
 	}
 
-	protected void register(String name, String id) {
-		registry.register(getInstance(name, id), false);
+	protected InstanceInfo register(String name) {
+		return register(name, UUID.randomUUID().toString());
 	}
 
-	protected InstanceInfo getInstance(String name, String id) {
+	protected InstanceInfo register(String name, String id) {
+		registry.register(instance(name, id), false);
+		return instance();
+	}
+
+	protected InstanceInfo instance(String name) {
+		return instance(name, UUID.randomUUID().toString());
+	}
+
+	protected InstanceInfo instance(String name, String id) {
 		instanceConfig.setAppname(name);
 		instanceConfig.setInstanceId(id);
 		instanceConfig.setHostname("foo.example.com");
 		applicationInfoManager.initComponent(instanceConfig);
+		return applicationInfoManager.getInfo();
+	}
+
+	protected InstanceInfo instance() {
 		return applicationInfoManager.getInfo();
 	}
 
