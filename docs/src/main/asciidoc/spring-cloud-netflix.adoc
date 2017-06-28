@@ -2183,35 +2183,6 @@ info:
   url: https://github.com/spring-cloud-samples
 ----
 
-[[netflix-rxjava-springmvc]]
-== RxJava with Spring MVC
-Spring Cloud Netflix includes https://github.com/ReactiveX/RxJava[RxJava].
-
-> RxJava is a Java VM implementation of http://reactivex.io/[Reactive Extensions]: a library for composing asynchronous and event-based programs by using observable sequences.
-
-Spring Cloud Netflix provides support for returning `rx.Single` objects from Spring MVC Controllers. It also supports using `rx.Observable` objects for https://en.wikipedia.org/wiki/Server-sent_events[Server-sent events (SSE)]. This can be very convenient if your internal APIs are already built using RxJava (see <<spring-cloud-feign-hystrix>> for examples).
-
-Here are some examples of using `rx.Single`:
-
-[source,java]
-----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/SingleReturnValueHandlerTest.java[tags=rx_single,indent=0]
-----
-
-If you have an `Observable`, rather than a single, you can use `.toSingle()` or `.toList().toSingle()`. Here are some examples:
-
-[source,java]
-----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableReturnValueHandlerTest.java[tags=rx_observable,indent=0]
-----
-
-If you have a streaming endpoint and client, SSE could be an option. To convert `rx.Observable` to a Spring `SseEmitter` use `RxResponse.sse()`. Here are some examples:
-
-[source,java]
-----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableSseEmitterTest.java[tags=rx_observable_sse,indent=0]
-----
-
 [[netflix-metrics]]
 == Metrics: Spectator, Servo, and Atlas
 
