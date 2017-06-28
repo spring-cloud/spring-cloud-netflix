@@ -359,9 +359,6 @@ public class ZuulProperties {
 		
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class HystrixThreadPool {
 		/**
 		 * Flag to determine whether RibbonCommands should use separate thread pools for hystrix.
@@ -377,6 +374,22 @@ public class ZuulProperties {
 		 * This property is only applicable when using THREAD as ribbonIsolationStrategy and useSeparateThreadPools = true
 		 */
 		private String threadPoolKeyPrefix = "";
+
+		public boolean isUseSeparateThreadPools() {
+			return useSeparateThreadPools;
+		}
+
+		public void setUseSeparateThreadPools(boolean useSeparateThreadPools) {
+			this.useSeparateThreadPools = useSeparateThreadPools;
+		}
+
+		public String getThreadPoolKeyPrefix() {
+			return threadPoolKeyPrefix;
+		}
+
+		public void setThreadPoolKeyPrefix(String threadPoolKeyPrefix) {
+			this.threadPoolKeyPrefix = threadPoolKeyPrefix;
+		}
 	}
 
 	public String getServletPattern() {
