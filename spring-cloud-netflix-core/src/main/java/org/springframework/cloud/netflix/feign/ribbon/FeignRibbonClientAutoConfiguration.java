@@ -17,14 +17,22 @@
 package org.springframework.cloud.netflix.feign.ribbon;
 
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
+import org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +46,10 @@ import feign.Request;
 import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.annotation.PreDestroy;
+
 /**
  * Autoconfiguration to be activated if Feign is in use and needs to be use Ribbon as a
  * load balancer.
@@ -47,6 +59,7 @@ import feign.okhttp.OkHttpClient;
 @ConditionalOnClass({ ILoadBalancer.class, Feign.class })
 @Configuration
 @AutoConfigureBefore(FeignAutoConfiguration.class)
+@EnableConfigurationProperties({FeignHttpClientProperties.class})
 public class FeignRibbonClientAutoConfiguration {
 
 	@Bean
@@ -84,21 +97,53 @@ public class FeignRibbonClientAutoConfiguration {
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientFeignLoadBalancedConfiguration {
 
+		private final Timer connectionManagerTimer = new Timer(
+				"FeignApacheHttpClientConfiguration.connectionManagerTimer", true);
+
+		private CloseableHttpClient httpClient;
+
 		@Autowired(required = false)
-		private HttpClient httpClient;
+		private RegistryBuilder registryBuilder;
+
+		@Bean
+		public HttpClientConnectionManager connectionManager(ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+															 FeignHttpClientProperties httpClientProperties) {
+			final HttpClientConnectionManager connectionManager = connectionManagerFactory.newConnectionManager(false, httpClientProperties.getMaxConnections(),
+					httpClientProperties.getMaxConnectionsPerRoute(), httpClientProperties.getTimeToLive(),
+					httpClientProperties.getTimeToLiveUnit(),
+					registryBuilder);
+			this.connectionManagerTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					connectionManager.closeExpiredConnections();
+				}
+			}, 30000, httpClientProperties.getConnectionTimerRepeat());
+			return connectionManager;
+		}
+
+		@Bean
+		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory, HttpClientConnectionManager httpClientConnectionManager,
+											  FeignHttpClientProperties httpClientProperties) {
+			RequestConfig defaultRequestConfig = RequestConfig.custom().
+					setConnectTimeout(httpClientProperties.getConnectionTimeout()).
+					setRedirectsEnabled(httpClientProperties.isFollowRedirects()).
+					build();
+			this.httpClient = httpClientFactory.createClient(defaultRequestConfig, httpClientConnectionManager);
+			return this.httpClient;
+		}
 
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
 		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-				SpringClientFactory clientFactory) {
-			ApacheHttpClient delegate;
-			if (this.httpClient != null) {
-				delegate = new ApacheHttpClient(this.httpClient);
-			}
-			else {
-				delegate = new ApacheHttpClient();
-			}
+				SpringClientFactory clientFactory, HttpClient httpClient) {
+			ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
 			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+		}
+
+		@PreDestroy
+		public void destroy() throws Exception {
+			connectionManagerTimer.cancel();
+			httpClient.close();
 		}
 	}
 

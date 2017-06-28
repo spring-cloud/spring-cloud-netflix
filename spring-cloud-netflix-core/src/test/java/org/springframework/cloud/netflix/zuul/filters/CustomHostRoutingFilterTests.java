@@ -23,6 +23,7 @@ import com.netflix.zuul.context.RequestContext;
 
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -38,6 +39,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -211,15 +215,22 @@ class SampleCustomZuulProxyApplication {
 	protected static class CustomZuulProxyConfig {
 
 		@Bean
+		public ApacheHttpClientFactory customHttpClientFactory() {
+			return new CustomApacheHttpClientFactory();
+		}
+
+		@Bean
 		public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
-				ZuulProperties zuulProperties) {
-			return new CustomHostRoutingFilter(helper, zuulProperties);
+															   ZuulProperties zuulProperties, ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+															   ApacheHttpClientFactory httpClientFactory) {
+			return new CustomHostRoutingFilter(helper, zuulProperties, connectionManagerFactory, httpClientFactory);
 		}
 
 		private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
 			public CustomHostRoutingFilter(ProxyRequestHelper helper,
-					ZuulProperties zuulProperties) {
-				super(helper, zuulProperties);
+										   ZuulProperties zuulProperties, ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+										   ApacheHttpClientFactory httpClientFactory) {
+				super(helper, zuulProperties, connectionManagerFactory, httpClientFactory);
 			}
 
 			@Override
@@ -227,13 +238,13 @@ class SampleCustomZuulProxyApplication {
 				super.addIgnoredHeaders("X-Ignored");
 				return super.run();
 			}
+		}
 
+
+		private class CustomApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
 			@Override
-			protected CloseableHttpClient newClient() {
-				// Custom client with cookie support.
-				// In practice, we would want a custom cookie store using a multimap with
-				// a user key.
-				return HttpClients.custom().setConnectionManager(newConnectionManager())
+			public CloseableHttpClient createClient(RequestConfig requestConfig, HttpClientConnectionManager connectionManager) {
+				return HttpClients.custom().setConnectionManager(connectionManager)
 						.setDefaultCookieStore(new BasicCookieStore())
 						.setDefaultRequestConfig(RequestConfig.custom()
 								.setCookieSpec(CookieSpecs.DEFAULT).build())

@@ -32,6 +32,9 @@ import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -59,7 +62,8 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({ RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.OkHttpRibbonConfiguration.class,
-		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class })
+		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class,
+		HttpClientConfiguration.class})
 @ConditionalOnBean(ZuulProxyMarkerConfiguration.Marker.class)
 public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
@@ -102,8 +106,10 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(SimpleHostRoutingFilter.class)
-	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties) {
-		return new SimpleHostRoutingFilter(helper, zuulProperties);
+	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties,
+														   ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+														   ApacheHttpClientFactory httpClientFactory) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties, connectionManagerFactory, httpClientFactory);
 	}
 
 	@Bean

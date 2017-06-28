@@ -20,12 +20,11 @@ import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
@@ -41,27 +40,17 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
  */
 //TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient extends
-		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, HttpClient> {
-
-	@Deprecated
-	public RibbonLoadBalancingHttpClient() {
-		super();
-	}
-
-	@Deprecated
-	public RibbonLoadBalancingHttpClient(final ILoadBalancer lb) {
-		super(lb);
-	}
+		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, CloseableHttpClient> {
 
 	public RibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector) {
 		super(config, serverIntrospector);
 	}
 
-	public RibbonLoadBalancingHttpClient(HttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
+	public RibbonLoadBalancingHttpClient(CloseableHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
 		super(delegate, config, serverIntrospector);
 	}
 
-	protected HttpClient createDelegate(IClientConfig config) {
+	protected CloseableHttpClient createDelegate(IClientConfig config) {
 		return HttpClientBuilder.create()
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
 				.setMaxConnTotal(config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections, 0))

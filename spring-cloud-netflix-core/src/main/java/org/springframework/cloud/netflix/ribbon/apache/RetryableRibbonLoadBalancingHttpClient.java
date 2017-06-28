@@ -22,6 +22,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
@@ -50,8 +51,15 @@ import com.netflix.loadbalancer.Server;
 public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient implements ServiceInstanceChooser {
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory =
 			new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
-	public RetryableRibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+
+	public RetryableRibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector,
+												  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(config, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+	}
+	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector,
+												  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+		super(delegate, config, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 

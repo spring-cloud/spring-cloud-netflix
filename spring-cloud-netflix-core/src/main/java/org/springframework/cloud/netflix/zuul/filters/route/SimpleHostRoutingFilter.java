@@ -19,9 +19,6 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +27,6 @@ import java.util.TimerTask;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -41,32 +35,21 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
-import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.HttpContext;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -80,8 +63,6 @@ import org.springframework.util.StringUtils;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_SCHEME;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTP_SCHEME;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
 
@@ -105,7 +86,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private ProxyRequestHelper helper;
 	private Host hostProperties;
-	private PoolingHttpClientConnectionManager connectionManager;
+	private ApacheHttpClientConnectionManagerFactory connectionManagerFactory;
+	private ApacheHttpClientFactory httpClientFactory;
+	private HttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
 
 	@EventListener
@@ -130,16 +113,23 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 	}
 
-	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties) {
+	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
+								   ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+								   ApacheHttpClientFactory httpClientFactory) {
 		this.helper = helper;
 		this.hostProperties = properties.getHost();
 		this.sslHostnameValidationEnabled = properties.isSslHostnameValidationEnabled();
 		this.forceOriginalQueryStringEncoding = properties
 				.isForceOriginalQueryStringEncoding();
+		this.connectionManagerFactory = connectionManagerFactory;
+		this.httpClientFactory = httpClientFactory;
 	}
 
 	@PostConstruct
 	private void initialize() {
+		this.connectionManager = connectionManagerFactory.newConnectionManager(this.sslHostnameValidationEnabled,
+				this.hostProperties.getMaxTotalConnections(), this.hostProperties.getMaxPerRouteConnections(),
+				this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(), null);
 		this.httpClient = newClient();
 		this.connectionManagerTimer.schedule(new TimerTask() {
 			@Override
@@ -201,50 +191,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return null;
 	}
 
-	protected PoolingHttpClientConnectionManager newConnectionManager() {
-		try {
-			final SSLContext sslContext = SSLContext.getInstance("SSL");
-			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
-				@Override
-				public void checkClientTrusted(X509Certificate[] x509Certificates,
-						String s) throws CertificateException {
-				}
-
-				@Override
-				public void checkServerTrusted(X509Certificate[] x509Certificates,
-						String s) throws CertificateException {
-				}
-
-				@Override
-				public X509Certificate[] getAcceptedIssuers() {
-					return null;
-				}
-			} }, new SecureRandom());
-
-			RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
-					.<ConnectionSocketFactory> create()
-					.register(HTTP_SCHEME, PlainConnectionSocketFactory.INSTANCE);
-			if (this.sslHostnameValidationEnabled) {
-				registryBuilder.register(HTTPS_SCHEME,
-						new SSLConnectionSocketFactory(sslContext));
-			}
-			else {
-				registryBuilder.register(HTTPS_SCHEME, new SSLConnectionSocketFactory(
-						sslContext, NoopHostnameVerifier.INSTANCE));
-			}
-			final Registry<ConnectionSocketFactory> registry = registryBuilder.build();
-
-			this.connectionManager = new PoolingHttpClientConnectionManager(registry, null, null, null,
-					hostProperties.getTimeToLive(), hostProperties.getTimeUnit());
-			this.connectionManager
-					.setMaxTotal(this.hostProperties.getMaxTotalConnections());
-			this.connectionManager.setDefaultMaxPerRoute(
-					this.hostProperties.getMaxPerRouteConnections());
-			return this.connectionManager;
-		}
-		catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+	protected HttpClientConnectionManager getConnectionManager() {
+		return connectionManager;
 	}
 
 	protected CloseableHttpClient newClient() {
@@ -252,30 +200,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.setSocketTimeout(this.hostProperties.getSocketTimeoutMillis())
 				.setConnectTimeout(this.hostProperties.getConnectTimeoutMillis())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
-
-		HttpClientBuilder httpClientBuilder = HttpClients.custom();
-		if (!this.sslHostnameValidationEnabled) {
-			httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-		}
-		return httpClientBuilder.setConnectionManager(newConnectionManager())
-				.disableContentCompression()
-				.useSystemProperties().setDefaultRequestConfig(requestConfig)
-				.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
-				.setRedirectStrategy(new RedirectStrategy() {
-					@Override
-					public boolean isRedirected(HttpRequest request,
-							HttpResponse response, HttpContext context)
-							throws ProtocolException {
-						return false;
-					}
-
-					@Override
-					public HttpUriRequest getRedirect(HttpRequest request,
-							HttpResponse response, HttpContext context)
-							throws ProtocolException {
-						return null;
-					}
-				}).build();
+		return httpClientFactory.createClient(requestConfig, this.connectionManager);
 	}
 
 	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,

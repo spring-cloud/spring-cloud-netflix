@@ -17,11 +17,19 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -30,17 +38,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClas
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.apache.RetryableRibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.RetryableOkHttpLoadBalancingClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
+import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -70,6 +83,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 @SuppressWarnings("deprecation")
 @Configuration
 @EnableConfigurationProperties
+@Import(HttpClientConfiguration.class)
 public class RibbonClientConfiguration {
 
 	@Value("${ribbon.client.name}")
@@ -123,6 +137,71 @@ public class RibbonClientConfiguration {
 
 	@Configuration
 	@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
+	protected static class ApacheHttpClientConfiguration {
+		private final Timer connectionManagerTimer = new Timer(
+				"RibbonApacheHttpClientConfiguration.connectionManagerTimer", true);
+		private CloseableHttpClient httpClient;
+
+		@Autowired(required = false)
+		private RegistryBuilder registryBuilder;
+
+		@Bean
+		public HttpClientConnectionManager httpClientConnectionManager(IClientConfig config,
+																	   ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+																	   ApacheHttpClientFactory httpClientFactory) {
+			Integer maxTotalConnections = config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections,
+					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
+			Integer maxConnectionsPerHost = config.getPropertyAsInteger(CommonClientConfigKey.MaxConnectionsPerHost,
+					DefaultClientConfigImpl.DEFAULT_MAX_CONNECTIONS_PER_HOST);
+			Integer timerRepeat = config.getPropertyAsInteger(CommonClientConfigKey.ConnectionCleanerRepeatInterval,
+					DefaultClientConfigImpl.DEFAULT_CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS);
+			Object timeToLiveObj = config.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
+			Long timeToLive = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME;
+			Object ttlUnitObj = config.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
+			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
+			if(timeToLiveObj instanceof Long) {
+				timeToLive = (Long)timeToLiveObj;
+			}
+			if(ttlUnitObj instanceof TimeUnit) {
+				ttlUnit = (TimeUnit)ttlUnitObj;
+			}
+			final HttpClientConnectionManager connectionManager = connectionManagerFactory.newConnectionManager(false, maxTotalConnections,
+							maxConnectionsPerHost, timeToLive, ttlUnit, registryBuilder);
+			this.connectionManagerTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					connectionManager.closeExpiredConnections();
+				}
+			}, 30000, timerRepeat);
+			return connectionManager;
+		}
+
+		@Bean
+		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
+											  HttpClientConnectionManager connectionManager, IClientConfig config) {
+			Boolean followRedirects = config.getPropertyAsBoolean(
+					CommonClientConfigKey.FollowRedirects,
+					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
+			Integer connectTimeout = config.getPropertyAsInteger(
+					CommonClientConfigKey.ConnectTimeout,
+					DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
+			RequestConfig defaultRequestConfig = RequestConfig.custom().
+					setConnectTimeout(connectTimeout).
+					setRedirectsEnabled(followRedirects).
+					build();
+			this.httpClient = httpClientFactory.createClient(defaultRequestConfig, connectionManager);
+			return httpClient;
+		}
+
+		@PreDestroy
+		public void destroy() throws Exception {
+			connectionManagerTimer.cancel();
+			httpClient.close();
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientRibbonConfiguration {
 		@Value("${ribbon.client.name}")
 		private String name = "client";
@@ -132,8 +211,8 @@ public class RibbonClientConfiguration {
 		@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
 		public RibbonLoadBalancingHttpClient ribbonLoadBalancingHttpClient(
 				IClientConfig config, ServerIntrospector serverIntrospector,
-				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
-			RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
+				ILoadBalancer loadBalancer, RetryHandler retryHandler, CloseableHttpClient httpClient) {
+			RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(httpClient,
 					config, serverIntrospector);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
@@ -147,8 +226,9 @@ public class RibbonClientConfiguration {
 		public RetryableRibbonLoadBalancingHttpClient retryableRibbonLoadBalancingHttpClient(
 				IClientConfig config, ServerIntrospector serverIntrospector,
 				ILoadBalancer loadBalancer, RetryHandler retryHandler,
-				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-			RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
+				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+				CloseableHttpClient httpClient) {
+			RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(httpClient,
 					config, serverIntrospector, loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
