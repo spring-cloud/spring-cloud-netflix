@@ -38,26 +38,29 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
  * @author Christian Lohmann
  * @author Ryan Baxter
  */
-//TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
+// TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient extends
 		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, CloseableHttpClient> {
 
-	public RibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector) {
+	public RibbonLoadBalancingHttpClient(IClientConfig config,
+			ServerIntrospector serverIntrospector) {
 		super(config, serverIntrospector);
 	}
 
-	public RibbonLoadBalancingHttpClient(CloseableHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
+	public RibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
+			IClientConfig config, ServerIntrospector serverIntrospector) {
 		super(delegate, config, serverIntrospector);
 	}
 
 	protected CloseableHttpClient createDelegate(IClientConfig config) {
 		return HttpClientBuilder.create()
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
-				.setMaxConnTotal(config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections, 0))
+				.setMaxConnTotal(config.getPropertyAsInteger(
+						CommonClientConfigKey.MaxTotalConnections, 0))
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
-				.setMaxConnPerRoute(config.getPropertyAsInteger(CommonClientConfigKey.MaxConnectionsPerHost, 0))
-				.disableCookieManagement()
-				.useSystemProperties() // for proxy
+				.setMaxConnPerRoute(config.getPropertyAsInteger(
+						CommonClientConfigKey.MaxConnectionsPerHost, 0))
+				.disableCookieManagement().useSystemProperties() // for proxy
 				.build();
 	}
 
@@ -66,12 +69,12 @@ public class RibbonLoadBalancingHttpClient extends
 			final IClientConfig configOverride) throws Exception {
 		final RequestConfig.Builder builder = RequestConfig.custom();
 		IClientConfig config = configOverride != null ? configOverride : this.config;
-		builder.setConnectTimeout(config.get(
-				CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
-		builder.setSocketTimeout(config.get(
-				CommonClientConfigKey.ReadTimeout, this.readTimeout));
-		builder.setRedirectsEnabled(config.get(
-				CommonClientConfigKey.FollowRedirects, this.followRedirects));
+		builder.setConnectTimeout(
+				config.get(CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
+		builder.setSocketTimeout(
+				config.get(CommonClientConfigKey.ReadTimeout, this.readTimeout));
+		builder.setRedirectsEnabled(
+				config.get(CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
 		if (isSecure(configOverride)) {
@@ -86,13 +89,15 @@ public class RibbonLoadBalancingHttpClient extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector,
+				server);
 		return super.reconstructURIWithServer(server, uri);
 	}
 
 	@Override
-	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(RibbonApacheHttpRequest request, IClientConfig requestConfig) {
-		return new RequestSpecificRetryHandler(false, false,
-				RetryHandler.DEFAULT, requestConfig);
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
+			RibbonApacheHttpRequest request, IClientConfig requestConfig) {
+		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT,
+				requestConfig);
 	}
 }

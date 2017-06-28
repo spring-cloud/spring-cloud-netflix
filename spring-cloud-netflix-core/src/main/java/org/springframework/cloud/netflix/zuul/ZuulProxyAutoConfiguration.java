@@ -63,7 +63,7 @@ import org.springframework.context.annotation.Import;
 @Import({ RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.OkHttpRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class,
-		HttpClientConfiguration.class})
+		HttpClientConfiguration.class })
 @ConditionalOnBean(ZuulProxyMarkerConfiguration.Marker.class)
 public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
@@ -79,37 +79,42 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Override
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyAutoConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Discovery)",
+				ZuulProxyAutoConfiguration.class);
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
 	public DiscoveryClientRouteLocator discoveryRouteLocator() {
-		return new DiscoveryClientRouteLocator(this.server.getServletPrefix(), this.discovery, this.zuulProperties,
-				this.serviceRouteMapper);
+		return new DiscoveryClientRouteLocator(this.server.getServletPrefix(),
+				this.discovery, this.zuulProperties, this.serviceRouteMapper);
 	}
 
 	// pre filters
 	@Bean
-	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
-		return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(), this.zuulProperties,
-				proxyRequestHelper);
+	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator,
+			ProxyRequestHelper proxyRequestHelper) {
+		return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(),
+				this.zuulProperties, proxyRequestHelper);
 	}
 
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory) {
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory, this.requestCustomizers);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory,
+				this.requestCustomizers);
 		return filter;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(SimpleHostRoutingFilter.class)
-	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties,
-														   ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-														   ApacheHttpClientFactory httpClientFactory) {
-		return new SimpleHostRoutingFilter(helper, zuulProperties, connectionManagerFactory, httpClientFactory);
+	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
+			ZuulProperties zuulProperties,
+			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+			ApacheHttpClientFactory httpClientFactory) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties,
+				connectionManagerFactory, httpClientFactory);
 	}
 
 	@Bean
@@ -150,7 +155,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		}
 
 		@Bean
-		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator, RoutesEndpoint endpoint) {
+		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator,
+				RoutesEndpoint endpoint) {
 			return new RoutesMvcEndpoint(endpoint, routeLocator);
 		}
 
@@ -166,7 +172,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		}
 	}
 
-	private static class ZuulDiscoveryRefreshListener implements ApplicationListener<ApplicationEvent> {
+	private static class ZuulDiscoveryRefreshListener
+			implements ApplicationListener<ApplicationEvent> {
 
 		private HeartbeatMonitor monitor = new HeartbeatMonitor();
 

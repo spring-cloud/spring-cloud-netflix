@@ -146,26 +146,33 @@ public class RibbonClientConfiguration {
 		private RegistryBuilder registryBuilder;
 
 		@Bean
-		public HttpClientConnectionManager httpClientConnectionManager(IClientConfig config,
-																	   ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-																	   ApacheHttpClientFactory httpClientFactory) {
-			Integer maxTotalConnections = config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections,
+		public HttpClientConnectionManager httpClientConnectionManager(
+				IClientConfig config,
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				ApacheHttpClientFactory httpClientFactory) {
+			Integer maxTotalConnections = config.getPropertyAsInteger(
+					CommonClientConfigKey.MaxTotalConnections,
 					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
-			Integer maxConnectionsPerHost = config.getPropertyAsInteger(CommonClientConfigKey.MaxConnectionsPerHost,
+			Integer maxConnectionsPerHost = config.getPropertyAsInteger(
+					CommonClientConfigKey.MaxConnectionsPerHost,
 					DefaultClientConfigImpl.DEFAULT_MAX_CONNECTIONS_PER_HOST);
-			Integer timerRepeat = config.getPropertyAsInteger(CommonClientConfigKey.ConnectionCleanerRepeatInterval,
+			Integer timerRepeat = config.getPropertyAsInteger(
+					CommonClientConfigKey.ConnectionCleanerRepeatInterval,
 					DefaultClientConfigImpl.DEFAULT_CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS);
-			Object timeToLiveObj = config.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
+			Object timeToLiveObj = config
+					.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
 			Long timeToLive = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME;
-			Object ttlUnitObj = config.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
+			Object ttlUnitObj = config
+					.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
 			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
-			if(timeToLiveObj instanceof Long) {
-				timeToLive = (Long)timeToLiveObj;
+			if (timeToLiveObj instanceof Long) {
+				timeToLive = (Long) timeToLiveObj;
 			}
-			if(ttlUnitObj instanceof TimeUnit) {
-				ttlUnit = (TimeUnit)ttlUnitObj;
+			if (ttlUnitObj instanceof TimeUnit) {
+				ttlUnit = (TimeUnit) ttlUnitObj;
 			}
-			final HttpClientConnectionManager connectionManager = connectionManagerFactory.newConnectionManager(false, maxTotalConnections,
+			final HttpClientConnectionManager connectionManager = connectionManagerFactory
+					.newConnectionManager(false, maxTotalConnections,
 							maxConnectionsPerHost, timeToLive, ttlUnit, registryBuilder);
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
@@ -178,18 +185,18 @@ public class RibbonClientConfiguration {
 
 		@Bean
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
-											  HttpClientConnectionManager connectionManager, IClientConfig config) {
+				HttpClientConnectionManager connectionManager, IClientConfig config) {
 			Boolean followRedirects = config.getPropertyAsBoolean(
 					CommonClientConfigKey.FollowRedirects,
 					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
 			Integer connectTimeout = config.getPropertyAsInteger(
 					CommonClientConfigKey.ConnectTimeout,
 					DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
-			RequestConfig defaultRequestConfig = RequestConfig.custom().
-					setConnectTimeout(connectTimeout).
-					setRedirectsEnabled(followRedirects).
-					build();
-			this.httpClient = httpClientFactory.createClient(defaultRequestConfig, connectionManager);
+			RequestConfig defaultRequestConfig = RequestConfig.custom()
+					.setConnectTimeout(connectTimeout)
+					.setRedirectsEnabled(followRedirects).build();
+			this.httpClient = httpClientFactory.createClient(defaultRequestConfig,
+					connectionManager);
 			return httpClient;
 		}
 
@@ -211,9 +218,10 @@ public class RibbonClientConfiguration {
 		@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
 		public RibbonLoadBalancingHttpClient ribbonLoadBalancingHttpClient(
 				IClientConfig config, ServerIntrospector serverIntrospector,
-				ILoadBalancer loadBalancer, RetryHandler retryHandler, CloseableHttpClient httpClient) {
-			RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(httpClient,
-					config, serverIntrospector);
+				ILoadBalancer loadBalancer, RetryHandler retryHandler,
+				CloseableHttpClient httpClient) {
+			RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
+					httpClient, config, serverIntrospector);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			Monitors.registerObject("Client_" + this.name, client);
@@ -228,8 +236,9 @@ public class RibbonClientConfiguration {
 				ILoadBalancer loadBalancer, RetryHandler retryHandler,
 				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
 				CloseableHttpClient httpClient) {
-			RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(httpClient,
-					config, serverIntrospector, loadBalancedRetryPolicyFactory);
+			RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
+					httpClient, config, serverIntrospector,
+					loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			Monitors.registerObject("Client_" + this.name, client);
@@ -244,18 +253,15 @@ public class RibbonClientConfiguration {
 		@Value("${ribbon.client.name}")
 		private String name = "client";
 
-
-
 		@Bean
 		@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 		@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
-		public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(IClientConfig config,
-																			ServerIntrospector serverIntrospector,
-																			ILoadBalancer loadBalancer,
-																			RetryHandler retryHandler,
-																			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-			RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(config,
-					serverIntrospector, loadBalancedRetryPolicyFactory);
+		public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(
+				IClientConfig config, ServerIntrospector serverIntrospector,
+				ILoadBalancer loadBalancer, RetryHandler retryHandler,
+				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+			RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(
+					config, serverIntrospector, loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			Monitors.registerObject("Client_" + this.name, client);
@@ -265,9 +271,9 @@ public class RibbonClientConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 		@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
-		public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(IClientConfig config,
-																   ServerIntrospector serverIntrospector, ILoadBalancer loadBalancer,
-																   RetryHandler retryHandler) {
+		public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
+				IClientConfig config, ServerIntrospector serverIntrospector,
+				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
 			OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(config,
 					serverIntrospector);
 			client.setLoadBalancer(loadBalancer);
@@ -284,21 +290,23 @@ public class RibbonClientConfiguration {
 		private String name = "client";
 
 		/**
-		 * Create a Netflix {@link RestClient} integrated with Ribbon if none already exists
-		 * in the application context. It is not required for Ribbon to work properly and is
-		 * therefore created lazily if ever another component requires it.
+		 * Create a Netflix {@link RestClient} integrated with Ribbon if none already
+		 * exists in the application context. It is not required for Ribbon to work
+		 * properly and is therefore created lazily if ever another component requires it.
 		 *
-		 * @param config             the configuration to use by the underlying Ribbon instance
-		 * @param loadBalancer       the load balancer to use by the underlying Ribbon instance
-		 * @param serverIntrospector server introspector to use by the underlying Ribbon instance
-		 * @param retryHandler       retry handler to use by the underlying Ribbon instance
+		 * @param config the configuration to use by the underlying Ribbon instance
+		 * @param loadBalancer the load balancer to use by the underlying Ribbon instance
+		 * @param serverIntrospector server introspector to use by the underlying Ribbon
+		 * instance
+		 * @param retryHandler retry handler to use by the underlying Ribbon instance
 		 * @return a {@link RestClient} instances backed by Ribbon
 		 */
 		@Bean
 		@Lazy
 		@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
-		public RestClient ribbonRestClient(IClientConfig config, ILoadBalancer loadBalancer,
-										   ServerIntrospector serverIntrospector, RetryHandler retryHandler) {
+		public RestClient ribbonRestClient(IClientConfig config,
+				ILoadBalancer loadBalancer, ServerIntrospector serverIntrospector,
+				RetryHandler retryHandler) {
 			RestClient client = new OverrideRestClient(config, serverIntrospector);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
@@ -339,8 +347,8 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RibbonLoadBalancerContext ribbonLoadBalancerContext(
-			ILoadBalancer loadBalancer, IClientConfig config, RetryHandler retryHandler) {
+	public RibbonLoadBalancerContext ribbonLoadBalancerContext(ILoadBalancer loadBalancer,
+			IClientConfig config, RetryHandler retryHandler) {
 		return new RibbonLoadBalancerContext(loadBalancer, config, retryHandler);
 	}
 
@@ -349,7 +357,7 @@ public class RibbonClientConfiguration {
 	public RetryHandler retryHandler(IClientConfig config) {
 		return new DefaultLoadBalancerRetryHandler(config);
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerIntrospector serverIntrospector() {
@@ -376,18 +384,16 @@ public class RibbonClientConfiguration {
 
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
-			URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+			URI uri = updateToHttpsIfNeeded(original, this.config,
+					this.serverIntrospector, server);
 			return super.reconstructURIWithServer(server, uri);
 		}
 
 		@Override
 		protected Client apacheHttpClientSpecificInitialization() {
-			ApacheHttpClient4 apache = (ApacheHttpClient4) super
-					.apacheHttpClientSpecificInitialization();
-			apache.getClientHandler()
-					.getHttpClient()
-					.getParams()
-					.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+			ApacheHttpClient4 apache = (ApacheHttpClient4) super.apacheHttpClientSpecificInitialization();
+			apache.getClientHandler().getHttpClient().getParams().setParameter(
+					ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
 			return apache;
 		}
 

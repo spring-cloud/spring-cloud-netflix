@@ -45,8 +45,6 @@ import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
 
 import javax.annotation.PreDestroy;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 
 /**
  * @author Spencer Gibb
@@ -54,7 +52,7 @@ import com.netflix.client.config.DefaultClientConfigImpl;
  */
 @Configuration
 @ConditionalOnClass(Feign.class)
-@EnableConfigurationProperties({FeignHttpClientProperties.class})
+@EnableConfigurationProperties({ FeignHttpClientProperties.class })
 public class FeignAutoConfiguration {
 
 	@Autowired(required = false)
@@ -110,12 +108,14 @@ public class FeignAutoConfiguration {
 		private CloseableHttpClient httpClient;
 
 		@Bean
-		public HttpClientConnectionManager connectionManager(ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-															 FeignHttpClientProperties httpClientProperties) {
-			final HttpClientConnectionManager connectionManager = connectionManagerFactory.newConnectionManager(false, httpClientProperties.getMaxConnections(),
-					httpClientProperties.getMaxConnectionsPerRoute(), httpClientProperties.getTimeToLive(),
-					httpClientProperties.getTimeToLiveUnit(),
-					registryBuilder);
+		public HttpClientConnectionManager connectionManager(
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				FeignHttpClientProperties httpClientProperties) {
+			final HttpClientConnectionManager connectionManager = connectionManagerFactory
+					.newConnectionManager(false, httpClientProperties.getMaxConnections(),
+							httpClientProperties.getMaxConnectionsPerRoute(),
+							httpClientProperties.getTimeToLive(),
+							httpClientProperties.getTimeToLiveUnit(), registryBuilder);
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -126,13 +126,15 @@ public class FeignAutoConfiguration {
 		}
 
 		@Bean
-		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory, HttpClientConnectionManager httpClientConnectionManager,
-											  FeignHttpClientProperties httpClientProperties) {
-			RequestConfig defaultRequestConfig = RequestConfig.custom().
-					setConnectTimeout(httpClientProperties.getConnectionTimeout()).
-					setRedirectsEnabled(httpClientProperties.isFollowRedirects()).
-					build();
-			this.httpClient = httpClientFactory.createClient(defaultRequestConfig, httpClientConnectionManager);
+		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
+				HttpClientConnectionManager httpClientConnectionManager,
+				FeignHttpClientProperties httpClientProperties) {
+			RequestConfig defaultRequestConfig = RequestConfig.custom()
+					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
+					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
+					.build();
+			this.httpClient = httpClientFactory.createClient(defaultRequestConfig,
+					httpClientConnectionManager);
 			return this.httpClient;
 		}
 

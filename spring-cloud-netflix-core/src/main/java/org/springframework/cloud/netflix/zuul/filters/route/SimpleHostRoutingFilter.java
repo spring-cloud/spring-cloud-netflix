@@ -67,8 +67,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
 
 /**
- * Route {@link ZuulFilter} that sends requests to predetermined URLs via apache {@link HttpClient}.
- * URLs are found in {@link RequestContext#getRouteHost()}.
+ * Route {@link ZuulFilter} that sends requests to predetermined URLs via apache
+ * {@link HttpClient}. URLs are found in {@link RequestContext#getRouteHost()}.
  *
  * @author Spencer Gibb
  * @author Dave Syer
@@ -114,8 +114,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
-								   ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-								   ApacheHttpClientFactory httpClientFactory) {
+			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+			ApacheHttpClientFactory httpClientFactory) {
 		this.helper = helper;
 		this.hostProperties = properties.getHost();
 		this.sslHostnameValidationEnabled = properties.isSslHostnameValidationEnabled();
@@ -127,9 +127,12 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	@PostConstruct
 	private void initialize() {
-		this.connectionManager = connectionManagerFactory.newConnectionManager(this.sslHostnameValidationEnabled,
-				this.hostProperties.getMaxTotalConnections(), this.hostProperties.getMaxPerRouteConnections(),
-				this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(), null);
+		this.connectionManager = connectionManagerFactory.newConnectionManager(
+				this.sslHostnameValidationEnabled,
+				this.hostProperties.getMaxTotalConnections(),
+				this.hostProperties.getMaxPerRouteConnections(),
+				this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
+				null);
 		this.httpClient = newClient();
 		this.connectionManagerTimer.schedule(new TimerTask() {
 			@Override
@@ -220,9 +223,11 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			contentType = ContentType.parse(request.getContentType());
 		}
 
-		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength, contentType);
+		InputStreamEntity entity = new InputStreamEntity(requestEntity, contentLength,
+				contentType);
 
-		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params, request);
+		HttpRequest httpRequest = buildHttpRequest(verb, uri, entity, headers, params,
+				request);
 		try {
 			log.debug(httpHost.getHostName() + " " + httpHost.getPort() + " "
 					+ httpHost.getSchemeName());
@@ -248,30 +253,30 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				? getEncodedQueryString(request) : this.helper.getQueryString(params));
 
 		switch (verb.toUpperCase()) {
-			case "POST":
-				HttpPost httpPost = new HttpPost(uriWithQueryString);
-				httpRequest = httpPost;
-				httpPost.setEntity(entity);
-				break;
-			case "PUT":
-				HttpPut httpPut = new HttpPut(uriWithQueryString);
-				httpRequest = httpPut;
-				httpPut.setEntity(entity);
-				break;
-			case "PATCH":
-				HttpPatch httpPatch = new HttpPatch(uriWithQueryString);
-				httpRequest = httpPatch;
-				httpPatch.setEntity(entity);
-				break;
-			case "DELETE":
-				BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(
-						verb, uriWithQueryString);
-				httpRequest = entityRequest;
-				entityRequest.setEntity(entity);
-				break;
-			default:
-				httpRequest = new BasicHttpRequest(verb, uriWithQueryString);
-				log.debug(uriWithQueryString);
+		case "POST":
+			HttpPost httpPost = new HttpPost(uriWithQueryString);
+			httpRequest = httpPost;
+			httpPost.setEntity(entity);
+			break;
+		case "PUT":
+			HttpPut httpPut = new HttpPut(uriWithQueryString);
+			httpRequest = httpPut;
+			httpPut.setEntity(entity);
+			break;
+		case "PATCH":
+			HttpPatch httpPatch = new HttpPatch(uriWithQueryString);
+			httpRequest = httpPatch;
+			httpPatch.setEntity(entity);
+			break;
+		case "DELETE":
+			BasicHttpEntityEnclosingRequest entityRequest = new BasicHttpEntityEnclosingRequest(
+					verb, uriWithQueryString);
+			httpRequest = entityRequest;
+			entityRequest.setEntity(entity);
+			break;
+		default:
+			httpRequest = new BasicHttpRequest(verb, uriWithQueryString);
+			log.debug(uriWithQueryString);
 		}
 
 		httpRequest.setHeaders(convertHeaders(headers));

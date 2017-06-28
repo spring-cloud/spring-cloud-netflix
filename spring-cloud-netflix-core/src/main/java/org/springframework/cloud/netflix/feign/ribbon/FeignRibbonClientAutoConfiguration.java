@@ -59,7 +59,7 @@ import javax.annotation.PreDestroy;
 @ConditionalOnClass({ ILoadBalancer.class, Feign.class })
 @Configuration
 @AutoConfigureBefore(FeignAutoConfiguration.class)
-@EnableConfigurationProperties({FeignHttpClientProperties.class})
+@EnableConfigurationProperties({ FeignHttpClientProperties.class })
 public class FeignRibbonClientAutoConfiguration {
 
 	@Bean
@@ -74,7 +74,8 @@ public class FeignRibbonClientAutoConfiguration {
 	@Primary
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
 	public CachingSpringLoadBalancerFactory retryabeCachingLBClientFactory(
-			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory) {
+			SpringClientFactory factory,
+			LoadBalancedRetryPolicyFactory retryPolicyFactory) {
 		return new CachingSpringLoadBalancerFactory(factory, retryPolicyFactory, true);
 	}
 
@@ -82,8 +83,8 @@ public class FeignRibbonClientAutoConfiguration {
 	@ConditionalOnMissingBean
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
 			SpringClientFactory clientFactory) {
-		return new LoadBalancerFeignClient(new Client.Default(null, null),
-				cachingFactory, clientFactory);
+		return new LoadBalancerFeignClient(new Client.Default(null, null), cachingFactory,
+				clientFactory);
 	}
 
 	@Bean
@@ -106,12 +107,14 @@ public class FeignRibbonClientAutoConfiguration {
 		private RegistryBuilder registryBuilder;
 
 		@Bean
-		public HttpClientConnectionManager connectionManager(ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-															 FeignHttpClientProperties httpClientProperties) {
-			final HttpClientConnectionManager connectionManager = connectionManagerFactory.newConnectionManager(false, httpClientProperties.getMaxConnections(),
-					httpClientProperties.getMaxConnectionsPerRoute(), httpClientProperties.getTimeToLive(),
-					httpClientProperties.getTimeToLiveUnit(),
-					registryBuilder);
+		public HttpClientConnectionManager connectionManager(
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				FeignHttpClientProperties httpClientProperties) {
+			final HttpClientConnectionManager connectionManager = connectionManagerFactory
+					.newConnectionManager(false, httpClientProperties.getMaxConnections(),
+							httpClientProperties.getMaxConnectionsPerRoute(),
+							httpClientProperties.getTimeToLive(),
+							httpClientProperties.getTimeToLiveUnit(), registryBuilder);
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
 				public void run() {
@@ -122,13 +125,15 @@ public class FeignRibbonClientAutoConfiguration {
 		}
 
 		@Bean
-		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory, HttpClientConnectionManager httpClientConnectionManager,
-											  FeignHttpClientProperties httpClientProperties) {
-			RequestConfig defaultRequestConfig = RequestConfig.custom().
-					setConnectTimeout(httpClientProperties.getConnectionTimeout()).
-					setRedirectsEnabled(httpClientProperties.isFollowRedirects()).
-					build();
-			this.httpClient = httpClientFactory.createClient(defaultRequestConfig, httpClientConnectionManager);
+		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
+				HttpClientConnectionManager httpClientConnectionManager,
+				FeignHttpClientProperties httpClientProperties) {
+			RequestConfig defaultRequestConfig = RequestConfig.custom()
+					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
+					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
+					.build();
+			this.httpClient = httpClientFactory.createClient(defaultRequestConfig,
+					httpClientConnectionManager);
 			return this.httpClient;
 		}
 
