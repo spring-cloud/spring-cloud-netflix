@@ -91,11 +91,9 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 			final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
 					.getIntProperty(name, zuulProperties.getSemaphore().getMaxSemaphores());
 			setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
-		} else	{
-			if (zuulProperties.getThreadPool().isUseSeparateThreadPools()) {
-				final String threadPoolKey = zuulProperties.getThreadPool().getThreadPoolKeyPrefix() + commandKey;
-				commandSetter.andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey));
-			}
+		} else if (zuulProperties.getThreadPool().isUseSeparateThreadPools()) {
+			final String threadPoolKey = zuulProperties.getThreadPool().getThreadPoolKeyPrefix() + commandKey;
+			commandSetter.andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey));
 		}
 		
 		return commandSetter.andCommandPropertiesDefaults(setter);
