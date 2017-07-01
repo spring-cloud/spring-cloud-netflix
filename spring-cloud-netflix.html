@@ -1605,6 +1605,32 @@ This lazy loading behavior can be changed to instead eagerly load up these child
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="how-to-configure-hystrix-thread-pools">How to Configure Hystrix thread pools</h3>
+<div class="paragraph">
+<p>If you change <code>zuul.ribbonIsolationStrategy</code> to THREAD, the thread isolation strategy for Hystrix will be used for all routes. In this case, the HystrixThreadPoolKey is set to "RibbonCommand" as default. It means that HystrixCommands for all routes will be executed in the same Hystrix thread pool. This behavior can be changed using the following configuration and it will result in HystrixCommands being executed in the Hystrix thread pool for each route.</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>zuul:
+  threadPool:
+    useSeparateThreadPools: true</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The default HystrixThreadPoolKey in this case is same with service ID for each route. To add a prefix to HystrixThreadPoolKey, set <code>zuul.threadPool.threadPoolKeyPrefix</code> to a value that you want to add. For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">application.yml</div>
+<div class="content">
+<pre>zuul:
+  threadPool:
+    useSeparateThreadPools: true
+    threadPoolKeyPrefix: zuulgw</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
