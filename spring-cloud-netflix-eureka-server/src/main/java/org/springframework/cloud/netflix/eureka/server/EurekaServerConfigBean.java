@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.EurekaConstants;
 import org.springframework.core.env.PropertyResolver;
 
 import com.netflix.eureka.EurekaServerConfig;
@@ -36,7 +35,7 @@ import lombok.Data;
  */
 @Data
 @ConfigurationProperties(EurekaServerConfigBean.PREFIX)
-public class EurekaServerConfigBean implements EurekaServerConfig, EurekaConstants {
+public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	public static final String PREFIX = "eureka.server";
 
