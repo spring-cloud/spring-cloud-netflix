@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -35,6 +36,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
+import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
 import org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +46,7 @@ import feign.Client;
 import feign.Feign;
 import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
+import okhttp3.ConnectionPool;
 
 import javax.annotation.PreDestroy;
 
@@ -108,6 +112,7 @@ public class FeignAutoConfiguration {
 		private CloseableHttpClient httpClient;
 
 		@Bean
+		@ConditionalOnMissingBean(HttpClientConnectionManager.class)
 		public HttpClientConnectionManager connectionManager(
 				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
 				FeignHttpClientProperties httpClientProperties) {
@@ -126,6 +131,7 @@ public class FeignAutoConfiguration {
 		}
 
 		@Bean
+		@ConditionalOnMissingBean(CloseableHttpClient.class)
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
 				HttpClientConnectionManager httpClientConnectionManager,
 				FeignHttpClientProperties httpClientProperties) {
@@ -147,26 +153,55 @@ public class FeignAutoConfiguration {
 		@PreDestroy
 		public void destroy() throws Exception {
 			connectionManagerTimer.cancel();
-			httpClient.close();
+			if(httpClient != null) {
+				httpClient.close();
+			}
 		}
 	}
 
 	@Configuration
 	@ConditionalOnClass(OkHttpClient.class)
 	@ConditionalOnMissingClass("com.netflix.loadbalancer.ILoadBalancer")
-	@ConditionalOnProperty(value = "feign.okhttp.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(value = "feign.okhttp.enabled")
 	protected static class OkHttpFeignConfiguration {
 
-		@Autowired(required = false)
 		private okhttp3.OkHttpClient okHttpClient;
+
+		@Bean
+		@ConditionalOnMissingBean(ConnectionPool.class)
+		public ConnectionPool httpClientConnectionPool(FeignHttpClientProperties httpClientProperties,
+													   OkHttpClientConnectionPoolFactory connectionPoolFactory) {
+			Integer maxTotalConnections = httpClientProperties.getMaxConnections();
+			Long timeToLive = httpClientProperties.getTimeToLive();
+			TimeUnit ttlUnit = httpClientProperties.getTimeToLiveUnit();
+			return connectionPoolFactory.create(maxTotalConnections, timeToLive, ttlUnit);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(okhttp3.OkHttpClient.class)
+		public okhttp3.OkHttpClient client(OkHttpClientFactory httpClientFactory,
+										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
+			Boolean followRedirects = httpClientProperties.isFollowRedirects();
+			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
+			//TODO Remove read timeout constant after changing to builder pattern
+			this.okHttpClient = httpClientFactory.create(false, connectTimeout, TimeUnit.MILLISECONDS,
+					followRedirects, 2000, TimeUnit.MILLISECONDS, connectionPool, null,
+					null);
+			return this.okHttpClient;
+		}
+
+		@PreDestroy
+		public void destroy() {
+			if(okHttpClient != null) {
+				okHttpClient.dispatcher().executorService().shutdown();
+				okHttpClient.connectionPool().evictAll();
+			}
+		}
 
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
 		public Client feignClient() {
-			if (this.okHttpClient != null) {
-				return new OkHttpClient(this.okHttpClient);
-			}
-			return new OkHttpClient();
+			return new OkHttpClient(this.okHttpClient);
 		}
 	}
 

@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+
 import java.net.URI;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,6 +44,8 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
+import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
+import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RetryableRibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
@@ -136,7 +141,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(name = "spring.cloud.httpclient.apache.enable", matchIfMissing = true)
 	protected static class ApacheHttpClientConfiguration {
 		private final Timer connectionManagerTimer = new Timer(
 				"RibbonApacheHttpClientConfiguration.connectionManagerTimer", true);
@@ -146,6 +151,7 @@ public class RibbonClientConfiguration {
 		private RegistryBuilder registryBuilder;
 
 		@Bean
+		@ConditionalOnMissingBean(HttpClientConnectionManager.class)
 		public HttpClientConnectionManager httpClientConnectionManager(
 				IClientConfig config,
 				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
@@ -184,6 +190,7 @@ public class RibbonClientConfiguration {
 		}
 
 		@Bean
+		@ConditionalOnMissingBean(CloseableHttpClient.class)
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
 				HttpClientConnectionManager connectionManager, IClientConfig config) {
 			Boolean followRedirects = config.getPropertyAsBoolean(
@@ -203,12 +210,69 @@ public class RibbonClientConfiguration {
 		@PreDestroy
 		public void destroy() throws Exception {
 			connectionManagerTimer.cancel();
-			httpClient.close();
+			if(httpClient != null) {
+				httpClient.close();
+			}
 		}
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
+	@ConditionalOnProperty("spring.cloud.httpclient.ok.enabled")
+	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
+	protected static class OkHttpClientConfiguration {
+		private OkHttpClient httpClient;
+
+		@Bean
+		@ConditionalOnMissingBean(ConnectionPool.class)
+		public ConnectionPool httpClientConnectionPool(IClientConfig config,
+				OkHttpClientConnectionPoolFactory connectionPoolFactory) {
+			Integer maxTotalConnections = config.getPropertyAsInteger(
+					CommonClientConfigKey.MaxTotalConnections,
+					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
+			Object timeToLiveObj = config
+					.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
+			Long timeToLive = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME;
+			Object ttlUnitObj = config
+					.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
+			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
+			if (timeToLiveObj instanceof Long) {
+				timeToLive = (Long) timeToLiveObj;
+			}
+			if (ttlUnitObj instanceof TimeUnit) {
+				ttlUnit = (TimeUnit) ttlUnitObj;
+			}
+			return connectionPoolFactory.create(maxTotalConnections, timeToLive, ttlUnit);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(OkHttpClient.class)
+		public OkHttpClient client(OkHttpClientFactory httpClientFactory,
+				ConnectionPool connectionPool, IClientConfig config) {
+			Boolean followRedirects = config.getPropertyAsBoolean(
+					CommonClientConfigKey.FollowRedirects,
+					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
+			Integer connectTimeout = config.getPropertyAsInteger(
+					CommonClientConfigKey.ConnectTimeout,
+					DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
+			Integer readTimeout = config.getPropertyAsInteger(CommonClientConfigKey.ReadTimeout,
+					DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT);
+			this.httpClient = httpClientFactory.create(false, connectTimeout, TimeUnit.MILLISECONDS,
+					followRedirects, readTimeout, TimeUnit.MILLISECONDS, connectionPool, null,
+					null);
+			return this.httpClient;
+		}
+
+		@PreDestroy
+		public void destroy() {
+			if(httpClient != null) {
+				httpClient.dispatcher().executorService().shutdown();
+				httpClient.connectionPool().evictAll();
+			}
+		}
+	}
+
+	@Configuration
+	@ConditionalOnProperty(name = "spring.cloud.httpclient.apache.enable", matchIfMissing = true)
 	protected static class HttpClientRibbonConfiguration {
 		@Value("${ribbon.client.name}")
 		private String name = "client";
@@ -247,7 +311,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty("ribbon.okhttp.enabled")
+	@ConditionalOnProperty("spring.cloud.httpclient.ok.enabled")
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpRibbonConfiguration {
 		@Value("${ribbon.client.name}")
@@ -259,9 +323,10 @@ public class RibbonClientConfiguration {
 		public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(
 				IClientConfig config, ServerIntrospector serverIntrospector,
 				ILoadBalancer loadBalancer, RetryHandler retryHandler,
-				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+				LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+				OkHttpClient delegate) {
 			RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(
-					config, serverIntrospector, loadBalancedRetryPolicyFactory);
+					delegate, config, serverIntrospector, loadBalancedRetryPolicyFactory);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			Monitors.registerObject("Client_" + this.name, client);
@@ -273,8 +338,8 @@ public class RibbonClientConfiguration {
 		@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
 		public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
 				IClientConfig config, ServerIntrospector serverIntrospector,
-				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
-			OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(config,
+				ILoadBalancer loadBalancer, RetryHandler retryHandler, OkHttpClient delegate) {
+			OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(delegate, config,
 					serverIntrospector);
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);

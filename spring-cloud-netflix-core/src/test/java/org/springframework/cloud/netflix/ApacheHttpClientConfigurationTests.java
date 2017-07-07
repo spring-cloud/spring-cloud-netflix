@@ -75,10 +75,10 @@ import static org.mockito.Mockito.mockingDetails;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = HttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: false",
+@SpringBootTest(classes = ApacheHttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: false",
 		"ribbon.eureka.enabled = false"})
 @DirtiesContext
-public class HttpClientConfigurationTests {
+public class ApacheHttpClientConfigurationTests {
 
 	@Autowired
 	ApacheHttpClientConnectionManagerFactory connectionManagerFactory;
@@ -98,9 +98,9 @@ public class HttpClientConfigurationTests {
 	@Test
 	public void testFactories() {
 		assertTrue(ApacheHttpClientConnectionManagerFactory.class.isInstance(connectionManagerFactory));
-		assertTrue(HttpClientConfigurationTestApp.MyApacheHttpClientConnectionManagerFactory.class.isInstance(connectionManagerFactory));
+		assertTrue(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientConnectionManagerFactory.class.isInstance(connectionManagerFactory));
 		assertTrue(ApacheHttpClientFactory.class.isInstance(httpClientFactory));
-		assertTrue(HttpClientConfigurationTestApp.MyApacheHttpClientFactory.class.isInstance(httpClientFactory));
+		assertTrue(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientFactory.class.isInstance(httpClientFactory));
 	}
 
 	@Test
@@ -146,9 +146,9 @@ public class HttpClientConfigurationTests {
 @Configuration
 @EnableAutoConfiguration
 @RestController
-@EnableFeignClients(clients = {HttpClientConfigurationTestApp.FooClient.class})
+@EnableFeignClients(clients = {ApacheHttpClientConfigurationTestApp.FooClient.class})
 @EnableZuulProxy
-class HttpClientConfigurationTestApp {
+class ApacheHttpClientConfigurationTestApp {
 
 	@RequestMapping
 	public String index() {
