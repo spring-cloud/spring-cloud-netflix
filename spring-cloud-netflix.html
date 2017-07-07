@@ -2922,6 +2922,42 @@ type <code>ZuulFallbackProvider</code> and have the <code>getRoute</code> method
 </div>
 </div>
 <div class="sect2">
+<h3 id="zuul-redirect-location-rewrite">Rewriting <code>Location</code> header</h3>
+<div class="paragraph">
+<p>If Zuul is fronting a web application then there may be a need to re-write the <code>Location</code> header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application&#8217;s url instead of the Zuul url.
+A <code>LocationRewriteFilter</code> Zuul filter can  be configured to re-write the Location header to the Zuul&#8217;s url, it also adds back the stripped global and route specific prefixes. The filter can be added the following way via a Spring Configuration file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">import org.springframework.cloud.netflix.zuul.filters.post.LocationRewriteFilter;
+...
+
+@Configuration
+@EnableZuulProxy
+public class ZuulConfig {
+    @Bean
+    public LocationRewriteFilter locationRewriteFilter() {
+        return new LocationRewriteFilter();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Use this filter with caution though, the filter acts on the <code>Location</code> header of ALL 3XX response codes which may not be appropriate in all scenarios, say if the user is redirecting to an external URL.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
 <h3 id="zuul-developer-guide">Zuul Developer Guide</h3>
 <div class="paragraph">
 <p>For a general overview of how Zuul works, please see <a href="https://github.com/Netflix/zuul/wiki/How-it-Works">the Zuul Wiki</a>.</p>
