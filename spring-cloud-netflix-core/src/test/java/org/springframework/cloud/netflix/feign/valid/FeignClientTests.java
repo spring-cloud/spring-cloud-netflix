@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.netflix.feign.FeignBuilderCustomizer;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.FeignFormatterRegistrar;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
@@ -81,6 +82,7 @@ import feign.Logger;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Target;
+import feign.Feign.Builder;
 import feign.hystrix.FallbackFactory;
 import feign.hystrix.SetterFactory;
 import lombok.AllArgsConstructor;
@@ -93,6 +95,7 @@ import rx.Single;
  * @author Spencer Gibb
  * @author Jakub Narloch
  * @author Erik Kringen
+ * @author Venil Noronha
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FeignClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -135,6 +138,9 @@ public class FeignClientTests {
 
 	@Autowired
 	HystrixSetterFactoryClient hystrixSetterFactoryClient;
+
+	@Autowired
+	private FeignBuilderCustomizerTestClient feignBuilderCustomizerTestClient;
 
 	protected enum Arg {
 		A, B;
@@ -337,12 +343,35 @@ public class FeignClientTests {
 		}
 	}
 
+	@FeignClient(name = "localapp6", configuration = TestFeignBuilderCustomizerConfig.class)
+	protected interface FeignBuilderCustomizerTestClient {
+
+		@RequestMapping(method = RequestMethod.GET, path = "/test404")
+		ResponseEntity<String> test404();
+
+	}
+
+	@Configuration
+	public static class TestFeignBuilderCustomizerConfig {
+
+		@Bean
+		FeignBuilderCustomizer feignBuilderCustomizer() {
+			return new FeignBuilderCustomizer() {
+				@Override
+				public void customize(Builder feignBuilder) {
+					feignBuilder.decode404();
+				}
+			};
+		}
+
+	}
+
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
 	@EnableFeignClients(clients = { TestClientServiceId.class, TestClient.class,
 		DecodingTestClient.class, HystrixClient.class, HystrixClientWithFallBackFactory.class,
-		HystrixSetterFactoryClient.class},
+		HystrixSetterFactoryClient.class, FeignBuilderCustomizerTestClient.class },
 		defaultConfiguration = TestDefaultFeignConfig.class)
 	@RibbonClients({
 		@RibbonClient(name = "localapp", configuration = LocalRibbonClientConfiguration.class),
@@ -350,7 +379,8 @@ public class FeignClientTests {
 		@RibbonClient(name = "localapp2", configuration = LocalRibbonClientConfiguration.class),
 		@RibbonClient(name = "localapp3", configuration = LocalRibbonClientConfiguration.class),
 		@RibbonClient(name = "localapp4", configuration = LocalRibbonClientConfiguration.class),
-		@RibbonClient(name = "localapp5", configuration = LocalRibbonClientConfiguration.class)
+		@RibbonClient(name = "localapp5", configuration = LocalRibbonClientConfiguration.class),
+		@RibbonClient(name = "localapp6", configuration = LocalRibbonClientConfiguration.class)
 	})
 	protected static class Application {
 
@@ -452,6 +482,11 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, path = "/notFound")
 		ResponseEntity<String> notFound() {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String) null);
+		}
+
+		@RequestMapping(method = RequestMethod.GET, path = "/test404")
+		ResponseEntity<String> test404() {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body((String) null);
 		}
 
@@ -723,6 +758,15 @@ public class FeignClientTests {
 		List<Hello> hellos = command.execute();
 		assertNotNull("hellos was null", hellos);
 		assertEquals("hellos didn't match", hellos, getHelloList());
+	}
+
+	@Test
+	public void testFeignBuilderCustomizerTest404() {
+		ResponseEntity<String> response = feignBuilderCustomizerTestClient.test404();
+		assertNotNull("response was null", response);
+		assertEquals("status code was wrong", HttpStatus.NOT_FOUND,
+				response.getStatusCode());
+		assertNull("response body was not null", response.getBody());
 	}
 
 	@Data
