@@ -42,6 +42,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
 
@@ -85,7 +86,7 @@ public class PreDecorationFilterTests {
 	public void basicProperties() throws Exception {
 		assertEquals(5, this.filter.filterOrder());
 		assertEquals(true, this.filter.shouldFilter());
-		assertEquals("pre", this.filter.filterType());
+		assertEquals(PRE_TYPE, this.filter.filterType());
 	}
 
 	@Test

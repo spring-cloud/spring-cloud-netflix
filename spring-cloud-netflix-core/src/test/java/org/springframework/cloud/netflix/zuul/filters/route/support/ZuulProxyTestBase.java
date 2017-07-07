@@ -82,6 +82,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeThat;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 /**
  * @author Spencer Gibb
@@ -406,7 +407,7 @@ public abstract class ZuulProxyTestBase {
 			return new ZuulFilter() {
 				@Override
 				public String filterType() {
-					return "pre";
+					return PRE_TYPE;
 				}
 
 				@Override

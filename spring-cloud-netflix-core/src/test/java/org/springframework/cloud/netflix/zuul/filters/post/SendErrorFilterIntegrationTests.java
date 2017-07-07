@@ -47,6 +47,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
 
 /**
  * @author Spencer Gibb
@@ -111,7 +114,7 @@ public class SendErrorFilterIntegrationTests {
 			return new FailureFilter() {
 				@Override
 				public String filterType() {
-					return "pre";
+					return PRE_TYPE;
 				}
 			};
 		}
@@ -121,7 +124,7 @@ public class SendErrorFilterIntegrationTests {
 			return new FailureFilter() {
 				@Override
 				public String filterType() {
-					return "route";
+					return ROUTE_TYPE;
 				}
 			};
 		}
@@ -131,7 +134,7 @@ public class SendErrorFilterIntegrationTests {
 			return new FailureFilter() {
 				@Override
 				public String filterType() {
-					return "post";
+					return POST_TYPE;
 				}
 			};
 		}
