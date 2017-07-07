@@ -1840,7 +1840,52 @@ public class FooConfiguration {
 <p>This replaces the <code>SpringMvcContract</code> with <code>feign.Contract.Default</code> and adds a <code>RequestInterceptor</code> to the collection of <code>RequestInterceptor</code>.</p>
 </div>
 <div class="paragraph">
+<p><code>@FeignClient</code> also can be configured using configuration properties.</p>
+</div>
+<div class="paragraph">
+<p>application.yml</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">feign:
+  client:
+    config:
+      feignName:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+        errorDecoder: com.example.SimpleErrorDecoder
+        retryer: com.example.SimpleRetryer
+        requestInterceptors:
+          - com.example.FooRequestInterceptor
+          - com.example.BarRequestInterceptor
+        decode404: false</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>Default configurations can be specified in the <code>@EnableFeignClients</code> attribute <code>defaultConfiguration</code> in a similar manner as described above. The difference is that this configuration will apply to <em>all</em> feign clients.</p>
+</div>
+<div class="paragraph">
+<p>If you prefer using configuration properties to configured all <code>@FeignClient</code>, you can create configuration properties with <code>default</code> feign name.</p>
+</div>
+<div class="paragraph">
+<p>application.yml</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-yaml" data-lang="yaml">feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If we create both <code>@Configuration</code> bean and configuration properties, configuration properties will win.
+It will override <code>@Configuration</code> values. But if you want to change the priority to <code>@Configuration</code>,
+you can change <code>feign.client.default-to-properties</code> to <code>false</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
