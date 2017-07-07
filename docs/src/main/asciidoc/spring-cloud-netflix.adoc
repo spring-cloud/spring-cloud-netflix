@@ -1864,6 +1864,32 @@ class MyFallbackProvider implements ZuulFallbackProvider {
 }
 ----
 
+[[zuul-redirect-location-rewrite]]
+=== Rewriting `Location` header
+
+If Zuul is fronting a web application then there may be a need to re-write the `Location` header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application's url instead of the Zuul url. 
+A `LocationRewriteFilter` Zuul filter can  be configured to re-write the Location header to the Zuul's url, it also adds back the stripped global and route specific prefixes. The filter can be added the following way via a Spring Configuration file:
+
+[source,java]
+----
+import org.springframework.cloud.netflix.zuul.filters.post.LocationRewriteFilter;
+...
+
+@Configuration
+@EnableZuulProxy
+public class ZuulConfig {
+    @Bean
+    public LocationRewriteFilter locationRewriteFilter() {
+        return new LocationRewriteFilter();
+    }
+}
+----
+
+[WARNING]
+====
+Use this filter with caution though, the filter acts on the `Location` header of ALL 3XX response codes which may not be appropriate in all scenarios, say if the user is redirecting to an external URL.
+====
+
 [[zuul-developer-guide]]
 === Zuul Developer Guide
 
