@@ -38,14 +38,14 @@ import lombok.Data;
  */
 @Data
 @ConfigurationProperties(EurekaClientConfigBean.PREFIX)
-public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstants {
+public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	public static final String PREFIX = "eureka.client";
 
 	@Autowired(required = false)
 	PropertyResolver propertyResolver;
 
-	public static final String DEFAULT_URL = "http://localhost:8761" + DEFAULT_PREFIX
+	public static final String DEFAULT_URL = "http://localhost:8761" + EurekaConstants.DEFAULT_PREFIX
 			+ "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";

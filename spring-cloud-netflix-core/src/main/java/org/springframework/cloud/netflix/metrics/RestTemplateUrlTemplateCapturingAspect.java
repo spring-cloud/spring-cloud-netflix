@@ -26,7 +26,7 @@ import org.aspectj.lang.annotation.Aspect;
 @Aspect
 public class RestTemplateUrlTemplateCapturingAspect {
 	@Around("execution(* org.springframework.web.client.RestOperations+.*(String, ..))")
-	Object captureUrlTemplate(ProceedingJoinPoint joinPoint) throws Throwable {
+	public Object captureUrlTemplate(ProceedingJoinPoint joinPoint) throws Throwable {
 		try {
 			String urlTemplate = (String) joinPoint.getArgs()[0];
 			RestTemplateUrlTemplateHolder.setRestTemplateUrlTemplate(urlTemplate);

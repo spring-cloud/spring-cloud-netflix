@@ -34,6 +34,7 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
+import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.RequestContext;
 
@@ -78,6 +79,9 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 			ZuulProperties zuulProperties) {
 
 		// @formatter:off
+		Setter commandSetter = Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
+								.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
+
 		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
 				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy());
 		if (zuulProperties.getRibbonIsolationStrategy() == ExecutionIsolationStrategy.SEMAPHORE){
@@ -87,13 +91,12 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 			final DynamicIntProperty value = DynamicPropertyFactory.getInstance()
 					.getIntProperty(name, zuulProperties.getSemaphore().getMaxSemaphores());
 			setter.withExecutionIsolationSemaphoreMaxConcurrentRequests(value.get());
-		} else	{
-			// TODO Find out is some parameters can be set here
+		} else if (zuulProperties.getThreadPool().isUseSeparateThreadPools()) {
+			final String threadPoolKey = zuulProperties.getThreadPool().getThreadPoolKeyPrefix() + commandKey;
+			commandSetter.andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(threadPoolKey));
 		}
 		
-		return Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey))
-				.andCommandPropertiesDefaults(setter);
+		return commandSetter.andCommandPropertiesDefaults(setter);
 		// @formatter:on
 	}
 

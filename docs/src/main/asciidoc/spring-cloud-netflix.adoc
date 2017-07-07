@@ -886,6 +886,28 @@ ribbon:
     clients: client1, client2, client3
 ----
 
+[[how-to-configure-hystrix-thread-pools]]
+=== How to Configure Hystrix thread pools
+If you change `zuul.ribbonIsolationStrategy` to THREAD, the thread isolation strategy for Hystrix will be used for all routes. In this case, the HystrixThreadPoolKey is set to "RibbonCommand" as default. It means that HystrixCommands for all routes will be executed in the same Hystrix thread pool. This behavior can be changed using the following configuration and it will result in HystrixCommands being executed in the Hystrix thread pool for each route.
+
+.application.yml
+----
+zuul:
+  threadPool:
+    useSeparateThreadPools: true
+----
+
+The default HystrixThreadPoolKey in this case is same with service ID for each route. To add a prefix to HystrixThreadPoolKey, set `zuul.threadPool.threadPoolKeyPrefix` to a value that you want to add. For example:
+
+.application.yml
+----
+zuul:
+  threadPool:
+    useSeparateThreadPools: true
+    threadPoolKeyPrefix: zuulgw
+----
+
+
 
 [[spring-cloud-feign]]
 == Declarative REST Client: Feign
