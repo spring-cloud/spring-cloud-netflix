@@ -18,7 +18,11 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -34,6 +38,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Ryan Baxter
+ * @author Gregor Zurowski
  */
 @ManagedResource(description = "Can be used to list the reverse proxy routes")
 @ConfigurationProperties(prefix = "endpoints.routes")
@@ -59,4 +64,55 @@ public class RoutesEndpoint extends AbstractEndpoint<Map<String, String>> {
 		}
 		return map;
 	}
+
+	Map<String, RouteDetails> invokeRouteDetails() {
+		Map<String, RouteDetails> map = new LinkedHashMap<>();
+		for (Route route : this.routes.getRoutes()) {
+			map.put(route.getFullPath(), new RouteDetails(route));
+		}
+		return map;
+	}
+
+	/**
+	 * Container for exposing Zuul {@link Route} details as JSON.
+	 */
+	@JsonPropertyOrder({ "id", "fullPath", "location" })
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
+	@Data
+	public static class RouteDetails {
+
+		private String id;
+
+		private String fullPath;
+
+		private String path;
+
+		private String location;
+
+		private String prefix;
+
+		private Boolean retryable;
+
+		private Set<String> sensitiveHeaders;
+
+		private boolean customSensitiveHeaders;
+
+		private boolean prefixStripped;
+
+		public RouteDetails() {
+		}
+
+		RouteDetails(final Route route) {
+			this.id = route.getId();
+			this.fullPath = route.getFullPath();
+			this.path = route.getPath();
+			this.location = route.getLocation();
+			this.prefix = route.getPrefix();
+			this.retryable = route.getRetryable();
+			this.sensitiveHeaders = route.getSensitiveHeaders();
+			this.customSensitiveHeaders = route.isCustomSensitiveHeaders();
+			this.prefixStripped = route.isPrefixStripped();
+		}
+	}
+
 }
