@@ -11,6 +11,10 @@
 
 include::intro.adoc[]
 
+== HTTP Clients
+
+
+
 == Service Discovery: Eureka Clients
 
 Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.
@@ -1012,6 +1016,7 @@ Spring Cloud Netflix provides the following beans by default for feign (`BeanTyp
 * `Client` feignClient: if Ribbon is enabled it is a `LoadBalancerFeignClient`, otherwise the default feign client is used.
 
 The OkHttpClient and ApacheHttpClient feign clients can be used by setting `feign.okhttp.enabled` or `feign.httpclient.enabled` to `true`, respectively, and having them on the classpath.
+You can customize the HTTP client used by providing a bean of either `ClosableHttpClient` when using Apache or `OkHttpClient` whe using OK HTTP.
 
 Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
 
@@ -1536,7 +1541,9 @@ path rendering the `users` path unreachable.
 
 The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
 deprecated Ribbon `RestClient`. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
-`ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
+`ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.  If you would
+like to customize the Apache HTTP client or the OK HTTP client provide a bean of type
+`ClosableHttpClient` or `OkHttpClient`.
 
 === Cookies and Sensitive Headers
 
