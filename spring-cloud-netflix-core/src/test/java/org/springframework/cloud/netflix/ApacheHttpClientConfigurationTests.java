@@ -34,6 +34,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
@@ -105,9 +106,6 @@ public class ApacheHttpClientConfigurationTests {
 
 	@Test
 	public void testHttpClientSimpleHostRoutingFilter() {
-		PoolingHttpClientConnectionManager connectionManager = getField(simpleHostRoutingFilter, "connectionManager");
-		MockingDetails connectionManagerDetails = mockingDetails(connectionManager);
-		assertTrue(connectionManagerDetails.isMock());
 		CloseableHttpClient httpClient = getField(simpleHostRoutingFilter, "httpClient");
 		MockingDetails httpClientDetails = mockingDetails(httpClient);
 		assertTrue(httpClientDetails.isMock());
@@ -164,7 +162,7 @@ class ApacheHttpClientConfigurationTestApp {
 
 	static class MyApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
 		@Override
-		public CloseableHttpClient createClient(RequestConfig requestConfig, HttpClientConnectionManager connectionManager) {
+		public HttpClientBuilder createBuilder() {
 			CloseableHttpClient client =  mock(CloseableHttpClient.class);
 			CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 			StatusLine statusLine = mock(StatusLine.class);
@@ -177,7 +175,9 @@ class ApacheHttpClientConfigurationTestApp {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			return client;
+			HttpClientBuilder builder = mock(HttpClientBuilder.class);
+			doReturn(client).when(builder).build();
+			return builder;
 		}
 	}
 

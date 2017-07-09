@@ -46,7 +46,7 @@ public class SpringRetryDisableOkHttpClientTests {
 	@Before
 	public void setUp() {
 		context = new SpringApplicationBuilder().web(false)
-				.properties("spring.cloud.httpclient.ok.enabled=true")
+				.properties("ribbon.okhttp.enabled=true")
 				.sources(RibbonAutoConfiguration.class,
 						LoadBalancerAutoConfiguration.class,
 						HttpClientConfiguration.class,

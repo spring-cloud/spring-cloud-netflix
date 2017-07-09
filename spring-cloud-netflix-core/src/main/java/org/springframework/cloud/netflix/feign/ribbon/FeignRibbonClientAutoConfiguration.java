@@ -100,8 +100,8 @@ public class FeignRibbonClientAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
-	protected static class HttpClientFeignLoadBalancedConfiguration {
-
+	@ConditionalOnMissingBean(CloseableHttpClient.class)
+	protected static class HttpClientFeignConfiguration {
 		private final Timer connectionManagerTimer = new Timer(
 				"FeignApacheHttpClientConfiguration.connectionManagerTimer", true);
 
@@ -130,25 +130,17 @@ public class FeignRibbonClientAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(CloseableHttpClient.class)
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
-				HttpClientConnectionManager httpClientConnectionManager,
-				FeignHttpClientProperties httpClientProperties) {
+											  HttpClientConnectionManager httpClientConnectionManager,
+											  FeignHttpClientProperties httpClientProperties) {
 			RequestConfig defaultRequestConfig = RequestConfig.custom()
 					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
 					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
 					.build();
-			this.httpClient = httpClientFactory.createClient(defaultRequestConfig,
-					httpClientConnectionManager);
+			this.httpClient = httpClientFactory.createBuilder().
+					setDefaultRequestConfig(defaultRequestConfig).
+					setConnectionManager(httpClientConnectionManager).build();
 			return this.httpClient;
-		}
-
-		@Bean
-		@ConditionalOnMissingBean(Client.class)
-		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-				SpringClientFactory clientFactory, HttpClient httpClient) {
-			ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
-			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
 		}
 
 		@PreDestroy
@@ -160,11 +152,26 @@ public class FeignRibbonClientAutoConfiguration {
 		}
 	}
 
+
 	@Configuration
+	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
+	@ConditionalOnClass(ApacheHttpClient.class)
+	protected static class HttpClientFeignLoadBalancedConfiguration {
+
+		@Bean
+		@ConditionalOnMissingBean(Client.class)
+		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
+				SpringClientFactory clientFactory, HttpClient httpClient) {
+			ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
+			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+		}
+
+	}
+	@Configuration
+	@ConditionalOnMissingBean(okhttp3.OkHttpClient.class)
 	@ConditionalOnClass(OkHttpClient.class)
 	@ConditionalOnProperty(value = "feign.okhttp.enabled")
-	protected static class OkHttpFeignLoadBalancedConfiguration {
-
+	protected static class OkHttpFeignConfiguration {
 		private okhttp3.OkHttpClient okHttpClient;
 
 		@Bean
@@ -178,15 +185,14 @@ public class FeignRibbonClientAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(okhttp3.OkHttpClient.class)
 		public okhttp3.OkHttpClient client(OkHttpClientFactory httpClientFactory,
 										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
 			Boolean followRedirects = httpClientProperties.isFollowRedirects();
 			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
-			this.okHttpClient = httpClientFactory.create(false, connectTimeout, TimeUnit.MILLISECONDS,
-					//TODO Remove read timeout constant after changing to builder pattern
-					followRedirects, 2000, TimeUnit.MILLISECONDS, connectionPool, null,
-					null);
+			this.okHttpClient = httpClientFactory.createBuilder(false).
+					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
+					followRedirects(followRedirects).
+					connectionPool(connectionPool).build();
 			return this.okHttpClient;
 		}
 
@@ -197,12 +203,18 @@ public class FeignRibbonClientAutoConfiguration {
 				okHttpClient.connectionPool().evictAll();
 			}
 		}
+	}
+
+	@Configuration
+	@ConditionalOnClass(OkHttpClient.class)
+	@ConditionalOnProperty(value = "feign.okhttp.enabled")
+	protected static class OkHttpFeignLoadBalancedConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
 		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-				SpringClientFactory clientFactory) {
-			OkHttpClient delegate = new OkHttpClient(this.okHttpClient);
+								  SpringClientFactory clientFactory, okhttp3.OkHttpClient okHttpClient) {
+			OkHttpClient delegate = new OkHttpClient(okHttpClient);
 			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
 		}
 	}

@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
@@ -108,13 +109,22 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(SimpleHostRoutingFilter.class)
+	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class, CloseableHttpClient.class})
 	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
 			ZuulProperties zuulProperties,
 			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
 			ApacheHttpClientFactory httpClientFactory) {
 		return new SimpleHostRoutingFilter(helper, zuulProperties,
 				connectionManagerFactory, httpClientFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class})
+	public SimpleHostRoutingFilter simpleHostRoutingFilter2(ProxyRequestHelper helper,
+														   ZuulProperties zuulProperties,
+														   CloseableHttpClient httpClient) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties,
+				httpClient);
 	}
 
 	@Bean

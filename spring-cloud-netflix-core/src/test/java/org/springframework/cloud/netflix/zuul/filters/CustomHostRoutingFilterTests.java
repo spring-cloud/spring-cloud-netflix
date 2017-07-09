@@ -26,7 +26,9 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +37,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -42,6 +45,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
+import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -212,6 +216,7 @@ class SampleCustomZuulProxyApplication {
 
 	@Configuration
 	@EnableZuulProxy
+	@AutoConfigureBefore({FeignRibbonClientAutoConfiguration.class})
 	protected static class CustomZuulProxyConfig {
 
 		@Bean
@@ -220,17 +225,24 @@ class SampleCustomZuulProxyApplication {
 		}
 
 		@Bean
+		public CloseableHttpClient closeableClient() {
+			return HttpClients.custom()
+					.setDefaultCookieStore(new BasicCookieStore())
+					.setDefaultRequestConfig(RequestConfig.custom()
+							.setCookieSpec(CookieSpecs.DEFAULT).build())
+					.build();
+		}
+
+		@Bean
 		public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
-															   ZuulProperties zuulProperties, ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-															   ApacheHttpClientFactory httpClientFactory) {
-			return new CustomHostRoutingFilter(helper, zuulProperties, connectionManagerFactory, httpClientFactory);
+															   ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+			return new CustomHostRoutingFilter(helper, zuulProperties, httpClient);
 		}
 
 		private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
 			public CustomHostRoutingFilter(ProxyRequestHelper helper,
-										   ZuulProperties zuulProperties, ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-										   ApacheHttpClientFactory httpClientFactory) {
-				super(helper, zuulProperties, connectionManagerFactory, httpClientFactory);
+										   ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+				super(helper, zuulProperties, httpClient);
 			}
 
 			@Override
@@ -242,14 +254,19 @@ class SampleCustomZuulProxyApplication {
 
 
 		private class CustomApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
-			@Override
-			public CloseableHttpClient createClient(RequestConfig requestConfig, HttpClientConnectionManager connectionManager) {
-				return HttpClients.custom().setConnectionManager(connectionManager)
-						.setDefaultCookieStore(new BasicCookieStore())
-						.setDefaultRequestConfig(RequestConfig.custom()
-								.setCookieSpec(CookieSpecs.DEFAULT).build())
-						.build();
-			}
+//@Override
+//public HttpClientBuilder createBuilder() {
+//	return HttpClients.custom()
+//			.setDefaultCookieStore(new BasicCookieStore())
+//			.setDefaultRequestConfig(RequestConfig.custom()
+//					.setCookieSpec(CookieSpecs.DEFAULT).build());
+//}public CloseableHttpClient createClient(RequestConfig requestConfig, HttpClientConnectionManager connectionManager) {
+//				return HttpClients.custom().setConnectionManager(connectionManager)
+//						.setDefaultCookieStore(new BasicCookieStore())
+//						.setDefaultRequestConfig(RequestConfig.custom()
+//								.setCookieSpec(CookieSpecs.DEFAULT).build())
+//						.build();
+//			}
 		}
 	}
 

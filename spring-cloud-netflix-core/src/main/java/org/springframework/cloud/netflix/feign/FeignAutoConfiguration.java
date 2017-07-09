@@ -101,6 +101,7 @@ public class FeignAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(ApacheHttpClient.class)
 	@ConditionalOnMissingClass("com.netflix.loadbalancer.ILoadBalancer")
+	@ConditionalOnMissingBean(CloseableHttpClient.class)
 	@ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientFeignConfiguration {
 		private final Timer connectionManagerTimer = new Timer(
@@ -131,7 +132,7 @@ public class FeignAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(CloseableHttpClient.class)
+
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
 				HttpClientConnectionManager httpClientConnectionManager,
 				FeignHttpClientProperties httpClientProperties) {
@@ -139,8 +140,9 @@ public class FeignAutoConfiguration {
 					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
 					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
 					.build();
-			this.httpClient = httpClientFactory.createClient(defaultRequestConfig,
-					httpClientConnectionManager);
+			this.httpClient = httpClientFactory.createBuilder().
+					setConnectionManager(httpClientConnectionManager).
+					setDefaultRequestConfig(defaultRequestConfig).build();
 			return this.httpClient;
 		}
 
@@ -162,6 +164,7 @@ public class FeignAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(OkHttpClient.class)
 	@ConditionalOnMissingClass("com.netflix.loadbalancer.ILoadBalancer")
+	@ConditionalOnMissingBean(okhttp3.OkHttpClient.class)
 	@ConditionalOnProperty(value = "feign.okhttp.enabled")
 	protected static class OkHttpFeignConfiguration {
 
@@ -178,15 +181,14 @@ public class FeignAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnMissingBean(okhttp3.OkHttpClient.class)
 		public okhttp3.OkHttpClient client(OkHttpClientFactory httpClientFactory,
 										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
 			Boolean followRedirects = httpClientProperties.isFollowRedirects();
 			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
-			//TODO Remove read timeout constant after changing to builder pattern
-			this.okHttpClient = httpClientFactory.create(false, connectTimeout, TimeUnit.MILLISECONDS,
-					followRedirects, 2000, TimeUnit.MILLISECONDS, connectionPool, null,
-					null);
+			this.okHttpClient = httpClientFactory.createBuilder(false).
+					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
+					followRedirects(followRedirects).
+					connectionPool(connectionPool).build();
 			return this.okHttpClient;
 		}
 

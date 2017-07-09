@@ -61,7 +61,7 @@ import static org.mockito.Mockito.mockingDetails;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = OkHttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: true",
-		"spring.cloud.httpclient.ok.enabled: true", "ribbon.eureka.enabled = false"})
+		"spring.cloud.httpclient.ok.enabled: true", "ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true"})
 @DirtiesContext
 public class OkHttpClientConfigurationTests {
 
@@ -118,7 +118,6 @@ public class OkHttpClientConfigurationTests {
 @Configuration
 @EnableAutoConfiguration
 @RestController
-//@EnableFeignClients(clients = {})
 @EnableZuulProxy
 class OkHttpClientConfigurationTestApp {
 
@@ -135,10 +134,6 @@ class OkHttpClientConfigurationTestApp {
 	}
 
 	static class MyOkHttpClientFactory extends DefaultOkHttpClientFactory {
-		@Override
-		public OkHttpClient create(boolean disableSslValidation, long connectTimeout, TimeUnit connectTimeoutUnit, boolean followRedirects, long readTimeout, TimeUnit readTimeoutUnit, ConnectionPool connectionPool, SSLSocketFactory sslSocketFactory, X509TrustManager x509TrustManager) {
-			return mock(OkHttpClient.class);
-		}
 	}
 
 	@Configuration
@@ -151,6 +146,11 @@ class OkHttpClientConfigurationTestApp {
 		@Bean
 		public OkHttpClientFactory clientFactory() {
 			return new MyOkHttpClientFactory();
+		}
+
+		@Bean
+		public OkHttpClient client() {
+			return mock(OkHttpClient.class);
 		}
 
 	}

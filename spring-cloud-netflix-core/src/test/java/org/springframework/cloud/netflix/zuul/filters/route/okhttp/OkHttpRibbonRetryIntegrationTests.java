@@ -30,6 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
 		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
+		"ribbon.okhttp.enabled",
 		"hystrix.command.default.execution.timeout.enabled: false", /* Disable hystrix so its timeout doesnt get in the way */
 		"ribbon.ReadTimeout: 1000", /* Make sure ribbon will timeout before the thread is done sleeping */
 		"zuul.routes.retryable: /retryable/**",
@@ -48,8 +49,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"disableretry.ribbon.MaxAutoRetriesNextServer: 1",
 		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
 		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
-		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1",
-		"spring.cloud.httpclient.ok.enabled: true"
+		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1"
 })
 @DirtiesContext
 public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {

@@ -152,7 +152,7 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testDefaultsToApacheHttpClient() {
 		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class, OkHttpLoadBalancingClient.class);
-		testClient(RibbonLoadBalancingHttpClient.class, new String[]{"spring.cloud.httpclient.apache.enable"}, RestClient.class, OkHttpLoadBalancingClient.class);
+		testClient(RibbonLoadBalancingHttpClient.class, new String[]{"ribbon.httpclient.enabled"}, RestClient.class, OkHttpLoadBalancingClient.class);
 	}
 
 	@Test
@@ -163,7 +163,7 @@ public class RibbonClientConfigurationTests {
 
 	@Test
 	public void testEnableOkHttpClient() {
-		testClient(OkHttpLoadBalancingClient.class, new String[]{"spring.cloud.httpclient.ok.enabled"}, RibbonLoadBalancingHttpClient.class,
+		testClient(OkHttpLoadBalancingClient.class, new String[]{"ribbon.okhttp.enabled"}, RibbonLoadBalancingHttpClient.class,
 				RestClient.class);
 	}
 

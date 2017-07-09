@@ -90,26 +90,28 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private ApacheHttpClientFactory httpClientFactory;
 	private HttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
+	private boolean customHttpClient = false;
 
 	@EventListener
 	public void onPropertyChange(EnvironmentChangeEvent event) {
-		boolean createNewClient = false;
+		if(!customHttpClient) {
+			boolean createNewClient = false;
 
-		for (String key : event.getKeys()) {
-			if (key.startsWith("zuul.host.")) {
-				createNewClient = true;
-				break;
+			for (String key : event.getKeys()) {
+				if (key.startsWith("zuul.host.")) {
+					createNewClient = true;
+					break;
+				}
 			}
-		}
 
-		if (createNewClient) {
-			try {
-				SimpleHostRoutingFilter.this.httpClient.close();
+			if (createNewClient) {
+				try {
+					SimpleHostRoutingFilter.this.httpClient.close();
+				} catch (IOException ex) {
+					log.error("error closing client", ex);
+				}
+				SimpleHostRoutingFilter.this.httpClient = newClient();
 			}
-			catch (IOException ex) {
-				log.error("error closing client", ex);
-			}
-			SimpleHostRoutingFilter.this.httpClient = newClient();
 		}
 	}
 
@@ -125,24 +127,37 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		this.httpClientFactory = httpClientFactory;
 	}
 
+	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
+								   CloseableHttpClient httpClient) {
+		this.helper = helper;
+		this.hostProperties = properties.getHost();
+		this.sslHostnameValidationEnabled = properties.isSslHostnameValidationEnabled();
+		this.forceOriginalQueryStringEncoding = properties
+				.isForceOriginalQueryStringEncoding();
+		this.httpClient = httpClient;
+		this.customHttpClient = true;
+	}
+
 	@PostConstruct
 	private void initialize() {
-		this.connectionManager = connectionManagerFactory.newConnectionManager(
-				this.sslHostnameValidationEnabled,
-				this.hostProperties.getMaxTotalConnections(),
-				this.hostProperties.getMaxPerRouteConnections(),
-				this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
-				null);
-		this.httpClient = newClient();
-		this.connectionManagerTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if (SimpleHostRoutingFilter.this.connectionManager == null) {
-					return;
+		if(!customHttpClient) {
+			this.connectionManager = connectionManagerFactory.newConnectionManager(
+					this.sslHostnameValidationEnabled,
+					this.hostProperties.getMaxTotalConnections(),
+					this.hostProperties.getMaxPerRouteConnections(),
+					this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
+					null);
+			this.httpClient = newClient();
+			this.connectionManagerTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					if (SimpleHostRoutingFilter.this.connectionManager == null) {
+						return;
+					}
+					SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
 				}
-				SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
-			}
-		}, 30000, 5000);
+			}, 30000, 5000);
+		}
 	}
 
 	@PreDestroy
@@ -203,7 +218,9 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.setSocketTimeout(this.hostProperties.getSocketTimeoutMillis())
 				.setConnectTimeout(this.hostProperties.getConnectTimeoutMillis())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
-		return httpClientFactory.createClient(requestConfig, this.connectionManager);
+		return httpClientFactory.createBuilder().
+				setDefaultRequestConfig(requestConfig).
+				setConnectionManager(this.connectionManager).build();
 	}
 
 	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,

@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.instanceOf;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(value = { "spring.cloud.httpclient.ok.enabled: true" })
+@SpringBootTest(value = { "ribbon.okhttp.enabled: true", "ribbon.httpclient.enabled: false" })
 @ContextConfiguration(classes = { RibbonAutoConfiguration.class,
 		HttpClientConfiguration.class, RibbonClientConfiguration.class,
 		LoadBalancerAutoConfiguration.class })

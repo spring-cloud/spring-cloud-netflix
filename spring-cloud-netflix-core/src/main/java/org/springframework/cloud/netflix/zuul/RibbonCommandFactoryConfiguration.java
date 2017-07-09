@@ -105,7 +105,7 @@ public class RibbonCommandFactoryConfiguration {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
-		@ConditionalOnProperty(name = "spring.cloud.httpclient.apache.enable", matchIfMissing = true)
+		@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 		static class RibbonProperty {}
 	}
 
@@ -120,7 +120,7 @@ public class RibbonCommandFactoryConfiguration {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
-		@ConditionalOnProperty("spring.cloud.httpclient.ok.enabled")
+		@ConditionalOnProperty("ribbon.okhttp.enabled")
 		static class RibbonProperty {}
 	}
 

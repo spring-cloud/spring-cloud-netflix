@@ -43,7 +43,7 @@ public class ZuulProxyConfigurationTests {
 	@Test
 	public void testDefaultsToApacheHttpClient() {
 		testClient(HttpClientRibbonCommandFactory.class, null);
-		testClient(HttpClientRibbonCommandFactory.class, "spring.cloud.httpclient.apache.enable=true");
+		testClient(HttpClientRibbonCommandFactory.class, "ribbon.httpclient.enabled=true");
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class ZuulProxyConfigurationTests {
 
 	@Test
 	public void testEnableOkHttpClient() {
-		testClient(OkHttpRibbonCommandFactory.class, "spring.cloud.httpclient.ok.enabled=true");
+		testClient(OkHttpRibbonCommandFactory.class, "ribbon.okhttp.enabled=true");
 	}
 
 	void testClient(Class<?> clientType, String property) {

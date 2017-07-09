@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
@@ -437,7 +438,7 @@ public class RibbonLoadBalancingHttpClientTests {
 												IClientConfig configOverride, SpringClientFactory factory)
 			throws Exception {
 
-		factory.setApplicationContext(new AnnotationConfigApplicationContext(
+		factory.setApplicationContext(new AnnotationConfigApplicationContext(HttpClientConfiguration.class,
 				RibbonAutoConfiguration.class, defaultConfigurationClass));
 		String serviceName = "foo";
 		String host = serviceName;

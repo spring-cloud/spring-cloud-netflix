@@ -35,6 +35,8 @@ import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -141,7 +143,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.cloud.httpclient.apache.enable", matchIfMissing = true)
+	@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 	protected static class ApacheHttpClientConfiguration {
 		private final Timer connectionManagerTimer = new Timer(
 				"RibbonApacheHttpClientConfiguration.connectionManagerTimer", true);
@@ -154,8 +156,7 @@ public class RibbonClientConfiguration {
 		@ConditionalOnMissingBean(HttpClientConnectionManager.class)
 		public HttpClientConnectionManager httpClientConnectionManager(
 				IClientConfig config,
-				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-				ApacheHttpClientFactory httpClientFactory) {
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory) {
 			Integer maxTotalConnections = config.getPropertyAsInteger(
 					CommonClientConfigKey.MaxTotalConnections,
 					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
@@ -202,8 +203,9 @@ public class RibbonClientConfiguration {
 			RequestConfig defaultRequestConfig = RequestConfig.custom()
 					.setConnectTimeout(connectTimeout)
 					.setRedirectsEnabled(followRedirects).build();
-			this.httpClient = httpClientFactory.createClient(defaultRequestConfig,
-					connectionManager);
+			this.httpClient = httpClientFactory.createBuilder().
+					setDefaultRequestConfig(defaultRequestConfig).
+					setConnectionManager(connectionManager).build();
 			return httpClient;
 		}
 
@@ -217,7 +219,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty("spring.cloud.httpclient.ok.enabled")
+	@ConditionalOnProperty(value = {"ribbon.okhttp.enabled"})
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpClientConfiguration {
 		private OkHttpClient httpClient;
@@ -256,9 +258,11 @@ public class RibbonClientConfiguration {
 					DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
 			Integer readTimeout = config.getPropertyAsInteger(CommonClientConfigKey.ReadTimeout,
 					DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT);
-			this.httpClient = httpClientFactory.create(false, connectTimeout, TimeUnit.MILLISECONDS,
-					followRedirects, readTimeout, TimeUnit.MILLISECONDS, connectionPool, null,
-					null);
+			this.httpClient = httpClientFactory.createBuilder(false).
+					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
+					readTimeout(readTimeout, TimeUnit.MILLISECONDS).
+					followRedirects(followRedirects).
+					connectionPool(connectionPool).build();
 			return this.httpClient;
 		}
 
@@ -272,7 +276,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(name = "spring.cloud.httpclient.apache.enable", matchIfMissing = true)
+	@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 	protected static class HttpClientRibbonConfiguration {
 		@Value("${ribbon.client.name}")
 		private String name = "client";
@@ -311,7 +315,7 @@ public class RibbonClientConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty("spring.cloud.httpclient.ok.enabled")
+	@ConditionalOnProperty(value = {"ribbon.okhttp.enabled"})
 	@ConditionalOnClass(name = "okhttp3.OkHttpClient")
 	protected static class OkHttpRibbonConfiguration {
 		@Value("${ribbon.client.name}")
