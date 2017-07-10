@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
+import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,7 +93,8 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 		assertThat(ribbonCommand2.getThreadPoolKey().name()).isEqualTo(ribbonCommand2.getCommandGroup().name());
 	}
 
-	public static class TestRibbonCommand extends AbstractRibbonCommand {
+	public static class TestRibbonCommand
+			extends AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
 		public TestRibbonCommand(String commandKey, ZuulProperties zuulProperties) {
 			super(commandKey, null, null, zuulProperties);
 		}
