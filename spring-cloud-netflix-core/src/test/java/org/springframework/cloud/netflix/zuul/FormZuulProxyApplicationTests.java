@@ -64,6 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static org.junit.Assert.assertEquals;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.util.StreamUtils.copyToString;
 
 import lombok.extern.slf4j.Slf4j;
@@ -272,7 +273,7 @@ class FormZuulProxyApplication {
 
 			@Override
 			public String filterType() {
-				return "pre";
+				return PRE_TYPE;
 			}
 
 			@Override
