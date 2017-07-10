@@ -42,6 +42,12 @@ public class Route {
 			}
 		}
 	}
+	
+	public Route(String id, String path, String location, String prefix,
+		Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
+		this(id, path, location, prefix, retryable, ignoredHeaders);
+		this.prefixStripped = prefixStripped;
+	}
 
 	private String id;
 
@@ -58,6 +64,8 @@ public class Route {
 	private Set<String> sensitiveHeaders = new LinkedHashSet<>();
 
 	private boolean customSensitiveHeaders;
+	
+	private boolean prefixStripped = true;
 
 	public boolean isCustomSensitiveHeaders() {
 		return this.customSensitiveHeaders;

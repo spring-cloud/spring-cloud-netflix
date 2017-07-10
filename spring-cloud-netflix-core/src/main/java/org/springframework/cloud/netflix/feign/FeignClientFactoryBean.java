@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@ package org.springframework.cloud.netflix.feign;
 
 import java.util.Map;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -44,6 +46,7 @@ import lombok.EqualsAndHashCode;
 /**
  * @author Spencer Gibb
  * @author Venil Noronha
+ * @author Eko Kurniawan Khannedy
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -74,7 +77,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		Assert.hasText(this.name, "Name must be set");
 	}
 
-
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.applicationContext = context;
@@ -93,7 +95,29 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 				.contract(get(context, Contract.class));
 		// @formatter:on
 
-		// optional values
+		configureFeign(context, builder);
+
+		return builder;
+	}
+
+	protected void configureFeign(FeignContext context, Feign.Builder builder) {
+		FeignClientProperties properties = applicationContext.getBean(FeignClientProperties.class);
+		if (properties != null) {
+			if (properties.isDefaultToProperties()) {
+				configureUsingConfiguration(context, builder);
+				configureUsingProperties(properties.getConfig().get(properties.getDefaultConfig()), builder);
+				configureUsingProperties(properties.getConfig().get(this.name), builder);
+			} else {
+				configureUsingProperties(properties.getConfig().get(properties.getDefaultConfig()), builder);
+				configureUsingProperties(properties.getConfig().get(this.name), builder);
+				configureUsingConfiguration(context, builder);
+			}
+		} else {
+			configureUsingConfiguration(context, builder);
+		}
+	}
+
+	protected void configureUsingConfiguration(FeignContext context, Feign.Builder builder) {
 		Logger.Level level = getOptional(context, Logger.Level.class);
 		if (level != null) {
 			builder.logLevel(level);
@@ -119,8 +143,52 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		if (decode404) {
 			builder.decode404();
 		}
+	}
 
-		return builder;
+	protected void configureUsingProperties(FeignClientProperties.FeignClientConfiguration config, Feign.Builder builder) {
+		if (config == null) {
+			return;
+		}
+
+		if (config.getLoggerLevel() != null) {
+			builder.logLevel(config.getLoggerLevel());
+		}
+
+		if (config.getConnectTimeout() != null && config.getReadTimeout() != null) {
+			builder.options(new Request.Options(config.getConnectTimeout(), config.getReadTimeout()));
+		}
+
+		if (config.getRetryer() != null) {
+			Retryer retryer = getOrInstantiate(config.getRetryer());
+			builder.retryer(retryer);
+		}
+
+		if (config.getErrorDecoder() != null) {
+			ErrorDecoder errorDecoder = getOrInstantiate(config.getErrorDecoder());
+			builder.errorDecoder(errorDecoder);
+		}
+
+		if (config.getRequestInterceptors() != null && !config.getRequestInterceptors().isEmpty()) {
+			// this will add request interceptor to builder, not replace existing
+			for (Class<RequestInterceptor> bean : config.getRequestInterceptors()) {
+				RequestInterceptor interceptor = getOrInstantiate(bean);
+				builder.requestInterceptor(interceptor);
+			}
+		}
+
+		if (config.getDecode404() != null) {
+			if (config.getDecode404()) {
+				builder.decode404();
+			}
+		}
+	}
+
+	private <T> T getOrInstantiate(Class<T> tClass) {
+		try {
+			return applicationContext.getBean(tClass);
+		} catch (NoSuchBeanDefinitionException e) {
+			return BeanUtils.instantiateClass(tClass);
+		}
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {

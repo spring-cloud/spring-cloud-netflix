@@ -160,6 +160,8 @@ public class ZuulProperties {
 	private ExecutionIsolationStrategy ribbonIsolationStrategy = SEMAPHORE;
 	
 	private HystrixSemaphore semaphore = new HystrixSemaphore();
+
+	private HystrixThreadPool threadPool = new HystrixThreadPool();
 	
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
@@ -302,7 +304,8 @@ public class ZuulProperties {
 
 		public Route getRoute(String prefix) {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
-					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null);
+					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,
+					this.stripPrefix);
 		}
 
 		public void setSensitiveHeaders(Set<String> headers) {
@@ -355,6 +358,39 @@ public class ZuulProperties {
 		 */
 		private int maxSemaphores = 100;
 		
+	}
+
+	public static class HystrixThreadPool {
+		/**
+		 * Flag to determine whether RibbonCommands should use separate thread pools for hystrix.
+		 * By setting to true, RibbonCommands will be executed in a hystrix's thread pool that it is associated with.
+		 * Each RibbonCommand will be associated with a thread pool according to its commandKey (serviceId).
+		 * As default, all commands will be executed in a single thread pool whose threadPoolKey is "RibbonCommand".
+		 * This property is only applicable when using THREAD as ribbonIsolationStrategy
+		 */
+		private boolean useSeparateThreadPools = false;
+
+		/**
+		 * A prefix for HystrixThreadPoolKey of hystrix's thread pool that is allocated to each service Id.
+		 * This property is only applicable when using THREAD as ribbonIsolationStrategy and useSeparateThreadPools = true
+		 */
+		private String threadPoolKeyPrefix = "";
+
+		public boolean isUseSeparateThreadPools() {
+			return useSeparateThreadPools;
+		}
+
+		public void setUseSeparateThreadPools(boolean useSeparateThreadPools) {
+			this.useSeparateThreadPools = useSeparateThreadPools;
+		}
+
+		public String getThreadPoolKeyPrefix() {
+			return threadPoolKeyPrefix;
+		}
+
+		public void setThreadPoolKeyPrefix(String threadPoolKeyPrefix) {
+			this.threadPoolKeyPrefix = threadPoolKeyPrefix;
+		}
 	}
 
 	public String getServletPattern() {

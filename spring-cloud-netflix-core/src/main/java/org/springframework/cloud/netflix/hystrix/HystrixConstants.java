@@ -19,8 +19,12 @@ package org.springframework.cloud.netflix.hystrix;
 /**
  * @author Spencer Gibb
  */
-public interface HystrixConstants {
+public class HystrixConstants {
 
-	String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+	public static final String HYSTRIX_STREAM_DESTINATION = "springCloudHystrixStream";
+
+	private HystrixConstants() {
+		throw new AssertionError("Must not instantiate constant utility class");
+	}
 
 }

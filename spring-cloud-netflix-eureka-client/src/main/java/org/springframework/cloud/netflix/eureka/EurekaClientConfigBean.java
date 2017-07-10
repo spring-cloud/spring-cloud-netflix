@@ -33,12 +33,14 @@ import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
 import lombok.Data;
 
+import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
+
 /**
  * @author Dave Syer
  */
 @Data
 @ConfigurationProperties(EurekaClientConfigBean.PREFIX)
-public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstants {
+public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	public static final String PREFIX = "eureka.client";
 
