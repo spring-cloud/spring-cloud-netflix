@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -39,7 +41,6 @@ import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.RxNetty;
 import io.reactivex.netty.protocol.http.server.HttpServer;
 import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
-import lombok.extern.apachecommons.CommonsLog;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -47,9 +48,10 @@ import rx.subjects.PublishSubject;
  * @author Spencer Gibb
  */
 @Configuration
-@CommonsLog
 @EnableConfigurationProperties(TurbineStreamProperties.class)
 public class TurbineStreamConfiguration implements SmartLifecycle {
+
+	private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
 
 	private AtomicBoolean running = new AtomicBoolean(false);
 
