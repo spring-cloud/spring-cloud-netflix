@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
 		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
-		"ribbon.okhttp.enabled",
+		"ribbon.okhttp.enabled: true",
 		"hystrix.command.default.execution.timeout.enabled: false", /* Disable hystrix so its timeout doesnt get in the way */
 		"ribbon.ReadTimeout: 1000", /* Make sure ribbon will timeout before the thread is done sleeping */
 		"zuul.routes.retryable: /retryable/**",

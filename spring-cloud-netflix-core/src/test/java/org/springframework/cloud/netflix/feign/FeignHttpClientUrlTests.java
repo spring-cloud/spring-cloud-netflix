@@ -58,7 +58,7 @@ import lombok.NoArgsConstructor;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FeignHttpClientUrlTests.TestConfig.class, webEnvironment = WebEnvironment.DEFINED_PORT, value = {
 		"spring.application.name=feignclienturltest", "feign.hystrix.enabled=false",
-		"spring.cloud.httpclientfactories.ok.enabled=false" })
+		"feign.okhttp.enabled=false" })
 @DirtiesContext
 public class FeignHttpClientUrlTests {
 

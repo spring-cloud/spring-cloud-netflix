@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.X509TrustManager;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockingDetails;
@@ -79,10 +80,10 @@ public class OkHttpClientConfigurationTests {
 
 	@Test
 	public void testFactories() {
-		assertTrue(OkHttpClientConnectionPoolFactory.class.isInstance(connectionPoolFactory));
-		assertTrue(OkHttpClientConfigurationTestApp.MyOkHttpClientConnectionPoolFactory.class.isInstance(connectionPoolFactory));
-		assertTrue(OkHttpClientFactory.class.isInstance(okHttpClientFactory));
-		assertTrue(OkHttpClientConfigurationTestApp.MyOkHttpClientFactory.class.isInstance(okHttpClientFactory));
+		Assertions.assertThat(connectionPoolFactory).isInstanceOf(OkHttpClientConnectionPoolFactory.class);
+		Assertions.assertThat(connectionPoolFactory).isInstanceOf(OkHttpClientConfigurationTestApp.MyOkHttpClientConnectionPoolFactory.class);
+		Assertions.assertThat(okHttpClientFactory).isInstanceOf(OkHttpClientFactory.class);
+		Assertions.assertThat(okHttpClientFactory).isInstanceOf(OkHttpClientConfigurationTestApp.MyOkHttpClientFactory.class);
 	}
 
 	@Test

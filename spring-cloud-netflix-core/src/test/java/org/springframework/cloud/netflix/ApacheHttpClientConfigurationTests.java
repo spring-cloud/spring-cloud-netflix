@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.Header;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.config.RegistryBuilder;
@@ -37,6 +36,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockingDetails;
@@ -98,10 +98,10 @@ public class ApacheHttpClientConfigurationTests {
 
 	@Test
 	public void testFactories() {
-		assertTrue(ApacheHttpClientConnectionManagerFactory.class.isInstance(connectionManagerFactory));
-		assertTrue(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientConnectionManagerFactory.class.isInstance(connectionManagerFactory));
-		assertTrue(ApacheHttpClientFactory.class.isInstance(httpClientFactory));
-		assertTrue(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientFactory.class.isInstance(httpClientFactory));
+		Assertions.assertThat(connectionManagerFactory).isInstanceOf(ApacheHttpClientConnectionManagerFactory.class);
+		Assertions.assertThat(connectionManagerFactory).isInstanceOf(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientConnectionManagerFactory.class);
+		Assertions.assertThat(httpClientFactory).isInstanceOf(ApacheHttpClientFactory.class);
+		Assertions.assertThat(httpClientFactory).isInstanceOf(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientFactory.class);
 	}
 
 	@Test

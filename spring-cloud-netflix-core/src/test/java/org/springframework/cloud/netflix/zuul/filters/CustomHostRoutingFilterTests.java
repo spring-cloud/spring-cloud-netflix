@@ -254,19 +254,6 @@ class SampleCustomZuulProxyApplication {
 
 
 		private class CustomApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
-//@Override
-//public HttpClientBuilder createBuilder() {
-//	return HttpClients.custom()
-//			.setDefaultCookieStore(new BasicCookieStore())
-//			.setDefaultRequestConfig(RequestConfig.custom()
-//					.setCookieSpec(CookieSpecs.DEFAULT).build());
-//}public CloseableHttpClient createClient(RequestConfig requestConfig, HttpClientConnectionManager connectionManager) {
-//				return HttpClients.custom().setConnectionManager(connectionManager)
-//						.setDefaultCookieStore(new BasicCookieStore())
-//						.setDefaultRequestConfig(RequestConfig.custom()
-//								.setCookieSpec(CookieSpecs.DEFAULT).build())
-//						.build();
-//			}
 		}
 	}
 

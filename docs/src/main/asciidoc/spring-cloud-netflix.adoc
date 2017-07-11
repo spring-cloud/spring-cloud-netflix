@@ -11,9 +11,6 @@
 
 include::intro.adoc[]
 
-== HTTP Clients
-
-
 
 == Service Discovery: Eureka Clients
 
@@ -2511,3 +2508,14 @@ method to determine whether you want to retry a request given the status code.
 You can turn off Zuul's retry functionality by setting `zuul.retryable` to `false`.  You
 can also disable retry functionality on route by route basis by setting
 `zuul.routes.routename.retryable` to `false`.
+
+== HTTP Clients
+
+Spring Cloud Netflix will automatically create the HTTP client used by Ribbon, Feign, and
+Zuul for you.  However you can also provide your own HTTP clients customized how you please
+yourself.  To do this you can either create a bean of type `ClosableHttpClient` if you
+are using the Apache Http Cient, or `OkHttpClient` if you are using OK HTTP.
+
+NOTE: When you create your own HTTP client you are also responsible for implementing
+the correct connection management strategies for these clients.  Doing this improperly
+can result in resource management issues.
