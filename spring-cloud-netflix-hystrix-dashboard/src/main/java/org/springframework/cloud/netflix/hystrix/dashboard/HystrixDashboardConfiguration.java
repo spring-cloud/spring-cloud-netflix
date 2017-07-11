@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -103,8 +103,9 @@ public class HystrixDashboardConfiguration {
 	 * not yet support CORS (https://bugs.webkit.org/show_bug.cgi?id=61862) so that a UI
 	 * can request a stream from a different server.
 	 */
-	@CommonsLog
 	public static class ProxyStreamServlet extends HttpServlet {
+
+		private static final Log log = LogFactory.getLog(ProxyStreamServlet.class);
 
 		private static final long serialVersionUID = 1L;
 
