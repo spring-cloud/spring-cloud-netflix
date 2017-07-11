@@ -18,11 +18,11 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -78,7 +78,6 @@ public class RoutesEndpoint extends AbstractEndpoint<Map<String, String>> {
 	 */
 	@JsonPropertyOrder({ "id", "fullPath", "location" })
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
-	@Data
 	public static class RouteDetails {
 
 		private String id;
@@ -112,6 +111,64 @@ public class RoutesEndpoint extends AbstractEndpoint<Map<String, String>> {
 			this.sensitiveHeaders = route.getSensitiveHeaders();
 			this.customSensitiveHeaders = route.isCustomSensitiveHeaders();
 			this.prefixStripped = route.isPrefixStripped();
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getFullPath() {
+			return fullPath;
+		}
+
+		public String getPath() {
+			return path;
+		}
+
+		public String getLocation() {
+			return location;
+		}
+
+		public String getPrefix() {
+			return prefix;
+		}
+
+		public Boolean getRetryable() {
+			return retryable;
+		}
+
+		public Set<String> getSensitiveHeaders() {
+			return sensitiveHeaders;
+		}
+
+		public boolean isCustomSensitiveHeaders() {
+			return customSensitiveHeaders;
+		}
+
+		public boolean isPrefixStripped() {
+			return prefixStripped;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			RouteDetails that = (RouteDetails) o;
+			return Objects.equals(id, that.id) &&
+					Objects.equals(fullPath, that.fullPath) &&
+					Objects.equals(path, that.path) &&
+					Objects.equals(location, that.location) &&
+					Objects.equals(prefix, that.prefix) &&
+					Objects.equals(retryable, that.retryable) &&
+					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
+					customSensitiveHeaders == that.customSensitiveHeaders &&
+					prefixStripped == that.prefixStripped;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(id, fullPath, path, location, prefix, retryable,
+					sensitiveHeaders, customSensitiveHeaders, prefixStripped);
 		}
 	}
 
