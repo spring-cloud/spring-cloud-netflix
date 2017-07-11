@@ -122,8 +122,9 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 
 	@EventListener(ContextClosedEvent.class)
 	public void onApplicationEvent(ContextClosedEvent event) {
-		// register in case meta data changed
-		stop();
+		if( event.getApplicationContext() == context ) {
+			stop();
+		}
 	}
 
 }

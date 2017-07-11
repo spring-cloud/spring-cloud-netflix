@@ -33,6 +33,8 @@ import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
 import lombok.Data;
 
+import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
+
 /**
  * @author Dave Syer
  */
@@ -45,7 +47,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	@Autowired(required = false)
 	PropertyResolver propertyResolver;
 
-	public static final String DEFAULT_URL = "http://localhost:8761" + EurekaConstants.DEFAULT_PREFIX
+	public static final String DEFAULT_URL = "http://localhost:8761" + DEFAULT_PREFIX
 			+ "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";

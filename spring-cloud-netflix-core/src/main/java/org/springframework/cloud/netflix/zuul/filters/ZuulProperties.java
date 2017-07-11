@@ -304,7 +304,8 @@ public class ZuulProperties {
 
 		public Route getRoute(String prefix) {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
-					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null);
+					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,
+					this.stripPrefix);
 		}
 
 		public void setSensitiveHeaders(Set<String> headers) {

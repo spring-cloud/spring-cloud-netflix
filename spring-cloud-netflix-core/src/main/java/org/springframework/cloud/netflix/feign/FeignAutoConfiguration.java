@@ -56,7 +56,7 @@ import javax.annotation.PreDestroy;
  */
 @Configuration
 @ConditionalOnClass(Feign.class)
-@EnableConfigurationProperties({ FeignHttpClientProperties.class })
+@EnableConfigurationProperties({FeignClientProperties.class, FeignHttpClientProperties.class})
 public class FeignAutoConfiguration {
 
 	@Autowired(required = false)

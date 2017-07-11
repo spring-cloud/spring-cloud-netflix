@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SimpleZuulServerApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -119,7 +120,7 @@ class SimpleZuulServerApplication {
 		return new ZuulFilter() {
 			@Override
 			public String filterType() {
-				return "pre";
+				return PRE_TYPE;
 			}
 
 			@Override
