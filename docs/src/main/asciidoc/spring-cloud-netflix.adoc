@@ -1656,7 +1656,37 @@ To not discard these well known security headers in case Spring Security is on t
 If you are using `@EnableZuulProxy` with tha Spring Boot Actuator you
 will enable (by default) an additional endpoint, available via HTTP as
 `/routes`. A GET to this endpoint will return a list of the mapped
-routes. A POST will force a refresh of the existing routes (e.g. in
+routes:
+
+.GET /routes
+[source,json]
+----
+{
+  /stores/**: "http://localhost:8081"
+}
+----
+
+Additional route details can be requested by adding the `?format=details` query
+string to `/routes`. This will produce the following output:
+
+.GET /routes?format=details
+[source,json]
+----
+{
+  "/stores/**": {
+    "id": "stores",
+    "fullPath": "/stores/**",
+    "location": "http://localhost:8081",
+    "path": "/**",
+    "prefix": "/stores",
+    "retryable": false,
+    "customSensitiveHeaders": false,
+    "prefixStripped": true
+  }
+}
+----
+
+A POST will force a refresh of the existing routes (e.g. in
 case there have been changes in the service catalog).  You can disable
 this endpoint by setting `endpoints.routes.enabled` to `false`.
 
