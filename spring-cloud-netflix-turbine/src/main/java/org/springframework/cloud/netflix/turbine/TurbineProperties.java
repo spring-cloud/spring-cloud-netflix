@@ -18,16 +18,15 @@ package org.springframework.cloud.netflix.turbine;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
-import lombok.Data;
-
 /**
  * @author Spencer Gibb
+ * @author Gregor Zurowski
  */
-@Data
 @ConfigurationProperties("turbine")
 public class TurbineProperties {
 
@@ -48,4 +47,53 @@ public class TurbineProperties {
 		}
 		return null;
 	}
+
+	public String getClusterNameExpression() {
+		return clusterNameExpression;
+	}
+
+	public void setClusterNameExpression(String clusterNameExpression) {
+		this.clusterNameExpression = clusterNameExpression;
+	}
+
+	public String getAppConfig() {
+		return appConfig;
+	}
+
+	public void setAppConfig(String appConfig) {
+		this.appConfig = appConfig;
+	}
+
+	public boolean isCombineHostPort() {
+		return combineHostPort;
+	}
+
+	public void setCombineHostPort(boolean combineHostPort) {
+		this.combineHostPort = combineHostPort;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		TurbineProperties that = (TurbineProperties) o;
+		return Objects.equals(clusterNameExpression, that.clusterNameExpression) &&
+				Objects.equals(appConfig, that.appConfig) &&
+				Objects.equals(combineHostPort, that.combineHostPort);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(clusterNameExpression, appConfig, combineHostPort);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("TurbineProperties{")
+				.append("clusterNameExpression='").append(clusterNameExpression).append("', ")
+				.append("appConfig='").append(appConfig).append("', ")
+				.append("combineHostPort=").append(combineHostPort).append("}")
+				.toString();
+	}
+
 }
