@@ -27,17 +27,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Ryan Baxter
+ * @author Gregor Zurowski
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT,
@@ -62,6 +69,22 @@ public class RoutesEndpointIntegrationTests {
 		Map<String, String> routes = restTemplate.postForObject("/admin/routes", null, Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 		assertTrue(refreshListener.wasCalled());
+	}
+
+	@Test
+	public void getRouteDetailsTest() {
+		ResponseEntity<Map<String, RoutesEndpoint.RouteDetails>> responseEntity = restTemplate.exchange(
+				"/admin/routes?format=details", HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
+				});
+
+		assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+
+		RoutesEndpoint.RouteDetails details = responseEntity.getBody().get("/sslservice/**");
+		assertThat(details.getPath(), is("/**"));
+		assertThat(details.getFullPath(), is("/sslservice/**"));
+		assertThat(details.getLocation(), is("https://localhost:8443"));
+		assertThat(details.getPrefix(), is("/sslservice"));
+		assertTrue(details.isPrefixStripped());
 	}
 
 	@Configuration
