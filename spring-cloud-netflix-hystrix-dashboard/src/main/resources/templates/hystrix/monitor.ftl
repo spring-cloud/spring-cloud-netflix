@@ -26,18 +26,24 @@
                     <div class="title">Circuit</div>
                     <div class="menu_actions">
                         Sort: 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByErrorThenVolume();">Error then Volume</a> |
-                        <a href="javascript://" onclick="hystrixMonitor.sortAlphabetically();">Alphabetical</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByVolume();">Volume</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByError();">Error</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByLatencyMean();">Mean</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByLatencyMedian();">Median</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByLatency90();">90</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByLatency99();">99</a> | 
-                        <a href="javascript://" onclick="hystrixMonitor.sortByLatency995();">99.5</a> 
+                        <a id="circuit-errorThenVolume" href="#">Error then Volume</a> |
+                        <a id="circuit-alphabetic" href="#">Alphabetical</a> | 
+                        <a id="circuit-volume" href="#">Volume</a> | 
+                        <a id="circuit-error" href="#">Error</a> | 
+                        <a id="circuit-latencyMean" href="#">Mean</a> | 
+                        <a id="circuit-latencyMedian" href="#">Median</a> | 
+                        <a id="circuit-latency90" href="#">90</a> | 
+                        <a id="circuit-latency99" href="#">99</a> | 
+                        <a id="circuit-latency995" href="#">99.5</a> 
                     </div>
                     <div class="menu_legend">
-                        <span class="success">Success</span> | <span class="shortCircuited">Short-Circuited</span> | <span class="badRequest"> Bad Request</span> | <span class="timeout">Timeout</span> | <span class="rejected">Rejected</span> | <span class="failure">Failure</span> | <span class="errorPercentage">Error %</span>
+                        <span class="success">Success</span> |
+                        <span class="shortCircuited">Short-Circuited</span> |
+                        <span class="badRequest">Bad Request</span> |
+                        <span class="timeout">Timeout</span> |
+                        <span class="rejected">Rejected</span> |
+                        <span class="failure">Failure</span> |
+                        <span class="errorPercentage">Error %</span>
                     </div>
                 </div>
             </div>
@@ -50,8 +56,8 @@
                     <div class="title">Thread Pools</div>
                     <div class="menu_actions">
                         Sort:
-                        <a href="javascript://" onclick="dependencyThreadPoolMonitor.sortAlphabetically();">Alphabetical</a> | 
-                        <a href="javascript://" onclick="dependencyThreadPoolMonitor.sortByVolume();">Volume</a>
+                        <a id="pool-alphabetic" href="#">Alphabetical</a> | 
+                        <a id="pool-volume" href="#">Volume</a>
                     </div>
                 </div>
             </div>
@@ -71,7 +77,7 @@
 
         <script type="text/javascript">
         'use strict';
-	    /**
+        /**
          * Queue up the monitor to start once the page has finished loading.
          * 
          * This is an inline script and expects to execute once on page load.
@@ -82,7 +88,7 @@
         // thread pool
         const dependencyThreadPoolMonitor = new HystrixThreadPoolMonitor('dependencyThreadPools');
         
-	    const urlVars = getUrlVars();
+        const urlVars = getUrlVars();
         let stream = urlVars["stream"];
         console.log("Stream: " + stream)
 
@@ -91,7 +97,7 @@
                 stream = stream + "&delay=" + urlVars["delay"];
             }
             const proxyUrl = "${contextPath}/proxy.stream?origin=" + stream;
-	        $('#title_name').text("Hystrix Stream: " + decodeURIComponent((urlVars["title"] == undefined) ? stream : urlVars["title"]));
+            $('#title_name').text("Hystrix Stream: " + decodeURIComponent((urlVars["title"] == undefined) ? stream : urlVars["title"]));
         }
         
         let commandSource, poolSource;
@@ -112,9 +118,22 @@
                 dependencyThreadPoolMonitor.sortByVolume();
                 poolSource = initStreamSource(proxyUrl, dependencyThreadPoolMonitor, '#dependencyThreadPools');
             }, 0);
+            
+            setClickHandler('#circuit-errorThenVolume', hystrixMonitor.sortByErrorThenVolume);
+            setClickHandler('#circuit-alphabetic', hystrixMonitor.sortAlphabetically);
+            setClickHandler('#circuit-volume', hystrixMonitor.sortByVolume);
+            setClickHandler('#circuit-error', hystrixMonitor.sortByError);
+            setClickHandler('#circuit-latencyMean', hystrixMonitor.sortByLatencyMean);
+            setClickHandler('#circuit-latencyMedian', hystrixMonitor.sortByLatencyMedian);
+            setClickHandler('#circuit-latency90', hystrixMonitor.sortByLatency90);
+            setClickHandler('#circuit-latency99', hystrixMonitor.sortByLatency99);
+            setClickHandler('#circuit-latency995', hystrixMonitor.sortByLatency995);
+            
+            setClickHandler('#pool-alphabetic', dependencyThreadPoolMonitor.sortAlphabetically);
+            setClickHandler('#pool-volume', dependencyThreadPoolMonitor.sortByVolume);
         });
 
-        //Read a page's GET URL variables and return them as an associative array.
+        // Read a page's GET URL variables and return them as an associative array.
         // from: http://jquery-howto.blogspot.com/2009/09/get-url-parameters-values-with-jquery.html
         function getUrlVars() {
             let vars = [], hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -133,10 +152,10 @@
             // add the listener that will process incoming events
             source.addEventListener('message', aMonitor.eventSourceMessageListener, false);
 
-            //	source.addEventListener('open', function(e) {
-            //		console.console.log(">>> opened connection, phase: " + e.eventPhase);
-            //	    // Connection was opened.
-            //	}, false);
+            //  source.addEventListener('open', function(e) {
+            //      console.console.log(">>> opened connection, phase: " + e.eventPhase);
+            //      // Connection was opened.
+            //  }, false);
             
             source.addEventListener('error', function(e) {
                 $(aParentId + " .loading").html("Unable to connect to Command Metric Stream.");
@@ -148,6 +167,13 @@
             }, false);
             
             return source;
+        }
+        
+        function setClickHandler(anId, aCallback) {
+            $(anId).on('click', function (event) {
+                event.preventDefault();
+                aCallback();
+            });
         }
         </script>
     </body>
