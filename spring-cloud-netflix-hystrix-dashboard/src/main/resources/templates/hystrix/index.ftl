@@ -1,9 +1,9 @@
 <#import "/spring.ftl" as spring />
 <!DOCTYPE html>
 <html>
-	<head>
-	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	    <title>Hystrix Dashboard</title>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Hystrix Dashboard</title>
         <style type="text/css">
             #main {
                 width: 800px;
@@ -18,7 +18,7 @@
                 color: red;
             }
         </style>
-	</head>
+    </head>
     <body>
         <div id="main">
             <img id="logo" src="hystrix/images/hystrix-logo.png">
@@ -44,24 +44,27 @@
         <!-- Javascript to monitor and display -->
         <script src="webjars/jquery/2.1.1/jquery.min.js" type="text/javascript"></script>
         <script type="text/javascript">
-            $('#monitor').on('click', function () {
-                var stream = $('#stream').val().trim();
-                var delay = $('#delay').val().trim();
-                var title = $('#title').val().trim();
-                
-                if (stream.length == 0) {
-                    $('#message').html("The 'stream' value is required.");
-                    return;
-                }
-                
-                var url = "hystrix/monitor?stream=" + encodeURIComponent(stream);
-                if (delay.length > 0) {	
-                    url += "&delay=" + delay;
-                }
-                if (title.length > 0) {	
-                    url += "&title=" + encodeURIComponent(title);
-                }
-                location.href = url;
+            'use strict';
+            $(window).onload(function () {
+                $('#monitor').on('click', function () {
+                    const stream = $('#stream').val().trim();
+                    const delay = $('#delay').val().trim();
+                    const title = $('#title').val().trim();
+
+                    if (stream.length == 0) {
+                        $('#message').html("The 'stream' value is required.");
+                        return;
+                    }
+
+                    let url = "hystrix/monitor?stream=" + encodeURIComponent(stream);
+                    if (delay.length > 0) {	
+                        url += "&delay=" + delay;
+                    }
+                    if (title.length > 0) {	
+                        url += "&title=" + encodeURIComponent(title);
+                    }
+                    location.href = url;
+                });
             });
         </script>
     </body>
