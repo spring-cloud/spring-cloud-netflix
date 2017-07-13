@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaRegistryAvailableEvent;
 import org.springframework.cloud.netflix.eureka.server.event.EurekaServerStartedEvent;
@@ -30,15 +32,14 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.netflix.eureka.EurekaServerConfig;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * @author Dave Syer
  */
 @Configuration
-@CommonsLog
 public class EurekaServerInitializerConfiguration
 		implements ServletContextAware, SmartLifecycle, Ordered {
+
+	private static final Log log = LogFactory.getLog(EurekaServerInitializerConfiguration.class);
 
 	@Autowired
 	private EurekaServerConfig eurekaServerConfig;

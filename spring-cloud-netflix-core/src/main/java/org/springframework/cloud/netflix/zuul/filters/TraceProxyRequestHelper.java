@@ -32,12 +32,9 @@ import org.springframework.util.MultiValueMap;
 
 import com.netflix.zuul.context.RequestContext;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * @author Spencer Gibb
  */
-@CommonsLog
 public class TraceProxyRequestHelper extends ProxyRequestHelper {
 
 	private TraceRepository traces;

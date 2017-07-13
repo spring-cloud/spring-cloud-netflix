@@ -67,8 +67,6 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.util.StreamUtils.copyToString;
 
-import lombok.extern.slf4j.Slf4j;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.simple:/simple/**" })
@@ -229,7 +227,6 @@ public class FormZuulProxyApplicationTests {
 @RibbonClients({
 		@RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
 		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class) })
-@Slf4j
 class FormZuulProxyApplication {
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)

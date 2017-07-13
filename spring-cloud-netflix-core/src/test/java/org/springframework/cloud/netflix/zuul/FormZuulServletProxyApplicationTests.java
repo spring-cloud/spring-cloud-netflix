@@ -26,6 +26,8 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +65,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
-
-import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = "zuul.routes.simple:/simple/**")
@@ -146,8 +146,9 @@ public class FormZuulServletProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @RibbonClients(@RibbonClient(name = "simple", configuration = ServletFormRibbonClientConfiguration.class))
-@Slf4j
 class FormZuulServletProxyApplication {
+
+	private static final Log log = LogFactory.getLog(FormZuulServletProxyApplication.class);
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String accept(@RequestParam MultiValueMap<String, String> form)

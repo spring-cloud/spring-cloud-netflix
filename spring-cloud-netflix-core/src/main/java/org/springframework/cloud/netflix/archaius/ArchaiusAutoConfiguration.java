@@ -39,6 +39,8 @@ import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.endpoint.Endpoint;
@@ -62,17 +64,16 @@ import static com.netflix.config.ConfigurationManager.ENV_CONFIG_NAME;
 import static com.netflix.config.ConfigurationManager.SYS_CONFIG_NAME;
 import static com.netflix.config.ConfigurationManager.URL_CONFIG_NAME;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * @author Spencer Gibb
  */
 @Configuration
 @ConditionalOnClass({ ConcurrentCompositeConfiguration.class,
 		ConfigurationBuilder.class })
-@CommonsLog
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class ArchaiusAutoConfiguration {
+
+	private static final Log log = LogFactory.getLog(ArchaiusAutoConfiguration.class);
 
 	private static final AtomicBoolean initialized = new AtomicBoolean(false);
 
