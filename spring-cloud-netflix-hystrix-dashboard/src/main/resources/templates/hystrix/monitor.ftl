@@ -2,7 +2,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <base href="${basePath}">
 	<meta charset="utf-8" />
 	<title>Hystrix Monitor</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,10 +13,10 @@
 	<link rel="stylesheet" type="text/css" href="css/monitor.css" />
 
 	<!-- d3 -->
-    <script type="text/javascript" src="<@spring.url '/webjars/d3js/3.4.11/d3.min.js'/>" ></script>
+    <script type="text/javascript" src="webjars/d3js/3.4.11/d3.min.js" ></script>
 	
 	<!-- Javascript to monitor and display -->
-    <script type="text/javascript" src="<@spring.url '/webjars/jquery/2.1.1/jquery.min.js'/>" ></script>
+    <script type="text/javascript" src="webjars/jquery/2.1.1/jquery.min.js" ></script>
 	<script type="text/javascript" src="js/jquery.tinysort.min.js"></script>
 	<script type="text/javascript" src="js/tmpl.js"></script>
 	
