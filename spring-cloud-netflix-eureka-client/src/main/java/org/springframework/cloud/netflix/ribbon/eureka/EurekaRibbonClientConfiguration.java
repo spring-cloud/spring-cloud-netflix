@@ -20,6 +20,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Provider;
 
 import com.netflix.discovery.EurekaClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,8 +45,6 @@ import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextB
 import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
  * <code>@zone</code>, NIWSServerListClassName, DeploymentContextBasedVipAddresses,
@@ -55,8 +55,9 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author Ryan Baxter
  */
 @Configuration
-@CommonsLog
 public class EurekaRibbonClientConfiguration {
+
+	private static final Log log = LogFactory.getLog(EurekaRibbonClientConfiguration.class);
 
 	@Value("${ribbon.eureka.approximateZoneFromHostname:false}")
 	private boolean approximateZoneFromHostname = false;

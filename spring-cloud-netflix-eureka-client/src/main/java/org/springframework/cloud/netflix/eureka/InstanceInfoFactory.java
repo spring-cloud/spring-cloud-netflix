@@ -21,15 +21,16 @@ import java.util.Map;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.LeaseInfo;
-
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * See com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider
  * @author Spencer Gibb
  */
-@CommonsLog
 public class InstanceInfoFactory {
+
+	private static final Log log = LogFactory.getLog(InstanceInfoFactory.class);
 
 	public InstanceInfo create(EurekaInstanceConfig config) {
 		LeaseInfo.Builder leaseInfoBuilder = LeaseInfo.Builder.newBuilder()

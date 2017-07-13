@@ -34,8 +34,6 @@ import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * @author Dave Syer
  * @author Spencer Gibb
@@ -46,7 +44,6 @@ import lombok.extern.apachecommons.CommonsLog;
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
-@CommonsLog
 public class EurekaDiscoveryClientConfiguration {
 
 	class Marker {}
