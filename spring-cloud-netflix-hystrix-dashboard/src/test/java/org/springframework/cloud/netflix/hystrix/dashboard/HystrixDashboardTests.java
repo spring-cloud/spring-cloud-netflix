@@ -50,9 +50,9 @@ public class HystrixDashboardTests {
 				.getForEntity("http://localhost:" + this.port + "/hystrix", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
-		assertTrue(body.contains("<base href=\"/hystrix\">"));
-		assertTrue(body.contains("\"/webjars"));
-		assertTrue(body.contains("= \"/hystrix/monitor"));
+		assertTrue(body.contains("<title>Hystrix Dashboard</title>"));
+		assertTrue(body.contains("<script src=\"webjars/"));
+		assertTrue(body.contains("= \"hystrix/monitor"));
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class HystrixDashboardTests {
 				"http://localhost:" + this.port + "/hystrix/monitor", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
-		assertTrue(body.contains("<base href=\"/hystrix/monitor\">"));
+		assertTrue(body.contains("<title>Hystrix Monitor</title>"));
 	}
 
 	@Configuration

@@ -51,7 +51,7 @@ public class HystrixDashboardHomePageTests {
 		ResponseEntity<String> entity = new TestRestTemplate()
 				.getForEntity("http://localhost:" + this.port, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
-		entity.getBody().contains("<base href=\"/\">");
+		entity.getBody().contains("<title>Hystrix Dashboard</title>");
 	}
 
 	@Test

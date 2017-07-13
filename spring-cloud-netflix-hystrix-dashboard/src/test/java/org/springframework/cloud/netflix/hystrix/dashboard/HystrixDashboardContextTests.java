@@ -42,7 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"server.contextPath=/context" })
 public class HystrixDashboardContextTests {
 
-	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";
+	public static final String JQUERY_PATH = "webjars/jquery/2.1.1/jquery.min.js";
 	@Value("${local.server.port}")
 	private int port = 0;
 
@@ -52,8 +52,8 @@ public class HystrixDashboardContextTests {
 				"http://localhost:" + this.port + "/context/hystrix", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
-		assertTrue("wrong base path rendered in template",
-				body.contains("base href=\"/context/hystrix\""));
+		assertTrue("wrong title rendered in template",
+				body.contains("<title>Hystrix Dashboard</title>"));
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class HystrixDashboardContextTests {
 	@Test
 	public void webjarsAvailable() {
 		ResponseEntity<String> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + JQUERY_PATH, String.class);
+				"http://localhost:" + this.port + "/context/" + JQUERY_PATH, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 
@@ -88,8 +88,8 @@ public class HystrixDashboardContextTests {
 				String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
-		assertTrue("wrong base path rendered in template",
-				body.contains("base href=\"/context/hystrix/monitor\""));
+		assertTrue("wrong title rendered in template",
+				body.contains("<title>Hystrix Monitor</title>"));
 	}
 
 	@Configuration
