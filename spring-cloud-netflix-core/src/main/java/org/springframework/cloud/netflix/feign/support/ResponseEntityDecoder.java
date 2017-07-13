@@ -14,14 +14,12 @@ import org.springframework.util.MultiValueMap;
 import feign.FeignException;
 import feign.Response;
 import feign.codec.Decoder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Decoder adds compatibility for Spring MVC's ResponseEntity to any other decoder via
  * composition.
  * @author chadjaros
  */
-@Slf4j
 public class ResponseEntityDecoder implements Decoder {
 
 	private Decoder decoder;

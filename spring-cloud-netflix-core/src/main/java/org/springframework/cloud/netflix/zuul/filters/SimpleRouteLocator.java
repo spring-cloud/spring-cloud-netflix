@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.Ordered;
@@ -31,15 +33,15 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
  *
  * @author Dave Syer
  */
-@CommonsLog
 public class SimpleRouteLocator implements RouteLocator, Ordered {
+
+	private static final Log log = LogFactory.getLog(SimpleRouteLocator.class);
+
 	private static final int DEFAULT_ORDER = 0;
 
 	private ZuulProperties properties;
