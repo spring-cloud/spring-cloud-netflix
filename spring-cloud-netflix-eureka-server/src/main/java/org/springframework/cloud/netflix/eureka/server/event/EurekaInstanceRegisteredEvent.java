@@ -16,18 +16,16 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import org.springframework.context.ApplicationEvent;
 
 import com.netflix.appinfo.InstanceInfo;
 
+import java.util.Objects;
+
 /**
  * @author Spencer Gibb
+ * @author Gregor Zurowski
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
 public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
@@ -45,4 +43,51 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 		this.replication = replication;
 	}
 
+	public InstanceInfo getInstanceInfo() {
+		return instanceInfo;
+	}
+
+	public void setInstanceInfo(InstanceInfo instanceInfo) {
+		this.instanceInfo = instanceInfo;
+	}
+
+	public int getLeaseDuration() {
+		return leaseDuration;
+	}
+
+	public void setLeaseDuration(int leaseDuration) {
+		this.leaseDuration = leaseDuration;
+	}
+
+	public boolean isReplication() {
+		return replication;
+	}
+
+	public void setReplication(boolean replication) {
+		this.replication = replication;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaInstanceRegisteredEvent that = (EurekaInstanceRegisteredEvent) o;
+		return Objects.equals(instanceInfo, that.instanceInfo) &&
+				leaseDuration == leaseDuration &&
+				replication == replication;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(instanceInfo, leaseDuration, replication);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("EurekaInstanceRegisteredEvent{")
+				.append("instanceInfo=").append(instanceInfo).append(", ")
+				.append("leaseDuration=").append(leaseDuration).append(", ")
+				.append("replication=").append(replication).append("}")
+				.toString();
+	}
 }
