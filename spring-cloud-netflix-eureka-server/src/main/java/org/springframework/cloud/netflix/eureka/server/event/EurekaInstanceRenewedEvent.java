@@ -16,18 +16,15 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import org.springframework.context.ApplicationEvent;
 
 import com.netflix.appinfo.InstanceInfo;
 
+import java.util.Objects;
+
 /**
  * @author Spencer Gibb
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
 public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 
@@ -46,6 +43,65 @@ public class EurekaInstanceRenewedEvent extends ApplicationEvent {
 		this.serverId = serverId;
 		this.instanceInfo = instanceInfo;
 		this.replication = replication;
+	}
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+
+	public String getServerId() {
+		return serverId;
+	}
+
+	public void setServerId(String serverId) {
+		this.serverId = serverId;
+	}
+
+	public InstanceInfo getInstanceInfo() {
+		return instanceInfo;
+	}
+
+	public void setInstanceInfo(InstanceInfo instanceInfo) {
+		this.instanceInfo = instanceInfo;
+	}
+
+	public boolean isReplication() {
+		return replication;
+	}
+
+	public void setReplication(boolean replication) {
+		this.replication = replication;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		// @formatter:off
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaInstanceRenewedEvent that = (EurekaInstanceRenewedEvent) o;
+		return Objects.equals(appName, that.appName) &&
+				Objects.equals(serverId, that.serverId) &&
+				Objects.equals(instanceInfo, that.instanceInfo) &&
+				replication == that.replication;
+		// @formatter:on
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(appName, serverId, instanceInfo, replication);
+	}
+
+	@Override
+	public String toString() {
+		// @formatter:off
+		return "EurekaInstanceRenewedEvent{" + "appName='" + appName + '\''
+				+ ", serverId='" + serverId + '\'' + ", instanceInfo=" + instanceInfo
+				+ ", replication=" + replication + '}';
+		// @formatter:on
 	}
 
 }
