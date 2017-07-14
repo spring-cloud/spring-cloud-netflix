@@ -24,6 +24,7 @@ import java.util.Objects;
 
 /**
  * @author Spencer Gibb
+ * @author Gregor Zurowski
  */
 @SuppressWarnings("serial")
 public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
@@ -68,14 +69,12 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public boolean equals(Object o) {
-		// @formatter:off
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		EurekaInstanceRegisteredEvent that = (EurekaInstanceRegisteredEvent) o;
 		return Objects.equals(instanceInfo, that.instanceInfo) &&
 				leaseDuration == leaseDuration &&
 				replication == replication;
-		// @formatter:on
 	}
 
 	@Override
@@ -85,12 +84,10 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		// @formatter:off
 		return new StringBuilder("EurekaInstanceRegisteredEvent{")
 				.append("instanceInfo=").append(instanceInfo).append(", ")
 				.append("leaseDuration=").append(leaseDuration).append(", ")
 				.append("replication=").append(replication).append("}")
 				.toString();
-		// @formatter:on
 	}
 }

@@ -22,6 +22,7 @@ import java.util.Objects;
 
 /**
  * @author Spencer Gibb
+ * @author Gregor Zurowski
  */
 @SuppressWarnings("serial")
 public class EurekaInstanceCanceledEvent extends ApplicationEvent {
@@ -66,14 +67,12 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	@Override
 	public boolean equals(Object o) {
-		// @formatter:off
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		EurekaInstanceCanceledEvent that = (EurekaInstanceCanceledEvent) o;
 		return Objects.equals(appName, that.appName) &&
 				Objects.equals(serverId, that.serverId) &&
 				replication == replication;
-		// @formatter:on
 	}
 
 	@Override
@@ -83,13 +82,11 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		// @formatter:off
 		return new StringBuilder("EurekaInstanceCanceledEvent{")
 				.append("appName='").append(appName).append("', ")
 				.append("serverId='").append(serverId).append("', ")
 				.append("replication=").append(replication).append("}")
 				.toString();
-		// @formatter:on
 	}
 
 }
