@@ -18,12 +18,14 @@ package org.springframework.cloud.netflix.eureka;
 
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
-import lombok.Data;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * @author Spencer Gibb
+ * @author Gregor Zurowski
  */
-@Data
 public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 
 	private int sessionedClientReconnectIntervalSeconds = 20 * 60;
@@ -58,5 +60,120 @@ public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 	@Override
 	public boolean applicationsResolverUseIp() {
 		return this.applicationsResolverUseIp;
+	}
+
+	public int getSessionedClientReconnectIntervalSeconds() {
+		return sessionedClientReconnectIntervalSeconds;
+	}
+
+	public void setSessionedClientReconnectIntervalSeconds(
+			int sessionedClientReconnectIntervalSeconds) {
+		this.sessionedClientReconnectIntervalSeconds = sessionedClientReconnectIntervalSeconds;
+	}
+
+	public double getRetryableClientQuarantineRefreshPercentage() {
+		return retryableClientQuarantineRefreshPercentage;
+	}
+
+	public void setRetryableClientQuarantineRefreshPercentage(
+			double retryableClientQuarantineRefreshPercentage) {
+		this.retryableClientQuarantineRefreshPercentage = retryableClientQuarantineRefreshPercentage;
+	}
+
+	public int getBootstrapResolverRefreshIntervalSeconds() {
+		return bootstrapResolverRefreshIntervalSeconds;
+	}
+
+	public void setBootstrapResolverRefreshIntervalSeconds(
+			int bootstrapResolverRefreshIntervalSeconds) {
+		this.bootstrapResolverRefreshIntervalSeconds = bootstrapResolverRefreshIntervalSeconds;
+	}
+
+	public int getApplicationsResolverDataStalenessThresholdSeconds() {
+		return applicationsResolverDataStalenessThresholdSeconds;
+	}
+
+	public void setApplicationsResolverDataStalenessThresholdSeconds(
+			int applicationsResolverDataStalenessThresholdSeconds) {
+		this.applicationsResolverDataStalenessThresholdSeconds = applicationsResolverDataStalenessThresholdSeconds;
+	}
+
+	public int getAsyncResolverRefreshIntervalMs() {
+		return asyncResolverRefreshIntervalMs;
+	}
+
+	public void setAsyncResolverRefreshIntervalMs(int asyncResolverRefreshIntervalMs) {
+		this.asyncResolverRefreshIntervalMs = asyncResolverRefreshIntervalMs;
+	}
+
+	public int getAsyncResolverWarmUpTimeoutMs() {
+		return asyncResolverWarmUpTimeoutMs;
+	}
+
+	public void setAsyncResolverWarmUpTimeoutMs(int asyncResolverWarmUpTimeoutMs) {
+		this.asyncResolverWarmUpTimeoutMs = asyncResolverWarmUpTimeoutMs;
+	}
+
+	public int getAsyncExecutorThreadPoolSize() {
+		return asyncExecutorThreadPoolSize;
+	}
+
+	public void setAsyncExecutorThreadPoolSize(int asyncExecutorThreadPoolSize) {
+		this.asyncExecutorThreadPoolSize = asyncExecutorThreadPoolSize;
+	}
+
+	public String getReadClusterVip() {
+		return readClusterVip;
+	}
+
+	public void setReadClusterVip(String readClusterVip) {
+		this.readClusterVip = readClusterVip;
+	}
+
+	public String getWriteClusterVip() {
+		return writeClusterVip;
+	}
+
+	public void setWriteClusterVip(String writeClusterVip) {
+		this.writeClusterVip = writeClusterVip;
+	}
+
+	public boolean isBootstrapResolverForQuery() {
+		return bootstrapResolverForQuery;
+	}
+
+	public void setBootstrapResolverForQuery(boolean bootstrapResolverForQuery) {
+		this.bootstrapResolverForQuery = bootstrapResolverForQuery;
+	}
+
+	public String getBootstrapResolverStrategy() {
+		return bootstrapResolverStrategy;
+	}
+
+	public void setBootstrapResolverStrategy(String bootstrapResolverStrategy) {
+		this.bootstrapResolverStrategy = bootstrapResolverStrategy;
+	}
+
+	public boolean isApplicationsResolverUseIp() {
+		return applicationsResolverUseIp;
+	}
+
+	public void setApplicationsResolverUseIp(boolean applicationsResolverUseIp) {
+		this.applicationsResolverUseIp = applicationsResolverUseIp;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return EqualsBuilder.reflectionEquals(this, o);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 }

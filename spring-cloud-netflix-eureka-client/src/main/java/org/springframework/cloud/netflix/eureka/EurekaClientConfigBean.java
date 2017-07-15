@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.env.PropertyResolver;
@@ -31,14 +34,12 @@ import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
-import lombok.Data;
-
 import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
 
 /**
  * @author Dave Syer
+ * @author Gregor Zurowski
  */
-@Data
 @ConfigurationProperties(EurekaClientConfigBean.PREFIX)
 public class EurekaClientConfigBean implements EurekaClientConfig {
 
@@ -485,4 +486,410 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	public EurekaTransportConfig getTransportConfig() {
 		return getTransport();
 	}
+
+	public PropertyResolver getPropertyResolver() {
+		return propertyResolver;
+	}
+
+	public void setPropertyResolver(PropertyResolver propertyResolver) {
+		this.propertyResolver = propertyResolver;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public EurekaTransportConfig getTransport() {
+		return transport;
+	}
+
+	public void setTransport(EurekaTransportConfig transport) {
+		this.transport = transport;
+	}
+
+	@Override
+	public int getRegistryFetchIntervalSeconds() {
+		return registryFetchIntervalSeconds;
+	}
+
+	public void setRegistryFetchIntervalSeconds(int registryFetchIntervalSeconds) {
+		this.registryFetchIntervalSeconds = registryFetchIntervalSeconds;
+	}
+
+	@Override
+	public int getInstanceInfoReplicationIntervalSeconds() {
+		return instanceInfoReplicationIntervalSeconds;
+	}
+
+	public void setInstanceInfoReplicationIntervalSeconds(
+			int instanceInfoReplicationIntervalSeconds) {
+		this.instanceInfoReplicationIntervalSeconds = instanceInfoReplicationIntervalSeconds;
+	}
+
+	@Override
+	public int getInitialInstanceInfoReplicationIntervalSeconds() {
+		return initialInstanceInfoReplicationIntervalSeconds;
+	}
+
+	public void setInitialInstanceInfoReplicationIntervalSeconds(
+			int initialInstanceInfoReplicationIntervalSeconds) {
+		this.initialInstanceInfoReplicationIntervalSeconds = initialInstanceInfoReplicationIntervalSeconds;
+	}
+
+	@Override
+	public int getEurekaServiceUrlPollIntervalSeconds() {
+		return eurekaServiceUrlPollIntervalSeconds;
+	}
+
+	public void setEurekaServiceUrlPollIntervalSeconds(
+			int eurekaServiceUrlPollIntervalSeconds) {
+		this.eurekaServiceUrlPollIntervalSeconds = eurekaServiceUrlPollIntervalSeconds;
+	}
+
+	@Override
+	public String getProxyPort() {
+		return proxyPort;
+	}
+
+	public void setProxyPort(String proxyPort) {
+		this.proxyPort = proxyPort;
+	}
+
+	@Override
+	public String getProxyHost() {
+		return proxyHost;
+	}
+
+	public void setProxyHost(String proxyHost) {
+		this.proxyHost = proxyHost;
+	}
+
+	@Override
+	public String getProxyUserName() {
+		return proxyUserName;
+	}
+
+	public void setProxyUserName(String proxyUserName) {
+		this.proxyUserName = proxyUserName;
+	}
+
+	@Override
+	public String getProxyPassword() {
+		return proxyPassword;
+	}
+
+	public void setProxyPassword(String proxyPassword) {
+		this.proxyPassword = proxyPassword;
+	}
+
+	@Override
+	public int getEurekaServerReadTimeoutSeconds() {
+		return eurekaServerReadTimeoutSeconds;
+	}
+
+	public void setEurekaServerReadTimeoutSeconds(int eurekaServerReadTimeoutSeconds) {
+		this.eurekaServerReadTimeoutSeconds = eurekaServerReadTimeoutSeconds;
+	}
+
+	@Override
+	public int getEurekaServerConnectTimeoutSeconds() {
+		return eurekaServerConnectTimeoutSeconds;
+	}
+
+	public void setEurekaServerConnectTimeoutSeconds(
+			int eurekaServerConnectTimeoutSeconds) {
+		this.eurekaServerConnectTimeoutSeconds = eurekaServerConnectTimeoutSeconds;
+	}
+
+	@Override
+	public String getBackupRegistryImpl() {
+		return backupRegistryImpl;
+	}
+
+	public void setBackupRegistryImpl(String backupRegistryImpl) {
+		this.backupRegistryImpl = backupRegistryImpl;
+	}
+
+	@Override
+	public int getEurekaServerTotalConnections() {
+		return eurekaServerTotalConnections;
+	}
+
+	public void setEurekaServerTotalConnections(int eurekaServerTotalConnections) {
+		this.eurekaServerTotalConnections = eurekaServerTotalConnections;
+	}
+
+	@Override
+	public int getEurekaServerTotalConnectionsPerHost() {
+		return eurekaServerTotalConnectionsPerHost;
+	}
+
+	public void setEurekaServerTotalConnectionsPerHost(
+			int eurekaServerTotalConnectionsPerHost) {
+		this.eurekaServerTotalConnectionsPerHost = eurekaServerTotalConnectionsPerHost;
+	}
+
+	@Override
+	public String getEurekaServerURLContext() {
+		return eurekaServerURLContext;
+	}
+
+	public void setEurekaServerURLContext(String eurekaServerURLContext) {
+		this.eurekaServerURLContext = eurekaServerURLContext;
+	}
+
+	@Override
+	public String getEurekaServerPort() {
+		return eurekaServerPort;
+	}
+
+	public void setEurekaServerPort(String eurekaServerPort) {
+		this.eurekaServerPort = eurekaServerPort;
+	}
+
+	@Override
+	public String getEurekaServerDNSName() {
+		return eurekaServerDNSName;
+	}
+
+	public void setEurekaServerDNSName(String eurekaServerDNSName) {
+		this.eurekaServerDNSName = eurekaServerDNSName;
+	}
+
+	@Override
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	@Override
+	public int getEurekaConnectionIdleTimeoutSeconds() {
+		return eurekaConnectionIdleTimeoutSeconds;
+	}
+
+	public void setEurekaConnectionIdleTimeoutSeconds(
+			int eurekaConnectionIdleTimeoutSeconds) {
+		this.eurekaConnectionIdleTimeoutSeconds = eurekaConnectionIdleTimeoutSeconds;
+	}
+
+	@Override
+	public String getRegistryRefreshSingleVipAddress() {
+		return registryRefreshSingleVipAddress;
+	}
+
+	public void setRegistryRefreshSingleVipAddress(
+			String registryRefreshSingleVipAddress) {
+		this.registryRefreshSingleVipAddress = registryRefreshSingleVipAddress;
+	}
+
+	@Override
+	public int getHeartbeatExecutorThreadPoolSize() {
+		return heartbeatExecutorThreadPoolSize;
+	}
+
+	public void setHeartbeatExecutorThreadPoolSize(int heartbeatExecutorThreadPoolSize) {
+		this.heartbeatExecutorThreadPoolSize = heartbeatExecutorThreadPoolSize;
+	}
+
+	@Override
+	public int getHeartbeatExecutorExponentialBackOffBound() {
+		return heartbeatExecutorExponentialBackOffBound;
+	}
+
+	public void setHeartbeatExecutorExponentialBackOffBound(
+			int heartbeatExecutorExponentialBackOffBound) {
+		this.heartbeatExecutorExponentialBackOffBound = heartbeatExecutorExponentialBackOffBound;
+	}
+
+	@Override
+	public int getCacheRefreshExecutorThreadPoolSize() {
+		return cacheRefreshExecutorThreadPoolSize;
+	}
+
+	public void setCacheRefreshExecutorThreadPoolSize(
+			int cacheRefreshExecutorThreadPoolSize) {
+		this.cacheRefreshExecutorThreadPoolSize = cacheRefreshExecutorThreadPoolSize;
+	}
+
+	@Override
+	public int getCacheRefreshExecutorExponentialBackOffBound() {
+		return cacheRefreshExecutorExponentialBackOffBound;
+	}
+
+	public void setCacheRefreshExecutorExponentialBackOffBound(
+			int cacheRefreshExecutorExponentialBackOffBound) {
+		this.cacheRefreshExecutorExponentialBackOffBound = cacheRefreshExecutorExponentialBackOffBound;
+	}
+
+	public Map<String, String> getServiceUrl() {
+		return serviceUrl;
+	}
+
+	public void setServiceUrl(Map<String, String> serviceUrl) {
+		this.serviceUrl = serviceUrl;
+	}
+
+	public boolean isgZipContent() {
+		return gZipContent;
+	}
+
+	public void setgZipContent(boolean gZipContent) {
+		this.gZipContent = gZipContent;
+	}
+
+	public boolean isUseDnsForFetchingServiceUrls() {
+		return useDnsForFetchingServiceUrls;
+	}
+
+	public void setUseDnsForFetchingServiceUrls(boolean useDnsForFetchingServiceUrls) {
+		this.useDnsForFetchingServiceUrls = useDnsForFetchingServiceUrls;
+	}
+
+	public boolean isRegisterWithEureka() {
+		return registerWithEureka;
+	}
+
+	public void setRegisterWithEureka(boolean registerWithEureka) {
+		this.registerWithEureka = registerWithEureka;
+	}
+
+	public boolean isPreferSameZoneEureka() {
+		return preferSameZoneEureka;
+	}
+
+	public void setPreferSameZoneEureka(boolean preferSameZoneEureka) {
+		this.preferSameZoneEureka = preferSameZoneEureka;
+	}
+
+	public boolean isLogDeltaDiff() {
+		return logDeltaDiff;
+	}
+
+	public void setLogDeltaDiff(boolean logDeltaDiff) {
+		this.logDeltaDiff = logDeltaDiff;
+	}
+
+	public boolean isDisableDelta() {
+		return disableDelta;
+	}
+
+	public void setDisableDelta(boolean disableDelta) {
+		this.disableDelta = disableDelta;
+	}
+
+	public String getFetchRemoteRegionsRegistry() {
+		return fetchRemoteRegionsRegistry;
+	}
+
+	public void setFetchRemoteRegionsRegistry(String fetchRemoteRegionsRegistry) {
+		this.fetchRemoteRegionsRegistry = fetchRemoteRegionsRegistry;
+	}
+
+	public Map<String, String> getAvailabilityZones() {
+		return availabilityZones;
+	}
+
+	public void setAvailabilityZones(Map<String, String> availabilityZones) {
+		this.availabilityZones = availabilityZones;
+	}
+
+	public boolean isFilterOnlyUpInstances() {
+		return filterOnlyUpInstances;
+	}
+
+	public void setFilterOnlyUpInstances(boolean filterOnlyUpInstances) {
+		this.filterOnlyUpInstances = filterOnlyUpInstances;
+	}
+
+	public boolean isFetchRegistry() {
+		return fetchRegistry;
+	}
+
+	public void setFetchRegistry(boolean fetchRegistry) {
+		this.fetchRegistry = fetchRegistry;
+	}
+
+	@Override
+	public String getDollarReplacement() {
+		return dollarReplacement;
+	}
+
+	public void setDollarReplacement(String dollarReplacement) {
+		this.dollarReplacement = dollarReplacement;
+	}
+
+	@Override
+	public String getEscapeCharReplacement() {
+		return escapeCharReplacement;
+	}
+
+	public void setEscapeCharReplacement(String escapeCharReplacement) {
+		this.escapeCharReplacement = escapeCharReplacement;
+	}
+
+	public boolean isAllowRedirects() {
+		return allowRedirects;
+	}
+
+	public void setAllowRedirects(boolean allowRedirects) {
+		this.allowRedirects = allowRedirects;
+	}
+
+	public boolean isOnDemandUpdateStatusChange() {
+		return onDemandUpdateStatusChange;
+	}
+
+	public void setOnDemandUpdateStatusChange(boolean onDemandUpdateStatusChange) {
+		this.onDemandUpdateStatusChange = onDemandUpdateStatusChange;
+	}
+
+	@Override
+	public String getEncoderName() {
+		return encoderName;
+	}
+
+	public void setEncoderName(String encoderName) {
+		this.encoderName = encoderName;
+	}
+
+	@Override
+	public String getDecoderName() {
+		return decoderName;
+	}
+
+	public void setDecoderName(String decoderName) {
+		this.decoderName = decoderName;
+	}
+
+	@Override
+	public String getClientDataAccept() {
+		return clientDataAccept;
+	}
+
+	public void setClientDataAccept(String clientDataAccept) {
+		this.clientDataAccept = clientDataAccept;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return EqualsBuilder.reflectionEquals(this, o);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+
 }

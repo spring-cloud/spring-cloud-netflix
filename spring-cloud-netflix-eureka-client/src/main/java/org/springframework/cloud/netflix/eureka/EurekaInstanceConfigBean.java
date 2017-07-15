@@ -19,6 +19,9 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -31,28 +34,19 @@ import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.appinfo.MyDataCenterInfo;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * @author Dave Syer
  * @author Spencer Gibb
  * @author Ryan Baxter
+ * @author Gregor Zurowski
  */
-@Data
 @ConfigurationProperties("eureka.instance")
 public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
 
 	private static final String UNKNOWN = "unknown";
 
-	@Getter(AccessLevel.PRIVATE)
-	@Setter(AccessLevel.PRIVATE)
 	private HostInfo hostInfo;
 
-	@Getter(AccessLevel.PRIVATE)
-	@Setter(AccessLevel.PRIVATE)
 	private InetUtils inetUtils;
 
 	/**
@@ -339,4 +333,249 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 			setSecureVirtualHostName(springAppName);
 		}
 	}
+
+	private HostInfo getHostInfo() {
+		return hostInfo;
+	}
+
+	private void setHostInfo(HostInfo hostInfo) {
+		this.hostInfo = hostInfo;
+	}
+
+	private InetUtils getInetUtils() {
+		return inetUtils;
+	}
+
+	private void setInetUtils(InetUtils inetUtils) {
+		this.inetUtils = inetUtils;
+	}
+
+	public String getAppname() {
+		return appname;
+	}
+
+	public void setAppname(String appname) {
+		this.appname = appname;
+	}
+
+	public String getAppGroupName() {
+		return appGroupName;
+	}
+
+	public void setAppGroupName(String appGroupName) {
+		this.appGroupName = appGroupName;
+	}
+
+	public boolean isInstanceEnabledOnit() {
+		return instanceEnabledOnit;
+	}
+
+	public void setInstanceEnabledOnit(boolean instanceEnabledOnit) {
+		this.instanceEnabledOnit = instanceEnabledOnit;
+	}
+
+	public int getNonSecurePort() {
+		return nonSecurePort;
+	}
+
+	public void setNonSecurePort(int nonSecurePort) {
+		this.nonSecurePort = nonSecurePort;
+	}
+
+	public int getSecurePort() {
+		return securePort;
+	}
+
+	public void setSecurePort(int securePort) {
+		this.securePort = securePort;
+	}
+
+	public boolean isNonSecurePortEnabled() {
+		return nonSecurePortEnabled;
+	}
+
+	public void setNonSecurePortEnabled(boolean nonSecurePortEnabled) {
+		this.nonSecurePortEnabled = nonSecurePortEnabled;
+	}
+
+	public boolean isSecurePortEnabled() {
+		return securePortEnabled;
+	}
+
+	public void setSecurePortEnabled(boolean securePortEnabled) {
+		this.securePortEnabled = securePortEnabled;
+	}
+
+	public int getLeaseRenewalIntervalInSeconds() {
+		return leaseRenewalIntervalInSeconds;
+	}
+
+	public void setLeaseRenewalIntervalInSeconds(int leaseRenewalIntervalInSeconds) {
+		this.leaseRenewalIntervalInSeconds = leaseRenewalIntervalInSeconds;
+	}
+
+	public int getLeaseExpirationDurationInSeconds() {
+		return leaseExpirationDurationInSeconds;
+	}
+
+	public void setLeaseExpirationDurationInSeconds(
+			int leaseExpirationDurationInSeconds) {
+		this.leaseExpirationDurationInSeconds = leaseExpirationDurationInSeconds;
+	}
+
+	public String getVirtualHostName() {
+		return virtualHostName;
+	}
+
+	public void setVirtualHostName(String virtualHostName) {
+		this.virtualHostName = virtualHostName;
+	}
+
+	public void setInstanceId(String instanceId) {
+		this.instanceId = instanceId;
+	}
+
+	public String getSecureVirtualHostName() {
+		return secureVirtualHostName;
+	}
+
+	public void setSecureVirtualHostName(String secureVirtualHostName) {
+		this.secureVirtualHostName = secureVirtualHostName;
+	}
+
+	public String getASGName() {
+		return aSGName;
+	}
+
+	public void setASGName(String aSGName) {
+		this.aSGName = aSGName;
+	}
+
+	public Map<String, String> getMetadataMap() {
+		return metadataMap;
+	}
+
+	public void setMetadataMap(Map<String, String> metadataMap) {
+		this.metadataMap = metadataMap;
+	}
+
+	public DataCenterInfo getDataCenterInfo() {
+		return dataCenterInfo;
+	}
+
+	public void setDataCenterInfo(DataCenterInfo dataCenterInfo) {
+		this.dataCenterInfo = dataCenterInfo;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public String getStatusPageUrlPath() {
+		return statusPageUrlPath;
+	}
+
+	public void setStatusPageUrlPath(String statusPageUrlPath) {
+		this.statusPageUrlPath = statusPageUrlPath;
+	}
+
+	public String getStatusPageUrl() {
+		return statusPageUrl;
+	}
+
+	public void setStatusPageUrl(String statusPageUrl) {
+		this.statusPageUrl = statusPageUrl;
+	}
+
+	public String getHomePageUrlPath() {
+		return homePageUrlPath;
+	}
+
+	public void setHomePageUrlPath(String homePageUrlPath) {
+		this.homePageUrlPath = homePageUrlPath;
+	}
+
+	public String getHomePageUrl() {
+		return homePageUrl;
+	}
+
+	public void setHomePageUrl(String homePageUrl) {
+		this.homePageUrl = homePageUrl;
+	}
+
+	public String getHealthCheckUrlPath() {
+		return healthCheckUrlPath;
+	}
+
+	public void setHealthCheckUrlPath(String healthCheckUrlPath) {
+		this.healthCheckUrlPath = healthCheckUrlPath;
+	}
+
+	public String getHealthCheckUrl() {
+		return healthCheckUrl;
+	}
+
+	public void setHealthCheckUrl(String healthCheckUrl) {
+		this.healthCheckUrl = healthCheckUrl;
+	}
+
+	public String getSecureHealthCheckUrl() {
+		return secureHealthCheckUrl;
+	}
+
+	public void setSecureHealthCheckUrl(String secureHealthCheckUrl) {
+		this.secureHealthCheckUrl = secureHealthCheckUrl;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
+
+	public boolean isPreferIpAddress() {
+		return preferIpAddress;
+	}
+
+	public void setPreferIpAddress(boolean preferIpAddress) {
+		this.preferIpAddress = preferIpAddress;
+	}
+
+	public InstanceStatus getInitialStatus() {
+		return initialStatus;
+	}
+
+	public void setInitialStatus(InstanceStatus initialStatus) {
+		this.initialStatus = initialStatus;
+	}
+
+	public String[] getDefaultAddressResolutionOrder() {
+		return defaultAddressResolutionOrder;
+	}
+
+	public void setDefaultAddressResolutionOrder(String[] defaultAddressResolutionOrder) {
+		this.defaultAddressResolutionOrder = defaultAddressResolutionOrder;
+	}
+
+	public Environment getEnvironment() {
+		return environment;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return EqualsBuilder.reflectionEquals(this, o);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+
 }
