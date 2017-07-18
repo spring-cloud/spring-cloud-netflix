@@ -16,10 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.Objects;
 
 /**
  * Configuration properties for the Eureka dashboard (UI).
@@ -57,17 +56,24 @@ public class EurekaDashboardProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		return EqualsBuilder.reflectionEquals(this, o);
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaDashboardProperties that = (EurekaDashboardProperties) o;
+		return enabled == that.enabled &&
+				Objects.equals(path, that.path);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
+		return Objects.hash(path, enabled);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		final StringBuffer sb = new StringBuffer("EurekaDashboardProperties{");
+		sb.append("path='").append(path).append('\'');
+		sb.append(", enabled=").append(enabled);
+		sb.append('}');
+		return sb.toString();
 	}
-
 }

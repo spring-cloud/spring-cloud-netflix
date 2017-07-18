@@ -487,6 +487,14 @@ of services rather than the hostname.  Set `eureka.instance.preferIpAddress`
 to `true` and when the application registers with eureka, it will use its
 IP Address rather than its hostname.
 
+[TIP]
+====
+If hostname can't be determined by Java, then IP address is sent to Eureka.
+Only explict way of setting hostname is by using `eureka.instance.hostname`.
+You can set your hostname at the run time using environment variable, for
+example `eureka.instance.hostname=${HOST_NAME}`.
+====
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
