@@ -1034,6 +1034,23 @@ of services rather than the hostname.  Set <code>eureka.instance.preferIpAddress
 to <code>true</code> and when the application registers with eureka, it will use its
 IP Address rather than its hostname.</p>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If hostname can&#8217;t be determined by Java, then IP address is sent to Eureka.
+Only explict way of setting hostname is by using <code>eureka.instance.hostname</code>.
+You can set your hostname at the run time using environment variable, for
+example <code>eureka.instance.hostname=${HOST_NAME}</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 </div>
