@@ -17,13 +17,13 @@
 package org.springframework.cloud.netflix.eureka;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +32,8 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
 import lombok.Data;
+
+import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
 
 /**
  * @author Dave Syer
@@ -57,6 +59,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, EurekaConstan
 	 */
 	private boolean enabled = true;
 
+	@NestedConfigurationProperty
 	private EurekaTransportConfig transport = new CloudEurekaTransportConfig();
 
 	/**
