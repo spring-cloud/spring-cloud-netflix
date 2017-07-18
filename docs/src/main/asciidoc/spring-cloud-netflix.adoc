@@ -494,7 +494,7 @@ Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix]
 .Microservice Graph
 image::HystrixGraph.png[]
 
-A service failure in the lower level of services can cause cascading failure all the way up to the user.  When calls to a particular service reach a certain threshold (20 failures in 5 seconds is the default in Hystrix), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.
+A service failure in the lower level of services can cause cascading failure all the way up to the user. When calls to a particular service is greater than `circuitBreaker.requestVolumeThreshold` (default: 20 requests) and failue percentage is greater than `circuitBreaker.errorThresholdPercentage` (default: >50%) in a rolling window defined  by `metrics.rollingStats.timeInMilliseconds` (default: 10 seconds), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.
 
 .Hystrix fallback prevents cascading failures
 image::HystrixFallback.png[]
