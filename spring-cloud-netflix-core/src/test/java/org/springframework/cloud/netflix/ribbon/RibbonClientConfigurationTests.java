@@ -148,18 +148,21 @@ public class RibbonClientConfigurationTests {
 		return clients;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testDefaultsToApacheHttpClient() {
 		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class, OkHttpLoadBalancingClient.class);
 		testClient(RibbonLoadBalancingHttpClient.class, "ribbon.httpclient.enabled", RestClient.class, OkHttpLoadBalancingClient.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testEnableRestClient() {
 		testClient(RestClient.class, "ribbon.restclient.enabled", RibbonLoadBalancingHttpClient.class,
 				OkHttpLoadBalancingClient.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testEnableOkHttpClient() {
 		testClient(OkHttpLoadBalancingClient.class, "ribbon.okhttp.enabled", RibbonLoadBalancingHttpClient.class,
