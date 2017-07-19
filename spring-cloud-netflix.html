@@ -1067,7 +1067,7 @@ example <code>eureka.instance.hostname=${HOST_NAME}</code>.</p>
 <div class="title">Figure 1. Microservice Graph</div>
 </div>
 <div class="paragraph">
-<p>A service failure in the lower level of services can cause cascading failure all the way up to the user.  When calls to a particular service reach a certain threshold (20 failures in 5 seconds is the default in Hystrix), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.</p>
+<p>A service failure in the lower level of services can cause cascading failure all the way up to the user. When calls to a particular service is greater than <code>circuitBreaker.requestVolumeThreshold</code> (default: 20 requests) and failue percentage is greater than <code>circuitBreaker.errorThresholdPercentage</code> (default: &gt;50%) in a rolling window defined  by <code>metrics.rollingStats.timeInMilliseconds</code> (default: 10 seconds), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.</p>
 </div>
 <div class="imageblock">
 <div class="content">
