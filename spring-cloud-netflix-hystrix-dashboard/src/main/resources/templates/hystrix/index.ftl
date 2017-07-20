@@ -51,7 +51,7 @@
                     const delay = $('#delay').val().trim();
                     const title = $('#title').val().trim();
 
-                    if (stream.length == 0) {
+                    if (stream.length === 0) {
                         $('#message').html("The 'stream' value is required.");
                         return;
                     }

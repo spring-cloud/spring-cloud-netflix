@@ -89,25 +89,25 @@
         const dependencyThreadPoolMonitor = new HystrixThreadPoolMonitor('dependencyThreadPools');
         
         const urlVars = getUrlVars();
-        let stream = urlVars["stream"];
-        console.log("Stream: " + stream)
+        let stream = urlVars["stream"], proxyUrl = "";
+        console.log("Stream: " + stream);
 
-        if (stream != undefined) {
-            if (urlVars["delay"] != undefined) {
-                stream = stream + "&delay=" + urlVars["delay"];
+        if (stream !== undefined) {
+            if (urlVars["delay"] !== undefined) {
+                stream += "&delay=" + urlVars["delay"];
             }
-            const proxyUrl = "${contextPath}/proxy.stream?origin=" + stream;
-            $('#title_name').text("Hystrix Stream: " + decodeURIComponent((urlVars["title"] == undefined) ? stream : urlVars["title"]));
+            proxyUrl = "${contextPath}/proxy.stream?origin=" + stream;
+            const streamName = (urlVars["title"] === undefined) ? stream : urlVars["title"];
+            $('#title_name').text("Hystrix Stream: " + decodeURIComponent(streamName));
         }
         
         let commandSource, poolSource;
 
         $(window).load(function() { // within load with a setTimeout to prevent the infinite spinner
             setTimeout(function() {
-                if (proxyUrl == undefined) {
+                if (proxyUrl === "") {
                     console.log("proxyUrl is undefined");
-                    $("#dependencies .loading, #dependencyThreadPools .loading").html("The 'stream' argument was not provided.");
-                    $("#dependencies .loading, #dependencyThreadPools .loading").addClass("failed");
+                    $(".loading").addClass("failed").html("The 'stream' argument was not provided.");
                     return;
                 }
                 console.log("Proxy URL: " + proxyUrl);
@@ -158,9 +158,8 @@
             //  }, false);
             
             source.addEventListener('error', function(e) {
-                $(aParentId + " .loading").html("Unable to connect to Command Metric Stream.");
-                $(aParentId + " .loading").addClass("failed");
-                let errorMessage = (e.eventPhase == EventSource.CLOSED)
+                $(aParentId + " .loading").addClass("failed").html("Unable to connect to Command Metric Stream.");
+                let errorMessage = (e.eventPhase === EventSource.CLOSED)
                     ? "Connection was closed on error: " // Connection was closed.
                     : "Error occurred while streaming: ";
                 console.log(errorMessage + JSON.stringify(e));
