@@ -17,11 +17,6 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import com.netflix.client.AbstractLoadBalancerAwareClient;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.servo.monitor.Monitors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,10 +27,17 @@ import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.client.AbstractLoadBalancerAwareClient;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.servo.monitor.Monitors;
+
 /**
  * @author Spencer Gibb
  */
 @Configuration
+@ConditionalOnClass(name = "org.apache.http.client.HttpClient")
 @ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 public class HttpClientRibbonConfiguration {
 	@Value("${ribbon.client.name}")
