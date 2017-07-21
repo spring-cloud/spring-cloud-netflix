@@ -76,7 +76,7 @@ public class SpringMvcContract extends Contract.BaseContract
 	private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
 	public SpringMvcContract() {
-		this(Collections.<AnnotatedParameterProcessor> emptyList());
+		this(Collections.emptyList());
 	}
 
 	public SpringMvcContract(

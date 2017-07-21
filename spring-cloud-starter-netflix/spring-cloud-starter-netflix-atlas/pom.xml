@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-netflix</artifactId>
-		<version>1.4.0.BUILD-SNAPSHOT</version>
+		<version>2.0.0.BUILD-SNAPSHOT</version>
 	</parent>
 	<artifactId>spring-cloud-starter-netflix-atlas</artifactId>
 	<name>Spring Cloud Starter Netflix Atlas</name>
