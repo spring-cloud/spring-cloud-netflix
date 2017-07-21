@@ -447,7 +447,7 @@ Intelligent Routing (Zuul) and Client Side Load Balancing (Ribbon).</p>
 <h3 id="netflix-eureka-client-starter">How to Include Eureka Client</h3>
 <div class="paragraph">
 <p>To include Eureka Client in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-eureka</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-netflix-eureka-client</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
@@ -894,7 +894,7 @@ eureka.client.preferSameZoneEureka = true</code></pre>
 <h3 id="netflix-eureka-server-starter">How to Include Eureka Server</h3>
 <div class="paragraph">
 <p>To include Eureka Server in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-eureka-server</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-netflix-eureka-server</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
@@ -931,7 +931,7 @@ normal Eureka functionality under <code>/eureka/*</code>.</p>
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:</p>
+<p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-netflix-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:</p>
 </div>
 <div class="listingblock">
 <div class="title">build.gradle</div>
@@ -1113,7 +1113,7 @@ example <code>eureka.instance.hostname=${HOST_NAME}</code>.</p>
 <h3 id="netflix-hystrix-starter">How to Include Hystrix</h3>
 <div class="paragraph">
 <p>To include Hystrix in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-hystrix</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-netflix-hystrix</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 <div class="paragraph">
@@ -1247,7 +1247,7 @@ be slightly more than three seconds.</p>
 <h3 id="netflix-hystrix-dashboard-starter">How to Include Hystrix Dashboard</h3>
 <div class="paragraph">
 <p>To include the Hystrix Dashboard in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-hystrix-dashboard</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-hystrix-netflix-dashboard</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 <div class="paragraph">
@@ -1257,7 +1257,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 <div class="sect2">
 <h3 id="_turbine">Turbine</h3>
 <div class="paragraph">
-<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation  (e.g. using spring-cloud-starter-turbine to set up the classpath).  All of the documented configuration properties from <a href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</a> apply.  The only difference is that the <code>turbine.instanceUrlSuffix</code> does not need the port prepended as this is handled automatically unless <code>turbine.instanceInsertPort=false</code>.</p>
+<p>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <a href="https://github.com/Netflix/Turbine">Turbine</a> is an application that aggregates all of the relevant <code>/hystrix.stream</code> endpoints into a combined <code>/turbine.stream</code> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <code>@EnableTurbine</code> annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from <a href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</a> apply.  The only difference is that the <code>turbine.instanceUrlSuffix</code> does not need the port prepended as this is handled automatically unless <code>turbine.instanceInsertPort=false</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1317,7 +1317,7 @@ To make turbine find the Hystrix stream at the correct port, you need to add <co
 </div>
 </div>
 <div class="paragraph">
-<p>Spring Cloud provides a <code>spring-cloud-starter-turbine</code> that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with <code>@EnableTurbine</code>.</p>
+<p>Spring Cloud provides a <code>spring-cloud-starter-netflix-turbine</code> that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with <code>@EnableTurbine</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1344,7 +1344,7 @@ by default Spring Cloud allows Turbine to use the host and port to allow multipl
 <p>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.  If Turbine Stream is running on port 8989 on myhost, then put <code><a href="http://myhost:8989" class="bare">http://myhost:8989</a></code> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</p>
 </div>
 <div class="paragraph">
-<p>Spring Cloud provides a <code>spring-cloud-starter-turbine-stream</code> that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. <code>spring-cloud-starter-stream-rabbit</code>. You need Java 8 to run the app because it is Netty-based.</p>
+<p>Spring Cloud provides a <code>spring-cloud-starter-netflix-turbine-stream</code> that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. <code>spring-cloud-starter-stream-rabbit</code>. You need Java 8 to run the app because it is Netty-based.</p>
 </div>
 </div>
 </div>
@@ -1371,7 +1371,7 @@ annotation). Spring Cloud creates a new ensemble as an
 <h3 id="netflix-ribbon-starter">How to Include Ribbon</h3>
 <div class="paragraph">
 <p>To include Ribbon in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-ribbon</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-netflix-ribbon</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
@@ -1743,7 +1743,7 @@ This lazy loading behavior can be changed to instead eagerly load up these child
 <h3 id="netflix-feign-starter">How to Include Feign</h3>
 <div class="paragraph">
 <p>To include Feign in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-feign</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-openfeign</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 <div class="paragraph">
@@ -2413,7 +2413,7 @@ Default Hystrix isolation pattern (ExecutionIsolationStrategy) for all routes is
 <h3 id="netflix-zuul-starter">How to Include Zuul</h3>
 <div class="paragraph">
 <p>To include Zuul in your project use the starter with group <code>org.springframework.cloud</code>
-and artifact id <code>spring-cloud-starter-zuul</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
+and artifact id <code>spring-cloud-starter-netflix-zuul</code>. See the <a href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</a>
 for details on setting up your build system with the current Spring Cloud Release Train.</p>
 </div>
 </div>
@@ -3743,7 +3743,7 @@ restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.clas
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-xml" data-lang="xml">    &lt;dependency&gt;
         &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-cloud-starter-spectator&lt;/artifactId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-netflix-spectator&lt;/artifactId&gt;
     &lt;/dependency&gt;</code></pre>
 </div>
 </div>
@@ -3882,7 +3882,7 @@ monitorRegistry.register(timer);</code></pre>
 <p>Atlas captures operational intelligence. Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.</p>
 </div>
 <div class="paragraph">
-<p>Spring Cloud provides a <code>spring-cloud-starter-atlas</code> that has all the dependencies you need. Then just annotate your Spring Boot application with <code>@EnableAtlas</code> and provide a location for your running Atlas server with the <code>netflix.atlas.uri</code> property.</p>
+<p>Spring Cloud provides a <code>spring-cloud-starter-netflix-atlas</code> that has all the dependencies you need. Then just annotate your Spring Boot application with <code>@EnableAtlas</code> and provide a location for your running Atlas server with the <code>netflix.atlas.uri</code> property.</p>
 </div>
 <div class="sect3">
 <h4 id="_global_tags">Global tags</h4>
