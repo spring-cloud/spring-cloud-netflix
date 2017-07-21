@@ -717,7 +717,7 @@ You can configure some bits of a Ribbon client using external
 properties in `<client>.ribbon.*`, which is no different than using
 the Netflix APIs natively, except that you can use Spring Boot
 configuration files. The native options can
-be inspected as static fields in `CommonClientConfigKey` (part of
+be inspected as static fields in https://github.com/Netflix/ribbon/blob/master/ribbon-core/src/main/java/com/netflix/client/config/CommonClientConfigKey.java[`CommonClientConfigKey`] (part of
 ribbon-core).
 
 Spring Cloud also lets you take full control of the client by
@@ -749,7 +749,7 @@ Spring Cloud Netflix provides the following beans by default for ribbon
 
 * `IClientConfig` ribbonClientConfig: `DefaultClientConfigImpl`
 * `IRule` ribbonRule: `ZoneAvoidanceRule`
-* `IPing` ribbonPing: `NoOpPing`
+* `IPing` ribbonPing: `DummyPing`
 * `ServerList<Server>` ribbonServerList: `ConfigurationBasedServerList`
 * `ServerListFilter<Server>` ribbonServerListFilter: `ZonePreferenceServerListFilter`
 * `ILoadBalancer` ribbonLoadBalancer: `ZoneAwareLoadBalancer`
@@ -761,16 +761,18 @@ one of the beans described.  Example:
 
 [source,java,indent=0]
 ----
-@Configuration
-public class FooConfiguration {
-    @Bean
-    public IPing ribbonPing(IClientConfig config) {
-        return new PingUrl();
-    }
-}
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
 ----
 
-This replaces the `NoOpPing` with `PingUrl`.
+This replaces the `NoOpPing` with `PingUrl` and provides a custom `serverListFilter`
+
+=== Customizing default for all Ribbon Clients
+A default configuration can be provided for all Ribbon Clients using the `@RibbonClients` annotation and registering a default configuration as shown in the following example:
+[source,java,indent=0]
+----
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
+
+----
 
 === Customizing the Ribbon Client using properties
 
