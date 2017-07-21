@@ -1351,7 +1351,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 properties in <code>&lt;client&gt;.ribbon.*</code>, which is no different than using
 the Netflix APIs natively, except that you can use Spring Boot
 configuration files. The native options can
-be inspected as static fields in <code>CommonClientConfigKey</code> (part of
+be inspected as static fields in <a href="https://github.com/Netflix/ribbon/blob/master/ribbon-core/src/main/java/com/netflix/client/config/CommonClientConfigKey.java"><code>CommonClientConfigKey</code></a> (part of
 ribbon-core).</p>
 </div>
 <div class="paragraph">
@@ -1403,7 +1403,7 @@ explicitly in the <code>@ComponentScan</code>).
 <p><code>IRule</code> ribbonRule: <code>ZoneAvoidanceRule</code></p>
 </li>
 <li>
-<p><code>IPing</code> ribbonPing: <code>NoOpPing</code></p>
+<p><code>IPing</code> ribbonPing: <code>DummyPing</code></p>
 </li>
 <li>
 <p><code>ServerList&lt;Server&gt;</code> ribbonServerList: <code>ConfigurationBasedServerList</code></p>
@@ -1427,16 +1427,68 @@ one of the beans described.  Example:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="prettyprint highlight"><code class="language-java" data-lang="java">@Configuration
-public class FooConfiguration {
-    @Bean
-    public IPing ribbonPing(IClientConfig config) {
-        return new PingUrl();
-    }
+protected static class FooConfiguration {
+	@Bean
+	public ZonePreferenceServerListFilter serverListFilter() {
+		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
+		filter.setZone("myTestZone");
+		return filter;
+	}
+
+	@Bean
+	public IPing ribbonPing() {
+		return new PingUrl();
+	}
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>This replaces the <code>NoOpPing</code> with <code>PingUrl</code>.</p>
+<p>This replaces the <code>NoOpPing</code> with <code>PingUrl</code> and provides a custom <code>serverListFilter</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_customizing_default_for_all_ribbon_clients">Customizing default for all Ribbon Clients</h3>
+<div class="paragraph">
+<p>A default configuration can be provided for all Ribbon Clients using the <code>@RibbonClients</code> annotation and registering a default configuration as shown in the following example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
+public class RibbonClientDefaultConfigurationTestsConfig {
+
+	public static class BazServiceList extends ConfigurationBasedServerList {
+		public BazServiceList(IClientConfig config) {
+			super.initWithNiwsConfig(config);
+		}
+	}
+}
+
+@Configuration
+class DefaultRibbonConfig {
+
+	@Bean
+	public IRule ribbonRule() {
+		return new BestAvailableRule();
+	}
+
+	@Bean
+	public IPing ribbonPing() {
+		return new PingUrl();
+	}
+
+	@Bean
+	public ServerList&lt;Server&gt; ribbonServerList(IClientConfig config) {
+		return new RibbonClientDefaultConfigurationTestsConfig.BazServiceList(config);
+	}
+
+	@Bean
+	public ServerListSubsetFilter serverListFilter() {
+		ServerListSubsetFilter filter = new ServerListSubsetFilter();
+		return filter;
+	}
+
+}</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
