@@ -769,6 +769,37 @@ another <code>SmartLifecycle</code> with higher phase.</p>
 </tr>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_eurekaclient_without_jersey">EurekaClient without Jersey</h4>
+<div class="paragraph">
+<p>By default, EurekaClient uses Jersey for HTTP communication. If you wish
+to avoid dependencies from Jersey, you can exclude it from your dependencies.
+Spring Cloud will auto configure a transport client based on Spring
+<code>RestTemplate</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-client&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-core&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;com.sun.jersey.contribs&lt;/groupId&gt;
+            &lt;artifactId&gt;jersey-apache-client4&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;</pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_alternatives_to_the_native_netflix_eurekaclient">Alternatives to the native Netflix EurekaClient</h3>
