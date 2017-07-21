@@ -134,6 +134,7 @@
 		<module>spring-cloud-netflix-turbine</module>
 		<module>spring-cloud-netflix-turbine-stream</module>
 		<module>spring-cloud-netflix-sidecar</module>
+		<module>spring-cloud-starter-netflix</module>
 		<module>spring-cloud-starter-archaius</module>
 		<module>spring-cloud-starter-atlas</module>
 		<module>spring-cloud-starter-eureka</module>
@@ -141,7 +142,6 @@
 		<module>spring-cloud-starter-feign</module>
 		<module>spring-cloud-starter-hystrix</module>
 		<module>spring-cloud-starter-hystrix-dashboard</module>
-		<module>spring-cloud-starter-netflix</module>
 		<module>spring-cloud-starter-ribbon</module>
 		<module>spring-cloud-starter-spectator</module>
 		<module>spring-cloud-starter-turbine</module>
