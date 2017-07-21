@@ -9,8 +9,9 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-spectator</artifactId>
+	<packaging>pom</packaging>
 	<name>spring-cloud-starter-spectator</name>
-	<description>Spring Cloud Starter Spectator</description>
+	<description>Spring Cloud Starter Spectator (deprecated, please use spring-cloud-starter-netflix-spectator)</description>
 	<url>https://projects.spring.io/spring-cloud</url>
 	<organization>
 		<name>Pivotal Software, Inc.</name>
@@ -22,11 +23,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netflix-spectator</artifactId>
+			<artifactId>spring-cloud-starter-netflix-spectator</artifactId>
 		</dependency>
 	</dependencies>
 </project>
