@@ -3,3 +3,10 @@ foo3:
   ribbon:
     NFLoadBalancerPingClassName: com.netflix.loadbalancer.DummyPing
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
+    
+security:
+  basic:
+    enabled: false
+  user:
+    name: test
+    password: test

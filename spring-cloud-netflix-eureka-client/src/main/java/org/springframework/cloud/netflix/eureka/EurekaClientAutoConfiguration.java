@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -48,6 +50,7 @@ import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationP
 import org.springframework.cloud.client.serviceregistry.ServiceRegistryAutoConfiguration;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
+import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
@@ -55,6 +58,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertyResolver;
@@ -64,9 +68,10 @@ import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+
 import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
 /**
@@ -75,10 +80,12 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Jon Schneider
  * @author Matt Jenkins
  * @author Ryan Baxter
+ * @author Daniel Lavoie
  */
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass(EurekaClientConfig.class)
+@Import(DiscoveryClientOptionalArgsConfiguration.class)
 @ConditionalOnBean(EurekaDiscoveryClientConfiguration.Marker.class)
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 @AutoConfigureBefore({ NoopDiscoveryClientAutoConfiguration.class,
@@ -184,12 +191,6 @@ public class EurekaClientAutoConfiguration {
 		return new EurekaAutoServiceRegistration(context, registry, registration);
 	}
 
-	@Bean
-	@ConditionalOnMissingBean(value = DiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
-	public MutableDiscoveryClientOptionalArgs discoveryClientOptionalArgs() {
-		return new MutableDiscoveryClientOptionalArgs();
-	}
-
 	@Configuration
 	@ConditionalOnMissingRefreshScope
 	protected static class EurekaClientConfiguration {
@@ -197,8 +198,8 @@ public class EurekaClientAutoConfiguration {
 		@Autowired
 		private ApplicationContext context;
 
-		@Autowired(required = false)
-		private DiscoveryClientOptionalArgs optionalArgs;
+		@Autowired
+		private AbstractDiscoveryClientOptionalArgs<?> optionalArgs;
 
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
@@ -223,8 +224,8 @@ public class EurekaClientAutoConfiguration {
 		@Autowired
 		private ApplicationContext context;
 
-		@Autowired(required = false)
-		private DiscoveryClientOptionalArgs optionalArgs;
+		@Autowired
+		private AbstractDiscoveryClientOptionalArgs<?> optionalArgs;
 
 		@Bean(destroyMethod = "shutdown")
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)

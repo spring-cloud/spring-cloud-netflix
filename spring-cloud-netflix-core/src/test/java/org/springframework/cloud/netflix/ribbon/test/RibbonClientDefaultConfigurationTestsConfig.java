@@ -42,6 +42,7 @@ import com.netflix.loadbalancer.ServerListSubsetFilter;
 @Configuration
 @Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 		UtilAutoConfiguration.class, RibbonAutoConfiguration.class })
+// tag::sample_default_ribbon_config[]
 @RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
 public class RibbonClientDefaultConfigurationTestsConfig {
 
@@ -77,3 +78,4 @@ class DefaultRibbonConfig {
 	}
 
 }
+// end::sample_default_ribbon_config[]
