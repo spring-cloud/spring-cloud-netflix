@@ -21,10 +21,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.env.PropertyResolver;
@@ -879,17 +877,108 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	@Override
 	public boolean equals(Object o) {
-		return EqualsBuilder.reflectionEquals(this, o);
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaClientConfigBean that = (EurekaClientConfigBean) o;
+		return Objects.equals(propertyResolver, that.propertyResolver) &&
+				enabled == that.enabled &&
+				Objects.equals(transport, that.transport) &&
+				registryFetchIntervalSeconds == that.registryFetchIntervalSeconds &&
+				instanceInfoReplicationIntervalSeconds == that.instanceInfoReplicationIntervalSeconds &&
+				initialInstanceInfoReplicationIntervalSeconds == that.initialInstanceInfoReplicationIntervalSeconds &&
+				eurekaServiceUrlPollIntervalSeconds == that.eurekaServiceUrlPollIntervalSeconds &&
+				eurekaServerReadTimeoutSeconds == that.eurekaServerReadTimeoutSeconds &&
+				eurekaServerConnectTimeoutSeconds == that.eurekaServerConnectTimeoutSeconds &&
+				eurekaServerTotalConnections == that.eurekaServerTotalConnections &&
+				eurekaServerTotalConnectionsPerHost == that.eurekaServerTotalConnectionsPerHost &&
+				eurekaConnectionIdleTimeoutSeconds == that.eurekaConnectionIdleTimeoutSeconds &&
+				heartbeatExecutorThreadPoolSize == that.heartbeatExecutorThreadPoolSize &&
+				heartbeatExecutorExponentialBackOffBound == that.heartbeatExecutorExponentialBackOffBound &&
+				cacheRefreshExecutorThreadPoolSize == that.cacheRefreshExecutorThreadPoolSize &&
+				cacheRefreshExecutorExponentialBackOffBound == that.cacheRefreshExecutorExponentialBackOffBound &&
+				gZipContent == that.gZipContent &&
+				useDnsForFetchingServiceUrls == that.useDnsForFetchingServiceUrls &&
+				registerWithEureka == that.registerWithEureka &&
+				preferSameZoneEureka == that.preferSameZoneEureka &&
+				logDeltaDiff == that.logDeltaDiff &&
+				disableDelta == that.disableDelta &&
+				filterOnlyUpInstances == that.filterOnlyUpInstances &&
+				fetchRegistry == that.fetchRegistry &&
+				allowRedirects == that.allowRedirects &&
+				onDemandUpdateStatusChange == that.onDemandUpdateStatusChange &&
+				Objects.equals(proxyPort, that.proxyPort) &&
+				Objects.equals(proxyHost, that.proxyHost) &&
+				Objects.equals(proxyUserName, that.proxyUserName) &&
+				Objects.equals(proxyPassword, that.proxyPassword) &&
+				Objects.equals(backupRegistryImpl, that.backupRegistryImpl) &&
+				Objects.equals(eurekaServerURLContext, that.eurekaServerURLContext) &&
+				Objects.equals(eurekaServerPort, that.eurekaServerPort) &&
+				Objects.equals(eurekaServerDNSName, that.eurekaServerDNSName) &&
+				Objects.equals(region, that.region) &&
+				Objects.equals(registryRefreshSingleVipAddress, that.registryRefreshSingleVipAddress) &&
+				Objects.equals(serviceUrl, that.serviceUrl) &&
+				Objects.equals(fetchRemoteRegionsRegistry, that.fetchRemoteRegionsRegistry) &&
+				Objects.equals(availabilityZones, that.availabilityZones) &&
+				Objects.equals(dollarReplacement, that.dollarReplacement) &&
+				Objects.equals(escapeCharReplacement, that.escapeCharReplacement) &&
+				Objects.equals(encoderName, that.encoderName) &&
+				Objects.equals(decoderName, that.decoderName) &&
+				Objects.equals(clientDataAccept, that.clientDataAccept);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
+		return Objects.hash(this);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return new StringBuilder("EurekaClientConfigBean{")
+				.append("propertyResolver=").append(propertyResolver).append(", ")
+				.append("enabled=").append(enabled).append(", ")
+				.append("transport=").append(transport).append(", ")
+				.append("registryFetchIntervalSeconds=").append(registryFetchIntervalSeconds).append(", ")
+				.append("instanceInfoReplicationIntervalSeconds=").append(instanceInfoReplicationIntervalSeconds).append(", ")
+				.append("initialInstanceInfoReplicationIntervalSeconds=").append(initialInstanceInfoReplicationIntervalSeconds).append(", ")
+				.append("eurekaServiceUrlPollIntervalSeconds=").append(eurekaServiceUrlPollIntervalSeconds).append(", ")
+				.append("proxyPort='").append(proxyPort).append("', ")
+				.append("proxyHost='").append(proxyHost).append("', ")
+				.append("proxyUserName='").append(proxyUserName).append("', ")
+				.append("proxyPassword='").append(proxyPassword).append("', ")
+				.append("eurekaServerReadTimeoutSeconds=").append(eurekaServerReadTimeoutSeconds).append(", ")
+				.append("eurekaServerConnectTimeoutSeconds=").append(eurekaServerConnectTimeoutSeconds).append(", ")
+				.append("backupRegistryImpl='").append(backupRegistryImpl).append("', ")
+				.append("eurekaServerTotalConnections=").append(eurekaServerTotalConnections).append(", ")
+				.append("eurekaServerTotalConnectionsPerHost=").append(eurekaServerTotalConnectionsPerHost).append(", ")
+				.append("eurekaServerURLContext='").append(eurekaServerURLContext).append("', ")
+				.append("eurekaServerPort='").append(eurekaServerPort).append("', ")
+				.append("eurekaServerDNSName='").append(eurekaServerDNSName).append("', ")
+				.append("region='").append(region).append("', ")
+				.append("eurekaConnectionIdleTimeoutSeconds=").append(eurekaConnectionIdleTimeoutSeconds).append(", ")
+				.append("registryRefreshSingleVipAddress='").append(registryRefreshSingleVipAddress).append("', ")
+				.append("heartbeatExecutorThreadPoolSize=").append(heartbeatExecutorThreadPoolSize).append(", ")
+				.append("heartbeatExecutorExponentialBackOffBound=").append(heartbeatExecutorExponentialBackOffBound).append(", ")
+				.append("cacheRefreshExecutorThreadPoolSize=").append(cacheRefreshExecutorThreadPoolSize).append(", ")
+				.append("cacheRefreshExecutorExponentialBackOffBound=").append(cacheRefreshExecutorExponentialBackOffBound).append(", ")
+				.append("serviceUrl=").append(serviceUrl).append(", ")
+				.append("gZipContent=").append(gZipContent).append(", ")
+				.append("useDnsForFetchingServiceUrls=").append(useDnsForFetchingServiceUrls).append(", ")
+				.append("registerWithEureka=").append(registerWithEureka).append(", ")
+				.append("preferSameZoneEureka=").append(preferSameZoneEureka).append(", ")
+				.append("logDeltaDiff=").append(logDeltaDiff).append(", ")
+				.append("disableDelta=").append(disableDelta).append(", ")
+				.append("fetchRemoteRegionsRegistry='").append(fetchRemoteRegionsRegistry).append("', ")
+				.append("availabilityZones=").append(availabilityZones).append(", ")
+				.append("filterOnlyUpInstances=").append(filterOnlyUpInstances).append(", ")
+				.append("fetchRegistry=").append(fetchRegistry).append(", ")
+				.append("dollarReplacement='").append(dollarReplacement).append("', ")
+				.append("escapeCharReplacement='").append(escapeCharReplacement).append("', ")
+				.append("allowRedirects=").append(allowRedirects).append(", ")
+				.append("onDemandUpdateStatusChange=").append(onDemandUpdateStatusChange).append(", ")
+				.append("encoderName='").append(encoderName).append("', ")
+				.append("decoderName='").append(decoderName).append("', ")
+				.append("clientDataAccept='").append(clientDataAccept).append("'").append("}")
+				.toString();
 	}
 
 }

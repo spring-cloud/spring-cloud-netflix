@@ -16,12 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -565,17 +564,89 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 
 	@Override
 	public boolean equals(Object o) {
-		return EqualsBuilder.reflectionEquals(this, o);
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaInstanceConfigBean that = (EurekaInstanceConfigBean) o;
+		return Objects.equals(hostInfo, that.hostInfo) &&
+				Objects.equals(inetUtils, that.inetUtils) &&
+				Objects.equals(appname, that.appname) &&
+				Objects.equals(appGroupName, that.appGroupName) &&
+				instanceEnabledOnit == that.instanceEnabledOnit &&
+				nonSecurePort == that.nonSecurePort &&
+				securePort == that.securePort &&
+				nonSecurePortEnabled == that.nonSecurePortEnabled &&
+				securePortEnabled == that.securePortEnabled &&
+				leaseRenewalIntervalInSeconds == that.leaseRenewalIntervalInSeconds &&
+				leaseExpirationDurationInSeconds == that.leaseExpirationDurationInSeconds &&
+				Objects.equals(virtualHostName, that.virtualHostName) &&
+				Objects.equals(instanceId, that.instanceId) &&
+				Objects.equals(secureVirtualHostName, that.secureVirtualHostName) &&
+				Objects.equals(aSGName, that.aSGName) &&
+				Objects.equals(metadataMap, that.metadataMap) &&
+				Objects.equals(dataCenterInfo, that.dataCenterInfo) &&
+				Objects.equals(ipAddress, that.ipAddress) &&
+				Objects.equals(statusPageUrlPath, that.statusPageUrlPath) &&
+				Objects.equals(statusPageUrl, that.statusPageUrl) &&
+				Objects.equals(homePageUrlPath, that.homePageUrlPath) &&
+				Objects.equals(homePageUrl, that.homePageUrl) &&
+				Objects.equals(healthCheckUrlPath, that.healthCheckUrlPath) &&
+				Objects.equals(healthCheckUrl, that.healthCheckUrl) &&
+				Objects.equals(secureHealthCheckUrl, that.secureHealthCheckUrl) &&
+				Objects.equals(namespace, that.namespace) &&
+				Objects.equals(hostname, that.hostname) &&
+				preferIpAddress == that.preferIpAddress &&
+				Objects.equals(initialStatus, that.initialStatus) &&
+				Arrays.equals(defaultAddressResolutionOrder, that.defaultAddressResolutionOrder) &&
+				Objects.equals(environment, that.environment);
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
+		return Objects.hash(hostInfo, inetUtils, appname, appGroupName,
+				instanceEnabledOnit, nonSecurePort, securePort, nonSecurePortEnabled,
+				securePortEnabled, leaseRenewalIntervalInSeconds,
+				leaseExpirationDurationInSeconds, virtualHostName, instanceId,
+				secureVirtualHostName, aSGName, metadataMap, dataCenterInfo, ipAddress,
+				statusPageUrlPath, statusPageUrl, homePageUrlPath, homePageUrl,
+				healthCheckUrlPath, healthCheckUrl, secureHealthCheckUrl, namespace,
+				hostname, preferIpAddress, initialStatus, defaultAddressResolutionOrder, environment);
 	}
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
+		return new StringBuilder("EurekaInstanceConfigBean{")
+				.append("hostInfo=").append(hostInfo).append(", ")
+				.append("inetUtils=").append(inetUtils).append(", ")
+				.append("appname='").append(appname).append("', ")
+				.append("appGroupName='").append(appGroupName).append("', ")
+				.append("instanceEnabledOnit=").append(instanceEnabledOnit).append(", ")
+				.append("nonSecurePort=").append(nonSecurePort).append(", ")
+				.append("securePort=").append(securePort).append(", ")
+				.append("nonSecurePortEnabled=").append(nonSecurePortEnabled).append(", ")
+				.append("securePortEnabled=").append(securePortEnabled).append(", ")
+				.append("leaseRenewalIntervalInSeconds=").append(leaseRenewalIntervalInSeconds).append(", ")
+				.append("leaseExpirationDurationInSeconds=").append(leaseExpirationDurationInSeconds).append(", ")
+				.append("virtualHostName='").append(virtualHostName).append("', ")
+				.append("instanceId='").append(instanceId).append("', ")
+				.append("secureVirtualHostName='").append(secureVirtualHostName).append("', ")
+				.append("aSGName='").append(aSGName).append("', ")
+				.append("metadataMap=").append(metadataMap).append(", ")
+				.append("dataCenterInfo=").append(dataCenterInfo).append(", ")
+				.append("ipAddress='").append(ipAddress).append("', ")
+				.append("statusPageUrlPath='").append(statusPageUrlPath).append("', ")
+				.append("statusPageUrl='").append(statusPageUrl).append("', ")
+				.append("homePageUrlPath='").append(homePageUrlPath).append("', ")
+				.append("homePageUrl='").append(homePageUrl).append("', ")
+				.append("healthCheckUrlPath='").append(healthCheckUrlPath).append("', ")
+				.append("healthCheckUrl='").append(healthCheckUrl).append("', ")
+				.append("secureHealthCheckUrl='").append(secureHealthCheckUrl).append("', ")
+				.append("namespace='").append(namespace).append("', ")
+				.append("hostname='").append(hostname).append("', ")
+				.append("preferIpAddress=").append(preferIpAddress).append(", ")
+				.append("initialStatus=").append(initialStatus).append(", ")
+				.append("defaultAddressResolutionOrder=").append(Arrays.toString(defaultAddressResolutionOrder)).append(", ")
+				.append("environment=").append(environment).append(", ").append("}")
+				.toString();
 	}
 
 }
