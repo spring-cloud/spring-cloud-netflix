@@ -929,7 +929,23 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this);
+		return Objects.hash(propertyResolver, enabled, transport,
+				registryFetchIntervalSeconds, instanceInfoReplicationIntervalSeconds,
+				initialInstanceInfoReplicationIntervalSeconds,
+				eurekaServiceUrlPollIntervalSeconds, proxyPort, proxyHost, proxyUserName,
+				proxyPassword, eurekaServerReadTimeoutSeconds,
+				eurekaServerConnectTimeoutSeconds, backupRegistryImpl,
+				eurekaServerTotalConnections, eurekaServerTotalConnectionsPerHost,
+				eurekaServerURLContext, eurekaServerPort, eurekaServerDNSName, region,
+				eurekaConnectionIdleTimeoutSeconds, registryRefreshSingleVipAddress,
+				heartbeatExecutorThreadPoolSize, heartbeatExecutorExponentialBackOffBound,
+				cacheRefreshExecutorThreadPoolSize,
+				cacheRefreshExecutorExponentialBackOffBound, serviceUrl, gZipContent,
+				useDnsForFetchingServiceUrls, registerWithEureka, preferSameZoneEureka,
+				logDeltaDiff, disableDelta, fetchRemoteRegionsRegistry, availabilityZones,
+				filterOnlyUpInstances, fetchRegistry, dollarReplacement,
+				escapeCharReplacement, allowRedirects, onDemandUpdateStatusChange,
+				encoderName, decoderName, clientDataAccept);
 	}
 
 	@Override
