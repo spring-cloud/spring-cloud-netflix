@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
@@ -62,7 +63,7 @@ public class ZuulProxyConfigurationTests {
 	void testClient(Class<?> clientType, String property) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		context.register(TestConfig.class, ZuulProxyMarkerConfiguration.class, 
-			ZuulProxyAutoConfiguration.class);
+			ZuulProxyAutoConfiguration.class, RefreshAutoConfiguration.class);
 		if (property != null) {
 			EnvironmentTestUtils.addEnvironment(context, property);
 		}
