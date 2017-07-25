@@ -35,12 +35,9 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * @author Spencer Gibb
  */
-@RequiredArgsConstructor
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
@@ -48,6 +45,11 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	private final EurekaInstanceConfig config;
 
 	private final EurekaClient eurekaClient;
+
+	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient) {
+		this.config = config;
+		this.eurekaClient = eurekaClient;
+	}
 
 	@Override
 	public String description() {
