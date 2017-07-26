@@ -9,7 +9,6 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-spectator</artifactId>
-	<packaging>pom</packaging>
 	<name>spring-cloud-starter-spectator</name>
 	<description>Spring Cloud Starter Spectator (deprecated, please use spring-cloud-starter-netflix-spectator)</description>
 	<url>https://projects.spring.io/spring-cloud</url>
