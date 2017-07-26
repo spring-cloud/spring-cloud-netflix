@@ -9,7 +9,6 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-turbine-stream</artifactId>
-	<packaging>pom</packaging>
 	<name>spring-cloud-starter-turbine-stream</name>
 	<description>Spring Cloud Starter Turbine Stream (deprecated, please use spring-cloud-starter-netflix-turbine-stream)</description>
 	<url>https://projects.spring.io/spring-cloud</url>

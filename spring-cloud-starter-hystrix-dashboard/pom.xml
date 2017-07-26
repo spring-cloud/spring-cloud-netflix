@@ -9,7 +9,6 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
-	<packaging>pom</packaging>
 	<name>spring-cloud-starter-hystrix-dashboard</name>
 	<description>Spring Cloud Starter Hystrix Dashboard (deprecated, please use spring-cloud-starter-hystrix-dashboard)</description>
 	<url>https://projects.spring.io/spring-cloud</url>

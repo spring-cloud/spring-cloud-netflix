@@ -9,7 +9,6 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-turbine-amqp</artifactId>
-	<packaging>pom</packaging>
 	<name>spring-cloud-starter-turbine-amqp</name>
 	<description>Spring Cloud Starter Turbine AMQP (deprecated, please use spring-cloud-starter-netflix-turbine-stream)</description>
 	<url>https://projects.spring.io/spring-cloud</url>

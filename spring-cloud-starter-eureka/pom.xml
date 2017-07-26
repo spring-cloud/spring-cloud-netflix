@@ -9,7 +9,6 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-eureka</artifactId>
-	<packaging>pom</packaging>
 	<name>spring-cloud-starter-eureka</name>
 	<description>Spring Cloud Starter Eureka (deprecated, please use spring-cloud-starter-netflix-eureka-client</description>
 	<url>https://projects.spring.io/spring-cloud</url>

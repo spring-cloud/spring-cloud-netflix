@@ -9,7 +9,6 @@
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-starter-archaius</artifactId>
-	<packaging>pom</packaging>
 	<name>spring-cloud-starter-archaius</name>
 	<description>Spring Cloud Starter Archaius (deprecated, please use spring-cloud-starter-netflix-archaius)</description>
 	<url>https://projects.spring.io/spring-cloud</url>
