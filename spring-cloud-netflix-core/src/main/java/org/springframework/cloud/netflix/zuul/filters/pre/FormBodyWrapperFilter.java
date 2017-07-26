@@ -140,7 +140,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 
 		private HttpServletRequest request;
 
-		private byte[] contentData;
+		private volatile byte[] contentData;
 
 		private MediaType contentType;
 
@@ -183,6 +183,9 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 		}
 
 		private synchronized void buildContentData() {
+			if (this.contentData != null) {
+				return;
+			}
 			try {
 				MultiValueMap<String, Object> builder = RequestContentDataExtractor.extract(this.request);
 				FormHttpOutputMessage data = new FormHttpOutputMessage();
@@ -192,8 +195,9 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 				FormBodyWrapperFilter.this.formHttpMessageConverter.write(builder, this.contentType, data);
 				// copy new content type including multipart boundary
 				this.contentType = data.getHeaders().getContentType();
-				this.contentData = data.getInput();
-				this.contentLength = this.contentData.length;
+				byte[] input = data.getInput();
+				this.contentLength = input.length;
+				this.contentData = input;
 			}
 			catch (Exception e) {
 				throw new IllegalStateException("Cannot convert form data", e);
