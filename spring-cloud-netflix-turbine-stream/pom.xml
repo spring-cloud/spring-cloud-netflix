@@ -15,7 +15,7 @@
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 		<turbine.version>2.0.0-DP.2</turbine.version>
-		<spring-cloud-contract.version>1.0.5.RELEASE</spring-cloud-contract.version>
+		<spring-cloud-contract.version>1.1.2.RELEASE</spring-cloud-contract.version>
 	</properties>
 	<build>
 		<plugins>
