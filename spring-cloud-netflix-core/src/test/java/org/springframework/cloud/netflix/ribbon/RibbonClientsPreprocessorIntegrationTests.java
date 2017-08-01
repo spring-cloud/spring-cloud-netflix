@@ -16,12 +16,15 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-
+import com.netflix.loadbalancer.IPing;
+import com.netflix.loadbalancer.PingUrl;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
@@ -33,9 +36,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -60,8 +61,13 @@ public class RibbonClientsPreprocessorIntegrationTests {
 
 	@Test
 	public void serverListFilterOverride() throws Exception {
-		assertEquals("myTestZone", ZonePreferenceServerListFilter.class
-				.cast(getLoadBalancer().getFilter()).getZone());
+		assertThat(ZonePreferenceServerListFilter.class
+				.cast(getLoadBalancer().getFilter()).getZone()).isEqualTo("myTestZone");
+	}
+
+	@Test
+	public void pingOverride() throws Exception {
+		assertThat(getLoadBalancer().getPing()).isInstanceOf(PingUrl.class);
 	}
 
 	@Configuration
@@ -71,6 +77,7 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	protected static class TestConfiguration {
 	}
 
+	// tag::sample_override_ribbon_config[]
 	@Configuration
 	protected static class FooConfiguration {
 		@Bean
@@ -79,6 +86,12 @@ public class RibbonClientsPreprocessorIntegrationTests {
 			filter.setZone("myTestZone");
 			return filter;
 		}
+
+		@Bean
+		public IPing ribbonPing() {
+			return new PingUrl();
+		}
 	}
+	// end::sample_override_ribbon_config[]
 
 }

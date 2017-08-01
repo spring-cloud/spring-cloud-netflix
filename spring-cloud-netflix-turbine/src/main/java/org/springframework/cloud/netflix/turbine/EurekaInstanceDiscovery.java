@@ -27,8 +27,8 @@ import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.turbine.discovery.Instance;
-
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Class that encapsulates an {@link com.netflix.turbine.discovery.InstanceDiscovery}
@@ -43,8 +43,9 @@ import lombok.extern.apachecommons.CommonsLog;
  *
  * @author Spencer Gibb
  */
-@CommonsLog
 public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
+
+	private static final Log log = LogFactory.getLog(EurekaInstanceDiscovery.class);
 
 	private static final String EUREKA_DEFAULT_CLUSTER_NAME_EXPRESSION = "appName";
 	private static final String ASG_KEY = "asg";

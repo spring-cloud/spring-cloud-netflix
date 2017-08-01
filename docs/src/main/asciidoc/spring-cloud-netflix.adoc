@@ -20,7 +20,7 @@ Service Discovery is one of the key tenets of a microservice based architecture.
 === How to Include Eureka Client
 
 To include Eureka Client in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-eureka`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-eureka-client`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 === Registering with Eureka
@@ -265,6 +265,34 @@ not be started yet). It is initialized in a `SmartLifecycle` (with
 another `SmartLifecycle` with higher phase.
 ====
 
+==== EurekaClient without Jersey
+
+By default, EurekaClient uses Jersey for HTTP communication. If you wish 
+to avoid dependencies from Jersey, you can exclude it from your dependencies.
+Spring Cloud will auto configure a transport client based on Spring 
+`RestTemplate`.
+
+----
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-eureka</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-apache-client4</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+----
+
 === Alternatives to the native Netflix EurekaClient
 
 You don't have to use the raw Netflix `EurekaClient` and usually it
@@ -341,7 +369,7 @@ eureka.client.preferSameZoneEureka = true
 === How to Include Eureka Server
 
 To include Eureka Server in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-eureka-server`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-eureka-server`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 [[spring-cloud-running-eureka-server]]
@@ -370,7 +398,7 @@ Eureka background reading: see https://github.com/cfregly/fluxcapacitor/wiki/Net
 
 [TIP]
 ====
-Due to Gradle's dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:
+Due to Gradle's dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-netflix-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:
 
 .build.gradle
 [source,java,indent=0]
@@ -488,6 +516,14 @@ of services rather than the hostname.  Set `eureka.instance.preferIpAddress`
 to `true` and when the application registers with eureka, it will use its
 IP Address rather than its hostname.
 
+[TIP]
+====
+If hostname can't be determined by Java, then IP address is sent to Eureka.
+Only explict way of setting hostname is by using `eureka.instance.hostname`.
+You can set your hostname at the run time using environment variable, for
+example `eureka.instance.hostname=${HOST_NAME}`.
+====
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
@@ -495,7 +531,7 @@ Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix]
 .Microservice Graph
 image::HystrixGraph.png[]
 
-A service failure in the lower level of services can cause cascading failure all the way up to the user.  When calls to a particular service reach a certain threshold (20 failures in 5 seconds is the default in Hystrix), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.
+A service failure in the lower level of services can cause cascading failure all the way up to the user. When calls to a particular service is greater than `circuitBreaker.requestVolumeThreshold` (default: 20 requests) and failue percentage is greater than `circuitBreaker.errorThresholdPercentage` (default: >50%) in a rolling window defined  by `metrics.rollingStats.timeInMilliseconds` (default: 10 seconds), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.
 
 .Hystrix fallback prevents cascading failures
 image::HystrixFallback.png[]
@@ -507,7 +543,7 @@ Having an open circuit stops cascading failures and allows overwhelmed or failin
 === How to Include Hystrix
 
 To include Hystrix in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-hystrix`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-hystrix`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 Example boot app:
@@ -619,14 +655,14 @@ be slightly more than three seconds.
 === How to Include Hystrix Dashboard
 
 To include the Hystrix Dashboard in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-hystrix-dashboard`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-hystrix-netflix-dashboard`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableHystrixDashboard`.  You then visit `/hystrix` and point the dashboard to an individual instances `/hystrix.stream` endpoint in a Hystrix client application.
 
 === Turbine
 
-Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
+Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
 
 NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `homePageUrl` entry in Eureka, then appending `/hystrix.stream` to it. This means that if `spring-boot-actuator` is running on its own port (which is the default), the call to `/hystrix.stream` will fail. 
 To make turbine find the Hystrix stream at the correct port, you need to add `management.port` to the instances' metadata: 
@@ -667,7 +703,7 @@ turbine:
   clusterNameExpression: "'default'"
 ----
 
-Spring Cloud provides a `spring-cloud-starter-turbine` that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with `@EnableTurbine`.
+Spring Cloud provides a `spring-cloud-starter-netflix-turbine` that has all the dependencies you need to get a Turbine server running. Just create a Spring Boot application and annotate it with `@EnableTurbine`.
 
 NOTE: by default Spring Cloud allows Turbine to use the host and port to allow multiple processes per host, per cluster. If you want the native Netflix behaviour built into Turbine that does _not_ allow multiple processes per host, per cluster (the key to the instance id is the hostname), then set the property `turbine.combineHostPort=false`.
 
@@ -679,7 +715,7 @@ On the server side Just create a Spring Boot application and annotate it with `@
 
 You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.  If Turbine Stream is running on port 8989 on myhost, then put `http://myhost:8989` in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.
 
-Spring Cloud provides a `spring-cloud-starter-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. `spring-cloud-starter-stream-rabbit`. You need Java 8 to run the app because it is Netty-based.
+Spring Cloud provides a `spring-cloud-starter-netflix-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. `spring-cloud-starter-stream-rabbit`. You need Java 8 to run the app because it is Netty-based.
 
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
@@ -701,7 +737,7 @@ annotation). Spring Cloud creates a new ensemble as an
 === How to Include Ribbon
 
 To include Ribbon in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-ribbon`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-ribbon`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 === Customizing the Ribbon Client
@@ -710,7 +746,7 @@ You can configure some bits of a Ribbon client using external
 properties in `<client>.ribbon.*`, which is no different than using
 the Netflix APIs natively, except that you can use Spring Boot
 configuration files. The native options can
-be inspected as static fields in `CommonClientConfigKey` (part of
+be inspected as static fields in https://github.com/Netflix/ribbon/blob/master/ribbon-core/src/main/java/com/netflix/client/config/CommonClientConfigKey.java[`CommonClientConfigKey`] (part of
 ribbon-core).
 
 Spring Cloud also lets you take full control of the client by
@@ -742,7 +778,7 @@ Spring Cloud Netflix provides the following beans by default for ribbon
 
 * `IClientConfig` ribbonClientConfig: `DefaultClientConfigImpl`
 * `IRule` ribbonRule: `ZoneAvoidanceRule`
-* `IPing` ribbonPing: `NoOpPing`
+* `IPing` ribbonPing: `DummyPing`
 * `ServerList<Server>` ribbonServerList: `ConfigurationBasedServerList`
 * `ServerListFilter<Server>` ribbonServerListFilter: `ZonePreferenceServerListFilter`
 * `ILoadBalancer` ribbonLoadBalancer: `ZoneAwareLoadBalancer`
@@ -754,16 +790,18 @@ one of the beans described.  Example:
 
 [source,java,indent=0]
 ----
-@Configuration
-public class FooConfiguration {
-    @Bean
-    public IPing ribbonPing(IClientConfig config) {
-        return new PingUrl();
-    }
-}
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
 ----
 
-This replaces the `NoOpPing` with `PingUrl`.
+This replaces the `NoOpPing` with `PingUrl` and provides a custom `serverListFilter`
+
+=== Customizing default for all Ribbon Clients
+A default configuration can be provided for all Ribbon Clients using the `@RibbonClients` annotation and registering a default configuration as shown in the following example:
+[source,java,indent=0]
+----
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
+
+----
 
 === Customizing the Ribbon Client using properties
 
@@ -919,7 +957,7 @@ https://github.com/Netflix/feign[Feign] is a declarative web service client.  It
 === How to Include Feign
 
 To include Feign in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-feign`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-openfeign`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 Example spring boot app
@@ -1366,7 +1404,7 @@ NOTE: Default Hystrix isolation pattern (ExecutionIsolationStrategy) for all rou
 === How to Include Zuul
 
 To include Zuul in your project use the starter with group `org.springframework.cloud`
-and artifact id `spring-cloud-starter-zuul`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
+and artifact id `spring-cloud-starter-netflix-zuul`. See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page]
 for details on setting up your build system with the current Spring Cloud Release Train.
 
 [[netflix-zuul-reverse-proxy]]
@@ -1660,7 +1698,37 @@ To not discard these well known security headers in case Spring Security is on t
 If you are using `@EnableZuulProxy` with tha Spring Boot Actuator you
 will enable (by default) an additional endpoint, available via HTTP as
 `/routes`. A GET to this endpoint will return a list of the mapped
-routes. A POST will force a refresh of the existing routes (e.g. in
+routes:
+
+.GET /routes
+[source,json]
+----
+{
+  /stores/**: "http://localhost:8081"
+}
+----
+
+Additional route details can be requested by adding the `?format=details` query
+string to `/routes`. This will produce the following output:
+
+.GET /routes?format=details
+[source,json]
+----
+{
+  "/stores/**": {
+    "id": "stores",
+    "fullPath": "/stores/**",
+    "location": "http://localhost:8081",
+    "path": "/**",
+    "prefix": "/stores",
+    "retryable": false,
+    "customSensitiveHeaders": false,
+    "prefixStripped": true
+  }
+}
+----
+
+A POST will force a refresh of the existing routes (e.g. in
 case there have been changes in the service catalog).  You can disable
 this endpoint by setting `endpoints.routes.enabled` to `false`.
 
@@ -2386,7 +2454,7 @@ To enable Spectator metrics, include a dependency on `spring-boot-starter-specta
 ----
     <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-spectator</artifactId>
+        <artifactId>spring-cloud-starter-netflix-spectator</artifactId>
     </dependency>
 ----
 
@@ -2490,7 +2558,7 @@ Atlas was developed by Netflix to manage dimensional time series data for near r
 
 Atlas captures operational intelligence. Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.
 
-Spring Cloud provides a `spring-cloud-starter-atlas` that has all the dependencies you need. Then just annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server with the `netflix.atlas.uri` property.
+Spring Cloud provides a `spring-cloud-starter-netflix-atlas` that has all the dependencies you need. Then just annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server with the `netflix.atlas.uri` property.
 
 ==== Global tags
 

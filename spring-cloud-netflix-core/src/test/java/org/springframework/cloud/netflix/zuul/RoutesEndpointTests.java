@@ -34,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ryan Baxter
+ * @author Gregor Zurowski
  */
 public class RoutesEndpointTests {
 
@@ -51,7 +52,7 @@ public class RoutesEndpointTests {
 			public List<Route> getRoutes() {
 				List<Route> routes = new ArrayList<>();
 				routes.add(new Route("foo", "foopath", "foolocation", null, true, Collections.EMPTY_SET));
-				routes.add(new Route("bar", "barpath", "barlocation", null, true, Collections.EMPTY_SET));
+				routes.add(new Route("bar", "barpath", "barlocation", "/bar-prefix", true, Collections.EMPTY_SET));
 				return routes;
 			}
 
@@ -70,6 +71,16 @@ public class RoutesEndpointTests {
 			result.put(r.getFullPath(), r.getLocation());
 		}
 		assertEquals(result , endpoint.invoke());
+	}
+
+	@Test
+	public void testInvokeRouteDetails() {
+		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
+		Map<String, RoutesEndpoint.RouteDetails> results = new HashMap<>();
+		for (Route route : locator.getRoutes()) {
+			results.put(route.getFullPath(), new RoutesEndpoint.RouteDetails(route));
+		}
+		assertEquals(results, endpoint.invokeRouteDetails());
 	}
 
 	@Test

@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>spring-cloud-starter-ribbon</artifactId>
 	<name>spring-cloud-starter-ribbon</name>
-	<description>Spring Cloud Starter</description>
+	<description>Spring Cloud Starter Ribbon (deprecated, please use spring-cloud-starter-netflix-ribbon)</description>
 	<url>https://projects.spring.io/spring-cloud</url>
 	<organization>
 		<name>Pivotal Software, Inc.</name>
@@ -22,35 +22,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netflix-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-archaius</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.ribbon</groupId>
-			<artifactId>ribbon</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.ribbon</groupId>
-			<artifactId>ribbon-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.ribbon</groupId>
-			<artifactId>ribbon-httpclient</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.ribbon</groupId>
-			<artifactId>ribbon-loadbalancer</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.reactivex</groupId>
-			<artifactId>rxjava</artifactId>
+			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
 		</dependency>
 	</dependencies>
 </project>

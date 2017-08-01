@@ -42,6 +42,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Ryan Baxter
+ * @author Gregor Zurowski
  */
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
@@ -63,7 +64,7 @@ public class RoutesMvcEndpointTests {
 			public List<Route> getRoutes() {
 				List<Route> routes = new ArrayList<>();
 				routes.add(new Route("foo", "foopath", "foolocation", null, true, Collections.EMPTY_SET));
-				routes.add(new Route("bar", "barpath", "barlocation", null, true, Collections.EMPTY_SET));
+				routes.add(new Route("bar", "barpath", "barlocation", "bar-prefix", true, Collections.EMPTY_SET));
 				return routes;
 			}
 
@@ -86,6 +87,17 @@ public class RoutesMvcEndpointTests {
 		assertEquals(result , mvcEndpoint.reset());
 		verify(endpoint, times(1)).invoke();
 		verify(publisher, times(1)).publishEvent(isA(RoutesRefreshedEvent.class));
+	}
+
+	@Test
+	public void routeDetails() throws Exception {
+		RoutesMvcEndpoint mvcEndpoint = new RoutesMvcEndpoint(endpoint, locator);
+		Map<String, RoutesEndpoint.RouteDetails> results = new HashMap<>();
+		for (Route route : locator.getRoutes()) {
+			results.put(route.getFullPath(), new RoutesEndpoint.RouteDetails(route));
+		}
+		assertEquals(results, mvcEndpoint.invokeRouteDetails(RoutesMvcEndpoint.FORMAT_DETAILS));
+		verify(endpoint, times(1)).invokeRouteDetails();
 	}
 
 }

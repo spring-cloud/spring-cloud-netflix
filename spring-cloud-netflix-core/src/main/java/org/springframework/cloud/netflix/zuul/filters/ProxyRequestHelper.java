@@ -31,6 +31,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -46,15 +48,14 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 
-import lombok.extern.apachecommons.CommonsLog;
-
 /**
  * @author Dave Syer
  * @author Marcos Barbero
  * @author Spencer Gibb
  */
-@CommonsLog
 public class ProxyRequestHelper {
+
+	private static final Log log = LogFactory.getLog(ProxyRequestHelper.class);
 
 	/**
 	 * Zuul context key for a collection of ignored headers for the current request.

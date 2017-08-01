@@ -16,16 +16,14 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import org.springframework.context.ApplicationEvent;
+
+import java.util.Objects;
 
 /**
  * @author Spencer Gibb
+ * @author Gregor Zurowski
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 @SuppressWarnings("serial")
 public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 
@@ -41,6 +39,54 @@ public class EurekaInstanceCanceledEvent extends ApplicationEvent {
 		this.appName = appName;
 		this.serverId = serverId;
 		this.replication = replication;
+	}
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+
+	public String getServerId() {
+		return serverId;
+	}
+
+	public void setServerId(String serverId) {
+		this.serverId = serverId;
+	}
+
+	public boolean isReplication() {
+		return replication;
+	}
+
+	public void setReplication(boolean replication) {
+		this.replication = replication;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaInstanceCanceledEvent that = (EurekaInstanceCanceledEvent) o;
+		return Objects.equals(appName, that.appName) &&
+				Objects.equals(serverId, that.serverId) &&
+				replication == replication;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(appName, serverId, replication);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("EurekaInstanceCanceledEvent{")
+				.append("appName='").append(appName).append("', ")
+				.append("serverId='").append(serverId).append("', ")
+				.append("replication=").append(replication).append("}")
+				.toString();
 	}
 
 }

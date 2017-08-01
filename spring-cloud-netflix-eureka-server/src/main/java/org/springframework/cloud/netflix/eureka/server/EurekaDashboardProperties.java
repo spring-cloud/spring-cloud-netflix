@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import lombok.Data;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.Objects;
 
 /**
  * Configuration properties for the Eureka dashboard (UI).
@@ -26,7 +26,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Dave Syer
  */
 @ConfigurationProperties("eureka.dashboard")
-@Data
 public class EurekaDashboardProperties {
 
 	/**
@@ -39,4 +38,42 @@ public class EurekaDashboardProperties {
 	 */
 	private boolean enabled = true;
 
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		EurekaDashboardProperties that = (EurekaDashboardProperties) o;
+		return enabled == that.enabled &&
+				Objects.equals(path, that.path);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(path, enabled);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("EurekaDashboardProperties{");
+		sb.append("path='").append(path).append('\'');
+		sb.append(", enabled=").append(enabled);
+		sb.append('}');
+		return sb.toString();
+	}
 }

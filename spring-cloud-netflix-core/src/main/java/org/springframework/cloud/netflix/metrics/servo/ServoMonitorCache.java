@@ -19,16 +19,18 @@ import java.util.Map;
 import com.netflix.servo.MonitorRegistry;
 import com.netflix.servo.monitor.BasicTimer;
 import com.netflix.servo.monitor.MonitorConfig;
-
-import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Servo does not provide a mechanism to retrieve an existing monitor by name + tags.
  *
  * @author Jon Schneider
  */
-@CommonsLog
 public class ServoMonitorCache {
+
+	private static final Log log = LogFactory.getLog(ServoMonitorCache.class);
+
 	private final Map<MonitorConfig, BasicTimer> timerCache = new HashMap<>();
 	private final MonitorRegistry monitorRegistry;
 	private final ServoMetricsConfigBean config;

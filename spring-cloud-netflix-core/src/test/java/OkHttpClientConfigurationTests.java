@@ -62,7 +62,8 @@ import static org.mockito.Mockito.mockingDetails;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = OkHttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: true",
-		"spring.cloud.httpclientfactories.ok.enabled: true", "ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true"})
+		"spring.cloud.httpclientfactories.ok.enabled: true", "ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true",
+		"feign.okhttp.enabled: true", "ribbon.httpclient.enabled: false", "feign.httpclient.enabled: false"})
 @DirtiesContext
 public class OkHttpClientConfigurationTests {
 

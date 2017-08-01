@@ -29,6 +29,7 @@ import org.springframework.util.ReflectionUtils;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
@@ -55,7 +56,7 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	public CloudEurekaClient(ApplicationInfoManager applicationInfoManager,
 							 EurekaClientConfig config,
-							 DiscoveryClientOptionalArgs args,
+							 AbstractDiscoveryClientOptionalArgs<?> args,
 							 ApplicationEventPublisher publisher) {
 		super(applicationInfoManager, config, args);
 		this.applicationInfoManager = applicationInfoManager;
