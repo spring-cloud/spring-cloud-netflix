@@ -1890,7 +1890,8 @@ public interface StoreClient {
 </ul>
 </div>
 <div class="paragraph">
-<p>The OkHttpClient and ApacheHttpClient feign clients can be used by setting <code>feign.okhttp.enabled</code> or <code>feign.httpclient.enabled</code> to <code>true</code>, respectively, and having them on the classpath.</p>
+<p>The OkHttpClient and ApacheHttpClient feign clients can be used by setting <code>feign.okhttp.enabled</code> or <code>feign.httpclient.enabled</code> to <code>true</code>, respectively, and having them on the classpath.
+You can customize the HTTP client used by providing a bean of either <code>ClosableHttpClient</code> when using Apache or <code>OkHttpClient</code> whe using OK HTTP.</p>
 </div>
 <div class="paragraph">
 <p>Spring Cloud Netflix <em>does not</em> provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:</p>
@@ -2675,7 +2676,9 @@ path rendering the <code>users</code> path unreachable.</p>
 <div class="paragraph">
 <p>The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
 deprecated Ribbon <code>RestClient</code>. To use <code>RestClient</code> or to use the <code>okhttp3.OkHttpClient</code> set
-<code>ribbon.restclient.enabled=true</code> or <code>ribbon.okhttp.enabled=true</code> respectively.</p>
+<code>ribbon.restclient.enabled=true</code> or <code>ribbon.okhttp.enabled=true</code> respectively.  If you would
+like to customize the Apache HTTP client or the OK HTTP client provide a bean of type
+<code>ClosableHttpClient</code> or <code>OkHttpClient</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -3998,6 +4001,31 @@ can also disable retry functionality on route by route basis by setting
 <code>zuul.routes.routename.retryable</code> to <code>false</code>.</p>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_http_clients">HTTP Clients</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Netflix will automatically create the HTTP client used by Ribbon, Feign, and
+Zuul for you.  However you can also provide your own HTTP clients customized how you please
+yourself.  To do this you can either create a bean of type <code>ClosableHttpClient</code> if you
+are using the Apache Http Cient, or <code>OkHttpClient</code> if you are using OK HTTP.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When you create your own HTTP client you are also responsible for implementing
+the correct connection management strategies for these clients.  Doing this improperly
+can result in resource management issues.
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
