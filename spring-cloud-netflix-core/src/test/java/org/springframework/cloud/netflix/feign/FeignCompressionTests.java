@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.feign.encoding.FeignAcceptGzipEncodingAutoConfiguration;
 import org.springframework.cloud.netflix.feign.encoding.FeignAcceptGzipEncodingInterceptor;
@@ -58,7 +59,7 @@ public class FeignCompressionTests {
 		context = new SpringApplicationBuilder().properties("feign.compression.response.enabled=true",
 				"feign.compression.request.enabled=true", "feign.okhttp.enabled=false").sources(PropertyPlaceholderAutoConfiguration.class,
 				ArchaiusAutoConfiguration.class, FeignAutoConfiguration.class, PlainConfig.class, FeignContentGzipEncodingAutoConfiguration.class,
-				FeignAcceptGzipEncodingAutoConfiguration.class).web(false).run();
+				FeignAcceptGzipEncodingAutoConfiguration.class, HttpClientConfiguration.class).web(false).run();
 	}
 
 	@After

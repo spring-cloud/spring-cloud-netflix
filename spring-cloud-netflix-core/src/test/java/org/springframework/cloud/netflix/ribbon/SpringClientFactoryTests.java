@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.junit.Test;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -69,7 +70,7 @@ public class SpringClientFactoryTests {
 	public void testConfigureRetry() {
 		SpringClientFactory factory = new SpringClientFactory();
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
+				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class, HttpClientConfiguration.class);
 		addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
 		factory.setApplicationContext(parent);
 		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory

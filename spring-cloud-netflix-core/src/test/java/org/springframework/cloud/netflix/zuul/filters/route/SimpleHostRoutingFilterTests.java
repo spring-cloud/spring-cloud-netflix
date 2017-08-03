@@ -48,6 +48,10 @@ import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoCon
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -114,7 +118,7 @@ public class SimpleHostRoutingFilterTests {
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
 				"zuul.host.timeUnit=SECONDS");
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = getFilter().newConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -149,7 +153,7 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = getFilter().newConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -223,8 +227,16 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties) {
-			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties);
+		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(); }
+
+		@Bean
+		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() { return new DefaultApacheHttpClientConnectionManagerFactory(); }
+
+		@Bean
+		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
+														ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+														ApacheHttpClientFactory clientFactory) {
+			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties, connectionManagerFactory, clientFactory);
 		}
 	}
 }

@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.feign.valid;
 
 import org.junit.Test;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -45,7 +46,7 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@Import(FeignAutoConfiguration.class)
+	@Import({FeignAutoConfiguration.class, HttpClientConfiguration.class})
 	@EnableFeignClients(clients = GoodUrlConfiguration.Client.class)
 	protected static class GoodUrlConfiguration {
 
@@ -67,7 +68,7 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@Import(FeignAutoConfiguration.class)
+	@Import({FeignAutoConfiguration.class, HttpClientConfiguration.class})
 	@EnableFeignClients(clients = PlaceholderUrlConfiguration.Client.class)
 	protected static class PlaceholderUrlConfiguration {
 
@@ -92,7 +93,7 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@Import(FeignAutoConfiguration.class)
+	@Import({FeignAutoConfiguration.class, HttpClientConfiguration.class})
 	@EnableFeignClients(clients = GoodServiceIdConfiguration.Client.class)
 	protected static class GoodServiceIdConfiguration {
 

@@ -17,6 +17,7 @@
 
 package org.springframework.cloud.netflix.ribbon.test;
 
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
@@ -41,7 +42,7 @@ import com.netflix.loadbalancer.ServerListSubsetFilter;
  */
 @Configuration
 @Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
-		UtilAutoConfiguration.class, RibbonAutoConfiguration.class })
+		UtilAutoConfiguration.class, RibbonAutoConfiguration.class, HttpClientConfiguration.class })
 // tag::sample_default_ribbon_config[]
 @RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
 public class RibbonClientDefaultConfigurationTestsConfig {

@@ -25,12 +25,14 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
@@ -171,7 +173,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	@Test
 	public void testNeverRetry() throws Exception {
 		ServerIntrospector introspector = mock(ServerIntrospector.class);
-		HttpClient delegate = mock(HttpClient.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 		HttpResponse response = mock(HttpResponse.class);
 		doThrow(new IOException("boom")).when(delegate).execute(any(HttpUriRequest.class));
 		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
@@ -223,8 +225,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		int port = 80;
 		HttpMethod method = HttpMethod.GET;
 		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
-		final HttpResponse response = mock(HttpResponse.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(response).getStatusLine();
@@ -255,8 +257,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		int port = 80;
 		HttpMethod method = HttpMethod.GET;
 		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
-		final HttpResponse response = mock(HttpResponse.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(response).getStatusLine();
@@ -288,7 +290,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		int port = 80;
 		HttpMethod method = HttpMethod.POST;
 		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
@@ -321,7 +323,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		int port = 80;
 		HttpMethod method = HttpMethod.POST;
 		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		doThrow(new IOException("boom")).doThrow(new IOException("boom again")).doReturn(response).
 				when(delegate).execute(any(HttpUriRequest.class));
@@ -356,8 +358,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		int port = 80;
 		HttpMethod method = HttpMethod.GET;
 		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
-		final HttpResponse response = mock(HttpResponse.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(response).getStatusLine();
@@ -439,19 +441,19 @@ public class RibbonLoadBalancingHttpClientTests {
 												IClientConfig configOverride, SpringClientFactory factory)
 			throws Exception {
 
-		factory.setApplicationContext(new AnnotationConfigApplicationContext(
+		factory.setApplicationContext(new AnnotationConfigApplicationContext(HttpClientConfiguration.class,
 				RibbonAutoConfiguration.class, defaultConfigurationClass));
 		String serviceName = "foo";
 		String host = serviceName;
 		int port = 80;
 		URI uri = new URI("http://" + host + ":" + port);
-		HttpClient delegate = mock(HttpClient.class);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 		RibbonLoadBalancingHttpClient client = factory.getClient("service",
 				RibbonLoadBalancingHttpClient.class);
 
 		ReflectionTestUtils.setField(client, "delegate", delegate);
 		ReflectionTestUtils.setField(client, "lb", loadBalancer);
-		HttpResponse httpResponse  = mock(HttpResponse.class);
+		CloseableHttpResponse httpResponse  = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(httpResponse).getStatusLine();

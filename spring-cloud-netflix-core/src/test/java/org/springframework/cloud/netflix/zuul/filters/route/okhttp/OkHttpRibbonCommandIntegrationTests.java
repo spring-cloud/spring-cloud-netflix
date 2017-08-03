@@ -29,9 +29,12 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorAttributes;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
@@ -46,6 +49,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RestController;
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -118,6 +124,20 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public MyErrorController myErrorController(ErrorAttributes errorAttributes) {
 			return new MyErrorController(errorAttributes);
+		}
+
+		@Bean
+		public IClientConfig config() {
+			return new DefaultClientConfigImpl();
+		}
+
+		@Bean
+		public OkHttpLoadBalancingClient okClient(IClientConfig config) {
+			final OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(config,
+					new DefaultServerIntrospector());
+			client.setLoadBalancer(new TestLoadBalancer<>());
+			client.setRetryHandler(new DefaultLoadBalancerRetryHandler());
+			return client;
 		}
 	}
 }

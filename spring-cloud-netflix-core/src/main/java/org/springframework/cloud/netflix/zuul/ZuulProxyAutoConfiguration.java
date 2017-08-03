@@ -20,6 +20,7 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
@@ -33,6 +34,9 @@ import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -60,7 +64,8 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({ RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration.class,
 		RibbonCommandFactoryConfiguration.OkHttpRibbonConfiguration.class,
-		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class })
+		RibbonCommandFactoryConfiguration.HttpClientRibbonConfiguration.class,
+		HttpClientConfiguration.class })
 @ConditionalOnBean(ZuulProxyMarkerConfiguration.Marker.class)
 public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
@@ -76,7 +81,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Override
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Discovery)", ZuulProxyAutoConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Discovery)",
+				ZuulProxyAutoConfiguration.class);
 	}
 
 	@Bean
@@ -97,14 +103,28 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory) {
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory, this.requestCustomizers);
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory,
+				this.requestCustomizers);
 		return filter;
 	}
 
 	@Bean
-	@ConditionalOnMissingBean(SimpleHostRoutingFilter.class)
-	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties zuulProperties) {
-		return new SimpleHostRoutingFilter(helper, zuulProperties);
+	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class, CloseableHttpClient.class})
+	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
+			ZuulProperties zuulProperties,
+			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+			ApacheHttpClientFactory httpClientFactory) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties,
+				connectionManagerFactory, httpClientFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class})
+	public SimpleHostRoutingFilter simpleHostRoutingFilter2(ProxyRequestHelper helper,
+														   ZuulProperties zuulProperties,
+														   CloseableHttpClient httpClient) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties,
+				httpClient);
 	}
 
 	@Bean
@@ -145,7 +165,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		}
 
 		@Bean
-		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator, RoutesEndpoint endpoint) {
+		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator,
+				RoutesEndpoint endpoint) {
 			return new RoutesMvcEndpoint(endpoint, routeLocator);
 		}
 
@@ -161,7 +182,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		}
 	}
 
-	private static class ZuulDiscoveryRefreshListener implements ApplicationListener<ApplicationEvent> {
+	private static class ZuulDiscoveryRefreshListener
+			implements ApplicationListener<ApplicationEvent> {
 
 		private HeartbeatMonitor monitor = new HeartbeatMonitor();
 
