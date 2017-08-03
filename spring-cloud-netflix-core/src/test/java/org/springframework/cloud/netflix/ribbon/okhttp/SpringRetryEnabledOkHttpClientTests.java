@@ -22,6 +22,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
@@ -38,20 +39,26 @@ import static org.hamcrest.Matchers.instanceOf;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(value = {"ribbon.okhttp.enabled: true"})
-@ContextConfiguration(classes = {RibbonAutoConfiguration.class, RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class})
+@SpringBootTest(value = { "ribbon.okhttp.enabled: true", "ribbon.httpclient.enabled: false" })
+@ContextConfiguration(classes = { RibbonAutoConfiguration.class,
+		HttpClientConfiguration.class, RibbonClientConfiguration.class,
+		LoadBalancerAutoConfiguration.class })
 public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAware {
 
 	private ApplicationContext context;
 
 	@Test
 	public void testLoadBalancedRetryFactoryBean() throws Exception {
-		Map<String, LoadBalancedRetryPolicyFactory> factories =  context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
+		Map<String, LoadBalancedRetryPolicyFactory> factories = context
+				.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
 		assertThat(factories.values(), hasSize(1));
-		assertThat(factories.values().toArray()[0], instanceOf(RibbonLoadBalancedRetryPolicyFactory.class));
-		Map<String, OkHttpLoadBalancingClient> clients =  context.getBeansOfType(OkHttpLoadBalancingClient.class);
+		assertThat(factories.values().toArray()[0],
+				instanceOf(RibbonLoadBalancedRetryPolicyFactory.class));
+		Map<String, OkHttpLoadBalancingClient> clients = context
+				.getBeansOfType(OkHttpLoadBalancingClient.class);
 		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0], instanceOf(RetryableOkHttpLoadBalancingClient.class));
+		assertThat(clients.values().toArray()[0],
+				instanceOf(RetryableOkHttpLoadBalancingClient.class));
 	}
 
 	@Override

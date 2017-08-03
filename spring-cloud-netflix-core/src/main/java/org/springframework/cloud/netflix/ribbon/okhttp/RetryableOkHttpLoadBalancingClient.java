@@ -49,9 +49,9 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
-	public RetryableOkHttpLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector,
+	public RetryableOkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector,
 									 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-		super(config, serverIntrospector);
+		super(delegate, config, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 

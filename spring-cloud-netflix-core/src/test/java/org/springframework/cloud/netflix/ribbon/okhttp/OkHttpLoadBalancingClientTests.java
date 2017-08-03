@@ -20,6 +20,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -124,12 +126,25 @@ public class OkHttpLoadBalancingClientTests {
 									   IClientConfig configOverride,
 									   SpringClientFactory factory) throws Exception {
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, defaultConfigurationClass));
+				RibbonAutoConfiguration.class, OkHttpClientConfiguration.class, defaultConfigurationClass));
 
 		OkHttpLoadBalancingClient client = factory.getClient("service",
 				OkHttpLoadBalancingClient.class);
 
 		return client.getOkHttpClient(configOverride, false);
+	}
+
+	@Configuration
+	protected static class OkHttpClientConfiguration {
+		@Autowired(required = false)
+		IClientConfig clientConfig;
+		@Bean
+		public OkHttpLoadBalancingClient okHttpLoadBalancingClient() {
+			if(clientConfig == null) {
+				clientConfig = new DefaultClientConfigImpl();
+			}
+			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig, new DefaultServerIntrospector());
+		}
 	}
 
 	@Configuration

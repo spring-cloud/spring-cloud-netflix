@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer;
@@ -102,7 +103,7 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 
 	@Configuration
 	@RibbonClients
-	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
+	@Import({ UtilAutoConfiguration.class, HttpClientConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}

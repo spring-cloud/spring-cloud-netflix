@@ -41,16 +41,6 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 public class OkHttpLoadBalancingClient
 		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
 
-	@Deprecated
-	public OkHttpLoadBalancingClient() {
-		super();
-	}
-
-	@Deprecated
-	public OkHttpLoadBalancingClient(final ILoadBalancer lb) {
-		super(lb);
-	}
-
 	public OkHttpLoadBalancingClient(IClientConfig config,
 			ServerIntrospector serverIntrospector) {
 		super(config, serverIntrospector);

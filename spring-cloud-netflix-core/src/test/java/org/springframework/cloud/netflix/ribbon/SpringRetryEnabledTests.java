@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.feign.ribbon.CachingSpringLoadBalancerFactory;
 import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
@@ -45,7 +46,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {RibbonAutoConfiguration.class, RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class,
-		FeignRibbonClientAutoConfiguration.class})
+		FeignRibbonClientAutoConfiguration.class, HttpClientConfiguration.class})
 public class SpringRetryEnabledTests implements ApplicationContextAware {
 
 	private ApplicationContext context;
