@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.util.PathMatcher;
+
 /**
  * @author Dave Syer
  */
@@ -28,6 +30,11 @@ public interface RouteLocator {
 	 * Ignored route paths (or patterns), if any.
 	 */
 	Collection<String> getIgnoredPaths();
+
+	/**
+	 * Matcher to be used to check paths (or patterns).
+	 */
+	PathMatcher getPathMatcher();
 
 	/**
 	 * A map of route path (pattern) to location (e.g. service id or URL).

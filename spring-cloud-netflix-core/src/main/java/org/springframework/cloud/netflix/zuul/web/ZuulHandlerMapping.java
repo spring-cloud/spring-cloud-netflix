@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
@@ -79,9 +78,10 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		if (this.errorController != null && urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
-		String[] ignored = this.routeLocator.getIgnoredPaths().toArray(new String[0]);
-		if (PatternMatchUtils.simpleMatch(ignored, urlPath)) {
-			return null;
+		for (String pattern : this.routeLocator.getIgnoredPaths()) {
+			if (this.routeLocator.getPathMatcher().match(pattern, urlPath)) {
+				return null;
+			}
 		}
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {

@@ -83,6 +83,11 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	}
 
 	@Override
+	public PathMatcher getPathMatcher() {
+		return this.pathMatcher;
+	}
+
+	@Override
 	public Route getMatchingRoute(final String path) {
 
 		return getSimpleMatchingRoute(path);
