@@ -70,6 +70,7 @@ public class OkHttpRibbonResponseTests {
 		return new Response.Builder()
 				.request(new Request.Builder().url(HttpUrl.get(uri)).build())
 				.protocol(Protocol.HTTP_1_1)
-				.code(HttpStatus.OK.value());
+				.code(HttpStatus.OK.value())
+				.message(HttpStatus.OK.getReasonPhrase());
 	}
 }
