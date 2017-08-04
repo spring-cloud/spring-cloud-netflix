@@ -1493,9 +1493,38 @@ The location of the backend can be specified as either a "serviceId"
       url: http://example.com/users_service
 ----
 
-These simple url-routes don't get executed as a `HystrixCommand` nor can you loadbalance multiple URLs with Ribbon.
-To achieve this, specify a service-route and configure a Ribbon client for the
-serviceId (this currently requires disabling Eureka support in Ribbon:
+These simple url-routes don't get executed as a `HystrixCommand` nor do they loadbalance multiple URLs with Ribbon.
+To achieve this, you can specify a "virtual" service:
+
+.application.yml
+[source,yaml]
+----
+zuul:
+  routes:
+    echo:
+      path: /myusers/**
+      serviceId: myusers-service
+      stripPrefix: true
+
+hystrix:
+  command:
+    myusers-service:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: ...
+
+myusers-service:
+  ribbon:
+    listOfServers: http://example1.com,http://example2.com
+    ConnectTimeout: 1000
+    ReadTimeout: 3000
+    MaxTotalHttpConnections: 500
+    MaxConnectionsPerHost: 100  
+----
+
+Another method is specifiying a service-route and configure a Ribbon client for the
+serviceId (this requires disabling Eureka support in Ribbon:
 see <<spring-cloud-ribbon-without-eureka,above for more information>>), e.g.
 
 .application.yml
