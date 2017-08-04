@@ -17,7 +17,11 @@
 
 package org.springframework.cloud.netflix.zuul.web;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,11 +33,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.netflix.zuul.context.RequestContext;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 /**
  * @author Dave Syer
+ * @author Biju Kunjummen
  */
 public class ZuulHandlerMappingTests {
 
@@ -59,7 +61,7 @@ public class ZuulHandlerMappingTests {
 				.singletonList(new Route("foo", "/foo/**", "foo", "", null, null)));
 		this.request.setServletPath("/foo/");
 		this.mapping.setDirty(true);
-		assertNotNull(this.mapping.getHandler(this.request));
+		assertThat(this.mapping.getHandler(this.request)).isNotNull();
 	}
 
 	@Test
@@ -69,7 +71,7 @@ public class ZuulHandlerMappingTests {
 		;
 		this.request.setServletPath("/");
 		this.mapping.setDirty(true);
-		assertNotNull(this.mapping.getHandler(this.request));
+		assertThat(this.mapping.getHandler(this.request)).isNotNull();
 	}
 
 	@Test
@@ -78,7 +80,41 @@ public class ZuulHandlerMappingTests {
 				.singletonList(new Route("default", "/**", "foo", "", null, null)));
 		this.request.setServletPath("/error");
 		this.mapping.setDirty(true);
-		assertNull(this.mapping.getHandler(this.request));
+		assertThat(this.mapping.getHandler(this.request)).isNull();
+	}
+
+	@Test
+	public void ignoredPathsShouldNotReturnAHandler() throws Exception {
+		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**"),
+				new Route("p1", "/p1/**", "p1", "", null, null))
+						.getHandler(requestForAPath("/p1"))).isNull();
+
+		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p3/"),
+				new Route("p1", "/p1/**/p3", "p1", "", null, null))
+				.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
+
+		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p3/**"),
+				new Route("p1", "/p1/**/p3", "p1", "", null, null))
+				.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
+
+		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p4/"),
+				new Route("p1", "/p1/**/p4/", "p1", "", null, null))
+				.getHandler(requestForAPath("/p1/p2/p3/p4"))).isNull();
+	}
+	
+	private ZuulHandlerMapping mappingWithIgnoredPathsAndRoutes(List<String> ignoredPaths, Route route) {
+		RouteLocator routeLocator = Mockito.mock(RouteLocator.class);
+		Mockito.when(routeLocator.getIgnoredPaths())
+				.thenReturn(ignoredPaths);
+		Mockito.when(routeLocator.getRoutes()).thenReturn(Collections.singletonList(route));
+		ZuulHandlerMapping zuulHandlerMapping = new ZuulHandlerMapping(routeLocator, new ZuulController());
+		return zuulHandlerMapping;
+	}
+	
+	private MockHttpServletRequest requestForAPath(String path) {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath(path);
+		return request;
 	}
 
 }
