@@ -33,6 +33,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocator;
@@ -113,6 +114,13 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Bean
+	@RefreshScope
+	public ZuulProperties zuulProperties() {
+		return new ZuulProperties();
+	}
+
+	@Bean
+	@RefreshScope
 	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes) {
 		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController());
 		mapping.setErrorController(this.errorController);
