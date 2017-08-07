@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Dave Syer
  */
-public class SimpleRouteLocator implements RouteLocator, Ordered {
+public class SimpleRouteLocator implements RouteLocator, Ordered, RouteLocatorFilter {
 
 	private static final Log log = LogFactory.getLog(SimpleRouteLocator.class);
 
@@ -71,10 +71,16 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		List<Route> values = new ArrayList<>();
 		for (String url : this.routes.get().keySet()) {
 			ZuulRoute route = this.routes.get().get(url);
-			String path = route.getPath();
-			values.add(getRoute(route, path));
+			if (acceptRoute(route)) {
+				String path = route.getPath();
+				values.add(getRoute(route, path));
+			}
 		}
 		return values;
+	}
+
+	@Override public boolean acceptRoute(final ZuulRoute route) {
+		return true;
 	}
 
 	@Override
@@ -111,7 +117,10 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 		ZuulRoute route = getZuulRoute(adjustedPath);
 
-		return getRoute(route, adjustedPath);
+		if (acceptRoute(route)) {
+			return getRoute(route, adjustedPath);
+		}
+		return null;
 	}
 
 	protected ZuulRoute getZuulRoute(String adjustedPath) {
