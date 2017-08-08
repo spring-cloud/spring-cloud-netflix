@@ -22,7 +22,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
  * Allows {@link ZuulRoute}s to be dynamically allowed or rejected by
  * {@link RouteLocator}s when advertising available {@link Route}s.
  *
- * @author tcawley
+ * @author Tom Cawley
  */
 public interface RouteLocatorFilter {
 
