@@ -79,7 +79,8 @@ public class SimpleRouteLocator implements RouteLocator, Ordered, RouteLocatorFi
 		return values;
 	}
 
-	@Override public boolean acceptRoute(final ZuulRoute route) {
+	@Override
+	public boolean acceptRoute(final ZuulRoute route) {
 		return true;
 	}
 

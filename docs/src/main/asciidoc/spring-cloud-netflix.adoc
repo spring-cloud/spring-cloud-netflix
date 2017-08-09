@@ -2240,6 +2240,67 @@ zuul:
       enabled: true
 ----
 
+==== Custom RouteLocators
+
+Both the default `RouteLocator` implementations, (i.e., `SimpleRouteLocator` and `DiscoveryClientRouteLocator`), provide a dynamic route filtering mechanism, via the `RouteLocatorFilter` interface, where you can accept or reject routes based on runtime criteria.
+This filter acts in addition to any `zuul.ignoredServices` or `zuul.ignoredPatterns` you have specified in your static configuration files.
+
+A motivating example for such dynamic filtering could be security based.  Imagine you want to prohibit some users from even knowing about certain routes/paths:
+
+[source,java]
+----
+public class FilterRouteLocator extends DiscoveryClientRouteLocator {
+
+    public FilterRouteLocator(final String servletPath, final DiscoveryClient discovery, final ZuulProperties properties) {
+        super(servletPath, discovery, properties);
+    }
+
+    public FilterRouteLocator(final String servletPath, final DiscoveryClient discovery, final ZuulProperties properties, final ServiceRouteMapper serviceRouteMapper) {
+        super(servletPath, discovery, properties, serviceRouteMapper);
+    }
+
+    /**
+     * Allow routes based on custom JWT claims.
+     */
+    @Override public boolean acceptRoute(final ZuulRoute route) {
+
+        boolean allowed = false;
+        Object authDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
+        if (authDetails instanceof OAuth2AuthenticationDetails) {
+            Map<String, List>
+                claims =
+                (Map<String, List>) ((OAuth2AuthenticationDetails) authDetails).getDecodedDetails();
+            if (claims != null) {
+                List allowedRoutes = claims.get("whitelist-routes");
+                allowed = allowedRoutes != null && allowedRoutes.contains(route.getId());
+            }
+        }
+        return allowed && super.acceptRoute(route);
+    }
+}
+----
+
+Also, override the default `RouteLocator` bean with yours, just defined above:
+
+[source,java]
+----
+@Configuration
+public class ZuulConfiguration extends ZuulProxyConfiguration {
+
+    @Autowired
+    private DiscoveryClient discovery;
+
+    @Autowired
+    private ServiceRouteMapper serviceRouteMapper;
+
+    @Bean
+    public FilterRouteLocator filterRouteLocator() {
+        return new FilterRouteLocator(this.server.getServletPrefix(), this.discovery, this.zuulProperties,
+                                      this.serviceRouteMapper);
+    }
+}
+----
+
 == Polyglot support with Sidecar
 
 Do you have non-jvm languages you want to take advantage of Eureka, Ribbon and
