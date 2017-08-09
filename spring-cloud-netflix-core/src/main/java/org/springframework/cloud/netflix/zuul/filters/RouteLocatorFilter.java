@@ -28,7 +28,7 @@ public interface RouteLocatorFilter {
 
 	/**
 	 * Return {@code true} to accept (allow) the route, {@code false} otherwise.
-
+     *
 	 * @param route The {@link ZuulRoute} to inspect.
 	 * @return {@code true} to accept the route, {@code false} otherwise.
 	 */
