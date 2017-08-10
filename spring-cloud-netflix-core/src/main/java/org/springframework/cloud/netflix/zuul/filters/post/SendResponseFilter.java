@@ -73,10 +73,15 @@ public class SendResponseFilter extends ZuulFilter {
 		super();
 		// To support Servlet API 3.1 we need to check if setContentLengthLong exists
 		try {
-			HttpServletResponse.class.getMethod("setContentLengthLong");
+			//TODO: remove in 2.0
+			HttpServletResponse.class.getMethod("setContentLengthLong", long.class);
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;
 		}
+	}
+
+	/* for testing */ boolean isUseServlet31() {
+		return useServlet31;
 	}
 
 	private ThreadLocal<byte[]> buffers = new ThreadLocal<byte[]>() {
