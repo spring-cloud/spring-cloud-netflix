@@ -70,6 +70,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		this.requestCustomizers = requestCustomizers;
 		// To support Servlet API 3.1 we need to check if getContentLengthLong exists
 		try {
+			//TODO: remove in 2.0
 			HttpServletRequest.class.getMethod("getContentLengthLong");
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;
@@ -78,6 +79,10 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 	public RibbonRoutingFilter(RibbonCommandFactory<?> ribbonCommandFactory) {
 		this(new ProxyRequestHelper(), ribbonCommandFactory, null);
+	}
+
+	/* for testing */ boolean isUseServlet31() {
+		return useServlet31;
 	}
 
 	@Override
