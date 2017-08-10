@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,6 +69,11 @@ public class HystrixCircuitBreakerConfiguration {
 	@Bean
 	public HasFeatures hystrixFeature() {
 		return HasFeatures.namedFeatures(new NamedFeature("Hystrix", HystrixCommandAspect.class));
+	}
+
+	@Bean
+	public HystrixConcurrencyStrategy hystrixConcurrencyStrategy(){
+		return new HystrixRequestScopeConcurrencyStrategy();
 	}
 
 	@Configuration
