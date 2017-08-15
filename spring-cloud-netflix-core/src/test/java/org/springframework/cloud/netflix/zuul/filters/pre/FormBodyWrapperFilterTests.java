@@ -1,8 +1,17 @@
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import com.netflix.zuul.context.RequestContext;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.servlet.DispatcherServlet;
 
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,104 +20,164 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.Part;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.mock.web.MockMultipartHttpServletRequest;
-
-import com.netflix.zuul.context.RequestContext;
+import static org.junit.Assert.*;
 
 /**
  * @author Michael Hartle
+ * @author Andre Dörnbrack
  */
 public class FormBodyWrapperFilterTests {
-	
-	private FormBodyWrapperFilter filter;
-	
-	private MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
 
-	@Before
-	public void init() {
-		this.filter = new FormBodyWrapperFilter();
-		RequestContext ctx = RequestContext.getCurrentContext();
-		ctx.clear();
-		ctx.setRequest(this.request);
+	private FormBodyWrapperFilter filter = new FormBodyWrapperFilter();
+
+	private static final byte[] TEST_BODY = {45, 45, 45, 45, 45};
+	private static final byte[] FIRST_PART_BODY = "{ \"u\" : 1 }".getBytes();
+	private static final byte[] SECOND_PART_BODY = "%PDF...1".getBytes();
+
+	@Test
+	public void shouldFilterOnPositivContentLength() throws Exception {
+		givenRequestContextContainsMediatypeJsonPostRequestWithBody(null);
+		assertFalse(filter.shouldFilter());
+
+		givenRequestContextContainsMediatypeJsonPostRequestWithBody(new byte[]{});
+		assertTrue(filter.shouldFilter());
+
+		givenRequestContextContainsMediatypeJsonPostRequestWithBody(TEST_BODY);
+		assertTrue(filter.shouldFilter());
 	}
-	
+
+	@Test
+	public void shouldFilterOnMultipartContentType() throws Exception {
+		givenRequestContextContainsGetRequest();
+		assertFalse(filter.shouldFilter());
+
+		givenRequestContextContainsMultipartPostRequest();
+		assertTrue(filter.shouldFilter());
+	}
+
+	@Test
+	public void shouldFilterOnUrlFormEncodedContentType() throws Exception {
+		givenRequestContextContainsGetRequest();
+		assertFalse(filter.shouldFilter());
+
+		givenRequestContextContainsUrlFormEncodedPostRequest();
+		assertTrue(filter.shouldFilter());
+	}
+
+	@Test
+	public void multipleReadsOnInputStream() throws Exception {
+		givenRequestContextContainsMultipartPostRequest();
+
+		filter.run();
+
+		HttpServletRequest requestInContext = RequestContext.getCurrentContext().getRequest();
+		ServletInputStream inputStream = requestInContext.getInputStream();
+
+		assertTrue(inputStream instanceof ResettableServletInputStreamWrapper);
+
+		whenInputStreamIsConsumed(inputStream);
+		assertEquals(inputStream.read(), -1);
+
+		inputStream.reset();
+		assertNotEquals(inputStream.read(), -1);
+
+		whenInputStreamIsConsumed(inputStream);
+		assertEquals(inputStream.read(), -1);
+
+		inputStream.reset();
+		assertNotEquals(inputStream.read(), -1);
+	}
+
 	@Test
 	public void multiplePartNamesWithMultipleParts() throws IOException, ServletException {
-		this.request.setRequestURI("/api/foo/1");
-		this.request.setRemoteAddr("5.6.7.8");
-		
-		final Map<String, List<String>> firstPartHeaders = new HashMap<>();
-		final byte[] firstPartBody = "{ \"u\" : 1 }".getBytes();
-		final Part firstPart = new MockPart("a", "application/json", null, firstPartHeaders, firstPartBody);
-		this.request.addPart(firstPart);
+		givenRequestContextContainsMultipartPostRequest();
 
-		final Map<String, List<String>> secondPartHeaders = new HashMap<>();
-		final byte[] secondPartBody = "%PDF...1".getBytes();
-		final Part secondPart = new MockPart("b", "application/pdf", "document.pdf", secondPartHeaders, secondPartBody);
-		this.request.addPart(secondPart);
-		
-		final Map<String, List<String>> thirdPartHeaders = new HashMap<>();
-		final byte[] thirdPartBody = "%PDF...2".getBytes();
-		final Part thirdPart = new MockPart("c", "application/pdf", "attachment1.pdf", thirdPartHeaders, thirdPartBody);
-		this.request.addPart(thirdPart);
-		
-		final Map<String, List<String>> fourthPartHeaders = new HashMap<>();
-		final byte[] fourthPartBody = "%PDF...3".getBytes();
-		final Part fourthPart = new MockPart("c", "application/pdf", "attachment2.pdf", fourthPartHeaders, fourthPartBody);
-		this.request.addPart(fourthPart);
-
-		final Map<String, List<String>> fifthPartHeaders = new HashMap<>();
-		final byte[] fifthPartBody = "%PDF...4".getBytes();
-		final Part fifthPart = new MockPart("c", "application/pdf", "attachment3.pdf", fifthPartHeaders, fifthPartBody);
-		this.request.addPart(fifthPart);
-		
 		this.filter.run();
-		
-		final RequestContext ctx = RequestContext.getCurrentContext();
+
+		RequestContext ctx = RequestContext.getCurrentContext();
 		assertEquals("/api/foo/1", ctx.getRequest().getRequestURI());
 		assertEquals("5.6.7.8", ctx.getRequest().getRemoteAddr());
-		assertEquals(5, ctx.getRequest().getParts().size());
-		
-		final Part[] parts = ctx.getRequest().getParts().toArray(new Part[0]);
+		assertEquals(2, ctx.getRequest().getParts().size());
+
+		Part[] parts = ctx.getRequest().getParts().toArray(new Part[0]);
 		assertEquals("a", parts[0].getName());
 		assertEquals(null, parts[0].getSubmittedFileName());
 		assertEquals("application/json", parts[0].getContentType());
-		assertArrayEquals(firstPartBody, IOUtils.toByteArray(parts[0].getInputStream()));
-		
+		assertArrayEquals(FIRST_PART_BODY, IOUtils.toByteArray(parts[0].getInputStream()));
+
 		assertEquals("b", parts[1].getName());
 		assertEquals("document.pdf", parts[1].getSubmittedFileName());
 		assertEquals("application/pdf", parts[1].getContentType());
-		assertArrayEquals(secondPartBody, IOUtils.toByteArray(parts[1].getInputStream()));
-		
-		assertEquals("c", parts[2].getName());
-		assertEquals("attachment1.pdf", parts[2].getSubmittedFileName());
-		assertEquals("application/pdf", parts[2].getContentType());
-		assertArrayEquals(thirdPartBody, IOUtils.toByteArray(parts[2].getInputStream()));
-		
-		assertEquals("c", parts[3].getName());
-		assertEquals("attachment2.pdf", parts[3].getSubmittedFileName());
-		assertEquals("application/pdf", parts[3].getContentType());
-		assertArrayEquals(fourthPartBody, IOUtils.toByteArray(parts[3].getInputStream()));
-
-		assertEquals("c", parts[4].getName());
-		assertEquals("attachment3.pdf", parts[4].getSubmittedFileName());
-		assertEquals("application/pdf", parts[4].getContentType());
-		assertArrayEquals(fifthPartBody, IOUtils.toByteArray(parts[4].getInputStream()));
+		assertArrayEquals(SECOND_PART_BODY, IOUtils.toByteArray(parts[1].getInputStream()));
 	}
-	
+
+	private void givenRequestContextContainsGetRequest() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod(HttpMethod.GET.toString());
+
+		setRequestOnContext(request);
+	}
+
+	private void givenRequestContextContainsUrlFormEncodedPostRequest() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		request.setContentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+		request.setMethod(HttpMethod.POST.toString());
+		request.setContent(TEST_BODY);
+
+		setRequestOnContext(request);
+	}
+
+	private void givenRequestContextContainsMediatypeJsonPostRequestWithBody(byte[] body) {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		request.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		request.setAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE, "true");
+		request.setMethod(HttpMethod.POST.toString());
+		request.setContent(body);
+
+		setRequestOnContext(request);
+	}
+
+	private void givenRequestContextContainsMultipartPostRequest() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+
+		request.setRequestURI("/api/foo/1");
+		request.setRemoteAddr("5.6.7.8");
+		request.setContentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+		request.setAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE, "true");
+		request.setMethod(HttpMethod.POST.toString());
+
+		Map<String, List<String>> firstPartHeaders = new HashMap<>();
+		Part firstPart = new MockPart("a", "application/json", null, firstPartHeaders, FIRST_PART_BODY);
+		request.addPart(firstPart);
+
+		Map<String, List<String>> secondPartHeaders = new HashMap<>();
+		Part secondPart = new MockPart("b", "application/pdf", "document.pdf", secondPartHeaders, SECOND_PART_BODY);
+		request.addPart(secondPart);
+
+		setRequestOnContext(request);
+	}
+
+	private void setRequestOnContext(MockHttpServletRequest request) {
+		RequestContext ctx = RequestContext.getCurrentContext();
+		ctx.clear();
+		ctx.setRequest(request);
+	}
+
+	private void whenInputStreamIsConsumed(ServletInputStream inputStream) throws IOException {
+		while(inputStream.read() != -1) {
+			inputStream.read();
+		}
+	}
+
 	private class MockPart implements Part {
 		private final String name;
 		private final String contentType;
 		private final String submittedFileName;
 		private final Map<String, List<String>> headers;
 		private final byte[] body;
-		
+
 		public MockPart(final String name, final String contentType, final String submittedFileName, final Map<String, List<String>> headers, final byte[] body) {
 			this.name = name;
 			this.contentType = contentType;
@@ -163,7 +232,7 @@ public class FormBodyWrapperFilterTests {
 			if (values == null || values.size() == 0) {
 				return null;
 			}
-			
+
 			return values.get(0);
 		}
 
@@ -172,7 +241,7 @@ public class FormBodyWrapperFilterTests {
 			if (this.headers == null) {
 				return null;
 			}
-			
+
 			return this.headers.get(name);
 		}
 
