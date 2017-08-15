@@ -33,12 +33,12 @@ public class ResettableInputStreamWrapperFilter extends ZuulFilter {
     @Override
     public boolean shouldFilter() {
         HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
-        return hasContentLength(request);
+        return hasContentLength(request) || hasFormBodyContentType(request);
     }
 
     private boolean hasContentLength(HttpServletRequest request) {
-        return request.getContentLength() >= 0
-            || hasFormBodyContentType(request);
+        return request.getContentLength() >= 0;
+
     }
 
     private boolean hasFormBodyContentType(HttpServletRequest request) {
