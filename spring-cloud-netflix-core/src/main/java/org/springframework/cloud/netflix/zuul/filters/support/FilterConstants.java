@@ -18,6 +18,7 @@
 package org.springframework.cloud.netflix.zuul.filters.support;
 
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.ResettableInputStreamWrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
 
@@ -81,6 +82,11 @@ public class FilterConstants {
 	 * Filter Order for {@link org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter#filterOrder()}
 	 */
 	public static final int FORM_BODY_WRAPPER_FILTER_ORDER = -1;
+
+	/**
+	 * Filter Order for {@link ResettableInputStreamWrapperFilter#filterOrder()}
+	 */
+	public static final int RESETTABLE_INPUT_STREAM_WRAPPER_FILTER_ORDER = 0;
 
 	/**
 	 * Filter Order for {@link org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter}
