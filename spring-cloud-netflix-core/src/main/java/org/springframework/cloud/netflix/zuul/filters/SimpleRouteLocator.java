@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Dave Syer
  */
-public class SimpleRouteLocator implements RouteLocator, Ordered, RouteLocatorFilter {
+public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	private static final Log log = LogFactory.getLog(SimpleRouteLocator.class);
 
@@ -68,20 +69,17 @@ public class SimpleRouteLocator implements RouteLocator, Ordered, RouteLocatorFi
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
 		}
-		List<Route> values = new ArrayList<>();
-		for (String url : this.routes.get().keySet()) {
-			ZuulRoute route = this.routes.get().get(url);
-			if (acceptRoute(route)) {
-				String path = route.getPath();
-				values.add(getRoute(route, path));
-			}
-		}
-		return values;
+		return assembleRoutes(Collections.unmodifiableMap(this.routes.get()));
 	}
 
-	@Override
-	public boolean acceptRoute(final ZuulRoute route) {
-		return true;
+	protected List<Route> assembleRoutes(Map<String, ZuulRoute> routes) {
+		List<Route> values = new ArrayList<>();
+		for (String url : routes.keySet()) {
+			ZuulRoute route = routes.get(url);
+			String path = route.getPath();
+			values.add(getRoute(route, path));
+		}
+		return values;
 	}
 
 	@Override
@@ -118,10 +116,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered, RouteLocatorFi
 
 		ZuulRoute route = getZuulRoute(adjustedPath);
 
-		if (acceptRoute(route)) {
-			return getRoute(route, adjustedPath);
-		}
-		return null;
+		return getRoute(route, adjustedPath);
 	}
 
 	protected ZuulRoute getZuulRoute(String adjustedPath) {

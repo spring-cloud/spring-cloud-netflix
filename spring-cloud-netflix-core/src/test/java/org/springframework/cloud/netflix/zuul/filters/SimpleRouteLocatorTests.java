@@ -16,8 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -47,7 +52,9 @@ public class SimpleRouteLocatorTests {
 		this.zuul.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.zuul.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
-		assertThat(locator.getRoutes(), hasItem(createRoute("bar", "/**", "/bar")));
+		final List<Route> routes = locator.getRoutes();
+		assertThat(routes, hasItem(createRoute("bar", "/**", "/bar")));
+		assertThat(routes, hasSize(1));
 	}
 
 	@Test
@@ -57,6 +64,7 @@ public class SimpleRouteLocatorTests {
 		this.zuul.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 		this.zuul.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
+		assertThat(locator.getMatchingRoute("/foo/1"), nullValue());
 		assertThat(locator.getMatchingRoute("/bar/1"), is(createRoute("bar", "/1", "/bar")));
 	}
 
@@ -65,13 +73,33 @@ public class SimpleRouteLocatorTests {
 	}
 
 	private static class FilteringRouteLocator extends SimpleRouteLocator {
-		public FilteringRouteLocator(final String servletPath, final ZuulProperties properties) {
+		public FilteringRouteLocator(String servletPath, ZuulProperties properties) {
 			super(servletPath, properties);
 		}
 
 		@Override
-		public boolean acceptRoute(final ZuulRoute route) {
+		protected List<Route> assembleRoutes(Map<String, ZuulRoute> routes) {
+
+			List<Route> values = new ArrayList<>();
+			for (String url : routes.keySet()) {
+				ZuulRoute route = routes.get(url);
+				if (acceptRoute(route)) {
+					String path = route.getPath();
+					values.add(getRoute(route, path));
+				}
+			}
+			return values;
+		}
+
+		private boolean acceptRoute(ZuulRoute route) {
 			return route != null && !(route.getId().equals("foo"));
+		}
+
+		protected Route getRoute(ZuulRoute route, String path) {
+			if (acceptRoute(route)) {
+				return super.getRoute(route, path);
+			}
+			return null;
 		}
 	}
 }
