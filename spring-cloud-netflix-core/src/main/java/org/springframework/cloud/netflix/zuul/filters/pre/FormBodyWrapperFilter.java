@@ -16,9 +16,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.http.HttpServletRequestWrapper;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestWrapper;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.cloud.netflix.zuul.util.RequestContentDataExtractor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
@@ -31,17 +41,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestWrapper;
-import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.http.HttpServletRequestWrapper;
+import com.netflix.zuul.http.ServletInputStreamWrapper;
 
 /**
  * Pre {@link ZuulFilter} that parses form data and reencodes it for downstream services
@@ -86,30 +89,27 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
-
-		return isMultipartRequest(request)
-				|| hasContentLength(request);
-	}
-
-	private boolean hasContentLength(HttpServletRequest request) {
-		return request.getContentLength() >= 0;
+		String contentType = request.getContentType();
+		// Don't use this filter on GET method
+		if (contentType == null) {
+			return false;
+		}
+		// Only use this filter for form data and only for multipart data in a
+		// DispatcherServlet handler
+		try {
+			MediaType mediaType = MediaType.valueOf(contentType);
+			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
+					|| (isDispatcherServletRequest(request)
+							&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
+		}
+		catch (InvalidMediaTypeException ex) {
+			return false;
+		}
 	}
 
 	private boolean isDispatcherServletRequest(HttpServletRequest request) {
 		return request.getAttribute(
 				DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
-	}
-
-	private boolean isMultipartRequest(HttpServletRequest request) {
-		try {
-			MediaType mediaType = MediaType.valueOf(request.getContentType());
-			return MediaType.APPLICATION_FORM_URLENCODED.includes(mediaType)
-					|| (isDispatcherServletRequest(request)
-					&& MediaType.MULTIPART_FORM_DATA.includes(mediaType));
-		}
-		catch (InvalidMediaTypeException ex) {
-			return false;
-		}
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			if (this.contentData == null) {
 				buildContentData();
 			}
-			return new ResettableServletInputStreamWrapper(this.contentData);
+			return new ServletInputStreamWrapper(this.contentData);
 		}
 
 		private synchronized void buildContentData() {
@@ -221,5 +221,7 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 			}
 
 		}
+
 	}
+
 }
