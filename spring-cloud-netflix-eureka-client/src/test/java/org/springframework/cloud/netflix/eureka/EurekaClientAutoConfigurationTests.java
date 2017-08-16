@@ -17,19 +17,26 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.aop.scope.ScopedProxyFactoryBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
+import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,11 +45,17 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Spencer Gibb
@@ -52,8 +65,8 @@ public class EurekaClientAutoConfigurationTests {
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@After
-	public void init() {
-		if (this.context != null) {
+	public void after() {
+		if (this.context != null && this.context.isActive()) {
 			this.context.close();
 		}
 	}
@@ -333,6 +346,26 @@ public class EurekaClientAutoConfigurationTests {
 		this.context.getBean(EurekaHealthIndicator.class);
 	}
 
+	@Test
+	public void eurekaClientClosed() {
+		setupContext(TestEurekaClientConfiguration.class);
+		if (this.context != null) {
+			CountDownLatch latch = this.context.getBean(CountDownLatch.class);
+			this.context.close();
+			Assertions.assertThat(latch.getCount()).isEqualTo(0);
+		}
+	}
+
+	@Test
+	public void eurekaRegistrationClosed() throws IOException {
+		setupContext(TestEurekaRegistrationConfiguration.class);
+		if (this.context != null) {
+			EurekaRegistration registration = this.context.getBean(EurekaRegistration.class);
+			this.context.close();
+			verify(registration).close();
+		}
+	}
+
 	private void testNonSecurePortSystemProp(String propName) {
 		addSystemEnvironment(this.context.getEnvironment(), propName + ":8888");
 		setupContext();
@@ -352,8 +385,42 @@ public class EurekaClientAutoConfigurationTests {
 	@Configuration
 	@EnableConfigurationProperties
 	@Import({ UtilAutoConfiguration.class, EurekaClientAutoConfiguration.class })
-	protected static class TestConfiguration {
+	protected static class TestConfiguration { }
 
+	@Configuration
+	protected static class TestEurekaClientConfiguration {
+
+		@Bean
+		public CountDownLatch countDownLatch() {
+			return new CountDownLatch(1);
+		}
+
+		@Bean(destroyMethod = "shutdown")
+		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
+		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config, ApplicationContext context) {
+			return new CloudEurekaClient(manager, config, null, context) {
+				@Override
+				public synchronized void shutdown() {
+					CountDownLatch latch = countDownLatch();
+					if (latch.getCount() == 1) {
+						latch.countDown();
+					}
+					super.shutdown();
+				}
+			};
+		}
+	}
+
+	@Configuration
+	protected static class TestEurekaRegistrationConfiguration {
+
+		@Bean
+		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
+			return spy(EurekaRegistration.builder(instanceConfig)
+					.with(applicationInfoManager)
+					.with(eurekaClient)
+					.build());
+		}
 	}
 
 	@Configuration

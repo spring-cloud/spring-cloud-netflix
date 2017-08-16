@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +41,7 @@ import com.netflix.discovery.EurekaClientConfig;
 /**
  * @author Spencer Gibb
  */
-public class EurekaRegistration implements Registration {
+public class EurekaRegistration implements Registration, Closeable {
 	private static final Log log = LogFactory.getLog(EurekaRegistration.class);
 
 	private final EurekaClient eurekaClient;
@@ -158,5 +160,10 @@ public class EurekaRegistration implements Registration {
 
 	public int getNonSecurePort() {
 		return this.instanceConfig.getNonSecurePort();
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.eurekaClient.shutdown();
 	}
 }
