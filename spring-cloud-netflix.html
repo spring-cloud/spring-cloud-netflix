@@ -1253,6 +1253,20 @@ for details on setting up your build system with the current Spring Cloud Releas
 <div class="paragraph">
 <p>To run the Hystrix Dashboard annotate your Spring Boot main class with <code>@EnableHystrixDashboard</code>.  You then visit <code>/hystrix</code> and point the dashboard to an individual instances <code>/hystrix.stream</code> endpoint in a Hystrix client application.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+When connecting to a <code>/hystrix.stream</code> endpoint which uses HTTPS the certificate used by the server
+must be trusted by the JVM.  If the certificate is not trusted you must import the certificate into the JVM
+in order for the Hystrix Dashboard to make a successful connection to the stream endpoint.
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_turbine">Turbine</h3>
