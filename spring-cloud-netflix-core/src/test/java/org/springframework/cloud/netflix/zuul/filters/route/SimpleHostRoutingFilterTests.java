@@ -16,6 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import static org.junit.Assert.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.util.StreamUtils.copyToByteArray;
+import static org.springframework.util.StreamUtils.copyToString;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,6 +53,10 @@ import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoCon
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -63,14 +73,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
-import static org.springframework.util.StreamUtils.copyToByteArray;
-import static org.springframework.util.StreamUtils.copyToString;
 
 /**
  * @author Andreas Kluth
@@ -113,7 +115,8 @@ public class SimpleHostRoutingFilterTests {
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
 				"zuul.host.timeUnit=SECONDS");
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = getFilter().newConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter()
+				.getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -148,7 +151,8 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = getFilter().newConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter()
+				.getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -222,8 +226,21 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties) {
-			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties);
+		ApacheHttpClientFactory clientFactory() {
+			return new DefaultApacheHttpClientFactory();
+		}
+
+		@Bean
+		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() {
+			return new DefaultApacheHttpClientConnectionManagerFactory();
+		}
+
+		@Bean
+		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				ApacheHttpClientFactory clientFactory) {
+			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties,
+					connectionManagerFactory, clientFactory);
 		}
 	}
 }

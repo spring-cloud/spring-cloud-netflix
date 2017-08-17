@@ -17,16 +17,29 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import feign.Client;
-import feign.httpclient.ApacheHttpClient;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.PreDestroy;
+
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
+import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import feign.Client;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * @author Spencer Gibb
@@ -36,19 +49,65 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
 class HttpClientFeignLoadBalancedConfiguration {
 
-	@Autowired(required = false)
-	private HttpClient httpClient;
-
 	@Bean
 	@ConditionalOnMissingBean(Client.class)
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-							  SpringClientFactory clientFactory) {
-		ApacheHttpClient delegate;
-		if (this.httpClient != null) {
-			delegate = new ApacheHttpClient(this.httpClient);
-		} else {
-			delegate = new ApacheHttpClient();
-		}
+			SpringClientFactory clientFactory, HttpClient httpClient) {
+		ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
 		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
 	}
+
+	@Configuration
+	@ConditionalOnMissingBean(CloseableHttpClient.class)
+	protected static class HttpClientFeignConfiguration {
+		private final Timer connectionManagerTimer = new Timer(
+				"FeignApacheHttpClientConfiguration.connectionManagerTimer", true);
+
+		private CloseableHttpClient httpClient;
+
+		@Autowired(required = false)
+		private RegistryBuilder registryBuilder;
+
+		@Bean
+		@ConditionalOnMissingBean(HttpClientConnectionManager.class)
+		public HttpClientConnectionManager connectionManager(
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				FeignHttpClientProperties httpClientProperties) {
+			final HttpClientConnectionManager connectionManager = connectionManagerFactory
+					.newConnectionManager(false, httpClientProperties.getMaxConnections(),
+							httpClientProperties.getMaxConnectionsPerRoute(),
+							httpClientProperties.getTimeToLive(),
+							httpClientProperties.getTimeToLiveUnit(), registryBuilder);
+			this.connectionManagerTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					connectionManager.closeExpiredConnections();
+				}
+			}, 30000, httpClientProperties.getConnectionTimerRepeat());
+			return connectionManager;
+		}
+
+		@Bean
+		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
+				HttpClientConnectionManager httpClientConnectionManager,
+				FeignHttpClientProperties httpClientProperties) {
+			RequestConfig defaultRequestConfig = RequestConfig.custom()
+					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
+					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
+					.build();
+			this.httpClient = httpClientFactory.createBuilder()
+					.setDefaultRequestConfig(defaultRequestConfig)
+					.setConnectionManager(httpClientConnectionManager).build();
+			return this.httpClient;
+		}
+
+		@PreDestroy
+		public void destroy() throws Exception {
+			connectionManagerTimer.cancel();
+			if (httpClient != null) {
+				httpClient.close();
+			}
+		}
+	}
+
 }

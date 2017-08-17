@@ -16,9 +16,7 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
@@ -26,12 +24,7 @@ import java.net.URI;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 
 /**
  * @author Spencer Gibb
@@ -70,6 +63,6 @@ public class OkHttpRibbonResponseTests {
 		return new Response.Builder()
 				.request(new Request.Builder().url(HttpUrl.get(uri)).build())
 				.protocol(Protocol.HTTP_1_1)
-				.code(HttpStatus.OK.value());
+				.code(HttpStatus.OK.value()).message(HttpStatus.OK.getReasonPhrase());
 	}
 }

@@ -16,59 +16,53 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+
+import java.net.URI;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
 
 /**
  * @author Christian Lohmann
  * @author Ryan Baxter
  */
-//TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
+// TODO: rename (ie new class that extends this in Dalston) to
+// ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient extends
-		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, HttpClient> {
+		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, CloseableHttpClient> {
 
-	@Deprecated
-	public RibbonLoadBalancingHttpClient() {
-		super();
-	}
-
-	@Deprecated
-	public RibbonLoadBalancingHttpClient(final ILoadBalancer lb) {
-		super(lb);
-	}
-
-	public RibbonLoadBalancingHttpClient(IClientConfig config, ServerIntrospector serverIntrospector) {
+	public RibbonLoadBalancingHttpClient(IClientConfig config,
+			ServerIntrospector serverIntrospector) {
 		super(config, serverIntrospector);
 	}
 
-	public RibbonLoadBalancingHttpClient(HttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector) {
+	public RibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
+			IClientConfig config, ServerIntrospector serverIntrospector) {
 		super(delegate, config, serverIntrospector);
 	}
 
-	protected HttpClient createDelegate(IClientConfig config) {
+	protected CloseableHttpClient createDelegate(IClientConfig config) {
 		return HttpClientBuilder.create()
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
-				.setMaxConnTotal(config.getPropertyAsInteger(CommonClientConfigKey.MaxTotalConnections, 0))
+				.setMaxConnTotal(config.getPropertyAsInteger(
+						CommonClientConfigKey.MaxTotalConnections, 0))
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
-				.setMaxConnPerRoute(config.getPropertyAsInteger(CommonClientConfigKey.MaxConnectionsPerHost, 0))
-				.disableCookieManagement()
-				.useSystemProperties() // for proxy
+				.setMaxConnPerRoute(config.getPropertyAsInteger(
+						CommonClientConfigKey.MaxConnectionsPerHost, 0))
+				.disableCookieManagement().useSystemProperties() // for proxy
 				.build();
 	}
 
@@ -77,12 +71,12 @@ public class RibbonLoadBalancingHttpClient extends
 			final IClientConfig configOverride) throws Exception {
 		final RequestConfig.Builder builder = RequestConfig.custom();
 		IClientConfig config = configOverride != null ? configOverride : this.config;
-		builder.setConnectTimeout(config.get(
-				CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
-		builder.setSocketTimeout(config.get(
-				CommonClientConfigKey.ReadTimeout, this.readTimeout));
-		builder.setRedirectsEnabled(config.get(
-				CommonClientConfigKey.FollowRedirects, this.followRedirects));
+		builder.setConnectTimeout(
+				config.get(CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
+		builder.setSocketTimeout(
+				config.get(CommonClientConfigKey.ReadTimeout, this.readTimeout));
+		builder.setRedirectsEnabled(
+				config.get(CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
 		if (isSecure(configOverride)) {
@@ -97,13 +91,15 @@ public class RibbonLoadBalancingHttpClient extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector,
+				server);
 		return super.reconstructURIWithServer(server, uri);
 	}
 
 	@Override
-	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(RibbonApacheHttpRequest request, IClientConfig requestConfig) {
-		return new RequestSpecificRetryHandler(false, false,
-				RetryHandler.DEFAULT, requestConfig);
+	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
+			RibbonApacheHttpRequest request, IClientConfig requestConfig) {
+		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT,
+				requestConfig);
 	}
 }

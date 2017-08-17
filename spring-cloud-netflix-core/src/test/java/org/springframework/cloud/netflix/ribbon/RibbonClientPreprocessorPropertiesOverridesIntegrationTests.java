@@ -16,9 +16,7 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assume.assumeThat;
 
 import org.junit.Test;
@@ -26,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer;
@@ -35,14 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.loadbalancer.ConfigurationBasedServerList;
-import com.netflix.loadbalancer.DummyPing;
-import com.netflix.loadbalancer.NoOpPing;
-import com.netflix.loadbalancer.RandomRule;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerListSubsetFilter;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.loadbalancer.*;
 
 /**
  * @author Spencer Gibb
@@ -102,7 +94,8 @@ public class RibbonClientPreprocessorPropertiesOverridesIntegrationTests {
 
 	@Configuration
 	@RibbonClients
-	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
+	@Import({ UtilAutoConfiguration.class, HttpClientConfiguration.class,
+			PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
 	}

@@ -16,11 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
+
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,8 +30,6 @@ import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
 
-import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
-
 /**
  * @author Dave Syer
  * @author Gregor Zurowski
@@ -43,15 +39,15 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	public static final String PREFIX = "eureka.client";
 
-	@Autowired(required = false)
-	PropertyResolver propertyResolver;
-
 	public static final String DEFAULT_URL = "http://localhost:8761" + DEFAULT_PREFIX
 			+ "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
 
 	private static final int MINUTES = 60;
+
+	@Autowired(required = false)
+	PropertyResolver propertyResolver;
 
 	/**
 	 * Flag to indicate that the Eureka client is enabled.

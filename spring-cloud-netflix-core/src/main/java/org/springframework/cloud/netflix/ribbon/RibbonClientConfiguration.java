@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+
 import java.net.URI;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.apache.HttpClientRibbonConfiguration;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -36,25 +41,10 @@ import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ConfigurationBasedServerList;
-import com.netflix.loadbalancer.DummyPing;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.IPing;
-import com.netflix.loadbalancer.IRule;
-import com.netflix.loadbalancer.PollingServerListUpdater;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.loadbalancer.ServerListFilter;
-import com.netflix.loadbalancer.ServerListUpdater;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import com.netflix.loadbalancer.*;
 import com.netflix.niws.client.http.RestClient;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
-
-import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
  * @author Dave Syer
@@ -64,7 +54,8 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 @EnableConfigurationProperties
 //Order is important here, last should be the default, first should be optional
 // see https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
-@Import({OkHttpRibbonConfiguration.class, RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class})
+@Import({ HttpClientConfiguration.class, OkHttpRibbonConfiguration.class,
+		RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class })
 public class RibbonClientConfiguration {
 
 	@Value("${ribbon.client.name}")
@@ -148,8 +139,8 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RibbonLoadBalancerContext ribbonLoadBalancerContext(
-			ILoadBalancer loadBalancer, IClientConfig config, RetryHandler retryHandler) {
+	public RibbonLoadBalancerContext ribbonLoadBalancerContext(ILoadBalancer loadBalancer,
+			IClientConfig config, RetryHandler retryHandler) {
 		return new RibbonLoadBalancerContext(loadBalancer, config, retryHandler);
 	}
 
@@ -158,7 +149,7 @@ public class RibbonClientConfiguration {
 	public RetryHandler retryHandler(IClientConfig config) {
 		return new DefaultLoadBalancerRetryHandler(config);
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerIntrospector serverIntrospector() {
@@ -185,18 +176,16 @@ public class RibbonClientConfiguration {
 
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
-			URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+			URI uri = updateToHttpsIfNeeded(original, this.config,
+					this.serverIntrospector, server);
 			return super.reconstructURIWithServer(server, uri);
 		}
 
 		@Override
 		protected Client apacheHttpClientSpecificInitialization() {
-			ApacheHttpClient4 apache = (ApacheHttpClient4) super
-					.apacheHttpClientSpecificInitialization();
-			apache.getClientHandler()
-					.getHttpClient()
-					.getParams()
-					.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+			ApacheHttpClient4 apache = (ApacheHttpClient4) super.apacheHttpClientSpecificInitialization();
+			apache.getClientHandler().getHttpClient().getParams().setParameter(
+					ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
 			return apache;
 		}
 

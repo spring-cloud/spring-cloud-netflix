@@ -16,11 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.Collections;
 import java.util.Set;
 
@@ -105,10 +101,6 @@ public class RibbonCommandFactoryConfiguration {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
-		@Deprecated //remove in Edgware"
-		@ConditionalOnProperty(name = "zuul.ribbon.httpclient.enabled", matchIfMissing = true)
-		static class ZuulProperty {}
-
 		@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 		static class RibbonProperty {}
 	}
@@ -124,10 +116,6 @@ public class RibbonCommandFactoryConfiguration {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
-		@Deprecated //remove in Edgware"
-		@ConditionalOnProperty("zuul.ribbon.okhttp.enabled")
-		static class ZuulProperty {}
-
 		@ConditionalOnProperty("ribbon.okhttp.enabled")
 		static class RibbonProperty {}
 	}
@@ -142,10 +130,6 @@ public class RibbonCommandFactoryConfiguration {
 		public OnRibbonRestClientCondition() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
-
-		@Deprecated //remove in Edgware"
-		@ConditionalOnProperty("zuul.ribbon.restclient.enabled")
-		static class ZuulProperty {}
 
 		@ConditionalOnProperty("ribbon.restclient.enabled")
 		static class RibbonProperty {}

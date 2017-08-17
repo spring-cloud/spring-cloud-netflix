@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +32,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.OverrideRestClient;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
@@ -40,10 +45,6 @@ import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.client.http.RestClient;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -152,29 +153,34 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testDefaultsToApacheHttpClient() {
 		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class, OkHttpLoadBalancingClient.class);
-		testClient(RibbonLoadBalancingHttpClient.class, "ribbon.httpclient.enabled", RestClient.class, OkHttpLoadBalancingClient.class);
+		testClient(RibbonLoadBalancingHttpClient.class,
+				new String[] { "ribbon.httpclient.enabled" }, RestClient.class,
+				OkHttpLoadBalancingClient.class);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testEnableRestClient() {
-		testClient(RestClient.class, "ribbon.restclient.enabled", RibbonLoadBalancingHttpClient.class,
+		testClient(RestClient.class, new String[] { "ribbon.restclient.enabled" },
+				RibbonLoadBalancingHttpClient.class,
 				OkHttpLoadBalancingClient.class);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testEnableOkHttpClient() {
-		testClient(OkHttpLoadBalancingClient.class, "ribbon.okhttp.enabled", RibbonLoadBalancingHttpClient.class,
+		testClient(OkHttpLoadBalancingClient.class,
+				new String[] { "ribbon.okhttp.enabled" },
+				RibbonLoadBalancingHttpClient.class,
 				RestClient.class);
 	}
 
-	void testClient(Class<?> clientType, String property, Class<?>... excludedTypes) {
+	void testClient(Class<?> clientType, String[] properties, Class<?>... excludedTypes) {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(RibbonAutoConfiguration.class,
+		context.register(HttpClientConfiguration.class, RibbonAutoConfiguration.class,
 				RibbonClientConfiguration.class);
-		if (property != null) {
-			EnvironmentTestUtils.addEnvironment(context, property);
+		if (properties != null) {
+			EnvironmentTestUtils.addEnvironment(context, properties);
 		}
 		context.refresh();
 		context.getBean(clientType);

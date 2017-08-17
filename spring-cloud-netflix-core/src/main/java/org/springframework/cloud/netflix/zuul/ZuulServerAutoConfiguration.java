@@ -41,10 +41,7 @@ import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter;
-import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
-import org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter;
-import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
-import org.springframework.cloud.netflix.zuul.filters.pre.ServletDetectionFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.*;
 import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
 import org.springframework.cloud.netflix.zuul.metrics.DefaultCounterFactory;
 import org.springframework.cloud.netflix.zuul.metrics.EmptyCounterFactory;
@@ -90,7 +87,8 @@ public class ZuulServerAutoConfiguration {
 
 	@Bean
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Simple)", ZuulServerAutoConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Simple)",
+				ZuulServerAutoConfiguration.class);
 	}
 
 	@Bean
@@ -189,11 +187,12 @@ public class ZuulServerAutoConfiguration {
 		private Map<String, ZuulFilter> filters;
 
 		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer(
-				CounterFactory counterFactory, TracerFactory tracerFactory) {
+		public ZuulFilterInitializer zuulFilterInitializer(CounterFactory counterFactory,
+				TracerFactory tracerFactory) {
 			FilterLoader filterLoader = FilterLoader.getInstance();
 			FilterRegistry filterRegistry = FilterRegistry.instance();
-			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory, filterLoader, filterRegistry);
+			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory,
+					filterLoader, filterRegistry);
 		}
 
 	}

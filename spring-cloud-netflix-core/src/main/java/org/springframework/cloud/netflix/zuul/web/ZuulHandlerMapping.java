@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@ import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.util.PatternMatchUtils;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
@@ -36,6 +37,8 @@ import com.netflix.zuul.context.RequestContext;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author João Salavessa
+ * @author Biju Kunjummen
  */
 public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 
@@ -44,6 +47,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	private final ZuulController zuul;
 
 	private ErrorController errorController;
+
+	private PathMatcher pathMatcher = new AntPathMatcher();
 
 	private volatile boolean dirty = true;
 
@@ -79,10 +84,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		if (this.errorController != null && urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
-		String[] ignored = this.routeLocator.getIgnoredPaths().toArray(new String[0]);
-		if (PatternMatchUtils.simpleMatch(ignored, urlPath)) {
+		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths()))
 			return null;
-		}
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {
 			return null;
@@ -96,6 +99,17 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 			}
 		}
 		return super.lookupHandler(urlPath, request);
+	}
+
+	private boolean isIgnoredPath(String urlPath, Collection<String> ignored) {
+		if (ignored != null) {
+			for (String ignoredPath : ignored) {
+				if (this.pathMatcher.match(ignoredPath, urlPath)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private void registerHandlers() {

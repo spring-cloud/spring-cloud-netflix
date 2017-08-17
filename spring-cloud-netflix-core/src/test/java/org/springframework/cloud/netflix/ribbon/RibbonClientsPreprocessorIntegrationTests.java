@@ -16,16 +16,14 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import com.netflix.loadbalancer.IPing;
-import com.netflix.loadbalancer.PingUrl;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegrationTests.TestConfiguration;
@@ -35,7 +33,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.netflix.loadbalancer.*;
 
 /**
  * @author Dave Syer
@@ -72,7 +70,8 @@ public class RibbonClientsPreprocessorIntegrationTests {
 	@Configuration
 	@RibbonClients(@RibbonClient(name = "foo", configuration = FooConfiguration.class))
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
-			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
+			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
+			HttpClientConfiguration.class })
 	protected static class TestConfiguration {
 	}
 

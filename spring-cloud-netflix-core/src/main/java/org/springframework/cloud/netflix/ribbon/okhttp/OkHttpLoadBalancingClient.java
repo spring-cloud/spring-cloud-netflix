@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -25,14 +27,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
  * @author Spencer Gibb
@@ -40,16 +39,6 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
  */
 public class OkHttpLoadBalancingClient
 		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
-
-	@Deprecated
-	public OkHttpLoadBalancingClient() {
-		super();
-	}
-
-	@Deprecated
-	public OkHttpLoadBalancingClient(final ILoadBalancer lb) {
-		super(lb);
-	}
 
 	public OkHttpLoadBalancingClient(IClientConfig config,
 			ServerIntrospector serverIntrospector) {

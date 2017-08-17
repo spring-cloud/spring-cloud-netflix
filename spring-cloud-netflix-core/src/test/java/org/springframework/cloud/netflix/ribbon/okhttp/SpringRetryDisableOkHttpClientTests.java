@@ -15,7 +15,12 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+
 import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,44 +30,51 @@ import org.springframework.cloud.ClassPathExclusions;
 import org.springframework.cloud.FilteredClassPathRunner;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
 
 /**
  * @author Ryan Baxter
  */
 @RunWith(FilteredClassPathRunner.class)
-@ClassPathExclusions({"spring-retry-*.jar", "spring-boot-starter-aop-*.jar"})
+@ClassPathExclusions({ "spring-retry-*.jar", "spring-boot-starter-aop-*.jar" })
 public class SpringRetryDisableOkHttpClientTests {
 
 	private ConfigurableApplicationContext context;
 
 	@Before
 	public void setUp() {
-		context = new SpringApplicationBuilder().web(false).properties("ribbon.okhttp.enabled=true")
-				.sources(RibbonAutoConfiguration.class,LoadBalancerAutoConfiguration.class, RibbonClientConfiguration.class).run();
+		context = new SpringApplicationBuilder().web(false)
+				.properties("ribbon.okhttp.enabled=true")
+				.sources(RibbonAutoConfiguration.class,
+						LoadBalancerAutoConfiguration.class,
+						HttpClientConfiguration.class,
+						OkHttpLoadBalancingClientTests.OkHttpClientConfiguration.class,
+						RibbonClientConfiguration.class)
+				.run();
 
 	}
 
 	@After
 	public void tearDown() {
-		if(context != null) {
+		if (context != null) {
 			context.close();
 		}
 	}
 
 	@Test
 	public void testLoadBalancedRetryFactoryBean() throws Exception {
-		Map<String, LoadBalancedRetryPolicyFactory> factories =  context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
+		Map<String, LoadBalancedRetryPolicyFactory> factories = context
+				.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
 		assertThat(factories.values(), hasSize(1));
-		assertThat(factories.values().toArray()[0], instanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class));
-		Map<String, OkHttpLoadBalancingClient> clients =  context.getBeansOfType(OkHttpLoadBalancingClient.class);
+		assertThat(factories.values().toArray()[0],
+				instanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class));
+		Map<String, OkHttpLoadBalancingClient> clients = context
+				.getBeansOfType(OkHttpLoadBalancingClient.class);
 		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0], instanceOf(OkHttpLoadBalancingClient.class));
+		assertThat(clients.values().toArray()[0],
+				instanceOf(OkHttpLoadBalancingClient.class));
 	}
 }

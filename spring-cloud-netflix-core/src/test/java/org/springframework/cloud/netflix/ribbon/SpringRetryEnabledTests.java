@@ -18,13 +18,19 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+
 import java.util.Map;
+
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.feign.ribbon.CachingSpringLoadBalancerFactory;
 import org.springframework.cloud.netflix.feign.ribbon.FeignLoadBalancer;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
@@ -36,16 +42,12 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {RibbonAutoConfiguration.class, RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class,
-		FeignRibbonClientAutoConfiguration.class})
+		FeignRibbonClientAutoConfiguration.class, HttpClientConfiguration.class })
 public class SpringRetryEnabledTests implements ApplicationContextAware {
 
 	private ApplicationContext context;

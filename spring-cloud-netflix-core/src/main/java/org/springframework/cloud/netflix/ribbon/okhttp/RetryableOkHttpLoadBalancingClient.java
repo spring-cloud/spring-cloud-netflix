@@ -15,18 +15,16 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
-import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.cloud.client.loadbalancer.*;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
@@ -36,10 +34,8 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.Server;
+
+import java.net.URI;
 
 /**
  * An OK HTTP client which leverages Spring Retry to retry failed request.
@@ -49,9 +45,10 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
-	public RetryableOkHttpLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector,
+	public RetryableOkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config,
+			ServerIntrospector serverIntrospector,
 									 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-		super(config, serverIntrospector);
+		super(delegate, config, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
