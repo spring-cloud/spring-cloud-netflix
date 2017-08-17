@@ -16,17 +16,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import com.google.common.io.ByteStreams;
+import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.filters.support.ResettableServletInputStreamWrapper;
+import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
-import org.springframework.util.Assert;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Spencer Gibb
@@ -38,8 +40,8 @@ public class RibbonCommandContext {
 	private final Boolean retryable;
 	private final MultiValueMap<String, String> headers;
 	private final MultiValueMap<String, String> params;
-	private final InputStream requestEntity;
 	private final List<RibbonRequestCustomizer> requestCustomizers;
+	private InputStream requestEntity;
 	private Long contentLength;
 
 	/**
@@ -47,23 +49,23 @@ public class RibbonCommandContext {
 	 */
 	@Deprecated
 	public RibbonCommandContext(String serviceId, String method, String uri,
-			Boolean retryable, MultiValueMap<String, String> headers,
-			MultiValueMap<String, String> params, InputStream requestEntity) {
+                                Boolean retryable, MultiValueMap<String, String> headers,
+                                MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
 				new ArrayList<RibbonRequestCustomizer>(), null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers) {
+                                Boolean retryable, MultiValueMap<String, String> headers,
+                                MultiValueMap<String, String> params, InputStream requestEntity,
+                                List<RibbonRequestCustomizer> requestCustomizers) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
+                                Boolean retryable, MultiValueMap<String, String> headers,
+                                MultiValueMap<String, String> params, InputStream requestEntity,
+                                List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
 		Assert.notNull(serviceId, "serviceId may not be null");
 		Assert.notNull(method, "method may not be null");
 		Assert.notNull(uri, "uri may not be null");
@@ -124,9 +126,18 @@ public class RibbonCommandContext {
 		return params;
 	}
 
-	public InputStream getRequestEntity() {
-		return requestEntity;
-	}
+    public InputStream getRequestEntity() {
+        try {
+            if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
+                requestEntity = new ResettableServletInputStreamWrapper(
+                        ByteStreams.toByteArray(requestEntity));
+            }
+            requestEntity.reset();
+        }
+        finally {
+            return requestEntity;
+        }
+    }
 
 	public List<RibbonRequestCustomizer> getRequestCustomizers() {
 		return requestCustomizers;
