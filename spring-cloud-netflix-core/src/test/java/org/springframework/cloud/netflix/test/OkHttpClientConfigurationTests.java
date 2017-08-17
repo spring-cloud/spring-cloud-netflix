@@ -17,9 +17,9 @@
 
 package org.springframework.cloud.netflix.test;
 
-import feign.Client;
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -53,17 +53,19 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
+import feign.Client;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = OkHttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: true",
-		"spring.cloud.httpclientfactories.ok.enabled: true", "ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true",
-		"feign.okhttp.enabled: true", "ribbon.httpclient.enabled: false", "feign.httpclient.enabled: false"})
+@SpringBootTest(classes = OkHttpClientConfigurationTestApp.class, value = {
+		"feign.okhttp.enabled: true", "spring.cloud.httpclientfactories.ok.enabled: true",
+		"ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true",
+		"feign.okhttp.enabled: true", "ribbon.httpclient.enabled: false",
+		"feign.httpclient.enabled: false" })
 @DirtiesContext
 public class OkHttpClientConfigurationTests {
 
@@ -81,17 +83,21 @@ public class OkHttpClientConfigurationTests {
 
 	@Test
 	public void testFactories() {
-		Assertions.assertThat(connectionPoolFactory).isInstanceOf(OkHttpClientConnectionPoolFactory.class);
-		Assertions.assertThat(connectionPoolFactory).isInstanceOf(OkHttpClientConfigurationTestApp.MyOkHttpClientConnectionPoolFactory.class);
-		Assertions.assertThat(okHttpClientFactory).isInstanceOf(OkHttpClientFactory.class);
-		Assertions.assertThat(okHttpClientFactory).isInstanceOf(OkHttpClientConfigurationTestApp.MyOkHttpClientFactory.class);
+		Assertions.assertThat(connectionPoolFactory)
+				.isInstanceOf(OkHttpClientConnectionPoolFactory.class);
+		Assertions.assertThat(connectionPoolFactory).isInstanceOf(
+				OkHttpClientConfigurationTestApp.MyOkHttpClientConnectionPoolFactory.class);
+		Assertions.assertThat(okHttpClientFactory)
+				.isInstanceOf(OkHttpClientFactory.class);
+		Assertions.assertThat(okHttpClientFactory).isInstanceOf(
+				OkHttpClientConfigurationTestApp.MyOkHttpClientFactory.class);
 	}
 
 	@Test
 	public void testHttpClientWithFeign() {
 		Client delegate = feignClient.getDelegate();
 		assertTrue(feign.okhttp.OkHttpClient.class.isInstance(delegate));
-		feign.okhttp.OkHttpClient okHttpClient = (feign.okhttp.OkHttpClient)delegate;
+		feign.okhttp.OkHttpClient okHttpClient = (feign.okhttp.OkHttpClient) delegate;
 		OkHttpClient httpClient = getField(okHttpClient, "delegate");
 		MockingDetails httpClientDetails = mockingDetails(httpClient);
 		assertTrue(httpClientDetails.isMock());
@@ -99,9 +105,10 @@ public class OkHttpClientConfigurationTests {
 
 	@Test
 	public void testOkHttpLoadBalancingHttpClient() {
-		RibbonCommandContext context = new RibbonCommandContext("foo"," GET", "http://localhost",
-				false, new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
-				null, new ArrayList<RibbonRequestCustomizer>(), 0l);
+		RibbonCommandContext context = new RibbonCommandContext("foo", " GET",
+				"http://localhost", false, new LinkedMultiValueMap<String, String>(),
+				new LinkedMultiValueMap<String, String>(), null,
+				new ArrayList<RibbonRequestCustomizer>(), 0l);
 		OkHttpRibbonCommand command = okHttpRibbonCommandFactory.create(context);
 		OkHttpLoadBalancingClient ribbonClient = command.getClient();
 		OkHttpClient httpClient = getField(ribbonClient, "delegate");
@@ -113,7 +120,7 @@ public class OkHttpClientConfigurationTests {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
-		return (T)value;
+		return (T) value;
 	}
 }
 
@@ -128,9 +135,15 @@ class OkHttpClientConfigurationTestApp {
 		return "hello";
 	}
 
-	static class MyOkHttpClientConnectionPoolFactory extends DefaultOkHttpClientConnectionPoolFactory {
+	@FeignClient(name = "foo", serviceId = "foo")
+	static interface FooClient {
+	}
+
+	static class MyOkHttpClientConnectionPoolFactory
+			extends DefaultOkHttpClientConnectionPoolFactory {
 		@Override
-		public ConnectionPool create(int maxIdleConnections, long keepAliveDuration, TimeUnit timeUnit) {
+		public ConnectionPool create(int maxIdleConnections, long keepAliveDuration,
+				TimeUnit timeUnit) {
 			return new ConnectionPool();
 		}
 	}
@@ -156,7 +169,4 @@ class OkHttpClientConfigurationTestApp {
 		}
 
 	}
-
-	@FeignClient(name="foo", serviceId = "foo")
-	static interface FooClient {}
 }

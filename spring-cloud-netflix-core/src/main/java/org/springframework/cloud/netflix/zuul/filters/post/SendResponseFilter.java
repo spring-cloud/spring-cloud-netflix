@@ -16,11 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import java.io.ByteArrayInputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.*;
+
+import java.io.*;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -39,11 +37,6 @@ import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTING_DEBUG_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
 
 /**
  * Post {@link ZuulFilter} that writes responses from proxied requests to the current response.
@@ -73,7 +66,7 @@ public class SendResponseFilter extends ZuulFilter {
 		super();
 		// To support Servlet API 3.1 we need to check if setContentLengthLong exists
 		try {
-			//TODO: remove in 2.0
+			// TODO: remove in 2.0
 			HttpServletResponse.class.getMethod("setContentLengthLong", long.class);
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;

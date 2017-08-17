@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.eureka.serviceregistry;
 
+import static org.mockito.Mockito.*;
+
 import org.junit.Test;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
@@ -28,10 +30,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Spencer Gibb
  */
@@ -42,13 +40,15 @@ public class EurekaServiceRegistryTests {
 		EurekaServiceRegistry registry = new EurekaServiceRegistry();
 
 		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
-		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+		ApplicationInfoManager applicationInfoManager = mock(
+				ApplicationInfoManager.class);
 
 		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
 
-		EurekaRegistration registration = EurekaRegistration.builder(new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties())))
-				.with(eurekaClient)
-				.with(applicationInfoManager)
+		EurekaRegistration registration = EurekaRegistration
+				.builder(new EurekaInstanceConfigBean(
+						new InetUtils(new InetUtilsProperties())))
+				.with(eurekaClient).with(applicationInfoManager)
 				.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
 				.build();
 

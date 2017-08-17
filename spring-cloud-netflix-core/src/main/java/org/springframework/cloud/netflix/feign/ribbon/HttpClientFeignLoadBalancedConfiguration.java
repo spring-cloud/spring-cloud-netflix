@@ -17,12 +17,11 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import feign.Client;
-import feign.httpclient.ApacheHttpClient;
-
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.annotation.PreDestroy;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.RegistryBuilder;
@@ -39,6 +38,9 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import feign.Client;
+import feign.httpclient.ApacheHttpClient;
+
 /**
  * @author Spencer Gibb
  */
@@ -46,6 +48,14 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass(ApacheHttpClient.class)
 @ConditionalOnProperty(value = "feign.httpclient.enabled", matchIfMissing = true)
 class HttpClientFeignLoadBalancedConfiguration {
+
+	@Bean
+	@ConditionalOnMissingBean(Client.class)
+	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
+			SpringClientFactory clientFactory, HttpClient httpClient) {
+		ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
+		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+	}
 
 	@Configuration
 	@ConditionalOnMissingBean(CloseableHttpClient.class)
@@ -79,35 +89,25 @@ class HttpClientFeignLoadBalancedConfiguration {
 
 		@Bean
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
-											  HttpClientConnectionManager httpClientConnectionManager,
-											  FeignHttpClientProperties httpClientProperties) {
+				HttpClientConnectionManager httpClientConnectionManager,
+				FeignHttpClientProperties httpClientProperties) {
 			RequestConfig defaultRequestConfig = RequestConfig.custom()
 					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
 					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
 					.build();
-			this.httpClient = httpClientFactory.createBuilder().
-					setDefaultRequestConfig(defaultRequestConfig).
-					setConnectionManager(httpClientConnectionManager).build();
+			this.httpClient = httpClientFactory.createBuilder()
+					.setDefaultRequestConfig(defaultRequestConfig)
+					.setConnectionManager(httpClientConnectionManager).build();
 			return this.httpClient;
 		}
 
 		@PreDestroy
 		public void destroy() throws Exception {
 			connectionManagerTimer.cancel();
-			if(httpClient != null) {
+			if (httpClient != null) {
 				httpClient.close();
 			}
 		}
 	}
-
-
-		@Bean
-		@ConditionalOnMissingBean(Client.class)
-		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-								  SpringClientFactory clientFactory, HttpClient httpClient) {
-			ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
-			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
-		}
-
 
 }

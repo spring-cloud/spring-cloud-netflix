@@ -16,24 +16,22 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.netflix.zuul.context.RequestContext;
-
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -42,7 +40,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
@@ -60,16 +57,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import com.netflix.zuul.context.RequestContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -216,7 +207,7 @@ class SampleCustomZuulProxyApplication {
 
 	@Configuration
 	@EnableZuulProxy
-	@AutoConfigureBefore({FeignRibbonClientAutoConfiguration.class})
+	@AutoConfigureBefore({ FeignRibbonClientAutoConfiguration.class })
 	protected static class CustomZuulProxyConfig {
 
 		@Bean
@@ -226,8 +217,7 @@ class SampleCustomZuulProxyApplication {
 
 		@Bean
 		public CloseableHttpClient closeableClient() {
-			return HttpClients.custom()
-					.setDefaultCookieStore(new BasicCookieStore())
+			return HttpClients.custom().setDefaultCookieStore(new BasicCookieStore())
 					.setDefaultRequestConfig(RequestConfig.custom()
 							.setCookieSpec(CookieSpecs.DEFAULT).build())
 					.build();
@@ -235,13 +225,13 @@ class SampleCustomZuulProxyApplication {
 
 		@Bean
 		public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
-															   ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+				ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
 			return new CustomHostRoutingFilter(helper, zuulProperties, httpClient);
 		}
 
 		private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
 			public CustomHostRoutingFilter(ProxyRequestHelper helper,
-										   ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+					ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
 				super(helper, zuulProperties, httpClient);
 			}
 
@@ -252,8 +242,8 @@ class SampleCustomZuulProxyApplication {
 			}
 		}
 
-
-		private class CustomApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
+		private class CustomApacheHttpClientFactory
+				extends DefaultApacheHttpClientFactory {
 		}
 	}
 

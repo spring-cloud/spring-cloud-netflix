@@ -16,13 +16,14 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,12 +39,6 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_ENTITY_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RETRYABLE_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RIBBON_ROUTING_FILTER_ORDER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
 
 /**
  * Route {@link ZuulFilter} that uses Ribbon, Hystrix and pluggable http clients to send requests.
@@ -70,7 +65,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		this.requestCustomizers = requestCustomizers;
 		// To support Servlet API 3.1 we need to check if getContentLengthLong exists
 		try {
-			//TODO: remove in 2.0
+			// TODO: remove in 2.0
 			HttpServletRequest.class.getMethod("getContentLengthLong");
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;

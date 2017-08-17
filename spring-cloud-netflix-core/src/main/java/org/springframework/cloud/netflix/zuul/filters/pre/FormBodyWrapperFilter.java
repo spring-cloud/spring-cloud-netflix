@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,9 +45,6 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.http.HttpServletRequestWrapper;
 import com.netflix.zuul.http.ServletInputStreamWrapper;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORM_BODY_WRAPPER_FILTER_ORDER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 /**
  * Pre {@link ZuulFilter} that parses form data and reencodes it for downstream services
@@ -187,12 +187,14 @@ public class FormBodyWrapperFilter extends ZuulFilter {
 				return;
 			}
 			try {
-				MultiValueMap<String, Object> builder = RequestContentDataExtractor.extract(this.request);
+				MultiValueMap<String, Object> builder = RequestContentDataExtractor
+						.extract(this.request);
 				FormHttpOutputMessage data = new FormHttpOutputMessage();
 
 				this.contentType = MediaType.valueOf(this.request.getContentType());
 				data.getHeaders().setContentType(this.contentType);
-				FormBodyWrapperFilter.this.formHttpMessageConverter.write(builder, this.contentType, data);
+				FormBodyWrapperFilter.this.formHttpMessageConverter.write(builder,
+						this.contentType, data);
 				// copy new content type including multipart boundary
 				this.contentType = data.getHeaders().getContentType();
 				byte[] input = data.getInput();

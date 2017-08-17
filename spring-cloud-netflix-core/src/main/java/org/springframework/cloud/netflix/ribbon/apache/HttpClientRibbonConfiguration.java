@@ -20,7 +20,9 @@ package org.springframework.cloud.netflix.ribbon.apache;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PreDestroy;
+
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
@@ -55,6 +57,37 @@ import com.netflix.servo.monitor.Monitors;
 public class HttpClientRibbonConfiguration {
 	@Value("${ribbon.client.name}")
 	private String name = "client";
+
+	@Bean
+	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
+	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
+	public RibbonLoadBalancingHttpClient ribbonLoadBalancingHttpClient(
+			IClientConfig config, ServerIntrospector serverIntrospector,
+			ILoadBalancer loadBalancer, RetryHandler retryHandler,
+			CloseableHttpClient httpClient) {
+		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
+				httpClient, config, serverIntrospector);
+		client.setLoadBalancer(loadBalancer);
+		client.setRetryHandler(retryHandler);
+		Monitors.registerObject("Client_" + this.name, client);
+		return client;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
+	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
+	public RetryableRibbonLoadBalancingHttpClient retryableRibbonLoadBalancingHttpClient(
+			IClientConfig config, ServerIntrospector serverIntrospector,
+			ILoadBalancer loadBalancer, RetryHandler retryHandler,
+			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+			CloseableHttpClient httpClient) {
+		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
+				httpClient, config, serverIntrospector, loadBalancedRetryPolicyFactory);
+		client.setLoadBalancer(loadBalancer);
+		client.setRetryHandler(retryHandler);
+		Monitors.registerObject("Client_" + this.name, client);
+		return client;
+	}
 
 	@Configuration
 	protected static class ApacheHttpClientConfiguration {
@@ -106,7 +139,7 @@ public class HttpClientRibbonConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(CloseableHttpClient.class)
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
-											  HttpClientConnectionManager connectionManager, IClientConfig config) {
+				HttpClientConnectionManager connectionManager, IClientConfig config) {
 			Boolean followRedirects = config.getPropertyAsBoolean(
 					CommonClientConfigKey.FollowRedirects,
 					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
@@ -116,47 +149,18 @@ public class HttpClientRibbonConfiguration {
 			RequestConfig defaultRequestConfig = RequestConfig.custom()
 					.setConnectTimeout(connectTimeout)
 					.setRedirectsEnabled(followRedirects).build();
-			this.httpClient = httpClientFactory.createBuilder().
-					setDefaultRequestConfig(defaultRequestConfig).
-					setConnectionManager(connectionManager).build();
+			this.httpClient = httpClientFactory.createBuilder()
+					.setDefaultRequestConfig(defaultRequestConfig)
+					.setConnectionManager(connectionManager).build();
 			return httpClient;
 		}
 
 		@PreDestroy
 		public void destroy() throws Exception {
 			connectionManagerTimer.cancel();
-			if(httpClient != null) {
+			if (httpClient != null) {
 				httpClient.close();
 			}
 		}
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
-	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
-	public RibbonLoadBalancingHttpClient ribbonLoadBalancingHttpClient(
-			IClientConfig config, ServerIntrospector serverIntrospector,
-			ILoadBalancer loadBalancer, RetryHandler retryHandler, CloseableHttpClient httpClient) {
-		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
-				httpClient, config, serverIntrospector);
-		client.setLoadBalancer(loadBalancer);
-		client.setRetryHandler(retryHandler);
-		Monitors.registerObject("Client_" + this.name, client);
-		return client;
-	}
-
-	@Bean
-	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
-	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
-	public RetryableRibbonLoadBalancingHttpClient retryableRibbonLoadBalancingHttpClient(
-			IClientConfig config, ServerIntrospector serverIntrospector,
-			ILoadBalancer loadBalancer, RetryHandler retryHandler,
-			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, CloseableHttpClient httpClient) {
-		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
-				httpClient, config, serverIntrospector, loadBalancedRetryPolicyFactory);
-		client.setLoadBalancer(loadBalancer);
-		client.setRetryHandler(retryHandler);
-		Monitors.registerObject("Client_" + this.name, client);
-		return client;
 	}
 }

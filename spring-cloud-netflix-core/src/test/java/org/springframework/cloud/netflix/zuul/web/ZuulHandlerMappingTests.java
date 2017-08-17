@@ -90,26 +90,28 @@ public class ZuulHandlerMappingTests {
 
 		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p3/"),
 				new Route("p1", "/p1/**/p3", "p1", "", null, null))
-				.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
+						.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
 
 		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p3/**"),
 				new Route("p1", "/p1/**/p3", "p1", "", null, null))
-				.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
+						.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
 
 		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p4/"),
 				new Route("p1", "/p1/**/p4/", "p1", "", null, null))
-				.getHandler(requestForAPath("/p1/p2/p3/p4"))).isNull();
+						.getHandler(requestForAPath("/p1/p2/p3/p4"))).isNull();
 	}
-	
-	private ZuulHandlerMapping mappingWithIgnoredPathsAndRoutes(List<String> ignoredPaths, Route route) {
+
+	private ZuulHandlerMapping mappingWithIgnoredPathsAndRoutes(List<String> ignoredPaths,
+			Route route) {
 		RouteLocator routeLocator = Mockito.mock(RouteLocator.class);
-		Mockito.when(routeLocator.getIgnoredPaths())
-				.thenReturn(ignoredPaths);
-		Mockito.when(routeLocator.getRoutes()).thenReturn(Collections.singletonList(route));
-		ZuulHandlerMapping zuulHandlerMapping = new ZuulHandlerMapping(routeLocator, new ZuulController());
+		Mockito.when(routeLocator.getIgnoredPaths()).thenReturn(ignoredPaths);
+		Mockito.when(routeLocator.getRoutes())
+				.thenReturn(Collections.singletonList(route));
+		ZuulHandlerMapping zuulHandlerMapping = new ZuulHandlerMapping(routeLocator,
+				new ZuulController());
 		return zuulHandlerMapping;
 	}
-	
+
 	private MockHttpServletRequest requestForAPath(String path) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServletPath(path);

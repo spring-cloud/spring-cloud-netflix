@@ -90,7 +90,8 @@ public class ZuulServerAutoConfiguration {
 
 	@Bean
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Simple)", ZuulServerAutoConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Simple)",
+				ZuulServerAutoConfiguration.class);
 	}
 
 	@Bean
@@ -189,11 +190,12 @@ public class ZuulServerAutoConfiguration {
 		private Map<String, ZuulFilter> filters;
 
 		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer(
-				CounterFactory counterFactory, TracerFactory tracerFactory) {
+		public ZuulFilterInitializer zuulFilterInitializer(CounterFactory counterFactory,
+				TracerFactory tracerFactory) {
 			FilterLoader filterLoader = FilterLoader.getInstance();
 			FilterRegistry filterRegistry = FilterRegistry.instance();
-			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory, filterLoader, filterRegistry);
+			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory,
+					filterLoader, filterRegistry);
 		}
 
 	}

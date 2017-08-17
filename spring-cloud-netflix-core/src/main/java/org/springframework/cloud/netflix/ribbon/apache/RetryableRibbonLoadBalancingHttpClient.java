@@ -17,6 +17,7 @@ package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.io.IOException;
 import java.net.URI;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -24,11 +25,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
-import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.cloud.client.loadbalancer.*;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
@@ -38,6 +35,7 @@ import org.springframework.retry.RetryContext;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -46,6 +44,7 @@ import com.netflix.loadbalancer.Server;
 
 /**
  * An Apache HTTP client which leverages Spring Retry to retry failed requests.
+ *
  * @author Ryan Baxter
  */
 public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient

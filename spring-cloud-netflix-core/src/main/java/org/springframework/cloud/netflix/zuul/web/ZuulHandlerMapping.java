@@ -84,7 +84,8 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 		if (this.errorController != null && urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
-		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) return null;
+		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths()))
+			return null;
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {
 			return null;

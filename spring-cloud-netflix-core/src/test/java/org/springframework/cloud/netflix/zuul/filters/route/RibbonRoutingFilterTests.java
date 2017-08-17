@@ -17,14 +17,14 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import java.util.Collections;
 
 import org.junit.Test;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Spencer Gibb
@@ -33,8 +33,8 @@ public class RibbonRoutingFilterTests {
 	@Test
 	public void useServlet31Works() {
 		RibbonCommandFactory factory = mock(RibbonCommandFactory.class);
-		RibbonRoutingFilter filter = new RibbonRoutingFilter(new ProxyRequestHelper(), factory,
-				Collections.<RibbonRequestCustomizer>emptyList());
+		RibbonRoutingFilter filter = new RibbonRoutingFilter(new ProxyRequestHelper(),
+				factory, Collections.<RibbonRequestCustomizer> emptyList());
 		assertThat(filter.isUseServlet31()).isTrue();
 	}
 }

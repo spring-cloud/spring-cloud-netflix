@@ -67,9 +67,9 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 			reg.getApplicationInfoManager().setInstanceStatus(InstanceInfo.InstanceStatus.DOWN);
 
-			//shutdown of eureka client should happen with EurekaRegistration.close()
-			//auto registration will create a bean which will be properly disposed
-			//manual registrations will need to call close()
+			// shutdown of eureka client should happen with EurekaRegistration.close()
+			// auto registration will create a bean which will be properly disposed
+			// manual registrations will need to call close()
 		}
 	}
 

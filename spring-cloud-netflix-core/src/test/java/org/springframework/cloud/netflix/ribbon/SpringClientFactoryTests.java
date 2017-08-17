@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
+
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.junit.Test;
@@ -29,10 +33,6 @@ import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.niws.client.http.RestClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Dave Syer
@@ -70,7 +70,8 @@ public class SpringClientFactoryTests {
 	public void testConfigureRetry() {
 		SpringClientFactory factory = new SpringClientFactory();
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class, HttpClientConfiguration.class);
+				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class,
+				HttpClientConfiguration.class);
 		addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
 		factory.setApplicationContext(parent);
 		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory

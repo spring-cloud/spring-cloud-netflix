@@ -17,13 +17,15 @@
 
 package org.springframework.cloud.netflix.test;
 
-import feign.Client;
-import feign.httpclient.ApacheHttpClient;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.http.Header;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -65,18 +67,15 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
+import feign.Client;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ApacheHttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: false",
-		"ribbon.eureka.enabled = false"})
+@SpringBootTest(classes = ApacheHttpClientConfigurationTestApp.class, value = {
+		"feign.okhttp.enabled: false", "ribbon.eureka.enabled = false" })
 @DirtiesContext
 public class ApacheHttpClientConfigurationTests {
 
@@ -97,10 +96,14 @@ public class ApacheHttpClientConfigurationTests {
 
 	@Test
 	public void testFactories() {
-		Assertions.assertThat(connectionManagerFactory).isInstanceOf(ApacheHttpClientConnectionManagerFactory.class);
-		Assertions.assertThat(connectionManagerFactory).isInstanceOf(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientConnectionManagerFactory.class);
-		Assertions.assertThat(httpClientFactory).isInstanceOf(ApacheHttpClientFactory.class);
-		Assertions.assertThat(httpClientFactory).isInstanceOf(ApacheHttpClientConfigurationTestApp.MyApacheHttpClientFactory.class);
+		Assertions.assertThat(connectionManagerFactory)
+				.isInstanceOf(ApacheHttpClientConnectionManagerFactory.class);
+		Assertions.assertThat(connectionManagerFactory).isInstanceOf(
+				ApacheHttpClientConfigurationTestApp.MyApacheHttpClientConnectionManagerFactory.class);
+		Assertions.assertThat(httpClientFactory)
+				.isInstanceOf(ApacheHttpClientFactory.class);
+		Assertions.assertThat(httpClientFactory).isInstanceOf(
+				ApacheHttpClientConfigurationTestApp.MyApacheHttpClientFactory.class);
 	}
 
 	@Test
@@ -114,7 +117,7 @@ public class ApacheHttpClientConfigurationTests {
 	public void testHttpClientWithFeign() {
 		Client delegate = feignClient.getDelegate();
 		assertTrue(ApacheHttpClient.class.isInstance(delegate));
-		ApacheHttpClient apacheHttpClient = (ApacheHttpClient)delegate;
+		ApacheHttpClient apacheHttpClient = (ApacheHttpClient) delegate;
 		HttpClient httpClient = getField(apacheHttpClient, "client");
 		MockingDetails httpClientDetails = mockingDetails(httpClient);
 		assertTrue(httpClientDetails.isMock());
@@ -122,9 +125,10 @@ public class ApacheHttpClientConfigurationTests {
 
 	@Test
 	public void testRibbonLoadBalancingHttpClient() {
-		RibbonCommandContext context = new RibbonCommandContext("foo"," GET", "http://localhost",
-				false, new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
-				null, new ArrayList<RibbonRequestCustomizer>(), 0l);
+		RibbonCommandContext context = new RibbonCommandContext("foo", " GET",
+				"http://localhost", false, new LinkedMultiValueMap<String, String>(),
+				new LinkedMultiValueMap<String, String>(), null,
+				new ArrayList<RibbonRequestCustomizer>(), 0l);
 		HttpClientRibbonCommand command = httpClientRibbonCommandFactory.create(context);
 		RibbonLoadBalancingHttpClient ribbonClient = command.getClient();
 		CloseableHttpClient httpClient = getField(ribbonClient, "delegate");
@@ -136,14 +140,14 @@ public class ApacheHttpClientConfigurationTests {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
-		return (T)value;
+		return (T) value;
 	}
 }
 
 @Configuration
 @EnableAutoConfiguration
 @RestController
-@EnableFeignClients(clients = {ApacheHttpClientConfigurationTestApp.FooClient.class})
+@EnableFeignClients(clients = { ApacheHttpClientConfigurationTestApp.FooClient.class })
 @EnableZuulProxy
 class ApacheHttpClientConfigurationTestApp {
 
@@ -152,9 +156,17 @@ class ApacheHttpClientConfigurationTestApp {
 		return "hello";
 	}
 
-	static class MyApacheHttpClientConnectionManagerFactory extends DefaultApacheHttpClientConnectionManagerFactory {
+	@FeignClient(name = "foo", serviceId = "foo")
+	static interface FooClient {
+	}
+
+	static class MyApacheHttpClientConnectionManagerFactory
+			extends DefaultApacheHttpClientConnectionManagerFactory {
 		@Override
-		public HttpClientConnectionManager newConnectionManager(boolean disableSslValidation, int maxTotalConnections, int maxConnectionsPerRoute, long timeToLive, TimeUnit timeUnit, RegistryBuilder registry) {
+		public HttpClientConnectionManager newConnectionManager(
+				boolean disableSslValidation, int maxTotalConnections,
+				int maxConnectionsPerRoute, long timeToLive, TimeUnit timeUnit,
+				RegistryBuilder registry) {
 			return mock(PoolingHttpClientConnectionManager.class);
 		}
 	}
@@ -162,7 +174,7 @@ class ApacheHttpClientConfigurationTestApp {
 	static class MyApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
 		@Override
 		public HttpClientBuilder createBuilder() {
-			CloseableHttpClient client =  mock(CloseableHttpClient.class);
+			CloseableHttpClient client = mock(CloseableHttpClient.class);
 			CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 			StatusLine statusLine = mock(StatusLine.class);
 			doReturn(200).when(statusLine).getStatusCode();
@@ -171,7 +183,8 @@ class ApacheHttpClientConfigurationTestApp {
 			doReturn(headers).when(response).getAllHeaders();
 			try {
 				doReturn(response).when(client).execute(any(HttpUriRequest.class));
-			} catch (IOException e) {
+			}
+			catch (IOException e) {
 				e.printStackTrace();
 			}
 			HttpClientBuilder builder = mock(HttpClientBuilder.class);
@@ -194,9 +207,4 @@ class ApacheHttpClientConfigurationTestApp {
 		}
 
 	}
-
-	@FeignClient(name="foo", serviceId = "foo")
-	static interface FooClient {}
 }
-
-

@@ -16,6 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import static org.junit.Assert.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
+import static org.springframework.util.StreamUtils.copyToByteArray;
+import static org.springframework.util.StreamUtils.copyToString;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,14 +74,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
-import static org.springframework.util.StreamUtils.copyToByteArray;
-import static org.springframework.util.StreamUtils.copyToString;
-
 /**
  * @author Andreas Kluth
  * @author Spencer Gibb
@@ -117,7 +115,8 @@ public class SimpleHostRoutingFilterTests {
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
 				"zuul.host.timeUnit=SECONDS");
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter()
+				.getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -152,7 +151,8 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter()
+				.getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -226,16 +226,21 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(); }
+		ApacheHttpClientFactory clientFactory() {
+			return new DefaultApacheHttpClientFactory();
+		}
 
 		@Bean
-		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() { return new DefaultApacheHttpClientConnectionManagerFactory(); }
+		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() {
+			return new DefaultApacheHttpClientConnectionManagerFactory();
+		}
 
 		@Bean
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
-														ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-														ApacheHttpClientFactory clientFactory) {
-			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties, connectionManagerFactory, clientFactory);
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				ApacheHttpClientFactory clientFactory) {
+			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties,
+					connectionManagerFactory, clientFactory);
 		}
 	}
 }

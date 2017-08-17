@@ -22,6 +22,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PreDestroy;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.RegistryBuilder;
@@ -48,15 +50,14 @@ import feign.httpclient.ApacheHttpClient;
 import feign.okhttp.OkHttpClient;
 import okhttp3.ConnectionPool;
 
-import javax.annotation.PreDestroy;
-
 /**
  * @author Spencer Gibb
  * @author Julien Roy
  */
 @Configuration
 @ConditionalOnClass(Feign.class)
-@EnableConfigurationProperties({FeignClientProperties.class, FeignHttpClientProperties.class})
+@EnableConfigurationProperties({ FeignClientProperties.class,
+		FeignHttpClientProperties.class })
 public class FeignAutoConfiguration {
 
 	@Autowired(required = false)
@@ -140,9 +141,9 @@ public class FeignAutoConfiguration {
 					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
 					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
 					.build();
-			this.httpClient = httpClientFactory.createBuilder().
-					setConnectionManager(httpClientConnectionManager).
-					setDefaultRequestConfig(defaultRequestConfig).build();
+			this.httpClient = httpClientFactory.createBuilder()
+					.setConnectionManager(httpClientConnectionManager)
+					.setDefaultRequestConfig(defaultRequestConfig).build();
 			return this.httpClient;
 		}
 
@@ -155,7 +156,7 @@ public class FeignAutoConfiguration {
 		@PreDestroy
 		public void destroy() throws Exception {
 			connectionManagerTimer.cancel();
-			if(httpClient != null) {
+			if (httpClient != null) {
 				httpClient.close();
 			}
 		}
@@ -172,8 +173,9 @@ public class FeignAutoConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(ConnectionPool.class)
-		public ConnectionPool httpClientConnectionPool(FeignHttpClientProperties httpClientProperties,
-													   OkHttpClientConnectionPoolFactory connectionPoolFactory) {
+		public ConnectionPool httpClientConnectionPool(
+				FeignHttpClientProperties httpClientProperties,
+				OkHttpClientConnectionPoolFactory connectionPoolFactory) {
 			Integer maxTotalConnections = httpClientProperties.getMaxConnections();
 			Long timeToLive = httpClientProperties.getTimeToLive();
 			TimeUnit ttlUnit = httpClientProperties.getTimeToLiveUnit();
@@ -182,19 +184,20 @@ public class FeignAutoConfiguration {
 
 		@Bean
 		public okhttp3.OkHttpClient client(OkHttpClientFactory httpClientFactory,
-										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
+				ConnectionPool connectionPool,
+				FeignHttpClientProperties httpClientProperties) {
 			Boolean followRedirects = httpClientProperties.isFollowRedirects();
 			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
-			this.okHttpClient = httpClientFactory.createBuilder(false).
-					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
-					followRedirects(followRedirects).
-					connectionPool(connectionPool).build();
+			this.okHttpClient = httpClientFactory.createBuilder(false)
+					.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+					.followRedirects(followRedirects).connectionPool(connectionPool)
+					.build();
 			return this.okHttpClient;
 		}
 
 		@PreDestroy
 		public void destroy() {
-			if(okHttpClient != null) {
+			if (okHttpClient != null) {
 				okHttpClient.dispatcher().executorService().shutdown();
 				okHttpClient.connectionPool().evictAll();
 			}
