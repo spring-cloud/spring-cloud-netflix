@@ -77,9 +77,6 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory
 				.create(this.getClientName(), this);
 
-		// final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory
-		// .create(request.getContext().getServiceId(), this);
-
 		RetryCallback retryCallback = new RetryCallback() {
 			@Override
 			public RibbonApacheHttpResponse doWithRetry(RetryContext context)
@@ -128,9 +125,6 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 							RetryableRibbonLoadBalancingHttpClient.this.clientName,
 							httpResponse.getStatusLine().getStatusCode());
 
-					// throw new
-					// RetryableStatusCodeException(request.getContext().getServiceId(),
-					// httpResponse.getStatusLine().getStatusCode());
 				}
 				return new RibbonApacheHttpResponse(httpResponse,
 						httpUriRequest.getURI());
