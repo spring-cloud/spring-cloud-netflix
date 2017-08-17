@@ -24,9 +24,12 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.filters.support.ResettableServletInputStreamWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * @author Spencer Gibb
@@ -38,8 +41,8 @@ public class RibbonCommandContext {
 	private final Boolean retryable;
 	private final MultiValueMap<String, String> headers;
 	private final MultiValueMap<String, String> params;
-	private final InputStream requestEntity;
 	private final List<RibbonRequestCustomizer> requestCustomizers;
+	private InputStream requestEntity;
 	private Long contentLength;
 
 	/**
@@ -54,16 +57,17 @@ public class RibbonCommandContext {
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers) {
-		this(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, null);
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity,
+			List<RibbonRequestCustomizer> requestCustomizers) {
+		this(serviceId, method, uri, retryable, headers, params, requestEntity,
+				requestCustomizers, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
-								MultiValueMap<String, String> params, InputStream requestEntity,
-								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
+			Boolean retryable, MultiValueMap<String, String> headers,
+			MultiValueMap<String, String> params, InputStream requestEntity,
+			List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
 		Assert.notNull(serviceId, "serviceId may not be null");
 		Assert.notNull(method, "method may not be null");
 		Assert.notNull(uri, "uri may not be null");
@@ -125,7 +129,16 @@ public class RibbonCommandContext {
 	}
 
 	public InputStream getRequestEntity() {
-		return requestEntity;
+		try {
+			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
+				requestEntity = new ResettableServletInputStreamWrapper(
+						ByteStreams.toByteArray(requestEntity));
+			}
+			requestEntity.reset();
+		}
+		finally {
+			return requestEntity;
+		}
 	}
 
 	public List<RibbonRequestCustomizer> getRequestCustomizers() {
@@ -142,23 +155,25 @@ public class RibbonCommandContext {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		RibbonCommandContext that = (RibbonCommandContext) o;
-		return Objects.equals(serviceId, that.serviceId) &&
-				Objects.equals(method, that.method) &&
-				Objects.equals(uri, that.uri) &&
-				Objects.equals(retryable, that.retryable) &&
-				Objects.equals(headers, that.headers) &&
-				Objects.equals(params, that.params) &&
-				Objects.equals(requestEntity, that.requestEntity) &&
-				Objects.equals(requestCustomizers, that.requestCustomizers) &&
-				Objects.equals(contentLength, that.contentLength);
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext that = (org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext) o;
+		return Objects.equals(serviceId, that.serviceId)
+				&& Objects.equals(method, that.method) && Objects.equals(uri, that.uri)
+				&& Objects.equals(retryable, that.retryable)
+				&& Objects.equals(headers, that.headers)
+				&& Objects.equals(params, that.params)
+				&& Objects.equals(requestEntity, that.requestEntity)
+				&& Objects.equals(requestCustomizers, that.requestCustomizers)
+				&& Objects.equals(contentLength, that.contentLength);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, contentLength);
+		return Objects.hash(serviceId, method, uri, retryable, headers, params,
+				requestEntity, requestCustomizers, contentLength);
 	}
 
 	@Override
