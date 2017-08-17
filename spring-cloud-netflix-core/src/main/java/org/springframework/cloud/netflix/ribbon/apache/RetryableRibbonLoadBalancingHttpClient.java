@@ -46,6 +46,7 @@ import com.netflix.loadbalancer.Server;
 
 /**
  * An Apache HTTP client which leverages Spring Retry to retry failed requests.
+ *
  * @author Ryan Baxter
  */
 public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient
@@ -123,7 +124,8 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 					if (CloseableHttpResponse.class.isInstance(httpResponse)) {
 						((CloseableHttpResponse) httpResponse).close();
 					}
-					throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
+					throw new RetryableStatusCodeException(
+							RetryableRibbonLoadBalancingHttpClient.this.clientName,
 							httpResponse.getStatusLine().getStatusCode());
 
 					// throw new
