@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.apache.HttpClientRibbonConfiguration;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpRibbonConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -64,7 +65,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 @EnableConfigurationProperties
 //Order is important here, last should be the default, first should be optional
 // see https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
-@Import({OkHttpRibbonConfiguration.class, RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class})
+@Import({HttpClientConfiguration.class, OkHttpRibbonConfiguration.class, RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class})
 public class RibbonClientConfiguration {
 
 	@Value("${ribbon.client.name}")
@@ -148,8 +149,8 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public RibbonLoadBalancerContext ribbonLoadBalancerContext(
-			ILoadBalancer loadBalancer, IClientConfig config, RetryHandler retryHandler) {
+	public RibbonLoadBalancerContext ribbonLoadBalancerContext(ILoadBalancer loadBalancer,
+			IClientConfig config, RetryHandler retryHandler) {
 		return new RibbonLoadBalancerContext(loadBalancer, config, retryHandler);
 	}
 
@@ -158,7 +159,7 @@ public class RibbonClientConfiguration {
 	public RetryHandler retryHandler(IClientConfig config) {
 		return new DefaultLoadBalancerRetryHandler(config);
 	}
-	
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerIntrospector serverIntrospector() {
@@ -185,18 +186,16 @@ public class RibbonClientConfiguration {
 
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
-			URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector, server);
+			URI uri = updateToHttpsIfNeeded(original, this.config,
+					this.serverIntrospector, server);
 			return super.reconstructURIWithServer(server, uri);
 		}
 
 		@Override
 		protected Client apacheHttpClientSpecificInitialization() {
-			ApacheHttpClient4 apache = (ApacheHttpClient4) super
-					.apacheHttpClientSpecificInitialization();
-			apache.getClientHandler()
-					.getHttpClient()
-					.getParams()
-					.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+			ApacheHttpClient4 apache = (ApacheHttpClient4) super.apacheHttpClientSpecificInitialization();
+			apache.getClientHandler().getHttpClient().getParams().setParameter(
+					ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
 			return apache;
 		}
 

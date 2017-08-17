@@ -11,6 +11,7 @@
 
 include::intro.adoc[]
 
+
 == Service Discovery: Eureka Clients
 
 Service Discovery is one of the key tenets of a microservice based architecture. Trying to hand configure each client or some form of convention can be very difficult to do and can be very brittle.  Eureka is the Netflix Service Discovery Server and Client.  The server can be configured and deployed to be highly available, with each server replicating state about the registered services to the others.
@@ -1050,6 +1051,7 @@ Spring Cloud Netflix provides the following beans by default for feign (`BeanTyp
 * `Client` feignClient: if Ribbon is enabled it is a `LoadBalancerFeignClient`, otherwise the default feign client is used.
 
 The OkHttpClient and ApacheHttpClient feign clients can be used by setting `feign.okhttp.enabled` or `feign.httpclient.enabled` to `true`, respectively, and having them on the classpath.
+You can customize the HTTP client used by providing a bean of either `ClosableHttpClient` when using Apache or `OkHttpClient` whe using OK HTTP.
 
 Spring Cloud Netflix _does not_ provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:
 
@@ -1612,7 +1614,9 @@ path rendering the `users` path unreachable.
 
 The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
 deprecated Ribbon `RestClient`. To use `RestClient` or to use the `okhttp3.OkHttpClient` set
-`ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.
+`ribbon.restclient.enabled=true` or `ribbon.okhttp.enabled=true` respectively.  If you would
+like to customize the Apache HTTP client or the OK HTTP client provide a bean of type
+`ClosableHttpClient` or `OkHttpClient`.
 
 === Cookies and Sensitive Headers
 
@@ -2636,3 +2640,14 @@ method to determine whether you want to retry a request given the status code.
 You can turn off Zuul's retry functionality by setting `zuul.retryable` to `false`.  You
 can also disable retry functionality on route by route basis by setting
 `zuul.routes.routename.retryable` to `false`.
+
+== HTTP Clients
+
+Spring Cloud Netflix will automatically create the HTTP client used by Ribbon, Feign, and
+Zuul for you.  However you can also provide your own HTTP clients customized how you please
+yourself.  To do this you can either create a bean of type `ClosableHttpClient` if you
+are using the Apache Http Cient, or `OkHttpClient` if you are using OK HTTP.
+
+NOTE: When you create your own HTTP client you are also responsible for implementing
+the correct connection management strategies for these clients.  Doing this improperly
+can result in resource management issues.

@@ -20,8 +20,10 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.feign.FeignAutoConfiguration;
+import org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +44,7 @@ import feign.Request;
 @ConditionalOnClass({ ILoadBalancer.class, Feign.class })
 @Configuration
 @AutoConfigureBefore(FeignAutoConfiguration.class)
+@EnableConfigurationProperties({ FeignHttpClientProperties.class })
 //Order is important here, last should be the default, first should be optional
 // see https://github.com/spring-cloud/spring-cloud-netflix/issues/2086#issuecomment-316281653
 @Import({ HttpClientFeignLoadBalancedConfiguration.class,
@@ -61,7 +64,8 @@ public class FeignRibbonClientAutoConfiguration {
 	@Primary
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
 	public CachingSpringLoadBalancerFactory retryabeCachingLBClientFactory(
-			SpringClientFactory factory, LoadBalancedRetryPolicyFactory retryPolicyFactory) {
+			SpringClientFactory factory,
+			LoadBalancedRetryPolicyFactory retryPolicyFactory) {
 		return new CachingSpringLoadBalancerFactory(factory, retryPolicyFactory, true);
 	}
 
@@ -70,5 +74,4 @@ public class FeignRibbonClientAutoConfiguration {
 	public Request.Options feignRequestOptions() {
 		return LoadBalancerFeignClient.DEFAULT_OPTIONS;
 	}
-
 }

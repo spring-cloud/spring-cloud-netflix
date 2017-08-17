@@ -43,15 +43,15 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	public static final String PREFIX = "eureka.client";
 
-	@Autowired(required = false)
-	PropertyResolver propertyResolver;
-
 	public static final String DEFAULT_URL = "http://localhost:8761" + DEFAULT_PREFIX
 			+ "/";
 
 	public static final String DEFAULT_ZONE = "defaultZone";
 
 	private static final int MINUTES = 60;
+
+	@Autowired(required = false)
+	PropertyResolver propertyResolver;
 
 	/**
 	 * Flag to indicate that the Eureka client is enabled.

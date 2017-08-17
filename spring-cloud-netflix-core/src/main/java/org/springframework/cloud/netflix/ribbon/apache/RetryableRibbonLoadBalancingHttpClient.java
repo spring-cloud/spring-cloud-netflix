@@ -24,6 +24,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.*;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
@@ -60,6 +61,13 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
+	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
+			IClientConfig config, ServerIntrospector serverIntrospector,
+			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
+		super(delegate, config, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+	}
+
 	@Override
 	public RibbonApacheHttpResponse execute(final RibbonApacheHttpRequest request,
 			final IClientConfig configOverride) throws Exception {
@@ -73,10 +81,8 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				config.get(CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
-
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory
 				.create(this.getClientName(), this);
-
 		RetryCallback retryCallback = new RetryCallback() {
 			@Override
 			public RibbonApacheHttpResponse doWithRetry(RetryContext context)
@@ -124,7 +130,6 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 					throw new RetryableStatusCodeException(
 							RetryableRibbonLoadBalancingHttpClient.this.clientName,
 							httpResponse.getStatusLine().getStatusCode());
-
 				}
 				return new RibbonApacheHttpResponse(httpResponse,
 						httpUriRequest.getURI());

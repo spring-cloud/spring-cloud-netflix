@@ -39,6 +39,7 @@ import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -72,6 +73,11 @@ public class SendResponseFilterTests {
 		String characterEncoding = null;
 		String content = "hello";
 		runFilter(characterEncoding, content, false);
+	}
+
+	@Test
+	public void useServlet31Works() {
+		assertThat(new SendResponseFilter().isUseServlet31()).isTrue();
 	}
 
 	@Test
