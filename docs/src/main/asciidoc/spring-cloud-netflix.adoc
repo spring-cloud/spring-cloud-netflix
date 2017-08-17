@@ -623,6 +623,10 @@ for details on setting up your build system with the current Spring Cloud Releas
 
 To run the Hystrix Dashboard annotate your Spring Boot main class with `@EnableHystrixDashboard`.  You then visit `/hystrix` and point the dashboard to an individual instances `/hystrix.stream` endpoint in a Hystrix client application.
 
+NOTE: When connecting to a `/hystrix.stream` endpoint which uses HTTPS the certificate used by the server
+must be trusted by the JVM.  If the certificate is not trusted you must import the certificate into the JVM
+in order for the Hystrix Dashboard to make a successful connection to the stream endpoint.
+
 === Turbine
 
 Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
