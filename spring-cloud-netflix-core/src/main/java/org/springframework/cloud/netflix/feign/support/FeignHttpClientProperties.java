@@ -19,6 +19,7 @@
 package org.springframework.cloud.netflix.feign.support;
 
 import java.util.concurrent.TimeUnit;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

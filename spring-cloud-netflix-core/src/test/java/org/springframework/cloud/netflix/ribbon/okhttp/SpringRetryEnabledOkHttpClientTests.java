@@ -15,7 +15,12 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
+
 import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
@@ -31,15 +36,12 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(value = { "ribbon.okhttp.enabled: true", "ribbon.httpclient.enabled: false" })
+@SpringBootTest(value = { "ribbon.okhttp.enabled: true",
+		"ribbon.httpclient.enabled: false" })
 @ContextConfiguration(classes = { RibbonAutoConfiguration.class,
 		HttpClientConfiguration.class, RibbonClientConfiguration.class,
 		LoadBalancerAutoConfiguration.class })

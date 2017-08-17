@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +45,6 @@ import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.client.http.RestClient;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
@@ -153,20 +153,25 @@ public class RibbonClientConfigurationTests {
 	@Test
 	public void testDefaultsToApacheHttpClient() {
 		testClient(RibbonLoadBalancingHttpClient.class, null, RestClient.class, OkHttpLoadBalancingClient.class);
-		testClient(RibbonLoadBalancingHttpClient.class, new String[]{"ribbon.httpclient.enabled"}, RestClient.class, OkHttpLoadBalancingClient.class);
+		testClient(RibbonLoadBalancingHttpClient.class,
+				new String[] { "ribbon.httpclient.enabled" }, RestClient.class,
+				OkHttpLoadBalancingClient.class);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testEnableRestClient() {
-		testClient(RestClient.class, new String[]{"ribbon.restclient.enabled"}, RibbonLoadBalancingHttpClient.class,
+		testClient(RestClient.class, new String[] { "ribbon.restclient.enabled" },
+				RibbonLoadBalancingHttpClient.class,
 				OkHttpLoadBalancingClient.class);
 	}
 
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testEnableOkHttpClient() {
-		testClient(OkHttpLoadBalancingClient.class, new String[]{"ribbon.okhttp.enabled"}, RibbonLoadBalancingHttpClient.class,
+		testClient(OkHttpLoadBalancingClient.class,
+				new String[] { "ribbon.okhttp.enabled" },
+				RibbonLoadBalancingHttpClient.class,
 				RestClient.class);
 	}
 

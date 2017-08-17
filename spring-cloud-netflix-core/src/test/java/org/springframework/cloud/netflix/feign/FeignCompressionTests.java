@@ -18,11 +18,11 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.Client;
-import feign.RequestInterceptor;
-import feign.httpclient.ApacheHttpClient;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +42,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import feign.Client;
+import feign.RequestInterceptor;
+import feign.httpclient.ApacheHttpClient;
 
 /**
  * @author Ryan Baxter
@@ -59,7 +60,9 @@ public class FeignCompressionTests {
 		context = new SpringApplicationBuilder().properties("feign.compression.response.enabled=true",
 				"feign.compression.request.enabled=true", "feign.okhttp.enabled=false").sources(PropertyPlaceholderAutoConfiguration.class,
 				ArchaiusAutoConfiguration.class, FeignAutoConfiguration.class, PlainConfig.class, FeignContentGzipEncodingAutoConfiguration.class,
-				FeignAcceptGzipEncodingAutoConfiguration.class, HttpClientConfiguration.class).web(false).run();
+						FeignAcceptGzipEncodingAutoConfiguration.class,
+						HttpClientConfiguration.class)
+				.web(false).run();
 	}
 
 	@After

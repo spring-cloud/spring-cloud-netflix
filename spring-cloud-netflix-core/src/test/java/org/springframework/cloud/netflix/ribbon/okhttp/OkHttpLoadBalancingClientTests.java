@@ -126,7 +126,8 @@ public class OkHttpLoadBalancingClientTests {
 									   IClientConfig configOverride,
 									   SpringClientFactory factory) throws Exception {
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, OkHttpClientConfiguration.class, defaultConfigurationClass));
+				RibbonAutoConfiguration.class, OkHttpClientConfiguration.class,
+				defaultConfigurationClass));
 
 		OkHttpLoadBalancingClient client = factory.getClient("service",
 				OkHttpLoadBalancingClient.class);
@@ -138,12 +139,14 @@ public class OkHttpLoadBalancingClientTests {
 	protected static class OkHttpClientConfiguration {
 		@Autowired(required = false)
 		IClientConfig clientConfig;
+
 		@Bean
 		public OkHttpLoadBalancingClient okHttpLoadBalancingClient() {
-			if(clientConfig == null) {
+			if (clientConfig == null) {
 				clientConfig = new DefaultClientConfigImpl();
 			}
-			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig, new DefaultServerIntrospector());
+			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig,
+					new DefaultServerIntrospector());
 		}
 	}
 

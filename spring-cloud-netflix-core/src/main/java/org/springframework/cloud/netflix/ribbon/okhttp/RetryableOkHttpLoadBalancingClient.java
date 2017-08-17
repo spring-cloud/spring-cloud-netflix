@@ -15,31 +15,32 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
+import java.io.InputStream;
 import java.net.URI;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
-import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.cloud.client.loadbalancer.*;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.zuul.filters.pre.ResettableServletInputStreamWrapper;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * An OK HTTP client which leverages Spring Retry to retry failed request.
@@ -49,7 +50,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 
-	public RetryableOkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector,
+	public RetryableOkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config,
+			ServerIntrospector serverIntrospector,
 									 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(delegate, config, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
@@ -84,6 +86,16 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
 								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
 								newRequest.getURI().getFragment()));
+
+						RibbonCommandContext requestContext = newRequest.getContext();
+						if (requestContext != null) {
+							InputStream inputStream = requestContext.getRequestEntity();
+							if (inputStream instanceof ResettableServletInputStreamWrapper) {
+								ResettableServletInputStreamWrapper requestEntity = (ResettableServletInputStreamWrapper) inputStream;
+								requestEntity.reset();
+							}
+						}
+
 					}
 				}
 				if (isSecure(configOverride)) {

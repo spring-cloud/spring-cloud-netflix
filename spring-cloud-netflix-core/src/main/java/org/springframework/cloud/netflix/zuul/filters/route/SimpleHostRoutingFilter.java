@@ -16,14 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -63,9 +62,6 @@ import org.springframework.util.StringUtils;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
-
 /**
  * Route {@link ZuulFilter} that sends requests to predetermined URLs via apache
  * {@link HttpClient}. URLs are found in {@link RequestContext#getRouteHost()}.
@@ -92,29 +88,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private CloseableHttpClient httpClient;
 	private boolean customHttpClient = false;
 
-	@EventListener
-	public void onPropertyChange(EnvironmentChangeEvent event) {
-		if(!customHttpClient) {
-			boolean createNewClient = false;
-
-			for (String key : event.getKeys()) {
-				if (key.startsWith("zuul.host.")) {
-					createNewClient = true;
-					break;
-				}
-			}
-
-			if (createNewClient) {
-				try {
-					SimpleHostRoutingFilter.this.httpClient.close();
-				} catch (IOException ex) {
-					log.error("error closing client", ex);
-				}
-				SimpleHostRoutingFilter.this.httpClient = newClient();
-			}
-		}
-	}
-
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
 			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
 			ApacheHttpClientFactory httpClientFactory) {
@@ -128,7 +101,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
-								   CloseableHttpClient httpClient) {
+			CloseableHttpClient httpClient) {
 		this.helper = helper;
 		this.hostProperties = properties.getHost();
 		this.sslHostnameValidationEnabled = properties.isSslHostnameValidationEnabled();
@@ -138,15 +111,39 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		this.customHttpClient = true;
 	}
 
+	@EventListener
+	public void onPropertyChange(EnvironmentChangeEvent event) {
+		if (!customHttpClient) {
+			boolean createNewClient = false;
+
+			for (String key : event.getKeys()) {
+				if (key.startsWith("zuul.host.")) {
+					createNewClient = true;
+					break;
+				}
+			}
+
+			if (createNewClient) {
+				try {
+					SimpleHostRoutingFilter.this.httpClient.close();
+				}
+				catch (IOException ex) {
+					log.error("error closing client", ex);
+				}
+				SimpleHostRoutingFilter.this.httpClient = newClient();
+			}
+		}
+	}
+
 	@PostConstruct
 	private void initialize() {
-		if(!customHttpClient) {
+		if (!customHttpClient) {
 			this.connectionManager = connectionManagerFactory.newConnectionManager(
 					this.sslHostnameValidationEnabled,
 					this.hostProperties.getMaxTotalConnections(),
 					this.hostProperties.getMaxPerRouteConnections(),
-					this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
-					null);
+					this.hostProperties.getTimeToLive(),
+					this.hostProperties.getTimeUnit(), null);
 			this.httpClient = newClient();
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
@@ -154,7 +151,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					if (SimpleHostRoutingFilter.this.connectionManager == null) {
 						return;
 					}
-					SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
+					SimpleHostRoutingFilter.this.connectionManager
+							.closeExpiredConnections();
 				}
 			}, 30000, 5000);
 		}
@@ -218,9 +216,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.setSocketTimeout(this.hostProperties.getSocketTimeoutMillis())
 				.setConnectTimeout(this.hostProperties.getConnectTimeoutMillis())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
-		return httpClientFactory.createBuilder().
-				setDefaultRequestConfig(requestConfig).
-				setConnectionManager(this.connectionManager).build();
+		return httpClientFactory.createBuilder().setDefaultRequestConfig(requestConfig)
+				.setConnectionManager(this.connectionManager).build();
 	}
 
 	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,

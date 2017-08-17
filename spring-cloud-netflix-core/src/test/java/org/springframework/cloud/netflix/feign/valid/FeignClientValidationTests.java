@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
@@ -29,8 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Dave Syer
@@ -46,7 +46,7 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@Import({FeignAutoConfiguration.class, HttpClientConfiguration.class})
+	@Import({ FeignAutoConfiguration.class, HttpClientConfiguration.class })
 	@EnableFeignClients(clients = GoodUrlConfiguration.Client.class)
 	protected static class GoodUrlConfiguration {
 
@@ -68,7 +68,7 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@Import({FeignAutoConfiguration.class, HttpClientConfiguration.class})
+	@Import({ FeignAutoConfiguration.class, HttpClientConfiguration.class })
 	@EnableFeignClients(clients = PlaceholderUrlConfiguration.Client.class)
 	protected static class PlaceholderUrlConfiguration {
 
@@ -93,7 +93,7 @@ public class FeignClientValidationTests {
 	}
 
 	@Configuration
-	@Import({FeignAutoConfiguration.class, HttpClientConfiguration.class})
+	@Import({ FeignAutoConfiguration.class, HttpClientConfiguration.class })
 	@EnableFeignClients(clients = GoodServiceIdConfiguration.Client.class)
 	protected static class GoodServiceIdConfiguration {
 

@@ -18,6 +18,9 @@
 
 package org.springframework.cloud.netflix.feign.support;
 
+import static org.junit.Assert.*;
+import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
+
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,11 +31,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Ryan Baxter
@@ -53,12 +51,18 @@ public class FeignHttpClientPropertiesTests {
 	@Test
 	public void testDefaults() {
 		setupContext();
-		assertEquals(FeignHttpClientProperties.DEFAULT_CONNECTION_TIMEOUT, getProperties().getConnectionTimeout());
-		assertEquals(FeignHttpClientProperties.DEFAULT_MAX_CONNECTIONS, getProperties().getMaxConnections());
-		assertEquals(FeignHttpClientProperties.DEFAULT_MAX_CONNECTIONS_PER_ROUTE, getProperties().getMaxConnectionsPerRoute());
-		assertEquals(FeignHttpClientProperties.DEFAULT_TIME_TO_LIVE, getProperties().getTimeToLive());
-		assertEquals(FeignHttpClientProperties.DEFAULT_DISABLE_SSL_VALIDATION, getProperties().isDisableSslValidation());
-		assertEquals(FeignHttpClientProperties.DEFAULT_FOLLOW_REDIRECTS, getProperties().isFollowRedirects());
+		assertEquals(FeignHttpClientProperties.DEFAULT_CONNECTION_TIMEOUT,
+				getProperties().getConnectionTimeout());
+		assertEquals(FeignHttpClientProperties.DEFAULT_MAX_CONNECTIONS,
+				getProperties().getMaxConnections());
+		assertEquals(FeignHttpClientProperties.DEFAULT_MAX_CONNECTIONS_PER_ROUTE,
+				getProperties().getMaxConnectionsPerRoute());
+		assertEquals(FeignHttpClientProperties.DEFAULT_TIME_TO_LIVE,
+				getProperties().getTimeToLive());
+		assertEquals(FeignHttpClientProperties.DEFAULT_DISABLE_SSL_VALIDATION,
+				getProperties().isDisableSslValidation());
+		assertEquals(FeignHttpClientProperties.DEFAULT_FOLLOW_REDIRECTS,
+				getProperties().isFollowRedirects());
 	}
 
 	@Test
@@ -79,7 +83,8 @@ public class FeignHttpClientPropertiesTests {
 	}
 
 	private void setupContext() {
-		this.context.register(PropertyPlaceholderAutoConfiguration.class, TestConfiguration.class);
+		this.context.register(PropertyPlaceholderAutoConfiguration.class,
+				TestConfiguration.class);
 		this.context.refresh();
 	}
 
@@ -92,7 +97,7 @@ public class FeignHttpClientPropertiesTests {
 	protected static class TestConfiguration {
 		@Bean
 		FeignHttpClientProperties zuulProperties() {
-			return new FeignHttpClientProperties() ;
+			return new FeignHttpClientProperties();
 		}
 	}
 }

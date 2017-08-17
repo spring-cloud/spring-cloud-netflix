@@ -16,8 +16,17 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 import java.net.URI;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -32,12 +41,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,18 +56,6 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.AbstractLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author Sébastien Nussbaumer
@@ -438,7 +430,8 @@ public class RibbonLoadBalancingHttpClientTests {
 												IClientConfig configOverride, SpringClientFactory factory)
 			throws Exception {
 
-		factory.setApplicationContext(new AnnotationConfigApplicationContext(HttpClientConfiguration.class,
+		factory.setApplicationContext(
+				new AnnotationConfigApplicationContext(HttpClientConfiguration.class,
 				RibbonAutoConfiguration.class, defaultConfigurationClass));
 		String serviceName = "foo";
 		String host = serviceName;
@@ -450,7 +443,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 		ReflectionTestUtils.setField(client, "delegate", delegate);
 		ReflectionTestUtils.setField(client, "lb", loadBalancer);
-		CloseableHttpResponse httpResponse  = mock(CloseableHttpResponse.class);
+		CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
 		doReturn(200).when(statusLine).getStatusCode();
 		doReturn(statusLine).when(httpResponse).getStatusLine();

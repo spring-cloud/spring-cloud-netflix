@@ -16,11 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.Server;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+
+import java.net.URI;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -30,15 +29,18 @@ import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.Server;
 
 /**
  * @author Christian Lohmann
  * @author Ryan Baxter
  */
-// TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
+// TODO: rename (ie new class that extends this in Dalston) to
+// ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient extends
 		AbstractLoadBalancingClient<RibbonApacheHttpRequest, RibbonApacheHttpResponse, CloseableHttpClient> {
 

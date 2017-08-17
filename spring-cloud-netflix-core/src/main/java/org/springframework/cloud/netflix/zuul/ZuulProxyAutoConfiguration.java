@@ -109,7 +109,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class, CloseableHttpClient.class})
+	@ConditionalOnMissingBean({ SimpleHostRoutingFilter.class,
+			CloseableHttpClient.class })
 	public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
 			ZuulProperties zuulProperties,
 			ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
@@ -119,12 +120,10 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnMissingBean({SimpleHostRoutingFilter.class})
+	@ConditionalOnMissingBean({ SimpleHostRoutingFilter.class })
 	public SimpleHostRoutingFilter simpleHostRoutingFilter2(ProxyRequestHelper helper,
-														   ZuulProperties zuulProperties,
-														   CloseableHttpClient httpClient) {
-		return new SimpleHostRoutingFilter(helper, zuulProperties,
-				httpClient);
+			ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+		return new SimpleHostRoutingFilter(helper, zuulProperties, httpClient);
 	}
 
 	@Bean
