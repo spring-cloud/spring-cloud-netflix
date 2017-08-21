@@ -687,6 +687,9 @@ turbine:
   appConfig: customers
 ----
 
+If you need to customize which cluster names should be used by Turbine (you don't want to store cluster names in
+`turbine.aggregator.clusterConfig` configuration) provide a bean of type `TurbineClustersProvider`.
+
 The `clusterName` can be customized by a SPEL expression in `turbine.clusterNameExpression` with root an instance of `InstanceInfo`. The default value is `appName`, which means that the Eureka serviceId ends up as the cluster key (i.e. the `InstanceInfo` for customers has an `appName` of "CUSTOMERS").  A different example would be `turbine.clusterNameExpression=aSGName`, which would get the cluster name from the AWS ASG name. Another example:
 
 ----
