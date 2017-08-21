@@ -19,11 +19,13 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
@@ -68,6 +70,18 @@ public class SimpleRouteLocatorTests {
 		assertThat(locator.getMatchingRoute("/bar/1"), is(createRoute("bar", "/1", "/bar")));
 	}
 
+	@Test
+	public void test_getRoutesMapIsUnmodifiable() throws Exception {
+		RouteLocator locator = new FilteringRouteLocator("/", this.zuul);
+		this.zuul.getRoutes().clear();
+
+		try {
+			((FilteringRouteLocator) locator).getRoutesMap().put("Should Fail", null);
+			fail("Expected UnsupportedOperationException");
+		} catch(UnsupportedOperationException e) {
+		}
+	}
+
 	private Route createRoute(String id, String path, String prefix) {
 		return new Route(id, path, id, prefix, false, null);
 	}
@@ -78,11 +92,11 @@ public class SimpleRouteLocatorTests {
 		}
 
 		@Override
-		protected List<Route> assembleRoutes(Map<String, ZuulRoute> routes) {
-
+		public List<Route> getRoutes() {
 			List<Route> values = new ArrayList<>();
-			for (String url : routes.keySet()) {
-				ZuulRoute route = routes.get(url);
+
+			for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
+				ZuulRoute route = entry.getValue();
 				if (acceptRoute(route)) {
 					String path = route.getPath();
 					values.add(getRoute(route, path));
@@ -100,6 +114,12 @@ public class SimpleRouteLocatorTests {
 				return super.getRoute(route, path);
 			}
 			return null;
+		}
+
+		// For testing, expose as public so we can call getRoutesMap() directly.
+		@Override
+		public Map<String, ZuulRoute> getRoutesMap() {
+			return super.getRoutesMap();
 		}
 	}
 }

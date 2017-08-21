@@ -66,16 +66,9 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	@Override
 	public List<Route> getRoutes() {
-		if (this.routes.get() == null) {
-			this.routes.set(locateRoutes());
-		}
-		return assembleRoutes(Collections.unmodifiableMap(this.routes.get()));
-	}
-
-	protected List<Route> assembleRoutes(Map<String, ZuulRoute> routes) {
 		List<Route> values = new ArrayList<>();
-		for (String url : routes.keySet()) {
-			ZuulRoute route = routes.get(url);
+		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
+			ZuulRoute route = entry.getValue();
 			String path = route.getPath();
 			values.add(getRoute(route, path));
 		}
@@ -94,14 +87,19 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	}
 
+	protected Map<String, ZuulRoute> getRoutesMap() {
+		if (this.routes.get() == null) {
+			this.routes.set(locateRoutes());
+		}
+		return Collections.unmodifiableMap(this.routes.get());
+	}
+
 	protected Route getSimpleMatchingRoute(final String path) {
 		if (log.isDebugEnabled()) {
 			log.debug("Finding route for path: " + path);
 		}
 
-		if (this.routes.get() == null) {
-			this.routes.set(locateRoutes());
-		}
+		getRoutesMap();
 
 		if (log.isDebugEnabled()) {
 			log.debug("servletPath=" + this.dispatcherServletPath);
@@ -121,7 +119,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	protected ZuulRoute getZuulRoute(String adjustedPath) {
 		if (!matchesIgnoredPatterns(adjustedPath)) {
-			for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
+			for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
 				String pattern = entry.getKey();
 				log.debug("Matching pattern:" + pattern);
 				if (this.pathMatcher.match(pattern, adjustedPath)) {
