@@ -95,7 +95,7 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 	@Override
 	public Collection<Instance> getInstanceList() throws Exception {
 		List<Instance> instances = new ArrayList<>();
-		List<String> appNames = getTurbineProperties().getAppConfigList();
+		List<String> appNames = getApplications();
 		if (appNames == null || appNames.size() == 0) {
 			log.info("No apps configured, returning an empty instance list");
 			return instances;
@@ -118,6 +118,10 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 			}
 		}
 		return instances;
+	}
+
+	protected List<String> getApplications() {
+		return turbineProperties.getAppConfigList();
 	}
 
 	/**
