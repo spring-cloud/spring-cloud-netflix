@@ -99,6 +99,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 			log.debug("Finding route for path: " + path);
 		}
 
+		// This is called for the initialization done in getRoutesMap()
 		getRoutesMap();
 
 		if (log.isDebugEnabled()) {
