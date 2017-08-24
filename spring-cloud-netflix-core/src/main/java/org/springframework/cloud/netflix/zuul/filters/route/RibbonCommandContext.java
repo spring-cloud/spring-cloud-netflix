@@ -16,12 +16,12 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
-import com.google.common.io.ByteStreams;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.support.ResettableServletInputStreamWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StreamUtils;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -129,9 +129,9 @@ public class RibbonCommandContext {
     public InputStream getRequestEntity() {
         try {
             if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
-                requestEntity = new ResettableServletInputStreamWrapper(
-                        ByteStreams.toByteArray(requestEntity));
-            }
+					requestEntity = new ResettableServletInputStreamWrapper(
+							StreamUtils.copyToByteArray(requestEntity));
+			}
             requestEntity.reset();
         }
         finally {
