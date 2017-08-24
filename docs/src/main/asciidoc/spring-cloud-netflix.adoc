@@ -2357,21 +2357,21 @@ Here are some examples of using `rx.Single`:
 
 [source,java]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/SingleReturnValueHandlerTest.java[tags=rx_single,indent=0]
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/SingleReturnValueHandlerTests.java[tags=rx_single,indent=0]
 ----
 
 If you have an `Observable`, rather than a single, you can use `.toSingle()` or `.toList().toSingle()`. Here are some examples:
 
 [source,java]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableReturnValueHandlerTest.java[tags=rx_observable,indent=0]
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableReturnValueHandlerTests.java[tags=rx_observable,indent=0]
 ----
 
 If you have a streaming endpoint and client, SSE could be an option. To convert `rx.Observable` to a Spring `SseEmitter` use `RxResponse.sse()`. Here are some examples:
 
 [source,java]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableSseEmitterTest.java[tags=rx_observable_sse,indent=0]
+include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableSseEmitterTests.java[tags=rx_observable_sse,indent=0]
 ----
 
 [[netflix-metrics]]
