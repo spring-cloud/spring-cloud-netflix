@@ -3608,7 +3608,26 @@ info:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-java" data-lang="java">Unresolved directive in spring-cloud-netflix.adoc - include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/SingleReturnValueHandlerTest.java[tags=rx_single,indent=0]</code></pre>
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
+public Single&lt;String&gt; single() {
+	return Single.just("single value");
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")
+public ResponseEntity&lt;Single&lt;String&gt;&gt; singleWithResponse() {
+	return new ResponseEntity&lt;&gt;(Single.just("single value"),
+			HttpStatus.NOT_FOUND);
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/singleCreatedWithResponse")
+public Single&lt;ResponseEntity&lt;String&gt;&gt; singleOuterWithResponse() {
+	return Single.just(new ResponseEntity&lt;&gt;("single value", HttpStatus.CREATED));
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/throw")
+public Single&lt;Object&gt; error() {
+	return Single.error(new RuntimeException("Unexpected"));
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3616,7 +3635,34 @@ info:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-java" data-lang="java">Unresolved directive in spring-cloud-netflix.adoc - include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableReturnValueHandlerTest.java[tags=rx_observable,indent=0]</code></pre>
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/single")
+public Single&lt;String&gt; single() {
+    return Observable.just("single value").toSingle();
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/multiple")
+public Single&lt;List&lt;String&gt;&gt; multiple() {
+    return Observable.just("multiple", "values").toList().toSingle();
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")
+public ResponseEntity&lt;Single&lt;String&gt;&gt; responseWithObservable() {
+
+    Observable&lt;String&gt; observable = Observable.just("single value");
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(APPLICATION_JSON_UTF8);
+    return new ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/timeout")
+public Observable&lt;String&gt; timeout() {
+    return Observable.timer(1, TimeUnit.MINUTES).map(new Func1&lt;Long, String&gt;() {
+        @Override
+        public String call(Long aLong) {
+            return "single value";
+        }
+    });
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3624,7 +3670,22 @@ info:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-java" data-lang="java">Unresolved directive in spring-cloud-netflix.adoc - include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/rx/ObservableSseEmitterTest.java[tags=rx_observable_sse,indent=0]</code></pre>
+<pre class="prettyprint highlight"><code class="language-java" data-lang="java">@RequestMapping(method = RequestMethod.GET, value = "/sse")
+public SseEmitter single() {
+	return RxResponse.sse(Observable.just("single value"));
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/messages")
+public SseEmitter messages() {
+	return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
+}
+
+@RequestMapping(method = RequestMethod.GET, value = "/events")
+public SseEmitter event() {
+	return RxResponse.sse(APPLICATION_JSON_UTF8,
+			Observable.just(new EventDto("Spring io", getDate(2016, 5, 19)),
+					new EventDto("SpringOnePlatform", getDate(2016, 8, 1))));
+}</code></pre>
 </div>
 </div>
 </div>
