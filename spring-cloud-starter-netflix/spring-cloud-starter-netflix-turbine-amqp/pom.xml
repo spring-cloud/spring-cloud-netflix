@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-netflix</artifactId>
-    <version>1.4.0.M1</version>
+    <version>1.4.0.BUILD-SNAPSHOT</version>
   </parent>
   <artifactId>spring-cloud-starter-netflix-turbine-amqp</artifactId>
   <name>Spring Cloud Starter Netflix Turbine AMQP</name>
