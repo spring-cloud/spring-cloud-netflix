@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
 
-import javax.annotation.PostConstruct;
 
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
@@ -35,7 +34,6 @@ import org.springframework.context.annotation.Import;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.DummyPing;
@@ -52,9 +50,8 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.client.http.RestClient;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
+import org.springframework.core.env.ConfigurableEnvironment;
 
-import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
 
 /**
@@ -79,8 +76,8 @@ public class RibbonClientConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public IClientConfig ribbonClientConfig() {
-		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+	public IClientConfig ribbonClientConfig(ConfigurableEnvironment environment) {
+		EnvBasedClientConfig config = new EnvBasedClientConfig(environment);
 		config.loadProperties(this.name);
 		return config;
 	}
@@ -166,10 +163,10 @@ public class RibbonClientConfiguration {
 		return new DefaultServerIntrospector();
 	}
 
-	@PostConstruct
-	public void preprocess() {
-		setRibbonProperty(name, DeploymentContextBasedVipAddresses.key(), name);
-	}
+//	@PostConstruct
+//	public void preprocess() {
+//		setRibbonProperty(name, DeploymentContextBasedVipAddresses.key(), name);
+//	}
 
 	static class OverrideRestClient extends RestClient {
 
