@@ -36,7 +36,6 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -54,7 +53,6 @@ import lombok.NoArgsConstructor;
 		"spring.application.name=feignclienttest",
 		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
-@DirtiesContext
 public class FeignClientTests {
 
 	@Value("${local.server.port}")

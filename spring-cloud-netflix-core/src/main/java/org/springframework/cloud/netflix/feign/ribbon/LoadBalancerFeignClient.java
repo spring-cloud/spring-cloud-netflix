@@ -19,16 +19,17 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import java.io.IOException;
 import java.net.URI;
 
+import org.springframework.cloud.netflix.ribbon.EnvBasedClientConfig;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 import com.netflix.client.ClientException;
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 
 import feign.Client;
 import feign.Request;
 import feign.Response;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author Dave Syer
@@ -41,13 +42,15 @@ public class LoadBalancerFeignClient implements Client {
 	private final Client delegate;
 	private CachingSpringLoadBalancerFactory lbClientFactory;
 	private SpringClientFactory clientFactory;
+	private ConfigurableEnvironment environment;
 
 	public LoadBalancerFeignClient(Client delegate,
 								   CachingSpringLoadBalancerFactory lbClientFactory,
-								   SpringClientFactory clientFactory) {
+								   SpringClientFactory clientFactory, ConfigurableEnvironment environment) {
 		this.delegate = delegate;
 		this.lbClientFactory = lbClientFactory;
 		this.clientFactory = clientFactory;
+		this.environment = environment;
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class LoadBalancerFeignClient implements Client {
 		if (options == DEFAULT_OPTIONS) {
 			requestConfig = this.clientFactory.getClientConfig(clientName);
 		} else {
-			requestConfig = new FeignOptionsClientConfig(options);
+			requestConfig = new FeignOptionsClientConfig(options, this.environment);
 		}
 		return requestConfig;
 	}
@@ -104,9 +107,10 @@ public class LoadBalancerFeignClient implements Client {
 		return this.lbClientFactory.create(clientName);
 	}
 
-	static class FeignOptionsClientConfig extends DefaultClientConfigImpl {
+	static class FeignOptionsClientConfig extends EnvBasedClientConfig {
 
-		public FeignOptionsClientConfig(Request.Options options) {
+		public FeignOptionsClientConfig(Request.Options options, ConfigurableEnvironment env) {
+			super(env);
 			setProperty(CommonClientConfigKey.ConnectTimeout,
 					options.connectTimeoutMillis());
 			setProperty(CommonClientConfigKey.ReadTimeout, options.readTimeoutMillis());

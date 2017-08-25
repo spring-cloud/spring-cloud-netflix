@@ -29,7 +29,6 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.FeignContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -45,7 +44,6 @@ import feign.Request;
 @SpringBootTest(classes = LoadBalancerFeignClientOverrideTests.TestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=loadBalancerFeignClientTests",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
-@DirtiesContext
 public class LoadBalancerFeignClientOverrideTests {
 
 	@Autowired

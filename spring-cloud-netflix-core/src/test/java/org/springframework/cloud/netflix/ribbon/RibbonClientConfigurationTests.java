@@ -37,10 +37,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.client.http.RestClient;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -86,7 +86,10 @@ public class RibbonClientConfigurationTests {
 		assertThat(uri.getHost(), is("example.com"));
 	}
 
-	static class CountingConfig extends DefaultClientConfigImpl {
+	static class CountingConfig extends EnvBasedClientConfig {
+		public CountingConfig() {
+			super(new MockEnvironment());
+		}
 		int count = 0;
 	}
 

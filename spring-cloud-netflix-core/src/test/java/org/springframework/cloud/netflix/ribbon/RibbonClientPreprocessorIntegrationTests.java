@@ -25,7 +25,6 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientPreprocessorIntegrationTests.PlainConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -39,7 +38,6 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PlainConfiguration.class)
-@DirtiesContext
 public class RibbonClientPreprocessorIntegrationTests {
 
 	@Autowired

@@ -22,8 +22,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 	"ribbon.eager-load.enabled=true",
 	"ribbon.eager-load.clients=testspec1,testspec2"
 })
-@DirtiesContext
 public class RibbonClientsEagerInitializationTests {
 
 	@Test

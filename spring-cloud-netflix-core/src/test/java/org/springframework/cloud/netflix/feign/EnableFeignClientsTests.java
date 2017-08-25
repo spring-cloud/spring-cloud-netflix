@@ -27,7 +27,6 @@ import org.springframework.cloud.netflix.feign.support.SpringEncoder;
 import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import feign.Contract;
@@ -42,7 +41,6 @@ import feign.slf4j.Slf4jLogger;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EnableFeignClientsTests.PlainConfiguration.class)
-@DirtiesContext
 public class EnableFeignClientsTests {
 
 	@Autowired

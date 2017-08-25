@@ -38,6 +38,7 @@ import org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author Spencer Gibb
@@ -104,9 +105,10 @@ class HttpClientFeignLoadBalancedConfiguration {
 		@Bean
 		@ConditionalOnMissingBean(Client.class)
 		public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-								  SpringClientFactory clientFactory, HttpClient httpClient) {
+								  SpringClientFactory clientFactory, HttpClient httpClient, 
+								  ConfigurableEnvironment environment) {
 			ApacheHttpClient delegate = new ApacheHttpClient(httpClient);
-			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+			return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory, environment);
 		}
 
 

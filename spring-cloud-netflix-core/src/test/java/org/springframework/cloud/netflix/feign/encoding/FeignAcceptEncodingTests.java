@@ -39,7 +39,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +52,6 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(classes = FeignAcceptEncodingTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"feign.compression.response.enabled=true" })
 @RunWith(SpringRunner.class)
-@DirtiesContext
 public class FeignAcceptEncodingTests {
 
 	@Autowired

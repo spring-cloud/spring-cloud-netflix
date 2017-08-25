@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author Spencer Gibb
@@ -31,8 +32,8 @@ class DefaultFeignLoadBalancedConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-							  SpringClientFactory clientFactory) {
+							  SpringClientFactory clientFactory, ConfigurableEnvironment environment) {
 		return new LoadBalancerFeignClient(new Client.Default(null, null),
-				cachingFactory, clientFactory);
+				cachingFactory, clientFactory, environment);
 	}
 }

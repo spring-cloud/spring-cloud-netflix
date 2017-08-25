@@ -17,7 +17,6 @@
 package org.springframework.cloud.netflix.feign.ribbon;
 
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.AbstractLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -31,10 +30,8 @@ import feign.RequestTemplate;
 import org.hamcrest.CustomMatcher;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.*;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -55,7 +52,7 @@ public class FeignRibbonClientTests {
 	private SpringClientFactory factory = new SpringClientFactory() {
 		@Override
 		public IClientConfig getClientConfig(String name) {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			IClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.ConnectTimeout, 1000);
 			config.set(CommonClientConfigKey.ReadTimeout, 500);
 			return config;
@@ -80,7 +77,7 @@ public class FeignRibbonClientTests {
 	// Even though we don't maintain FeignRibbonClient, keep these tests
 	// around to make sure the expected behaviour doesn't break
 	private Client client = new LoadBalancerFeignClient(this.delegate, new CachingSpringLoadBalancerFactory(this.factory,
-			retryPolicyFactory), this.factory);
+			retryPolicyFactory), this.factory, new MockEnvironment());
 
 	@Before
 	public void init() {

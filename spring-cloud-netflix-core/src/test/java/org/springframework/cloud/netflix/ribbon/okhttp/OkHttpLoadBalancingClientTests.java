@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.EnvBasedClientConfig;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -29,10 +30,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 
 import okhttp3.OkHttpClient;
+import org.springframework.mock.env.MockEnvironment;
 
 /**
  * @author Spencer Gibb
@@ -64,7 +65,7 @@ public class OkHttpLoadBalancingClientTests {
 	public void testOkHttpClientDoNotFollowRedirectsOverrideWithFollowRedirects()
 			throws Exception {
 
-		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
+		EnvBasedClientConfig override = new EnvBasedClientConfig(new MockEnvironment());
 		override.set(CommonClientConfigKey.FollowRedirects, true);
 		override.set(CommonClientConfigKey.IsSecure, false);
 
@@ -77,7 +78,7 @@ public class OkHttpLoadBalancingClientTests {
 	public void testOkHttpClientFollowRedirectsOverrideWithDoNotFollowRedirects()
 			throws Exception {
 
-		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
+		EnvBasedClientConfig override = new EnvBasedClientConfig(new MockEnvironment());
 		override.set(CommonClientConfigKey.FollowRedirects, false);
 		override.set(CommonClientConfigKey.IsSecure, false);
 
@@ -95,7 +96,7 @@ public class OkHttpLoadBalancingClientTests {
 
 	@Test
 	public void testTimeoutsOverride() throws Exception {
-		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
+		EnvBasedClientConfig override = new EnvBasedClientConfig(new MockEnvironment());
 		override.set(CommonClientConfigKey.ConnectTimeout, 60);
 		override.set(CommonClientConfigKey.ReadTimeout, 50);
 		OkHttpClient result = getHttpClient(Timeouts.class, override);
@@ -141,7 +142,7 @@ public class OkHttpLoadBalancingClientTests {
 		@Bean
 		public OkHttpLoadBalancingClient okHttpLoadBalancingClient() {
 			if(clientConfig == null) {
-				clientConfig = new DefaultClientConfigImpl();
+				clientConfig = new EnvBasedClientConfig(new MockEnvironment());
 			}
 			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig, new DefaultServerIntrospector());
 		}
@@ -156,7 +157,7 @@ public class OkHttpLoadBalancingClientTests {
 	protected static class FollowRedirects {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.FollowRedirects, true);
 			return config;
 		}
@@ -166,7 +167,7 @@ public class OkHttpLoadBalancingClientTests {
 	protected static class DoNotFollowRedirects {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.FollowRedirects, false);
 			return config;
 		}
@@ -176,7 +177,7 @@ public class OkHttpLoadBalancingClientTests {
 	protected static class Timeouts {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
 			config.set(CommonClientConfigKey.ReadTimeout, 50000);
 			return config;

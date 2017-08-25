@@ -25,10 +25,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.IClientConfigAware;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.niws.client.http.RestClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -98,21 +98,21 @@ public class SpringClientFactoryTests {
 	
 	@Test
 	public void testInstantiateWithConfigInjectByConstructor() {
-		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		IClientConfig clientConfig = new EnvBasedClientConfig(new MockEnvironment());
 		ClientConfigInjectedByConstructor instance = SpringClientFactory.instantiateWithConfig(ClientConfigInjectedByConstructor.class, clientConfig);
 		assertThat(instance.clientConfig).isSameAs(clientConfig);
 	}
 	
 	@Test
 	public void testInstantiateWithConfigInjectedByInitMethod() {
-		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		IClientConfig clientConfig = new EnvBasedClientConfig(new MockEnvironment());
 		ClientConfigInjectedByInitMethod instance = SpringClientFactory.instantiateWithConfig(ClientConfigInjectedByInitMethod.class, clientConfig);
 		assertThat(instance.clientConfig).isSameAs(clientConfig);
 	}
 	
 	@Test
 	public void testInstantiateWithoutConfig() {
-		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		IClientConfig clientConfig = new EnvBasedClientConfig(new MockEnvironment());
 		NoClientConfigAware instance = SpringClientFactory.instantiateWithConfig(NoClientConfigAware.class, clientConfig);
 		assertThat(instance).isNotNull();
 	}

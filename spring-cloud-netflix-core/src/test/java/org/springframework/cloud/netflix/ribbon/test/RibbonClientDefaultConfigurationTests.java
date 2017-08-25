@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.test.RibbonClientDefaultConfigurationTestsConfig.BazServiceList;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.netflix.loadbalancer.BestAvailableRule;
@@ -41,7 +40,6 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RibbonClientDefaultConfigurationTestsConfig.class, value = "ribbon.eureka.enabled=true")
-@DirtiesContext
 public class RibbonClientDefaultConfigurationTests {
 
 	@Autowired

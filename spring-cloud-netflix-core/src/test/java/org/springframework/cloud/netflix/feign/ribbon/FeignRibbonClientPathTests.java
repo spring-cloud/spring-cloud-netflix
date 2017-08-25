@@ -33,7 +33,6 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,7 +57,6 @@ import lombok.NoArgsConstructor;
 		"test.path.prefix=/base/path" // For pathWithPlaceholder test
 	}
 )
-@DirtiesContext
 public class FeignRibbonClientPathTests {
 
 	@Value("${local.server.port}")

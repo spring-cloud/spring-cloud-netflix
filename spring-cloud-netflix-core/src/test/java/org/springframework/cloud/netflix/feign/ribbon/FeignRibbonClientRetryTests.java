@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -58,7 +57,6 @@ import static org.junit.Assert.assertTrue;
 		"spring.application.name=feignclientretrytest", "feign.okhttp.enabled=false",
 		"feign.httpclient.enabled=false", "feign.hystrix.enabled=false", "localapp.ribbon.MaxAutoRetries=2",
         "localapp.ribbon.MaxAutoRetriesNextServer=3"})
-@DirtiesContext
 public class FeignRibbonClientRetryTests {
 
 	@Value("${local.server.port}")

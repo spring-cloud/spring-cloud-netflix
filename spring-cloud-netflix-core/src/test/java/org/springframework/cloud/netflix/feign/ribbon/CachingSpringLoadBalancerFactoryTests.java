@@ -17,14 +17,15 @@
 package org.springframework.cloud.netflix.feign.ribbon;
 
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.cloud.netflix.ribbon.EnvBasedClientConfig;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.times;
@@ -48,7 +49,7 @@ public class CachingSpringLoadBalancerFactoryTests {
 	public void init() {
 		MockitoAnnotations.initMocks(this);
 
-		IClientConfig config = new DefaultClientConfigImpl();
+		IClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 		config.set(CommonClientConfigKey.ConnectTimeout, 1000);
 		config.set(CommonClientConfigKey.ReadTimeout, 500);
 
