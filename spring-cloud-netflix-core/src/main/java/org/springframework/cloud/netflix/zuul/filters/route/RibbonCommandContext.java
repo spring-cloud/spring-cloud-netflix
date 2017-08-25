@@ -49,23 +49,23 @@ public class RibbonCommandContext {
 	 */
 	@Deprecated
 	public RibbonCommandContext(String serviceId, String method, String uri,
-                                Boolean retryable, MultiValueMap<String, String> headers,
-                                MultiValueMap<String, String> params, InputStream requestEntity) {
+								Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
 				new ArrayList<RibbonRequestCustomizer>(), null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-                                Boolean retryable, MultiValueMap<String, String> headers,
-                                MultiValueMap<String, String> params, InputStream requestEntity,
-                                List<RibbonRequestCustomizer> requestCustomizers) {
+								Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity,
+								List<RibbonRequestCustomizer> requestCustomizers) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
-                                Boolean retryable, MultiValueMap<String, String> headers,
-                                MultiValueMap<String, String> params, InputStream requestEntity,
-                                List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
+								Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity,
+								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
 		Assert.notNull(serviceId, "serviceId may not be null");
 		Assert.notNull(method, "method may not be null");
 		Assert.notNull(uri, "uri may not be null");
@@ -86,8 +86,7 @@ public class RibbonCommandContext {
 	public URI uri() {
 		try {
 			return new URI(this.uri);
-		}
-		catch (URISyntaxException e) {
+		} catch (URISyntaxException e) {
 			ReflectionUtils.rethrowRuntimeException(e);
 		}
 		return null;
@@ -95,6 +94,7 @@ public class RibbonCommandContext {
 
 	/**
 	 * Use getMethod()
+	 *
 	 * @return
 	 */
 	@Deprecated
@@ -135,7 +135,6 @@ public class RibbonCommandContext {
 		} finally {
 			return requestEntity;
 		}
-
 	}
 
 	public List<RibbonRequestCustomizer> getRequestCustomizers() {
