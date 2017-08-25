@@ -48,18 +48,19 @@ public class RibbonCommandContext {
 	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
 	 */
 	@Deprecated
-	public RibbonCommandContext(String serviceId, String method, String uri,
-								Boolean retryable, MultiValueMap<String, String> headers,
+	public RibbonCommandContext(String serviceId, String method,
+								String uri, Boolean retryable, MultiValueMap<String, String> headers,
 								MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-				new ArrayList<RibbonRequestCustomizer>(), null);
+			new ArrayList<RibbonRequestCustomizer>(), null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
 								Boolean retryable, MultiValueMap<String, String> headers,
 								MultiValueMap<String, String> params, InputStream requestEntity,
 								List<RibbonRequestCustomizer> requestCustomizers) {
-		this(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, null);
+		this(serviceId, method, uri, retryable, headers, params, requestEntity,
+			requestCustomizers, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
@@ -129,7 +130,8 @@ public class RibbonCommandContext {
 	public InputStream getRequestEntity() {
 		try {
 			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
-				requestEntity = new ResettableServletInputStreamWrapper(StreamUtils.copyToByteArray(requestEntity));
+				requestEntity = new ResettableServletInputStreamWrapper(
+					StreamUtils.copyToByteArray(requestEntity));
 			}
 			requestEntity.reset();
 		} finally {
@@ -151,23 +153,25 @@ public class RibbonCommandContext {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		RibbonCommandContext that = (RibbonCommandContext) o;
-		return Objects.equals(serviceId, that.serviceId) &&
-				Objects.equals(method, that.method) &&
-				Objects.equals(uri, that.uri) &&
-				Objects.equals(retryable, that.retryable) &&
-				Objects.equals(headers, that.headers) &&
-				Objects.equals(params, that.params) &&
-				Objects.equals(requestEntity, that.requestEntity) &&
-				Objects.equals(requestCustomizers, that.requestCustomizers) &&
-				Objects.equals(contentLength, that.contentLength);
+		return Objects.equals(serviceId, that.serviceId) && Objects
+			.equals(method, that.method) && Objects.equals(uri, that.uri)
+			&& Objects.equals(retryable, that.retryable) && Objects
+			.equals(headers, that.headers) && Objects
+			.equals(params, that.params) && Objects
+			.equals(requestEntity, that.requestEntity) && Objects
+			.equals(requestCustomizers, that.requestCustomizers) && Objects
+			.equals(contentLength, that.contentLength);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, contentLength);
+		return Objects.hash(serviceId, method, uri, retryable, headers, params,
+			requestEntity, requestCustomizers, contentLength);
 	}
 
 	@Override
