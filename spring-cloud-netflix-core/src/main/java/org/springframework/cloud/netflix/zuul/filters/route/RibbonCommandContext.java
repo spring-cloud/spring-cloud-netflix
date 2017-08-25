@@ -128,9 +128,9 @@ public class RibbonCommandContext {
 
     public InputStream getRequestEntity() {
         try {
-            if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
-					requestEntity = new ResettableServletInputStreamWrapper(
-							StreamUtils.copyToByteArray(requestEntity));
+			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
+				requestEntity = new ResettableServletInputStreamWrapper(
+					StreamUtils.copyToByteArray(requestEntity));
 			}
             requestEntity.reset();
         }
