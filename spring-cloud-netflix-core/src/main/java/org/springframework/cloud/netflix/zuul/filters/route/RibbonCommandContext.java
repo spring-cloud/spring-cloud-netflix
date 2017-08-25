@@ -126,18 +126,16 @@ public class RibbonCommandContext {
 		return params;
 	}
 
-    public InputStream getRequestEntity() {
-        try {
+	public InputStream getRequestEntity() {
+		try {
 			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
-				requestEntity = new ResettableServletInputStreamWrapper(
-					StreamUtils.copyToByteArray(requestEntity));
+				requestEntity = new ResettableServletInputStreamWrapper(StreamUtils.copyToByteArray(requestEntity));
 			}
-            requestEntity.reset();
-        }
-        finally {
-            return requestEntity;
-        }
-    }
+			requestEntity.reset();
+		} finally {
+			return requestEntity;
+		}
+	}
 
 	public List<RibbonRequestCustomizer> getRequestCustomizers() {
 		return requestCustomizers;
