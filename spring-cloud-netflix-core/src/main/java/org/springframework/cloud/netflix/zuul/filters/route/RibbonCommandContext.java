@@ -128,6 +128,10 @@ public class RibbonCommandContext {
 	}
 
 	public InputStream getRequestEntity() {
+		if (requestEntity == null) {
+			return requestEntity;
+		}
+
 		try {
 			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
 				requestEntity = new ResettableServletInputStreamWrapper(
