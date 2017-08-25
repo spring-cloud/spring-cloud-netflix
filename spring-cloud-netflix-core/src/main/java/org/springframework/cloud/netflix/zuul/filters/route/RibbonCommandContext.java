@@ -135,6 +135,7 @@ public class RibbonCommandContext {
 		} finally {
 			return requestEntity;
 		}
+
 	}
 
 	public List<RibbonRequestCustomizer> getRequestCustomizers() {
