@@ -18,7 +18,9 @@ import com.netflix.client.config.IClientConfigKey;
 /**
  * 
  * {@link com.netflix.client.config.IClientConfig} implementation that depends on Spring
- * environment for its values instead of using Archaius
+ * environment for its values instead of using Archaius.
+ * 
+ * This implementation is heavily based on {@link com.netflix.client.config.DefaultClientConfigImpl}
  * 
  * @author Biju Kunjummen
  */
@@ -306,8 +308,7 @@ public class EnvBasedClientConfig implements IClientConfig {
 	}
 
 	private void setPropertyInternal(final String propName, Object value) {
-		String stringValue = (value == null) ? null : String.valueOf(value);
-		properties.put(propName, stringValue);
+		properties.put(propName, value);
 	}
 
 	private Object getProperty(String key) {
