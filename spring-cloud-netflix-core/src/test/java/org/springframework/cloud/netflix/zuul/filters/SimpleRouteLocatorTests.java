@@ -25,7 +25,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
@@ -68,18 +67,6 @@ public class SimpleRouteLocatorTests {
 
 		assertThat(locator.getMatchingRoute("/foo/1"), nullValue());
 		assertThat(locator.getMatchingRoute("/bar/1"), is(createRoute("bar", "/1", "/bar")));
-	}
-
-	@Test
-	public void test_getRoutesMapIsUnmodifiable() throws Exception {
-		RouteLocator locator = new FilteringRouteLocator("/", this.zuul);
-		this.zuul.getRoutes().clear();
-
-		try {
-			((FilteringRouteLocator) locator).getRoutesMap().put("Should Fail", null);
-			fail("Expected UnsupportedOperationException");
-		} catch(UnsupportedOperationException e) {
-		}
 	}
 
 	private Route createRoute(String id, String path, String prefix) {

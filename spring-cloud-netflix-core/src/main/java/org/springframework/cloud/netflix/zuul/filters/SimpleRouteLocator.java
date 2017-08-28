@@ -18,13 +18,11 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -91,7 +89,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
 		}
-		return Collections.unmodifiableMap(this.routes.get());
+		return this.routes.get();
 	}
 
 	protected Route getSimpleMatchingRoute(final String path) {
