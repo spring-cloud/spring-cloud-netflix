@@ -1,0 +1,67 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>10.&nbsp;Polyglot support with Sidecar</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="up" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="prev" href="multi__router_and_filter_zuul.html" title="9.&nbsp;Router and Filter: Zuul"><link rel="next" href="multi_netflix-metrics.html" title="11.&nbsp;Metrics: Spectator, Servo, and Atlas"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">10.&nbsp;Polyglot support with Sidecar</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi__router_and_filter_zuul.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi_netflix-metrics.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_polyglot_support_with_sidecar" href="#_polyglot_support_with_sidecar"></a>10.&nbsp;Polyglot support with Sidecar</h1></div></div></div><p>Do you have non-jvm languages you want to take advantage of Eureka, Ribbon and
+Config Server?  The Spring Cloud Netflix Sidecar was inspired by
+<a class="link" href="https://github.com/Netflix/Prana" target="_top">Netflix Prana</a>.  It includes a simple http api
+to get all of the instances (ie host and port) for a given service.  You can
+also proxy service calls through an embedded Zuul proxy which gets its route
+entries from Eureka.  The Spring Cloud Config Server can be accessed directly
+via host lookup or through the Zuul Proxy.  The non-jvm app should implement
+a health check so the Sidecar can report to eureka if the app is up or down.</p><p>To include Sidecar in your project use the dependency with group <code class="literal">org.springframework.cloud</code>
+and artifact id <code class="literal">spring-cloud-netflix-sidecar</code>.</p><p>To enable the Sidecar, create a Spring Boot application with <code class="literal">@EnableSidecar</code>.
+This annotation includes <code class="literal">@EnableCircuitBreaker</code>, <code class="literal">@EnableDiscoveryClient</code>,
+and <code class="literal">@EnableZuulProxy</code>.  Run the resulting application on the same host as the
+non-jvm application.</p><p>To configure the side car add <code class="literal">sidecar.port</code> and <code class="literal">sidecar.health-uri</code> to <code class="literal">application.yml</code>.
+The <code class="literal">sidecar.port</code> property is the port the non-jvm app is listening on.  This
+is so the Sidecar can properly register the app with Eureka.  The <code class="literal">sidecar.health-uri</code>
+is a uri accessible on the non-jvm app that mimicks a Spring Boot health
+indicator.  It should return a json document like the following:</p><p><b>health-uri-document.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
+  <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"status"</span>:<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"UP"</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span></pre><p>
+</p><p>Here is an example application.yml for a Sidecar application:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">server</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <span class="hl-number">5678</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">spring</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  application</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    name</span>: sidecar
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">sidecar</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <span class="hl-number">8000</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  health-uri</span>: http://localhost:<span class="hl-number">8000</span>/health.json</pre><p>
+</p><p>The api for the <code class="literal">DiscoveryClient.getInstances()</code> method is <code class="literal">/hosts/{serviceId}</code>.
+Here is an example response for <code class="literal">/hosts/customers</code> that returns two instances on
+different hosts.  This api is accessible to the non-jvm app (if the sidecar is
+on port 5678) at <code class="literal"><a class="link" href="http://localhost:5678/hosts/{serviceId}" target="_top">http://localhost:5678/hosts/{serviceId}</a></code>.</p><p><b>/hosts/customers.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">[</span>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"host"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"myhost"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"port"</span>: <span class="hl-number">9000</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"uri"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://myhost:9000"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"serviceId"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"CUSTOMERS"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"secure"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">},</span>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"host"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"myhost2"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"port"</span>: <span class="hl-number">9000</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"uri"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://myhost2:9000"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"serviceId"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"CUSTOMERS"</span><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">,</span>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"secure"</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">]</span></pre><p>
+</p><p>The Zuul proxy automatically adds routes for each service known in eureka to
+<code class="literal">/&lt;serviceId&gt;</code>, so the customers service is available at <code class="literal">/customers</code>.  The
+Non-jvm app can access the customer service via <code class="literal"><a class="link" href="http://localhost:5678/customers" target="_top">http://localhost:5678/customers</a></code>
+(assuming the sidecar is listening on port 5678).</p><p>If the Config Server is registered with Eureka, non-jvm application can access
+it via the Zuul proxy.  If the serviceId of the ConfigServer is <code class="literal">configserver</code>
+and the Sidecar is on port 5678, then it can be accessed at
+<a class="link" href="http://localhost:5678/configserver" target="_top">http://localhost:5678/configserver</a></p><p>Non-jvm app can take advantage of the Config Server&#8217;s ability to return YAML
+documents.  For example, a call to <a class="link" href="http://sidecar.local.spring.io:5678/configserver/default-master.yml" target="_top">http://sidecar.local.spring.io:5678/configserver/default-master.yml</a>
+might result in a YAML document like the following</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">eureka</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  client</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    serviceUrl</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      defaultZone</span>: http://localhost:<span class="hl-number">8761</span>/eureka/
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  password</span>: password
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">info</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  description</span>: Spring Cloud Samples
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  url</span>: https://github.com/spring-cloud-samples</pre></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__router_and_filter_zuul.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi_netflix-metrics.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">9.&nbsp;Router and Filter: Zuul&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;11.&nbsp;Metrics: Spectator, Servo, and Atlas</td></tr></table></div></body></html>
