@@ -13,6 +13,6 @@
 == Pick The Documentation Option
 
 - link:single/{docs-main}.html[Single HTML]
-- link:multi/{docs-main}.html[Multi HTML]</echo>
+- link:multi/multi_{docs-main}.html[Multi HTML]</echo>
 </target>
 </project>
