@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <echo file="/Users/mgrzejszczak/repo/spring-cloud-netflix/docs/target/spring-cloud-netflix.adoc">:nofooter:
+:linkcss:
+:stylesdir: css
+:stylesheet: manual-singlepage.css
+
+= {docs-main}
+
+{spring-cloud-version}
+
+== Pick The Documentation Option
+
+- link:single/{docs-main}.html[Single HTML]
+- link:multi/multi_{docs-main}.html[Multi HTML]</echo>
+</target>
+</project>

@@ -1,0 +1,91 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>2.&nbsp;Service Discovery: Eureka Server</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="up" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="prev" href="multi__service_discovery_eureka_clients.html" title="1.&nbsp;Service Discovery: Eureka Clients"><link rel="next" href="multi__circuit_breaker_hystrix_clients.html" title="3.&nbsp;Circuit Breaker: Hystrix Clients"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.&nbsp;Service Discovery: Eureka Server</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi__service_discovery_eureka_clients.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi__circuit_breaker_hystrix_clients.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="spring-cloud-eureka-server" href="#spring-cloud-eureka-server"></a>2.&nbsp;Service Discovery: Eureka Server</h1></div></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-eureka-server-starter" href="#netflix-eureka-server-starter"></a>2.1&nbsp;How to Include Eureka Server</h2></div></div></div><p>To include Eureka Server in your project use the starter with group <code class="literal">org.springframework.cloud</code>
+and artifact id <code class="literal">spring-cloud-starter-eureka-server</code>. See the <a class="link" href="http://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-running-eureka-server" href="#spring-cloud-running-eureka-server"></a>2.2&nbsp;How to Run a Eureka Server</h2></div></div></div><p>Example eureka server;</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SpringBootApplication</span></em>
+<em><span class="hl-annotation" style="color: gray">@EnableEurekaServer</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
+
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> main(String[] args) {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> SpringApplicationBuilder(Application.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>).web(true).run(args);
+    }
+
+}</pre><p>The server has a home page with a UI, and HTTP API endpoints per the
+normal Eureka functionality under <code class="literal">/eureka/*</code>.</p><p>Eureka background reading: see <a class="link" href="https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer" target="_top">flux capacitor</a> and <a class="link" href="https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0" target="_top">google group discussion</a>.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:</p><p><b>build.gradle.&nbsp;</b>
+</p><pre class="programlisting">buildscript {
+  dependencies {
+    classpath(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE"</span>)
+  }
+}
+
+apply plugin: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"spring-boot"</span>
+
+dependencyManagement {
+  imports {
+    mavenBom <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"org.springframework.cloud:spring-cloud-dependencies:Brixton.RELEASE"</span>
+  }
+}</pre><p>
+</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-eureka-server-zones-and-regions" href="#spring-cloud-eureka-server-zones-and-regions"></a>2.3&nbsp;High Availability, Zones and Regions</h2></div></div></div><p>The Eureka server does not have a backend store, but the service
+instances in the registry all have to send heartbeats to keep their
+registrations up to date (so this can be done in memory). Clients also
+have an in-memory cache of eureka registrations (so they don&#8217;t have to
+go to the registry for every single request to a service).</p><p>By default every Eureka server is also a Eureka client and requires
+(at least one) service URL to locate a peer. If you don&#8217;t provide it
+the service will run and work, but it will shower your logs with a lot
+of noise about not being able to register with the peer.</p><p>See also <a class="link" href="multi_spring-cloud-ribbon.html" title="6.&nbsp;Client Side Load Balancer: Ribbon">below for details of Ribbon
+support</a> on the client side for Zones and Regions.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_standalone_mode" href="#_standalone_mode"></a>2.4&nbsp;Standalone Mode</h2></div></div></div><p>The combination of the two caches (client and server) and the
+heartbeats make a standalone Eureka server fairly resilient to
+failure, as long as there is some sort of monitor or elastic runtime
+keeping it alive (e.g. Cloud Foundry). In standalone mode, you might
+prefer to switch off the client side behaviour, so it doesn&#8217;t keep
+trying and failing to reach its peers. Example:</p><p><b>application.yml (Standalone Eureka Server).&nbsp;</b>
+</p><pre class="screen">server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/</pre><p>
+</p><p>Notice that the <code class="literal">serviceUrl</code> is pointing to the same host as the local
+instance.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_peer_awareness" href="#_peer_awareness"></a>2.5&nbsp;Peer Awareness</h2></div></div></div><p>Eureka can be made even more resilient and available by running
+multiple instances and asking them to register with each other. In
+fact, this is the default behaviour, so all you need to do to make it
+work is add a valid <code class="literal">serviceUrl</code> to a peer, e.g.</p><p><b>application.yml (Two Peer Aware Eureka Servers).&nbsp;</b>
+</p><pre class="screen">---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+  client:
+    serviceUrl:
+      defaultZone: http://peer2/eureka/
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/</pre><p>
+</p><p>In this example we have a YAML file that can be used to run the same
+server on 2 hosts (peer1 and peer2), by running it in different
+Spring profiles. You could use this configuration to test the peer
+awareness on a single host (there&#8217;s not much value in doing that in
+production) by manipulating <code class="literal">/etc/hosts</code> to resolve the host names. In
+fact, the <code class="literal">eureka.instance.hostname</code> is not needed if you are running
+on a machine that knows its own hostname (it is looked up using
+<code class="literal">java.net.InetAddress</code> by default).</p><p>You can add multiple peers to a system, and as long as they are all
+connected to each other by at least one edge, they will synchronize
+the registrations amongst themselves. If the peers are physically
+separated (inside a data centre or between multiple data centres) then
+the system can in principle survive split-brain type failures.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_prefer_ip_address" href="#_prefer_ip_address"></a>2.6&nbsp;Prefer IP Address</h2></div></div></div><p>In some cases, it is preferable for Eureka to advertise the IP Adresses
+of services rather than the hostname.  Set <code class="literal">eureka.instance.preferIpAddress</code>
+to <code class="literal">true</code> and when the application registers with eureka, it will use its
+IP Address rather than its hostname.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__service_discovery_eureka_clients.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi__circuit_breaker_hystrix_clients.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">1.&nbsp;Service Discovery: Eureka Clients&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;3.&nbsp;Circuit Breaker: Hystrix Clients</td></tr></table></div></body></html>

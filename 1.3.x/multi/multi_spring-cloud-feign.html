@@ -1,0 +1,167 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>7.&nbsp;Declarative REST Client: Feign</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="up" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="prev" href="multi_spring-cloud-ribbon.html" title="6.&nbsp;Client Side Load Balancer: Ribbon"><link rel="next" href="multi__external_configuration_archaius.html" title="8.&nbsp;External Configuration: Archaius"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.&nbsp;Declarative REST Client: Feign</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi_spring-cloud-ribbon.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi__external_configuration_archaius.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="spring-cloud-feign" href="#spring-cloud-feign"></a>7.&nbsp;Declarative REST Client: Feign</h1></div></div></div><p><a class="link" href="https://github.com/Netflix/feign" target="_top">Feign</a> is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same <code class="literal">HttpMessageConverters</code> used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.</p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-feign-starter" href="#netflix-feign-starter"></a>7.1&nbsp;How to Include Feign</h2></div></div></div><p>To include Feign in your project use the starter with group <code class="literal">org.springframework.cloud</code>
+and artifact id <code class="literal">spring-cloud-starter-feign</code>. See the <a class="link" href="http://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p><p>Example spring boot app</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
+<em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
+<em><span class="hl-annotation" style="color: gray">@EnableEurekaClient</span></em>
+<em><span class="hl-annotation" style="color: gray">@EnableFeignClients</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
+
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> main(String[] args) {
+        SpringApplication.run(Application.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>, args);
+    }
+
+}</pre><p><b>StoreClient.java.&nbsp;</b>
+</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@FeignClient("stores")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> StoreClient {
+    <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/stores")</span></em>
+    List&lt;Store&gt; getStores();
+
+    <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.POST, value = "/stores/{storeId}", consumes = "application/json")</span></em>
+    Store update(<em><span class="hl-annotation" style="color: gray">@PathVariable("storeId")</span></em> Long storeId, Store store);
+}</pre><p>
+</p><p>In the <code class="literal">@FeignClient</code> annotation the String value ("stores" above) is
+an arbitrary client name, which is used to create a Ribbon load
+balancer (see <a class="link" href="multi_spring-cloud-ribbon.html" title="6.&nbsp;Client Side Load Balancer: Ribbon">below for details of Ribbon
+support</a>). You can also specify a URL using the <code class="literal">url</code> attribute
+(absolute value or just a hostname). The name of the bean in the
+application context is the fully qualified name of the interface.
+To specify your own alias value you can use the <code class="literal">qualifier</code> value
+of the <code class="literal">@FeignClient</code> annotation.</p><p>The Ribbon client above will want to discover the physical addresses
+for the "stores" service. If your application is a Eureka client then
+it will resolve the service in the Eureka service registry. If you
+don&#8217;t want to use Eureka, you can simply configure a list of servers
+in your external configuration (see
+<a class="link" href="multi_spring-cloud-ribbon.html#spring-cloud-ribbon-without-eureka" title="6.5&nbsp;Example: How to Use Ribbon Without Eureka">above for example</a>).</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-feign-overriding-defaults" href="#spring-cloud-feign-overriding-defaults"></a>7.2&nbsp;Overriding Feign Defaults</h2></div></div></div><p>A central concept in Spring Cloud&#8217;s Feign support is that of the named client. Each feign client is part of an ensemble of components that work together to contact a remote server on demand, and the ensemble has a name that you give it as an application developer using the <code class="literal">@FeignClient</code> annotation. Spring Cloud creates a new ensemble as an
+<code class="literal">ApplicationContext</code> on demand for each named client using <code class="literal">FeignClientsConfiguration</code>. This contains (amongst other things) an <code class="literal">feign.Decoder</code>, a <code class="literal">feign.Encoder</code>, and a <code class="literal">feign.Contract</code>.</p><p>Spring Cloud lets you take full control of the feign client by declaring additional configuration (on top of the <code class="literal">FeignClientsConfiguration</code>) using <code class="literal">@FeignClient</code>. Example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@FeignClient(name = "stores", configuration = FooConfiguration.class)</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> StoreClient {
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">//..</span>
+}</pre><p>In this case the client is composed from the components already in <code class="literal">FeignClientsConfiguration</code> together with any in <code class="literal">FooConfiguration</code> (where the latter will override the former).</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p><code class="literal">FooConfiguration</code> does not need to be annotated with <code class="literal">@Configuration</code>. However, if it is, then take care to exclude it from any <code class="literal">@ComponentScan</code> that would otherwise include this configuration as it will become the default source for <code class="literal">feign.Decoder</code>, <code class="literal">feign.Encoder</code>, <code class="literal">feign.Contract</code>, etc., when specified. This can be avoided by putting it in a separate, non-overlapping package from any <code class="literal">@ComponentScan</code> or <code class="literal">@SpringBootApplication</code>, or it can be explicitly excluded in <code class="literal">@ComponentScan</code>.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The <code class="literal">serviceId</code> attribute is now deprecated in favor of the <code class="literal">name</code> attribute.</p></td></tr></table></div><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>Previously, using the <code class="literal">url</code> attribute, did not require the <code class="literal">name</code> attribute. Using <code class="literal">name</code> is now required.</p></td></tr></table></div><p>Placeholders are supported in the <code class="literal">name</code> and <code class="literal">url</code> attributes.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@FeignClient(name = "${feign.name}", url = "${feign.url}")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> StoreClient {
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">//..</span>
+}</pre><p>Spring Cloud Netflix provides the following beans by default for feign (<code class="literal">BeanType</code> beanName: <code class="literal">ClassName</code>):</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">Decoder</code> feignDecoder: <code class="literal">ResponseEntityDecoder</code> (which wraps a <code class="literal">SpringDecoder</code>)</li><li class="listitem"><code class="literal">Encoder</code> feignEncoder: <code class="literal">SpringEncoder</code></li><li class="listitem"><code class="literal">Logger</code> feignLogger: <code class="literal">Slf4jLogger</code></li><li class="listitem"><code class="literal">Contract</code> feignContract: <code class="literal">SpringMvcContract</code></li><li class="listitem"><code class="literal">Feign.Builder</code> feignBuilder: <code class="literal">HystrixFeign.Builder</code></li><li class="listitem"><code class="literal">Client</code> feignClient: if Ribbon is enabled it is a <code class="literal">LoadBalancerFeignClient</code>, otherwise the default feign client is used.</li></ul></div><p>The OkHttpClient and ApacheHttpClient feign clients can be used by setting <code class="literal">feign.okhttp.enabled</code> or <code class="literal">feign.httpclient.enabled</code> to <code class="literal">true</code>, respectively, and having them on the classpath.</p><p>Spring Cloud Netflix <span class="emphasis"><em>does not</em></span> provide the following beans by default for feign, but still looks up beans of these types from the application context to create the feign client:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">Logger.Level</code></li><li class="listitem"><code class="literal">Retryer</code></li><li class="listitem"><code class="literal">ErrorDecoder</code></li><li class="listitem"><code class="literal">Request.Options</code></li><li class="listitem"><code class="literal">Collection&lt;RequestInterceptor&gt;</code></li><li class="listitem"><code class="literal">SetterFactory</code></li></ul></div><p>Creating a bean of one of those type and placing it in a <code class="literal">@FeignClient</code> configuration (such as <code class="literal">FooConfiguration</code> above) allows you to override each one of the beans described.  Example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooConfiguration {
+    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Contract feignContract() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> feign.Contract.Default();
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> BasicAuthRequestInterceptor(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"user"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"password"</span>);
+    }
+}</pre><p>This replaces the <code class="literal">SpringMvcContract</code> with <code class="literal">feign.Contract.Default</code> and adds a <code class="literal">RequestInterceptor</code> to the collection of <code class="literal">RequestInterceptor</code>.</p><p>Default configurations can be specified in the <code class="literal">@EnableFeignClients</code> attribute <code class="literal">defaultConfiguration</code> in a similar manner as described above. The difference is that this configuration will apply to <span class="emphasis"><em>all</em></span> feign clients.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>If you need to use <code class="literal">ThreadLocal</code> bound variables in your <code class="literal">RequestInterceptor`s you will need to either set the
+thread isolation strategy for Hystrix to `SEMAPHORE</code> or disable Hystrix in Feign.</p></td></tr></table></div><p>application.yml</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment"># To disable Hystrix in Feign</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">feign</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  hystrix</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    enabled</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span>
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment"># To set thread isolation to SEMAPHORE</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">hystrix</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  command</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    default</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      execution</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">        isolation</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">          strategy</span>: SEMAPHORE</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_creating_feign_clients_manually" href="#_creating_feign_clients_manually"></a>7.3&nbsp;Creating Feign Clients Manually</h2></div></div></div><p>In some cases it might be necessary to customize your Feign Clients in a way that is not
+possible using the methods above.  In this case you can create Clients using the
+<a class="link" href="https://github.com/OpenFeign/feign/#basics" target="_top">Feign Builder API</a>. Below is an example
+which creates two Feign Clients with the same interface but configures each one with
+a separate request interceptor.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Import(FeignClientsConfiguration.class)</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooController {
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> FooClient fooClient;
+
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> FooClient adminClient;
+
+    <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> FooController(
+			Decoder decoder, Encoder encoder, Client client) {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.fooClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> BasicAuthRequestInterceptor(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"user"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"user"</span>))
+				.target(FooClient.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://PROD-SVC"</span>);
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.adminClient = Feign.builder().client(client)
+				.encoder(encoder)
+				.decoder(decoder)
+				.requestInterceptor(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> BasicAuthRequestInterceptor(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"admin"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"admin"</span>))
+				.target(FooClient.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://PROD-SVC"</span>);
+    }
+}</pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>In the above example <code class="literal">FeignClientsConfiguration.class</code> is the default configuration
+provided by Spring Cloud Netflix.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p><code class="literal">PROD-SVC</code> is the name of the service the Clients will be making requests to.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-feign-hystrix" href="#spring-cloud-feign-hystrix"></a>7.4&nbsp;Feign Hystrix Support</h2></div></div></div><p>If Hystrix is on the classpath and <code class="literal">feign.hystrix.enabled=true</code>, Feign will wrap all methods with a circuit breaker. Returning a <code class="literal">com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code class="literal">.toObservable()</code> or <code class="literal">.observe()</code> or asynchronous use (with a call to <code class="literal">.queue()</code>).</p><p>To disable Hystrix support on a per-client basis create a vanilla <code class="literal">Feign.Builder</code> with the "prototype" scope, e.g.:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooConfiguration {
+    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+	<em><span class="hl-annotation" style="color: gray">@Scope("prototype")</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Feign.Builder feignBuilder() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Feign.builder();
+	}
+}</pre><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>Prior to the Spring Cloud Dalston release, if Hystrix was on the classpath Feign would have wrapped
+all methods in a circuit breaker by default.  This default behavior was changed in Spring Cloud Dalston in
+favor for an opt-in approach.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-feign-hystrix-fallback" href="#spring-cloud-feign-hystrix-fallback"></a>7.5&nbsp;Feign Hystrix Fallbacks</h2></div></div></div><p>Hystrix supports the notion of a fallback: a default code path that is executed when they circuit is open or there is an error. To enable fallbacks for a given <code class="literal">@FeignClient</code> set the <code class="literal">fallback</code> attribute to the class name that implements the fallback. You also need to declare your implementation as a Spring bean.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@FeignClient(name = "hello", fallback = HystrixClientFallback.class)</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">protected</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> HystrixClient {
+    <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/hello")</span></em>
+    Hello iFailSometimes();
+}
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> HystrixClientFallback <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> HystrixClient {
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Hello iFailSometimes() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Hello(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>);
+    }
+}</pre><p>If one needs access to the cause that made the fallback trigger, one can use the <code class="literal">fallbackFactory</code> attribute inside <code class="literal">@FeignClient</code>.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@FeignClient(name = "hello", fallbackFactory = HystrixClientFallbackFactory.class)</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">protected</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> HystrixClient {
+	<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/hello")</span></em>
+	Hello iFailSometimes();
+}
+
+<em><span class="hl-annotation" style="color: gray">@Component</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> HystrixClientFallbackFactory <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> FallbackFactory&lt;HystrixClient&gt; {
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HystrixClient create(Throwable cause) {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HystrixClientWithFallBackFactory() {
+			<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Hello iFailSometimes() {
+				<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Hello(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback; reason was: "</span> + cause.getMessage());
+			}
+		};
+	}
+}</pre><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>There is a limitation with the implementation of fallbacks in Feign and how Hystrix fallbacks work. Fallbacks are currently not supported for methods that return <code class="literal">com.netflix.hystrix.HystrixCommand</code> and <code class="literal">rx.Observable</code>.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_feign_and_literal_primary_literal" href="#_feign_and_literal_primary_literal"></a>7.6&nbsp;Feign and <code class="literal">@Primary</code></h2></div></div></div><p>When using Feign with Hystrix fallbacks, there are multiple beans in the <code class="literal">ApplicationContext</code> of the same type. This will cause <code class="literal">@Autowired</code> to not work because there isn&#8217;t exactly one bean, or one marked as primary. To work around this, Spring Cloud Netflix marks all Feign instances as <code class="literal">@Primary</code>, so Spring Framework will know which bean to inject. In some cases, this may not be desirable. To turn off this behavior set the <code class="literal">primary</code> attribute of <code class="literal">@FeignClient</code> to false.</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@FeignClient(name = "hello", primary = false)</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> HelloClient {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// methods here</span>
+}</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-feign-inheritance" href="#spring-cloud-feign-inheritance"></a>7.7&nbsp;Feign Inheritance Support</h2></div></div></div><p>Feign supports boilerplate apis via single-inheritance interfaces.
+This allows grouping common operations into convenient base interfaces.</p><p><b>UserService.java.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> UserService {
+
+    <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value ="/users/{id}")</span></em>
+    User getUser(<em><span class="hl-annotation" style="color: gray">@PathVariable("id")</span></em> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">long</span> id);
+}</pre><p>
+</p><p><b>UserResource.java.&nbsp;</b>
+</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RestController</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> UserResource <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> UserService {
+
+}</pre><p>
+</p><p><b>UserClient.java.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">package</span> project.user;
+
+<em><span class="hl-annotation" style="color: gray">@FeignClient("users")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">interface</span> UserClient <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> UserService {
+
+}</pre><p>
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>It is generally not advisable to share an interface between a
+server and a client. It introduces tight coupling, and also actually
+doesn&#8217;t work with Spring MVC in its current form (method parameter
+mapping is not inherited).</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_feign_request_response_compression" href="#_feign_request_response_compression"></a>7.8&nbsp;Feign request/response compression</h2></div></div></div><p>You may consider enabling the request or response GZIP compression for your
+Feign requests. You can do this by enabling one of the properties:</p><pre class="programlisting">feign.compression.request.enabled=true
+feign.compression.response.enabled=true</pre><p>Feign request compression gives you settings similar to what you may set for your web server:</p><pre class="programlisting">feign.compression.request.enabled=true
+feign.compression.request.mime-types=text/xml,application/xml,application/json
+feign.compression.request.min-request-size=<span class="hl-number">2048</span></pre><p>These properties allow you to be selective about the compressed media types and minimum request threshold length.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_feign_logging" href="#_feign_logging"></a>7.9&nbsp;Feign logging</h2></div></div></div><p>A logger is created for each Feign client created. By default the name of the logger is the full class name of the interface used to create the Feign client. Feign logging only responds to the <code class="literal">DEBUG</code> level.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">logging.level.project.user.UserClient</span>: DEBUG</pre><p>
+</p><p>The <code class="literal">Logger.Level</code> object that you may configure per client, tells Feign how much to log. Choices are:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">NONE</code>, No logging (<span class="strong"><strong>DEFAULT</strong></span>).</li><li class="listitem"><code class="literal">BASIC</code>, Log only the request method and URL and the response status code and execution time.</li><li class="listitem"><code class="literal">HEADERS</code>, Log the basic information along with request and response headers.</li><li class="listitem"><code class="literal">FULL</code>, Log the headers, body, and metadata for both requests and responses.</li></ul></div><p>For example, the following would set the <code class="literal">Logger.Level</code> to <code class="literal">FULL</code>:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooConfiguration {
+    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    Logger.Level feignLoggerLevel() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Logger.Level.FULL;
+    }
+}</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi_spring-cloud-ribbon.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi__external_configuration_archaius.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">6.&nbsp;Client Side Load Balancer: Ribbon&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;8.&nbsp;External Configuration: Archaius</td></tr></table></div></body></html>

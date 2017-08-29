@@ -1,0 +1,64 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>11.&nbsp;RxJava with Spring MVC</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="up" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="prev" href="multi__polyglot_support_with_sidecar.html" title="10.&nbsp;Polyglot support with Sidecar"><link rel="next" href="multi_netflix-metrics.html" title="12.&nbsp;Metrics: Spectator, Servo, and Atlas"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">11.&nbsp;RxJava with Spring MVC</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi__polyglot_support_with_sidecar.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi_netflix-metrics.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="netflix-rxjava-springmvc" href="#netflix-rxjava-springmvc"></a>11.&nbsp;RxJava with Spring MVC</h1></div></div></div><p>Spring Cloud Netflix includes <a class="link" href="https://github.com/ReactiveX/RxJava" target="_top">RxJava</a>.</p><div class="blockquote"><blockquote class="blockquote"><p>RxJava is a Java VM implementation of <a class="link" href="http://reactivex.io/" target="_top">Reactive Extensions</a>: a library for composing asynchronous and event-based programs by using observable sequences.</p></blockquote></div><p>Spring Cloud Netflix provides support for returning <code class="literal">rx.Single</code> objects from Spring MVC Controllers. It also supports using <code class="literal">rx.Observable</code> objects for <a class="link" href="https://en.wikipedia.org/wiki/Server-sent_events" target="_top">Server-sent events (SSE)</a>. This can be very convenient if your internal APIs are already built using RxJava (see <a class="xref" href="multi_spring-cloud-feign.html#spring-cloud-feign-hystrix" title="7.4&nbsp;Feign Hystrix Support">Section&nbsp;7.4, &#8220;Feign Hystrix Support&#8221;</a> for examples).</p><p>Here are some examples of using <code class="literal">rx.Single</code>:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/single")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;String&gt; single() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Single.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>);
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ResponseEntity&lt;Single&lt;String&gt;&gt; singleWithResponse() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ResponseEntity&lt;&gt;(Single.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>),
+			HttpStatus.NOT_FOUND);
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/singleCreatedWithResponse")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;ResponseEntity&lt;String&gt;&gt; singleOuterWithResponse() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Single.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ResponseEntity&lt;&gt;(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>, HttpStatus.CREATED));
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/throw")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;Object&gt; error() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Single.error(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> RuntimeException(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Unexpected"</span>));
+}</pre><p>If you have an <code class="literal">Observable</code>, rather than a single, you can use <code class="literal">.toSingle()</code> or <code class="literal">.toList().toSingle()</code>. Here are some examples:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/single")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;String&gt; single() {
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>).toSingle();
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/multiple")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;List&lt;String&gt;&gt; multiple() {
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"multiple"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"values"</span>).toList().toSingle();
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ResponseEntity&lt;Single&lt;String&gt;&gt; responseWithObservable() {
+
+    Observable&lt;String&gt; observable = Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>);
+    HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
+    headers.setContentType(APPLICATION_JSON_UTF8);
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/timeout")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Observable&lt;String&gt; timeout() {
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.timer(<span class="hl-number">1</span>, TimeUnit.MINUTES).map(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Func1&lt;Long, String&gt;() {
+        <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String call(Long aLong) {
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>;
+        }
+    });
+}</pre><p>If you have a streaming endpoint and client, SSE could be an option. To convert <code class="literal">rx.Observable</code> to a Spring <code class="literal">SseEmitter</code> use <code class="literal">RxResponse.sse()</code>. Here are some examples:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/sse")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SseEmitter single() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> RxResponse.sse(Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>));
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/messages")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SseEmitter messages() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> RxResponse.sse(Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"message 1"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"message 2"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"message 3"</span>));
+}
+
+<em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/events")</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SseEmitter event() {
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> RxResponse.sse(APPLICATION_JSON_UTF8,
+			Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> EventDto(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Spring io"</span>, getDate(<span class="hl-number">2016</span>, <span class="hl-number">5</span>, <span class="hl-number">19</span>)),
+					<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> EventDto(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"SpringOnePlatform"</span>, getDate(<span class="hl-number">2016</span>, <span class="hl-number">8</span>, <span class="hl-number">1</span>))));
+}</pre></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__polyglot_support_with_sidecar.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi_netflix-metrics.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">10.&nbsp;Polyglot support with Sidecar&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;12.&nbsp;Metrics: Spectator, Servo, and Atlas</td></tr></table></div></body></html>

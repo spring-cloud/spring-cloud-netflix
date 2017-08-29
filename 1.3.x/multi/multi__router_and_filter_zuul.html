@@ -1,0 +1,470 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>9.&nbsp;Router and Filter: Zuul</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="up" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="prev" href="multi__external_configuration_archaius.html" title="8.&nbsp;External Configuration: Archaius"><link rel="next" href="multi__polyglot_support_with_sidecar.html" title="10.&nbsp;Polyglot support with Sidecar"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">9.&nbsp;Router and Filter: Zuul</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi__external_configuration_archaius.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi__polyglot_support_with_sidecar.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_router_and_filter_zuul" href="#_router_and_filter_zuul"></a>9.&nbsp;Router and Filter: Zuul</h1></div></div></div><p>Routing in an integral part of a microservice architecture.  For example, <code class="literal">/</code> may be mapped to your web application, <code class="literal">/api/users</code> is mapped to the user service and <code class="literal">/api/shop</code> is mapped to the shop service.  <a class="link" href="https://github.com/Netflix/zuul" target="_top">Zuul</a> is a JVM based router and server side load balancer by Netflix.</p><p><a class="link" href="http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27" target="_top">Netflix uses Zuul</a> for the following:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">Authentication</li><li class="listitem">Insights</li><li class="listitem">Stress Testing</li><li class="listitem">Canary Testing</li><li class="listitem">Dynamic Routing</li><li class="listitem">Service Migration</li><li class="listitem">Load Shedding</li><li class="listitem">Security</li><li class="listitem">Static Response handling</li><li class="listitem">Active/Active traffic management</li></ul></div><p>Zuul&#8217;s rule engine allows rules and filters to be written in essentially any JVM language, with built in support for Java and Groovy.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The configuration property <code class="literal">zuul.max.host.connections</code> has been replaced by two new properties, <code class="literal">zuul.host.maxTotalConnections</code> and <code class="literal">zuul.host.maxPerRouteConnections</code> which default to 200 and 20 respectively.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Default Hystrix isolation pattern (ExecutionIsolationStrategy) for all routes is SEMAPHORE.  <code class="literal">zuul.ribbonIsolationStrategy</code> can be changed to THREAD if this isolation pattern is preferred.</p></td></tr></table></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-zuul-starter" href="#netflix-zuul-starter"></a>9.1&nbsp;How to Include Zuul</h2></div></div></div><p>To include Zuul in your project use the starter with group <code class="literal">org.springframework.cloud</code>
+and artifact id <code class="literal">spring-cloud-starter-zuul</code>. See the <a class="link" href="http://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-zuul-reverse-proxy" href="#netflix-zuul-reverse-proxy"></a>9.2&nbsp;Embedded Zuul Reverse Proxy</h2></div></div></div><p>Spring Cloud has created an embedded Zuul proxy to ease the
+development of a very common use case where a UI application wants to
+proxy calls to one or more back end services.  This feature is useful
+for a user interface to proxy to the backend services it requires,
+avoiding the need to manage CORS and authentication concerns
+independently for all the backends.</p><p>To enable it, annotate a Spring Boot main class with
+<code class="literal">@EnableZuulProxy</code>, and this forwards local calls to the appropriate
+service.  By convention, a service with the ID "users", will
+receive requests from the proxy located at <code class="literal">/users</code> (with the prefix
+stripped). The proxy uses Ribbon to locate an instance to forward to
+via discovery, and all requests are executed in a
+<a class="link" href="multi__router_and_filter_zuul.html#hystrix-fallbacks-for-routes" title="9.12&nbsp;Providing Hystrix Fallbacks For Routes">hystrix command</a>, so
+failures will show up in Hystrix metrics, and once the circuit is open
+the proxy will not try to contact the service.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>the Zuul starter does not include a discovery client, so for
+routes based on service IDs you need to provide one of those
+on the classpath as well (e.g. Eureka is one choice).</p></td></tr></table></div><p>To skip having a service automatically added, set
+<code class="literal">zuul.ignored-services</code> to a list of service id patterns. If a service
+matches a pattern that is ignored, but also included in the explicitly
+configured routes map, then it will be unignored. Example:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ignoredServices</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">'*'</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>: /myusers/**</pre><p>
+</p><p>In this example, all services are ignored <span class="strong"><strong>except</strong></span> "users".</p><p>To augment or change
+the proxy routes, you can add external configuration like the
+following:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>: /myusers/**</pre><p>
+</p><p>This means that http calls to "/myusers" get forwarded to the "users"
+service (for example "/myusers/101" is forwarded to "/101").</p><p>To get more fine-grained control over a route you can specify the path
+and the serviceId independently:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      serviceId</span>: users_service</pre><p>
+</p><p>This means that http calls to "/myusers" get forwarded to the
+"users_service" service.  The route has to have a "path" which can be
+specified as an ant-style pattern, so "/myusers/*" only matches one
+level, but "/myusers/**" matches hierarchically.</p><p>The location of the backend can be specified as either a "serviceId"
+(for a service from discovery) or a "url" (for a physical location), e.g.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: http://example.com/users_service</pre><p>
+</p><p>These simple url-routes don&#8217;t get executed as a <code class="literal">HystrixCommand</code> nor can you loadbalance multiple URLs with Ribbon.
+To achieve this, specify a service-route and configure a Ribbon client for the
+serviceId (this currently requires disabling Eureka support in Ribbon:
+see <a class="link" href="multi_spring-cloud-ribbon.html#spring-cloud-ribbon-without-eureka" title="6.5&nbsp;Example: How to Use Ribbon Without Eureka">above for more information</a>), e.g.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      serviceId</span>: users
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">ribbon</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  eureka</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    enabled</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span>
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ribbon</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    listOfServers</span>: example.com,google.com</pre><p>
+</p><p>You can provide convention between serviceId and routes using
+regexmapper.  It uses regular expression named groups to extract
+variables from serviceId and inject them into a route pattern.</p><p><b>ApplicationConfiguration.java.&nbsp;</b>
+</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> PatternServiceRouteMapper serviceRouteMapper() {
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PatternServiceRouteMapper(
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"(?&lt;name&gt;^.+)-(?&lt;version&gt;v.+$)"</span>,
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"${version}/${name}"</span>);
+}</pre><p>
+</p><p>This means that a serviceId "myusers-v1" will be mapped to route
+"/v1/myusers/**".  Any regular expression is accepted but all named
+groups must be present in both servicePattern and routePattern.  If
+servicePattern does not match a serviceId, the default behavior is
+used. In the example above, a serviceId "myusers" will be mapped to route
+"/myusers/**" (no version detected) This feature is disable by
+default and only applies to discovered services.</p><p>To add a prefix to all mappings, set <code class="literal">zuul.prefix</code> to a value, such as
+<code class="literal">/api</code>. The proxy prefix is stripped from the request before the
+request is forwarded by default (switch this behaviour off with
+<code class="literal">zuul.stripPrefix=false</code>). You can also switch off the stripping of
+the service-specific prefix from individual routes, e.g.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      stripPrefix</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">false</span></pre><p>
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p><code class="literal">zuul.stripPrefix</code> only applies to the prefix set in <code class="literal">zuul.prefix</code>.  It does not have any effect on prefixes
+defined within a given route&#8217;s <code class="literal">path</code>.</p></td></tr></table></div><p>In this example, requests to "/myusers/101" will be forwarded to "/myusers/101" on the "users" service.</p><p>The <code class="literal">zuul.routes</code> entries actually bind to an object of type <code class="literal">ZuulProperties</code>. If you
+look at the properties of that object you will see that it also has a "retryable" flag.
+Set that flag to "true" to have the Ribbon client automatically retry failed requests
+(and if you need to you can modify the parameters of the retry operations using
+the Ribbon client configuration).</p><p>The <code class="literal">X-Forwarded-Host</code> header is added to the forwarded requests by
+default.  To turn it off set <code class="literal">zuul.addProxyHeaders = false</code>.  The
+prefix path is stripped by default, and the request to the backend
+picks up a header "X-Forwarded-Prefix" ("/myusers" in the examples
+above).</p><p>An application with <code class="literal">@EnableZuulProxy</code> could act as a standalone
+server if you set a default route ("/"), for example <code class="literal">zuul.route.home:
+/</code> would route all traffic (i.e. "/**") to the "home" service.</p><p>If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
+These patterns are evaluated at the start of the route location process, which
+means prefixes should be included in the pattern to warrant a match. Ignored patterns
+span all services and supersede any other route specification.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ignoredPatterns</span>: /**/admin/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>: /myusers/**</pre><p>
+</p><p>This means that all calls such as "/myusers/101" will be forwarded to "/101" on the "users" service.
+But calls including "/admin/" will not resolve.</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>If you need your routes to have their order preserved you need to use a YAML
+file as the ordering will be lost using a properties file. For example:</p></td></tr></table></div><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    legacy</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /**</pre><p>
+</p><p>If you were to use a properties file, the <code class="literal">legacy</code> path may end up in front of the <code class="literal">users</code>
+path rendering the <code class="literal">users</code> path unreachable.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_zuul_http_client" href="#_zuul_http_client"></a>9.3&nbsp;Zuul Http Client</h2></div></div></div><p>The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
+deprecated Ribbon <code class="literal">RestClient</code>. To use <code class="literal">RestClient</code> or to use the <code class="literal">okhttp3.OkHttpClient</code> set
+<code class="literal">ribbon.restclient.enabled=true</code> or <code class="literal">ribbon.okhttp.enabled=true</code> respectively.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_cookies_and_sensitive_headers" href="#_cookies_and_sensitive_headers"></a>9.4&nbsp;Cookies and Sensitive Headers</h2></div></div></div><p>It&#8217;s OK to share headers between services in the same system, but you
+probably don&#8217;t want sensitive headers leaking downstream into external
+servers. You can specify a list of ignored headers as part of the
+route configuration. Cookies play a special role because they have
+well-defined semantics in browsers, and they are always to be treated
+as sensitive. If the consumer of your proxy is a browser, then cookies
+for downstream services also cause problems for the user because they
+all get jumbled up (all downstream services look like they come from
+the same place).</p><p>If you are careful with the design of your services, for example if
+only one of the downstream services sets cookies, then you might be
+able to let them flow from the backend all the way up to the
+caller. Also, if your proxy sets cookies and all your back end
+services are part of the same system, it can be natural to simply
+share them (and for instance use Spring Session to link them up to some
+shared state). Other than that, any cookies that get set by downstream
+services are likely to be not very useful to the caller, so it is
+recommended that you make (at least) "Set-Cookie" and "Cookie" into
+sensitive headers for routes that are not part of your domain. Even
+for routes that <span class="strong"><strong>are</strong></span> part of your domain, try to think carefully
+about what it means before allowing cookies to flow between them and
+the proxy.</p><p>The sensitive headers can be configured as a comma-separated list per
+route, e.g.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      sensitiveHeaders</span>: Cookie,Set-Cookie,Authorization
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: https://downstream</pre><p>
+</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>this is the default value for <code class="literal">sensitiveHeaders</code>, so you don&#8217;t
+need to set it unless you want it to be different. N.B. this is new in
+Spring Cloud Netflix 1.1 (in 1.0 the user had no control over headers
+and all cookies flow in both directions).</p></td></tr></table></div><p>The <code class="literal">sensitiveHeaders</code> are a blacklist and the default is not empty,
+so to make Zuul send all headers (except the "ignored" ones) you would
+have to explicitly set it to the empty list. This is necessary if you
+want to pass cookie or authorization headers to your back end. Example:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      sensitiveHeaders</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: https://downstream</pre><p>
+</p><p>Sensitive headers can also be set globally by setting <code class="literal">zuul.sensitiveHeaders</code>. If <code class="literal">sensitiveHeaders</code> is set on a route, this will override the global <code class="literal">sensitiveHeaders</code> setting.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_ignored_headers" href="#_ignored_headers"></a>9.5&nbsp;Ignored Headers</h2></div></div></div><p>In addition to the per-route sensitive headers, you can set a global
+value for <code class="literal">zuul.ignoredHeaders</code> for values that should be discarded
+(both request and response) during interactions with downstream
+services. By default these are empty, if Spring Security is not on the
+classpath, and otherwise they are initialized to a set of well-known
+"security" headers (e.g. involving caching) as specified by Spring
+Security. The assumption in this case is that the downstream services
+might add these headers too, and we want the values from the proxy.
+To not discard these well known security headers in case Spring Security is on the classpath you can set <code class="literal">zuul.ignoreSecurityHeaders</code> to <code class="literal">false</code>. This can be useful if you disabled the HTTP Security response headers in Spring Security and want the values provided by downstream services</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_the_routes_endpoint" href="#_the_routes_endpoint"></a>9.6&nbsp;The Routes Endpoint</h2></div></div></div><p>If you are using <code class="literal">@EnableZuulProxy</code> with tha Spring Boot Actuator you
+will enable (by default) an additional endpoint, available via HTTP as
+<code class="literal">/routes</code>. A GET to this endpoint will return a list of the mapped
+routes. A POST will force a refresh of the existing routes (e.g. in
+case there have been changes in the service catalog).  You can disable
+this endpoint by setting <code class="literal">endpoints.routes.enabled</code> to <code class="literal">false</code>.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>the routes should respond automatically to changes in the
+service catalog, but the POST to /routes is a way to force the change
+to happen immediately.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_strangulation_patterns_and_local_forwards" href="#_strangulation_patterns_and_local_forwards"></a>9.7&nbsp;Strangulation Patterns and Local Forwards</h2></div></div></div><p>A common pattern when migrating an existing application or API is to
+"strangle" old endpoints, slowly replacing them with different
+implementations. The Zuul proxy is a useful tool for this because you
+can use it to handle all traffic from clients of the old endpoints,
+but redirect some of the requests to new ones.</p><p>Example configuration:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    first</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /first/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: http://first.example.com
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    second</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /second/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: forward:/second
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    third</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /third/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: forward:/<span class="hl-number">3</span>rd
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    legacy</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: http://legacy.example.com</pre><p>
+</p><p>In this example we are strangling the "legacy" app which is mapped to
+all requests that do not match one of the other patterns. Paths in
+<code class="literal">/first/**</code> have been extracted into a new service with an external
+URL. And paths in <code class="literal">/second/**</code> are forwarded so they can be handled
+locally, e.g. with a normal Spring <code class="literal">@RequestMapping</code>. Paths in
+<code class="literal">/third/**</code> are also forwarded, but with a different prefix
+(i.e. <code class="literal">/third/foo</code> is forwarded to <code class="literal">/3rd/foo</code>).</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The ignored patterns aren&#8217;t completely ignored, they just
+aren&#8217;t handled by the proxy (so they are also effectively forwarded
+locally).</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_uploading_files_through_zuul" href="#_uploading_files_through_zuul"></a>9.8&nbsp;Uploading Files through Zuul</h2></div></div></div><p>If you <code class="literal">@EnableZuulProxy</code> you can use the proxy paths to
+upload files and it should just work as long as the files
+are small. For large files there is an alternative path
+which bypasses the Spring <code class="literal">DispatcherServlet</code> (to
+avoid multipart processing) in "/zuul/*". I.e. if
+<code class="literal">zuul.routes.customers=/customers/**</code> then you can
+POST large files to "/zuul/customers/*". The servlet
+path is externalized via <code class="literal">zuul.servletPath</code>. Extremely
+large files will also require elevated timeout settings
+if the proxy route takes you through a Ribbon load
+balancer, e.g.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds</span>: <span class="hl-number">60000</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">ribbon</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ConnectTimeout</span>: <span class="hl-number">3000</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ReadTimeout</span>: <span class="hl-number">60000</span></pre><p>
+</p><p>Note that for streaming to work with large files, you need to use chunked encoding in the request (which some browsers
+do not do by default). E.g. on the command line:</p><pre class="screen">$ curl -v -H "Transfer-Encoding: chunked" \
+    -F "file=@mylarge.iso" localhost:9999/zuul/simple/file</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_query_string_encoding" href="#_query_string_encoding"></a>9.9&nbsp;Query String Encoding</h2></div></div></div><p>When processing the incoming request, query params are decoded so they can be available for possible modifications in
+Zuul filters. They are then re-encoded when building the backend request in the route filters. The result
+can be different than the original input if it was encoded using Javascript&#8217;s <code class="literal">encodeURIComponent()</code> method for example.
+While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.</p><p>To force the original encoding of the query string, it is possible to pass a special flag to <code class="literal">ZuulProperties</code> so
+that the query string is taken as is with the <code class="literal">HttpServletRequest::getQueryString</code> method :</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  forceOriginalQueryStringEncoding</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">true</span></pre><p>
+</p><p><span class="strong"><strong>Note:</strong></span> This special flag only works with <code class="literal">SimpleHostRoutingFilter</code> and you loose the ability to easily override
+query parameters with <code class="literal">RequestContext.getCurrentContext().setRequestQueryParams(someOverriddenParameters)</code> since
+the query string is now fetched directly on the original <code class="literal">HttpServletRequest</code>.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_plain_embedded_zuul" href="#_plain_embedded_zuul"></a>9.10&nbsp;Plain Embedded Zuul</h2></div></div></div><p>You can also run a Zuul server without the proxying, or switch on parts of the proxying platform selectively, if you
+use <code class="literal">@EnableZuulServer</code> (instead of <code class="literal">@EnableZuulProxy</code>). Any beans that you add to the application of type <code class="literal">ZuulFilter</code>
+will be installed automatically, as they are with <code class="literal">@EnableZuulProxy</code>, but without any of the proxy filters being added
+automatically.</p><p>In this case the routes into the Zuul server are still specified by
+configuring "zuul.routes.*", but there is no service
+discovery and no proxying, so the "serviceId" and "url" settings are
+ignored. For example:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute"> zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    api</span>: /api/**</pre><p>
+</p><p>maps all paths in "/api/**" to the Zuul filter chain.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_disable_zuul_filters" href="#_disable_zuul_filters"></a>9.11&nbsp;Disable Zuul Filters</h2></div></div></div><p>Zuul for Spring Cloud comes with a number of <code class="literal">ZuulFilter</code> beans enabled by default
+in both proxy and server mode.  See <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters" target="_top">the zuul filters package</a> for the
+possible filters that are enabled.  If you want to disable one, simply set
+<code class="literal">zuul.&lt;SimpleClassName&gt;.&lt;filterType&gt;.disable=true</code>. By convention, the package after
+<code class="literal">filters</code> is the Zuul filter type. For example to disable
+<code class="literal">org.springframework.cloud.netflix.zuul.filters.post.SendResponseFilter</code> set
+<code class="literal">zuul.SendResponseFilter.post.disable=true</code>.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="hystrix-fallbacks-for-routes" href="#hystrix-fallbacks-for-routes"></a>9.12&nbsp;Providing Hystrix Fallbacks For Routes</h2></div></div></div><p>When a circuit for a given route in Zuul is tripped you can provide a fallback response
+by creating a bean of type <code class="literal">ZuulFallbackProvider</code>.  Within this bean you need to specify
+the route ID the fallback is for and provide a <code class="literal">ClientHttpResponse</code> to return
+as a fallback.  Here is a very simple <code class="literal">ZuulFallbackProvider</code> implementation.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> ZuulFallbackProvider {
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"customers"</span>;
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> HttpStatus.OK;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span class="hl-number">200</span>;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"OK"</span>;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
+
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
+                HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> headers;
+            }
+        };
+    }
+}</pre><p>And here is what the route configuration would look like.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    customers</span>: /customers/**</pre><p>If you would like to provide a default fallback for all routes than you can create a bean of
+type <code class="literal">ZuulFallbackProvider</code> and have the <code class="literal">getRoute</code> method return <code class="literal">*</code> or <code class="literal">null</code>.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> ZuulFallbackProvider {
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"*"</span>;
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> HttpStatus.OK;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span class="hl-number">200</span>;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"OK"</span>;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
+
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
+                HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> headers;
+            }
+        };
+    }
+}</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="zuul-developer-guide" href="#zuul-developer-guide"></a>9.13&nbsp;Zuul Developer Guide</h2></div></div></div><p>For a general overview of how Zuul works, please see <a class="link" href="https://github.com/Netflix/zuul/wiki/How-it-Works" target="_top">the Zuul Wiki</a>.</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_the_zuul_servlet" href="#_the_zuul_servlet"></a>9.13.1&nbsp;The Zuul Servlet</h3></div></div></div><p>Zuul is implemented as a Servlet. For the general cases, Zuul is embedded into the Spring Dispatch mechanism. This allows Spring MVC to be in control of the routing. In this case, Zuul is configured to buffer requests. If there is a need to go through Zuul without buffering requests (e.g. for large file uploads), the Servlet is also installed outside of the Spring Dispatcher. By default, this is located at <code class="literal">/zuul</code>. This path can be changed with the <code class="literal">zuul.servlet-path</code> property.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_zuul_requestcontext" href="#_zuul_requestcontext"></a>9.13.2&nbsp;Zuul RequestContext</h3></div></div></div><p>To pass information between filters, Zuul uses a <a class="link" href="https://github.com/Netflix/zuul/blob/1.x/zuul-core/src/main/java/com/netflix/zuul/context/RequestContext.java" target="_top"><code class="literal">RequestContext</code></a>. Its data is held in a <code class="literal">ThreadLocal</code> specific to each request. Information about where to route requests, errors and the actual <code class="literal">HttpServletRequest</code> and <code class="literal">HttpServletResponse</code> are stored there. The <code class="literal">RequestContext</code> extends <code class="literal">ConcurrentHashMap</code>, so anything can be stored in the context. <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java" target="_top"><code class="literal">FilterConstants</code></a> contains the keys that are used by the filters installed by Spring Cloud Netflix (more on these later).</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="__literal_enablezuulproxy_literal_vs_literal_enablezuulserver_literal" href="#__literal_enablezuulproxy_literal_vs_literal_enablezuulserver_literal"></a>9.13.3&nbsp;<code class="literal">@EnableZuulProxy</code> vs. <code class="literal">@EnableZuulServer</code></h3></div></div></div><p>Spring Cloud Netflix installs a number of filters based on which annotation was used to enable Zuul. <code class="literal">@EnableZuulProxy</code> is a superset of <code class="literal">@EnableZuulServer</code>. In other words, <code class="literal">@EnableZuulProxy</code> contains all filters installed by <code class="literal">@EnableZuulServer</code>. The additional filters in the "proxy" enable routing functionality. If you want a "blank" Zuul, you should use <code class="literal">@EnableZuulServer</code>.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="__literal_enablezuulserver_literal_filters" href="#__literal_enablezuulserver_literal_filters"></a>9.13.4&nbsp;<code class="literal">@EnableZuulServer</code> Filters</h3></div></div></div><p>Creates a <code class="literal">SimpleRouteLocator</code> that loads route definitions from Spring Boot configuration files.</p><p>The following filters are installed (as normal Spring Beans):</p><p>Pre filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">ServletDetectionFilter</code>: Detects if the request is through the Spring Dispatcher. Sets boolean with key <code class="literal">FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY</code>.</li><li class="listitem"><code class="literal">FormBodyWrapperFilter</code>: Parses form data and reencodes it for downstream requests.</li><li class="listitem"><code class="literal">DebugFilter</code>: if the <code class="literal">debug</code> request parameter is set, this filter sets <code class="literal">RequestContext.setDebugRouting()</code> and <code class="literal">RequestContext.setDebugRequest()</code> to true.</li></ul></div><p>Route filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">SendForwardFilter</code>: This filter forwards requests using the Servlet <code class="literal">RequestDispatcher</code>. The forwarding location is stored in the <code class="literal">RequestContext</code> attribute <code class="literal">FilterConstants.FORWARD_TO_KEY</code>. This is useful for forwarding to endpoints in the current application.</li></ul></div><p>Post filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">SendResponseFilter</code>: Writes responses from proxied requests to the current response.</li></ul></div><p>Error filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">SendErrorFilter</code>: Forwards to /error (by default) if <code class="literal">RequestContext.getThrowable()</code> is not null. The default forwarding path (<code class="literal">/error</code>) can be changed by setting the <code class="literal">error.path</code> property.</li></ul></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="__literal_enablezuulproxy_literal_filters" href="#__literal_enablezuulproxy_literal_filters"></a>9.13.5&nbsp;<code class="literal">@EnableZuulProxy</code> Filters</h3></div></div></div><p>Creates a <code class="literal">DiscoveryClientRouteLocator</code> that loads route definitions from a <code class="literal">DiscoveryClient</code> (like Eureka), as well as from properties. A route is created for each <code class="literal">serviceId</code> from the <code class="literal">DiscoveryClient</code>. As new services are added, the routes will be refreshed.</p><p>In addition to the filters described above, the following filters are installed (as normal Spring Beans):</p><p>Pre filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">PreDecorationFilter</code>: This filter determines where and how to route based on the supplied <code class="literal">RouteLocator</code>. It also sets various proxy-related headers for downstream requests.</li></ul></div><p>Route filters:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p class="simpara"><code class="literal">RibbonRoutingFilter</code>: This filter uses Ribbon, Hystrix and pluggable HTTP clients to send requests. Service ids are found in the <code class="literal">RequestContext</code> attribute <code class="literal">FilterConstants.SERVICE_ID_KEY</code>. This filter can use different HTTP clients. They are:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; "><li class="listitem">Apache <code class="literal">HttpClient</code>. This is the default client.</li><li class="listitem">Squareup <code class="literal">OkHttpClient</code> v3. This is enabled by having the <code class="literal">com.squareup.okhttp3:okhttp</code> library on the classpath and setting <code class="literal">ribbon.okhttp.enabled=true</code>.</li><li class="listitem">Netflix Ribbon HTTP client. This is enabled by setting <code class="literal">ribbon.restclient.enabled=true</code>. This client has limitations, such as it doesn&#8217;t support the PATCH method, but also has built-in retry.</li></ul></div></li><li class="listitem"><code class="literal">SimpleHostRoutingFilter</code>: This filter sends requests to predetermined URLs via an Apache HttpClient. URLs are found in <code class="literal">RequestContext.getRouteHost()</code>.</li></ul></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_custom_zuul_filter_examples" href="#_custom_zuul_filter_examples"></a>9.13.6&nbsp;Custom Zuul Filter examples</h3></div></div></div><p>Most of the following "How to Write" examples below are included <a class="link" href="https://github.com/spring-cloud-samples/sample-zuul-filters" target="_top">Sample Zuul Filters</a> project. There are also examples of manipulating the request or response body in that repository.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_to_write_a_pre_filter" href="#_how_to_write_a_pre_filter"></a>9.13.7&nbsp;How to Write a Pre Filter</h3></div></div></div><p>Pre filters are used to set up data in the <code class="literal">RequestContext</code> for use in filters downstream. The main use case is to set information required for route filters.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> QueryParamPreFilter <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ZuulFilter {
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> filterOrder() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> PRE_DECORATION_FILTER_ORDER - <span class="hl-number">1</span>; <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// run before PreDecoration</span>
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String filterType() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> PRE_TYPE;
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">boolean</span> shouldFilter() {
+		RequestContext ctx = RequestContext.getCurrentContext();
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> !ctx.containsKey(FORWARD_TO_KEY) <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// a filter has already forwarded</span>
+				&amp;&amp; !ctx.containsKey(SERVICE_ID_KEY); <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// a filter has already determined serviceId</span>
+	}
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Object run() {
+        RequestContext ctx = RequestContext.getCurrentContext();
+		HttpServletRequest request = ctx.getRequest();
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">if</span> (request.getParameter(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"foo"</span>) != null) {
+		    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// put the serviceId in `RequestContext`</span>
+    		ctx.put(SERVICE_ID_KEY, request.getParameter(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"foo"</span>));
+    	}
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> null;
+    }
+}</pre><p>The filter above populates <code class="literal">SERVICE_ID_KEY</code> from the <code class="literal">foo</code> request parameter. In reality, it&#8217;s not a good idea to do that kind of direct mapping, but the service id should be looked up from the value of <code class="literal">foo</code> instead.</p><p>Now that <code class="literal">SERVICE_ID_KEY</code> is populated, <code class="literal">PreDecorationFilter</code> won&#8217;t run and <code class="literal">RibbonRoutingFilter</code> will. If you wanted to route to a full URL instead, call <code class="literal">ctx.setRouteHost(url)</code> instead.</p><p>To modify the path that routing filters will forward to, set the <code class="literal">REQUEST_URI_KEY</code>.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_to_write_a_route_filter" href="#_how_to_write_a_route_filter"></a>9.13.8&nbsp;How to Write a Route Filter</h3></div></div></div><p>Route filters are run after pre filters and are used to make requests to other services. Much of the work here is to translate request and response data to and from the client required model.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> OkHttpRoutingFilter <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ZuulFilter {
+	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ProxyRequestHelper helper;
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String filterType() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> ROUTE_TYPE;
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> filterOrder() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> SIMPLE_HOST_ROUTING_FILTER_ORDER - <span class="hl-number">1</span>;
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">boolean</span> shouldFilter() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> RequestContext.getCurrentContext().getRouteHost() != null
+				&amp;&amp; RequestContext.getCurrentContext().sendZuulResponse();
+	}
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Object run() {
+		OkHttpClient httpClient = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> OkHttpClient.Builder()
+				<span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// customize</span>
+				.build();
+
+		RequestContext context = RequestContext.getCurrentContext();
+		HttpServletRequest request = context.getRequest();
+
+		String method = request.getMethod();
+
+		String uri = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.helper.buildZuulRequestURI(request);
+
+		Headers.Builder headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Headers.Builder();
+		Enumeration&lt;String&gt; headerNames = request.getHeaderNames();
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">while</span> (headerNames.hasMoreElements()) {
+			String name = headerNames.nextElement();
+			Enumeration&lt;String&gt; values = request.getHeaders(name);
+
+			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">while</span> (values.hasMoreElements()) {
+				String value = values.nextElement();
+				headers.add(name, value);
+			}
+		}
+
+		InputStream inputStream = request.getInputStream();
+
+		RequestBody requestBody = null;
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">if</span> (inputStream != null &amp;&amp; HttpMethod.permitsRequestBody(method)) {
+			MediaType mediaType = null;
+			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">if</span> (headers.get(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Content-Type"</span>) != null) {
+				mediaType = MediaType.parse(headers.get(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Content-Type"</span>));
+			}
+			requestBody = RequestBody.create(mediaType, StreamUtils.copyToByteArray(inputStream));
+		}
+
+		Request.Builder builder = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Request.Builder()
+				.headers(headers.build())
+				.url(uri)
+				.method(method, requestBody);
+
+		Response response = httpClient.newCall(builder.build()).execute();
+
+		LinkedMultiValueMap&lt;String, String&gt; responseHeaders = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> LinkedMultiValueMap&lt;&gt;();
+
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">for</span> (Map.Entry&lt;String, List&lt;String&gt;&gt; entry : response.headers().toMultimap().entrySet()) {
+			responseHeaders.put(entry.getKey(), entry.getValue());
+		}
+
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.helper.setResponse(response.code(), response.body().byteStream(),
+				responseHeaders);
+		context.setRouteHost(null); <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// prevent SimpleHostRoutingFilter from running</span>
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> null;
+    }
+}</pre><p>The above filter translates Servlet request information into OkHttp3 request information, executes an HTTP request, then translates OkHttp3 reponse information to the Servlet response. WARNING: this filter might have bugs and not function correctly.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_to_write_a_post_filter" href="#_how_to_write_a_post_filter"></a>9.13.9&nbsp;How to Write a Post Filter</h3></div></div></div><p>Post filters typically manipulate the response. In the filter below, we add a random <code class="literal">UUID</code> as the <code class="literal">X-Foo</code> header. Other manipulations, such as transforming the response body, are much more complex and compute-intensive.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> AddResponseHeaderFilter <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">extends</span> ZuulFilter {
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String filterType() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> POST_TYPE;
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> filterOrder() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> SEND_RESPONSE_FILTER_ORDER - <span class="hl-number">1</span>;
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">boolean</span> shouldFilter() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> true;
+	}
+
+	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Object run() {
+		RequestContext context = RequestContext.getCurrentContext();
+    	HttpServletResponse servletResponse = context.getResponse();
+		servletResponse.addHeader(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"X-Foo"</span>, UUID.randomUUID().toString());
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> null;
+	}
+}</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_how_zuul_errors_work" href="#_how_zuul_errors_work"></a>9.13.10&nbsp;How Zuul Errors Work</h3></div></div></div><p>If an exception is thrown during any portion of the Zuul filter lifecycle, the error filters are executed. The <code class="literal">SendErrorFilter</code> is only run if <code class="literal">RequestContext.getThrowable()</code> is not <code class="literal">null</code>. It then sets specific <code class="literal">javax.servlet.error.*</code> attributes in the request and forwards the request to the Spring Boot error page.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_zuul_eager_application_context_loading" href="#_zuul_eager_application_context_loading"></a>9.13.11&nbsp;Zuul Eager Application Context Loading</h3></div></div></div><p>Zuul internally uses Ribbon for calling the remote url&#8217;s and Ribbon clients are by default lazily loaded up by Spring Cloud on first call.
+This behavior can be changed for Zuul using the following configuration and will result in the child Ribbon related Application contexts being eagerly loaded up at application startup time.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="screen">zuul:
+  ribbon:
+    eager-load:
+      enabled: true</pre><p>
+</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__external_configuration_archaius.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi__polyglot_support_with_sidecar.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">8.&nbsp;External Configuration: Archaius&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;10.&nbsp;Polyglot support with Sidecar</td></tr></table></div></body></html>

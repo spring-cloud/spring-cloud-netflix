@@ -1,0 +1,100 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>6.&nbsp;Client Side Load Balancer: Ribbon</title><link rel="stylesheet" type="text/css" href="css/manual-multipage.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="up" href="multi_spring-cloud-netflix.html" title="Spring Cloud Netflix"><link rel="prev" href="multi__hystrix_timeouts_and_ribbon_clients.html" title="5.&nbsp;Hystrix Timeouts And Ribbon Clients"><link rel="next" href="multi_spring-cloud-feign.html" title="7.&nbsp;Declarative REST Client: Feign"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.&nbsp;Client Side Load Balancer: Ribbon</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="multi__hystrix_timeouts_and_ribbon_clients.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="multi_spring-cloud-feign.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="spring-cloud-ribbon" href="#spring-cloud-ribbon"></a>6.&nbsp;Client Side Load Balancer: Ribbon</h1></div></div></div><p>Ribbon is a client side load balancer which gives you a lot of control
+over the behaviour of HTTP and TCP clients. Feign already uses Ribbon,
+so if you are using <code class="literal">@FeignClient</code> then this section also applies.</p><p>A central concept in Ribbon is that of the named client. Each load
+balancer is part of an ensemble of components that work together to
+contact a remote server on demand, and the ensemble has a name that
+you give it as an application developer (e.g. using the <code class="literal">@FeignClient</code>
+annotation). Spring Cloud creates a new ensemble as an
+<code class="literal">ApplicationContext</code> on demand for each named client using
+<code class="literal">RibbonClientConfiguration</code>. This contains (amongst other things) an
+<code class="literal">ILoadBalancer</code>, a <code class="literal">RestClient</code>, and a <code class="literal">ServerListFilter</code>.</p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-ribbon-starter" href="#netflix-ribbon-starter"></a>6.1&nbsp;How to Include Ribbon</h2></div></div></div><p>To include Ribbon in your project use the starter with group <code class="literal">org.springframework.cloud</code>
+and artifact id <code class="literal">spring-cloud-starter-ribbon</code>. See the <a class="link" href="http://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
+for details on setting up your build system with the current Spring Cloud Release Train.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_customizing_the_ribbon_client" href="#_customizing_the_ribbon_client"></a>6.2&nbsp;Customizing the Ribbon Client</h2></div></div></div><p>You can configure some bits of a Ribbon client using external
+properties in <code class="literal">&lt;client&gt;.ribbon.*</code>, which is no different than using
+the Netflix APIs natively, except that you can use Spring Boot
+configuration files. The native options can
+be inspected as static fields in <code class="literal">CommonClientConfigKey</code> (part of
+ribbon-core).</p><p>Spring Cloud also lets you take full control of the client by
+declaring additional configuration (on top of the
+<code class="literal">RibbonClientConfiguration</code>) using <code class="literal">@RibbonClient</code>. Example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<em><span class="hl-annotation" style="color: gray">@RibbonClient(name = "foo", configuration = FooConfiguration.class)</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> TestConfiguration {
+}</pre><p>In this case the client is composed from the components already in
+<code class="literal">RibbonClientConfiguration</code> together with any in <code class="literal">FooConfiguration</code>
+(where the latter generally will override the former).</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>The <code class="literal">FooConfiguration</code> has to be <code class="literal">@Configuration</code> but take
+care that it is not in a <code class="literal">@ComponentScan</code> for the main application
+context, otherwise it will be shared by all the <code class="literal">@RibbonClients</code>. If
+you use <code class="literal">@ComponentScan</code> (or <code class="literal">@SpringBootApplication</code>) you need to
+take steps to avoid it being included (for instance put it in a
+separate, non-overlapping package, or specify the packages to scan
+explicitly in the <code class="literal">@ComponentScan</code>).</p></td></tr></table></div><p>Spring Cloud Netflix provides the following beans by default for ribbon
+(<code class="literal">BeanType</code> beanName: <code class="literal">ClassName</code>):</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">IClientConfig</code> ribbonClientConfig: <code class="literal">DefaultClientConfigImpl</code></li><li class="listitem"><code class="literal">IRule</code> ribbonRule: <code class="literal">ZoneAvoidanceRule</code></li><li class="listitem"><code class="literal">IPing</code> ribbonPing: <code class="literal">NoOpPing</code></li><li class="listitem"><code class="literal">ServerList&lt;Server&gt;</code> ribbonServerList: <code class="literal">ConfigurationBasedServerList</code></li><li class="listitem"><code class="literal">ServerListFilter&lt;Server&gt;</code> ribbonServerListFilter: <code class="literal">ZonePreferenceServerListFilter</code></li><li class="listitem"><code class="literal">ILoadBalancer</code> ribbonLoadBalancer: <code class="literal">ZoneAwareLoadBalancer</code></li><li class="listitem"><code class="literal">ServerListUpdater</code> ribbonServerListUpdater: <code class="literal">PollingServerListUpdater</code></li></ul></div><p>Creating a bean of one of those type and placing it in a <code class="literal">@RibbonClient</code>
+configuration (such as <code class="literal">FooConfiguration</code> above) allows you to override each
+one of the beans described.  Example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooConfiguration {
+    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> IPing ribbonPing(IClientConfig config) {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> PingUrl();
+    }
+}</pre><p>This replaces the <code class="literal">NoOpPing</code> with <code class="literal">PingUrl</code>.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_customizing_the_ribbon_client_using_properties" href="#_customizing_the_ribbon_client_using_properties"></a>6.3&nbsp;Customizing the Ribbon Client using properties</h2></div></div></div><p>Starting with version 1.2.0, Spring Cloud Netflix now supports customizing Ribbon clients using properties to be compatible with the <a class="link" href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers#components-of-load-balancer" target="_top">Ribbon documentation</a>.</p><p>This allows you to change behavior at start up time in different environments.</p><p>The supported properties are listed below and should be prefixed by <code class="literal">&lt;clientName&gt;.ribbon.</code>:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><code class="literal">NFLoadBalancerClassName</code>: should implement <code class="literal">ILoadBalancer</code></li><li class="listitem"><code class="literal">NFLoadBalancerRuleClassName</code>: should implement <code class="literal">IRule</code></li><li class="listitem"><code class="literal">NFLoadBalancerPingClassName</code>: should implement <code class="literal">IPing</code></li><li class="listitem"><code class="literal">NIWSServerListClassName</code>: should implement <code class="literal">ServerList</code></li><li class="listitem"><code class="literal">NIWSServerListFilterClassName</code> should implement <code class="literal">ServerListFilter</code></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>Classes defined in these properties have precedence over beans defined using <code class="literal">@RibbonClient(configuration=MyRibbonConfig.class)</code> and the defaults provided by Spring Cloud Netflix.</p></td></tr></table></div><p>To set the <code class="literal">IRule</code> for a service name <code class="literal">users</code> you could set the following:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="screen">users:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule</pre><p>
+</p><p>See the <a class="link" href="https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers" target="_top">Ribbon documentation</a> for implementations provided by Ribbon.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_ribbon_with_eureka" href="#_using_ribbon_with_eureka"></a>6.4&nbsp;Using Ribbon with Eureka</h2></div></div></div><p>When Eureka is used in conjunction with Ribbon (i.e., both are on the classpath) the <code class="literal">ribbonServerList</code>
+is overridden with an extension of <code class="literal">DiscoveryEnabledNIWSServerList</code>
+which populates the list of servers from Eureka.  It also replaces the
+<code class="literal">IPing</code> interface with <code class="literal">NIWSDiscoveryPing</code> which delegates to Eureka
+to determine if a server is up. The <code class="literal">ServerList</code> that is installed by
+default is a <code class="literal">DomainExtractingServerList</code> and the purpose of this is
+to make physical metadata available to the load balancer without using
+AWS AMI metadata (which is what Netflix relies on). By default the
+server list will be constructed with "zone" information as provided in
+the instance metadata (so on the remote clients set
+<code class="literal">eureka.instance.metadataMap.zone</code>), and if that is missing it can use
+the domain name from the server hostname as a proxy for zone (if the
+flag <code class="literal">approximateZoneFromHostname</code> is set). Once the zone information
+is available it can be used in a <code class="literal">ServerListFilter</code>. By default it
+will be used to locate a server in the same zone as the client because
+the default is a <code class="literal">ZonePreferenceServerListFilter</code>. The zone of the
+client is determined the same way as the remote instances by default,
+i.e. via <code class="literal">eureka.instance.metadataMap.zone</code>.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The orthodox "archaius" way to set the client zone is via a
+configuration property called "@zone", and Spring Cloud will use that
+in preference to all other settings if it is available (note that the
+key will have to be quoted in YAML configuration).</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>If there is no other source of zone data then a guess is made
+based on the client configuration (as opposed to the instance
+configuration). We take <code class="literal">eureka.client.availabilityZones</code>, which is a
+map from region name to a list of zones, and pull out the first zone
+for the instance&#8217;s own region (i.e. the <code class="literal">eureka.client.region</code>, which
+defaults to "us-east-1" for comatibility with native Netflix).</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-ribbon-without-eureka" href="#spring-cloud-ribbon-without-eureka"></a>6.5&nbsp;Example: How to Use Ribbon Without Eureka</h2></div></div></div><p>Eureka is a convenient way to abstract the discovery of remote servers
+so you don&#8217;t have to hard code their URLs in clients, but if you
+prefer not to use it, Ribbon and Feign are still quite
+amenable. Suppose you have declared a <code class="literal">@RibbonClient</code> for "stores",
+and Eureka is not in use (and not even on the classpath). The Ribbon
+client defaults to a configured server list, and you can supply the
+configuration like this</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="screen">stores:
+  ribbon:
+    listOfServers: example.com,google.com</pre><p>
+</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_example_disable_eureka_use_in_ribbon" href="#_example_disable_eureka_use_in_ribbon"></a>6.6&nbsp;Example: Disable Eureka use in Ribbon</h2></div></div></div><p>Setting the property <code class="literal">ribbon.eureka.enabled = false</code> will explicitly
+disable the use of Eureka in Ribbon.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="screen">ribbon:
+  eureka:
+   enabled: false</pre><p>
+</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_the_ribbon_api_directly" href="#_using_the_ribbon_api_directly"></a>6.7&nbsp;Using the Ribbon API Directly</h2></div></div></div><p>You can also use the <code class="literal">LoadBalancerClient</code> directly. Example:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyClass {
+    <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> LoadBalancerClient loadBalancer;
+
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> doStuff() {
+        ServiceInstance instance = loadBalancer.choose(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"stores"</span>);
+        URI storesUri = URI.create(String.format(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"http://%s:%s"</span>, instance.getHost(), instance.getPort()));
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// ... do something with the URI</span>
+    }
+}</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="ribbon-child-context-eager-load" href="#ribbon-child-context-eager-load"></a>6.8&nbsp;Caching of Ribbon Configuration</h2></div></div></div><p>Each Ribbon named client has a corresponding child Application Context that Spring Cloud maintains, this application context is lazily loaded up on the first request to the named client.
+This lazy loading behavior can be changed to instead eagerly load up these child Application contexts at startup by specifying the names of the Ribbon clients.</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="screen">ribbon:
+  eager-load:
+    enabled: true
+    clients: client1, client2, client3</pre><p>
+</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__hystrix_timeouts_and_ribbon_clients.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi_spring-cloud-feign.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">5.&nbsp;Hystrix Timeouts And Ribbon Clients&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;7.&nbsp;Declarative REST Client: Feign</td></tr></table></div></body></html>
