@@ -129,7 +129,7 @@ the `EurekaInstanceConfig`, _viz_
 `eureka.instance.[nonSecurePortEnabled,securePortEnabled]=[false,true]`
 respectively. This will make Eureka publish instance information
 showing an explicit preference for secure communication. The Spring
-Cloud `DiscoveryClient` will always return an `https://...` URI for a
+Cloud `DiscoveryClient` will always return a URI starting with `https` for a
 service configured this way, and the Eureka (native) instance
 information will have a secure health check URL.
 
@@ -678,7 +678,7 @@ eureka:
 ----
 
 
-The configuration key `turbine.appConfig` is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `http://my.turbine.sever:8080/turbine.stream?cluster=<CLUSTERNAME>` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
+The configuration key `turbine.appConfig` is a list of eureka serviceIds that turbine will use to lookup instances.  The turbine stream is then used in the Hystrix dashboard using a url that looks like: `http://my.turbine.sever:8080/turbine.stream?cluster=CLUSTERNAME` (the cluster parameter can be omitted if the name is "default"). The `cluster` parameter must match an entry in `turbine.aggregator.clusterConfig`. Values returned from eureka are uppercase, thus we expect this example to work if there is an app registered with Eureka called "customers":
 
 ----
 turbine:
@@ -2367,7 +2367,7 @@ Spring Boot Actuator metrics are hierarchical and metrics are separated only by 
 }
 ----
 
-The first metric gives us a normalized count of successful requests against the root endpoint per unit of time. But what if the system had 20 endpoints and you want to get a count of successful requests against all the endpoints? Some hierarchical metrics backends would allow you to specify a wild card such as `counter.status.200.*` that would read all 20 metrics and aggregate the results. Alternatively, you could provide a `HandlerInterceptorAdapter` that intercepts and records a metric like `counter.status.200.all` for all successful requests irrespective of the endpoint, but now you must write 20+1 different metrics. Similarly if you want to know the total number of successful requests for all endpoints in the service, you could specify a wild card such as `counter.status.2*.*`.
+The first metric gives us a normalized count of successful requests against the root endpoint per unit of time. But what if the system had 20 endpoints and you want to get a count of successful requests against all the endpoints? Some hierarchical metrics backends would allow you to specify a wild card such as `counter.status.200.\*` that would read all 20 metrics and aggregate the results. Alternatively, you could provide a `HandlerInterceptorAdapter` that intercepts and records a metric like `counter.status.200.all` for all successful requests irrespective of the endpoint, but now you must write 20+1 different metrics. Similarly if you want to know the total number of successful requests for all endpoints in the service, you could specify a wild card such as `counter.status.2*.*`.
 
 Even in the presence of wildcarding support on a hierarchical metrics backend, naming consistency can be difficult. Specifically the position of these tags in the name string can slip with time, breaking queries. For example, suppose we add an additional dimension to the hierarchical metrics above for HTTP method. Then `counter.status.200.root` becomes `counter.status.200.method.get.root`, etc. Our `counter.status.200.*` suddenly no longer has the same semantic meaning.  Furthermore, if the new dimension is not applied uniformly across the codebase, certain queries may become impossible. This can quickly get out of hand.
 
