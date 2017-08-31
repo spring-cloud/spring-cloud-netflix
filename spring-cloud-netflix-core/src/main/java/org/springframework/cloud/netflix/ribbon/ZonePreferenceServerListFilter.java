@@ -18,9 +18,7 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
@@ -34,8 +32,6 @@ import com.netflix.loadbalancer.ZoneAffinityServerListFilter;
  *
  * @author Dave Syer
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter<Server> {
 
 	private String zone;
@@ -64,6 +60,34 @@ public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter
 			}
 		}
 		return output;
+	}
+
+	public String getZone() {
+		return zone;
+	}
+
+	public void setZone(String zone) {
+		this.zone = zone;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ZonePreferenceServerListFilter that = (ZonePreferenceServerListFilter) o;
+		return Objects.equals(zone, that.zone);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(zone);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("ZonePreferenceServerListFilter{")
+				.append("zone='").append(zone).append("'")
+				.append("}").toString();
 	}
 
 }

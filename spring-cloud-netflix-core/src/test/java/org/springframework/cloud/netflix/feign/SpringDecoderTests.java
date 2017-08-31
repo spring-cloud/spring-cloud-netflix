@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,10 +43,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -147,11 +144,36 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		assertNull("response body was not null", response.getBody());
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello() {
+		}
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Hello that = (Hello) o;
+			return Objects.equals(message, that.message);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(message);
+		}
 	}
 
 	protected interface TestClient {

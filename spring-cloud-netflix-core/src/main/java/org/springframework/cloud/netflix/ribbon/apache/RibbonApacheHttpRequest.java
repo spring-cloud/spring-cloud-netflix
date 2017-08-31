@@ -28,12 +28,9 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 
-import lombok.Getter;
-
 /**
  * @author Christian Lohmann
  */
-@Getter
 public class RibbonApacheHttpRequest extends ContextAwareRequest implements Cloneable {
 
 	public RibbonApacheHttpRequest(RibbonCommandContext context) {

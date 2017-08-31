@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.feign;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
@@ -40,16 +41,13 @@ import feign.Target.HardCodedTarget;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author Spencer Gibb
  * @author Venil Noronha
  * @author Eko Kurniawan Khannedy
+ * @author Gregor Zurowski
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
 class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		ApplicationContextAware {
 	/***********************************
@@ -273,6 +271,101 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	@Override
 	public boolean isSingleton() {
 		return true;
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
+
+	public void setType(Class<?> type) {
+		this.type = type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public boolean isDecode404() {
+		return decode404;
+	}
+
+	public void setDecode404(boolean decode404) {
+		this.decode404 = decode404;
+	}
+
+	public ApplicationContext getApplicationContext() {
+		return applicationContext;
+	}
+
+	public Class<?> getFallback() {
+		return fallback;
+	}
+
+	public void setFallback(Class<?> fallback) {
+		this.fallback = fallback;
+	}
+
+	public Class<?> getFallbackFactory() {
+		return fallbackFactory;
+	}
+
+	public void setFallbackFactory(Class<?> fallbackFactory) {
+		this.fallbackFactory = fallbackFactory;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		FeignClientFactoryBean that = (FeignClientFactoryBean) o;
+		return Objects.equals(applicationContext, that.applicationContext) &&
+				decode404 == that.decode404 &&
+				Objects.equals(fallback, that.fallback) &&
+				Objects.equals(fallbackFactory, that.fallbackFactory) &&
+				Objects.equals(name, that.name) &&
+				Objects.equals(path, that.path) &&
+				Objects.equals(type, that.type) &&
+				Objects.equals(url, that.url);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(applicationContext, decode404, fallback, fallbackFactory,
+				name, path, type, url);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("FeignClientFactoryBean{")
+				.append("type=").append(type).append(", ")
+				.append("name='").append(name).append("', ")
+				.append("url='").append(url).append("', ")
+				.append("path='").append(path).append("', ")
+				.append("decode404=").append(decode404).append(", ")
+				.append("applicationContext=").append(applicationContext).append(", ")
+				.append("fallback=").append(fallback).append(", ")
+				.append("fallbackFactory=").append(fallbackFactory)
+				.append("}").toString();
 	}
 
 }

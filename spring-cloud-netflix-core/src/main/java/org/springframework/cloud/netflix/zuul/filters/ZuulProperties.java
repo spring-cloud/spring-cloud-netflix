@@ -17,9 +17,9 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -42,8 +43,8 @@ import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStr
  * @author Dave Syer
  * @author Mathias Düsterhöft
  * @author Bilal Alp
+ * @author Gregor Zurowski
  */
-@Data
 @ConfigurationProperties("zuul")
 public class ZuulProperties {
 
@@ -194,8 +195,6 @@ public class ZuulProperties {
 		}
 	}
 
-	@Data
-	@NoArgsConstructor
 	public static class ZuulRoute {
 
 		/**
@@ -243,6 +242,8 @@ public class ZuulProperties {
 		private Set<String> sensitiveHeaders = new LinkedHashSet<>();
 
 		private boolean customSensitiveHeaders = false;
+
+		public ZuulRoute() {}
 
 		public ZuulRoute(String id, String path, String serviceId, String url,
 				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
@@ -317,11 +318,97 @@ public class ZuulProperties {
 			return this.customSensitiveHeaders;
 		}
 
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public String getPath() {
+			return path;
+		}
+
+		public void setPath(String path) {
+			this.path = path;
+		}
+
+		public String getServiceId() {
+			return serviceId;
+		}
+
+		public void setServiceId(String serviceId) {
+			this.serviceId = serviceId;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+
+		public boolean isStripPrefix() {
+			return stripPrefix;
+		}
+
+		public void setStripPrefix(boolean stripPrefix) {
+			this.stripPrefix = stripPrefix;
+		}
+
+		public Boolean getRetryable() {
+			return retryable;
+		}
+
+		public void setRetryable(Boolean retryable) {
+			this.retryable = retryable;
+		}
+
+		public Set<String> getSensitiveHeaders() {
+			return sensitiveHeaders;
+		}
+
+		public void setCustomSensitiveHeaders(boolean customSensitiveHeaders) {
+			this.customSensitiveHeaders = customSensitiveHeaders;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			ZuulRoute that = (ZuulRoute) o;
+			return customSensitiveHeaders == that.customSensitiveHeaders &&
+					Objects.equals(id, that.id) &&
+					Objects.equals(path, that.path) &&
+					Objects.equals(retryable, that.retryable) &&
+					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
+					Objects.equals(serviceId, that.serviceId) &&
+					stripPrefix == that.stripPrefix &&
+					Objects.equals(url, that.url);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(customSensitiveHeaders, id, path, retryable,
+					sensitiveHeaders, serviceId, stripPrefix, url);
+		}
+
+		@Override public String toString() {
+			return new StringBuilder("ZuulRoute{").append("id='").append(id).append("', ")
+					.append("path='").append(path).append("', ")
+					.append("serviceId='").append(serviceId).append("', ")
+					.append("url='").append(url).append("', ")
+					.append("stripPrefix=").append(stripPrefix).append(", ")
+					.append("retryable=").append(retryable).append(", ")
+					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
+					.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
+					.append("}").toString();
+		}
+
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Host {
 		/**
 		 * The maximum number of total connections the proxy can hold open to backends.
@@ -347,17 +434,119 @@ public class ZuulProperties {
 		 * The time unit for timeToLive.
 		 */
 		private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+
+		public Host() {
+		}
+
+		public Host(int maxTotalConnections, int maxPerRouteConnections,
+				int socketTimeoutMillis, int connectTimeoutMillis, long timeToLive,
+				TimeUnit timeUnit) {
+			this.maxTotalConnections = maxTotalConnections;
+			this.maxPerRouteConnections = maxPerRouteConnections;
+			this.socketTimeoutMillis = socketTimeoutMillis;
+			this.connectTimeoutMillis = connectTimeoutMillis;
+			this.timeToLive = timeToLive;
+			this.timeUnit = timeUnit;
+		}
+
+		public int getMaxTotalConnections() {
+			return maxTotalConnections;
+		}
+
+		public void setMaxTotalConnections(int maxTotalConnections) {
+			this.maxTotalConnections = maxTotalConnections;
+		}
+
+		public int getMaxPerRouteConnections() {
+			return maxPerRouteConnections;
+		}
+
+		public void setMaxPerRouteConnections(int maxPerRouteConnections) {
+			this.maxPerRouteConnections = maxPerRouteConnections;
+		}
+
+		public int getSocketTimeoutMillis() {
+			return socketTimeoutMillis;
+		}
+
+		public void setSocketTimeoutMillis(int socketTimeoutMillis) {
+			this.socketTimeoutMillis = socketTimeoutMillis;
+		}
+
+		public int getConnectTimeoutMillis() {
+			return connectTimeoutMillis;
+		}
+
+		public void setConnectTimeoutMillis(int connectTimeoutMillis) {
+			this.connectTimeoutMillis = connectTimeoutMillis;
+		}
+
+		public long getTimeToLive() {
+			return timeToLive;
+		}
+
+		public void setTimeToLive(long timeToLive) {
+			this.timeToLive = timeToLive;
+		}
+
+		public TimeUnit getTimeUnit() {
+			return timeUnit;
+		}
+
+		public void setTimeUnit(TimeUnit timeUnit) {
+			this.timeUnit = timeUnit;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return EqualsBuilder.reflectionEquals(this, o);
+		}
+
+		@Override
+		public int hashCode() {
+			return HashCodeBuilder.reflectionHashCode(this);
+		}
+
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
+		}
 	}
 	
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class HystrixSemaphore {
 		/**
 		 * The maximum number of total semaphores for Hystrix.
 		 */
 		private int maxSemaphores = 100;
-		
+
+		public HystrixSemaphore() {}
+
+		public HystrixSemaphore(int maxSemaphores) {
+			this.maxSemaphores = maxSemaphores;
+		}
+
+		public int getMaxSemaphores() {
+			return maxSemaphores;
+		}
+
+		public void setMaxSemaphores(int maxSemaphores) {
+			this.maxSemaphores = maxSemaphores;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return EqualsBuilder.reflectionEquals(this, o);
+		}
+
+		@Override
+		public int hashCode() {
+			return HashCodeBuilder.reflectionHashCode(this);
+		}
+
+		@Override
+		public String toString() {
+			return ToStringBuilder.reflectionToString(this);
+		}
 	}
 
 	public static class HystrixThreadPool {
@@ -402,6 +591,232 @@ public class ZuulProperties {
 			path = path.endsWith("/") ? (path + "*") : (path + "/*");
 		}
 		return path;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public boolean isStripPrefix() {
+		return stripPrefix;
+	}
+
+	public void setStripPrefix(boolean stripPrefix) {
+		this.stripPrefix = stripPrefix;
+	}
+
+	public Boolean getRetryable() {
+		return retryable;
+	}
+
+	public void setRetryable(Boolean retryable) {
+		this.retryable = retryable;
+	}
+
+	public Map<String, ZuulRoute> getRoutes() {
+		return routes;
+	}
+
+	public void setRoutes(Map<String, ZuulRoute> routes) {
+		this.routes = routes;
+	}
+
+	public boolean isAddProxyHeaders() {
+		return addProxyHeaders;
+	}
+
+	public void setAddProxyHeaders(boolean addProxyHeaders) {
+		this.addProxyHeaders = addProxyHeaders;
+	}
+
+	public boolean isAddHostHeader() {
+		return addHostHeader;
+	}
+
+	public void setAddHostHeader(boolean addHostHeader) {
+		this.addHostHeader = addHostHeader;
+	}
+
+	public Set<String> getIgnoredServices() {
+		return ignoredServices;
+	}
+
+	public void setIgnoredServices(Set<String> ignoredServices) {
+		this.ignoredServices = ignoredServices;
+	}
+
+	public Set<String> getIgnoredPatterns() {
+		return ignoredPatterns;
+	}
+
+	public void setIgnoredPatterns(Set<String> ignoredPatterns) {
+		this.ignoredPatterns = ignoredPatterns;
+	}
+
+	public boolean isIgnoreSecurityHeaders() {
+		return ignoreSecurityHeaders;
+	}
+
+	public void setIgnoreSecurityHeaders(boolean ignoreSecurityHeaders) {
+		this.ignoreSecurityHeaders = ignoreSecurityHeaders;
+	}
+
+	public boolean isForceOriginalQueryStringEncoding() {
+		return forceOriginalQueryStringEncoding;
+	}
+
+	public void setForceOriginalQueryStringEncoding(
+			boolean forceOriginalQueryStringEncoding) {
+		this.forceOriginalQueryStringEncoding = forceOriginalQueryStringEncoding;
+	}
+
+	public String getServletPath() {
+		return servletPath;
+	}
+
+	public void setServletPath(String servletPath) {
+		this.servletPath = servletPath;
+	}
+
+	public boolean isIgnoreLocalService() {
+		return ignoreLocalService;
+	}
+
+	public void setIgnoreLocalService(boolean ignoreLocalService) {
+		this.ignoreLocalService = ignoreLocalService;
+	}
+
+	public Host getHost() {
+		return host;
+	}
+
+	public void setHost(Host host) {
+		this.host = host;
+	}
+
+	public boolean isTraceRequestBody() {
+		return traceRequestBody;
+	}
+
+	public void setTraceRequestBody(boolean traceRequestBody) {
+		this.traceRequestBody = traceRequestBody;
+	}
+
+	public boolean isRemoveSemicolonContent() {
+		return removeSemicolonContent;
+	}
+
+	public void setRemoveSemicolonContent(boolean removeSemicolonContent) {
+		this.removeSemicolonContent = removeSemicolonContent;
+	}
+
+	public Set<String> getSensitiveHeaders() {
+		return sensitiveHeaders;
+	}
+
+	public void setSensitiveHeaders(Set<String> sensitiveHeaders) {
+		this.sensitiveHeaders = sensitiveHeaders;
+	}
+
+	public boolean isSslHostnameValidationEnabled() {
+		return sslHostnameValidationEnabled;
+	}
+
+	public void setSslHostnameValidationEnabled(boolean sslHostnameValidationEnabled) {
+		this.sslHostnameValidationEnabled = sslHostnameValidationEnabled;
+	}
+
+	public ExecutionIsolationStrategy getRibbonIsolationStrategy() {
+		return ribbonIsolationStrategy;
+	}
+
+	public void setRibbonIsolationStrategy(
+			ExecutionIsolationStrategy ribbonIsolationStrategy) {
+		this.ribbonIsolationStrategy = ribbonIsolationStrategy;
+	}
+
+	public HystrixSemaphore getSemaphore() {
+		return semaphore;
+	}
+
+	public void setSemaphore(HystrixSemaphore semaphore) {
+		this.semaphore = semaphore;
+	}
+
+	public HystrixThreadPool getThreadPool() {
+		return threadPool;
+	}
+
+	public void setThreadPool(HystrixThreadPool threadPool) {
+		this.threadPool = threadPool;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ZuulProperties that = (ZuulProperties) o;
+		return addHostHeader == that.addHostHeader &&
+				addProxyHeaders == that.addProxyHeaders &&
+				forceOriginalQueryStringEncoding == that.forceOriginalQueryStringEncoding &&
+				Objects.equals(host, that.host) &&
+				Objects.equals(ignoredHeaders, that.ignoredHeaders) &&
+				Objects.equals(ignoredPatterns, that.ignoredPatterns) &&
+				Objects.equals(ignoredServices, that.ignoredServices) &&
+				ignoreLocalService == that.ignoreLocalService &&
+				ignoreSecurityHeaders == that.ignoreSecurityHeaders &&
+				Objects.equals(prefix, that.prefix) &&
+				removeSemicolonContent == that.removeSemicolonContent &&
+				Objects.equals(retryable, that.retryable) &&
+				Objects.equals(ribbonIsolationStrategy, that.ribbonIsolationStrategy) &&
+				Objects.equals(routes, that.routes) &&
+				Objects.equals(semaphore, that.semaphore) &&
+				Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
+				Objects.equals(servletPath, that.servletPath) &&
+				sslHostnameValidationEnabled == that.sslHostnameValidationEnabled &&
+				stripPrefix == that.stripPrefix &&
+				Objects.equals(threadPool, that.threadPool) &&
+				traceRequestBody == that.traceRequestBody;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(addHostHeader, addProxyHeaders, forceOriginalQueryStringEncoding,
+				host, ignoredHeaders, ignoredPatterns, ignoredServices, ignoreLocalService,
+				ignoreSecurityHeaders, prefix, removeSemicolonContent, retryable,
+				ribbonIsolationStrategy, routes, semaphore, sensitiveHeaders, servletPath,
+				sslHostnameValidationEnabled, stripPrefix, threadPool, traceRequestBody);
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder("ZuulProperties{")
+				.append("prefix='").append(prefix).append("', ")
+				.append("stripPrefix=").append(stripPrefix).append(", ")
+				.append("retryable=").append(retryable).append(", ")
+				.append("routes=").append(routes).append(", ")
+				.append("addProxyHeaders=").append(addProxyHeaders).append(", ")
+				.append("addHostHeader=").append(addHostHeader).append(", ")
+				.append("ignoredServices=").append(ignoredServices).append(", ")
+				.append("ignoredPatterns=").append(ignoredPatterns).append(", ")
+				.append("ignoredHeaders=").append(ignoredHeaders).append(", ")
+				.append("ignoreSecurityHeaders=").append(ignoreSecurityHeaders).append(", ")
+				.append("forceOriginalQueryStringEncoding=").append(forceOriginalQueryStringEncoding).append(", ")
+				.append("servletPath='").append(servletPath).append("', ")
+				.append("ignoreLocalService=").append(ignoreLocalService).append(", ")
+				.append("host=").append(host).append(", ")
+				.append("traceRequestBody=").append(traceRequestBody).append(", ")
+				.append("removeSemicolonContent=").append(removeSemicolonContent).append(", ")
+				.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
+				.append("sslHostnameValidationEnabled=").append(sslHostnameValidationEnabled).append(", ")
+				.append("ribbonIsolationStrategy=").append(ribbonIsolationStrategy).append(", ")
+				.append("semaphore=").append(semaphore).append(", ")
+				.append("threadPool=").append(threadPool).append(", ")
+				.append("}").toString();
 	}
 
 }

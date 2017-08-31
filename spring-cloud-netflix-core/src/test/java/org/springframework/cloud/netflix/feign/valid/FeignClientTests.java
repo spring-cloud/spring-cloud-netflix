@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -83,9 +84,6 @@ import feign.RequestTemplate;
 import feign.Target;
 import feign.hystrix.FallbackFactory;
 import feign.hystrix.SetterFactory;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import rx.Observable;
 import rx.Single;
 
@@ -725,11 +723,36 @@ public class FeignClientTests {
 		assertEquals("hellos didn't match", hellos, getHelloList());
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello() {
+		}
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Hello that = (Hello) o;
+			return Objects.equals(message, that.message);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(message);
+		}
 	}
 
 	@Configuration
