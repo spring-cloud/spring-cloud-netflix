@@ -48,7 +48,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @ComponentScan
 @EnableAutoConfiguration
 @RestController
-@EnableDiscoveryClient
 public class EurekaSampleApplication implements ApplicationContextAware, Closeable {
 
 	@Autowired

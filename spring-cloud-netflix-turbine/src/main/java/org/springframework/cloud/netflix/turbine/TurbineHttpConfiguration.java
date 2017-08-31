@@ -36,7 +36,6 @@ import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
  */
 @Configuration
 @EnableConfigurationProperties
-@EnableDiscoveryClient
 public class TurbineHttpConfiguration {
 
 	@Bean

@@ -38,7 +38,6 @@ Example eureka client:
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @RestController
 public class Application {
 
@@ -54,9 +53,8 @@ public class Application {
 }
 ----
 
-(i.e. utterly normal Spring Boot app). In this example we use
-`@EnableEurekaClient` explicitly, but with only Eureka available you
-could also use `@EnableDiscoveryClient`. Configuration is required to
+(i.e. utterly normal Spring Boot app). By having `spring-cloud-starter-netflix-eureka-client`
+ on the classpath your application will automatically register with the Eureka Server.  Configuration is required to
 locate the Eureka server. Example:
 
 
@@ -76,7 +74,8 @@ The default application name (service ID), virtual host and non-secure
 port, taken from the `Environment`, are `${spring.application.name}`,
 `${spring.application.name}` and `${server.port}` respectively.
 
-`@EnableEurekaClient` makes the app into both a Eureka "instance"
+Having `spring-cloud-starter-netflix-eureka-client` on the classpath
+makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
 registry to locate other services). The instance behaviour is driven
 by `eureka.instance.*` configuration keys, but the defaults will be
@@ -240,7 +239,7 @@ random value will not be needed.
 
 === Using the EurekaClient
 
-Once you have an app that is `@EnableDiscoveryClient` (or `@EnableEurekaClient`) you can use it to
+Once you have an app that is a discovery client you can use it to
 discover service instances from the <<spring-cloud-eureka-server,
 Eureka Server>>. One way to do that is to use the native
 `com.netflix.discovery.EurekaClient` (as opposed to the Spring
@@ -971,7 +970,6 @@ Example spring boot app
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @EnableFeignClients
 public class Application {
 

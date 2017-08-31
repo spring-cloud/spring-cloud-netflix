@@ -56,7 +56,6 @@ public class RibbonEurekaAutoConfigurationTests {
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	@EnableDiscoveryClient
 	public static class EurekaClientDisabledApp {
 
 		@Bean

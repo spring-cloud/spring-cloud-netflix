@@ -37,7 +37,6 @@ import org.springframework.context.annotation.Import;
  * @author Biju Kunjummen
  */
 @EnableCircuitBreaker
-@EnableDiscoveryClient
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Import(ZuulProxyMarkerConfiguration.class)

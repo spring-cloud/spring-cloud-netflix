@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Spencer Gibb
  */
 @EnableAutoConfiguration
-@EnableDiscoveryClient
 @Configuration
 @RestController
 public class SidecarClientApplication {

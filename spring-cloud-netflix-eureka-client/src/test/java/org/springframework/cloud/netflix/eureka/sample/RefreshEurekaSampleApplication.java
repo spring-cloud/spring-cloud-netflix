@@ -37,7 +37,6 @@ import static org.mockito.Mockito.mock;
 @ComponentScan
 @EnableAutoConfiguration
 @RestController
-@EnableDiscoveryClient
 public class RefreshEurekaSampleApplication {
 
 	@Bean

@@ -39,7 +39,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@EnableDiscoveryClient
 public @interface EnableEurekaClient {
 
 }

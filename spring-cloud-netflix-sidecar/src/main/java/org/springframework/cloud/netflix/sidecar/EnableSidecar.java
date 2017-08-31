@@ -31,7 +31,6 @@ import org.springframework.context.annotation.Import;
  * @author Spencer Gibb
  */
 @EnableCircuitBreaker
-@EnableDiscoveryClient
 @EnableZuulProxy
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

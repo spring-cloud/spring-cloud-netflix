@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Import;
  *
  */
 
-@EnableDiscoveryClient
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
