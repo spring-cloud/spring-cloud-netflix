@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -65,12 +64,9 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	@Override
 	public List<Route> getRoutes() {
-		if (this.routes.get() == null) {
-			this.routes.set(locateRoutes());
-		}
 		List<Route> values = new ArrayList<>();
-		for (String url : this.routes.get().keySet()) {
-			ZuulRoute route = this.routes.get().get(url);
+		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
+			ZuulRoute route = entry.getValue();
 			String path = route.getPath();
 			values.add(getRoute(route, path));
 		}
@@ -89,14 +85,20 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	}
 
+	protected Map<String, ZuulRoute> getRoutesMap() {
+		if (this.routes.get() == null) {
+			this.routes.set(locateRoutes());
+		}
+		return this.routes.get();
+	}
+
 	protected Route getSimpleMatchingRoute(final String path) {
 		if (log.isDebugEnabled()) {
 			log.debug("Finding route for path: " + path);
 		}
 
-		if (this.routes.get() == null) {
-			this.routes.set(locateRoutes());
-		}
+		// This is called for the initialization done in getRoutesMap()
+		getRoutesMap();
 
 		if (log.isDebugEnabled()) {
 			log.debug("servletPath=" + this.dispatcherServletPath);
@@ -116,7 +118,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	protected ZuulRoute getZuulRoute(String adjustedPath) {
 		if (!matchesIgnoredPatterns(adjustedPath)) {
-			for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
+			for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
 				String pattern = entry.getKey();
 				log.debug("Matching pattern:" + pattern);
 				if (this.pathMatcher.match(pattern, adjustedPath)) {
