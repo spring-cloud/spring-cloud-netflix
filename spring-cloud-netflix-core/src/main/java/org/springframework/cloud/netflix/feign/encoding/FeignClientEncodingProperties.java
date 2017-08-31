@@ -16,15 +16,16 @@
 
 package org.springframework.cloud.netflix.feign.encoding;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * The Feign encoding properties.
  *
  * @author Jakub Narloch
  */
-@Data
 @ConfigurationProperties("feign.compression.request")
 public class FeignClientEncodingProperties {
 
@@ -37,4 +38,43 @@ public class FeignClientEncodingProperties {
      * The minimum threshold content size.
      */
     private int minRequestSize = 2048;
+
+    public String[] getMimeTypes() {
+        return mimeTypes;
+    }
+
+    public void setMimeTypes(String[] mimeTypes) {
+        this.mimeTypes = mimeTypes;
+    }
+
+    public int getMinRequestSize() {
+        return minRequestSize;
+    }
+
+    public void setMinRequestSize(int minRequestSize) {
+        this.minRequestSize = minRequestSize;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FeignClientEncodingProperties that = (FeignClientEncodingProperties) o;
+        return Arrays.equals(mimeTypes, that.mimeTypes) &&
+                Objects.equals(minRequestSize, that.minRequestSize);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mimeTypes, minRequestSize);
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("FeignClientEncodingProperties{")
+                .append("mimeTypes=").append(Arrays.toString(mimeTypes)).append(", ")
+                .append("minRequestSize=").append(minRequestSize)
+                .append("}").toString();
+    }
+
 }
