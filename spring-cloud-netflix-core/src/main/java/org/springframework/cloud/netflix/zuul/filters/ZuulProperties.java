@@ -17,9 +17,6 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -499,17 +496,33 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			return EqualsBuilder.reflectionEquals(this, o);
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Host host = (Host) o;
+			return maxTotalConnections == host.maxTotalConnections &&
+					maxPerRouteConnections == host.maxPerRouteConnections &&
+					socketTimeoutMillis == host.socketTimeoutMillis &&
+					connectTimeoutMillis == host.connectTimeoutMillis &&
+					timeToLive == host.timeToLive &&
+					timeUnit == host.timeUnit;
 		}
 
 		@Override
 		public int hashCode() {
-			return HashCodeBuilder.reflectionHashCode(this);
+			return Objects.hash(maxTotalConnections, maxPerRouteConnections, socketTimeoutMillis, connectTimeoutMillis, timeToLive, timeUnit);
 		}
 
 		@Override
 		public String toString() {
-			return ToStringBuilder.reflectionToString(this);
+			final StringBuffer sb = new StringBuffer("Host{");
+			sb.append("maxTotalConnections=").append(maxTotalConnections);
+			sb.append(", maxPerRouteConnections=").append(maxPerRouteConnections);
+			sb.append(", socketTimeoutMillis=").append(socketTimeoutMillis);
+			sb.append(", connectTimeoutMillis=").append(connectTimeoutMillis);
+			sb.append(", timeToLive=").append(timeToLive);
+			sb.append(", timeUnit=").append(timeUnit);
+			sb.append('}');
+			return sb.toString();
 		}
 	}
 	
@@ -535,17 +548,23 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			return EqualsBuilder.reflectionEquals(this, o);
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			HystrixSemaphore that = (HystrixSemaphore) o;
+			return maxSemaphores == that.maxSemaphores;
 		}
 
 		@Override
 		public int hashCode() {
-			return HashCodeBuilder.reflectionHashCode(this);
+			return Objects.hash(maxSemaphores);
 		}
 
 		@Override
 		public String toString() {
-			return ToStringBuilder.reflectionToString(this);
+			final StringBuffer sb = new StringBuffer("HystrixSemaphore{");
+			sb.append("maxSemaphores=").append(maxSemaphores);
+			sb.append('}');
+			return sb.toString();
 		}
 	}
 
