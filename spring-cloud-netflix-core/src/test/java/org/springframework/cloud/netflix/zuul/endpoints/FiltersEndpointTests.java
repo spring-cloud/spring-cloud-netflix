@@ -22,35 +22,35 @@ import static org.junit.Assert.assertEquals;
  * Tests for Filters endpoint
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FiltersEndpointApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-        "server.contextPath: /app" })
+@SpringBootTest(classes = FiltersEndpointApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		value = { "server.contextPath: /app" })
 public class FiltersEndpointTests {
 
-    @Autowired
-    private FiltersEndpoint endpoint;
+	@Autowired
+	private FiltersEndpoint endpoint;
 
+	@Test
+	public void getFilters() {
+		final Map<String, List<Map<String, Object>>> filters = endpoint.invoke();
 
-    @Test
-    public void getFilters() {
-        final Map<String, List<Map<String, Object>>> filters = endpoint.invoke();
+		boolean foundFilter = false;
 
-        boolean foundFilter = false;
+		if (filters.containsKey("sample")) {
+			for (Map<String, Object> filterInfo : filters.get("sample")) {
+				if (TestFilter.class.getName().equals(filterInfo.get("class"))) {
+					foundFilter = true;
 
-        if (filters.containsKey("sample")) {
-            for (Map<String, Object> filterInfo : filters.get("sample")) {
-                if (TestFilter.class.getName().equals(filterInfo.get("class"))) {
-                    foundFilter = true;
+					// Verify filter's attributes
+					assertEquals(0, filterInfo.get("order"));
 
-                    // Verify filter's attributes
-                    assertEquals(0, filterInfo.get("order"));
+					break; // the search is over
+				}
+			}
+		}
 
-                    break; // the search is over
-                }
-            }
-        }
-
-        assertTrue(foundFilter, "Could not find expected sample filter from filters endpoint");
-    }
+		assertTrue(foundFilter, "Could not find expected sample filter from filters endpoint");
+	}
 
 }
 
@@ -60,31 +60,31 @@ public class FiltersEndpointTests {
 @EnableZuulProxy
 class FiltersEndpointApplication {
 
-    @Bean
-    public ZuulFilter sampleFilter() {
-        return new TestFilter();
-    }
+	@Bean
+	public ZuulFilter sampleFilter() {
+		return new TestFilter();
+	}
 
 }
 
 class TestFilter extends ZuulFilter {
-    @Override
-    public String filterType() {
-        return "sample";
-    }
+	@Override
+	public String filterType() {
+		return "sample";
+	}
 
-    @Override
-    public boolean shouldFilter() {
-        return true;
-    }
+	@Override
+	public boolean shouldFilter() {
+		return true;
+	}
 
-    @Override
-    public Object run() {
-        return null;
-    }
+	@Override
+	public Object run() {
+		return null;
+	}
 
-    @Override
-    public int filterOrder() {
-        return 0;
-    }
+	@Override
+	public int filterOrder() {
+		return 0;
+	}
 }

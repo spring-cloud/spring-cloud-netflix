@@ -21,36 +21,36 @@ import java.util.TreeMap;
 @ManagedResource(description = "List Zuul filters")
 public class FiltersEndpoint extends AbstractEndpoint<Map<String, List<Map<String, Object>>>> {
 
-    private static final String ID = "filters";
+	private static final String ID = "filters";
 
-    public FiltersEndpoint() {
-        super(ID, true);
-    }
+	public FiltersEndpoint() {
+		super(ID, true);
+	}
 
-    @ManagedAttribute
-    @Override
-    public Map<String, List<Map<String, Object>>> invoke() {
-        final FilterRegistry filterRegistry = FilterRegistry.instance();
+	@ManagedAttribute
+	@Override
+	public Map<String, List<Map<String, Object>>> invoke() {
+		final FilterRegistry filterRegistry = FilterRegistry.instance();
 
-        // Map of filters by type
-        final Map<String, List<Map<String, Object>>> filterMap = new TreeMap<>();
+		// Map of filters by type
+		final Map<String, List<Map<String, Object>>> filterMap = new TreeMap<>();
 
-        for (ZuulFilter filter : filterRegistry.getAllFilters()) {
-            // Ensure that we have a list to store filters of each type
-            if (!filterMap.containsKey(filter.filterType())) {
-                filterMap.put(filter.filterType(), new ArrayList<Map<String, Object>>());
-            }
+		for (ZuulFilter filter : filterRegistry.getAllFilters()) {
+			// Ensure that we have a list to store filters of each type
+			if (!filterMap.containsKey(filter.filterType())) {
+				filterMap.put(filter.filterType(), new ArrayList<Map<String, Object>>());
+			}
 
-            final Map<String, Object> filterInfo = new LinkedHashMap<>();
-            filterInfo.put("class", filter.getClass().getName());
-            filterInfo.put("order", filter.filterOrder());
-            filterInfo.put("disabled", filter.isFilterDisabled());
-            filterInfo.put("static", filter.isStaticFilter());
+			final Map<String, Object> filterInfo = new LinkedHashMap<>();
+			filterInfo.put("class", filter.getClass().getName());
+			filterInfo.put("order", filter.filterOrder());
+			filterInfo.put("disabled", filter.isFilterDisabled());
+			filterInfo.put("static", filter.isStaticFilter());
 
-            filterMap.get(filter.filterType()).add(filterInfo);
-        }
+			filterMap.get(filter.filterType()).add(filterInfo);
+		}
 
-        return filterMap;
-    }
+		return filterMap;
+	}
 
 }
