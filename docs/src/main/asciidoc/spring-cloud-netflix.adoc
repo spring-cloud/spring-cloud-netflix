@@ -85,7 +85,7 @@ ID, or VIP).
 
 See {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
 
-To disable the Eureka client functionality you can set `spring.cloud.service-registry.auto-registration.enabled` to `false`.
+To disable the Eureka Discovery Client you can set `eureka.client.enabled` to `false`.
 
 === Authenticating with the Eureka Server
 
