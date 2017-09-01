@@ -1,118 +1,97 @@
+/*
+ *
+ *  * Copyright 2013-2016 the original author or authors.
+ *  *
+ *  * Licensed under the Apache License, Version 2.0 (the "License");
+ *  * you may not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *      http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing, software
+ *  * distributed under the License is distributed on an "AS IS" BASIS,
+ *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  * See the License for the specific language governing permissions and
+ *  * limitations under the License.
+ *
+ */
+
 package org.springframework.cloud.netflix.zuul.endpoints;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.cloud.netflix.ribbon.StaticServerList;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.discovery.PatternServiceRouteMapper;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.cloud.netflix.zuul.filters.Route;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.cloud.netflix.zuul.endpoints.RoutesEndpointTests.SERVICE_ID;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Tests for Routes endpoint.
+ * @author Ryan Baxter
+ * @author Gregor Zurowski
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SampleCustomZuulProxyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-        "spring.application.name=endpoints-test-application" })
-@DirtiesContext
 public class RoutesEndpointTests {
 
-    protected static final String SERVICE_ID = "endpoint-service-v1";
+	private RouteLocator locator;
 
-    @Autowired
-    private DiscoveryClientRouteLocator routes;
+	@Before
+	public void setUp() {
+		this.locator = new RouteLocator() {
+			@Override
+			public Collection<String> getIgnoredPaths() {
+				return null;
+			}
 
-    @Autowired
-    private RoutesEndpoint endpoint;
+			@Override
+			public List<Route> getRoutes() {
+				List<Route> routes = new ArrayList<>();
+				routes.add(new Route("foo", "foopath", "foolocation", null, true, Collections.EMPTY_SET));
+				routes.add(new Route("bar", "barpath", "barlocation", "/bar-prefix", true, Collections.EMPTY_SET));
+				return routes;
+			}
 
-    @Value("${local.server.port}")
-    private int port;
+			@Override
+			public Route getMatchingRoute(String path) {
+				return null;
+			}
+		};
+	}
 
-    @Before
-    public void resetRoutes() {
-        this.endpoint.reset();
-    }
+	@Test
+	public void testInvoke() {
+		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
+		Map<String, String> result = new HashMap<String, String>();
+		for(Route r : locator.getRoutes()) {
+			result.put(r.getFullPath(), r.getLocation());
+		}
+		assertEquals(result , endpoint.invoke());
+	}
 
-    @Test
-    public void getStaticRoute() {
-        final String location = "http://localhost:" + this.port;
+	@Test
+	public void testInvokeRouteDetails() {
+		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
+		Map<String, RoutesEndpoint.RouteDetails> results = new HashMap<>();
+		for (Route route : locator.getRoutes()) {
+			results.put(route.getFullPath(), new RoutesEndpoint.RouteDetails(route));
+		}
+		assertEquals(results, endpoint.invokeRouteDetails());
+	}
 
-        this.routes.addRoute("/self/**", location);
-        assertEquals(location, this.endpoint.getRoutes().get("/self/**"));
-    }
+	@Test
+	public void testId() {
+		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
+		assertEquals("routes", endpoint.getId());
+	}
 
-    @Test
-    public void getDiscoveredRoute() {
-        assertEquals(SERVICE_ID, this.endpoint.getRoutes().get("/v1/endpoint/service/**"));
-    }
-}
-
-@Configuration
-@EnableAutoConfiguration
-@RestController
-@EnableZuulProxy
-@RibbonClient(value = SERVICE_ID, configuration = SimpleRibbonClientConfiguration.class)
-class SampleCustomZuulProxyApplication {
-
-    @Bean
-    public DiscoveryClient discoveryClient() {
-        DiscoveryClient discoveryClient = mock(DiscoveryClient.class);
-        List<String> services = new ArrayList<>();
-        services.add(SERVICE_ID);
-        when(discoveryClient.getServices()).thenReturn(services);
-        return discoveryClient;
-    }
-
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public String get(@PathVariable String id) {
-        return "Get " + id;
-    }
-
-    @Bean
-    public PatternServiceRouteMapper serviceRouteMapper() {
-        return new PatternServiceRouteMapper(
-                "(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
-                "${version}/${domain}/${name}");
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(org.springframework.cloud.netflix.zuul.endpoints.SampleCustomZuulProxyApplication.class, args);
-    }
-}
-
-@Configuration
-class SimpleRibbonClientConfiguration {
-
-    @Value("${local.server.port}")
-    private int port = 0;
-
-    @Bean
-    public ServerList<Server> ribbonServerList() {
-        return new StaticServerList<>(new Server("localhost", this.port));
-    }
+	@Test
+	public void testIsSensitive() {
+		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
+		assertTrue(endpoint.isSensitive());
+	}
 }

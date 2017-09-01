@@ -1,7 +1,6 @@
 package org.springframework.cloud.netflix.zuul.endpoints;
 
 import com.netflix.zuul.ZuulFilter;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class FiltersEndpointTests {
 
     @Test
     public void getFilters() {
-        final Map<String, List<Map<String, Object>>> filters = endpoint.getFilters();
+        final Map<String, List<Map<String, Object>>> filters = endpoint.invoke();
 
         boolean foundFilter = false;
 
@@ -59,7 +58,6 @@ public class FiltersEndpointTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@Slf4j
 class FiltersEndpointApplication {
 
     @Bean
