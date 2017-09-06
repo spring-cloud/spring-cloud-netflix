@@ -71,8 +71,6 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 
-import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
-
 /**
  * @author Dave Syer
  * @author Spencer Gibb
