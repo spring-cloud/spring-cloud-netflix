@@ -52,8 +52,6 @@ import org.springframework.web.client.RestTemplate;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
-import lombok.SneakyThrows;
-
 /**
  * @author Spencer Gibb
  */
@@ -128,8 +126,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void requestWithHeaderWorks() {
+	public void requestWithHeaderWorks() throws Exception {
 		RequestEntity<Void> entity = RequestEntity.get(new URI("http://simple/header"))
 				.header("X-Param", "world").build();
 		ResponseEntity<String> response = this.restTemplate.exchange(entity,

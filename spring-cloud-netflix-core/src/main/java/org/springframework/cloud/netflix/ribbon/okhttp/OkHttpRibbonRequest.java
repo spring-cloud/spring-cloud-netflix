@@ -26,7 +26,6 @@ import java.util.List;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 
-import lombok.Getter;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -40,7 +39,6 @@ import okio.Source;
 /**
  * @author Spencer Gibb
  */
-@Getter
 public class OkHttpRibbonRequest extends ContextAwareRequest implements Cloneable {
 
 	public OkHttpRibbonRequest(RibbonCommandContext context) {

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,9 +49,6 @@ import feign.Client;
 import feign.Feign;
 import feign.Target;
 import feign.httpclient.ApacheHttpClient;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Spencer Gibb
@@ -171,10 +169,35 @@ public class FeignHttpClientUrlTests {
 		assertEquals("first hello didn't match", new Hello("hello world 1"), hello);
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello() {
+		}
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Hello that = (Hello) o;
+			return Objects.equals(message, that.message);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(message);
+		}
 	}
 }

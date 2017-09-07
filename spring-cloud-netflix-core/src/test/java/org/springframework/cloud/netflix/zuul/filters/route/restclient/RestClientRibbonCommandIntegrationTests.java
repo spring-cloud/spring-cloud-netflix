@@ -85,8 +85,6 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.client.http.RestClient;
 
-import lombok.SneakyThrows;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"zuul.routes.other: /test/**=http://localhost:7777/local",
@@ -369,7 +367,6 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 			@Override
 			@SuppressWarnings("deprecation")
-			@SneakyThrows
 			public RestClientRibbonCommand create(RibbonCommandContext context) {
 				String uri = context.getUri();
 				if (uri.startsWith("/throwexception/")) {

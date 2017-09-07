@@ -37,6 +37,12 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
+import feign.Client;
+import feign.Request;
+import feign.RequestTemplate;
+import feign.Response;
+import feign.Request.Options;
+
 import static com.netflix.client.config.CommonClientConfigKey.ConnectTimeout;
 import static com.netflix.client.config.CommonClientConfigKey.IsSecure;
 import static com.netflix.client.config.CommonClientConfigKey.MaxAutoRetries;
@@ -51,13 +57,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-
-import feign.Client;
-import feign.Request;
-import feign.Request.Options;
-import feign.RequestTemplate;
-import feign.Response;
-import lombok.SneakyThrows;
 
 public class FeignLoadBalancerTests {
 
@@ -89,8 +88,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testUriInsecure() {
+	public void testUriInsecure() throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(false);
 
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
@@ -111,8 +109,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testSecureUriFromClientConfig() {
+	public void testSecureUriFromClientConfig() throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(true);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
@@ -123,8 +120,8 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testInsecureUriFromInsecureClientConfigToSecureServerIntrospector() {
+	public void testInsecureUriFromInsecureClientConfigToSecureServerIntrospector()
+			throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				new ServerIntrospector() {
@@ -145,8 +142,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testSecureUriFromClientConfigOverride() {
+	public void testSecureUriFromClientConfigOverride() throws Exception {
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
 		Server server = Mockito.mock(Server.class);
@@ -158,8 +154,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testRibbonRequestURLEncode() {
+	public void testRibbonRequestURLEncode() throws Exception {
 		String url = "http://foo/?name=%7bcookie";//name={cookie
 		Request request = Request.create("GET",url,new HashMap(),null,null);
 

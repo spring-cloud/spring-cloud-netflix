@@ -43,10 +43,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 /**
  * @author Spencer Gibb
  * @author Dave Syer
@@ -69,15 +65,45 @@ public class DiscoveryClientRouteLocatorTests {
 
 	private ZuulProperties properties = new ZuulProperties();
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class RegexMapper {
 		private boolean enabled = false;
 
 		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
 
 		private String routePattern = "${version}/${name}";
+
+		public RegexMapper() {
+		}
+
+		public RegexMapper(boolean enabled, String servicePattern, String routePattern) {
+			this.enabled = enabled;
+			this.servicePattern = servicePattern;
+			this.routePattern = routePattern;
+		}
+
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
+		public String getServicePattern() {
+			return servicePattern;
+		}
+
+		public void setServicePattern(String servicePattern) {
+			this.servicePattern = servicePattern;
+		}
+
+		public String getRoutePattern() {
+			return routePattern;
+		}
+
+		public void setRoutePattern(String routePattern) {
+			this.routePattern = routePattern;
+		}
 	}
 
 	private RegexMapper regexMapper = new RegexMapper();

@@ -50,7 +50,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import feign.RequestTemplate;
-import lombok.Data;
 
 /**
  * @author Spencer Gibb
@@ -120,9 +119,16 @@ public class SpringEncoderTests {
 		}
 	}
 
-	@Data
 	protected static class MyType {
 		private String value;
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
 	}
 
 	protected interface TestClient {

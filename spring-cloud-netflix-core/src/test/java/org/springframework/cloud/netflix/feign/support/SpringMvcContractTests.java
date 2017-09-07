@@ -46,9 +46,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
 import feign.MethodMetadata;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * @author chadjaros
@@ -527,14 +524,19 @@ public class SpringMvcContractTests {
 		TestObject getTest();
 	}
 
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@ToString
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
 	public class TestObject {
 
 		public String something;
 		public Double number;
+
+		public TestObject() {
+		}
+
+		public TestObject(String something, Double number) {
+			this.something = something;
+			this.number = number;
+		}
 
 		@Override
 		public boolean equals(Object o) {
@@ -564,6 +566,14 @@ public class SpringMvcContractTests {
 			int result = (this.something != null ? this.something.hashCode() : 0);
 			result = 31 * result + (this.number != null ? this.number.hashCode() : 0);
 			return result;
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder("TestObject{")
+					.append("something='").append(something).append("', ")
+					.append("number=").append(number)
+					.append("}").toString();
 		}
 	}
 }

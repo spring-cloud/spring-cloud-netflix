@@ -22,7 +22,7 @@
 	<properties>
 		<bintray.package>netflix</bintray.package>
 		<main.basedir>${basedir}</main.basedir>
-        <netty.version>4.0.27.Final</netty.version>
+		<netty.version>4.0.27.Final</netty.version>
 		<jackson.version>2.7.3</jackson.version>
 		<spring-cloud-commons.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-config.version>
@@ -101,8 +101,8 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-stream-dependencies</artifactId>
 				<version>${spring-cloud-stream.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>io.netty</groupId>
