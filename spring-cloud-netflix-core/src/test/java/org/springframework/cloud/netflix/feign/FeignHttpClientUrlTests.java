@@ -37,7 +37,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.SocketUtils;
@@ -57,7 +56,6 @@ import feign.httpclient.ApacheHttpClient;
 @SpringBootTest(classes = FeignHttpClientUrlTests.TestConfig.class, webEnvironment = WebEnvironment.DEFINED_PORT, value = {
 		"spring.application.name=feignclienturltest", "feign.hystrix.enabled=false",
 		"feign.okhttp.enabled=false" })
-@DirtiesContext
 public class FeignHttpClientUrlTests {
 
 	@BeforeClass

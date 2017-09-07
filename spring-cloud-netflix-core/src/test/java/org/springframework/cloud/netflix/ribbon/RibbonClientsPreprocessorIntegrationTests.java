@@ -33,7 +33,6 @@ import org.springframework.cloud.netflix.ribbon.RibbonClientsPreprocessorIntegra
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestConfiguration.class)
-@DirtiesContext
 public class RibbonClientsPreprocessorIntegrationTests {
 
 	@Autowired

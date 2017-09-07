@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import com.netflix.niws.loadbalancer.NIWSDiscoveryPing;
 
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
 import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
 
 /**
  * Preprocessor that configures defaults for eureka-discovered ribbon clients. Such as:
@@ -73,17 +72,22 @@ public class EurekaRibbonClientConfiguration {
 
 	@Autowired
 	private PropertiesFactory propertiesFactory;
+	
+	@Autowired
+	private IClientConfig ribbonClientConfig;
 
 	public EurekaRibbonClientConfiguration() {
 	}
 
 	public EurekaRibbonClientConfiguration(EurekaClientConfig clientConfig,
 			String serviceId, EurekaInstanceConfig eurekaConfig,
-			boolean approximateZoneFromHostname) {
+			boolean approximateZoneFromHostname,
+		   IClientConfig ribbonClientConfig) {
 		this.clientConfig = clientConfig;
 		this.serviceId = serviceId;
 		this.eurekaConfig = eurekaConfig;
 		this.approximateZoneFromHostname = approximateZoneFromHostname;
+		this.ribbonClientConfig = ribbonClientConfig;
 	}
 
 	@Bean
@@ -145,9 +149,9 @@ public class EurekaRibbonClientConfiguration {
 				}
 			}
 		}
-		setRibbonProperty(this.serviceId, DeploymentContextBasedVipAddresses.key(),
-				this.serviceId);
-		setRibbonProperty(this.serviceId, EnableZoneAffinity.key(), "true");
+		
+		this.ribbonClientConfig.set(DeploymentContextBasedVipAddresses, this.serviceId);
+		this.ribbonClientConfig.set(EnableZoneAffinity, true);
 	}
 
 }

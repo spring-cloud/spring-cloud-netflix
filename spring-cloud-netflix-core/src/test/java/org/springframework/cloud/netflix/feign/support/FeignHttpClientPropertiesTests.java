@@ -26,7 +26,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertEquals;
@@ -38,7 +37,6 @@ import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnviron
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@DirtiesContext
 public class FeignHttpClientPropertiesTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();

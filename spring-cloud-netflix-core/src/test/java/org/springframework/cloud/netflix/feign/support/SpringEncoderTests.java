@@ -28,8 +28,7 @@ import org.springframework.http.converter.AbstractGenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RestController;
 
 import feign.RequestTemplate;
@@ -37,10 +36,9 @@ import feign.RequestTemplate;
 /**
  * @author Spencer Gibb
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringEncoderTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=springencodertest", "spring.jmx.enabled=false" })
-@DirtiesContext
 public class SpringEncoderTests {
 
 	@Autowired

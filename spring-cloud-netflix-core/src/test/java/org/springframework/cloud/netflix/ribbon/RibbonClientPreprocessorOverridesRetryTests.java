@@ -32,7 +32,6 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
 
@@ -48,7 +47,6 @@ import com.netflix.client.config.IClientConfig;
 		"customRetry.ribbon.MaxAutoRetries=0",
 		"customRetry.ribbon.MaxAutoRetriesNextServer=1",
 		"customRetry.ribbon.OkToRetryOnAllOperations=true" })
-@DirtiesContext
 public class RibbonClientPreprocessorOverridesRetryTests {
 
 	@Autowired

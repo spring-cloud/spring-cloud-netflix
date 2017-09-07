@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.commons.util.InetUtilsProperties;
 import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.ribbon.EnvBasedClientConfig;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
 import com.netflix.config.ConfigurationManager;
@@ -32,6 +33,7 @@ import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -61,7 +63,7 @@ public class EurekaRibbonClientConfigurationTests {
 		client.getAvailabilityZones().put(client.getRegion(), "foo");
 		SpringClientFactory clientFactory = new SpringClientFactory();
 		EurekaRibbonClientConfiguration clientPreprocessor = new EurekaRibbonClientConfiguration(
-				client, "service", configBean, false);
+				client, "service", configBean, false, new EnvBasedClientConfig(new MockEnvironment()));
 		clientPreprocessor.preprocess();
 		ILoadBalancer balancer = clientFactory.getLoadBalancer("service");
 		assertNotNull(balancer);
@@ -81,7 +83,7 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
-				client, "myService", configBean, false);
+				client, "myService", configBean, false, new EnvBasedClientConfig(new MockEnvironment()));
 		String serviceId = "myService";
 		String suffix = "mySuffix";
 		String value = "myValue";
@@ -100,7 +102,7 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		configBean.getMetadataMap().put("zone", "myZone");
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
-				client, "myService", configBean, false);
+				client, "myService", configBean, false, new EnvBasedClientConfig(new MockEnvironment()));
 		preprocessor.preprocess();
 		assertEquals("myZone",
 				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
@@ -111,7 +113,7 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
-				client, "myService", configBean, false);
+				client, "myService", configBean, false, new EnvBasedClientConfig(new MockEnvironment()));
 		preprocessor.preprocess();
 		assertEquals("defaultZone",
 				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
@@ -123,7 +125,7 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaInstanceConfigBean configBean = getEurekaInstanceConfigBean();
 		configBean.setHostname("this.is.a.test.com");
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
-				client, "myService", configBean, true);
+				client, "myService", configBean, true, new EnvBasedClientConfig(new MockEnvironment()));
 		preprocessor.preprocess();
 		assertEquals("is.a.test.com",
 				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));

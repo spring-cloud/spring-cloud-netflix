@@ -37,7 +37,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,7 +49,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = SpringDecoderTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=springdecodertest", "spring.jmx.enabled=false" })
-@DirtiesContext
 public class SpringDecoderTests extends FeignClientFactoryBean {
 
 	@Autowired

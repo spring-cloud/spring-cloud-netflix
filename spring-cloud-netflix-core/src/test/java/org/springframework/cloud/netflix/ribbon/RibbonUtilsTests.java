@@ -21,12 +21,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import com.netflix.client.config.IClientConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.Server;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.isSecure;
@@ -41,9 +43,9 @@ public class RibbonUtilsTests {
 	private static final ServerIntrospector NON_SECURE_INTROSPECTOR = new StaticServerIntrospector(false);
 	private static final ServerIntrospector SECURE_INTROSPECTOR = new StaticServerIntrospector(true);
 	private static final Server SERVER = new Server("localhost", 8080);
-	private static final DefaultClientConfigImpl SECURE_CONFIG = getConfig(true);
-	private static final DefaultClientConfigImpl NON_SECURE_CONFIG = getConfig(false);
-	private static final DefaultClientConfigImpl NO_IS_SECURE_CONFIG = new DefaultClientConfigImpl();
+	private static final IClientConfig SECURE_CONFIG = getConfig(true);
+	private static final IClientConfig NON_SECURE_CONFIG = getConfig(false);
+	private static final IClientConfig NO_IS_SECURE_CONFIG = new EnvBasedClientConfig(new MockEnvironment());
 
 	@Test
 	public void noRibbonPropSecureIntrospector() {
@@ -118,8 +120,8 @@ public class RibbonUtilsTests {
 				"")));
 	}
 
-	static DefaultClientConfigImpl getConfig(boolean value) {
-		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+	static IClientConfig getConfig(boolean value) {
+		EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 		config.setProperty(CommonClientConfigKey.IsSecure, value);
 		return config;
 	}

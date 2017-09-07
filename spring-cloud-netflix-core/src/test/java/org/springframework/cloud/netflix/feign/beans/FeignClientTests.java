@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,7 +50,6 @@ import org.springframework.web.bind.annotation.RestController;
 		"spring.application.name=feignclienttest",
 		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false" })
-@DirtiesContext
 public class FeignClientTests {
 
 	@Value("${local.server.port}")
@@ -135,9 +133,5 @@ public class FeignClientTests {
 				Proxy.isProxyClass(this.testClient.getClass()));
 		InvocationHandler invocationHandler = Proxy.getInvocationHandler(this.testClient);
 		assertNotNull("invocationHandler was null", invocationHandler);
-	}
-
-	@Configuration
-	public static class TestDefaultFeignConfig {
 	}
 }

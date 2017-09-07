@@ -32,10 +32,7 @@ import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.*;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -49,11 +46,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RestController;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -128,7 +125,7 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 		@Bean
 		public IClientConfig config() {
-			return new DefaultClientConfigImpl();
+			return new EnvBasedClientConfig(new MockEnvironment());
 		}
 
 		@Bean

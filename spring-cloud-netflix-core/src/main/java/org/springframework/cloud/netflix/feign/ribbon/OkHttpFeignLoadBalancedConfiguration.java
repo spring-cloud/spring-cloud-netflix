@@ -23,7 +23,6 @@ import okhttp3.ConnectionPool;
 
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -33,6 +32,7 @@ import org.springframework.cloud.netflix.feign.support.FeignHttpClientProperties
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * @author Spencer Gibb
@@ -59,7 +59,8 @@ class OkHttpFeignLoadBalancedConfiguration {
 
 		@Bean
 		public okhttp3.OkHttpClient client(OkHttpClientFactory httpClientFactory,
-										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
+										   ConnectionPool connectionPool, 
+										   FeignHttpClientProperties httpClientProperties) {
 			Boolean followRedirects = httpClientProperties.isFollowRedirects();
 			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
 			this.okHttpClient = httpClientFactory.createBuilder(false).
@@ -81,8 +82,9 @@ class OkHttpFeignLoadBalancedConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(Client.class)
 	public Client feignClient(CachingSpringLoadBalancerFactory cachingFactory,
-							  SpringClientFactory clientFactory, okhttp3.OkHttpClient okHttpClient) {
+							  SpringClientFactory clientFactory, okhttp3.OkHttpClient okHttpClient, 
+							  ConfigurableEnvironment environment) {
 		OkHttpClient delegate = new OkHttpClient(okHttpClient);
-		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory);
+		return new LoadBalancerFeignClient(delegate, cachingFactory, clientFactory, environment);
 	}
 }

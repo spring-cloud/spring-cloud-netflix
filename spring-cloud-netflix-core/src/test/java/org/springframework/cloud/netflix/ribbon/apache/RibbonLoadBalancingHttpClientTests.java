@@ -32,22 +32,17 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.AbstractLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -131,7 +126,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	public void testRequestConfigDoNotFollowRedirectsOverrideWithFollowRedirects()
 			throws Exception {
 
-		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
+		EnvBasedClientConfig override = new EnvBasedClientConfig(new MockEnvironment());
 		override.set(CommonClientConfigKey.FollowRedirects, true);
 		override.set(CommonClientConfigKey.IsSecure, false);
 
@@ -144,7 +139,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	public void testRequestConfigFollowRedirectsOverrideWithDoNotFollowRedirects()
 			throws Exception {
 
-		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
+		EnvBasedClientConfig override = new EnvBasedClientConfig(new MockEnvironment());
 		override.set(CommonClientConfigKey.FollowRedirects, false);
 		override.set(CommonClientConfigKey.IsSecure, false);
 
@@ -174,7 +169,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 		HttpResponse response = mock(HttpResponse.class);
 		doThrow(new IOException("boom")).when(delegate).execute(any(HttpUriRequest.class));
-		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
+		EnvBasedClientConfig clientConfig = new EnvBasedClientConfig(new MockEnvironment());
 		clientConfig.setClientName("foo");
 		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(delegate, clientConfig,
 				introspector);
@@ -194,7 +189,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		ServerIntrospector introspector = mock(ServerIntrospector.class);
 		RetryHandler retryHandler = new DefaultLoadBalancerRetryHandler(retriesSameServer, retriesNextServer, retryable);
 		doReturn(new Server(host, port)).when(lb).chooseServer(eq(serviceName));
-		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
+		EnvBasedClientConfig clientConfig = new EnvBasedClientConfig(new MockEnvironment());
 		clientConfig.set(CommonClientConfigKey.OkToRetryOnAllOperations, retryOnAllOps);
 		clientConfig.set(CommonClientConfigKey.MaxAutoRetriesNextServer, retriesNextServer);
 		clientConfig.set(CommonClientConfigKey.MaxAutoRetries, retriesSameServer);
@@ -390,7 +385,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	protected static class FollowRedirects {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.FollowRedirects, true);
 			return config;
 		}
@@ -400,7 +395,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	protected static class DoNotFollowRedirects {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.FollowRedirects, false);
 			return config;
 		}
@@ -410,7 +405,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	protected static class Timeouts {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
 			config.set(CommonClientConfigKey.ReadTimeout, 50000);
 			return config;
@@ -422,7 +417,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	protected static class Connections {
 		@Bean
 		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 			config.set(CommonClientConfigKey.MaxTotalConnections, 101);
 			config.set(CommonClientConfigKey.MaxConnectionsPerHost, 201);
 			return config;

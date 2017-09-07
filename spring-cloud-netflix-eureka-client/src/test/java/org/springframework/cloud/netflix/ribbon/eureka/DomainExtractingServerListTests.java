@@ -22,14 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.client.config.IClientConfig;
 import org.junit.Test;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+import org.springframework.cloud.netflix.ribbon.EnvBasedClientConfig;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,7 +60,7 @@ public class DomainExtractingServerListTests {
 	@Test
 	public void testDomainExtractingServer() {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
-				new DefaultClientConfigImpl(), true);
+				new EnvBasedClientConfig(new MockEnvironment()), true);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
@@ -72,7 +74,7 @@ public class DomainExtractingServerListTests {
 		this.metadata.put("zone", "us-west-1");
 		this.metadata.put("instanceId", INSTANCE_ID);
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
-				new DefaultClientConfigImpl(), false);
+				new EnvBasedClientConfig(new MockEnvironment()), false);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
@@ -83,7 +85,7 @@ public class DomainExtractingServerListTests {
 	@Test
 	public void testDomainExtractingServerDontApproximateZone() {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
-				new DefaultClientConfigImpl(), false);
+				new EnvBasedClientConfig(new MockEnvironment()), false);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
 		assertNotNull("servers was null", servers);
 		assertEquals("servers was not size 1", 1, servers.size());
@@ -104,7 +106,7 @@ public class DomainExtractingServerListTests {
 
 	@Test
 	public void testDomainExtractingServerUseIpAddress() {
-		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+		EnvBasedClientConfig config = new EnvBasedClientConfig(new MockEnvironment());
 		config.setProperty(CommonClientConfigKey.UseIPAddrForServer, true);
 		DomainExtractingServerList serverList = getDomainExtractingServerList(config,
 				true);
@@ -116,7 +118,7 @@ public class DomainExtractingServerListTests {
 	}
 
 	protected DomainExtractingServerList getDomainExtractingServerList(
-			DefaultClientConfigImpl config, boolean approximateZoneFromHostname) {
+			IClientConfig config, boolean approximateZoneFromHostname) {
 		DiscoveryEnabledServer server = mock(DiscoveryEnabledServer.class);
 		@SuppressWarnings("unchecked")
 		ServerList<DiscoveryEnabledServer> originalServerList = mock(ServerList.class);

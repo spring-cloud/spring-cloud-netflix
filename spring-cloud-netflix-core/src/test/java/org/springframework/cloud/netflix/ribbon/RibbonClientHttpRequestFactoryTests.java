@@ -37,7 +37,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,7 +58,6 @@ import com.netflix.loadbalancer.ServerList;
 @SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
 		"spring.cloud.netflix.metrics.enabled=false", "ribbon.http.client.enabled=true" })
-@DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
 	@Rule

@@ -27,7 +27,6 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfigurationIntegrationTests.TestConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.netflix.client.config.CommonClientConfigKey;
@@ -38,7 +37,6 @@ import com.netflix.client.config.IClientConfig;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TestConfiguration.class, value = {"ribbon.ConnectTimeout=25000"})
-@DirtiesContext
 public class RibbonAutoConfigurationIntegrationTests {
 
 	@Autowired

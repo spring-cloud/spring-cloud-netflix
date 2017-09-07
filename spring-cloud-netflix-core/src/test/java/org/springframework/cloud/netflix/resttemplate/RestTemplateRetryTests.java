@@ -17,7 +17,6 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.SocketUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,7 +39,6 @@ import com.netflix.loadbalancer.ServerStats;
 import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -50,7 +48,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 				"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
 				"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=25",
 				"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
-@DirtiesContext
 public class RestTemplateRetryTests {
 
 	private static final Log logger = LogFactory.getLog(RestTemplateRetryTests.class);

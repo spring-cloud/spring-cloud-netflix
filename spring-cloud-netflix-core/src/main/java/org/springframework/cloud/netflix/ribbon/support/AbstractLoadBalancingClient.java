@@ -17,7 +17,7 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfigDefaults;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
@@ -25,9 +25,7 @@ import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 
 /**
  * @author Spencer Gibb
@@ -48,26 +46,6 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	protected final D delegate;
 	protected final IClientConfig config;
 	protected final ServerIntrospector serverIntrospector;
-
-	@Deprecated
-	public AbstractLoadBalancingClient() {
-		super(null);
-		this.config = new DefaultClientConfigImpl();
-		this.delegate = createDelegate(this.config);
-		this.serverIntrospector = new DefaultServerIntrospector();
-		this.setRetryHandler(RetryHandler.DEFAULT);
-		initWithNiwsConfig(config);
-	}
-
-	@Deprecated
-	public AbstractLoadBalancingClient(final ILoadBalancer lb) {
-		super(lb);
-		this.config = new DefaultClientConfigImpl();
-		this.delegate = createDelegate(config);
-		this.serverIntrospector = new DefaultServerIntrospector();
-		this.setRetryHandler(RetryHandler.DEFAULT);
-		initWithNiwsConfig(config);
-	}
 
 	protected AbstractLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector) {
 		super(null);
@@ -92,18 +70,18 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 		super.initWithNiwsConfig(clientConfig);
 		this.connectTimeout = clientConfig.getPropertyAsInteger(
 				CommonClientConfigKey.ConnectTimeout,
-				DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
+				RibbonClientConfigDefaults.DEFAULT_CONNECT_TIMEOUT);
 		this.readTimeout = clientConfig.getPropertyAsInteger(
 				CommonClientConfigKey.ReadTimeout,
-				DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT);
+				RibbonClientConfigDefaults.DEFAULT_READ_TIMEOUT);
 		this.secure = clientConfig.getPropertyAsBoolean(CommonClientConfigKey.IsSecure,
 				false);
 		this.followRedirects = clientConfig.getPropertyAsBoolean(
 				CommonClientConfigKey.FollowRedirects,
-				DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
+				RibbonClientConfigDefaults.DEFAULT_FOLLOW_REDIRECTS);
 		this.okToRetryOnAllOperations = clientConfig.getPropertyAsBoolean(
 				CommonClientConfigKey.OkToRetryOnAllOperations,
-				DefaultClientConfigImpl.DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
+				RibbonClientConfigDefaults.DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
 	}
 
 	protected abstract D createDelegate(IClientConfig config);

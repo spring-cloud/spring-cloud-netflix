@@ -32,7 +32,6 @@ import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -57,7 +56,6 @@ import feign.slf4j.Slf4jLogger;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FeignClientOverrideDefaultsTests.TestConfiguration.class)
-@DirtiesContext
 public class FeignClientOverrideDefaultsTests {
 
 	@Autowired

@@ -21,6 +21,7 @@ public class RibbonUtils {
 
 	public static final String DEFAULT_NAMESPACE = "ribbon";
 
+	@Deprecated
 	public static void setRibbonProperty(String serviceId, String suffix, String value) {
 		// how to set the namespace properly?
 		String key = getRibbonKey(serviceId, suffix);
@@ -30,6 +31,7 @@ public class RibbonUtils {
 		}
 	}
 
+	@Deprecated
 	public static String getRibbonKey(String serviceId, String suffix) {
 		return serviceId + "." + DEFAULT_NAMESPACE + "." + suffix;
 	}
