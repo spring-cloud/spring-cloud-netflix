@@ -22,7 +22,6 @@ import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.client.ClientHttpResponse;
 import com.netflix.client.AbstractLoadBalancerAwareClient;
@@ -48,7 +47,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 	protected final LBC client;
 	protected RibbonCommandContext context;
-	protected ZuulFallbackProvider zuulFallbackProvider;
+	protected FallbackProvider fallbackProvider;
 	protected IClientConfig config;
 
 	public AbstractRibbonCommand(LBC client, RibbonCommandContext context,
@@ -63,23 +62,23 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 	public AbstractRibbonCommand(String commandKey, LBC client,
 								 RibbonCommandContext context, ZuulProperties zuulProperties,
-								 ZuulFallbackProvider fallbackProvider) {
+								 FallbackProvider fallbackProvider) {
 		this(commandKey, client, context, zuulProperties, fallbackProvider, null);
 	}
 
 	public AbstractRibbonCommand(String commandKey, LBC client,
 								 RibbonCommandContext context, ZuulProperties zuulProperties,
-								 ZuulFallbackProvider fallbackProvider, IClientConfig config) {
+								 FallbackProvider fallbackProvider, IClientConfig config) {
 		this(getSetter(commandKey, zuulProperties), client, context, fallbackProvider, config);
 	}
 
 	protected AbstractRibbonCommand(Setter setter, LBC client,
 								 RibbonCommandContext context,
-								 ZuulFallbackProvider fallbackProvider, IClientConfig config) {
+								 FallbackProvider fallbackProvider, IClientConfig config) {
 		super(setter);
 		this.client = client;
 		this.context = context;
-		this.zuulFallbackProvider = fallbackProvider;
+		this.fallbackProvider = fallbackProvider;
 		this.config = config;
 	}
 
@@ -132,23 +131,12 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 	@Override
 	protected ClientHttpResponse getFallback() {
-		if(zuulFallbackProvider != null) {
-			return getFallbackResponse();
-		}
-		return super.getFallback();
-	}
-
-	protected ClientHttpResponse getFallbackResponse() {
-		if (zuulFallbackProvider instanceof FallbackProvider) {
+		if(fallbackProvider != null) {
 			Throwable cause = getFailedExecutionException();
 			cause = cause == null ? getExecutionException() : cause;
-			if (cause == null) {
-				zuulFallbackProvider.fallbackResponse();
-			} else {
-				return ((FallbackProvider) zuulFallbackProvider).fallbackResponse(cause);
-			}
+			return fallbackProvider.fallbackResponse(cause);
 		}
-		return zuulFallbackProvider.fallbackResponse();
+		return super.getFallback();
 	}
 
 	public LBC getClient() {

@@ -36,7 +36,7 @@ import org.junit.Test;
 
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
@@ -49,26 +49,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RibbonCommandCauseFallbackPropagationTest {
 
 	@Test
-	public void providerIsCalledInCaseOfException() throws Exception {
-		TestZuulFallbackProviderWithoutCause provider = new TestZuulFallbackProviderWithoutCause(
-				HttpStatus.INTERNAL_SERVER_ERROR);
+	public void causeIsProvidedToFallbackProvider() throws Exception {
+		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider provider = org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider.withResponse(HttpStatus.NOT_FOUND);
 		RuntimeException exception = new RuntimeException("Failed!");
-		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider);
-
-		ClientHttpResponse response = testCommand.execute();
-
-		assertThat(response).isNotNull();
-		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-
-	@Test
-	public void causeIsProvidedForNewInterface() throws Exception {
-		TestFallbackProvider provider = TestFallbackProvider
-				.withResponse(HttpStatus.NOT_FOUND);
-		RuntimeException exception = new RuntimeException("Failed!");
-		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider);
+		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestRibbonCommand testCommand = new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestRibbonCommand(new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestClient(exception), provider);
 
 		ClientHttpResponse response = testCommand.execute();
 
@@ -80,13 +64,10 @@ public class RibbonCommandCauseFallbackPropagationTest {
 	}
 
 	@Test
-	public void executionExceptionIsUsedInsteadWhenFailedExceptionIsNull()
-			throws Exception {
-		TestFallbackProvider provider = TestFallbackProvider
-				.withResponse(HttpStatus.BAD_GATEWAY);
+	public void executionExceptionIsUsedInsteadWhenFailedExceptionIsNull() throws Exception {
+		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider provider = org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider.withResponse(HttpStatus.BAD_GATEWAY);
 		final RuntimeException exception = new RuntimeException("Failed!");
-		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider) {
+		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestRibbonCommand testCommand = new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestRibbonCommand(new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestClient(exception), provider) {
 			@Override
 			public Throwable getFailedExecutionException() {
 				return null;
@@ -106,11 +87,9 @@ public class RibbonCommandCauseFallbackPropagationTest {
 
 	@Test
 	public void timeoutExceptionIsPropagated() throws Exception {
-		TestFallbackProvider provider = TestFallbackProvider
-				.withResponse(HttpStatus.CONFLICT);
+		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider provider = org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider.withResponse(HttpStatus.CONFLICT);
 		RuntimeException exception = new RuntimeException("Failed!");
-		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider, 1) {
+		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestRibbonCommand testCommand = new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestRibbonCommand(new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestClient(exception), provider, 1) {
 			@Override
 			protected ClientRequest createRequest() throws Exception {
 				Thread.sleep(5);
@@ -123,39 +102,33 @@ public class RibbonCommandCauseFallbackPropagationTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
 		assertThat(provider.getCause()).isNotNull();
-		assertThat(provider.getCause().getClass())
-				.isEqualTo(HystrixTimeoutException.class);
+		assertThat(provider.getCause().getClass()).isEqualTo(HystrixTimeoutException.class);
 	}
 
-	public static class TestRibbonCommand extends
-			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
+	public static class TestRibbonCommand
+			extends AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
 
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulFallbackProvider fallbackProvider) {
+		public TestRibbonCommand(AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client, FallbackProvider fallbackProvider) {
 			this(client, new ZuulProperties(), fallbackProvider);
 		}
 
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulProperties zuulProperties, ZuulFallbackProvider fallbackProvider) {
-			super("testCommand" + UUID.randomUUID(), client, null, zuulProperties,
-					fallbackProvider);
+		public TestRibbonCommand(AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+								 ZuulProperties zuulProperties,
+								 FallbackProvider fallbackProvider) {
+			super("testCommand", client, null, zuulProperties, fallbackProvider);
 		}
 
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulFallbackProvider fallbackProvider, int timeout) {
+		public TestRibbonCommand(AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+								 FallbackProvider fallbackProvider,
+								 int timeout) {
 			// different name is used because of properties caching
-			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties())
-					.andCommandPropertiesDefaults(defauts(timeout)), client, null,
-					fallbackProvider, null);
+			super(getSetter("testCommand2", new ZuulProperties()).andCommandPropertiesDefaults(defauts(timeout)),
+					client, null, fallbackProvider, null);
 		}
 
 		private static HystrixCommandProperties.Setter defauts(final int timeout) {
 			return HystrixCommandProperties.Setter().withExecutionTimeoutEnabled(true)
-					.withExecutionIsolationStrategy(
-							HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
+					.withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
 					.withExecutionTimeoutInMilliseconds(timeout);
 		}
 
@@ -165,7 +138,6 @@ public class RibbonCommandCauseFallbackPropagationTest {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	public static class TestClient extends AbstractLoadBalancerAwareClient {
 
 		private final RuntimeException exception;
@@ -176,20 +148,17 @@ public class RibbonCommandCauseFallbackPropagationTest {
 		}
 
 		@Override
-		public IResponse executeWithLoadBalancer(final ClientRequest request,
-				final IClientConfig requestConfig) throws ClientException {
+		public IResponse executeWithLoadBalancer(final ClientRequest request, final IClientConfig requestConfig) throws ClientException {
 			throw exception;
 		}
 
 		@Override
-		public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
-				final ClientRequest clientRequest, final IClientConfig iClientConfig) {
+		public RequestSpecificRetryHandler getRequestSpecificRetryHandler(final ClientRequest clientRequest, final IClientConfig iClientConfig) {
 			return null;
 		}
 
 		@Override
-		public IResponse execute(final ClientRequest clientRequest,
-				final IClientConfig iClientConfig) throws Exception {
+		public IResponse execute(final ClientRequest clientRequest, final IClientConfig iClientConfig) throws Exception {
 			return null;
 		}
 	}
@@ -214,42 +183,12 @@ public class RibbonCommandCauseFallbackPropagationTest {
 			return "test-route";
 		}
 
-		@Override
-		public ClientHttpResponse fallbackResponse() {
-			throw new UnsupportedOperationException(
-					"fallback without cause is not supported");
-		}
-
 		public Throwable getCause() {
 			return cause;
 		}
 
-		public static TestFallbackProvider withResponse(final HttpStatus status) {
-			return new TestFallbackProvider(getClientHttpResponse(status));
-		}
-	}
-
-	public static class TestZuulFallbackProviderWithoutCause
-			implements ZuulFallbackProvider {
-
-		private final ClientHttpResponse response;
-
-		public TestZuulFallbackProviderWithoutCause(final ClientHttpResponse response) {
-			this.response = response;
-		}
-
-		public TestZuulFallbackProviderWithoutCause(final HttpStatus status) {
-			this(getClientHttpResponse(status));
-		}
-
-		@Override
-		public String getRoute() {
-			return "test-route";
-		}
-
-		@Override
-		public ClientHttpResponse fallbackResponse() {
-			return response;
+		public static org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider withResponse(final HttpStatus status) {
+			return new org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.TestFallbackProvider(getClientHttpResponse(status));
 		}
 	}
 

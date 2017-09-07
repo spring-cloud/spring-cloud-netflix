@@ -20,9 +20,9 @@ package org.springframework.cloud.netflix.zuul.filters.route.apache;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpRequest;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonApacheHttpResponse;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommand;
 import com.netflix.client.config.IClientConfig;
 
@@ -43,17 +43,17 @@ public class HttpClientRibbonCommand extends AbstractRibbonCommand<RibbonLoadBal
 								   final RibbonLoadBalancingHttpClient client,
 								   final RibbonCommandContext context,
 								   final ZuulProperties zuulProperties,
-								   final ZuulFallbackProvider zuulFallbackProvider) {
-		super(commandKey, client, context, zuulProperties, zuulFallbackProvider);
+								   final FallbackProvider fallbackProvider) {
+		super(commandKey, client, context, zuulProperties, fallbackProvider);
 	}
 
 	public HttpClientRibbonCommand(final String commandKey,
 								   final RibbonLoadBalancingHttpClient client,
 								   final RibbonCommandContext context,
 								   final ZuulProperties zuulProperties,
-								   final ZuulFallbackProvider zuulFallbackProvider,
+								   final FallbackProvider fallbackProvider,
 								   final IClientConfig config) {
-		super(commandKey, client, context, zuulProperties, zuulFallbackProvider, config);
+		super(commandKey, client, context, zuulProperties, fallbackProvider, config);
 	}
 
 	@Override

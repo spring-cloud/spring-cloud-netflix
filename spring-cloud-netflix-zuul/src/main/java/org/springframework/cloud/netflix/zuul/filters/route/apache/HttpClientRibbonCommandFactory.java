@@ -22,9 +22,9 @@ import java.util.Set;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 
 /**
  * @author Christian Lohmann
@@ -37,11 +37,11 @@ public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 	private final ZuulProperties zuulProperties;
 
 	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-		this(clientFactory, zuulProperties, Collections.<ZuulFallbackProvider>emptySet());
+		this(clientFactory, zuulProperties, Collections.<FallbackProvider>emptySet());
 	}
 
 	public HttpClientRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties,
-										  Set<ZuulFallbackProvider> fallbackProviders) {
+										  Set<FallbackProvider> fallbackProviders) {
 		super(fallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
@@ -49,13 +49,13 @@ public class HttpClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 
 	@Override
 	public HttpClientRibbonCommand create(final RibbonCommandContext context) {
-		ZuulFallbackProvider zuulFallbackProvider = getFallbackProvider(context.getServiceId());
+		FallbackProvider fallbackProvider = getFallbackProvider(context.getServiceId());
 		final String serviceId = context.getServiceId();
 		final RibbonLoadBalancingHttpClient client = this.clientFactory.getClient(
 				serviceId, RibbonLoadBalancingHttpClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
 
-		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, zuulFallbackProvider,
+		return new HttpClientRibbonCommand(serviceId, client, context, zuulProperties, fallbackProvider,
 				clientFactory.getClientConfig(serviceId));
 	}
 

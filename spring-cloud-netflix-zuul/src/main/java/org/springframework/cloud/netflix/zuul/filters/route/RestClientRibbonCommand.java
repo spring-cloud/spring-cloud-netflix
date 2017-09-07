@@ -48,14 +48,14 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 
 	public RestClientRibbonCommand(String commandKey, RestClient client,
 								   RibbonCommandContext context, ZuulProperties zuulProperties,
-								   ZuulFallbackProvider zuulFallbackProvider) {
-		super(commandKey, client, context, zuulProperties, zuulFallbackProvider);
+								   FallbackProvider fallbackProvider) {
+		super(commandKey, client, context, zuulProperties, fallbackProvider);
 	}
 
 	public RestClientRibbonCommand(String commandKey, RestClient client,
 								   RibbonCommandContext context, ZuulProperties zuulProperties,
-								   ZuulFallbackProvider zuulFallbackProvider, IClientConfig config) {
-		super(commandKey, client, context, zuulProperties, zuulFallbackProvider, config);
+								   FallbackProvider fallbackProvider, IClientConfig config) {
+		super(commandKey, client, context, zuulProperties, fallbackProvider, config);
 	}
 
 	@Deprecated

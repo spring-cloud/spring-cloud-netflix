@@ -21,20 +21,21 @@ package org.springframework.cloud.netflix.zuul.filters.route.support;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 
 /**
  * @author Ryan Baxter
  */
 public abstract class AbstractRibbonCommandFactory implements RibbonCommandFactory {
 
-	private Map<String, ZuulFallbackProvider> fallbackProviderCache;
-	private ZuulFallbackProvider defaultFallbackProvider = null;
+	private Map<String, FallbackProvider> fallbackProviderCache;
+	private FallbackProvider defaultFallbackProvider = null;
 
-	public AbstractRibbonCommandFactory(Set<ZuulFallbackProvider> fallbackProviders){
+	public AbstractRibbonCommandFactory(Set<FallbackProvider> fallbackProviders){
 		this.fallbackProviderCache = new HashMap<>();
-		for(ZuulFallbackProvider provider : fallbackProviders) {
+		for(FallbackProvider provider : fallbackProviders) {
 			String route = provider.getRoute();
 			if("*".equals(route) || route == null) {
 				defaultFallbackProvider = provider;
@@ -44,8 +45,8 @@ public abstract class AbstractRibbonCommandFactory implements RibbonCommandFacto
 		}
 	}
 
-	protected ZuulFallbackProvider getFallbackProvider(String route) {
-		ZuulFallbackProvider provider = fallbackProviderCache.get(route);
+	protected FallbackProvider getFallbackProvider(String route) {
+		FallbackProvider provider = fallbackProviderCache.get(route);
 		if(provider == null) {
 			provider = defaultFallbackProvider;
 		}

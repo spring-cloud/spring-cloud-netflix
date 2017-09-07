@@ -34,8 +34,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,14 +89,14 @@ public abstract class RibbonCommandFallbackTests {
 	public static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@Autowired(required = false)
-		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+		private Set<FallbackProvider> fallbackProviders = Collections.emptySet();
 
 
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				final SpringClientFactory clientFactory) {
 			return new HttpClientRibbonCommandFactory(clientFactory, new ZuulProperties(),
-					zuulFallbackProviders);
+					fallbackProviders);
 		}
 
 		@Bean
@@ -106,12 +106,12 @@ public abstract class RibbonCommandFallbackTests {
 		}
 
 		@Bean
-		public ZuulFallbackProvider defaultFallbackProvider() {
+		public FallbackProvider defaultFallbackProvider() {
 			return new DefaultFallbackProvider();
 		}
 	}
 
-	public static class DefaultFallbackProvider implements ZuulFallbackProvider {
+	public static class DefaultFallbackProvider implements FallbackProvider {
 
 		@Override
 		public String getRoute() {
@@ -119,7 +119,7 @@ public abstract class RibbonCommandFallbackTests {
 		}
 
 		@Override
-		public ClientHttpResponse fallbackResponse() {
+		public ClientHttpResponse fallbackResponse(Throwable cause) {
 			return new ClientHttpResponse() {
 				@Override
 				public HttpStatus getStatusCode() throws IOException {

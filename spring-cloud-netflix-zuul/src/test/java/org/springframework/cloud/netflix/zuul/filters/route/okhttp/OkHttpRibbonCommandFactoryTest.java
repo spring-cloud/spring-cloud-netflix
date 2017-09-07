@@ -7,10 +7,10 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
@@ -36,7 +36,7 @@ public class OkHttpRibbonCommandFactoryTest {
 		doReturn(loadBalancingHttpClient).when(this.springClientFactory).getClient(anyString(),
 				eq(OkHttpLoadBalancingClient.class));
 		doReturn(clientConfig).when(this.springClientFactory).getClientConfig(anyString());
-		commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<FallbackProvider>());
 	}
 
 	@Test
