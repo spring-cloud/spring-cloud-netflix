@@ -1978,6 +1978,68 @@ class MyFallbackProvider implements ZuulFallbackProvider {
 }
 ----
 
+If you would like to choose the response based on the cause of the failure use `FallbackProvider` which will replace `ZuulFallbackProvder` in future versions.
+
+[source,java]
+----
+class MyFallbackProvider implements FallbackProvider {
+
+    @Override
+    public String getRoute() {
+        return "*";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse(final Throwable cause) {
+        if (cause instanceof HystrixTimeoutException) {
+            return response(HttpStatus.GATEWAY_TIMEOUT);
+        } else {
+            return fallbackResponse();
+        }
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse() {
+        return response(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ClientHttpResponse response(final HttpStatus status) {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return status;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return status.value();
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return status.getReasonPhrase();
+            }
+
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}
+----
+
 [[zuul-redirect-location-rewrite]]
 === Rewriting `Location` header
 
