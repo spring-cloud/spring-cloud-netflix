@@ -73,10 +73,10 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	public void setDirty(boolean dirty) {
-		this.dirty = dirty;
 		if (this.routeLocator instanceof RefreshableRouteLocator) {
 			((RefreshableRouteLocator) this.routeLocator).refresh();
 		}
+		this.dirty = dirty;
 	}
 
 	@Override
