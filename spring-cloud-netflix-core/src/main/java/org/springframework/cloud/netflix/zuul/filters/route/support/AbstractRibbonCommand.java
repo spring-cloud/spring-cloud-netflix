@@ -23,6 +23,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.client.ClientHttpResponse;
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
@@ -69,7 +70,13 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	public AbstractRibbonCommand(String commandKey, LBC client,
 								 RibbonCommandContext context, ZuulProperties zuulProperties,
 								 ZuulFallbackProvider fallbackProvider, IClientConfig config) {
-		super(getSetter(commandKey, zuulProperties));
+		this(getSetter(commandKey, zuulProperties), client, context, fallbackProvider, config);
+	}
+
+	protected AbstractRibbonCommand(Setter setter, LBC client,
+								 RibbonCommandContext context,
+								 ZuulFallbackProvider fallbackProvider, IClientConfig config) {
+		super(setter);
 		this.client = client;
 		this.context = context;
 		this.zuulFallbackProvider = fallbackProvider;
@@ -126,9 +133,22 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	@Override
 	protected ClientHttpResponse getFallback() {
 		if(zuulFallbackProvider != null) {
-			return zuulFallbackProvider.fallbackResponse();
+			return getFallbackResponse();
 		}
 		return super.getFallback();
+	}
+
+	protected ClientHttpResponse getFallbackResponse() {
+		if (zuulFallbackProvider instanceof FallbackProvider) {
+			Throwable cause = getFailedExecutionException();
+			cause = cause == null ? getExecutionException() : cause;
+			if (cause == null) {
+				zuulFallbackProvider.fallbackResponse();
+			} else {
+				return ((FallbackProvider) zuulFallbackProvider).fallbackResponse(cause);
+			}
+		}
+		return zuulFallbackProvider.fallbackResponse();
 	}
 
 	public LBC getClient() {
