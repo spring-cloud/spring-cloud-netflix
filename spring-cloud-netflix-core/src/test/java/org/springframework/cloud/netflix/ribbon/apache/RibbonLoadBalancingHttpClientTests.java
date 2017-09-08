@@ -116,6 +116,13 @@ public class RibbonLoadBalancingHttpClientTests {
 	}
 
 	@Test
+	public void testDefaultTimeouts() throws Exception {
+		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
+		assertThat(result.getConnectTimeout(), is(1000));
+		assertThat(result.getSocketTimeout(), is (1000));
+	}
+
+	@Test
 	public void testConnections() throws Exception {
 		SpringClientFactory factory = new SpringClientFactory();
 		factory.setApplicationContext(new AnnotationConfigApplicationContext(

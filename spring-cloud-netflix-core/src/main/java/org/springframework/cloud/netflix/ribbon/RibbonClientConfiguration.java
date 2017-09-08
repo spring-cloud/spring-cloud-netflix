@@ -35,6 +35,7 @@ import org.springframework.context.annotation.Import;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
+import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -68,6 +69,9 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttps
 @Import({HttpClientConfiguration.class, OkHttpRibbonConfiguration.class, RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class})
 public class RibbonClientConfiguration {
 
+	public static final int DEFAULT_CONNECT_TIMEOUT = 1000;
+	public static final int DEFAULT_READ_TIMEOUT = 1000;
+
 	@Value("${ribbon.client.name}")
 	private String name = "client";
 
@@ -82,6 +86,8 @@ public class RibbonClientConfiguration {
 	public IClientConfig ribbonClientConfig() {
 		DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 		config.loadProperties(this.name);
+		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
+		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT);
 		return config;
 	}
 
