@@ -17,6 +17,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
@@ -83,7 +84,8 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 								.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
 
 		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
-				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy());
+				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(
+						RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT + RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
 		if (zuulProperties.getRibbonIsolationStrategy() == ExecutionIsolationStrategy.SEMAPHORE){
 			final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
 			// we want to default to semaphore-isolation since this wraps

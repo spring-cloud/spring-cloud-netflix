@@ -18,6 +18,7 @@
 package org.springframework.cloud.netflix.ribbon.support;
 
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
@@ -92,10 +93,10 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 		super.initWithNiwsConfig(clientConfig);
 		this.connectTimeout = clientConfig.getPropertyAsInteger(
 				CommonClientConfigKey.ConnectTimeout,
-				DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
+				RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT);
 		this.readTimeout = clientConfig.getPropertyAsInteger(
 				CommonClientConfigKey.ReadTimeout,
-				DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT);
+				RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
 		this.secure = clientConfig.getPropertyAsBoolean(CommonClientConfigKey.IsSecure,
 				false);
 		this.followRedirects = clientConfig.getPropertyAsBoolean(
