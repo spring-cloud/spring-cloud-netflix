@@ -357,6 +357,61 @@ type <code class="literal">ZuulFallbackProvider</code> and have the <code class=
             }
         };
     }
+}</pre><p>If you would like to choose the response based on the cause of the failure use <code class="literal">FallbackProvider</code> which will replace <code class="literal">ZuulFallbackProvder</code> in future versions.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> FallbackProvider {
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"*"</span>;
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> Throwable cause) {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">if</span> (cause <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">instanceof</span> HystrixTimeoutException) {
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> response(HttpStatus.GATEWAY_TIMEOUT);
+        } <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">else</span> {
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> fallbackResponse();
+        }
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> response(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ClientHttpResponse response(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> HttpStatus status) {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status.value();
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status.getReasonPhrase();
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
+                HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> headers;
+            }
+        };
+    }
 }</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="zuul-redirect-location-rewrite" href="#zuul-redirect-location-rewrite"></a>9.13&nbsp;Rewriting <code class="literal">Location</code> header</h2></div></div></div><p>If Zuul is fronting a web application then there may be a need to re-write the <code class="literal">Location</code> header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application&#8217;s url instead of the Zuul url.
 A <code class="literal">LocationRewriteFilter</code> Zuul filter can  be configured to re-write the Location header to the Zuul&#8217;s url, it also adds back the stripped global and route specific prefixes. The filter can be added the following way via a Spring Configuration file:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">import</span> org.springframework.cloud.netflix.zuul.filters.post.LocationRewriteFilter;
 ...
