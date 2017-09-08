@@ -94,6 +94,13 @@ public class OkHttpLoadBalancingClientTests {
 	}
 
 	@Test
+	public void testDefaultTimeouts() throws Exception {
+		OkHttpClient result = getHttpClient(UseDefaults.class, null);
+		assertThat(result.readTimeoutMillis(), is(1000));
+		assertThat(result.connectTimeoutMillis(), is(1000));
+	}
+
+	@Test
 	public void testTimeoutsOverride() throws Exception {
 		DefaultClientConfigImpl override = new DefaultClientConfigImpl();
 		override.set(CommonClientConfigKey.ConnectTimeout, 60);
