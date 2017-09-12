@@ -30,7 +30,8 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
@@ -282,10 +283,11 @@ public class EurekaClientAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass(Endpoint.class)
+	@ConditionalOnClass(Health.class)
 	protected static class EurekaHealthIndicatorConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
+		@ConditionalOnEnabledHealthIndicator("eureka")
 		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 														   EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
 			return new EurekaHealthIndicator(eurekaClient, instanceConfig, clientConfig);

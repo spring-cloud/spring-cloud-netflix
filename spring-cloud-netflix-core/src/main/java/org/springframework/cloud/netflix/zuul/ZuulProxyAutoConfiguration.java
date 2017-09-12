@@ -22,7 +22,8 @@ import java.util.List;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.autoconfigure.endpoint.ConditionalOnEnabledEndpoint;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -153,21 +154,16 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass(Endpoint.class)
+	@ConditionalOnClass(Health.class)
 	protected static class RoutesEndpointConfiguration {
 
 		@Autowired(required = false)
 		private TraceRepository traces;
 
 		@Bean
+		@ConditionalOnEnabledEndpoint
 		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
-		}
-
-		@Bean
-		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator,
-				RoutesEndpoint endpoint) {
-			return new RoutesMvcEndpoint(endpoint, routeLocator);
 		}
 
 		@Bean

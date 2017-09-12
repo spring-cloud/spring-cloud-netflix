@@ -21,16 +21,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.endpoint.Endpoint;
+import org.springframework.boot.endpoint.ReadOperation;
+import org.springframework.boot.endpoint.WriteOperation;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.context.ApplicationEventPublisherAware;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Endpoint to display the zuul proxy routes
@@ -40,23 +40,25 @@ import org.springframework.jmx.export.annotation.ManagedResource;
  * @author Ryan Baxter
  * @author Gregor Zurowski
  */
-@ManagedResource(description = "Can be used to list the reverse proxy routes")
-@ConfigurationProperties(prefix = "endpoints.routes")
-public class RoutesEndpoint extends AbstractEndpoint<Map<String, String>> {
+@Endpoint(id = RoutesEndpoint.ID)
+public class RoutesEndpoint implements ApplicationEventPublisherAware {
 
-	private static final String ID = "routes";
+	static final String ID = "routes";
 
 	private RouteLocator routes;
 
 	private ApplicationEventPublisher publisher;
 
-	@Autowired
 	public RoutesEndpoint(RouteLocator routes) {
-		super(ID, true);
 		this.routes = routes;
 	}
 
-	@ManagedAttribute
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
+		this.publisher = publisher;
+	}
+
+	@ReadOperation
 	public Map<String, String> invoke() {
 		Map<String, String> map = new LinkedHashMap<>();
 		for (Route route : this.routes.getRoutes()) {
@@ -72,6 +74,27 @@ public class RoutesEndpoint extends AbstractEndpoint<Map<String, String>> {
 		}
 		return map;
 	}
+
+	@WriteOperation
+	public Object reset() {
+		this.publisher.publishEvent(new RoutesRefreshedEvent(this.routes));
+		return invoke();
+	}
+
+	/**
+	 * Expose Zuul {@link Route} information with details.
+	 */
+	//FIXME 2.0.x
+	/*@GetMapping(params = "format", produces = { ActuatorMediaTypes.APPLICATION_ACTUATOR_V1_JSON_VALUE,
+			MediaType.APPLICATION_JSON_VALUE })
+	@ResponseBody
+	public Object invokeRouteDetails(@RequestParam String format) {
+		if (FORMAT_DETAILS.equalsIgnoreCase(format)) {
+			return endpoint.invokeRouteDetails();
+		} else {
+			return super.invoke();
+		}
+	}*/
 
 	/**
 	 * Container for exposing Zuul {@link Route} details as JSON.

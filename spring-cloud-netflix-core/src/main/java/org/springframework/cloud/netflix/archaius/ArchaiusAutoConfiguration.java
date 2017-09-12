@@ -24,26 +24,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 
-import com.netflix.config.AggregatedConfiguration;
-import com.netflix.config.ConcurrentCompositeConfiguration;
-import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DeploymentContext;
-import com.netflix.config.DynamicProperty;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicURLConfiguration;
-
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.ConfigurationBuilder;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
-import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.autoconfigure.endpoint.ConditionalOnEnabledEndpoint;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -56,6 +47,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
+
+import com.netflix.config.AggregatedConfiguration;
+import com.netflix.config.ConcurrentCompositeConfiguration;
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DeploymentContext;
+import com.netflix.config.DynamicProperty;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicURLConfiguration;
 
 import static com.netflix.config.ConfigurationManager.APPLICATION_PROPERTIES;
 import static com.netflix.config.ConfigurationManager.DISABLE_DEFAULT_ENV_CONFIG;
@@ -109,10 +108,10 @@ public class ArchaiusAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass(Endpoint.class)
-	@ConditionalOnEnabledEndpoint("archaius")
+	@ConditionalOnClass(Health.class)
 	protected static class ArchaiusEndpointConfiguration {
 		@Bean
+		@ConditionalOnEnabledEndpoint
 		protected ArchaiusEndpoint archaiusEndpoint() {
 			return new ArchaiusEndpoint();
 		}

@@ -22,14 +22,10 @@ import java.net.URISyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertEquals;
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 
@@ -69,7 +65,7 @@ public class SimpleZuulProxyApplicationTests {
 	private DiscoveryClientRouteLocator routes;
 
 	@Autowired
-	private RoutesMvcEndpoint endpoint;
+	private RoutesEndpoint endpoint;
 
 	@Before
 	public void setTestRequestContext() {

@@ -24,7 +24,8 @@ import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.EnvironmentConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
-import org.springframework.boot.actuate.endpoint.AbstractEndpoint;
+import org.springframework.boot.endpoint.Endpoint;
+import org.springframework.boot.endpoint.ReadOperation;
 
 import com.netflix.config.ConcurrentCompositeConfiguration;
 import com.netflix.config.ConfigurationManager;
@@ -32,13 +33,10 @@ import com.netflix.config.ConfigurationManager;
 /**
  * @author Dave Syer
  */
-public class ArchaiusEndpoint extends AbstractEndpoint<Map<String, Object>> {
+@Endpoint(id = "archaius")
+public class ArchaiusEndpoint {
 
-	public ArchaiusEndpoint() {
-		super("archaius");
-	}
-
-	@Override
+	@ReadOperation
 	public Map<String, Object> invoke() {
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		AbstractConfiguration config = ConfigurationManager.getConfigInstance();

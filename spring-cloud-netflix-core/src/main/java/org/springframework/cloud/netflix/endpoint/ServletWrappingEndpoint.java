@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.actuate.endpoint.Endpoint;
-import org.springframework.boot.actuate.endpoint.mvc.MvcEndpoint;
+// import org.springframework.boot.actuate.endpoint.Endpoint;
+// import org.springframework.boot.actuate.endpoint.mvc.MvcEndpoint;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +32,9 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ServletWrappingController;
 
+//FIXME 2.0.x
 public abstract class ServletWrappingEndpoint implements InitializingBean,
-		ApplicationContextAware, ServletContextAware, MvcEndpoint {
+		ApplicationContextAware, ServletContextAware/*, MvcEndpoint*/ {
 
 	// TODO: move to spring-boot?
 
@@ -84,7 +85,7 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 		return this.controller;
 	}
 
-	@Override
+	/*@Override
 	public String getPath() {
 		return this.path;
 	}
@@ -97,6 +98,6 @@ public abstract class ServletWrappingEndpoint implements InitializingBean,
 	@Override
 	public Class<? extends Endpoint<?>> getEndpointType() {
 		return null;
-	}
+	}*/
 
 }
