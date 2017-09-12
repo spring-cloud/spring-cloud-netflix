@@ -31,7 +31,7 @@ public class RequestContentDataExtractor {
         for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
             String key = entry.getKey();
 
-            if (!queryParams.contains(key)) {
+            if (!queryParams.contains(key) && entry.getValue() != null) {
                 for (String value : entry.getValue()) {
                     builder.add(key, value);
                 }
