@@ -50,6 +50,28 @@ zuul:
     stores:
       url: http://localhost:8081
       path: /stores/**
+    advance-routing-compact:
+      path: /advanceroutescompact/**
+      url: http://user-default-service
+      routeOptions:
+        allowedMethods: PUT, POST, GET
+        routeConditions:
+        - user-get-operation=http://user-get-service,Method=GET
+        - user-post-operation=http://user-post-service,Method=POST
+    advance-routing-expanded:
+      path: /advanceroutesexpanded/**
+      url: http://user-default-service
+      routeOptions:
+        allowedMethods: PUT, POST, GET
+        routeConditions:
+        - id: user-get-operation
+          url: http://user-get-service
+          predicates:
+          - Method=GET
+        - id: user-post-operation
+          url: http://user-post-service
+          predicates:
+          - Method=POST
 hystrix:
   shareSecurityContext: true
 feignClient:

@@ -268,9 +268,9 @@ another `SmartLifecycle` with higher phase.
 
 ==== EurekaClient without Jersey
 
-By default, EurekaClient uses Jersey for HTTP communication. If you wish 
+By default, EurekaClient uses Jersey for HTTP communication. If you wish
 to avoid dependencies from Jersey, you can exclude it from your dependencies.
-Spring Cloud will auto configure a transport client based on Spring 
+Spring Cloud will auto configure a transport client based on Spring
 `RestTemplate`.
 
 ----
@@ -344,7 +344,7 @@ those clients leverage services within the same zone before trying services
 in another zone.  To do this you need to configure your Eureka clients correctly.
 
 First, you need to make sure you have Eureka servers deployed to each zone and that
-they are peers of each other.  See the section on <<spring-cloud-eureka-server-zones-and-regions,zones and regions>> 
+they are peers of each other.  See the section on <<spring-cloud-eureka-server-zones-and-regions,zones and regions>>
 for more information.
 
 Next you need to tell Eureka which zone your service is in.  You can do this using
@@ -669,8 +669,8 @@ in order for the Hystrix Dashboard to make a successful connection to the stream
 
 Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
 
-NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `homePageUrl` entry in Eureka, then appending `/hystrix.stream` to it. This means that if `spring-boot-actuator` is running on its own port (which is the default), the call to `/hystrix.stream` will fail. 
-To make turbine find the Hystrix stream at the correct port, you need to add `management.port` to the instances' metadata: 
+NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `homePageUrl` entry in Eureka, then appending `/hystrix.stream` to it. This means that if `spring-boot-actuator` is running on its own port (which is the default), the call to `/hystrix.stream` will fail.
+To make turbine find the Hystrix stream at the correct port, you need to add `management.port` to the instances' metadata:
 ----
 eureka:
   instance:
@@ -1648,6 +1648,105 @@ file as the ordering will be lost using a properties file. For example:
 If you were to use a properties file, the `legacy` path may end up in front of the `users`
 path rendering the `users` path unreachable.
 
+==== Zuul advance route matching
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  route-matcher:
+    advanced: true
+----
+
+Zuul advance route matching can limit routing to specific http method(s) or it can route to different
+endpoints for different methods on the same path. Not providing any method defaults
+to match as true for any http method.
+
+Consider the following example
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    users:
+      path: /myusers/**
+      url: http://user-service
+----
+This will route any http method request on `/myusers/**` to `http://user-service`.
+
+Now consider the following
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    users:
+      path: /myusers/**
+      url: http://user-default-service
+      routeOptions:
+        allowedMethods: PUT, POST, GET
+        routeConditions:
+        - id: user-get-operation
+          url: http://user-get-service
+          predicates:
+          - Method=GET
+        - id: user-post-operation
+          url: http://user-post-service
+          predicates:
+          - Method=POST
+----
+
+This will route `PUT` http method requests on `/myusers/**` to `http://user-default-service`,
+`POST` http method request on `/myusers/**` to `http://user-post-service` and `GET` http
+method request on `/myusers/**` to `http://user-get-service`.
+
+Any http method other than `PUT`, `POST` and `GET` will result in 404 since that is not in the
+list of allowed methods.
+
+Advance routing configuration can be written in either compact or expanded version.
+
+Compact version
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    advance-routing-compact:
+      path: /advanceroutescompact/**
+      url: http://user-default-service
+      routeOptions:
+        allowedMethods: PUT, POST, GET
+        routeConditions:
+        - user-get-operation=http://user-get-service,Method=GET
+        - user-post-operation=http://user-post-service,Method=POST
+----
+
+Expanded version
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  routes:
+    advance-routing-expanded:
+      path: /advanceroutesexpanded/**
+      url: http://user-default-service
+      routeOptions:
+        allowedMethods: PUT, POST, GET
+        routeConditions:
+        - id: user-get-operation
+          url: http://user-get-service
+          predicates:
+          - Method=GET
+        - id: user-post-operation
+          url: http://user-post-service
+          predicates:
+          - Method=POST
+----
+
 === Zuul Http Client
 
 The default HTTP client used by zuul is now backed by the Apache HTTP Client instead of the
@@ -1713,7 +1812,7 @@ want to pass cookie or authorization headers to your back end. Example:
   routes:
     users:
       path: /myusers/**
-      sensitiveHeaders: 
+      sensitiveHeaders:
       url: https://downstream
 ----
 
@@ -1865,7 +1964,7 @@ can be different than the original input if it was encoded using Javascript's `e
 While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.
 
 To force the original encoding of the query string, it is possible to pass a special flag to `ZuulProperties` so
-that the query string is taken as is with the `HttpServletRequest::getQueryString` method : 
+that the query string is taken as is with the `HttpServletRequest::getQueryString` method :
 
 .application.yml
 [source,yaml]
@@ -2089,7 +2188,7 @@ class MyFallbackProvider implements FallbackProvider {
 [[zuul-redirect-location-rewrite]]
 === Rewriting `Location` header
 
-If Zuul is fronting a web application then there may be a need to re-write the `Location` header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application's url instead of the Zuul url. 
+If Zuul is fronting a web application then there may be a need to re-write the `Location` header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application's url instead of the Zuul url.
 A `LocationRewriteFilter` Zuul filter can  be configured to re-write the Location header to the Zuul's url, it also adds back the stripped global and route specific prefixes. The filter can be added the following way via a Spring Configuration file:
 
 [source,java]

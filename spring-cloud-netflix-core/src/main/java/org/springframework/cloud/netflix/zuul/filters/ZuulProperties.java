@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.netflix.zuul.routematcher.RouteOptions;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -153,7 +154,7 @@ public class ZuulProperties {
 	 * Flag to say whether the hostname for ssl connections should be verified or not. Default is true.
 	 * This should only be used in test setups!
 	 */
-	private boolean sslHostnameValidationEnabled =true;
+	private boolean sslHostnameValidationEnabled = true;
 
 	private ExecutionIsolationStrategy ribbonIsolationStrategy = SEMAPHORE;
 	
@@ -240,8 +241,11 @@ public class ZuulProperties {
 
 		private boolean customSensitiveHeaders = false;
 
+		private RouteOptions routeOptions = new RouteOptions();
+		
 		public ZuulRoute() {}
 
+		@Deprecated
 		public ZuulRoute(String id, String path, String serviceId, String url,
 				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
 			this.id = id;
@@ -254,6 +258,13 @@ public class ZuulProperties {
 			this.customSensitiveHeaders = sensitiveHeaders != null;
 		}
 
+		public ZuulRoute(String id, String path, String serviceId, String url,
+				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders,
+				RouteOptions routeOptions) {
+			this(id, path, serviceId, url, stripPrefix, retryable, sensitiveHeaders);
+			this.routeOptions = routeOptions;
+		}
+		
 		public ZuulRoute(String text) {
 			String location = null;
 			String path = text;
@@ -303,7 +314,7 @@ public class ZuulProperties {
 		public Route getRoute(String prefix) {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
 					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,
-					this.stripPrefix);
+					this.routeOptions, this.stripPrefix);
 		}
 
 		public void setSensitiveHeaders(Set<String> headers) {
@@ -371,6 +382,14 @@ public class ZuulProperties {
 			this.customSensitiveHeaders = customSensitiveHeaders;
 		}
 
+		public RouteOptions getRouteOptions() {
+			return routeOptions;
+		}
+
+		public void setRouteOptions(RouteOptions routeOptions) {
+			this.routeOptions = routeOptions;
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
@@ -383,13 +402,14 @@ public class ZuulProperties {
 					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
 					Objects.equals(serviceId, that.serviceId) &&
 					stripPrefix == that.stripPrefix &&
-					Objects.equals(url, that.url);
+					Objects.equals(url, that.url) &&
+					Objects.equals(routeOptions, that.routeOptions);
 		}
 
 		@Override
 		public int hashCode() {
 			return Objects.hash(customSensitiveHeaders, id, path, retryable,
-					sensitiveHeaders, serviceId, stripPrefix, url);
+					sensitiveHeaders, serviceId, stripPrefix, url, routeOptions);
 		}
 
 		@Override public String toString() {
@@ -401,6 +421,7 @@ public class ZuulProperties {
 					.append("retryable=").append(retryable).append(", ")
 					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
 					.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
+					.append("routeOptions=").append(routeOptions).append(", ")
 					.append("}").toString();
 		}
 

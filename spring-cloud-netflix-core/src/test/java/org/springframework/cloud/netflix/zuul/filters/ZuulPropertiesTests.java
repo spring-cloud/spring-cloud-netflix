@@ -94,7 +94,7 @@ public class ZuulPropertiesTests {
 	public void createWithSensitiveHeaders() {
 		this.zuul.setSensitiveHeaders(Collections.singleton("x-bar"));
 		ZuulRoute route = new ZuulRoute("foo", "/path", "foo", "/path",
-				false, false, Collections.singleton("x-foo"));
+				false, false, Collections.singleton("x-foo"), null);
 		this.zuul.getRoutes().put("foo", route);
 		ZuulRoute foo = this.zuul.getRoutes().get("foo");
 		assertTrue(foo.getSensitiveHeaders().contains("x-foo"));

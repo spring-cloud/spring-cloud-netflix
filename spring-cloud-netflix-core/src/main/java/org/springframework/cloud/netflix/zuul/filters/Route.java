@@ -20,10 +20,12 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.cloud.netflix.zuul.routematcher.RouteOptions;
 import org.springframework.util.StringUtils;
 
 public class Route {
 
+	@Deprecated
 	public Route(String id, String path, String location, String prefix,
 			Boolean retryable, Set<String> ignoredHeaders) {
 		this.id = id;
@@ -42,8 +44,22 @@ public class Route {
 	}
 
 	public Route(String id, String path, String location, String prefix,
-		Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
+			Boolean retryable, Set<String> ignoredHeaders, RouteOptions routeOptions) {
+		this(id, path, location, prefix,retryable, ignoredHeaders);
+		this.routeOptions = routeOptions;
+	}
+
+	@Deprecated
+	public Route(String id, String path, String location, String prefix,
+			Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
 		this(id, path, location, prefix, retryable, ignoredHeaders);
+		this.prefixStripped = prefixStripped;
+	}
+	
+	public Route(String id, String path, String location, String prefix,
+			Boolean retryable, Set<String> ignoredHeaders, RouteOptions routeOptions,
+			boolean prefixStripped) {
+		this(id, path, location, prefix, retryable, ignoredHeaders, routeOptions);
 		this.prefixStripped = prefixStripped;
 	}
 
@@ -64,6 +80,8 @@ public class Route {
 	private boolean customSensitiveHeaders;
 
 	private boolean prefixStripped = true;
+
+	private RouteOptions routeOptions = new RouteOptions();
 
 	public boolean isCustomSensitiveHeaders() {
 		return this.customSensitiveHeaders;

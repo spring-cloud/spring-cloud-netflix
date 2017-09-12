@@ -29,7 +29,7 @@
 		<spring-cloud-stream.version>Ditmars.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
 		<donotreplacespring-cloud-contract.version>1.1.2.RELEASE</donotreplacespring-cloud-contract.version>
-
+		<spring-tuple.version>1.0.0.RELEASE</spring-tuple.version>
 		<!-- Plugin versions -->
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
 		<maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
@@ -134,6 +134,21 @@
 				<groupId>com.fasterxml.jackson.dataformat</groupId>
 				<artifactId>jackson-dataformat-smile</artifactId>
 				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-tuple</artifactId>
+				<version>${spring-tuple.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-core</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.springframework</groupId>
+						<artifactId>spring-context</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

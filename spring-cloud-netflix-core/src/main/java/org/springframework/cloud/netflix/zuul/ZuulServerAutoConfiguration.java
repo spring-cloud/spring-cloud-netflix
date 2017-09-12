@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.zuul;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,12 @@ import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
 import org.springframework.cloud.netflix.zuul.metrics.DefaultCounterFactory;
 import org.springframework.cloud.netflix.zuul.metrics.EmptyCounterFactory;
 import org.springframework.cloud.netflix.zuul.metrics.EmptyTracerFactory;
+import org.springframework.cloud.netflix.zuul.route.predicate.MethodRoutePredicateFactory;
+import org.springframework.cloud.netflix.zuul.route.predicate.RoutePredicateFactory;
+import org.springframework.cloud.netflix.zuul.routematcher.AdvancedRouteMatcher;
+import org.springframework.cloud.netflix.zuul.routematcher.AlternateRouteLookup;
+import org.springframework.cloud.netflix.zuul.routematcher.CompositeRouteMatcher;
+import org.springframework.cloud.netflix.zuul.routematcher.RouteMatcher;
 import org.springframework.cloud.netflix.zuul.web.ZuulController;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
@@ -93,18 +100,62 @@ public class ZuulServerAutoConfiguration {
 		return HasFeatures.namedFeature("Zuul (Simple)", ZuulServerAutoConfiguration.class);
 	}
 
-	@Bean
-	@Primary
-	public CompositeRouteLocator primaryRouteLocator(
-			Collection<RouteLocator> routeLocators) {
-		return new CompositeRouteLocator(routeLocators);
-	}
+	@Configuration
+	@ConditionalOnProperty(value = "zuul.route-matcher.advanced", havingValue="false", matchIfMissing=true)
+	protected static class ZuulServerSimpleRouteLocator {
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
 
-	@Bean
-	@ConditionalOnMissingBean(SimpleRouteLocator.class)
-	public SimpleRouteLocator simpleRouteLocator() {
-		return new SimpleRouteLocator(this.server.getServletPrefix(),
-				this.zuulProperties);
+		@Autowired
+		protected ServerProperties server;
+		
+		@Bean
+		@Primary
+		public CompositeRouteLocator primaryRouteLocator(Collection<RouteLocator> routeLocators) {
+			return new CompositeRouteLocator(routeLocators);
+		}
+		
+		@Bean
+		@ConditionalOnMissingBean(SimpleRouteLocator.class)
+		public SimpleRouteLocator simpleRouteLocator() {
+			return new SimpleRouteLocator(this.server.getServletPrefix(),
+					this.zuulProperties);
+		}
+	}
+	
+	@Configuration
+	@ConditionalOnProperty(value = "zuul.route-matcher.advanced", havingValue="true")
+	protected static class ZuulServerAdvanceRouteMatcher {
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
+
+		@Autowired
+		protected ServerProperties server;
+		
+		@Bean
+		@Primary
+		public CompositeRouteMatcher primaryRouteMatcher(Collection<RouteMatcher> routeMatcher) {
+			return new CompositeRouteMatcher(routeMatcher);
+		}
+		
+		@Bean
+		public MethodRoutePredicateFactory methodRoutePredicateFactory() {
+			return new MethodRoutePredicateFactory();
+		}
+		
+		@Bean
+		public AlternateRouteLookup alternateRouteLookup(List<RoutePredicateFactory> predicates) {
+			return new AlternateRouteLookup(predicates);
+		}
+		
+		@Bean
+		@ConditionalOnMissingBean(AdvancedRouteMatcher.class)
+		public AdvancedRouteMatcher advancedRouteMatcher(AlternateRouteLookup alternateRouteLookup) {
+			return new AdvancedRouteMatcher(this.server.getServletPrefix(),
+					this.zuulProperties, alternateRouteLookup);
+		}
 	}
 
 	@Bean
@@ -118,12 +169,12 @@ public class ZuulServerAutoConfiguration {
 		mapping.setErrorController(this.errorController);
 		return mapping;
 	}
-
+	
 	@Bean
 	public ApplicationListener<ApplicationEvent> zuulRefreshRoutesListener() {
 		return new ZuulRefreshListener();
 	}
-
+	
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServlet")
 	public ServletRegistrationBean zuulServlet() {

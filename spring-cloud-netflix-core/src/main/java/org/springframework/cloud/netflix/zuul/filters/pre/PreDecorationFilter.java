@@ -80,9 +80,18 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	private ProxyRequestHelper proxyRequestHelper;
 
+	@Deprecated
 	public PreDecorationFilter(RouteLocator routeLocator, String dispatcherServletPath, ZuulProperties properties,
 			ProxyRequestHelper proxyRequestHelper) {
 		this.routeLocator = routeLocator;
+		this.properties = properties;
+		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
+		this.dispatcherServletPath = dispatcherServletPath;
+		this.proxyRequestHelper = proxyRequestHelper;
+	}
+	
+	public PreDecorationFilter(String dispatcherServletPath, ZuulProperties properties,
+			ProxyRequestHelper proxyRequestHelper) {
 		this.properties = properties;
 		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
 		this.dispatcherServletPath = dispatcherServletPath;
@@ -109,8 +118,7 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx.getRequest());
-		Route route = this.routeLocator.getMatchingRoute(requestURI);
+		Route route = this.getMatchingRoute(ctx.getRequest());
 		if (route != null) {
 			String location = route.getLocation();
 			if (location != null) {
@@ -162,6 +170,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			}
 		}
 		else {
+			final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx.getRequest());
 			log.warn("No route found for uri: " + requestURI);
 
 			String fallBackUri = requestURI;
@@ -268,5 +277,9 @@ public class PreDecorationFilter extends ZuulFilter {
 		catch (MalformedURLException ex) {
 			throw new IllegalStateException("Target URL is malformed", ex);
 		}
+	}
+	
+	protected Route getMatchingRoute(HttpServletRequest request) {
+		return this.routeLocator.getMatchingRoute(this.urlPathHelper.getPathWithinApplication(request));
 	}
 }

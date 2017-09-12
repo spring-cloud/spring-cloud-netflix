@@ -32,6 +32,8 @@ import org.springframework.web.util.UrlPathHelper;
 
 import java.net.URI;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
 
@@ -55,9 +57,14 @@ public class LocationRewriteFilter extends ZuulFilter {
 	public LocationRewriteFilter() {
 	}
 
+	@Deprecated
 	public LocationRewriteFilter(ZuulProperties zuulProperties,
 			RouteLocator routeLocator) {
 		this.routeLocator = routeLocator;
+		this.zuulProperties = zuulProperties;
+	}
+	
+	public LocationRewriteFilter(ZuulProperties zuulProperties) {
 		this.zuulProperties = zuulProperties;
 	}
 
@@ -81,8 +88,7 @@ public class LocationRewriteFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		Route route = routeLocator.getMatchingRoute(
-				urlPathHelper.getPathWithinApplication(ctx.getRequest()));
+		Route route = this.getMatchingRoute(ctx.getRequest());
 
 		if (route != null) {
 			Pair<String, String> lh = locationHeader(ctx);
@@ -156,5 +162,9 @@ public class LocationRewriteFilter extends ZuulFilter {
 			}
 		}
 		return null;
+	}
+	
+	protected Route getMatchingRoute(HttpServletRequest request) {
+		return this.routeLocator.getMatchingRoute(this.urlPathHelper.getPathWithinApplication(request));
 	}
 }

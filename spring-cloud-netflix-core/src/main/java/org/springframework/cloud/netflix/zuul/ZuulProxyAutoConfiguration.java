@@ -29,6 +29,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
@@ -45,12 +47,16 @@ import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.TraceProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteMatcher;
 import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.discovery.SimpleServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
+import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationRouteMatcherFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
+import org.springframework.cloud.netflix.zuul.routematcher.AlternateRouteLookup;
+import org.springframework.cloud.netflix.zuul.routematcher.RouteMatcher;
 import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -58,10 +64,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+
+
 /**
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Biju Kunjummen
+ * @author Mustansar Anwar
  */
 @Configuration
 @Import({ RibbonCommandFactoryConfiguration.RestClientRibbonConfiguration.class,
@@ -75,36 +84,77 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Autowired(required = false)
 	private List<RibbonRequestCustomizer> requestCustomizers = Collections.emptyList();
 
-	@Autowired(required = false)
-	private Registration registration;
-
-	@Autowired
-	private DiscoveryClient discovery;
-
-	@Autowired
-	private ServiceRouteMapper serviceRouteMapper;
-
 	@Override
 	public HasFeatures zuulFeature() {
 		return HasFeatures.namedFeature("Zuul (Discovery)",
 				ZuulProxyAutoConfiguration.class);
 	}
-
-	@Bean
-	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
-	public DiscoveryClientRouteLocator discoveryRouteLocator() {
-		return new DiscoveryClientRouteLocator(this.server.getServletPrefix(),
-				this.discovery, this.zuulProperties, this.serviceRouteMapper, this.registration);
-	}
-
+	
 	// pre filters
-	@Bean
-	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator,
-			ProxyRequestHelper proxyRequestHelper) {
-		return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(),
-				this.zuulProperties, proxyRequestHelper);
-	}
+	
+	@Configuration
+	@ConditionalOnProperty(value = "zuul.route-matcher.advanced", havingValue="false", matchIfMissing=true)
+	protected static class ZuulProxySimpleRouteLocator {
+		
+		@Autowired(required = false)
+		private Registration registration;
+		
+		@Autowired
+		private DiscoveryClient discovery;
 
+		@Autowired
+		private ServiceRouteMapper serviceRouteMapper;
+		
+		@Autowired
+		protected ServerProperties server;
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
+		
+		@Bean
+		@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
+		public DiscoveryClientRouteLocator discoveryRouteLocator() {
+			return new DiscoveryClientRouteLocator(this.server.getServletPrefix(), this.discovery, this.zuulProperties,
+					this.serviceRouteMapper, this.registration);
+		}
+		
+		@Bean
+		public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
+			return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(), this.zuulProperties,
+					proxyRequestHelper);
+		}
+	}
+	
+	@Configuration
+	@ConditionalOnProperty(value = "zuul.route-matcher.advanced", havingValue="true")
+	protected static class ZuulProxyAdvanceRouteMatcher {
+		
+		@Autowired
+		private DiscoveryClient discovery;
+
+		@Autowired
+		private ServiceRouteMapper serviceRouteMapper;
+		
+		@Autowired
+		protected ServerProperties server;
+		
+		@Autowired
+		protected ZuulProperties zuulProperties;
+		
+		@Bean
+		@ConditionalOnMissingBean(DiscoveryClientRouteMatcher.class)
+		public DiscoveryClientRouteMatcher discoveryRouteMatcher(AlternateRouteLookup alternateRouteLookup) {
+			return new DiscoveryClientRouteMatcher(this.server.getServletPrefix(), this.discovery, this.zuulProperties,
+					this.serviceRouteMapper, alternateRouteLookup);
+		}
+		
+		@Bean
+		public PreDecorationRouteMatcherFilter preDecorationRouteMatcherFilter(RouteMatcher routeMatcher, ProxyRequestHelper proxyRequestHelper) {
+			return new PreDecorationRouteMatcherFilter(this.server.getServletPrefix(), this.zuulProperties,
+					proxyRequestHelper, routeMatcher);
+		}
+	}
+	
 	// route filters
 	@Bean
 	public RibbonRoutingFilter ribbonRoutingFilter(ProxyRequestHelper helper,
@@ -137,7 +187,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	public ApplicationListener<ApplicationEvent> zuulDiscoveryRefreshRoutesListener() {
 		return new ZuulDiscoveryRefreshListener();
 	}
-
+	
 	@Bean
 	@ConditionalOnMissingBean(ServiceRouteMapper.class)
 	public ServiceRouteMapper serviceRouteMapper() {
@@ -232,5 +282,5 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		}
 
 	}
-
+	
 }
