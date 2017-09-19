@@ -2619,6 +2619,9 @@ certain Ribbon properties.  The properties you can use are
 `client.ribbon.OkToRetryOnAllOperations`. See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation]
 for a description of what there properties do.
 
+WARNING: Enabling `client.ribbon.OkToRetryOnAllOperations` includes retring POST requests wich can have a huge impact
+on the server's resources.
+
 In addition you may want to retry requests when certain status codes are returned in the
 response.  You can list the response codes you would like the Ribbon client to retry using the
  property `clientName.ribbon.retryableStatusCodes`.  For example
