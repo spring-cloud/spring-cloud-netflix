@@ -28,7 +28,7 @@
 		<spring-cloud-config.version>1.4.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>Ditmars.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
-		<spring-cloud-contract.version>1.1.2.BUILD-SNAPSHOT</spring-cloud-contract.version>
+		<spring-cloud-contract.version>1.1.2.RELEASE</spring-cloud-contract.version>
 
 		<!-- Plugin versions -->
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
