@@ -20,8 +20,12 @@ import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.hystrix.strategy.HystrixPlugins;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,25 +42,38 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 		zuulProperties = new ZuulProperties();
 	}
 
+	@After
+	public void tearDown() throws Exception {
+		HystrixPlugins.reset();
+	}
+
 	@Test
 	public void testDefaultHystrixThreadPoolKey() throws Exception {
-		zuulProperties.setRibbonIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
+		zuulProperties.setRibbonIsolationStrategy(
+				HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
 
-		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1", zuulProperties);
-		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2", zuulProperties);
+		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1",
+				zuulProperties);
+		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2",
+				zuulProperties);
 
 		// CommandGroupKey should be used as ThreadPoolKey as default.
-		assertThat(ribbonCommand1.getThreadPoolKey().name()).isEqualTo(ribbonCommand1.getCommandGroup().name());
-		assertThat(ribbonCommand2.getThreadPoolKey().name()).isEqualTo(ribbonCommand2.getCommandGroup().name());
+		assertThat(ribbonCommand1.getThreadPoolKey().name())
+				.isEqualTo(ribbonCommand1.getCommandGroup().name());
+		assertThat(ribbonCommand2.getThreadPoolKey().name())
+				.isEqualTo(ribbonCommand2.getCommandGroup().name());
 	}
 
 	@Test
 	public void testUseSeparateThreadPools() throws Exception {
-		zuulProperties.setRibbonIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
+		zuulProperties.setRibbonIsolationStrategy(
+				HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
 		zuulProperties.getThreadPool().setUseSeparateThreadPools(true);
 
-		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1", zuulProperties);
-		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2", zuulProperties);
+		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1",
+				zuulProperties);
+		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2",
+				zuulProperties);
 
 		assertThat(ribbonCommand1.getThreadPoolKey().name()).isEqualTo("testCommand1");
 		assertThat(ribbonCommand2.getThreadPoolKey().name()).isEqualTo("testCommand2");
@@ -66,35 +83,45 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 	public void testThreadPoolKeyPrefix() throws Exception {
 		final String prefix = "zuulgw-";
 
-		zuulProperties.setRibbonIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
+		zuulProperties.setRibbonIsolationStrategy(
+				HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
 		zuulProperties.getThreadPool().setUseSeparateThreadPools(true);
 		zuulProperties.getThreadPool().setThreadPoolKeyPrefix(prefix);
 
-		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1", zuulProperties);
-		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2", zuulProperties);
+		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1",
+				zuulProperties);
+		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2",
+				zuulProperties);
 
-		assertThat(ribbonCommand1.getThreadPoolKey().name()).isEqualTo(prefix + "testCommand1");
-		assertThat(ribbonCommand2.getThreadPoolKey().name()).isEqualTo(prefix + "testCommand2");
+		assertThat(ribbonCommand1.getThreadPoolKey().name())
+				.isEqualTo(prefix + "testCommand1");
+		assertThat(ribbonCommand2.getThreadPoolKey().name())
+				.isEqualTo(prefix + "testCommand2");
 	}
 
 	@Test
 	public void testNoSideEffectOnSemaphoreIsolation() throws Exception {
 		final String prefix = "zuulgw-";
 
-		zuulProperties.setRibbonIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE);
+		zuulProperties.setRibbonIsolationStrategy(
+				HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE);
 		zuulProperties.getThreadPool().setUseSeparateThreadPools(true);
 		zuulProperties.getThreadPool().setThreadPoolKeyPrefix(prefix);
 
-		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1", zuulProperties);
-		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2", zuulProperties);
+		TestRibbonCommand ribbonCommand1 = new TestRibbonCommand("testCommand1",
+				zuulProperties);
+		TestRibbonCommand ribbonCommand2 = new TestRibbonCommand("testCommand2",
+				zuulProperties);
 
 		// There should be no side effect on semaphore isolation
-		assertThat(ribbonCommand1.getThreadPoolKey().name()).isEqualTo(ribbonCommand1.getCommandGroup().name());
-		assertThat(ribbonCommand2.getThreadPoolKey().name()).isEqualTo(ribbonCommand2.getCommandGroup().name());
+		assertThat(ribbonCommand1.getThreadPoolKey().name())
+				.isEqualTo(ribbonCommand1.getCommandGroup().name());
+		assertThat(ribbonCommand2.getThreadPoolKey().name())
+				.isEqualTo(ribbonCommand2.getCommandGroup().name());
 	}
 
-	public static class TestRibbonCommand
-			extends AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
+	public static class TestRibbonCommand extends
+			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
 		public TestRibbonCommand(String commandKey, ZuulProperties zuulProperties) {
 			super(commandKey, null, null, zuulProperties);
 		}
