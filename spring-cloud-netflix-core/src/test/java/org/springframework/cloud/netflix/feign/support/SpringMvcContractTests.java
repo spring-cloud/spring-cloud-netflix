@@ -333,6 +333,18 @@ public class SpringMvcContractTests {
 	}
 
 	@Test
+	public void testProcessHeadersWithoutValues() throws Exception {
+		Method method = TestTemplate_HeadersWithoutValues.class.getDeclaredMethod("getTest",
+				String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test/{id}", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals(true, data.template().headers().isEmpty());
+	}
+
+	@Test
 	public void testProcessAnnotations_Fallback() throws Exception {
 		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTestFallback",
 				String.class, String.class, Integer.class);
@@ -459,6 +471,11 @@ public class SpringMvcContractTests {
 
 	public interface TestTemplate_Headers {
 		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, headers = "X-Foo=bar")
+		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
+	}
+
+	public interface TestTemplate_HeadersWithoutValues {
+		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, headers = { "X-Foo", "!X-Bar", "X-Baz!=fooBar" })
 		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
 	}
 
