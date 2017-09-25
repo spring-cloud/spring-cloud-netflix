@@ -36,7 +36,6 @@ normally removed from the registry.</simpara>
 <programlisting language="java" linenumbering="unnumbered">@Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @RestController
 public class Application {
 
@@ -50,9 +49,8 @@ public class Application {
     }
 
 }</programlisting>
-<simpara>(i.e. utterly normal Spring Boot app). In this example we use
-<literal>@EnableEurekaClient</literal> explicitly, but with only Eureka available you
-could also use <literal>@EnableDiscoveryClient</literal>. Configuration is required to
+<simpara>(i.e. utterly normal Spring Boot app). By having <literal>spring-cloud-starter-netflix-eureka-client</literal>
+ on the classpath your application will automatically register with the Eureka Server.  Configuration is required to
 locate the Eureka server. Example:</simpara>
 <formalpara>
 <title>application.yml</title>
@@ -69,7 +67,8 @@ service URL for any client that doesn&#8217;t express a preference
 <simpara>The default application name (service ID), virtual host and non-secure
 port, taken from the <literal>Environment</literal>, are <literal>${spring.application.name}</literal>,
 <literal>${spring.application.name}</literal> and <literal>${server.port}</literal> respectively.</simpara>
-<simpara><literal>@EnableEurekaClient</literal> makes the app into both a Eureka "instance"
+<simpara>Having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the classpath
+makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
 registry to locate other services). The instance behaviour is driven
 by <literal>eureka.instance.*</literal> configuration keys, but the defaults will be
@@ -77,6 +76,7 @@ fine if you ensure that your application has a
 <literal>spring.application.name</literal> (this is the default for the Eureka service
 ID, or VIP).</simpara>
 <simpara>See <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> and <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</link> for more details of the configurable options.</simpara>
+<simpara>To disable the Eureka Discovery Client you can set <literal>eureka.client.enabled</literal> to <literal>false</literal>.</simpara>
 </section>
 <section xml:id="_authenticating_with_the_eureka_server">
 <title>Authenticating with the Eureka Server</title>
@@ -229,7 +229,7 @@ random value will not be needed.</simpara>
 </section>
 <section xml:id="_using_the_eurekaclient">
 <title>Using the EurekaClient</title>
-<simpara>Once you have an app that is <literal>@EnableDiscoveryClient</literal> (or <literal>@EnableEurekaClient</literal>) you can use it to
+<simpara>Once you have an app that is a discovery client you can use it to
 discover service instances from the <link linkend="spring-cloud-eureka-server">Eureka Server</link>. One way to do that is to use the native
 <literal>com.netflix.discovery.EurekaClient</literal> (as opposed to the Spring
 Cloud <literal>DiscoveryClient</literal>), e.g.</simpara>
@@ -938,7 +938,6 @@ for details on setting up your build system with the current Spring Cloud Releas
 <programlisting language="java" linenumbering="unnumbered">@Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @EnableFeignClients
 public class Application {
 
