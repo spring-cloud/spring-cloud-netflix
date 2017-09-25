@@ -45,9 +45,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assume.assumeTrue;
 
 import feign.MethodMetadata;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -336,6 +333,18 @@ public class SpringMvcContractTests {
 	}
 
 	@Test
+	public void testProcessHeadersWithoutValues() throws Exception {
+		Method method = TestTemplate_HeadersWithoutValues.class.getDeclaredMethod("getTest",
+				String.class);
+		MethodMetadata data = this.contract
+				.parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+		assertEquals("/test/{id}", data.template().url());
+		assertEquals("GET", data.template().method());
+		assertEquals(true, data.template().headers().isEmpty());
+	}
+
+	@Test
 	public void testProcessAnnotations_Fallback() throws Exception {
 		Method method = TestTemplate_Advanced.class.getDeclaredMethod("getTestFallback",
 				String.class, String.class, Integer.class);
@@ -465,6 +474,11 @@ public class SpringMvcContractTests {
 		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
 	}
 
+	public interface TestTemplate_HeadersWithoutValues {
+		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, headers = { "X-Foo", "!X-Bar", "X-Baz!=fooBar" })
+		ResponseEntity<TestObject> getTest(@PathVariable("id") String id);
+	}
+
 	public interface TestTemplate_ListParams {
 		@RequestMapping(value = "/test", method = RequestMethod.GET)
 		ResponseEntity<TestObject> getTest(@RequestParam("id") List<String> id);
@@ -527,14 +541,19 @@ public class SpringMvcContractTests {
 		TestObject getTest();
 	}
 
-	@AllArgsConstructor
-	@NoArgsConstructor
-	@ToString
 	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
 	public class TestObject {
 
 		public String something;
 		public Double number;
+
+		public TestObject() {
+		}
+
+		public TestObject(String something, Double number) {
+			this.something = something;
+			this.number = number;
+		}
 
 		@Override
 		public boolean equals(Object o) {
@@ -564,6 +583,14 @@ public class SpringMvcContractTests {
 			int result = (this.something != null ? this.something.hashCode() : 0);
 			result = 31 * result + (this.number != null ? this.number.hashCode() : 0);
 			return result;
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder("TestObject{")
+					.append("something='").append(something).append("', ")
+					.append("number=").append(number)
+					.append("}").toString();
 		}
 	}
 }

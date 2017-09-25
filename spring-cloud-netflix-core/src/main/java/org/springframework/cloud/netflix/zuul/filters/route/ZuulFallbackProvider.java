@@ -23,7 +23,9 @@ import org.springframework.http.client.ClientHttpResponse;
 /**
  * Provides fallback when a failure occurs on a route.
  * @author Ryan Baxter
+ * @deprecated Use {@link FallbackProvider}
  */
+@Deprecated
 public interface ZuulFallbackProvider {
 
 	/**

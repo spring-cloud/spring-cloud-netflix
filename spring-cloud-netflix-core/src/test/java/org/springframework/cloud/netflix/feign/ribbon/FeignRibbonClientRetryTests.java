@@ -18,9 +18,6 @@ package org.springframework.cloud.netflix.feign.ribbon;
 
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,11 +117,23 @@ public class FeignRibbonClientRetryTests {
 		// maybe the assertEquals above is enough because of the bogus servers
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello() {
+		}
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
 	}
 }
 

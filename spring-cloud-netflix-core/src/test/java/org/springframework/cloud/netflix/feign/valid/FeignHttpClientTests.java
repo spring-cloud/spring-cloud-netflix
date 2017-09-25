@@ -52,9 +52,8 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
 import feign.Client;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.Objects;
 
 /**
  * @author Spencer Gibb
@@ -161,18 +160,66 @@ public class FeignHttpClientTests {
 		assertEquals("Users were different", user, new User("John Smith"));
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class Hello {
 		private String message;
+
+		public Hello() {}
+
+		public Hello(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			Hello that = (Hello) o;
+			return Objects.equals(message, that.message);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(message);
+		}
 	}
 
-	@Data
-	@AllArgsConstructor
-	@NoArgsConstructor
 	public static class User {
 		private String name;
+
+		public User() {}
+
+		public User(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			User that = (User) o;
+			return Objects.equals(name, that.name);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(name);
+		}
 	}
 
 	// Load balancer with fixed server list for "local" pointing to localhost

@@ -8,7 +8,6 @@ import feign.Request;
 import feign.Request.Options;
 import feign.RequestTemplate;
 import feign.Response;
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -69,8 +68,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testUriInsecure() {
+	public void testUriInsecure() throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
@@ -90,8 +88,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testSecureUriFromClientConfig() {
+	public void testSecureUriFromClientConfig() throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(true);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
@@ -102,8 +99,8 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testInsecureUriFromInsecureClientConfigToSecureServerIntrospector() {
+	public void testInsecureUriFromInsecureClientConfigToSecureServerIntrospector()
+			throws Exception {
 		when(this.config.get(IsSecure)).thenReturn(false);
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				new ServerIntrospector() {
@@ -124,8 +121,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testSecureUriFromClientConfigOverride() {
+	public void testSecureUriFromClientConfigOverride() throws Exception {
 		this.feignLoadBalancer = new FeignLoadBalancer(this.lb, this.config,
 				this.inspector);
 		Server server = Mockito.mock(Server.class);
@@ -137,8 +133,7 @@ public class FeignLoadBalancerTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testRibbonRequestURLEncode() {
+	public void testRibbonRequestURLEncode() throws Exception {
 		String url = "http://foo/?name=%7bcookie";//name={cookie
 		Request request = Request.create("GET",url,new HashMap(),null,null);
 

@@ -38,8 +38,6 @@ import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
 
-import lombok.SneakyThrows;
-
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -88,7 +86,7 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	public void reconstructURI() {
+	public void reconstructURI() throws Exception {
 		testReconstructURI("http");
 	}
 
@@ -97,8 +95,7 @@ public class RibbonLoadBalancerClientTests {
 		testReconstructURI("https");
 	}
 
-	@SneakyThrows
-	private void testReconstructURI(String scheme) {
+	private void testReconstructURI(String scheme) throws Exception {
 		RibbonServer server = getRibbonServer();
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
@@ -134,8 +131,7 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testReconstructUriWithSecureClientConfig() {
+	public void testReconstructUriWithSecureClientConfig() throws Exception {
 		RibbonServer server = getRibbonServer();
 		IClientConfig config = mock(IClientConfig.class);
 		when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(true);
@@ -151,19 +147,17 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	@Test
-	@SneakyThrows
-	public void testReconstructSecureUriWithoutScheme() {
+	public void testReconstructSecureUriWithoutScheme() throws Exception {
 		testReconstructSchemelessUriWithoutClientConfig(getSecureRibbonServer(), "https");
 	}
 
 	@Test
-	@SneakyThrows
-	public void testReconstructUnsecureSchemelessUri() {
+	public void testReconstructUnsecureSchemelessUri() throws Exception {
 		testReconstructSchemelessUriWithoutClientConfig(getRibbonServer(), "http");
 	}
 
-	@SneakyThrows
-	public void testReconstructSchemelessUriWithoutClientConfig(RibbonServer server, String expectedScheme) {
+	public void testReconstructSchemelessUriWithoutClientConfig(RibbonServer server, String expectedScheme)
+			throws Exception {
 		IClientConfig config = mock(IClientConfig.class);
 		when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(null);
 		when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
