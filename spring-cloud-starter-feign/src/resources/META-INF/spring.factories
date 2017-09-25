@@ -1,3 +1,0 @@
-# Auto Configure
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-oorg.springframework.cloud.starter.feign.FeignStarterDeprecationWarningAutoConfiguration
