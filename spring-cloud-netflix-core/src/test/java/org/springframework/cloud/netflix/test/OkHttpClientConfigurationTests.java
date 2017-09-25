@@ -20,11 +20,6 @@ package org.springframework.cloud.netflix.test;
 import feign.Client;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,11 +42,15 @@ import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonC
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -60,7 +59,7 @@ import static org.mockito.Mockito.mockingDetails;
 /**
  * @author Ryan Baxter
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = OkHttpClientConfigurationTestApp.class, value = {"feign.okhttp.enabled: true",
 		"spring.cloud.httpclientfactories.ok.enabled: true", "ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true",
 		"feign.okhttp.enabled: true", "ribbon.httpclient.enabled: false", "feign.httpclient.enabled: false"})

@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.EnableZuulServer;
 import org.springframework.context.annotation.Bean;
@@ -91,7 +89,8 @@ public class ZuulMetricsApplicationTests {
 	@Configuration
 	static class ZuulMetricsApplicationTestsConfiguration {
 
-		@Bean
+		//FIXME: 2.0.0
+		/*@Bean
 		public CounterService counterService() {
 			return new CounterService() {
 				// not thread safe, but we are ok with it in tests
@@ -112,6 +111,6 @@ public class ZuulMetricsApplicationTests {
 				public void reset(String metricName) {
 				}
 			};
-		}
+		}*/
 	}
 }

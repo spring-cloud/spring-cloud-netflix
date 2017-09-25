@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.metrics;
 
-import org.springframework.boot.actuate.metrics.CounterService;
-
 import com.netflix.zuul.monitoring.CounterFactory;
 
 /**
@@ -27,14 +25,15 @@ import com.netflix.zuul.monitoring.CounterFactory;
  */
 public class DefaultCounterFactory extends CounterFactory {
 
-	private final CounterService counterService;
+	//FIXME: 2.0.0
+	// private final CounterService counterService;
 
-	public DefaultCounterFactory(CounterService counterService) {
-		this.counterService = counterService;
+	public DefaultCounterFactory(/*CounterService counterService*/) {
+		/*this.counterService = counterService;*/
 	}
 
 	@Override
 	public void increment(String name) {
-		counterService.increment(name);
+		// counterService.increment(name);
 	}
 }

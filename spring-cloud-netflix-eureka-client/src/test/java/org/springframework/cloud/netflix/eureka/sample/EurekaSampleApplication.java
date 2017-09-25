@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.repository.InMemoryMetricRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -64,11 +63,6 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 	private ApplicationContext context;
 
 	private EurekaRegistration registration;
-
-	@Bean
-	public InMemoryMetricRepository inMemoryMetricRepository() {
-		return new InMemoryMetricRepository();
-	}
 
 	@Bean
 	public HealthCheckHandler healthCheckHandler() {

@@ -21,15 +21,14 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorController;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
@@ -198,13 +197,14 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass(CounterService.class)
+	//FIXME: 2.0.0
+	// @ConditionalOnClass(CounterService.class)
 	protected static class ZuulCounterFactoryConfiguration {
 
 		@Bean
-		@ConditionalOnBean(CounterService.class)
-		public CounterFactory counterFactory(CounterService counterService) {
-			return new DefaultCounterFactory(counterService);
+		// @ConditionalOnBean(CounterService.class)
+		public CounterFactory counterFactory(/*CounterService counterService*/) {
+			return new DefaultCounterFactory(/*counterService*/);
 		}
 	}
 

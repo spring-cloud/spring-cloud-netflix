@@ -16,36 +16,19 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.netflix.hystrix.Hystrix;
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 import org.apache.catalina.core.ApplicationContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.actuator.NamedFeature;
-import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.hystrix.Hystrix;
-import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsPoller.MetricsAsJsonPollerListener;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 
 /**
  * @author Spencer Gibb
@@ -87,7 +70,8 @@ public class HystrixCircuitBreakerConfiguration {
 		}
 	}
 
-	@Configuration
+	//FIXME: 2.0.0
+	/*@Configuration
 	@ConditionalOnProperty(value = "hystrix.metrics.enabled", matchIfMissing = true)
 	@ConditionalOnClass({ HystrixMetricsPoller.class, GaugeService.class })
 	@EnableConfigurationProperties(HystrixMetricsProperties.class)
@@ -194,7 +178,7 @@ public class HystrixCircuitBreakerConfiguration {
 			callback.run();
 		}
 
-	}
+	}*/
 
 	/**
 	 * {@link DisposableBean} that makes sure that Hystrix internal state is cleared when

@@ -276,7 +276,7 @@ Spring Cloud will auto configure a transport client based on Spring
 ----
 <dependency>
     <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-eureka</artifactId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
     <exclusions>
         <exclusion>
             <groupId>com.sun.jersey</groupId>
