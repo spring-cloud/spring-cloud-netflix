@@ -2570,6 +2570,10 @@ certain Ribbon properties.  The properties you can use are
 <literal>client.ribbon.MaxAutoRetries</literal>, <literal>client.ribbon.MaxAutoRetriesNextServer</literal>, and
 <literal>client.ribbon.OkToRetryOnAllOperations</literal>. See the <link xl:href="https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties">Ribbon documentation</link>
 for a description of what there properties do.</simpara>
+<warning>
+<simpara>Enabling <literal>client.ribbon.OkToRetryOnAllOperations</literal> includes retring POST requests wich can have a impact
+on the server&#8217;s resources due to the buffering of the request&#8217;s body.</simpara>
+</warning>
 <simpara>In addition you may want to retry requests when certain status codes are returned in the
 response.  You can list the response codes you would like the Ribbon client to retry using the
  property <literal>clientName.ribbon.retryableStatusCodes</literal>.  For example</simpara>

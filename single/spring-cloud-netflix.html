@@ -1431,7 +1431,8 @@ retry any failed requests (assuming you configuration allows it to).</p><div cla
 certain Ribbon properties.  The properties you can use are
 <code class="literal">client.ribbon.MaxAutoRetries</code>, <code class="literal">client.ribbon.MaxAutoRetriesNextServer</code>, and
 <code class="literal">client.ribbon.OkToRetryOnAllOperations</code>. See the <a class="link" href="https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties" target="_top">Ribbon documentation</a>
-for a description of what there properties do.</p><p>In addition you may want to retry requests when certain status codes are returned in the
+for a description of what there properties do.</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>Enabling <code class="literal">client.ribbon.OkToRetryOnAllOperations</code> includes retring POST requests wich can have a impact
+on the server&#8217;s resources due to the buffering of the request&#8217;s body.</p></td></tr></table></div><p>In addition you may want to retry requests when certain status codes are returned in the
 response.  You can list the response codes you would like the Ribbon client to retry using the
  property <code class="literal">clientName.ribbon.retryableStatusCodes</code>.  For example</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">clientName</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ribbon</span>:
