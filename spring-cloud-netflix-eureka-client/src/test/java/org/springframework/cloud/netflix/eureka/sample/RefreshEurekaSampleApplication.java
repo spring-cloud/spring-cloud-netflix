@@ -19,7 +19,6 @@
 package org.springframework.cloud.netflix.eureka.sample;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -37,7 +36,6 @@ import static org.mockito.Mockito.mock;
 @ComponentScan
 @EnableAutoConfiguration
 @RestController
-@EnableDiscoveryClient
 public class RefreshEurekaSampleApplication {
 
 	@Bean
