@@ -23,7 +23,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,7 +35,6 @@ import com.netflix.turbine.streaming.servlet.TurbineStreamServlet;
  */
 @Configuration
 @EnableConfigurationProperties
-@EnableDiscoveryClient
 public class TurbineHttpConfiguration {
 
 	@Bean

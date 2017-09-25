@@ -16,17 +16,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.filters.support.ResettableServletInputStreamWrapper;
+import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StreamUtils;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
-import org.springframework.util.Assert;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Spencer Gibb
@@ -38,26 +40,27 @@ public class RibbonCommandContext {
 	private final Boolean retryable;
 	private final MultiValueMap<String, String> headers;
 	private final MultiValueMap<String, String> params;
-	private final InputStream requestEntity;
 	private final List<RibbonRequestCustomizer> requestCustomizers;
+	private InputStream requestEntity;
 	private Long contentLength;
 
 	/**
 	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
 	 */
 	@Deprecated
-	public RibbonCommandContext(String serviceId, String method, String uri,
-			Boolean retryable, MultiValueMap<String, String> headers,
-			MultiValueMap<String, String> params, InputStream requestEntity) {
+	public RibbonCommandContext(String serviceId, String method,
+								String uri, Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-				new ArrayList<RibbonRequestCustomizer>(), null);
+			new ArrayList<RibbonRequestCustomizer>(), null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
 								Boolean retryable, MultiValueMap<String, String> headers,
 								MultiValueMap<String, String> params, InputStream requestEntity,
 								List<RibbonRequestCustomizer> requestCustomizers) {
-		this(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, null);
+		this(serviceId, method, uri, retryable, headers, params, requestEntity,
+			requestCustomizers, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
@@ -84,8 +87,7 @@ public class RibbonCommandContext {
 	public URI uri() {
 		try {
 			return new URI(this.uri);
-		}
-		catch (URISyntaxException e) {
+		} catch (URISyntaxException e) {
 			ReflectionUtils.rethrowRuntimeException(e);
 		}
 		return null;
@@ -93,6 +95,7 @@ public class RibbonCommandContext {
 
 	/**
 	 * Use getMethod()
+	 *
 	 * @return
 	 */
 	@Deprecated
@@ -125,7 +128,19 @@ public class RibbonCommandContext {
 	}
 
 	public InputStream getRequestEntity() {
-		return requestEntity;
+		if (requestEntity == null) {
+			return requestEntity;
+		}
+
+		try {
+			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
+				requestEntity = new ResettableServletInputStreamWrapper(
+					StreamUtils.copyToByteArray(requestEntity));
+			}
+			requestEntity.reset();
+		} finally {
+			return requestEntity;
+		}
 	}
 
 	public List<RibbonRequestCustomizer> getRequestCustomizers() {
@@ -142,23 +157,25 @@ public class RibbonCommandContext {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		RibbonCommandContext that = (RibbonCommandContext) o;
-		return Objects.equals(serviceId, that.serviceId) &&
-				Objects.equals(method, that.method) &&
-				Objects.equals(uri, that.uri) &&
-				Objects.equals(retryable, that.retryable) &&
-				Objects.equals(headers, that.headers) &&
-				Objects.equals(params, that.params) &&
-				Objects.equals(requestEntity, that.requestEntity) &&
-				Objects.equals(requestCustomizers, that.requestCustomizers) &&
-				Objects.equals(contentLength, that.contentLength);
+		return Objects.equals(serviceId, that.serviceId) && Objects
+			.equals(method, that.method) && Objects.equals(uri, that.uri)
+			&& Objects.equals(retryable, that.retryable) && Objects
+			.equals(headers, that.headers) && Objects
+			.equals(params, that.params) && Objects
+			.equals(requestEntity, that.requestEntity) && Objects
+			.equals(requestCustomizers, that.requestCustomizers) && Objects
+			.equals(contentLength, that.contentLength);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(serviceId, method, uri, retryable, headers, params, requestEntity, requestCustomizers, contentLength);
+		return Objects.hash(serviceId, method, uri, retryable, headers, params,
+			requestEntity, requestCustomizers, contentLength);
 	}
 
 	@Override

@@ -21,8 +21,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import org.springframework.cloud.netflix.zuul.FormZuulServletProxyApplicationTests;
-import org.springframework.cloud.netflix.zuul.filters.route.LazyLoadOfZuulConfigurationTests;
+import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest;
+import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandHystrixThreadPoolKeyTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -30,8 +30,8 @@ import org.springframework.cloud.netflix.zuul.filters.route.LazyLoadOfZuulConfig
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ FormZuulServletProxyApplicationTests.class,
-		LazyLoadOfZuulConfigurationTests.class })
+@SuiteClasses({ RibbonCommandHystrixThreadPoolKeyTests.class,
+		RibbonCommandCauseFallbackPropagationTest.class })
 @Ignore
 public class AdhocTestSuite {
 

@@ -23,8 +23,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-
 /**
  * Convenience annotation for clients to enable Eureka discovery configuration
  * (specifically). Use this (optionally) in case you want discovery and know for sure that
@@ -39,7 +37,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@EnableDiscoveryClient
 public @interface EnableEurekaClient {
 
 }

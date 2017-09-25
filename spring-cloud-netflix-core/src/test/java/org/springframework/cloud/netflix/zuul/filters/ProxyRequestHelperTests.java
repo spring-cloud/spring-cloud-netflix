@@ -89,7 +89,6 @@ public class ProxyRequestHelperTests {
 		helper.debug("POST", "http://example.com", headers,
 				new LinkedMultiValueMap<String, String>(), request.getInputStream());
 		Trace actual = this.traceRepository.findAll().get(0);
-		System.err.println(actual.getInfo());
 		assertThat((String) actual.getInfo().get("body"), equalTo("{}"));
 
 	}

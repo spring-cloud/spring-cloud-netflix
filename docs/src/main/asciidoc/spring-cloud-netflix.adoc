@@ -38,7 +38,6 @@ Example eureka client:
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @RestController
 public class Application {
 
@@ -54,9 +53,8 @@ public class Application {
 }
 ----
 
-(i.e. utterly normal Spring Boot app). In this example we use
-`@EnableEurekaClient` explicitly, but with only Eureka available you
-could also use `@EnableDiscoveryClient`. Configuration is required to
+(i.e. utterly normal Spring Boot app). By having `spring-cloud-starter-netflix-eureka-client`
+ on the classpath your application will automatically register with the Eureka Server.  Configuration is required to
 locate the Eureka server. Example:
 
 
@@ -76,7 +74,8 @@ The default application name (service ID), virtual host and non-secure
 port, taken from the `Environment`, are `${spring.application.name}`,
 `${spring.application.name}` and `${server.port}` respectively.
 
-`@EnableEurekaClient` makes the app into both a Eureka "instance"
+Having `spring-cloud-starter-netflix-eureka-client` on the classpath
+makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
 registry to locate other services). The instance behaviour is driven
 by `eureka.instance.*` configuration keys, but the defaults will be
@@ -85,6 +84,8 @@ fine if you ensure that your application has a
 ID, or VIP).
 
 See {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java[EurekaInstanceConfigBean] and {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java[EurekaClientConfigBean] for more details of the configurable options.
+
+To disable the Eureka Discovery Client you can set `eureka.client.enabled` to `false`.
 
 === Authenticating with the Eureka Server
 
@@ -240,7 +241,7 @@ random value will not be needed.
 
 === Using the EurekaClient
 
-Once you have an app that is `@EnableDiscoveryClient` (or `@EnableEurekaClient`) you can use it to
+Once you have an app that is a discovery client you can use it to
 discover service instances from the <<spring-cloud-eureka-server,
 Eureka Server>>. One way to do that is to use the native
 `com.netflix.discovery.EurekaClient` (as opposed to the Spring
@@ -971,7 +972,6 @@ Example spring boot app
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @EnableFeignClients
 public class Application {
 
@@ -2655,6 +2655,9 @@ certain Ribbon properties.  The properties you can use are
 `client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and
 `client.ribbon.OkToRetryOnAllOperations`. See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation]
 for a description of what there properties do.
+
+WARNING: Enabling `client.ribbon.OkToRetryOnAllOperations` includes retring POST requests wich can have a impact
+on the server's resources due to the buffering of the request's body.
 
 In addition you may want to retry requests when certain status codes are returned in the
 response.  You can list the response codes you would like the Ribbon client to retry using the

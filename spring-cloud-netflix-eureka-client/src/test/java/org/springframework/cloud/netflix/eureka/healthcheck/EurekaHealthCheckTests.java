@@ -27,7 +27,6 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -62,7 +61,6 @@ public class EurekaHealthCheckTests {
 
 	@Configuration
 	@EnableAutoConfiguration
-	@EnableEurekaClient
 	protected static class EurekaHealthCheckApplication {
 
 		@Bean
