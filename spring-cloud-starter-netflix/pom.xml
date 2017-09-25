@@ -20,8 +20,6 @@
 		<module>spring-cloud-starter-netflix-hystrix-dashboard</module>
 		<module>spring-cloud-starter-netflix-ribbon</module>
 		<module>spring-cloud-starter-netflix-turbine</module>
-		<module>spring-cloud-starter-netflix-spectator</module>
-		<module>spring-cloud-starter-netflix-turbine-amqp</module>
 		<module>spring-cloud-starter-netflix-turbine-stream</module>
 		<module>spring-cloud-starter-netflix-zuul</module>
 		<module>spring-cloud-starter-openfeign</module>
