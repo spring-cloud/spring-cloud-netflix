@@ -56,9 +56,4 @@ feignClient:
   localappName: localapp
   methodLevelRequestMappingPath: /hello2
   myPlaceholderHeader: myPlaceholderHeaderValue
-security:
-  basic:
-    path: /proxy-username
-  user:
-    username: user
-    password: password
+endpoints.default.web.enabled: true

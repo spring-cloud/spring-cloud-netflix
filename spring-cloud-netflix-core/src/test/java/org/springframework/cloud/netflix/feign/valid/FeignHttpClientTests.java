@@ -16,21 +16,15 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import java.util.Objects;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.feign.ribbon.LoadBalancerFeignClient;
@@ -38,9 +32,10 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -51,21 +46,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
-import feign.Client;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
-import java.util.Objects;
+import feign.Client;
 
 /**
  * @author Spencer Gibb
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = FeignHttpClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=feignclienttest", "feign.hystrix.enabled=false",
 		"feign.okhttp.enabled=false" })
 @DirtiesContext
 public class FeignHttpClientTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port = 0;
 
 	@Autowired
@@ -82,7 +83,7 @@ public class FeignHttpClientTests {
 	}
 
 	protected interface BaseTestClient {
-		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		@RequestMapping(method = RequestMethod.GET, value = "/hello", produces = MediaType.APPLICATION_JSON_VALUE)
 		Hello getHello();
 
 		@RequestMapping(method = RequestMethod.PATCH, value = "/hellop", consumes = "application/json")
@@ -90,7 +91,7 @@ public class FeignHttpClientTests {
 	}
 
 	protected interface UserService {
-		@RequestMapping(method = RequestMethod.GET, value = "/users/{id}")
+		@RequestMapping(method = RequestMethod.GET, value = "/users/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
 		User getUser(@PathVariable("id") long id);
 	}
 
@@ -226,7 +227,7 @@ public class FeignHttpClientTests {
 	@Configuration
 	static class LocalRibbonClientConfiguration {
 
-		@Value("${local.server.port}")
+		@LocalServerPort
 		private int port = 0;
 
 		@Bean

@@ -18,22 +18,24 @@ package org.springframework.cloud.netflix.hystrix.security;
 
 import java.util.Base64;
 
-import com.netflix.hystrix.strategy.HystrixPlugins;
-import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.hystrix.security.app.CustomConcurrenyStrategy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
+
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,23 +44,23 @@ import static org.assertj.core.api.Assertions.assertThat;
  * the security context from a hystrix command.
  * @author Daniel Lavoie
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @DirtiesContext
 @SpringBootTest(classes = HystrixSecurityApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = { "username.ribbon.listOfServers=localhost:${local.server.port}",
 				"feign.hystrix.enabled=true"})
+@ActiveProfiles("proxysecurity")
 public class HystrixSecurityTests {
 	@Autowired
 	private CustomConcurrenyStrategy customConcurrenyStrategy;
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private String serverPort;
 
-	@Value("${security.user.username}")
-	private String username;
+	//TODOO: move to constants in TestAutoConfiguration
+	private String username = "user";
 
-	@Value("${security.user.password}")
-	private String password;
+	private String password = "password";
 
 	@Test
 	public void testSecurityConcurrencyStrategyInstalled() {

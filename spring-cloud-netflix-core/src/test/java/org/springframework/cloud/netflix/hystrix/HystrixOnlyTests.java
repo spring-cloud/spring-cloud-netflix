@@ -16,10 +16,6 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Base64;
 import java.util.Map;
 
@@ -32,28 +28,36 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 /**
  * @author Spencer Gibb
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
+@ActiveProfiles("proxysecurity")
 public class HystrixOnlyTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	private int port;
 	
 	@Value("${security.user.username}")
@@ -64,24 +68,27 @@ public class HystrixOnlyTests {
 
 	@Test
 	public void testNormalExecution() {
-		String s = new TestRestTemplate()
-				.getForObject("http://localhost:" + this.port + "/", String.class);
-		assertEquals("incorrect response", "Hello world", s);
+		ResponseEntity<String> res = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/", String.class);
+		assertEquals("incorrect response", "Hello world", res.getBody());
 	}
 
 	@Test
 	public void testFailureFallback() {
-		String s = new TestRestTemplate()
-				.getForObject("http://localhost:" + this.port + "/fail", String.class);
-		assertEquals("incorrect fallback", "Fallback Hello world", s);
+		ResponseEntity<String> res = new TestRestTemplate()
+				.getForEntity("http://localhost:" + this.port + "/fail", String.class);
+		assertEquals("incorrect fallback", "Fallback Hello world", res.getBody());
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testHystrixHealth() {
-		Map<?, ?> map = getHealth();
-		assertTrue("Missing hystrix health key", map.containsKey("hystrix"));
-		Map<?, ?> hystrix = (Map<?, ?>) map.get("hystrix");
-		assertEquals("Wrong hystrix status", "UP", hystrix.get("status"));
+		Map map = getHealth();
+		assertThat(map).containsKeys("details");
+		Map details = (Map) map.get("details");
+		assertThat(details).containsKeys("hystrix");
+		Map hystrix = (Map) details.get("hystrix");
+		assertThat(hystrix).containsEntry("status", "UP");
 	}
 
 	@Test
@@ -94,7 +101,7 @@ public class HystrixOnlyTests {
 
 
 
-	private Map<?, ?> getHealth() {
+	private Map getHealth() {
 		return new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/admin/health", HttpMethod.GET,
 				new HttpEntity<Void>(createBasicAuthHeader(username, password)),
