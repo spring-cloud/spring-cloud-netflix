@@ -72,6 +72,7 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	}
 
 	@Bean
+	//TODO: migrate to WebFlux?
 	@SuppressWarnings("deprecation")
 	public HttpServer<ByteBuf, ServerSentEvent> aggregatorServer() {
 		// multicast so multiple concurrent subscribers get the same stream
