@@ -43,7 +43,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
 		"spring.application.name=eureka", "server.servlet.path=/servlet",
-		"management.security.enabled=false" })
+		"management.security.enabled=false", "endpoints.default.web.enabled=true" })
 public class ApplicationServletPathTests {
 
 	@LocalServerPort

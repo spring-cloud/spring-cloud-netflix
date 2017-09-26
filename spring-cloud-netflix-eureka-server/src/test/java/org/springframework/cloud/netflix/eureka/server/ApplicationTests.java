@@ -52,7 +52,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
-		"spring.jmx.enabled=true", "management.security.enabled=false" })
+		"spring.jmx.enabled=true", "management.security.enabled=false", "endpoints.default.web.enabled=true" })
 public class ApplicationTests {
 
 	@LocalServerPort
