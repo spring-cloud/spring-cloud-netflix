@@ -19,8 +19,15 @@ package org.springframework.cloud.netflix.eureka.http;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -113,5 +120,30 @@ public class EurekaServerMockApplication {
 	public InstanceInfo getInstance(@PathVariable(required = false) String appName,
 			@PathVariable String id) {
 		return INFO;
+	}
+
+	@Configuration
+	@Order(Ordered.HIGHEST_PRECEDENCE)
+	protected static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+
+		TestSecurityConfiguration() {
+			super(true);
+		}
+
+		@Bean
+		public UserDetailsService userDetailsService() {
+			InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+			manager.createUser(User.withUsername("test").password("test").roles("USER").build());
+			return manager;
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// super.configure(http);
+			http.antMatcher("/apps/**")
+					.httpBasic();
+		}
+
 	}
 }
