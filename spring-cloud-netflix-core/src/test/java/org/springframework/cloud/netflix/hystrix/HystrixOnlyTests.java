@@ -59,12 +59,12 @@ public class HystrixOnlyTests {
 
 	@LocalServerPort
 	private int port;
-	
-	@Value("${security.user.username}")
-	private String username;
 
-	@Value("${security.user.password}")
-	private String password;
+	//FIXME: 2.0.0
+	private String username = "user";
+
+	//FIXME: 2.0.0
+	private String password = "password";
 
 	@Test
 	public void testNormalExecution() {

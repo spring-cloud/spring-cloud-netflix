@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,13 +65,14 @@ public class HystrixStreamEndpointTests {
 	private int port = 0;
 
 	@Test
+	@Ignore // FIXME: 2.0.x
 	public void pathStartsWithSlash() {
 		HystrixStreamEndpoint endpoint = new HystrixStreamEndpoint();
-		// FIXME: 2.0.x
 		// assertEquals("/hystrix.stream", endpoint.getPath());
 	}
 
 	@Test
+	@Ignore // FIXME: 2.0.x
 	public void hystrixStreamWorks() throws Exception {
 		String url = "http://localhost:" + port;
 		// you have to hit a Hystrix circuit breaker before the stream sends anything
