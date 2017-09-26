@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-09-07</date>
+<date>2017-09-26</date>
 </info>
 <preface>
 <title></title>
@@ -36,7 +36,6 @@ normally removed from the registry.</simpara>
 <programlisting language="java" linenumbering="unnumbered">@Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @RestController
 public class Application {
 
@@ -50,9 +49,8 @@ public class Application {
     }
 
 }</programlisting>
-<simpara>(i.e. utterly normal Spring Boot app). In this example we use
-<literal>@EnableEurekaClient</literal> explicitly, but with only Eureka available you
-could also use <literal>@EnableDiscoveryClient</literal>. Configuration is required to
+<simpara>(i.e. utterly normal Spring Boot app). By having <literal>spring-cloud-starter-netflix-eureka-client</literal>
+ on the classpath your application will automatically register with the Eureka Server.  Configuration is required to
 locate the Eureka server. Example:</simpara>
 <formalpara>
 <title>application.yml</title>
@@ -69,7 +67,8 @@ service URL for any client that doesn&#8217;t express a preference
 <simpara>The default application name (service ID), virtual host and non-secure
 port, taken from the <literal>Environment</literal>, are <literal>${spring.application.name}</literal>,
 <literal>${spring.application.name}</literal> and <literal>${server.port}</literal> respectively.</simpara>
-<simpara><literal>@EnableEurekaClient</literal> makes the app into both a Eureka "instance"
+<simpara>Having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the classpath
+makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
 registry to locate other services). The instance behaviour is driven
 by <literal>eureka.instance.*</literal> configuration keys, but the defaults will be
@@ -77,6 +76,7 @@ fine if you ensure that your application has a
 <literal>spring.application.name</literal> (this is the default for the Eureka service
 ID, or VIP).</simpara>
 <simpara>See <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> and <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</link> for more details of the configurable options.</simpara>
+<simpara>To disable the Eureka Discovery Client you can set <literal>eureka.client.enabled</literal> to <literal>false</literal>.</simpara>
 </section>
 <section xml:id="_authenticating_with_the_eureka_server">
 <title>Authenticating with the Eureka Server</title>
@@ -229,7 +229,7 @@ random value will not be needed.</simpara>
 </section>
 <section xml:id="_using_the_eurekaclient">
 <title>Using the EurekaClient</title>
-<simpara>Once you have an app that is <literal>@EnableDiscoveryClient</literal> (or <literal>@EnableEurekaClient</literal>) you can use it to
+<simpara>Once you have an app that is a discovery client you can use it to
 discover service instances from the <link linkend="spring-cloud-eureka-server">Eureka Server</link>. One way to do that is to use the native
 <literal>com.netflix.discovery.EurekaClient</literal> (as opposed to the Spring
 Cloud <literal>DiscoveryClient</literal>), e.g.</simpara>
@@ -255,7 +255,7 @@ Spring Cloud will auto configure a transport client based on Spring
 <literal>RestTemplate</literal>.</simpara>
 <screen>&lt;dependency&gt;
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
     &lt;exclusions&gt;
         &lt;exclusion&gt;
             &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;
@@ -938,7 +938,6 @@ for details on setting up your build system with the current Spring Cloud Releas
 <programlisting language="java" linenumbering="unnumbered">@Configuration
 @ComponentScan
 @EnableAutoConfiguration
-@EnableEurekaClient
 @EnableFeignClients
 public class Application {
 
@@ -1881,6 +1880,63 @@ type <literal>ZuulFallbackProvider</literal> and have the <literal>getRoute</lit
         };
     }
 }</programlisting>
+<simpara>If you would like to choose the response based on the cause of the failure use <literal>FallbackProvider</literal> which will replace <literal>ZuulFallbackProvder</literal> in future versions.</simpara>
+<programlisting language="java" linenumbering="unnumbered">class MyFallbackProvider implements FallbackProvider {
+
+    @Override
+    public String getRoute() {
+        return "*";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse(final Throwable cause) {
+        if (cause instanceof HystrixTimeoutException) {
+            return response(HttpStatus.GATEWAY_TIMEOUT);
+        } else {
+            return fallbackResponse();
+        }
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse() {
+        return response(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ClientHttpResponse response(final HttpStatus status) {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return status;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return status.value();
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return status.getReasonPhrase();
+            }
+
+            @Override
+            public void close() {
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}</programlisting>
 </section>
 <section xml:id="zuul-redirect-location-rewrite">
 <title>Rewriting <literal>Location</literal> header</title>
@@ -2439,6 +2495,10 @@ certain Ribbon properties.  The properties you can use are
 <literal>client.ribbon.MaxAutoRetries</literal>, <literal>client.ribbon.MaxAutoRetriesNextServer</literal>, and
 <literal>client.ribbon.OkToRetryOnAllOperations</literal>. See the <link xl:href="https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties">Ribbon documentation</link>
 for a description of what there properties do.</simpara>
+<warning>
+<simpara>Enabling <literal>client.ribbon.OkToRetryOnAllOperations</literal> includes retring POST requests wich can have a impact
+on the server&#8217;s resources due to the buffering of the request&#8217;s body.</simpara>
+</warning>
 <simpara>In addition you may want to retry requests when certain status codes are returned in the
 response.  You can list the response codes you would like the Ribbon client to retry using the
  property <literal>clientName.ribbon.retryableStatusCodes</literal>.  For example</simpara>

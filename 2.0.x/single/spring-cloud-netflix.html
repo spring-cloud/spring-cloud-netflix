@@ -14,7 +14,6 @@ If the heartbeat fails over a configurable timetable, the instance is
 normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
 <em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
 <em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableEurekaClient</span></em>
 <em><span class="hl-annotation" style="color: gray">@RestController</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 
@@ -27,9 +26,8 @@ normally removed from the registry.</p><p>Example eureka client:</p><pre class="
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> SpringApplicationBuilder(Application.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>).web(true).run(args);
     }
 
-}</pre><p>(i.e. utterly normal Spring Boot app). In this example we use
-<code class="literal">@EnableEurekaClient</code> explicitly, but with only Eureka available you
-could also use <code class="literal">@EnableDiscoveryClient</code>. Configuration is required to
+}</pre><p>(i.e. utterly normal Spring Boot app). By having <code class="literal">spring-cloud-starter-netflix-eureka-client</code>
+ on the classpath your application will automatically register with the Eureka Server.  Configuration is required to
 locate the Eureka server. Example:</p><p><b>application.yml.&nbsp;</b>
 </p><pre class="screen">eureka:
   client:
@@ -39,13 +37,14 @@ locate the Eureka server. Example:</p><p><b>application.yml.&nbsp;</b>
 service URL for any client that doesn&#8217;t express a preference
 (i.e. it&#8217;s a useful default).</p><p>The default application name (service ID), virtual host and non-secure
 port, taken from the <code class="literal">Environment</code>, are <code class="literal">${spring.application.name}</code>,
-<code class="literal">${spring.application.name}</code> and <code class="literal">${server.port}</code> respectively.</p><p><code class="literal">@EnableEurekaClient</code> makes the app into both a Eureka "instance"
+<code class="literal">${spring.application.name}</code> and <code class="literal">${server.port}</code> respectively.</p><p>Having <code class="literal">spring-cloud-starter-netflix-eureka-client</code> on the classpath
+makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
 registry to locate other services). The instance behaviour is driven
 by <code class="literal">eureka.instance.*</code> configuration keys, but the defaults will be
 fine if you ensure that your application has a
 <code class="literal">spring.application.name</code> (this is the default for the Eureka service
-ID, or VIP).</p><p>See <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java" target="_top">EurekaInstanceConfigBean</a> and <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java" target="_top">EurekaClientConfigBean</a> for more details of the configurable options.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_authenticating_with_the_eureka_server" href="#_authenticating_with_the_eureka_server"></a>1.3&nbsp;Authenticating with the Eureka Server</h2></div></div></div><p>HTTP basic authentication will be automatically added to your eureka
+ID, or VIP).</p><p>See <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java" target="_top">EurekaInstanceConfigBean</a> and <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java" target="_top">EurekaClientConfigBean</a> for more details of the configurable options.</p><p>To disable the Eureka Discovery Client you can set <code class="literal">eureka.client.enabled</code> to <code class="literal">false</code>.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_authenticating_with_the_eureka_server" href="#_authenticating_with_the_eureka_server"></a>1.3&nbsp;Authenticating with the Eureka Server</h2></div></div></div><p>HTTP basic authentication will be automatically added to your eureka
 client if one of the <code class="literal">eureka.client.serviceUrl.defaultZone</code> URLs has
 credentials embedded in it (curl style, like
 <code class="literal"><a class="link" href="http://user:password@localhost:8761/eureka" target="_top">http://user:password@localhost:8761/eureka</a></code>). For more complex needs
@@ -125,7 +124,7 @@ implementing your own <code class="literal">com.netflix.appinfo.HealthCheckHandl
 localhost, the random value will kick in there to make the instance
 unique. In Cloudfoundry the <code class="literal">vcap.application.instance_id</code> will be
 populated automatically in a Spring Boot application, so the
-random value will not be needed.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_the_eurekaclient" href="#_using_the_eurekaclient"></a>1.8&nbsp;Using the EurekaClient</h2></div></div></div><p>Once you have an app that is <code class="literal">@EnableDiscoveryClient</code> (or <code class="literal">@EnableEurekaClient</code>) you can use it to
+random value will not be needed.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_the_eurekaclient" href="#_using_the_eurekaclient"></a>1.8&nbsp;Using the EurekaClient</h2></div></div></div><p>Once you have an app that is a discovery client you can use it to
 discover service instances from the <a class="link" href="#spring-cloud-eureka-server" title="2.&nbsp;Service Discovery: Eureka Server">Eureka Server</a>. One way to do that is to use the native
 <code class="literal">com.netflix.discovery.EurekaClient</code> (as opposed to the Spring
 Cloud <code class="literal">DiscoveryClient</code>), e.g.</p><pre class="screen">@Autowired
@@ -143,7 +142,7 @@ to avoid dependencies from Jersey, you can exclude it from your dependencies.
 Spring Cloud will auto configure a transport client based on Spring
 <code class="literal">RestTemplate</code>.</p><pre class="screen">&lt;dependency&gt;
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
     &lt;exclusions&gt;
         &lt;exclusion&gt;
             &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;
@@ -507,7 +506,6 @@ and artifact id <code class="literal">spring-cloud-starter-openfeign</code>. See
 for details on setting up your build system with the current Spring Cloud Release Train.</p><p>Example spring boot app</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
 <em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
 <em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableEurekaClient</span></em>
 <em><span class="hl-annotation" style="color: gray">@EnableFeignClients</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 
@@ -1054,6 +1052,61 @@ type <code class="literal">ZuulFallbackProvider</code> and have the <code class=
             }
         };
     }
+}</pre><p>If you would like to choose the response based on the cause of the failure use <code class="literal">FallbackProvider</code> which will replace <code class="literal">ZuulFallbackProvder</code> in future versions.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyFallbackProvider <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> FallbackProvider {
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getRoute() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"*"</span>;
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> Throwable cause) {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">if</span> (cause <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">instanceof</span> HystrixTimeoutException) {
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> response(HttpStatus.GATEWAY_TIMEOUT);
+        } <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">else</span> {
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> fallbackResponse();
+        }
+    }
+
+    <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ClientHttpResponse fallbackResponse() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> response(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> ClientHttpResponse response(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">final</span> HttpStatus status) {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ClientHttpResponse() {
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpStatus getStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status;
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">int</span> getRawStatusCode() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status.value();
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String getStatusText() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> status.getReasonPhrase();
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">void</span> close() {
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> InputStream getBody() <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">throws</span> IOException {
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ByteArrayInputStream(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback"</span>.getBytes());
+            }
+
+            <em><span class="hl-annotation" style="color: gray">@Override</span></em>
+            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HttpHeaders getHeaders() {
+                HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> headers;
+            }
+        };
+    }
 }</pre></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="zuul-redirect-location-rewrite" href="#zuul-redirect-location-rewrite"></a>9.13&nbsp;Rewriting <code class="literal">Location</code> header</h2></div></div></div><p>If Zuul is fronting a web application then there may be a need to re-write the <code class="literal">Location</code> header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application&#8217;s url instead of the Zuul url.
 A <code class="literal">LocationRewriteFilter</code> Zuul filter can  be configured to re-write the Location header to the Zuul&#8217;s url, it also adds back the stripped global and route specific prefixes. The filter can be added the following way via a Spring Configuration file:</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">import</span> org.springframework.cloud.netflix.zuul.filters.post.LocationRewriteFilter;
 ...
@@ -1283,7 +1336,7 @@ restTemplate.getForObject(<span xmlns:d="http://docbook.org/ns/docbook" class="h
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/dependency&gt;</span></pre><p>In Spectator parlance, a meter is a named, typed, and tagged configuration and a metric represents the value of a given meter at a point in time. Spectator meters are created and controlled by a registry, which currently has several different implementations. Spectator provides 4 meter types: counter, timer, gauge, and distribution summary.</p><p>Spring Cloud Spectator integration configures an injectable <code class="literal">com.netflix.spectator.api.Registry</code> instance for you. Specifically, it configures a <code class="literal">ServoRegistry</code> instance in order to unify the collection of REST metrics and the exporting of metrics to the Atlas backend under a single Servo API. Practically, this means that your code may use a mixture of Servo monitors and Spectator meters and both will be scooped up by Spring Boot Actuator <code class="literal">MetricReader</code> instances and both will be shipped to the Atlas backend.</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_spectator_counter" href="#_spectator_counter"></a>11.3.1&nbsp;Spectator Counter</h3></div></div></div><p>A counter is used to measure the rate at which some event is occurring.</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// create a counter with a name and a set of tags</span>
 Counter counter = registry.counter(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"counterName"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"tagKey1"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"tagValue1"</span>, ...);
 counter.increment(); <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// increment when an event occurs</span>
-counter.increment(<span class="hl-number">10</span>); <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// increment by a discrete amount</span></pre><p>The counter records a single time-normalized statistic.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_spectator_timer" href="#_spectator_timer"></a>11.3.2&nbsp;Spectator Timer</h3></div></div></div><p>A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally <code class="literal">RestTemplate</code> requests, which can later be used to create dashboards for request related metrics like latency:</p><div class="figure"><a name="d0e3103" href="#d0e3103"></a><p class="title"><b>Figure&nbsp;11.1.&nbsp;Request Latency</b></p><div class="figure-contents"><div class="mediaobject"><img src="images/RequestLatency.png" alt="RequestLatency"></div></div></div><br class="figure-break"><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// create a timer with a name and a set of tags</span>
+counter.increment(<span class="hl-number">10</span>); <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// increment by a discrete amount</span></pre><p>The counter records a single time-normalized statistic.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="_spectator_timer" href="#_spectator_timer"></a>11.3.2&nbsp;Spectator Timer</h3></div></div></div><p>A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally <code class="literal">RestTemplate</code> requests, which can later be used to create dashboards for request related metrics like latency:</p><div class="figure"><a name="d0e3113" href="#d0e3113"></a><p class="title"><b>Figure&nbsp;11.1.&nbsp;Request Latency</b></p><div class="figure-contents"><div class="mediaobject"><img src="images/RequestLatency.png" alt="RequestLatency"></div></div></div><br class="figure-break"><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// create a timer with a name and a set of tags</span>
 Timer timer = registry.timer(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"timerName"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"tagKey1"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"tagValue1"</span>, ...);
 
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-comment">// execute an operation and time it at the same time</span>
@@ -1317,7 +1370,8 @@ retry any failed requests (assuming you configuration allows it to).</p><div cla
 certain Ribbon properties.  The properties you can use are
 <code class="literal">client.ribbon.MaxAutoRetries</code>, <code class="literal">client.ribbon.MaxAutoRetriesNextServer</code>, and
 <code class="literal">client.ribbon.OkToRetryOnAllOperations</code>. See the <a class="link" href="https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties" target="_top">Ribbon documentation</a>
-for a description of what there properties do.</p><p>In addition you may want to retry requests when certain status codes are returned in the
+for a description of what there properties do.</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="images/warning.png"></td><th align="left">Warning</th></tr><tr><td align="left" valign="top"><p>Enabling <code class="literal">client.ribbon.OkToRetryOnAllOperations</code> includes retring POST requests wich can have a impact
+on the server&#8217;s resources due to the buffering of the request&#8217;s body.</p></td></tr></table></div><p>In addition you may want to retry requests when certain status codes are returned in the
 response.  You can list the response codes you would like the Ribbon client to retry using the
  property <code class="literal">clientName.ribbon.retryableStatusCodes</code>.  For example</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">clientName</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ribbon</span>:

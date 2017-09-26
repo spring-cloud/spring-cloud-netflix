@@ -9,7 +9,6 @@ If the heartbeat fails over a configurable timetable, the instance is
 normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
 <em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
 <em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableEurekaClient</span></em>
 <em><span class="hl-annotation" style="color: gray">@RestController</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 
@@ -22,9 +21,8 @@ normally removed from the registry.</p><p>Example eureka client:</p><pre class="
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> SpringApplicationBuilder(Application.<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span>).web(true).run(args);
     }
 
-}</pre><p>(i.e. utterly normal Spring Boot app). In this example we use
-<code class="literal">@EnableEurekaClient</code> explicitly, but with only Eureka available you
-could also use <code class="literal">@EnableDiscoveryClient</code>. Configuration is required to
+}</pre><p>(i.e. utterly normal Spring Boot app). By having <code class="literal">spring-cloud-starter-netflix-eureka-client</code>
+ on the classpath your application will automatically register with the Eureka Server.  Configuration is required to
 locate the Eureka server. Example:</p><p><b>application.yml.&nbsp;</b>
 </p><pre class="screen">eureka:
   client:
@@ -34,13 +32,14 @@ locate the Eureka server. Example:</p><p><b>application.yml.&nbsp;</b>
 service URL for any client that doesn&#8217;t express a preference
 (i.e. it&#8217;s a useful default).</p><p>The default application name (service ID), virtual host and non-secure
 port, taken from the <code class="literal">Environment</code>, are <code class="literal">${spring.application.name}</code>,
-<code class="literal">${spring.application.name}</code> and <code class="literal">${server.port}</code> respectively.</p><p><code class="literal">@EnableEurekaClient</code> makes the app into both a Eureka "instance"
+<code class="literal">${spring.application.name}</code> and <code class="literal">${server.port}</code> respectively.</p><p>Having <code class="literal">spring-cloud-starter-netflix-eureka-client</code> on the classpath
+makes the app into both a Eureka "instance"
 (i.e. it registers itself) and a "client" (i.e. it can query the
 registry to locate other services). The instance behaviour is driven
 by <code class="literal">eureka.instance.*</code> configuration keys, but the defaults will be
 fine if you ensure that your application has a
 <code class="literal">spring.application.name</code> (this is the default for the Eureka service
-ID, or VIP).</p><p>See <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java" target="_top">EurekaInstanceConfigBean</a> and <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java" target="_top">EurekaClientConfigBean</a> for more details of the configurable options.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_authenticating_with_the_eureka_server" href="#_authenticating_with_the_eureka_server"></a>1.3&nbsp;Authenticating with the Eureka Server</h2></div></div></div><p>HTTP basic authentication will be automatically added to your eureka
+ID, or VIP).</p><p>See <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java" target="_top">EurekaInstanceConfigBean</a> and <a class="link" href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java" target="_top">EurekaClientConfigBean</a> for more details of the configurable options.</p><p>To disable the Eureka Discovery Client you can set <code class="literal">eureka.client.enabled</code> to <code class="literal">false</code>.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_authenticating_with_the_eureka_server" href="#_authenticating_with_the_eureka_server"></a>1.3&nbsp;Authenticating with the Eureka Server</h2></div></div></div><p>HTTP basic authentication will be automatically added to your eureka
 client if one of the <code class="literal">eureka.client.serviceUrl.defaultZone</code> URLs has
 credentials embedded in it (curl style, like
 <code class="literal"><a class="link" href="http://user:password@localhost:8761/eureka" target="_top">http://user:password@localhost:8761/eureka</a></code>). For more complex needs
@@ -120,7 +119,7 @@ implementing your own <code class="literal">com.netflix.appinfo.HealthCheckHandl
 localhost, the random value will kick in there to make the instance
 unique. In Cloudfoundry the <code class="literal">vcap.application.instance_id</code> will be
 populated automatically in a Spring Boot application, so the
-random value will not be needed.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_the_eurekaclient" href="#_using_the_eurekaclient"></a>1.8&nbsp;Using the EurekaClient</h2></div></div></div><p>Once you have an app that is <code class="literal">@EnableDiscoveryClient</code> (or <code class="literal">@EnableEurekaClient</code>) you can use it to
+random value will not be needed.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_using_the_eurekaclient" href="#_using_the_eurekaclient"></a>1.8&nbsp;Using the EurekaClient</h2></div></div></div><p>Once you have an app that is a discovery client you can use it to
 discover service instances from the <a class="link" href="multi_spring-cloud-eureka-server.html" title="2.&nbsp;Service Discovery: Eureka Server">Eureka Server</a>. One way to do that is to use the native
 <code class="literal">com.netflix.discovery.EurekaClient</code> (as opposed to the Spring
 Cloud <code class="literal">DiscoveryClient</code>), e.g.</p><pre class="screen">@Autowired
@@ -138,7 +137,7 @@ to avoid dependencies from Jersey, you can exclude it from your dependencies.
 Spring Cloud will auto configure a transport client based on Spring
 <code class="literal">RestTemplate</code>.</p><pre class="screen">&lt;dependency&gt;
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
     &lt;exclusions&gt;
         &lt;exclusion&gt;
             &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;
