@@ -92,6 +92,31 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void securePortPeriods() {
+		testSecurePort("server.port");
+	}
+
+	@Test
+	public void securePortUnderscores() {
+		testSecurePort("SERVER_PORT");
+	}
+
+	@Test
+	public void securePort() {
+		testSecurePort("PORT");
+		assertEquals("eurekaClient",
+				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+	}
+
+	@Test
+	public void securePortDefault() {
+		EnvironmentTestUtils.addEnvironment(this.context, "eureka.instance.securePortEnabled=false");
+		testSecurePort("PORT");
+		assertEquals("eurekaClient",
+				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+	}
+
+	@Test
 	public void managementPort() {
 		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
 				"management.port=9999");
@@ -329,6 +354,13 @@ public class EurekaClientAutoConfigurationTests {
 		addEnvironment(this.context, propName + ":8888");
 		setupContext();
 		assertEquals(8888, getInstanceConfig().getNonSecurePort());
+	}
+
+	private void testSecurePort(String propName) {
+		EnvironmentTestUtils.addEnvironment(this.context, "eureka.instance.securePortEnabled=true");
+		addEnvironment(this.context, propName + ":8888");
+		setupContext();
+		assertEquals(8888, getInstanceConfig().getSecurePort());
 	}
 
 	private EurekaInstanceConfigBean getInstanceConfig() {
