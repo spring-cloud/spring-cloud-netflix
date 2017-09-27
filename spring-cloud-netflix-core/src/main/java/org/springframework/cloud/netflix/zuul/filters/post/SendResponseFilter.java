@@ -72,8 +72,8 @@ public class SendResponseFilter extends ZuulFilter {
 	public SendResponseFilter() {
 		super();
 		// To support Servlet API 3.1 we need to check if setContentLengthLong exists
+		// minimum support in Spring 5 is 3.0 so we need to keep tihs
 		try {
-			//TODO: remove in 2.0
 			HttpServletResponse.class.getMethod("setContentLengthLong", long.class);
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;

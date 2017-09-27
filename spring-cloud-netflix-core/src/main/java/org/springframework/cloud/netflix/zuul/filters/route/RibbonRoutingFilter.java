@@ -69,8 +69,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		this.ribbonCommandFactory = ribbonCommandFactory;
 		this.requestCustomizers = requestCustomizers;
 		// To support Servlet API 3.1 we need to check if getContentLengthLong exists
+		// Spring 5 minimum support is 3.0, so this stays
 		try {
-			//TODO: remove in 2.0
 			HttpServletRequest.class.getMethod("getContentLengthLong");
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;
