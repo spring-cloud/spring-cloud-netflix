@@ -23,13 +23,13 @@ import org.apache.commons.configuration.event.ConfigurationEvent;
 import org.apache.commons.configuration.event.ConfigurationListener;
 import org.junit.After;
 import org.junit.Test;
-import com.netflix.config.ConfigurationManager;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicStringProperty;
-
 import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import com.netflix.config.ConfigurationManager;
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
