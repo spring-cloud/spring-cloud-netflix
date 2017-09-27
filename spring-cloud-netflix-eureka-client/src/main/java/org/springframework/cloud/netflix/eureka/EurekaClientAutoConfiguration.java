@@ -126,13 +126,21 @@ public class EurekaClientAutoConfiguration {
 		String hostname = eurekaPropertyResolver.getProperty("hostname");
 
 		boolean preferIpAddress = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("preferIpAddress"));
+		boolean isSecurePortEnabled = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("securePortEnabled"));
 		int nonSecurePort = Integer.valueOf(propertyResolver.getProperty("server.port", propertyResolver.getProperty("port", "8080")));
+
 		int managementPort = Integer.valueOf(propertyResolver.getProperty("management.port", String.valueOf(nonSecurePort)));
 		String managementContextPath = propertyResolver.getProperty("management.contextPath", propertyResolver.getProperty("server.contextPath", "/"));
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(propertyResolver));
 		instance.setPreferIpAddress(preferIpAddress);
+
+		if(isSecurePortEnabled) {
+			int securePort = Integer.valueOf(propertyResolver.getProperty("server.port", propertyResolver.getProperty("port", "8080")));
+			instance.setSecurePort(securePort);
+		}
+
 		if (managementPort != nonSecurePort && managementPort != 0) {
 			if (StringUtils.hasText(hostname)) {
 				instance.setHostname(hostname);
@@ -148,6 +156,7 @@ public class EurekaClientAutoConfiguration {
 			if (StringUtils.hasText(healthCheckUrlPath)) {
 				instance.setHealthCheckUrlPath(healthCheckUrlPath);
 			}
+
 			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
 			URL base = new URL(scheme, instance.getHostname(), managementPort, managementContextPath);
 			instance.setStatusPageUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getStatusPageUrlPath(), '/')).toString());
