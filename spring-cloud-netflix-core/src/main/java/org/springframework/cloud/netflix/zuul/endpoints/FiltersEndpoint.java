@@ -23,19 +23,20 @@ public class FiltersEndpoint extends AbstractEndpoint<Map<String, List<Map<Strin
 
 	private static final String ID = "filters";
 
-	public FiltersEndpoint() {
+	private final FilterRegistry filterRegistry;
+
+	public FiltersEndpoint(FilterRegistry filterRegistry) {
 		super(ID, true);
+		this.filterRegistry = filterRegistry;
 	}
 
 	@ManagedAttribute
 	@Override
 	public Map<String, List<Map<String, Object>>> invoke() {
-		final FilterRegistry filterRegistry = FilterRegistry.instance();
-
 		// Map of filters by type
 		final Map<String, List<Map<String, Object>>> filterMap = new TreeMap<>();
 
-		for (ZuulFilter filter : filterRegistry.getAllFilters()) {
+		for (ZuulFilter filter : this.filterRegistry.getAllFilters()) {
 			// Ensure that we have a list to store filters of each type
 			if (!filterMap.containsKey(filter.filterType())) {
 				filterMap.put(filter.filterType(), new ArrayList<Map<String, Object>>());

@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.zuul.filters.FilterRegistry;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
@@ -179,7 +180,8 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		@ConditionalOnEnabledEndpoint("filters")
 		@Bean
 		public FiltersEndpoint filtersEndpoint() {
-			return new FiltersEndpoint();
+			FilterRegistry filterRegistry = FilterRegistry.instance();
+			return new FiltersEndpoint(filterRegistry);
 		}
 
 		@Bean
