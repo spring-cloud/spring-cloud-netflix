@@ -162,6 +162,14 @@ public class EurekaRegistration implements Registration, Closeable {
 		return this.instanceConfig.getNonSecurePort();
 	}
 
+	public void setSecurePort(int port) {
+		this.instanceConfig.setSecurePort(port);
+	}
+
+	public int getSecurePort() {
+		return this.instanceConfig.getSecurePort();
+	}
+
 	@Override
 	public void close() throws IOException {
 		this.eurekaClient.shutdown();
