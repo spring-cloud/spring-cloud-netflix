@@ -109,14 +109,6 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
-	public void securePortDefault() {
-		EnvironmentTestUtils.addEnvironment(this.context, "eureka.instance.securePortEnabled=false");
-		testSecurePort("PORT");
-		assertEquals("eurekaClient",
-				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
-	}
-
-	@Test
 	public void managementPort() {
 		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
 				"management.port=9999");
