@@ -61,7 +61,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netfix-archaius</artifactId>
+			<artifactId>spring-cloud-netflix-archaius</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
