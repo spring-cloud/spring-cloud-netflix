@@ -51,7 +51,7 @@ public class EurekaHealthCheckTests {
 	private EurekaClient discoveryClient;
 
 	@Test
-	@Ignore //FIXME 2.0.0
+//	@Ignore //FIXME 2.0.0
 	public void shouldRegisterService() {
 
 		InstanceInfo.InstanceStatus status = this.discoveryClient.getHealthCheckHandler()
