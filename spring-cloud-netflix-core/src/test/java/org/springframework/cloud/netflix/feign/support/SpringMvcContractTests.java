@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -294,7 +293,6 @@ public class SpringMvcContractTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.0.0
 	public void testProcessAnnotations_ListParamsWithoutName() throws Exception {
 		Method method = TestTemplate_ListParamsWithoutName.class.getDeclaredMethod("getTest",
 				List.class);
