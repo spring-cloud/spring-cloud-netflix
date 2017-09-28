@@ -118,7 +118,7 @@ public class RibbonAutoConfiguration {
 	@Configuration
 	@ConditionalOnClass(HttpRequest.class)
 	@ConditionalOnRibbonRestClient
-	protected static class RibbonClientConfig {
+	protected static class RibbonClientHttpRequestFactoryConfiguration {
 
 		@Autowired
 		private SpringClientFactory springClientFactory;
@@ -126,12 +126,7 @@ public class RibbonAutoConfiguration {
 		@Bean
 		public RestTemplateCustomizer restTemplateCustomizer(
 				final RibbonClientHttpRequestFactory ribbonClientHttpRequestFactory) {
-			return new RestTemplateCustomizer() {
-				@Override
-				public void customize(RestTemplate restTemplate) {
-					restTemplate.setRequestFactory(ribbonClientHttpRequestFactory);
-				}
-			};
+			return restTemplate -> restTemplate.setRequestFactory(ribbonClientHttpRequestFactory);
 		}
 
 		@Bean

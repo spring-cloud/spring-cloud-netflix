@@ -16,12 +16,9 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import java.lang.reflect.Field;
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,16 +27,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.AbstractClientHttpRequestFactoryWrapper;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,13 +51,17 @@ import org.springframework.web.client.RestTemplate;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
 /**
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = RANDOM_PORT, value = {
 		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
-		"spring.cloud.netflix.metrics.enabled=false", "ribbon.http.client.enabled=true" })
+		"spring.cloud.netflix.metrics.enabled=false", "ribbon.restclient.enabled=true", "debug=true" })
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
@@ -71,11 +73,13 @@ public class RibbonClientHttpRequestFactoryTests {
 	protected RestTemplate restTemplate;
 
 	@Test
-	@Ignore //FIXME 2.0.0
 	public void requestFactoryIsRibbon() {
 		ClientHttpRequestFactory requestFactory = this.restTemplate.getRequestFactory();
-		assertTrue("wrong RequestFactory type: " + requestFactory.getClass(),
-				requestFactory instanceof RibbonClientHttpRequestFactory);
+		assertThat(requestFactory).isInstanceOf(AbstractClientHttpRequestFactoryWrapper.class);
+		Field field = ReflectionUtils.findField(AbstractClientHttpRequestFactoryWrapper.class, "requestFactory");
+		ReflectionUtils.makeAccessible(field);
+		ClientHttpRequestFactory delegate = (ClientHttpRequestFactory) ReflectionUtils.getField(field, requestFactory);
+		assertThat(delegate).isInstanceOf(RibbonClientHttpRequestFactory.class);
 	}
 
 	@Test
