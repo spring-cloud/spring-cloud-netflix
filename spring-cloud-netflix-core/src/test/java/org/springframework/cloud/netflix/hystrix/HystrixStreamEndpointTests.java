@@ -5,14 +5,13 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.hystrix;
@@ -24,15 +23,14 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,14 +63,12 @@ public class HystrixStreamEndpointTests {
 	private int port = 0;
 
 	@Test
-	@Ignore // FIXME: 2.0.x
 	public void pathStartsWithSlash() {
-		HystrixStreamEndpoint endpoint = new HystrixStreamEndpoint();
-		// assertEquals("/hystrix.stream", endpoint.getPath());
+		HystrixProperties properties = new HystrixProperties();
+		assertEquals("/hystrix.stream", properties.getPath());
 	}
 
 	@Test
-	@Ignore // FIXME: 2.0.x
 	public void hystrixStreamWorks() throws Exception {
 		String url = "http://localhost:" + port;
 		// you have to hit a Hystrix circuit breaker before the stream sends anything

@@ -13,3 +13,5 @@ org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfiguration
 org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker=\
 org.springframework.cloud.netflix.hystrix.HystrixCircuitBreakerConfiguration
 
+org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration=\
+org.springframework.cloud.netflix.hystrix.HystrixManagementContextConfiguration
