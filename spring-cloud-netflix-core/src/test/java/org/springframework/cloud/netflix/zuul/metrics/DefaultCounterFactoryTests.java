@@ -19,21 +19,28 @@ package org.springframework.cloud.netflix.zuul.metrics;
 
 import com.netflix.zuul.monitoring.CounterFactory;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultCounterFactoryTests {
 
 	private static final String NAME = "my-super-metric-name";
-	// private final CounterService counterService = mock(CounterService.class);
-	private final CounterFactory factory = new DefaultCounterFactory(/*counterService*/);
 
 	@Test
 	public void shouldIncrement() throws Exception {
+		MeterRegistry meterRegistry = mock(MeterRegistry.class);
+		CounterFactory factory = new DefaultCounterFactory(meterRegistry);
+
+		Counter counter = mock(Counter.class);
+		when(meterRegistry.counter(NAME)).thenReturn(counter);
+
 		factory.increment(NAME);
 
-		//FIXME 2.0.0 verify(counterService).increment(NAME);
+		verify(counter).increment();
 	}
 }

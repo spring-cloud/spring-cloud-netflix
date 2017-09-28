@@ -64,6 +64,8 @@ import com.netflix.zuul.http.ZuulServlet;
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
 
+import io.micrometer.core.instrument.MeterRegistry;
+
 /**
  * @author Spencer Gibb
  * @author Dave Syer
@@ -197,14 +199,13 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Configuration
-	//FIXME: 2.0.0
-	// @ConditionalOnClass(CounterService.class)
+	@ConditionalOnClass(MeterRegistry.class)
 	protected static class ZuulCounterFactoryConfiguration {
 
 		@Bean
-		// @ConditionalOnBean(CounterService.class)
-		public CounterFactory counterFactory(/*CounterService counterService*/) {
-			return new DefaultCounterFactory(/*counterService*/);
+		@ConditionalOnBean(MeterRegistry.class)
+		public CounterFactory counterFactory(MeterRegistry meterRegistry) {
+			return new DefaultCounterFactory(meterRegistry);
 		}
 	}
 

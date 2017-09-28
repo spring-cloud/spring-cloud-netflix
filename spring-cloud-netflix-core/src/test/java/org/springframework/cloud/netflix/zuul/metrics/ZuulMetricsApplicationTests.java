@@ -17,10 +17,8 @@
 
 package org.springframework.cloud.netflix.zuul.metrics;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,11 +32,11 @@ import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
@@ -47,12 +45,12 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @DirtiesContext
 public class ZuulMetricsApplicationTests {
 
-	private static final Map<String, Long> counters = new HashMap<>();
-
 	@Autowired
-	CounterFactory counterFactory;
+	private CounterFactory counterFactory;
 	@Autowired
-	TracerFactory tracerFactory;
+	private TracerFactory tracerFactory;
+	@Autowired
+	private MeterRegistry meterRegistry;
 
 	@Test
 	public void shouldSetupDefaultCounterFactoryIfCounterServiceIsPresent()
@@ -66,18 +64,19 @@ public class ZuulMetricsApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.0.0
 	public void shouldIncrementCounters() throws Exception {
 		new ZuulException("any", 500, "cause");
 		new ZuulException("any", 500, "cause");
 
-		assertEquals((long) counters.get("ZUUL::EXCEPTION:cause:500"), 2L);
+		Double count = meterRegistry.counter("ZUUL::EXCEPTION:cause:500").count();
+		assertEquals(count.longValue(), 2L);
 
 		new ZuulException("any", 404, "cause2");
 		new ZuulException("any", 404, "cause2");
 		new ZuulException("any", 404, "cause2");
 
-		assertEquals((long) counters.get("ZUUL::EXCEPTION:cause2:404"), 3L);
+		count = meterRegistry.counter("ZUUL::EXCEPTION:cause2:404").count();
+		assertEquals(count.longValue(), 3L);
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -91,28 +90,9 @@ public class ZuulMetricsApplicationTests {
 	@Configuration
 	static class ZuulMetricsApplicationTestsConfiguration {
 
-		//FIXME: 2.0.0
-		/*@Bean
-		public CounterService counterService() {
-			return new CounterService() {
-				// not thread safe, but we are ok with it in tests
-				@Override
-				public void increment(String metricName) {
-					Long counter = counters.get(metricName);
-					if (counter == null) {
-						counter = 0L;
-					}
-					counters.put(metricName, ++counter);
-				}
-
-				@Override
-				public void decrement(String metricName) {
-				}
-
-				@Override
-				public void reset(String metricName) {
-				}
-			};
-		}*/
+		@Bean
+		public MeterRegistry meterRegistry() {
+			return new SimpleMeterRegistry();
+		}
 	}
 }

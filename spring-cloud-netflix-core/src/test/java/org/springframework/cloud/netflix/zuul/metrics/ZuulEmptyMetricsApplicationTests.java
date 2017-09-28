@@ -17,21 +17,19 @@
 
 package org.springframework.cloud.netflix.zuul.metrics;
 
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.netflix.zuul.ZuulServerAutoConfiguration;
 import org.springframework.cloud.netflix.zuul.ZuulServerMarkerConfiguration;
+import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -59,7 +57,6 @@ public class ZuulEmptyMetricsApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.0.0
 	public void shouldSetupDefaultCounterFactoryIfCounterServiceIsPresent()
 			throws Exception {
 		CounterFactory factory = this.context.getBean(CounterFactory.class);
