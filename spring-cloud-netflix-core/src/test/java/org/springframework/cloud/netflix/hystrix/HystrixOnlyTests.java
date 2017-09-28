@@ -22,7 +22,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,6 +46,8 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.springframework.cloud.netflix.test.TestAutoConfiguration.PASSWORD;
+import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
 
 /**
  * @author Spencer Gibb
@@ -59,12 +60,6 @@ public class HystrixOnlyTests {
 
 	@LocalServerPort
 	private int port;
-
-	//FIXME: 2.0.0
-	private String username = "user";
-
-	//FIXME: 2.0.0
-	private String password = "password";
 
 	@Test
 	public void testNormalExecution() {
@@ -99,12 +94,10 @@ public class HystrixOnlyTests {
 				map.containsKey("discovery"));
 	}
 
-
-
 	private Map getHealth() {
 		return new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/admin/health", HttpMethod.GET,
-				new HttpEntity<Void>(createBasicAuthHeader(username, password)),
+				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)),
 				Map.class).getBody();
 	}
 

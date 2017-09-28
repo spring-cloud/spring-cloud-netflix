@@ -38,6 +38,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @AutoConfigureBefore(SecurityAutoConfiguration.class)
 public class TestAutoConfiguration {
 
+	public static final String USER = "user";
+	public static final String PASSWORD = "password";
+
 	@Configuration
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	protected static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -50,7 +53,7 @@ public class TestAutoConfiguration {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-			manager.createUser(User.withUsername("user").password("password").roles("USER").build());
+			manager.createUser(User.withUsername(USER).password(PASSWORD).roles("USER").build());
 			return manager;
 		}
 
