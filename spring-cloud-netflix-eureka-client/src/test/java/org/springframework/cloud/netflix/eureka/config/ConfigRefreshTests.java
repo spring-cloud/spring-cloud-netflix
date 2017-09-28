@@ -53,7 +53,6 @@ public class ConfigRefreshTests {
 	// when a refresh event is fired.  The getApplications call in EurekaClientConfigurationRefresher.onApplicationEvent
 	// ensures that the EurekaClient bean is recreated after a refresh event and that we reregister the client with
 	//the server
-	@Ignore //FIXME 2.0.0
 	public void verifyGetApplications() {
 		if(publisher != null) {
 			publisher.publishEvent(new RefreshScopeRefreshedEvent());
