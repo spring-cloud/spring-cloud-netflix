@@ -16,15 +16,15 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
+
+import static org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer.Runner.customize;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
