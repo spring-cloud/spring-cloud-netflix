@@ -1715,7 +1715,7 @@ routes:
 Additional route details can be requested by adding the `?format=details` query
 string to `/routes`. This will produce the following output:
 
-.GET /routes?format=details
+.GET /routes/details
 [source,json]
 ----
 {

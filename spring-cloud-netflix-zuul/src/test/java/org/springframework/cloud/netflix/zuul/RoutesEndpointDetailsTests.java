@@ -21,19 +21,25 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Ryan Baxter
@@ -41,7 +47,7 @@ import static org.mockito.Mockito.spy;
  */
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
-public class RoutesMvcEndpointTests {
+public class RoutesEndpointDetailsTests {
 	private RouteLocator locator;
 	private RoutesEndpoint endpoint;
 	@Mock
@@ -73,28 +79,24 @@ public class RoutesMvcEndpointTests {
 
 	@Test
 	public void reset() throws Exception {
-		//FIXME: 2.0.x
-		/*RoutesMvcEndpoint mvcEndpoint = new RoutesMvcEndpoint(endpoint, locator);
-		mvcEndpoint.setApplicationEventPublisher(publisher);
-		Map<String, String> result = new HashMap<String, String>();
+		this.endpoint.setApplicationEventPublisher(publisher);
+		Map<String, String> result = new HashMap<>();
 		for(Route r : locator.getRoutes()) {
 			result.put(r.getFullPath(), r.getLocation());
 		}
-		assertEquals(result , mvcEndpoint.reset());
+		assertEquals(result , endpoint.reset());
 		verify(endpoint, times(1)).invoke();
-		verify(publisher, times(1)).publishEvent(isA(RoutesRefreshedEvent.class));*/
+		verify(publisher, times(1)).publishEvent(isA(RoutesRefreshedEvent.class));
 	}
 
 	@Test
 	public void routeDetails() throws Exception {
-		//FIXME: 2.0.x
-		/*RoutesMvcEndpoint mvcEndpoint = new RoutesMvcEndpoint(endpoint, locator);
 		Map<String, RoutesEndpoint.RouteDetails> results = new HashMap<>();
 		for (Route route : locator.getRoutes()) {
 			results.put(route.getFullPath(), new RoutesEndpoint.RouteDetails(route));
 		}
-		assertEquals(results, mvcEndpoint.invokeRouteDetails(RoutesMvcEndpoint.FORMAT_DETAILS));
-		verify(endpoint, times(1)).invokeRouteDetails();*/
+		assertEquals(results, this.endpoint.invokeRouteDetails(RoutesEndpoint.FORMAT_DETAILS));
+		verify(endpoint, times(1)).invokeRouteDetails();
 	}
 
 }

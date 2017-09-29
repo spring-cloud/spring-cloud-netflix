@@ -24,13 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ryan Baxter
@@ -83,16 +83,4 @@ public class RoutesEndpointTests {
 		assertEquals(results, endpoint.invokeRouteDetails());
 	}
 
-	//FIXME 2.0.x
-	/*@Test
-	public void testId() {
-		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
-		assertEquals("routes", endpoint.getId());
-	}
-
-	@Test
-	public void testIsSensitive() {
-		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
-		assertTrue(endpoint.isSensitive());
-	}*/
 }

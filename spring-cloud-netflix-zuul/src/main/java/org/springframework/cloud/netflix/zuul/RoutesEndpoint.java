@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.boot.actuate.endpoint.annotation.Selector;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -44,6 +45,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class RoutesEndpoint implements ApplicationEventPublisherAware {
 
 	static final String ID = "routes";
+	static final String FORMAT_DETAILS = "details";
 
 	private RouteLocator routes;
 
@@ -84,17 +86,14 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 	/**
 	 * Expose Zuul {@link Route} information with details.
 	 */
-	//FIXME 2.0.x
-	/*@GetMapping(params = "format", produces = { ActuatorMediaTypes.APPLICATION_ACTUATOR_V1_JSON_VALUE,
-			MediaType.APPLICATION_JSON_VALUE })
-	@ResponseBody
-	public Object invokeRouteDetails(@RequestParam String format) {
+	@ReadOperation
+	public Object invokeRouteDetails(@Selector String format) {
 		if (FORMAT_DETAILS.equalsIgnoreCase(format)) {
-			return endpoint.invokeRouteDetails();
+			return invokeRouteDetails();
 		} else {
-			return super.invoke();
+			return invoke();
 		}
-	}*/
+	}
 
 	/**
 	 * Container for exposing Zuul {@link Route} details as JSON.
