@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-// import org.springframework.cloud.netflix.zuul.filters.support.ResettableServletInputStreamWrapper;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ReflectionUtils;
@@ -132,10 +131,10 @@ public class RibbonCommandContext {
 		}
 
 		try {
-			/*FIXME 2.0.0 if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
+			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
 				requestEntity = new ResettableServletInputStreamWrapper(
 					StreamUtils.copyToByteArray(requestEntity));
-			}*/
+			}
 			requestEntity.reset();
 		} finally {
 			return requestEntity;

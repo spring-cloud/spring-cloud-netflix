@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Test;
-// import org.springframework.cloud.netflix.zuul.filters.support.ResettableServletInputStreamWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -29,6 +28,7 @@ import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import okhttp3.Request;
 
@@ -47,7 +47,7 @@ public class RibbonCommandContextTest {
         givenRibbonCommandContextIsSetup();
 
         InputStream requestEntity = ribbonCommandContext.getRequestEntity();
-        //FIXME: 2.0.0 assertTrue(requestEntity instanceof ResettableServletInputStreamWrapper);
+        assertTrue(requestEntity instanceof ResettableServletInputStreamWrapper);
 
         whenInputStreamIsConsumed(requestEntity);
         assertEquals(-1, requestEntity.read());
