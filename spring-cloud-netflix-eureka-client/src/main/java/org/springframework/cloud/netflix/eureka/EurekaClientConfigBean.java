@@ -383,6 +383,12 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	 */
 	private String clientDataAccept = EurekaAccept.full.name();
 
+	/**
+	 * Indicates whether the client should explicitly unregister itself from the remote server
+	 * on client shutdown.
+	 */
+	private boolean unregisterOnShutdown = true;
+
 	@Override
 	public boolean shouldGZipContent() {
 		return this.gZipContent;
@@ -411,6 +417,11 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	@Override
 	public boolean shouldDisableDelta() {
 		return this.disableDelta;
+	}
+
+	@Override
+	public boolean shouldUnregisterOnShutdown() {
+		return this.unregisterOnShutdown;
 	}
 
 	@Override
