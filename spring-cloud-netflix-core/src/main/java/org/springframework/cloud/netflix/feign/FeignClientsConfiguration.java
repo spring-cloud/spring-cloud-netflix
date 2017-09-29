@@ -46,6 +46,7 @@ import feign.Retryer;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import feign.hystrix.HystrixFeign;
+import feign.optionals.OptionalDecoder;
 
 /**
  * @author Dave Syer
@@ -69,7 +70,7 @@ public class FeignClientsConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public Decoder feignDecoder() {
-		return new ResponseEntityDecoder(new SpringDecoder(this.messageConverters));
+		return new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters)));
 	}
 
 	@Bean

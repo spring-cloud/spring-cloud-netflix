@@ -16,14 +16,6 @@
 
 package org.springframework.cloud.netflix.feign.valid;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -34,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -75,6 +68,15 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import feign.Client;
 import feign.Feign;
@@ -161,6 +163,9 @@ public class FeignClientTests {
 		@RequestMapping(method = RequestMethod.GET, path = "/hello")
 		Hello getHello();
 
+		@RequestMapping(method = RequestMethod.GET, path = "/hello")
+		Optional<Hello> getOptionalHello();
+
 		@RequestMapping(method = RequestMethod.GET, path = "${feignClient.methodLevelRequestMappingPath}")
 		Hello getHelloUsingPropertyPlaceHolder();
 
@@ -240,6 +245,9 @@ public class FeignClientTests {
 	protected interface DecodingTestClient {
 		@RequestMapping(method = RequestMethod.GET, path = "/notFound")
 		ResponseEntity<String> notFound();
+
+		@RequestMapping(method = RequestMethod.GET, path = "/notFound")
+		Optional<String> optional();
 	}
 
 	@FeignClient(name = "localapp3", fallback = HystrixClientFallback.class)
@@ -519,6 +527,15 @@ public class FeignClientTests {
 	}
 
 	@Test
+	public void testOptional() {
+		Optional<Hello> hello = this.testClient.getOptionalHello();
+		assertThat(hello)
+				.isNotNull()
+				.isPresent()
+				.contains(new Hello(HELLO_WORLD_1));
+	}
+
+	@Test
 	public void testGenericType() {
 		List<Hello> hellos = this.testClient.getHellos();
 		assertNotNull("hellos was null", hellos);
@@ -630,6 +647,12 @@ public class FeignClientTests {
 		assertEquals("status code was wrong", HttpStatus.NOT_FOUND,
 				response.getStatusCode());
 		assertNull("response body was not null", response.getBody());
+	}
+
+	@Test
+	public void testOptionalNotFound() {
+		Optional<String> s = decodingTestClient.optional();
+		assertThat(s).isNotPresent();
 	}
 
 	@Test

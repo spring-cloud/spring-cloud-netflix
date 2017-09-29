@@ -16,7 +16,7 @@
 	<properties>
 		<archaius.version>0.7.5</archaius.version>
 		<eureka.version>1.8.2</eureka.version>
-		<feign.version>9.5.0</feign.version>
+		<feign.version>9.5.1</feign.version>
 		<hystrix.version>1.5.12</hystrix.version>
 		<ribbon.version>2.2.2</ribbon.version>
 		<servo.version>0.10.1</servo.version>
@@ -279,6 +279,11 @@
 			<dependency>
 				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-hystrix</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-java8</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
