@@ -17,14 +17,14 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-import com.netflix.client.ClientRequest;
+import java.net.URI;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.MultiValueMap;
 
-import java.net.URI;
+import com.netflix.client.ClientRequest;
 
 /**
  * @author Spencer Gibb

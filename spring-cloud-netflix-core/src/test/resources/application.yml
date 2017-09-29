@@ -40,16 +40,6 @@ management:
 endpoints:
   health:
     sensitive: false
-zuul:
-  #prefix: /api
-  #strip-prefix: true
-  routes:
-    test: 
-      serviceId: testclient
-      path: /testing123/**
-    stores:
-      url: http://localhost:8081
-      path: /stores/**
 hystrix:
   shareSecurityContext: true
 feignClient:

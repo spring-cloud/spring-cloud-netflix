@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013 the original author or authors.
+ * Copyright 2013-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix;
+package org.springframework.cloud.netflix.zuul.filters.route;
 
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 
 /**
- * A test suite for probing weird ordering problems in the tests.
- *
- * @author Dave Syer
+ * @author Spencer Gibb
  */
-@RunWith(Suite.class)
-@SuiteClasses({})
-@Ignore
-public class AdhocTestSuite {
+public interface RibbonCommandFactory<T extends RibbonCommand> {
+
+	T create(RibbonCommandContext context);
 
 }

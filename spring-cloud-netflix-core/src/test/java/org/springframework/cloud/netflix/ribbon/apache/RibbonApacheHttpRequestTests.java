@@ -39,8 +39,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.junit.Test;
 import org.springframework.cloud.netflix.feign.encoding.HttpEncoding;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 

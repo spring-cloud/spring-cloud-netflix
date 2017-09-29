@@ -126,6 +126,11 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-netflix-zuul</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.netflix.netflix-commons</groupId>
 				<artifactId>netflix-commons-util</artifactId>
 				<version>0.1.1</version>

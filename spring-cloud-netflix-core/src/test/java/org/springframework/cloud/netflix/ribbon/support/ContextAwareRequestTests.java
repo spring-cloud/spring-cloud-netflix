@@ -22,10 +22,10 @@ package org.springframework.cloud.netflix.ribbon.support;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;

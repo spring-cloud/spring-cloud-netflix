@@ -26,7 +26,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.BasicHttpEntity;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 
 /**
  * @author Christian Lohmann

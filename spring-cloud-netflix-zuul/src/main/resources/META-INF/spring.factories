@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.cloud.netflix.zuul.ZuulServerAutoConfiguration,\
+org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfiguration
