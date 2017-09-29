@@ -1641,7 +1641,7 @@ routes:</simpara>
 <simpara>Additional route details can be requested by adding the <literal>?format=details</literal> query
 string to <literal>/routes</literal>. This will produce the following output:</simpara>
 <formalpara>
-<title>GET /routes?format=details</title>
+<title>GET /routes/details</title>
 <para>
 <programlisting language="json" linenumbering="unnumbered">{
   "/stores/**": {
