@@ -123,6 +123,7 @@
 	</dependencyManagement>
 	<modules>
 		<module>spring-cloud-netflix-dependencies</module>
+		<module>spring-cloud-netflix-archaius</module>
 		<module>spring-cloud-netflix-core</module>
 		<module>spring-cloud-netflix-hystrix-dashboard</module>
 		<module>spring-cloud-netflix-hystrix-stream</module>

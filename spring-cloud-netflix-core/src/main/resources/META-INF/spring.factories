@@ -1,5 +1,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration,\
 org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration,\
 org.springframework.cloud.netflix.feign.FeignAutoConfiguration,\
 org.springframework.cloud.netflix.feign.encoding.FeignAcceptGzipEncodingAutoConfiguration,\
