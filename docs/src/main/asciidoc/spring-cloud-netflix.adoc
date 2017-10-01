@@ -1540,7 +1540,7 @@ This means that a serviceId "myusers-v1" will be mapped to route
 groups must be present in both servicePattern and routePattern.  If
 servicePattern does not match a serviceId, the default behavior is
 used. In the example above, a serviceId "myusers" will be mapped to route
-"/myusers/{all}" (no version detected) This feature is disable by
+"/myusers/{all}" (no version detected) This feature is disabled by
 default and only applies to discovered services.
 
 To add a prefix to all mappings, set `zuul.prefix` to a value, such as
