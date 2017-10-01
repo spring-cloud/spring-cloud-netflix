@@ -54,7 +54,7 @@ class HystrixManagementContextConfiguration {
 	}
 
 	@Bean
-	public ServletRegistrationBean<HystrixMetricsStreamServlet> jolokiaServlet() {
+	public ServletRegistrationBean<HystrixMetricsStreamServlet> hystrixMetricsStreamServlet() {
 		String path = this.managementServletContext.getContextPath()
 				+ this.properties.getPath();
 		String urlMapping = (path.endsWith("/") ? path + "*" : path + "/*");
