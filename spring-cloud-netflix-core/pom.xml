@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
-		<version>1.3.5.BUILD-SNAPSHOT</version>
+		<version>1.3.5.RELEASE</version>
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
 	<artifactId>spring-cloud-netflix-core</artifactId>
