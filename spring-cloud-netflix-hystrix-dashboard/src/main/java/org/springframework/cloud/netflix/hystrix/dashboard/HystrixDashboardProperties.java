@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,14 @@
  */
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Roy Clarkson
+ * @author Fahim Farook
  */
 @ConfigurationProperties("hystrix.dashboard")
 public class HystrixDashboardProperties {
@@ -28,6 +32,13 @@ public class HystrixDashboardProperties {
 	 * the Hystrix response stream
 	 */
 	private boolean enableIgnoreConnectionCloseHeader = false;
+	
+	/**
+	 * Initialization parameters for {@link ProxyStreamServlet}. ProxyStreamServlet itself
+	 * is not dependent on any initialization parameters, but could be used for adding web
+	 * container specific configurations. i.e. wl-dispatch-policy for WebLogic.
+	 */
+	private Map<String, String> initParameters = new HashMap<>();
 
 	public boolean isEnableIgnoreConnectionCloseHeader() {
 		return enableIgnoreConnectionCloseHeader;
@@ -38,4 +49,7 @@ public class HystrixDashboardProperties {
 		this.enableIgnoreConnectionCloseHeader = enableIgnoreConnectionCloseHeader;
 	}
 
+	public Map<String, String> getInitParameters() {
+		return this.initParameters;
+	}
 }

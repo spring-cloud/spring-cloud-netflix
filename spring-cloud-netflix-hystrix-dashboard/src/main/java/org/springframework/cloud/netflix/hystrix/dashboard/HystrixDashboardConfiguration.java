@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 /**
  * @author Dave Syer
  * @author Roy Clarkson
+ * @author Fahim Farook
  */
 @Configuration
 @EnableConfigurationProperties(HystrixDashboardProperties.class)
@@ -87,10 +88,13 @@ public class HystrixDashboardConfiguration {
 
 	@Bean
 	public ServletRegistrationBean proxyStreamServlet() {
-		ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
-		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(dashboardProperties
-				.isEnableIgnoreConnectionCloseHeader());
-		return new ServletRegistrationBean(proxyStreamServlet, "/proxy.stream");
+		final ProxyStreamServlet proxyStreamServlet = new ProxyStreamServlet();
+		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(
+				this.dashboardProperties.isEnableIgnoreConnectionCloseHeader());
+		final ServletRegistrationBean registration = new ServletRegistrationBean(
+				proxyStreamServlet, "/proxy.stream");
+		registration.setInitParameters(this.dashboardProperties.getInitParameters());
+		return registration;
 	}
 
 	@Bean
