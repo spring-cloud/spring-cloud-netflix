@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.netflix.test.TestAutoConfiguration
+org.springframework.cloud.netflix.zuul.test.TestAutoConfiguration

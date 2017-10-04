@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.test;
+package org.springframework.cloud.netflix.zuul.test;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
