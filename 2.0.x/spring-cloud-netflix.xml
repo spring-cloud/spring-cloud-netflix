@@ -1476,7 +1476,7 @@ public PatternServiceRouteMapper serviceRouteMapper() {
 groups must be present in both servicePattern and routePattern.  If
 servicePattern does not match a serviceId, the default behavior is
 used. In the example above, a serviceId "myusers" will be mapped to route
-"/myusers/**" (no version detected) This feature is disable by
+"/myusers/**" (no version detected) This feature is disabled by
 default and only applies to discovered services.</simpara>
 <simpara>To add a prefix to all mappings, set <literal>zuul.prefix</literal> to a value, such as
 <literal>/api</literal>. The proxy prefix is stripped from the request before the

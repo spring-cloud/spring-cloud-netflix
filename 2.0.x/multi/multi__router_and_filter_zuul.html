@@ -80,7 +80,7 @@ variables from serviceId and inject them into a route pattern.</p><p><b>Applicat
 groups must be present in both servicePattern and routePattern.  If
 servicePattern does not match a serviceId, the default behavior is
 used. In the example above, a serviceId "myusers" will be mapped to route
-"/myusers/**" (no version detected) This feature is disable by
+"/myusers/**" (no version detected) This feature is disabled by
 default and only applies to discovered services.</p><p>To add a prefix to all mappings, set <code class="literal">zuul.prefix</code> to a value, such as
 <code class="literal">/api</code>. The proxy prefix is stripped from the request before the
 request is forwarded by default (switch this behaviour off with
