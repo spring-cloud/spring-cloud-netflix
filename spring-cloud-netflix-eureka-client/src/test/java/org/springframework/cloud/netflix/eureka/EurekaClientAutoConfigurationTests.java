@@ -22,11 +22,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.aop.scope.ScopedProxyFactoryBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -35,6 +33,7 @@ import org.springframework.boot.context.properties.source.ConfigurationPropertyS
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
+import org.springframework.cloud.context.scope.GenericScope;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -51,6 +50,7 @@ import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
 import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
@@ -257,10 +257,10 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void refreshScopedBeans() {
 		setupContext(RefreshAutoConfiguration.class);
-		assertEquals(ScopedProxyFactoryBean.class.getName(),
-				this.context.getBeanDefinition("eurekaClient").getBeanClassName());
-		assertEquals(ScopedProxyFactoryBean.class.getName(), this.context
-				.getBeanDefinition("eurekaApplicationInfoManager").getBeanClassName());
+		assertThat(this.context.getBeanDefinition("eurekaClient").getBeanClassName())
+				.startsWith(GenericScope.class.getName()+"$LockedScopedProxyFactoryBean");
+		assertThat(this.context.getBeanDefinition("eurekaApplicationInfoManager").getBeanClassName())
+				.startsWith(GenericScope.class.getName()+"$LockedScopedProxyFactoryBean");
 	}
 
 	@Test
@@ -352,7 +352,7 @@ public class EurekaClientAutoConfigurationTests {
 		if (this.context != null) {
 			CountDownLatch latch = this.context.getBean(CountDownLatch.class);
 			this.context.close();
-			Assertions.assertThat(latch.getCount()).isEqualTo(0);
+			assertThat(latch.getCount()).isEqualTo(0);
 		}
 	}
 
