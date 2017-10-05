@@ -17,7 +17,6 @@ package org.springframework.cloud.netflix.feign;
 
 import feign.Logger;
 import feign.RequestInterceptor;
-import feign.Retryer;
 import feign.codec.ErrorDecoder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -85,8 +84,6 @@ public class FeignClientProperties {
 
 		private Integer readTimeout;
 
-		private Class<Retryer> retryer;
-
 		private Class<ErrorDecoder> errorDecoder;
 
 		private List<Class<RequestInterceptor>> requestInterceptors;
@@ -115,14 +112,6 @@ public class FeignClientProperties {
 
 		public void setReadTimeout(Integer readTimeout) {
 			this.readTimeout = readTimeout;
-		}
-
-		public Class<Retryer> getRetryer() {
-			return retryer;
-		}
-
-		public void setRetryer(Class<Retryer> retryer) {
-			this.retryer = retryer;
 		}
 
 		public Class<ErrorDecoder> getErrorDecoder() {
@@ -157,7 +146,6 @@ public class FeignClientProperties {
 			return loggerLevel == that.loggerLevel &&
 					Objects.equals(connectTimeout, that.connectTimeout) &&
 					Objects.equals(readTimeout, that.readTimeout) &&
-					Objects.equals(retryer, that.retryer) &&
 					Objects.equals(errorDecoder, that.errorDecoder) &&
 					Objects.equals(requestInterceptors, that.requestInterceptors) &&
 					Objects.equals(decode404, that.decode404);
@@ -165,7 +153,7 @@ public class FeignClientProperties {
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(loggerLevel, connectTimeout, readTimeout, retryer,
+			return Objects.hash(loggerLevel, connectTimeout, readTimeout,
 					errorDecoder, requestInterceptors, decode404);
 		}
 	}

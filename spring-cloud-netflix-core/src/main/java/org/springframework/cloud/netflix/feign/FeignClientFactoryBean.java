@@ -16,9 +16,11 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import java.util.Map;
-import java.util.Objects;
-
+import feign.*;
+import feign.Target.HardCodedTarget;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
+import feign.codec.ErrorDecoder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -30,17 +32,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import feign.Client;
-import feign.Contract;
-import feign.Feign;
-import feign.Logger;
-import feign.Request;
-import feign.RequestInterceptor;
-import feign.Retryer;
-import feign.Target.HardCodedTarget;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.codec.ErrorDecoder;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Spencer Gibb
@@ -120,6 +113,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 		if (level != null) {
 			builder.logLevel(level);
 		}
+		// TODO Shall we remove the retryer?
 		Retryer retryer = getOptional(context, Retryer.class);
 		if (retryer != null) {
 			builder.retryer(retryer);
@@ -154,11 +148,6 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 
 		if (config.getConnectTimeout() != null && config.getReadTimeout() != null) {
 			builder.options(new Request.Options(config.getConnectTimeout(), config.getReadTimeout()));
-		}
-
-		if (config.getRetryer() != null) {
-			Retryer retryer = getOrInstantiate(config.getRetryer());
-			builder.retryer(retryer);
 		}
 
 		if (config.getErrorDecoder() != null) {

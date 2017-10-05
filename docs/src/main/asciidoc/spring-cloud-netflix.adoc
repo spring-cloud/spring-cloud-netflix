@@ -1099,7 +1099,6 @@ feign:
         readTimeout: 5000
         loggerLevel: full
         errorDecoder: com.example.SimpleErrorDecoder
-        retryer: com.example.SimpleRetryer
         requestInterceptors:
           - com.example.FooRequestInterceptor
           - com.example.BarRequestInterceptor
