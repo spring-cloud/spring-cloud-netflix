@@ -22,6 +22,7 @@
 		<servo.version>0.10.1</servo.version>
 		<zuul.version>1.3.0</zuul.version>
 		<rxjava.version>1.2.0</rxjava.version>
+		<rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
 		<java.version>1.7</java.version>
 		<turbine.version>1.0.0</turbine.version>
 		<eureka-jersey.version>1.19.1</eureka-jersey.version>
@@ -400,6 +401,11 @@
 				<groupId>io.reactivex</groupId>
 				<artifactId>rxjava</artifactId>
 				<version>${rxjava.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.reactivex</groupId>
+				<artifactId>rxjava-reactive-streams</artifactId>
+				<version>${rxjava-reactive-streams.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.zuul</groupId>
