@@ -19,12 +19,6 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<!-- You actually can't use Eureka as a client unless you register so 
-				it has to be a webapp -->
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter</artifactId>
 		</dependency>
