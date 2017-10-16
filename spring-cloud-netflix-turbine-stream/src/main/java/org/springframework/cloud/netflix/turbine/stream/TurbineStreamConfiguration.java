@@ -16,13 +16,25 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.protocol.http.server.HttpServer;
+import io.reactivex.netty.protocol.http.sse.ServerSentEvent;
+
+import com.netflix.turbine.aggregator.InstanceKey;
+import com.netflix.turbine.aggregator.StreamAggregator;
+import com.netflix.turbine.internal.JsonUtility;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -31,16 +43,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.SocketUtils;
 
-import com.netflix.turbine.aggregator.InstanceKey;
-import com.netflix.turbine.aggregator.StreamAggregator;
-import com.netflix.turbine.internal.JsonUtility;
+import static io.reactivex.netty.pipeline.PipelineConfigurators.serveSseConfigurator;
 
-import static io.reactivex.netty.pipeline.PipelineConfigurators.sseServerConfigurator;
-
-import io.netty.buffer.ByteBuf;
-import io.reactivex.netty.RxNetty;
-import io.reactivex.netty.protocol.http.server.HttpServer;
-import io.reactivex.netty.protocol.text.sse.ServerSentEvent;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -51,6 +55,7 @@ import rx.subjects.PublishSubject;
 @EnableConfigurationProperties(TurbineStreamProperties.class)
 public class TurbineStreamConfiguration implements SmartLifecycle {
 
+<<<<<<< HEAD
 	private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
 
 	private AtomicBoolean running = new AtomicBoolean(false);
@@ -149,5 +154,104 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	public int getTurbinePort() {
 		return this.turbinePort;
 	}
+=======
+    private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
+
+    private AtomicBoolean running = new AtomicBoolean(false);
+
+    @Autowired
+    private TurbineStreamProperties properties;
+
+    private int turbinePort;
+
+    @Bean
+    public HasFeatures Feature() {
+        return HasFeatures.namedFeature("Turbine (Stream)",
+                TurbineStreamProperties.class);
+    }
+
+    @Bean
+    public PublishSubject<Map<String, Object>> hystrixSubject() {
+        return PublishSubject.create();
+    }
+
+    @Bean
+    @SuppressWarnings("deprecation")
+    public HttpServer<ByteBuf, ServerSentEvent> aggregatorServer() {
+        // multicast so multiple concurrent subscribers get the same stream
+        Observable<Map<String, Object>> publishedStreams = StreamAggregator
+                .aggregateGroupedStreams(hystrixSubject().groupBy(
+                        data -> InstanceKey.create((String) data.get("instanceId"))))
+                .doOnUnsubscribe(() -> log.info("Unsubscribing aggregation."))
+                .doOnSubscribe(() -> log.info("Starting aggregation")).flatMap(o -> o)
+                .publish().refCount();
+        Observable<Map<String, Object>> ping = Observable.timer(1, 10, TimeUnit.SECONDS)
+                .map(count -> Collections.singletonMap("type", (Object) "Ping")).publish()
+                .refCount();
+        Observable<Map<String, Object>> output = Observable.merge(publishedStreams, ping);
+
+        this.turbinePort = this.properties.getPort();
+
+        if (this.turbinePort <= 0) {
+            this.turbinePort = SocketUtils.findAvailableTcpPort(40000);
+        }
+
+        HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty
+                .createHttpServer(this.turbinePort, (request, response) -> {
+                    log.info("SSE Request Received");
+                    response.getHeaders().setHeader("Content-Type", "text/event-stream");
+                    return output.doOnUnsubscribe(
+                            () -> log.info("Unsubscribing RxNetty server connection"))
+                            .flatMap(data -> response.writeAndFlush(new ServerSentEvent(
+                                    Unpooled.copiedBuffer(JsonUtility.mapToJson(data),
+                                            StandardCharsets.UTF_8))));
+                }, serveSseConfigurator());
+        return httpServer;
+    }
+
+    @Override
+    public boolean isAutoStartup() {
+        return true;
+    }
+
+    @Override
+    public void stop(Runnable callback) {
+        stop();
+        callback.run();
+    }
+
+    @Override
+    public void start() {
+        if (this.running.compareAndSet(false, true)) {
+            aggregatorServer().start();
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (this.running.compareAndSet(true, false)) {
+            try {
+                aggregatorServer().shutdown();
+            }
+            catch (InterruptedException ex) {
+                log.error("Error shutting down", ex);
+            }
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        return this.running.get();
+    }
+
+    @Override
+    public int getPhase() {
+        return 0;
+    }
+
+    public int getTurbinePort() {
+        return this.turbinePort;
+    }
+>>>>>>> feature/eureka-stubs
 
 }
