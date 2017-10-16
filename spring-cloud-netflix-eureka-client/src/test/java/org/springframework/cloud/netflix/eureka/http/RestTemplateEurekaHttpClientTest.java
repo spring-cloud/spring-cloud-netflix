@@ -67,6 +67,7 @@ public class RestTemplateEurekaHttpClientTest {
 		config.setVirtualHostName(appname);
 		config.setSecureVirtualHostName(appname);
 		config.setNonSecurePort(4444);
+		config.setSecurePort(8443);
 		config.setInstanceId("127.0.0.1:customapp:4444");
 
 		info = new EurekaConfigBasedInstanceInfoProvider(config).get();
