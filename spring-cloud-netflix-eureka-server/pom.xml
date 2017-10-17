@@ -104,6 +104,12 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<scope>test</scope>
+			<version>2.8.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.restdocs</groupId>
 			<artifactId>spring-restdocs-restassured</artifactId>
 			<scope>test</scope>
