@@ -42,6 +42,10 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
+import static com.netflix.appinfo.InstanceInfo.DEFAULT_PORT;
+import static com.netflix.appinfo.InstanceInfo.DEFAULT_SECURE_PORT;
+import static org.springframework.util.Assert.isTrue;
+
 /**
  * Mocked Eureka Server
  * 
@@ -69,6 +73,10 @@ public class EurekaServerMockApplication {
 	@PostMapping("/apps/{appName}")
 	public void register(@PathVariable String appName,
 			@RequestBody InstanceInfo instanceInfo) {
+		isTrue(instanceInfo.getPort() != DEFAULT_PORT && instanceInfo.getPort() != 0,
+				"Port not received from client");
+		isTrue(instanceInfo.getSecurePort() != DEFAULT_SECURE_PORT && instanceInfo.getSecurePort() != 0,
+				"Secure Port not received from client");
 		// Nothing to do
 	}
 

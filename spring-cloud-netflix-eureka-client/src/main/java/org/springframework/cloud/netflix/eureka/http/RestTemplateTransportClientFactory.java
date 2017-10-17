@@ -23,10 +23,21 @@ import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.converters.jackson.mixin.ApplicationsJsonMixIn;
+import com.netflix.discovery.converters.jackson.mixin.InstanceInfoJsonMixIn;
+import com.netflix.discovery.converters.jackson.serializer.InstanceInfoJsonBeanSerializer;
+import com.netflix.discovery.shared.Applications;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import com.netflix.discovery.shared.transport.TransportClientFactory;
@@ -84,11 +95,39 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		converter.setObjectMapper(new ObjectMapper()
 				.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
 
+		SimpleModule jsonModule = new SimpleModule();
+		jsonModule.setSerializerModifier(createJsonSerializerModifier());//keyFormatter, compact));
+		converter.getObjectMapper().registerModule(jsonModule);
+
 		converter.getObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true);
 		converter.getObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE,
 				true);
+		converter.getObjectMapper().addMixIn(Applications.class, ApplicationsJsonMixIn.class);
+		converter.getObjectMapper().addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
+
+		// converter.getObjectMapper().addMixIn(DataCenterInfo.class, DataCenterInfoXmlMixIn.class);
+		// converter.getObjectMapper().addMixIn(InstanceInfo.PortWrapper.class, PortWrapperXmlMixIn.class);
+		// converter.getObjectMapper().addMixIn(Application.class, ApplicationXmlMixIn.class);
+		// converter.getObjectMapper().addMixIn(Applications.class, ApplicationsXmlMixIn.class);
+
 
 		return converter;
+	}
+
+	public static BeanSerializerModifier createJsonSerializerModifier() {//final KeyFormatter keyFormatter, final boolean compactMode) {
+		return new BeanSerializerModifier() {
+			@Override
+			public JsonSerializer<?> modifySerializer(SerializationConfig config,
+													  BeanDescription beanDesc, JsonSerializer<?> serializer) {
+				/*if (beanDesc.getBeanClass().isAssignableFrom(Applications.class)) {
+					return new ApplicationsJsonBeanSerializer((BeanSerializerBase) serializer, keyFormatter);
+				}*/
+				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
+					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
+				}
+				return serializer;
+			}
+		};
 	}
 
 	@Override
