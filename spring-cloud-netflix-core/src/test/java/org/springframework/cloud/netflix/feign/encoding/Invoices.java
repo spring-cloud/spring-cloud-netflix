@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,14 @@ import java.util.Locale;
  */
 final class Invoices {
 
-    public static List<Invoice> createInvoiceList(int count) {
-        final List<Invoice> invoices = new ArrayList<>();
-        for (int ind = 0; ind < count; ind++) {
-            final Invoice invoice = new Invoice();
-            invoice.setTitle("Invoice " + (ind + 1));
-            invoice.setAmount(new BigDecimal(String.format(Locale.US, "%.2f", Math.random() * 1000)));
-            invoices.add(invoice);
-        }
-        return invoices;
-    }
+	public static List<Invoice> createInvoiceList(int count) {
+		final List<Invoice> invoices = new ArrayList<>();
+		for (int ind = 0; ind < count; ind++) {
+			final Invoice invoice = new Invoice();
+			invoice.setTitle("Invoice " + (ind + 1));
+			invoice.setAmount(new BigDecimal(String.format(Locale.US, "%.2f", Math.random() * 1000)));
+			invoices.add(invoice);
+		}
+		return invoices;
+	}
 }

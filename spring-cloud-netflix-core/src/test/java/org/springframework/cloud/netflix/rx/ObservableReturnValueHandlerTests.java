@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,114 +58,114 @@ import rx.functions.Func1;
 @DirtiesContext
 public class ObservableReturnValueHandlerTests {
 
-    @Value("${local.server.port}")
-    private int port = 0;
+	@Value("${local.server.port}")
+	private int port = 0;
 
-    private TestRestTemplate restTemplate = new TestRestTemplate();
+	private TestRestTemplate restTemplate = new TestRestTemplate();
 
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-    protected static class Application {
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	protected static class Application {
 
 		// tag::rx_observable[]
-        @RequestMapping(method = RequestMethod.GET, value = "/single")
-        public Single<String> single() {
-            return Observable.just("single value").toSingle();
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/single")
+		public Single<String> single() {
+			return Observable.just("single value").toSingle();
+		}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/multiple")
-        public Single<List<String>> multiple() {
-            return Observable.just("multiple", "values").toList().toSingle();
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/multiple")
+		public Single<List<String>> multiple() {
+			return Observable.just("multiple", "values").toList().toSingle();
+		}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")
-        public ResponseEntity<Single<String>> responseWithObservable() {
+		@RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")
+		public ResponseEntity<Single<String>> responseWithObservable() {
 
-            Observable<String> observable = Observable.just("single value");
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(APPLICATION_JSON_UTF8);
-            return new ResponseEntity<>(observable.toSingle(), headers, HttpStatus.CREATED);
-        }
+			Observable<String> observable = Observable.just("single value");
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(APPLICATION_JSON_UTF8);
+			return new ResponseEntity<>(observable.toSingle(), headers, HttpStatus.CREATED);
+		}
 
-        @RequestMapping(method = RequestMethod.GET, value = "/timeout")
-        public Observable<String> timeout() {
-            return Observable.timer(1, TimeUnit.MINUTES).map(new Func1<Long, String>() {
-                @Override
-                public String call(Long aLong) {
-                    return "single value";
-                }
-            });
-        }
+		@RequestMapping(method = RequestMethod.GET, value = "/timeout")
+		public Observable<String> timeout() {
+			return Observable.timer(1, TimeUnit.MINUTES).map(new Func1<Long, String>() {
+				@Override
+				public String call(Long aLong) {
+					return "single value";
+				}
+			});
+		}
 		// end::rx_observable[]
 
 		@RequestMapping(method = RequestMethod.GET, value = "/throw")
 		public Single<Object> error() {
 			return Observable.error(new RuntimeException("Unexpected")).toSingle();
 		}
-    }
+	}
 
-    @Test
-    public void shouldRetrieveSingleValue() {
+	@Test
+	public void shouldRetrieveSingleValue() {
 
-        // when
-        ResponseEntity<String> response = restTemplate.getForEntity(path("/single"), String.class);
+		// when
+		ResponseEntity<String> response = restTemplate.getForEntity(path("/single"), String.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("single value", response.getBody());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals("single value", response.getBody());
+	}
 
-    @Test
-    public void shouldRetrieveMultipleValues() {
+	@Test
+	public void shouldRetrieveMultipleValues() {
 
-        // when
-        ResponseEntity<List> response = restTemplate.getForEntity(path("/multiple"), List.class);
+		// when
+		ResponseEntity<List> response = restTemplate.getForEntity(path("/multiple"), List.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(Arrays.asList("multiple", "values"), response.getBody());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(Arrays.asList("multiple", "values"), response.getBody());
+	}
 
-    @Test
-    public void shouldRetrieveSingleValueWithStatusCodeAndCustomHeader() {
+	@Test
+	public void shouldRetrieveSingleValueWithStatusCodeAndCustomHeader() {
 
-        // when
-        ResponseEntity<String> response = restTemplate.getForEntity(path("/responseWithObservable"), String.class);
+		// when
+		ResponseEntity<String> response = restTemplate.getForEntity(path("/responseWithObservable"), String.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON_UTF8, response.getHeaders().getContentType());
-        assertEquals("single value", response.getBody());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+		assertEquals(MediaType.APPLICATION_JSON_UTF8, response.getHeaders().getContentType());
+		assertEquals("single value", response.getBody());
+	}
 
-    @Test
-    public void shouldRetrieveErrorResponse() {
+	@Test
+	public void shouldRetrieveErrorResponse() {
 
-        // when
-        ResponseEntity<Object> response = restTemplate.getForEntity(path("/throw"), Object.class);
+		// when
+		ResponseEntity<Object> response = restTemplate.getForEntity(path("/throw"), Object.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	}
 
-    @Test
+	@Test
 	@Ignore("adds 30s to build")
-    public void shouldTimeoutOnConnection() {
+	public void shouldTimeoutOnConnection() {
 
-        // when
-        ResponseEntity<Object> response = restTemplate.getForEntity(path("/timeout"), Object.class);
+		// when
+		ResponseEntity<Object> response = restTemplate.getForEntity(path("/timeout"), Object.class);
 
-        // then
-        assertNotNull(response);
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    }
+		// then
+		assertNotNull(response);
+		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+	}
 
-    private String path(String context) {
-        return String.format("http://localhost:%d%s", port, context);
-    }
+	private String path(String context) {
+		return String.format("http://localhost:%d%s", port, context);
+	}
 }

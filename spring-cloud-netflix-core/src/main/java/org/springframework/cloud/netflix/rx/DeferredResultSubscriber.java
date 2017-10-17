@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,39 +30,39 @@ import rx.Subscription;
  */
 class DeferredResultSubscriber<T> extends Subscriber<T> implements Runnable {
 
-    private final DeferredResult<T> deferredResult;
+	private final DeferredResult<T> deferredResult;
 
-    private final Subscription subscription;
+	private final Subscription subscription;
 
-    private boolean completed;
+	private boolean completed;
 
-    public DeferredResultSubscriber(Observable<T> observable, DeferredResult<T> deferredResult) {
+	public DeferredResultSubscriber(Observable<T> observable, DeferredResult<T> deferredResult) {
 
-        this.deferredResult = deferredResult;
-        this.deferredResult.onTimeout(this);
-        this.deferredResult.onCompletion(this);
-        this.subscription = observable.subscribe(this);
-    }
+		this.deferredResult = deferredResult;
+		this.deferredResult.onTimeout(this);
+		this.deferredResult.onCompletion(this);
+		this.subscription = observable.subscribe(this);
+	}
 
-    @Override
-    public void onNext(T value) {
-        if (!completed) {
-            deferredResult.setResult(value);
-        }
-    }
+	@Override
+	public void onNext(T value) {
+		if (!completed) {
+			deferredResult.setResult(value);
+		}
+	}
 
-    @Override
-    public void onError(Throwable e) {
-        deferredResult.setErrorResult(e);
-    }
+	@Override
+	public void onError(Throwable e) {
+		deferredResult.setErrorResult(e);
+	}
 
-    @Override
-    public void onCompleted() {
-        completed = true;
-    }
+	@Override
+	public void onCompleted() {
+		completed = true;
+	}
 
-    @Override
-    public void run() {
-        this.subscription.unsubscribe();
-    }
+	@Override
+	public void run() {
+		this.subscription.unsubscribe();
+	}
 }

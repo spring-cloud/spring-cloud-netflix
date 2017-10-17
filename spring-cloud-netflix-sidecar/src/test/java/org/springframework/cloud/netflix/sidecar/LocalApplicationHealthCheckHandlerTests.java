@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,39 +32,39 @@ import org.springframework.boot.actuate.health.HealthIndicator;
  */
 public class LocalApplicationHealthCheckHandlerTests {
 
-    @Mock
-    private HealthIndicator healthIndicator;
+	@Mock
+	private HealthIndicator healthIndicator;
 
-    @Before
-    public void setup() {
-        initMocks(this);
-    }
+	@Before
+	public void setup() {
+		initMocks(this);
+	}
 
-    @Test
-    public void upMappingWorks() {
-        assertStatus(InstanceStatus.UP, Health.up());
-    }
+	@Test
+	public void upMappingWorks() {
+		assertStatus(InstanceStatus.UP, Health.up());
+	}
 
-    @Test
-    public void downMappingWorks() {
-        assertStatus(InstanceStatus.DOWN, Health.down());
-    }
+	@Test
+	public void downMappingWorks() {
+		assertStatus(InstanceStatus.DOWN, Health.down());
+	}
 
-    @Test
-    public void outOfServiceMappingWorks() {
-        assertStatus(InstanceStatus.OUT_OF_SERVICE, Health.outOfService());
-    }
+	@Test
+	public void outOfServiceMappingWorks() {
+		assertStatus(InstanceStatus.OUT_OF_SERVICE, Health.outOfService());
+	}
 
-    @Test
-    public void unknownMappingWorks() {
-        assertStatus(InstanceStatus.UNKNOWN, Health.unknown());
-    }
+	@Test
+	public void unknownMappingWorks() {
+		assertStatus(InstanceStatus.UNKNOWN, Health.unknown());
+	}
 
-    private void assertStatus(InstanceStatus expected, Health.Builder builder) {
-        given(healthIndicator.health()).willReturn(builder.build());
+	private void assertStatus(InstanceStatus expected, Health.Builder builder) {
+		given(healthIndicator.health()).willReturn(builder.build());
 
-        LocalApplicationHealthCheckHandler handler = new LocalApplicationHealthCheckHandler(healthIndicator);
-        InstanceStatus status = handler.getStatus(InstanceStatus.UP);
-        assertEquals(expected, status);
-    }
+		LocalApplicationHealthCheckHandler handler = new LocalApplicationHealthCheckHandler(healthIndicator);
+		InstanceStatus status = handler.getStatus(InstanceStatus.UP);
+		assertEquals(expected, status);
+	}
 }

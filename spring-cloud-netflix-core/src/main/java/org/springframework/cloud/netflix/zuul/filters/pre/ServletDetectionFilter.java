@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,17 +66,17 @@ public class ServletDetectionFilter extends ZuulFilter {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		HttpServletRequest request = ctx.getRequest();
 		if (!(request instanceof HttpServletRequestWrapper) 
-		        && isDispatcherServletRequest(request)) {
-		    ctx.set(IS_DISPATCHER_SERVLET_REQUEST_KEY, true);
+				&& isDispatcherServletRequest(request)) {
+			ctx.set(IS_DISPATCHER_SERVLET_REQUEST_KEY, true);
 		} else {
-		    ctx.set(IS_DISPATCHER_SERVLET_REQUEST_KEY, false);
+			ctx.set(IS_DISPATCHER_SERVLET_REQUEST_KEY, false);
 		}
 
 		return null;
 	}
 	
-    private boolean isDispatcherServletRequest(HttpServletRequest request) {
-        return request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
-    }     	
+	private boolean isDispatcherServletRequest(HttpServletRequest request) {
+		return request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE) != null;
+	}	 	
 
 }

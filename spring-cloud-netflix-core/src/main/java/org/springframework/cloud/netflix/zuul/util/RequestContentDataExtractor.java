@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul.util;
 
 import org.springframework.core.io.InputStreamResource;
@@ -18,80 +34,80 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class RequestContentDataExtractor {
-    public static MultiValueMap<String, Object> extract(HttpServletRequest request) throws IOException {
-        return (request instanceof MultipartHttpServletRequest) ?
-                extractFromMultipartRequest((MultipartHttpServletRequest) request) :
-                extractFromRequest(request);
-    }
+	public static MultiValueMap<String, Object> extract(HttpServletRequest request) throws IOException {
+		return (request instanceof MultipartHttpServletRequest) ?
+				extractFromMultipartRequest((MultipartHttpServletRequest) request) :
+				extractFromRequest(request);
+	}
 
-    private static MultiValueMap<String, Object> extractFromRequest(HttpServletRequest request) throws IOException {
-        MultiValueMap<String, Object> builder     = new LinkedMultiValueMap<>();
-        Set<String>                   queryParams = findQueryParams(request);
+	private static MultiValueMap<String, Object> extractFromRequest(HttpServletRequest request) throws IOException {
+		MultiValueMap<String, Object> builder	 = new LinkedMultiValueMap<>();
+		Set<String>				   queryParams = findQueryParams(request);
 
-        for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
-            String key = entry.getKey();
+		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+			String key = entry.getKey();
 
-            if (!queryParams.contains(key)) {
-                for (String value : entry.getValue()) {
-                    builder.add(key, value);
-                }
-            }
-        }
+			if (!queryParams.contains(key)) {
+				for (String value : entry.getValue()) {
+					builder.add(key, value);
+				}
+			}
+		}
 
-        return builder;
-    }
+		return builder;
+	}
 
-    private static MultiValueMap<String, Object> extractFromMultipartRequest(MultipartHttpServletRequest request)
-            throws IOException {
-        MultiValueMap<String, Object> builder     = new LinkedMultiValueMap<>();
-        Set<String>                   queryParams = findQueryParams(request);
+	private static MultiValueMap<String, Object> extractFromMultipartRequest(MultipartHttpServletRequest request)
+			throws IOException {
+		MultiValueMap<String, Object> builder	 = new LinkedMultiValueMap<>();
+		Set<String>				   queryParams = findQueryParams(request);
 
-        for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
-            String key = entry.getKey();
+		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+			String key = entry.getKey();
 
-            if (!queryParams.contains(key)) {
-                for (String value : entry.getValue()) {
-                    HttpHeaders headers = new HttpHeaders();
-                    String      type    = request.getMultipartContentType(key);
+			if (!queryParams.contains(key)) {
+				for (String value : entry.getValue()) {
+					HttpHeaders headers = new HttpHeaders();
+					String	  type	= request.getMultipartContentType(key);
 
-                    if (type != null) {
-                        headers.setContentType(MediaType.valueOf(type));
-                    }
+					if (type != null) {
+						headers.setContentType(MediaType.valueOf(type));
+					}
 
-                    builder.add(key, new HttpEntity<>(value, headers));
-                }
-            }
-        }
+					builder.add(key, new HttpEntity<>(value, headers));
+				}
+			}
+		}
 
-        for (Entry<String, List<MultipartFile>> parts : request.getMultiFileMap().entrySet()) {
-            for (MultipartFile file : parts.getValue()) {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentDispositionFormData(file.getName(), file.getOriginalFilename());
-                if (file.getContentType() != null) {
-                    headers.setContentType(MediaType.valueOf(file.getContentType()));
-                }
+		for (Entry<String, List<MultipartFile>> parts : request.getMultiFileMap().entrySet()) {
+			for (MultipartFile file : parts.getValue()) {
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentDispositionFormData(file.getName(), file.getOriginalFilename());
+				if (file.getContentType() != null) {
+					headers.setContentType(MediaType.valueOf(file.getContentType()));
+				}
 
-                HttpEntity entity = new HttpEntity<>(new InputStreamResource(file.getInputStream()), headers);
-                builder.add(parts.getKey(), entity);
-            }
-        }
+				HttpEntity entity = new HttpEntity<>(new InputStreamResource(file.getInputStream()), headers);
+				builder.add(parts.getKey(), entity);
+			}
+		}
 
-        return builder;
-    }
+		return builder;
+	}
 
-    private static Set<String> findQueryParams(HttpServletRequest request) {
-        Set<String> result = new HashSet<>();
-        String      query  = request.getQueryString();
+	private static Set<String> findQueryParams(HttpServletRequest request) {
+		Set<String> result = new HashSet<>();
+		String	  query  = request.getQueryString();
 
-        if (query != null) {
-            for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
-                if (value.contains("=")) {
-                    value = value.substring(0, value.indexOf("="));
-                }
-                result.add(value);
-            }
-        }
+		if (query != null) {
+			for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
+				if (value.contains("=")) {
+					value = value.substring(0, value.indexOf("="));
+				}
+				result.add(value);
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 }
