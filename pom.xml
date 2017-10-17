@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>1.3.5.BUILD-SNAPSHOT</version>
+		<version>1.3.5.RELEASE</version>
 		<relativePath />
 	</parent>
 	<scm>
@@ -27,6 +27,8 @@
 		<spring-cloud-commons.version>1.3.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>1.4.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>Ditmars.BUILD-SNAPSHOT</spring-cloud-stream.version>
+		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
+		<spring-cloud-contract.version>1.1.2.RELEASE</spring-cloud-contract.version>
 
 		<!-- Plugin versions -->
 		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
@@ -72,6 +74,12 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-netflix-hystrix-contract</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-netflix-dependencies</artifactId>
 				<version>${project.version}</version>
 				<type>pom</type>
@@ -106,6 +114,13 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-contract-dependencies</artifactId>
+				<version>${spring-cloud-contract.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-codec-http</artifactId>
 				<version>${netty.version}</version>
@@ -124,6 +139,8 @@
 	</dependencyManagement>
 	<modules>
 		<module>spring-cloud-netflix-dependencies</module>
+		<!-- Not part of the reactor build: build and deploy separately -->
+		<!--module>spring-cloud-netflix-hystrix-contract</module-->
 		<module>spring-cloud-netflix-core</module>
 		<module>spring-cloud-netflix-hystrix-dashboard</module>
 		<module>spring-cloud-netflix-hystrix-amqp</module>

@@ -114,17 +114,7 @@ following command:
 The generated eclipse projects can be imported by selecting `import existing projects`
 from the `file` menu.
 
-==== Importing into Intellij
-Spring Cloud projects need a specific version of Maven and a profile enabled.
-Intellij 14.1+ requires some configuration to ensure these are setup properly.
 
- 1. Click New, Project from Existing Sources, choose your spring-cloud project directory
- 2. Choose Maven, and select Environment Settings. *Ensure you are using Maven 3.3.3*
- 3. In the next screen, *Select the profile `spring`* click Next until Finish.
- 4. Click Build, Rebuild Project, and you are ready to go!
-
-==== Importing into other IDEs
-Maven is well supported by most Java IDEs. Refer to you vendor documentation.
 
 == Contributing
 

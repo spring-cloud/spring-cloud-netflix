@@ -52,7 +52,7 @@ import org.springframework.scheduling.annotation.Scheduled;
  * private class MetricsPoller)
  */
 public class HystrixStreamTask implements ApplicationContextAware {
-	
+
 	private static Log log = LogFactory.getLog(HystrixStreamTask.class);
 
 	private MessageChannel outboundChannel;
@@ -68,7 +68,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 	private final JsonFactory jsonFactory = new JsonFactory();
 
-	public HystrixStreamTask(MessageChannel outboundChannel, DiscoveryClient discoveryClient, HystrixStreamProperties properties) {
+	public HystrixStreamTask(MessageChannel outboundChannel,
+			DiscoveryClient discoveryClient, HystrixStreamProperties properties) {
 		this.outboundChannel = outboundChannel;
 		this.discoveryClient = discoveryClient;
 		this.properties = properties;
@@ -94,7 +95,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			for (String json : metrics) {
 				// TODO: batch all metrics to one message
 				try {
-					// TODO: remove the explicit content type when s-c-stream can handle that for us
+					// TODO: remove the explicit content type when s-c-stream can handle
+					// that for us
 					this.outboundChannel.send(MessageBuilder.withPayload(json)
 							.setHeader(MessageHeaders.CONTENT_TYPE,
 									this.properties.getContentType())
