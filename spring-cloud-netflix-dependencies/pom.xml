@@ -14,7 +14,7 @@
 	<name>spring-cloud-netflix-dependencies</name>
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
-		<archaius.version>0.7.5</archaius.version>
+		<archaius.version>0.7.4</archaius.version>
 		<eureka.version>1.7.0</eureka.version>
 		<feign.version>9.5.0</feign.version>
 		<hystrix.version>1.5.12</hystrix.version>
