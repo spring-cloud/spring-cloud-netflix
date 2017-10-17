@@ -46,8 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = HystrixStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
-		properties = { "spring.jmx.enabled=true", "spring.application.name=mytestapp" })
+@SpringBootTest(classes = HystrixStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+		"spring.jmx.enabled=true", "spring.application.name=mytestapp" })
 @DirtiesContext
 public class HystrixStreamTests {
 
@@ -86,15 +86,16 @@ public class HystrixStreamTests {
 	@Test
 	public void contextLoads() throws Exception {
 		this.application.hello();
-		//It is important that local service instance resolves for metrics
-		//origin details to be populated
+		// It is important that local service instance resolves for metrics
+		// origin details to be populated
 		ServiceInstance localServiceInstance = discoveryClient.getLocalServiceInstance();
 		assertThat(localServiceInstance).isNotNull();
 		assertThat(localServiceInstance.getServiceId()).isEqualTo("mytestapp");
 		this.task.gatherMetrics();
 		Message<?> message = this.collector.forChannel(output).take();
-		assertThat(message.getPayload()).isInstanceOf(String.class);
-		JsonNode tree = mapper.readTree((String) message.getPayload());
+		// TODO: possible regression with Edgware?
+		assertThat(message.getPayload()).isInstanceOf(byte[].class);
+		JsonNode tree = mapper.readTree(new String((byte[]) message.getPayload()));
 		assertThat(tree.hasNonNull("origin"));
 		assertThat(tree.hasNonNull("data"));
 	}
