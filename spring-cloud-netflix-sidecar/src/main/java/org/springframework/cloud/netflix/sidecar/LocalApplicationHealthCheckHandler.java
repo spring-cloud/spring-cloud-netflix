@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,22 +33,22 @@ import org.springframework.boot.actuate.health.Status;
 */
 class LocalApplicationHealthCheckHandler implements HealthCheckHandler {
 
-    private final HealthIndicator healthIndicator;
+	private final HealthIndicator healthIndicator;
 
-    public LocalApplicationHealthCheckHandler(HealthIndicator healthIndicator) {
-        this.healthIndicator = healthIndicator;
-    }
+	public LocalApplicationHealthCheckHandler(HealthIndicator healthIndicator) {
+		this.healthIndicator = healthIndicator;
+	}
 
-    @Override
-    public InstanceStatus getStatus(InstanceStatus currentStatus) {
-        Status status = healthIndicator.health().getStatus();
-        if (status.equals(Status.UP)) {
-            return UP;
-        } else if (status.equals(Status.OUT_OF_SERVICE)) {
-            return OUT_OF_SERVICE;
-        } else if (status.equals(Status.DOWN)) {
-            return DOWN;
-        }
-        return UNKNOWN;
-    }
+	@Override
+	public InstanceStatus getStatus(InstanceStatus currentStatus) {
+		Status status = healthIndicator.health().getStatus();
+		if (status.equals(Status.UP)) {
+			return UP;
+		} else if (status.equals(Status.OUT_OF_SERVICE)) {
+			return OUT_OF_SERVICE;
+		} else if (status.equals(Status.DOWN)) {
+			return DOWN;
+		}
+		return UNKNOWN;
+	}
 }

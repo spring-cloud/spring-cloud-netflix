@@ -59,19 +59,19 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 	@Test
 	public void ruleOverridesToRandom() throws Exception {
 		RandomRule.class.cast(getLoadBalancer("foo").getRule());
-        RoundRobinRule.class.cast(getLoadBalancer("bar").getRule());
+		RoundRobinRule.class.cast(getLoadBalancer("bar").getRule());
 	}
 
 	@Test
 	public void pingOverridesToDummy() throws Exception {
 		DummyPing.class.cast(getLoadBalancer("foo").getPing());
-        PingConstant.class.cast(getLoadBalancer("bar").getPing());
+		PingConstant.class.cast(getLoadBalancer("bar").getPing());
 	}
 
 	@Test
 	public void serverListOverridesToMy() throws Exception {
 		FooServiceList.class.cast(getLoadBalancer("foo").getServerListImpl());
-        BarServiceList.class.cast(getLoadBalancer("bar").getServerListImpl());
+		BarServiceList.class.cast(getLoadBalancer("bar").getServerListImpl());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -88,10 +88,10 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 	}
 
 	@Configuration
-    @RibbonClients({
-        @RibbonClient(name = "foo", configuration = FooConfiguration.class),
-        @RibbonClient(name = "bar", configuration = BarConfiguration.class)
-    })
+	@RibbonClients({
+		@RibbonClient(name = "foo", configuration = FooConfiguration.class),
+		@RibbonClient(name = "bar", configuration = BarConfiguration.class)
+	})
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class})
 	protected static class TestConfiguration {
@@ -128,35 +128,35 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 		}
 	}
 
-    @Configuration
-    public static class BarConfiguration {
+	@Configuration
+	public static class BarConfiguration {
 
-        @Bean
-        public IRule ribbonRule() {
-            return new RoundRobinRule();
-        }
+		@Bean
+		public IRule ribbonRule() {
+			return new RoundRobinRule();
+		}
 
-        @Bean
-        public IPing ribbonPing() {
-            return new PingConstant();
-        }
+		@Bean
+		public IPing ribbonPing() {
+			return new PingConstant();
+		}
 
-        @Bean
-        public ServerList<Server> ribbonServerList(IClientConfig config) {
-            return new BarServiceList(config);
-        }
+		@Bean
+		public ServerList<Server> ribbonServerList(IClientConfig config) {
+			return new BarServiceList(config);
+		}
 
-        @Bean
-        public ZonePreferenceServerListFilter serverListFilter() {
-            ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-            filter.setZone("BarTestZone");
-            return filter;
-        }
-    }
+		@Bean
+		public ZonePreferenceServerListFilter serverListFilter() {
+			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
+			filter.setZone("BarTestZone");
+			return filter;
+		}
+	}
 
-    public static class BarServiceList extends ConfigurationBasedServerList {
-        public BarServiceList(IClientConfig config) {
-            super.initWithNiwsConfig(config);
-        }
-    }
+	public static class BarServiceList extends ConfigurationBasedServerList {
+		public BarServiceList(IClientConfig config) {
+			super.initWithNiwsConfig(config);
+		}
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ import rx.Single;
 		"spring.application.name=feignclienttest",
 		"logging.level.org.springframework.cloud.netflix.feign.valid=DEBUG",
 		"feign.httpclient.enabled=false", "feign.okhttp.enabled=false",
-        "feign.hystrix.enabled=true"})
+		"feign.hystrix.enabled=true"})
 @DirtiesContext
 public class FeignClientTests {
 

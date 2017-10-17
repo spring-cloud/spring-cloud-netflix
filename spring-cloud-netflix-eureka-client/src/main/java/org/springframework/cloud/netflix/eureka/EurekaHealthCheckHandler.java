@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,33 +49,33 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
  */
 public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
 
-    private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING =
-            new HashMap<Status, InstanceInfo.InstanceStatus>() {{
-                put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
-                put(Status.OUT_OF_SERVICE, InstanceStatus.OUT_OF_SERVICE);
-                put(Status.DOWN, InstanceStatus.DOWN);
-                put(Status.UP, InstanceStatus.UP);
-            }};
+	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING =
+			new HashMap<Status, InstanceInfo.InstanceStatus>() {{
+				put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
+				put(Status.OUT_OF_SERVICE, InstanceStatus.OUT_OF_SERVICE);
+				put(Status.DOWN, InstanceStatus.DOWN);
+				put(Status.UP, InstanceStatus.UP);
+			}};
 
-    private final CompositeHealthIndicator healthIndicator;
+	private final CompositeHealthIndicator healthIndicator;
 
-    private ApplicationContext applicationContext;
+	private ApplicationContext applicationContext;
 
-    public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
-        Assert.notNull(healthAggregator, "HealthAggregator must not be null");
-        this.healthIndicator = new CompositeHealthIndicator(healthAggregator);
-    }
+	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
+		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
+		this.healthIndicator = new CompositeHealthIndicator(healthAggregator);
+	}
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		final Map<String, HealthIndicator> healthIndicators = applicationContext.getBeansOfType(HealthIndicator.class);
 
-        for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
+		for (Map.Entry<String, HealthIndicator> entry : healthIndicators.entrySet()) {
 
 			//ignore EurekaHealthIndicator and flatten the rest of the composite
 			//otherwise there is a never ending cycle of down. See gh-643
@@ -91,23 +91,23 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 			else {
 				healthIndicator.addHealthIndicator(entry.getKey(), entry.getValue());
 			}
-        }
-    }
+		}
+	}
 
-    @Override
-    public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-        return getHealthStatus();
-    }
+	@Override
+	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
+		return getHealthStatus();
+	}
 
-    protected InstanceStatus getHealthStatus() {
-        final Status status = healthIndicator.health().getStatus();
-        return mapToInstanceStatus(status);
-    }
+	protected InstanceStatus getHealthStatus() {
+		final Status status = healthIndicator.health().getStatus();
+		return mapToInstanceStatus(status);
+	}
 
-    protected InstanceStatus mapToInstanceStatus(Status status) {
-        if (!STATUS_MAPPING.containsKey(status)) {
-            return InstanceStatus.UNKNOWN;
-        }
-        return STATUS_MAPPING.get(status);
-    }
+	protected InstanceStatus mapToInstanceStatus(Status status) {
+		if (!STATUS_MAPPING.containsKey(status)) {
+			return InstanceStatus.UNKNOWN;
+		}
+		return STATUS_MAPPING.get(status);
+	}
 }

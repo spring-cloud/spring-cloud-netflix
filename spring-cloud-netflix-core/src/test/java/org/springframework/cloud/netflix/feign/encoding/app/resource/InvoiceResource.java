@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,27 +37,27 @@ import java.util.Locale;
 @RestController
 public class InvoiceResource {
 
-    @RequestMapping(value = "invoices", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Invoice>> getInvoices() {
+	@RequestMapping(value = "invoices", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<Invoice>> getInvoices() {
 
-        return ResponseEntity.ok(createInvoiceList(100));
-    }
+		return ResponseEntity.ok(createInvoiceList(100));
+	}
 
-    @RequestMapping(value = "invoices", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<Invoice>> saveInvoices(@RequestBody List<Invoice> invoices) {
+	@RequestMapping(value = "invoices", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	ResponseEntity<List<Invoice>> saveInvoices(@RequestBody List<Invoice> invoices) {
 
-        return ResponseEntity.ok(invoices);
-    }
+		return ResponseEntity.ok(invoices);
+	}
 
-    private List<Invoice> createInvoiceList(int count) {
-        final List<Invoice> invoices = new ArrayList<>();
-        for (int ind = 0; ind < count; ind++) {
-            final Invoice invoice = new Invoice();
-            invoice.setTitle("Invoice " + (ind + 1));
-            invoice.setAmount(new BigDecimal(String.format(Locale.US, "%.2f", Math.random() * 1000)));
-            invoices.add(invoice);
-        }
-        return invoices;
-    }
+	private List<Invoice> createInvoiceList(int count) {
+		final List<Invoice> invoices = new ArrayList<>();
+		for (int ind = 0; ind < count; ind++) {
+			final Invoice invoice = new Invoice();
+			invoice.setTitle("Invoice " + (ind + 1));
+			invoice.setAmount(new BigDecimal(String.format(Locale.US, "%.2f", Math.random() * 1000)));
+			invoices.add(invoice);
+		}
+		return invoices;
+	}
 }

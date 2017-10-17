@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,23 +100,23 @@ public class CommonsInstanceDiscoveryTests {
 		assertEquals("url is wrong", "http://"+hostName+":"+port+"/hystrix.stream", urlPath);
 	}
 
-    @Test
-    public void testUseManagementPortFromMetadata() {
-        CommonsInstanceDiscovery discovery = createDiscovery();
-        String appName = "testAppName";
-        int port = 8080;
-        int managementPort = 8081;
-        String hostName = "myhost";
-        DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, false);
-        serviceInstance.getMetadata().put("management.port", String.valueOf(managementPort));
-        Instance instance = discovery.marshall(serviceInstance);
-        assertEquals("port is wrong", String.valueOf(managementPort), instance.getAttributes().get("port"));
+	@Test
+	public void testUseManagementPortFromMetadata() {
+		CommonsInstanceDiscovery discovery = createDiscovery();
+		String appName = "testAppName";
+		int port = 8080;
+		int managementPort = 8081;
+		String hostName = "myhost";
+		DefaultServiceInstance serviceInstance = new DefaultServiceInstance(appName, hostName, port, false);
+		serviceInstance.getMetadata().put("management.port", String.valueOf(managementPort));
+		Instance instance = discovery.marshall(serviceInstance);
+		assertEquals("port is wrong", String.valueOf(managementPort), instance.getAttributes().get("port"));
 
-        String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-        assertEquals("url is wrong", "http://"+hostName+":"+managementPort+"/hystrix.stream", urlPath);
-    }
+		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
+		assertEquals("url is wrong", "http://"+hostName+":"+managementPort+"/hystrix.stream", urlPath);
+	}
 
-    @Test
+	@Test
 	public void testGetSecurePort() {
 		CommonsInstanceDiscovery discovery = createDiscovery();
 		String appName = "testAppName";
