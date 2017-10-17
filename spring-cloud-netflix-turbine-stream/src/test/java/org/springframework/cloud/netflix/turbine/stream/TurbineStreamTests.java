@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import org.junit.Ignore;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -27,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -59,7 +59,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TurbineStreamTests.Application.class, webEnvironment = WebEnvironment.NONE, value = {
-		"turbine.stream.port=0", "spring.jmx.enabled=true", "spring.main.web-application-type=servlet"
+		"turbine.stream.port=0", "spring.jmx.enabled=true",
+		"spring.main.web-application-type=servlet",
 		// TODO: we don't need this if we harmonize the turbine and hystrix destinations
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
@@ -89,10 +90,11 @@ public class TurbineStreamTests {
 
 	@EnableAutoConfiguration
 	@EnableTurbineStream
-	public static class Application { }
+	public static class Application {
+	}
 
 	@Test
-	@Ignore //FIXME 2.0.0 Elmurst stream missing class @Controller?
+	@Ignore // FIXME 2.0.0 Elmurst stream missing class @Controller?
 	public void contextLoads() throws Exception {
 		rest.getInterceptors().add(new NonClosingInterceptor());
 		int count = ((MessageChannelMetrics) input).getSendCount();

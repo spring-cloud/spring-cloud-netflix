@@ -55,7 +55,6 @@ import rx.subjects.PublishSubject;
 @EnableConfigurationProperties(TurbineStreamProperties.class)
 public class TurbineStreamConfiguration implements SmartLifecycle {
 
-<<<<<<< HEAD
 	private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
 
 	private AtomicBoolean running = new AtomicBoolean(false);
@@ -77,7 +76,6 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	}
 
 	@Bean
-	//TODO: migrate to WebFlux?
 	@SuppressWarnings("deprecation")
 	public HttpServer<ByteBuf, ServerSentEvent> aggregatorServer() {
 		// multicast so multiple concurrent subscribers get the same stream
@@ -102,12 +100,12 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 				.createHttpServer(this.turbinePort, (request, response) -> {
 					log.info("SSE Request Received");
 					response.getHeaders().setHeader("Content-Type", "text/event-stream");
-					return output
-							.doOnUnsubscribe(() -> log
-									.info("Unsubscribing RxNetty server connection"))
+					return output.doOnUnsubscribe(
+							() -> log.info("Unsubscribing RxNetty server connection"))
 							.flatMap(data -> response.writeAndFlush(new ServerSentEvent(
-									null, null, JsonUtility.mapToJson(data))));
-				}, sseServerConfigurator());
+									Unpooled.copiedBuffer(JsonUtility.mapToJson(data),
+											StandardCharsets.UTF_8))));
+				}, serveSseConfigurator());
 		return httpServer;
 	}
 
@@ -154,104 +152,5 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	public int getTurbinePort() {
 		return this.turbinePort;
 	}
-=======
-    private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
-
-    private AtomicBoolean running = new AtomicBoolean(false);
-
-    @Autowired
-    private TurbineStreamProperties properties;
-
-    private int turbinePort;
-
-    @Bean
-    public HasFeatures Feature() {
-        return HasFeatures.namedFeature("Turbine (Stream)",
-                TurbineStreamProperties.class);
-    }
-
-    @Bean
-    public PublishSubject<Map<String, Object>> hystrixSubject() {
-        return PublishSubject.create();
-    }
-
-    @Bean
-    @SuppressWarnings("deprecation")
-    public HttpServer<ByteBuf, ServerSentEvent> aggregatorServer() {
-        // multicast so multiple concurrent subscribers get the same stream
-        Observable<Map<String, Object>> publishedStreams = StreamAggregator
-                .aggregateGroupedStreams(hystrixSubject().groupBy(
-                        data -> InstanceKey.create((String) data.get("instanceId"))))
-                .doOnUnsubscribe(() -> log.info("Unsubscribing aggregation."))
-                .doOnSubscribe(() -> log.info("Starting aggregation")).flatMap(o -> o)
-                .publish().refCount();
-        Observable<Map<String, Object>> ping = Observable.timer(1, 10, TimeUnit.SECONDS)
-                .map(count -> Collections.singletonMap("type", (Object) "Ping")).publish()
-                .refCount();
-        Observable<Map<String, Object>> output = Observable.merge(publishedStreams, ping);
-
-        this.turbinePort = this.properties.getPort();
-
-        if (this.turbinePort <= 0) {
-            this.turbinePort = SocketUtils.findAvailableTcpPort(40000);
-        }
-
-        HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty
-                .createHttpServer(this.turbinePort, (request, response) -> {
-                    log.info("SSE Request Received");
-                    response.getHeaders().setHeader("Content-Type", "text/event-stream");
-                    return output.doOnUnsubscribe(
-                            () -> log.info("Unsubscribing RxNetty server connection"))
-                            .flatMap(data -> response.writeAndFlush(new ServerSentEvent(
-                                    Unpooled.copiedBuffer(JsonUtility.mapToJson(data),
-                                            StandardCharsets.UTF_8))));
-                }, serveSseConfigurator());
-        return httpServer;
-    }
-
-    @Override
-    public boolean isAutoStartup() {
-        return true;
-    }
-
-    @Override
-    public void stop(Runnable callback) {
-        stop();
-        callback.run();
-    }
-
-    @Override
-    public void start() {
-        if (this.running.compareAndSet(false, true)) {
-            aggregatorServer().start();
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (this.running.compareAndSet(true, false)) {
-            try {
-                aggregatorServer().shutdown();
-            }
-            catch (InterruptedException ex) {
-                log.error("Error shutting down", ex);
-            }
-        }
-    }
-
-    @Override
-    public boolean isRunning() {
-        return this.running.get();
-    }
-
-    @Override
-    public int getPhase() {
-        return 0;
-    }
-
-    public int getTurbinePort() {
-        return this.turbinePort;
-    }
->>>>>>> feature/eureka-stubs
 
 }
