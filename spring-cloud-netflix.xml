@@ -2325,31 +2325,31 @@ public Single&lt;Object&gt; error() {
 <simpara>If you have an <literal>Observable</literal>, rather than a single, you can use <literal>.toSingle()</literal> or <literal>.toList().toSingle()</literal>. Here are some examples:</simpara>
 <programlisting language="java" linenumbering="unnumbered">@RequestMapping(method = RequestMethod.GET, value = "/single")
 public Single&lt;String&gt; single() {
-    return Observable.just("single value").toSingle();
+	return Observable.just("single value").toSingle();
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/multiple")
 public Single&lt;List&lt;String&gt;&gt; multiple() {
-    return Observable.just("multiple", "values").toList().toSingle();
+	return Observable.just("multiple", "values").toList().toSingle();
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")
 public ResponseEntity&lt;Single&lt;String&gt;&gt; responseWithObservable() {
 
-    Observable&lt;String&gt; observable = Observable.just("single value");
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(APPLICATION_JSON_UTF8);
-    return new ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
+	Observable&lt;String&gt; observable = Observable.just("single value");
+	HttpHeaders headers = new HttpHeaders();
+	headers.setContentType(APPLICATION_JSON_UTF8);
+	return new ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
 }
 
 @RequestMapping(method = RequestMethod.GET, value = "/timeout")
 public Observable&lt;String&gt; timeout() {
-    return Observable.timer(1, TimeUnit.MINUTES).map(new Func1&lt;Long, String&gt;() {
-        @Override
-        public String call(Long aLong) {
-            return "single value";
-        }
-    });
+	return Observable.timer(1, TimeUnit.MINUTES).map(new Func1&lt;Long, String&gt;() {
+		@Override
+		public String call(Long aLong) {
+			return "single value";
+		}
+	});
 }</programlisting>
 <simpara>If you have a streaming endpoint and client, SSE could be an option. To convert <literal>rx.Observable</literal> to a Spring <literal>SseEmitter</literal> use <literal>RxResponse.sse()</literal>. Here are some examples:</simpara>
 <programlisting language="java" linenumbering="unnumbered">@RequestMapping(method = RequestMethod.GET, value = "/sse")

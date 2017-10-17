@@ -1333,31 +1333,31 @@ might result in a YAML document like the following</p><pre class="programlisting
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Single.error(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> RuntimeException(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"Unexpected"</span>));
 }</pre><p>If you have an <code class="literal">Observable</code>, rather than a single, you can use <code class="literal">.toSingle()</code> or <code class="literal">.toList().toSingle()</code>. Here are some examples:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/single")</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;String&gt; single() {
-    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>).toSingle();
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>).toSingle();
 }
 
 <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/multiple")</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Single&lt;List&lt;String&gt;&gt; multiple() {
-    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"multiple"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"values"</span>).toList().toSingle();
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"multiple"</span>, <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"values"</span>).toList().toSingle();
 }
 
 <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> ResponseEntity&lt;Single&lt;String&gt;&gt; responseWithObservable() {
 
-    Observable&lt;String&gt; observable = Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>);
-    HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
-    headers.setContentType(APPLICATION_JSON_UTF8);
-    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
+	Observable&lt;String&gt; observable = Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>);
+	HttpHeaders headers = <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HttpHeaders();
+	headers.setContentType(APPLICATION_JSON_UTF8);
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
 }
 
 <em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/timeout")</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Observable&lt;String&gt; timeout() {
-    <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.timer(<span class="hl-number">1</span>, TimeUnit.MINUTES).map(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Func1&lt;Long, String&gt;() {
-        <em><span class="hl-annotation" style="color: gray">@Override</span></em>
-        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String call(Long aLong) {
-            <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>;
-        }
-    });
+	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Observable.timer(<span class="hl-number">1</span>, TimeUnit.MINUTES).map(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Func1&lt;Long, String&gt;() {
+		<em><span class="hl-annotation" style="color: gray">@Override</span></em>
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> String call(Long aLong) {
+			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>;
+		}
+	});
 }</pre><p>If you have a streaming endpoint and client, SSE could be an option. To convert <code class="literal">rx.Observable</code> to a Spring <code class="literal">SseEmitter</code> use <code class="literal">RxResponse.sse()</code>. Here are some examples:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@RequestMapping(method = RequestMethod.GET, value = "/sse")</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> SseEmitter single() {
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> RxResponse.sse(Observable.just(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"single value"</span>));
