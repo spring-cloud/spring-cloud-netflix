@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ import org.springframework.http.client.ClientHttpResponse;
  */
 public interface FallbackProvider extends ZuulFallbackProvider {
 
-    /**
-     * Provides a fallback response based on the cause of the failed execution.
-     *
-     * @param cause cause of the main method failure
-     * @return the fallback response
-     */
-    ClientHttpResponse fallbackResponse(Throwable cause);
+	/**
+	 * Provides a fallback response based on the cause of the failed execution.
+	 *
+	 * @param cause cause of the main method failure
+	 * @return the fallback response
+	 */
+	ClientHttpResponse fallbackResponse(Throwable cause);
 }

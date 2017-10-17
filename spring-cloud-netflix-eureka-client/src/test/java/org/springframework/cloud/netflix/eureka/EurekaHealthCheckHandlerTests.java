@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,47 +42,47 @@ import static org.junit.Assert.assertEquals;
  */
 public class EurekaHealthCheckHandlerTests {
 
-    private EurekaHealthCheckHandler healthCheckHandler;
+	private EurekaHealthCheckHandler healthCheckHandler;
 
-    @Before
-    public void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 
-        healthCheckHandler = new EurekaHealthCheckHandler(new OrderedHealthAggregator());
-    }
+		healthCheckHandler = new EurekaHealthCheckHandler(new OrderedHealthAggregator());
+	}
 
-    @Test
-    public void testNoHealthCheckRegistered() throws Exception {
+	@Test
+	public void testNoHealthCheckRegistered() throws Exception {
 
-        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
-        assertEquals(InstanceStatus.UNKNOWN, status);
-    }
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertEquals(InstanceStatus.UNKNOWN, status);
+	}
 
-    @Test
-    public void testAllUp() throws Exception {
+	@Test
+	public void testAllUp() throws Exception {
 
-        initialize(UpHealthConfiguration.class);
+		initialize(UpHealthConfiguration.class);
 
-        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
-        assertEquals(InstanceStatus.UP, status);
-    }
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertEquals(InstanceStatus.UP, status);
+	}
 
-    @Test
-    public void testDown() throws Exception {
+	@Test
+	public void testDown() throws Exception {
 
-        initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
+		initialize(UpHealthConfiguration.class, DownHealthConfiguration.class);
 
-        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
-        assertEquals(InstanceStatus.DOWN, status);
-    }
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertEquals(InstanceStatus.DOWN, status);
+	}
 
-    @Test
-    public void testUnknown() throws Exception {
+	@Test
+	public void testUnknown() throws Exception {
 
-        initialize(FatalHealthConfiguration.class);
+		initialize(FatalHealthConfiguration.class);
 
-        InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
-        assertEquals(InstanceStatus.UNKNOWN, status);
-    }
+		InstanceStatus status = healthCheckHandler.getStatus(InstanceStatus.UNKNOWN);
+		assertEquals(InstanceStatus.UNKNOWN, status);
+	}
 
 	@Test
 	public void testEurekaIgnored() throws Exception {
@@ -93,50 +93,50 @@ public class EurekaHealthCheckHandlerTests {
 		assertEquals(InstanceStatus.UP, status);
 	}
 
-    private void initialize(Class<?>... configurations) throws Exception {
-        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
-        healthCheckHandler.setApplicationContext(applicationContext);
-        healthCheckHandler.afterPropertiesSet();
-    }
+	private void initialize(Class<?>... configurations) throws Exception {
+		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
+		healthCheckHandler.setApplicationContext(applicationContext);
+		healthCheckHandler.afterPropertiesSet();
+	}
 
-    public static class UpHealthConfiguration {
+	public static class UpHealthConfiguration {
 
-        @Bean
-        public HealthIndicator healthIndicator() {
-            return new AbstractHealthIndicator() {
-                @Override
-                protected void doHealthCheck(Health.Builder builder) throws Exception {
-                   builder.up();
-                }
-            };
-        }
-    }
+		@Bean
+		public HealthIndicator healthIndicator() {
+			return new AbstractHealthIndicator() {
+				@Override
+				protected void doHealthCheck(Health.Builder builder) throws Exception {
+				   builder.up();
+				}
+			};
+		}
+	}
 
-    public static class DownHealthConfiguration {
+	public static class DownHealthConfiguration {
 
-        @Bean
-        public HealthIndicator healthIndicator() {
-            return new AbstractHealthIndicator() {
-                @Override
-                protected void doHealthCheck(Health.Builder builder) throws Exception {
-                    builder.down();
-                }
-            };
-        }
-    }
+		@Bean
+		public HealthIndicator healthIndicator() {
+			return new AbstractHealthIndicator() {
+				@Override
+				protected void doHealthCheck(Health.Builder builder) throws Exception {
+					builder.down();
+				}
+			};
+		}
+	}
 
-    public static class FatalHealthConfiguration {
+	public static class FatalHealthConfiguration {
 
-        @Bean
-        public HealthIndicator healthIndicator() {
-            return new AbstractHealthIndicator() {
-                @Override
-                protected void doHealthCheck(Health.Builder builder) throws Exception {
-                    builder.status("fatal");
-                }
-            };
-        }
-    }
+		@Bean
+		public HealthIndicator healthIndicator() {
+			return new AbstractHealthIndicator() {
+				@Override
+				protected void doHealthCheck(Health.Builder builder) throws Exception {
+					builder.status("fatal");
+				}
+			};
+		}
+	}
 
 
 	public static class EurekaDownHealthConfiguration {

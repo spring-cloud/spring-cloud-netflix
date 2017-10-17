@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
  */
 public class RibbonLoadBalancedRetryPolicyFactory implements LoadBalancedRetryPolicyFactory {
 
-    private SpringClientFactory clientFactory;
+	private SpringClientFactory clientFactory;
 
-    public RibbonLoadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
-        this.clientFactory = clientFactory;
-    }
+	public RibbonLoadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
+		this.clientFactory = clientFactory;
+	}
 
-    @Override
-    public LoadBalancedRetryPolicy create(String serviceId, ServiceInstanceChooser loadBalanceChooser) {
-        RibbonLoadBalancerContext lbContext = this.clientFactory
-                .getLoadBalancerContext(serviceId);
-        return new RibbonLoadBalancedRetryPolicy(serviceId, lbContext, loadBalanceChooser, clientFactory.getClientConfig(serviceId));
-    }
+	@Override
+	public LoadBalancedRetryPolicy create(String serviceId, ServiceInstanceChooser loadBalanceChooser) {
+		RibbonLoadBalancerContext lbContext = this.clientFactory
+				.getLoadBalancerContext(serviceId);
+		return new RibbonLoadBalancedRetryPolicy(serviceId, lbContext, loadBalanceChooser, clientFactory.getClientConfig(serviceId));
+	}
 }
 

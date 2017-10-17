@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,58 +33,58 @@ import rx.Subscription;
  */
 class ResponseBodyEmitterSubscriber<T> extends Subscriber<T> implements Runnable {
 
-    private final MediaType mediaType;
+	private final MediaType mediaType;
 
-    private final Subscription subscription;
+	private final Subscription subscription;
 
-    private final ResponseBodyEmitter responseBodyEmitter;
+	private final ResponseBodyEmitter responseBodyEmitter;
 
-    private boolean completed;
+	private boolean completed;
 
-    /**
-     * Creates new instance of {@link ResponseBodyEmitterSubscriber} with response media type, observable and response
-     * emitter.
-     *
-     * @param mediaType the marshaled object media type
-     * @param observable the observable
-     * @param responseBodyEmitter the response emitter
-     */
-    public ResponseBodyEmitterSubscriber(MediaType mediaType, Observable<T> observable, ResponseBodyEmitter responseBodyEmitter) {
+	/**
+	 * Creates new instance of {@link ResponseBodyEmitterSubscriber} with response media type, observable and response
+	 * emitter.
+	 *
+	 * @param mediaType the marshaled object media type
+	 * @param observable the observable
+	 * @param responseBodyEmitter the response emitter
+	 */
+	public ResponseBodyEmitterSubscriber(MediaType mediaType, Observable<T> observable, ResponseBodyEmitter responseBodyEmitter) {
 
-        this.mediaType = mediaType;
-        this.responseBodyEmitter = responseBodyEmitter;
-        this.responseBodyEmitter.onTimeout(this);
-        this.responseBodyEmitter.onCompletion(this);
-        this.subscription = observable.subscribe(this);
-    }
+		this.mediaType = mediaType;
+		this.responseBodyEmitter = responseBodyEmitter;
+		this.responseBodyEmitter.onTimeout(this);
+		this.responseBodyEmitter.onCompletion(this);
+		this.subscription = observable.subscribe(this);
+	}
 
-    @Override
-    public void onNext(T value) {
+	@Override
+	public void onNext(T value) {
 
-        try {
-            if(!completed) {
-                responseBodyEmitter.send(value, mediaType);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
+		try {
+			if(!completed) {
+				responseBodyEmitter.send(value, mediaType);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage(), e);
+		}
+	}
 
-    @Override
-    public void onError(Throwable e) {
-        responseBodyEmitter.completeWithError(e);
-    }
+	@Override
+	public void onError(Throwable e) {
+		responseBodyEmitter.completeWithError(e);
+	}
 
-    @Override
-    public void onCompleted() {
-        if(!completed) {
-            completed = true;
-            responseBodyEmitter.complete();
-        }
-    }
+	@Override
+	public void onCompleted() {
+		if(!completed) {
+			completed = true;
+			responseBodyEmitter.complete();
+		}
+	}
 
-    @Override
-    public void run() {
-        subscription.unsubscribe();
-    }
+	@Override
+	public void run() {
+		subscription.unsubscribe();
+	}
 }
