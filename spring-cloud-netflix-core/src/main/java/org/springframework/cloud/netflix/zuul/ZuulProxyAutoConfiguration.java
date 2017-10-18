@@ -33,6 +33,7 @@ import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
+import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
@@ -72,6 +73,9 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Autowired(required = false)
 	private List<RibbonRequestCustomizer> requestCustomizers = Collections.emptyList();
 
+	@Autowired(required = false)
+	private Registration registration;
+
 	@Autowired
 	private DiscoveryClient discovery;
 
@@ -88,7 +92,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
 	public DiscoveryClientRouteLocator discoveryRouteLocator() {
 		return new DiscoveryClientRouteLocator(this.server.getServletPrefix(),
-				this.discovery, this.zuulProperties, this.serviceRouteMapper);
+				this.discovery, this.zuulProperties, this.serviceRouteMapper, this.registration);
 	}
 
 	// pre filters

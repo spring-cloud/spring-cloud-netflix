@@ -16,24 +16,25 @@
 
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import com.netflix.zuul.context.RequestContext;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
+
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -603,11 +604,40 @@ public class DiscoveryClientRouteLocatorTests {
 	public void testIgnoredLocalServiceByDefault() {
 		given(this.discovery.getServices())
 				.willReturn(Collections.singletonList(MYSERVICE));
-		given(this.discovery.getLocalServiceInstance()).willReturn(
-				new DefaultServiceInstance(MYSERVICE, "localhost", 80, false));
+		Registration registration = new Registration() {
+			@Override
+			public String getServiceId() {
+				return MYSERVICE;
+			}
+
+			@Override
+			public String getHost() {
+				return "localhost";
+			}
+
+			@Override
+			public int getPort() {
+				return 80;
+			}
+
+			@Override
+			public boolean isSecure() {
+				return false;
+			}
+
+			@Override
+			public URI getUri() {
+				return null;
+			}
+
+			@Override
+			public Map<String, String> getMetadata() {
+				return null;
+			}
+		};
 
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties);
+				this.discovery, this.properties, registration);
 
 		LinkedHashMap<String, ZuulRoute> routes = routeLocator.locateRoutes();
 		ZuulRoute actual = routes.get("/**");
@@ -637,10 +667,9 @@ public class DiscoveryClientRouteLocatorTests {
 	@Test
 	public void testLocalServiceExceptionIgnored() {
 		given(this.discovery.getServices()).willReturn(Collections.<String>emptyList());
-		given(this.discovery.getLocalServiceInstance()).willThrow(new RuntimeException());
 
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties);
+				this.discovery, this.properties, (Registration)null);
 
 		// if no exception is thrown in constructor, this is a success
 		routeLocator.locateRoutes();

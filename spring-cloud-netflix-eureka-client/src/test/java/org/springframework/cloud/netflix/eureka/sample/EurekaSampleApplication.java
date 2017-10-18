@@ -83,7 +83,7 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 
 	@RequestMapping("/")
 	public String home() {
-		return "Hello world "+discoveryClient.getLocalServiceInstance().getUri();
+		return "Hello world "+ registration.getUri();
 	}
 
 	@Override
