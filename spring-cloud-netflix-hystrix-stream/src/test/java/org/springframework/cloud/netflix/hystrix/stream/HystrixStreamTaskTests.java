@@ -1,26 +1,25 @@
 package org.springframework.cloud.netflix.hystrix.stream;
 
-import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommandKey;
-import com.netflix.hystrix.HystrixCommandMetrics;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.strategy.properties.HystrixPropertiesCommandDefault;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandMetrics;
+import com.netflix.hystrix.HystrixCommandProperties;
+import com.netflix.hystrix.strategy.properties.HystrixPropertiesCommandDefault;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -34,7 +33,7 @@ public class HystrixStreamTaskTests {
 	@Mock DiscoveryClient discoveryClient;
 	@Mock ApplicationContext context;
 	@Spy HystrixStreamProperties properties;
-	@Mock ServiceInstance serviceInstance;
+	@Mock Registration registration;
 	@InjectMocks HystrixStreamTask hystrixStreamTask;
 
 	@Test
@@ -59,7 +58,6 @@ public class HystrixStreamTaskTests {
 		HystrixCommandMetrics.getInstance(hystrixCommandKey,
 				HystrixCommandGroupKey.Factory.asKey("commandGroupKey"),
 				new HystrixPropertiesCommandDefault(hystrixCommandKey, HystrixCommandProperties.defaultSetter()));
-		given(this.discoveryClient.getLocalServiceInstance()).willReturn(this.serviceInstance);
 
 		this.hystrixStreamTask.setApplicationContext(this.context);
 		this.hystrixStreamTask.gatherMetrics();

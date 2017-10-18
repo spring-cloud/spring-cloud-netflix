@@ -56,7 +56,7 @@ import static org.springframework.restdocs.restassured.operation.preprocess.Rest
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"spring.jmx.enabled=true", "management.security.enabled=false" })
+		"spring.jmx.enabled=false", "management.security.enabled=false" })
 @DirtiesContext
 public abstract class AbstractDocumentationTests {
 

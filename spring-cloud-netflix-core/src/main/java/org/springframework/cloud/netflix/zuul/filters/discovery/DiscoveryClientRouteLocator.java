@@ -53,22 +53,20 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 
 	private ServiceRouteMapper serviceRouteMapper;
 
+	@Deprecated
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
-			ZuulProperties properties) {
+									   ZuulProperties properties) {
+		this(servletPath, discovery, properties, (ServiceInstance)null);
+	}
+
+	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
+			ZuulProperties properties, ServiceInstance localServiceInstance) {
 		super(servletPath, properties);
 
-		if (properties.isIgnoreLocalService()) {
-			ServiceInstance instance = null;
-			try {
-				instance = discovery.getLocalServiceInstance();
-			} catch (Exception e) {
-				log.warn("Error locating local service instance", e);
-			}
-			if (instance != null) {
-				String localServiceId = instance.getServiceId();
-				if (!properties.getIgnoredServices().contains(localServiceId)) {
-					properties.getIgnoredServices().add(localServiceId);
-				}
+		if (properties.isIgnoreLocalService() && localServiceInstance != null) {
+			String localServiceId = localServiceInstance.getServiceId();
+			if (!properties.getIgnoredServices().contains(localServiceId)) {
+				properties.getIgnoredServices().add(localServiceId);
 			}
 		}
 		this.serviceRouteMapper = new SimpleServiceRouteMapper();
@@ -76,9 +74,16 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		this.properties = properties;
 	}
 
+	@Deprecated
 	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
 			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper) {
-		this(servletPath, discovery, properties);
+		this(servletPath, discovery, properties, (ServiceInstance)null);
+		this.serviceRouteMapper = serviceRouteMapper;
+	}
+
+	public DiscoveryClientRouteLocator(String servletPath, DiscoveryClient discovery,
+			ZuulProperties properties, ServiceRouteMapper serviceRouteMapper, ServiceInstance localServiceInstance) {
+		this(servletPath, discovery, properties, localServiceInstance);
 		this.serviceRouteMapper = serviceRouteMapper;
 	}
 
