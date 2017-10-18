@@ -19,12 +19,15 @@ package org.springframework.cloud.netflix.eureka.serviceregistry;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.cloud.netflix.eureka.CloudEurekaInstanceConfig;
@@ -116,6 +119,34 @@ public class EurekaRegistration implements Registration, Closeable {
 	@Override
 	public String getServiceId() {
 		return this.instanceConfig.getAppname();
+	}
+
+	@Override
+	public String getHost() {
+		return this.instanceConfig.getHostName(false);
+	}
+
+	@Override
+	public int getPort() {
+		if (this.instanceConfig.getSecurePortEnabled()) {
+			return this.instanceConfig.getSecurePort();
+		}
+		return this.instanceConfig.getNonSecurePort();
+	}
+
+	@Override
+	public boolean isSecure() {
+		return this.instanceConfig.getSecurePortEnabled();
+	}
+
+	@Override
+	public URI getUri() {
+		return DefaultServiceInstance.getUri(this);
+	}
+
+	@Override
+	public Map<String, String> getMetadata() {
+		return this.instanceConfig.getMetadataMap();
 	}
 
 	public CloudEurekaClient getEurekaClient() {

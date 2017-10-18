@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.messaging.MessageChannel;
@@ -57,7 +57,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 	private MessageChannel outboundChannel;
 
-	private DiscoveryClient discoveryClient;
+	private Registration registration;
 
 	private HystrixStreamProperties properties;
 
@@ -69,9 +69,9 @@ public class HystrixStreamTask implements ApplicationContextAware {
 	private final JsonFactory jsonFactory = new JsonFactory();
 
 	public HystrixStreamTask(MessageChannel outboundChannel,
-			DiscoveryClient discoveryClient, HystrixStreamProperties properties) {
+							 Registration registration, HystrixStreamProperties properties) {
 		this.outboundChannel = outboundChannel;
-		this.discoveryClient = discoveryClient;
+		this.registration = registration;
 		this.properties = properties;
 		this.jsonMetrics = new LinkedBlockingQueue<>(properties.getSize());
 	}
@@ -121,8 +121,6 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				log.trace("gathering metrics size: " + instances.size());
 			}
 
-			ServiceInstance localService = this.discoveryClient.getLocalServiceInstance();
-
 			for (HystrixCommandMetrics commandMetrics : instances) {
 				HystrixCommandKey key = commandMetrics.getCommandKey();
 				HystrixCircuitBreaker circuitBreaker = HystrixCircuitBreaker.Factory
@@ -133,13 +131,13 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 				json.writeStartObject();
 
-				addServiceData(json, localService);
+				addServiceData(json, registration);
 				json.writeObjectFieldStart("data");
 				json.writeStringField("type", "HystrixCommand");
 				String name = key.name();
 
-				if (this.properties.isPrefixMetricName()) {
-					name = localService.getServiceId() + "." + name;
+				if (this.properties.isPrefixMetricName() && registration != null) {
+					name = registration.getServiceId() + "." + name;
 				}
 
 				json.writeStringField("name", name);
@@ -322,7 +320,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				JsonGenerator json = this.jsonFactory.createGenerator(jsonString);
 				json.writeStartObject();
 
-				addServiceData(json, localService);
+				addServiceData(json, this.registration);
 				json.writeObjectFieldStart("data");
 
 				json.writeStringField("type", "HystrixThreadPool");
