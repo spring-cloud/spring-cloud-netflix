@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +32,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
+
+import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
 /**
  * @author Spencer Gibb
@@ -54,41 +54,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	@Override
 	public String description() {
 		return DESCRIPTION;
-	}
-
-	@Override
-	public ServiceInstance getLocalServiceInstance() {
-		return new ServiceInstance() {
-			@Override
-			public String getServiceId() {
-				return EurekaDiscoveryClient.this.config.getAppname();
-			}
-
-			@Override
-			public String getHost() {
-				return EurekaDiscoveryClient.this.config.getHostName(false);
-			}
-
-			@Override
-			public int getPort() {
-				return EurekaDiscoveryClient.this.config.getNonSecurePort();
-			}
-
-			@Override
-			public boolean isSecure() {
-				return EurekaDiscoveryClient.this.config.getSecurePortEnabled();
-			}
-
-			@Override
-			public URI getUri() {
-				return DefaultServiceInstance.getUri(this);
-			}
-
-			@Override
-			public Map<String, String> getMetadata() {
-				return EurekaDiscoveryClient.this.config.getMetadataMap();
-			}
-		};
 	}
 
 	@Override
