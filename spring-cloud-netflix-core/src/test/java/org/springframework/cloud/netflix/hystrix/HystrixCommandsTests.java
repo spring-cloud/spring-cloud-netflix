@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix;
-
-import com.netflix.hystrix.exception.HystrixRuntimeException;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.springframework.cloud.netflix.hystrix.HystrixCommands;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+package org.springframework.cloud.netflix.hystrix;
 
 import java.util.List;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class HystrixCommandsTests {
 
