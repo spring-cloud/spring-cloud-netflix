@@ -36,47 +36,72 @@ public class HystrixCommandsTests {
 
 	@Test
 	public void monoWorks() {
-		String result = HystrixCommands.wrap("testworks", Mono.just("works")).block();
+		String result = HystrixCommands.from(Mono.just("works")).commandName("testworks").toMono().block();
+		assertThat(result).isEqualTo("works");
+	}
+
+	@Test
+	public void eagerMonoWorks() {
+		String result = HystrixCommands.from(Mono.just("works"))
+				.eager()
+				.commandName("testworks")
+				.toMono().block();
 		assertThat(result).isEqualTo("works");
 	}
 
 	@Test
 	public void monoTimesOut() {
 		exception.expect(HystrixRuntimeException.class);
-		HystrixCommands.wrap("failcmd", Mono.fromCallable(() -> {
+		HystrixCommands.from(Mono.fromCallable(() -> {
 			Thread.sleep(1500);
 			return "timeout";
-		})).block();
+		})).commandName("failcmd").toMono().block();
 	}
 
 	@Test
 	public void monoFallbackWorks() {
-		String result = HystrixCommands.wrap("failcmd", Mono.error(new Exception()), Mono.just("fallback")).block();
+		String result = HystrixCommands.from(Mono.<String>error(new Exception()))
+				.commandName("failcmd")
+				.fallback(Mono.just("fallback"))
+				.toMono().block();
 		assertThat(result).isEqualTo("fallback");
 	}
 
 	@Test
 	public void fluxWorks() {
-		List<String> list = HystrixCommands.wrap("multiflux", Flux.just("1", "2")).collectList().block();
+		List<String> list = HystrixCommands.from( Flux.just("1", "2"))
+				.commandName("multiflux")
+				.toFlux().collectList().block();
 		assertThat(list).hasSize(2).contains("1", "2");
 	}
 
 	@Test
-	// @Ignore
+	public void eagerFluxWorks() {
+		List<String> list = HystrixCommands.from( Flux.just("1", "2"))
+				.commandName("multiflux")
+				.eager()
+				.toFlux().collectList().block();
+		assertThat(list).hasSize(2).contains("1", "2");
+	}
+
+	@Test
 	public void fluxTimesOut() {
 		exception.expect(HystrixRuntimeException.class);
-		HystrixCommands.wrap("failcmd", Flux.from(s -> {
+		HystrixCommands.from( Flux.from(s -> {
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-		})).blockFirst();
+		})).commandName("failcmd").toFlux().blockFirst();
 	}
 
 	@Test
 	public void fluxFallbackWorks() {
-		List<String> list = HystrixCommands.wrap("multiflux", Flux.error(new Exception()), Flux.just("a", "b")).collectList().block();
+		List<String> list = HystrixCommands.from(Flux.<String>error(new Exception()))
+				.commandName("multiflux")
+				.fallback(Flux.just("a", "b"))
+				.toFlux().collectList().block();
 		assertThat(list).hasSize(2).contains("a", "b");
 	}
 
