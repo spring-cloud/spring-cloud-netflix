@@ -387,7 +387,12 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	 * Indicates whether the client should explicitly unregister itself from the remote server
 	 * on client shutdown.
 	 */
-	private boolean unregisterOnShutdown = true;
+	private boolean shouldUnregisterOnShutdown = true;
+
+	/**
+	 * Indicates whether the client should enforce registration during initialization. Defaults to false.
+	 */
+	private boolean shouldEnforceRegistrationAtInit = false;
 
 	@Override
 	public boolean shouldGZipContent() {
@@ -421,7 +426,12 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 
 	@Override
 	public boolean shouldUnregisterOnShutdown() {
-		return this.unregisterOnShutdown;
+		return this.shouldUnregisterOnShutdown;
+	}
+
+	@Override
+	public boolean shouldEnforceRegistrationAtInit() {
+		return this.shouldEnforceRegistrationAtInit;
 	}
 
 	@Override
@@ -887,6 +897,22 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 		this.clientDataAccept = clientDataAccept;
 	}
 
+	public boolean isShouldUnregisterOnShutdown() {
+		return shouldUnregisterOnShutdown;
+	}
+
+	public void setShouldUnregisterOnShutdown(boolean shouldUnregisterOnShutdown) {
+		this.shouldUnregisterOnShutdown = shouldUnregisterOnShutdown;
+	}
+
+	public boolean isShouldEnforceRegistrationAtInit() {
+		return shouldEnforceRegistrationAtInit;
+	}
+
+	public void setShouldEnforceRegistrationAtInit(boolean shouldEnforceRegistrationAtInit) {
+		this.shouldEnforceRegistrationAtInit = shouldEnforceRegistrationAtInit;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -918,6 +944,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				fetchRegistry == that.fetchRegistry &&
 				allowRedirects == that.allowRedirects &&
 				onDemandUpdateStatusChange == that.onDemandUpdateStatusChange &&
+				shouldUnregisterOnShutdown == that.shouldUnregisterOnShutdown &&
+				shouldEnforceRegistrationAtInit == that.shouldEnforceRegistrationAtInit &&
 				Objects.equals(proxyPort, that.proxyPort) &&
 				Objects.equals(proxyHost, that.proxyHost) &&
 				Objects.equals(proxyUserName, that.proxyUserName) &&
@@ -956,7 +984,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				logDeltaDiff, disableDelta, fetchRemoteRegionsRegistry, availabilityZones,
 				filterOnlyUpInstances, fetchRegistry, dollarReplacement,
 				escapeCharReplacement, allowRedirects, onDemandUpdateStatusChange,
-				encoderName, decoderName, clientDataAccept);
+				encoderName, decoderName, clientDataAccept, shouldUnregisterOnShutdown,
+				shouldEnforceRegistrationAtInit);
 	}
 
 	@Override
@@ -1006,6 +1035,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				.append("encoderName='").append(encoderName).append("', ")
 				.append("decoderName='").append(decoderName).append("', ")
 				.append("clientDataAccept='").append(clientDataAccept).append("'").append("}")
+				.append("=shouldUnregisterOnShutdown'").append(shouldUnregisterOnShutdown).append("'").append("}")
+				.append("shouldEnforceRegistrationAtInit='").append(shouldEnforceRegistrationAtInit).append("'").append("}")
 				.toString();
 	}
 
