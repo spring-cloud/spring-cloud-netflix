@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-10-20</date>
+<date>2017-10-21</date>
 </info>
 <preface>
 <title></title>
@@ -620,6 +620,8 @@ To make turbine find the Hystrix stream at the correct port, you need to add <li
   aggregator:
     clusterConfig: CUSTOMERS
   appConfig: customers</screen>
+<simpara>If you need to customize which cluster names should be used by Turbine (you don&#8217;t want to store cluster names in
+<literal>turbine.aggregator.clusterConfig</literal> configuration) provide a bean of type <literal>TurbineClustersProvider</literal>.</simpara>
 <simpara>The <literal>clusterName</literal> can be customized by a SPEL expression in <literal>turbine.clusterNameExpression</literal> with root an instance of <literal>InstanceInfo</literal>. The default value is <literal>appName</literal>, which means that the Eureka serviceId ends up as the cluster key (i.e. the <literal>InstanceInfo</literal> for customers has an <literal>appName</literal> of "CUSTOMERS").  A different example would be <literal>turbine.clusterNameExpression=aSGName</literal>, which would get the cluster name from the AWS ASG name. Another example:</simpara>
 <screen>turbine:
   aggregator:
