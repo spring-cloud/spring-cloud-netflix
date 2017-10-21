@@ -43,7 +43,7 @@ import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFactory;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRibbonClientAutoConfiguration;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.endpoints.RoutesMvcEndpoint;
+import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package org.springframework.cloud.netflix.zuul.endpoints;
+package org.springframework.cloud.netflix.zuul;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;

@@ -39,9 +39,6 @@ import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionMa
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
-import org.springframework.cloud.netflix.zuul.endpoints.FiltersEndpoint;
-import org.springframework.cloud.netflix.zuul.endpoints.RoutesEndpoint;
-import org.springframework.cloud.netflix.zuul.endpoints.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.TraceProxyRequestHelper;

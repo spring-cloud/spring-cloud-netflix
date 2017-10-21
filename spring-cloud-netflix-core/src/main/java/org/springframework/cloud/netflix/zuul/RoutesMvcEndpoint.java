@@ -16,11 +16,10 @@
  *
  */
 
-package org.springframework.cloud.netflix.zuul.endpoints;
+package org.springframework.cloud.netflix.zuul;
 
 import org.springframework.boot.actuate.endpoint.mvc.ActuatorMediaTypes;
 import org.springframework.boot.actuate.endpoint.mvc.EndpointMvcAdapter;
-import org.springframework.cloud.netflix.zuul.RoutesRefreshedEvent;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;

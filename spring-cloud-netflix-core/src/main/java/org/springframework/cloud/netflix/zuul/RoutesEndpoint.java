@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.endpoints;
+package org.springframework.cloud.netflix.zuul;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

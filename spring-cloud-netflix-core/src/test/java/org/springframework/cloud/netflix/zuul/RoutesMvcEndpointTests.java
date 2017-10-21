@@ -16,7 +16,7 @@
  *
  */
 
-package org.springframework.cloud.netflix.zuul.endpoints;
+package org.springframework.cloud.netflix.zuul;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,8 +30,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.RoutesRefreshedEvent;
-import org.springframework.cloud.netflix.zuul.endpoints.RoutesMvcEndpoint;
+import org.springframework.cloud.netflix.zuul.RoutesMvcEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
