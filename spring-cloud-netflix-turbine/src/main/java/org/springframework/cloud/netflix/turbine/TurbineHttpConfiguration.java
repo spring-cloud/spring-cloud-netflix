@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -43,18 +44,40 @@ public class TurbineHttpConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(name = "turbineStreamServlet")
 	public ServletRegistrationBean turbineStreamServlet() {
 		return new ServletRegistrationBean(new TurbineStreamServlet(), "/turbine.stream");
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public TurbineProperties turbineProperties() {
 		return new TurbineProperties();
 	}
 
 	@Bean
-	public TurbineLifecycle turbineLifecycle(InstanceDiscovery instanceDiscovery) {
-		return new TurbineLifecycle(instanceDiscovery);
+	@ConditionalOnMissingBean
+	public TurbineAggregatorProperties turbineAggregatorProperties() {
+		return new TurbineAggregatorProperties();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public TurbineLifecycle turbineLifecycle(InstanceDiscovery instanceDiscovery,
+											 ClusterMonitorFactory<?> factory) {
+		return new TurbineLifecycle(instanceDiscovery, factory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public ClusterMonitorFactory clusterMonitorFactory(TurbineClustersProvider clustersProvider) {
+		return new SpringAggregatorFactory(clustersProvider);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public TurbineClustersProvider clustersProvider(TurbineAggregatorProperties turbineAggregatorProperties) {
+		return new ConfigurationBasedTurbineClustersProvider(turbineAggregatorProperties);
 	}
 
 	@Configuration
