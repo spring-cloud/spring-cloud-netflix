@@ -49,9 +49,33 @@ level, but "/myusers/**" matches hierarchically.</p><p>The location of the backe
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    users</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      url</span>: http://example.com/users_service</pre><p>
-</p><p>These simple url-routes don&#8217;t get executed as a <code class="literal">HystrixCommand</code> nor can you loadbalance multiple URLs with Ribbon.
-To achieve this, specify a service-route and configure a Ribbon client for the
-serviceId (this currently requires disabling Eureka support in Ribbon:
+</p><p>These simple url-routes don&#8217;t get executed as a <code class="literal">HystrixCommand</code> nor do they loadbalance multiple URLs with Ribbon.
+To achieve this, you can specify a <code class="literal">serviceId</code> with a static list of servers:</p><p><b>application.yml.&nbsp;</b>
+</p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">zuul</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    echo</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      path</span>: /myusers/**
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      serviceId</span>: myusers-service
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      stripPrefix</span>: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">true</span>
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">hystrix</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  command</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    myusers-service</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">      execution</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">        isolation</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">          thread</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">            timeoutInMilliseconds</span>: ...
+
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">myusers-service</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  ribbon</span>:
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    NIWSServerListClassName</span>: com.netflix.loadbalancer.ConfigurationBasedServerList
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ListOfServers</span>: http://example1.com,http://example2.com
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ConnectTimeout</span>: <span class="hl-number">1000</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    ReadTimeout</span>: <span class="hl-number">3000</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    MaxTotalHttpConnections</span>: <span class="hl-number">500</span>
+<span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    MaxConnectionsPerHost</span>: <span class="hl-number">100</span></pre><p>
+</p><p>Another method is specifiying a service-route and configure a Ribbon client for the
+serviceId (this requires disabling Eureka support in Ribbon:
 see <a class="link" href="multi_spring-cloud-ribbon.html#spring-cloud-ribbon-without-eureka" title="6.6&nbsp;Example: How to Use Ribbon Without Eureka">above for more information</a>), e.g.</p><p><b>application.yml.&nbsp;</b>
 </p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">zuul</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
