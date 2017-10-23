@@ -19,8 +19,10 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.zuul.filters.FilterRegistry;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -158,20 +160,29 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Endpoint.class)
-	protected static class RoutesEndpointConfiguration {
+	protected static class EndpointConfiguration {
 
 		@Autowired(required = false)
 		private TraceRepository traces;
 
+		@ConditionalOnEnabledEndpoint("routes")
 		@Bean
-		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
+		public RoutesEndpoint routesEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
 		}
 
+		@ConditionalOnEnabledEndpoint("routes")
 		@Bean
-		public RoutesMvcEndpoint zuulMvcEndpoint(RouteLocator routeLocator,
+		public RoutesMvcEndpoint routesMvcEndpoint(RouteLocator routeLocator,
 				RoutesEndpoint endpoint) {
 			return new RoutesMvcEndpoint(endpoint, routeLocator);
+		}
+
+		@ConditionalOnEnabledEndpoint("filters")
+		@Bean
+		public FiltersEndpoint filtersEndpoint() {
+			FilterRegistry filterRegistry = FilterRegistry.instance();
+			return new FiltersEndpoint(filterRegistry);
 		}
 
 		@Bean
