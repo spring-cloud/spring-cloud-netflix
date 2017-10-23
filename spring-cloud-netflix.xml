@@ -1626,11 +1626,21 @@ Security. The assumption in this case is that the downstream services
 might add these headers too, and we want the values from the proxy.
 To not discard these well known security headers in case Spring Security is on the classpath you can set <literal>zuul.ignoreSecurityHeaders</literal> to <literal>false</literal>. This can be useful if you disabled the HTTP Security response headers in Spring Security and want the values provided by downstream services</simpara>
 </section>
-<section xml:id="_the_routes_endpoint">
-<title>The Routes Endpoint</title>
-<simpara>If you are using <literal>@EnableZuulProxy</literal> with tha Spring Boot Actuator you
-will enable (by default) an additional endpoint, available via HTTP as
-<literal>/routes</literal>. A GET to this endpoint will return a list of the mapped
+<section xml:id="_management_endpoints">
+<title>Management Endpoints</title>
+<simpara>If you are using <literal>@EnableZuulProxy</literal> with the Spring Boot Actuator you
+will enable (by default) two additional endpoints:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Routes</simpara>
+</listitem>
+<listitem>
+<simpara>Filters</simpara>
+</listitem>
+</itemizedlist>
+<section xml:id="_routes_endpoint">
+<title>Routes Endpoint</title>
+<simpara>A GET to the routes endpoint at <literal>/routes</literal> will return a list of the mapped
 routes:</simpara>
 <formalpara>
 <title>GET /routes</title>
@@ -1667,6 +1677,13 @@ this endpoint by setting <literal>endpoints.routes.enabled</literal> to <literal
 service catalog, but the POST to /routes is a way to force the change
 to happen immediately.</simpara>
 </note>
+</section>
+<section xml:id="_filters_endpoint">
+<title>Filters Endpoint</title>
+<simpara>A GET to the filters endpoint at <literal>/filters</literal> will return a map of Zuul
+filters by type. For each filter type in the map, you will find a list
+of all the filters of that type, along with their details.</simpara>
+</section>
 </section>
 <section xml:id="_strangulation_patterns_and_local_forwards">
 <title>Strangulation Patterns and Local Forwards</title>
