@@ -24,6 +24,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
@@ -152,7 +153,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
 	}
 
-	static class RetryPolicy extends FeignRetryPolicy {
+	static class RetryPolicy extends InterceptorRetryPolicy {
 		public RetryPolicy(HttpRequest request, LoadBalancedRetryPolicy policy,
 				ServiceInstanceChooser serviceInstanceChooser, String serviceName) {
 			super(request, policy, serviceInstanceChooser, serviceName);
