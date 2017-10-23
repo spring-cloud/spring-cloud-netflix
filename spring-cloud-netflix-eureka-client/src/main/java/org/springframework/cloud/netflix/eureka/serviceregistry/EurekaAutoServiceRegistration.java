@@ -36,6 +36,7 @@ import org.springframework.core.Ordered;
  * @author Spencer Gibb
  * @author Jon Schneider
  * @author Jakub Narloch
+ * @author raiyan
  */
 public class EurekaAutoServiceRegistration implements AutoServiceRegistration, SmartLifecycle, Ordered {
 
@@ -61,9 +62,13 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 
 	@Override
 	public void start() {
-		// only set the port if the nonSecurePort is 0 and this.port != 0
-		if (this.port.get() != 0 && this.registration.getNonSecurePort() == 0) {
-			this.registration.setNonSecurePort(this.port.get());
+		// only set the port if the nonSecurePort or securePort is 0 and this.port != 0
+		if (this.port.get() != 0) {
+			if(this.registration.getNonSecurePort() == 0)
+				this.registration.setNonSecurePort(this.port.get());
+
+			if(this.registration.getSecurePort() == 0)
+				this.registration.setSecurePort(this.port.get());
 		}
 
 		// only initialize if nonSecurePort is greater than 0 and it isn't already running
