@@ -89,6 +89,18 @@ public class HystrixCommandsTests {
 	}
 
 	@Test
+	public void toObservableFunctionWorks() {
+		StepVerifier.create(HystrixCommands.from(Flux.just("1", "2"))
+				.commandName("multiflux")
+				.toObservable(cmd -> cmd.toObservable())
+				.build(), 1)
+				.expectNext("1")
+				.thenAwait(Duration.ofSeconds(1))
+				.thenRequest(1)
+				.expectError();
+	}
+
+	@Test
 	public void eagerFluxWorks() {
 		StepVerifier.create(HystrixCommands.from( Flux.just("1", "2"))
 				.commandName("multiflux")
