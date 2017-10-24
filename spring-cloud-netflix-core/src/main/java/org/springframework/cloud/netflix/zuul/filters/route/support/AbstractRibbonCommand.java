@@ -114,8 +114,16 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		final RequestContext context = RequestContext.getCurrentContext();
 
 		RQ request = createRequest();
-		RS response = this.client.executeWithLoadBalancer(request, config);
-
+		RS response;
+		// Note: using isRetriable to determine if spring-retry or netflix is are managing loadbalancing concerns.
+		if (request != null && request.isRetriable()) {
+			// spring-retry retryTemplate is managing retry and loadbalancing concerns
+			response = this.client.execute(request, config);
+		} else {
+			// netflix LoadbalancerCommand is managing retry and loadbalancing concerns
+			response = this.client.executeWithLoadBalancer(request, config);
+		}
+		
 		context.set("ribbonResponse", response);
 
 		// Explicitly close the HttpResponse if the Hystrix command timed out to
