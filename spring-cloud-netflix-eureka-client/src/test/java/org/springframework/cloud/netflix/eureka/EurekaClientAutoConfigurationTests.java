@@ -105,7 +105,10 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void securePortUnderscores() {
-		testSecurePort("SERVER_PORT");
+		TestPropertyValues.of("eureka.instance.secure-port-enabled=true").applyTo(this.context);
+		addSystemEnvironment(this.context.getEnvironment(), "SERVER_PORT:8443");
+		setupContext();
+		assertEquals(8443, getInstanceConfig().getSecurePort());
 	}
 
 	@Test
@@ -396,8 +399,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	private void testSecurePort(String propName) {
-		EnvironmentTestUtils.addEnvironment(this.context, "eureka.instance.securePortEnabled=true");
-		addEnvironment(this.context, propName + ":8443");
+		TestPropertyValues.of("eureka.instance.secure-port-enabled=true", propName+":8443").applyTo(this.context);
 		setupContext();
 		assertEquals(8443, getInstanceConfig().getSecurePort());
 	}
