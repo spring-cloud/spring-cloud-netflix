@@ -16,18 +16,19 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
+import java.time.Duration;
 import java.util.List;
 
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.netflix.hystrix.exception.HystrixRuntimeException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HystrixCommandsTests {
 
@@ -73,6 +74,18 @@ public class HystrixCommandsTests {
 				.commandName("multiflux")
 				.toFlux().collectList().block();
 		assertThat(list).hasSize(2).contains("1", "2");
+	}
+
+	@Test
+	public void fluxWorksDeferredRequest() {
+		StepVerifier.create(HystrixCommands.from(Flux.just("1", "2"))
+		                                   .commandName("multiflux")
+		                                   .build(), 1)
+		            .expectNext("1")
+		            .thenAwait(Duration.ofSeconds(1))
+		            .thenRequest(1)
+		            .expectNext("2")
+		            .verifyComplete();
 	}
 
 	@Test
