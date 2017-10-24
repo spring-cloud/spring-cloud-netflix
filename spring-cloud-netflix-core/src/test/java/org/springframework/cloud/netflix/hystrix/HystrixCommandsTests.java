@@ -17,63 +17,63 @@
 package org.springframework.cloud.netflix.hystrix;
 
 import java.time.Duration;
-import java.util.List;
+
+import org.junit.Test;
 
 import com.netflix.hystrix.exception.HystrixRuntimeException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class HystrixCommandsTests {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
 	@Test
 	public void monoWorks() {
-		String result = HystrixCommands.from(Mono.just("works")).commandName("testworks").toMono().block();
-		assertThat(result).isEqualTo("works");
+		StepVerifier.create(HystrixCommands.from(Flux.just("works"))
+				.commandName("testworks")
+				.toMono())
+				.expectNext("works")
+				.verifyComplete();
 	}
 
 	@Test
 	public void eagerMonoWorks() {
-		String result = HystrixCommands.from(Mono.just("works"))
-				.eager()
-				.commandName("testworks")
-				.toMono().block();
-		assertThat(result).isEqualTo("works");
+		StepVerifier.create(HystrixCommands.from(Mono.just("works"))
+					.eager()
+					.commandName("testworks")
+					.toMono())
+				.expectNext("works")
+				.verifyComplete();
 	}
 
 	@Test
 	public void monoTimesOut() {
-		exception.expect(HystrixRuntimeException.class);
-		HystrixCommands.from(Mono.fromCallable(() -> {
+		StepVerifier.create(HystrixCommands.from(Mono.fromCallable(() -> {
 			Thread.sleep(1500);
 			return "timeout";
-		})).commandName("failcmd").toMono().block();
+		})).commandName("failcmd").toMono())
+				.expectError(HystrixRuntimeException.class);
 	}
 
 	@Test
 	public void monoFallbackWorks() {
-		String result = HystrixCommands.from(Mono.<String>error(new Exception()))
+		StepVerifier.create(HystrixCommands.from(Mono.<String>error(new Exception()))
 				.commandName("failcmd")
 				.fallback(Mono.just("fallback"))
-				.toMono().block();
-		assertThat(result).isEqualTo("fallback");
+				.toMono())
+				.expectNext("fallback")
+				.verifyComplete();
 	}
 
 	@Test
 	public void fluxWorks() {
-		List<String> list = HystrixCommands.from( Flux.just("1", "2"))
+		StepVerifier.create(HystrixCommands.from( Flux.just("1", "2"))
 				.commandName("multiflux")
-				.toFlux().collectList().block();
-		assertThat(list).hasSize(2).contains("1", "2");
+				.toFlux())
+				.expectNext("1")
+				.expectNext("2")
+				.verifyComplete();
 	}
 
 	@Test
@@ -90,32 +90,36 @@ public class HystrixCommandsTests {
 
 	@Test
 	public void eagerFluxWorks() {
-		List<String> list = HystrixCommands.from( Flux.just("1", "2"))
+		StepVerifier.create(HystrixCommands.from( Flux.just("1", "2"))
 				.commandName("multiflux")
 				.eager()
-				.toFlux().collectList().block();
-		assertThat(list).hasSize(2).contains("1", "2");
+				.toFlux())
+				.expectNext("1")
+				.expectNext("2")
+				.verifyComplete();
 	}
 
 	@Test
 	public void fluxTimesOut() {
-		exception.expect(HystrixRuntimeException.class);
-		HystrixCommands.from( Flux.from(s -> {
+		StepVerifier.create(HystrixCommands.from( Flux.from(s -> {
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-		})).commandName("failcmd").toFlux().blockFirst();
+		})).commandName("failcmd").toFlux())
+				.expectError(HystrixRuntimeException.class);
 	}
 
 	@Test
 	public void fluxFallbackWorks() {
-		List<String> list = HystrixCommands.from(Flux.<String>error(new Exception()))
+		StepVerifier.create(HystrixCommands.from(Flux.<String>error(new Exception()))
 				.commandName("multiflux")
 				.fallback(Flux.just("a", "b"))
-				.toFlux().collectList().block();
-		assertThat(list).hasSize(2).contains("a", "b");
+				.toFlux())
+				.expectNext("a")
+				.expectNext("b")
+				.verifyComplete();
 	}
 
 }
