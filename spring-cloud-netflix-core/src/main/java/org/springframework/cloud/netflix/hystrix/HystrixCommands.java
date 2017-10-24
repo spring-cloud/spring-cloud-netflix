@@ -104,7 +104,7 @@ public class HystrixCommands {
 			if (this.eager) {
 				observable = command.observe();
 			} else {
-				observable = command.toObservable();
+				observable = command.toObservable().onBackpressureBuffer();
 			}
 			return RxReactiveStreams.toPublisher(observable);
 		}
