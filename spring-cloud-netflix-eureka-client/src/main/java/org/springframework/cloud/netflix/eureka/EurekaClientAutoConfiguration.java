@@ -17,8 +17,6 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -62,7 +60,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -72,6 +69,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+
+import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
 /**
  * @author Dave Syer
@@ -130,13 +129,21 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
 		String hostname = getProperty("eureka.instance.hostname");
 		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
+		boolean isSecurePortEnabled = Boolean.parseBoolean(getProperty("eureka.instance.secure-port-enabled"));
 		int nonSecurePort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
+
 		int managementPort = Integer.valueOf(env.getProperty("management.port", String.valueOf(nonSecurePort)));
 		String managementContextPath = env.getProperty("management.context-path", env.getProperty("server.servlet.context-path", "/"));
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 		instance.setNonSecurePort(nonSecurePort);
 		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
+
+		if(isSecurePortEnabled) {
+			int securePort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
+			instance.setSecurePort(securePort);
+		}
+
 		if (managementPort != nonSecurePort && managementPort != 0) {
 			if (StringUtils.hasText(hostname)) {
 				instance.setHostname(hostname);
@@ -152,6 +159,7 @@ public class EurekaClientAutoConfiguration {
 			if (StringUtils.hasText(healthCheckUrlPath)) {
 				instance.setHealthCheckUrlPath(healthCheckUrlPath);
 			}
+
 			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
 			try {
 				URL base = new URL(scheme, instance.getHostname(), managementPort, managementContextPath);

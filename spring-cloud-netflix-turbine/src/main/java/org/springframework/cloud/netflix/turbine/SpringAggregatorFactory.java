@@ -16,12 +16,8 @@
 
 package org.springframework.cloud.netflix.turbine;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.config.DynamicStringProperty;
 import com.netflix.turbine.data.AggDataFromCluster;
 import com.netflix.turbine.discovery.Instance;
 import com.netflix.turbine.handler.PerformanceCriteria;
@@ -43,8 +39,11 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 
 	private static final Log log = LogFactory.getLog(SpringAggregatorFactory.class);
 
-	private static final DynamicStringProperty aggClusters = DynamicPropertyFactory
-			.getInstance().getStringProperty("turbine.aggregator.clusterConfig", null);
+	private final TurbineClustersProvider clustersProvider;
+
+	public SpringAggregatorFactory(TurbineClustersProvider clustersProvider) {
+		this.clustersProvider = clustersProvider;
+	}
 
 	/**
 	 * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}<
@@ -73,7 +72,7 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 
 	@Override
 	public void initClusterMonitors() {
-		for (String clusterName : getClusterNames()) {
+		for (String clusterName : clustersProvider.getClusterNames()) {
 			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) findOrRegisterAggregateMonitor(clusterName);
 			clusterMonitor.registerListenertoClusterMonitor(this.StaticListener);
 			try {
@@ -87,27 +86,12 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 		}
 	}
 
-	private List<String> getClusterNames() {
-		List<String> clusters = new ArrayList<String>();
-		String clusterNames = aggClusters.get();
-		if (clusterNames == null || clusterNames.trim().length() == 0) {
-			clusters.add("default");
-		}
-		else {
-			String[] parts = aggClusters.get().split(",");
-			for (String s : parts) {
-				clusters.add(s);
-			}
-		}
-		return clusters;
-	}
-
 	/**
 	 * shutdown all configured cluster monitors
 	 */
 	@Override
 	public void shutdownClusterMonitors() {
-		for (String clusterName : getClusterNames()) {
+		for (String clusterName : clustersProvider.getClusterNames()) {
 			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) AggregateClusterMonitor
 					.findOrRegisterAggregateMonitor(clusterName);
 			clusterMonitor.stopMonitor();

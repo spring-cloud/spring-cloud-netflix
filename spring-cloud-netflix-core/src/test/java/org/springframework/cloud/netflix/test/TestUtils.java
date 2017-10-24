@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.eureka;
+package org.springframework.cloud.netflix.test;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.appinfo.InstanceInfo;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assume.assumeThat;
 
-/**
- * @author Spencer Gibb
- */
-public interface CloudEurekaInstanceConfig extends EurekaInstanceConfig {
-	void setNonSecurePort(int port);
-	void setSecurePort(int securePort);
-	InstanceInfo.InstanceStatus getInitialStatus();
+public class TestUtils {
+	public static void assumeTestIgnored(Class clazz) {
+		assumeTestIgnored(clazz.getSimpleName());
+	}
+
+	public static void assumeTestIgnored(String name) {
+		assumeThat("Test ignored",
+				System.getenv("SPRING_CLOUD_NETFLIX_IGNORE_TESTS"),
+				not(containsString(name)));
+	}
 }

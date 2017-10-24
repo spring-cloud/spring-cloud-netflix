@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.eureka;
+package org.springframework.cloud.netflix.turbine;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
-import com.netflix.appinfo.InstanceInfo;
+import java.util.List;
 
 /**
- * @author Spencer Gibb
+ * Interface that gives possibility to customize which clusters names Turbine will use.
+ *
+ * @author Anastasiia Smirnova
  */
-public interface CloudEurekaInstanceConfig extends EurekaInstanceConfig {
-	void setNonSecurePort(int port);
-	void setSecurePort(int securePort);
-	InstanceInfo.InstanceStatus getInitialStatus();
+public interface TurbineClustersProvider {
+
+	List<String> getClusterNames();
 }

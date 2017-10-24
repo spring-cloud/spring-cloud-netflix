@@ -57,6 +57,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import com.netflix.zuul.filters.FilterRegistry;
+
 /**
  * @author Spencer Gibb
  * @author Dave Syer
@@ -158,15 +160,22 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Configuration
 	@ConditionalOnClass(Health.class)
-	protected static class RoutesEndpointConfiguration {
+	protected static class EndpointConfiguration {
 
 		@Autowired(required = false)
 		private TraceRepository traces;
 
 		@Bean
 		@ConditionalOnEnabledEndpoint
-		public RoutesEndpoint zuulEndpoint(RouteLocator routeLocator) {
+		public RoutesEndpoint routesEndpoint(RouteLocator routeLocator) {
 			return new RoutesEndpoint(routeLocator);
+		}
+
+		@ConditionalOnEnabledEndpoint
+		@Bean
+		public FiltersEndpoint filtersEndpoint() {
+			FilterRegistry filterRegistry = FilterRegistry.instance();
+			return new FiltersEndpoint(filterRegistry);
 		}
 
 		@Bean
