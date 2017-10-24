@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-10-23</date>
+<date>2017-10-24</date>
 </info>
 <preface>
 <title></title>
@@ -620,6 +620,8 @@ To make turbine find the Hystrix stream at the correct port, you need to add <li
   aggregator:
     clusterConfig: CUSTOMERS
   appConfig: customers</screen>
+<simpara>If you need to customize which cluster names should be used by Turbine (you don&#8217;t want to store cluster names in
+<literal>turbine.aggregator.clusterConfig</literal> configuration) provide a bean of type <literal>TurbineClustersProvider</literal>.</simpara>
 <simpara>The <literal>clusterName</literal> can be customized by a SPEL expression in <literal>turbine.clusterNameExpression</literal> with root an instance of <literal>InstanceInfo</literal>. The default value is <literal>appName</literal>, which means that the Eureka serviceId ends up as the cluster key (i.e. the <literal>InstanceInfo</literal> for customers has an <literal>appName</literal> of "CUSTOMERS").  A different example would be <literal>turbine.clusterNameExpression=aSGName</literal>, which would get the cluster name from the AWS ASG name. Another example:</simpara>
 <screen>turbine:
   aggregator:
@@ -804,6 +806,7 @@ class DefaultRibbonConfig {
 <para>
 <screen>users:
   ribbon:
+    NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule</screen>
 </para>
 </formalpara>
@@ -1435,9 +1438,38 @@ level, but "/myusers/**" matches hierarchically.</simpara>
       url: http://example.com/users_service</programlisting>
 </para>
 </formalpara>
-<simpara>These simple url-routes don&#8217;t get executed as a <literal>HystrixCommand</literal> nor can you loadbalance multiple URLs with Ribbon.
-To achieve this, specify a service-route and configure a Ribbon client for the
-serviceId (this currently requires disabling Eureka support in Ribbon:
+<simpara>These simple url-routes don&#8217;t get executed as a <literal>HystrixCommand</literal> nor do they loadbalance multiple URLs with Ribbon.
+To achieve this, you can specify a <literal>serviceId</literal> with a static list of servers:</simpara>
+<formalpara>
+<title>application.yml</title>
+<para>
+<programlisting language="yaml" linenumbering="unnumbered">zuul:
+  routes:
+    echo:
+      path: /myusers/**
+      serviceId: myusers-service
+      stripPrefix: true
+
+hystrix:
+  command:
+    myusers-service:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: ...
+
+myusers-service:
+  ribbon:
+    NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
+    ListOfServers: http://example1.com,http://example2.com
+    ConnectTimeout: 1000
+    ReadTimeout: 3000
+    MaxTotalHttpConnections: 500
+    MaxConnectionsPerHost: 100</programlisting>
+</para>
+</formalpara>
+<simpara>Another method is specifiying a service-route and configure a Ribbon client for the
+serviceId (this requires disabling Eureka support in Ribbon:
 see <link linkend="spring-cloud-ribbon-without-eureka">above for more information</link>), e.g.</simpara>
 <formalpara>
 <title>application.yml</title>
@@ -1624,11 +1656,21 @@ Security. The assumption in this case is that the downstream services
 might add these headers too, and we want the values from the proxy.
 To not discard these well known security headers in case Spring Security is on the classpath you can set <literal>zuul.ignoreSecurityHeaders</literal> to <literal>false</literal>. This can be useful if you disabled the HTTP Security response headers in Spring Security and want the values provided by downstream services</simpara>
 </section>
-<section xml:id="_the_routes_endpoint">
-<title>The Routes Endpoint</title>
-<simpara>If you are using <literal>@EnableZuulProxy</literal> with tha Spring Boot Actuator you
-will enable (by default) an additional endpoint, available via HTTP as
-<literal>/routes</literal>. A GET to this endpoint will return a list of the mapped
+<section xml:id="_management_endpoints">
+<title>Management Endpoints</title>
+<simpara>If you are using <literal>@EnableZuulProxy</literal> with the Spring Boot Actuator you
+will enable (by default) two additional endpoints:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>Routes</simpara>
+</listitem>
+<listitem>
+<simpara>Filters</simpara>
+</listitem>
+</itemizedlist>
+<section xml:id="_routes_endpoint">
+<title>Routes Endpoint</title>
+<simpara>A GET to the routes endpoint at <literal>/routes</literal> will return a list of the mapped
 routes:</simpara>
 <formalpara>
 <title>GET /routes</title>
@@ -1665,6 +1707,13 @@ this endpoint by setting <literal>endpoints.routes.enabled</literal> to <literal
 service catalog, but the POST to /routes is a way to force the change
 to happen immediately.</simpara>
 </note>
+</section>
+<section xml:id="_filters_endpoint">
+<title>Filters Endpoint</title>
+<simpara>A GET to the filters endpoint at <literal>/filters</literal> will return a map of Zuul
+filters by type. For each filter type in the map, you will find a list
+of all the filters of that type, along with their details.</simpara>
+</section>
 </section>
 <section xml:id="_strangulation_patterns_and_local_forwards">
 <title>Strangulation Patterns and Local Forwards</title>
