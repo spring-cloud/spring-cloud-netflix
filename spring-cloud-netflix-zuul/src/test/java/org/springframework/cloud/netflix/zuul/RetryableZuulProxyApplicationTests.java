@@ -58,9 +58,9 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RetryableZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple.path: /simple/**", "zuul.routes.simple.retryable: true",
+		"zuul.routes.simplerzpat.path: /simplerzpat/**", "zuul.routes.simplerzpat.retryable: true",
 		"ribbon.OkToRetryOnAllOperations: true",
-		"simple.ribbon.retryableStatusCodes: 404" })
+		"simplerzpat.ribbon.retryableStatusCodes: 404" })
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
 
@@ -92,7 +92,7 @@ public class RetryableZuulProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		ResponseEntity<String> result = testRestTemplate.exchange("/simple/poster",
+		ResponseEntity<String> result = testRestTemplate.exchange("/simplerzpat/poster",
 				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -105,7 +105,7 @@ public class RetryableZuulProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClient(name = "simple", configuration = RetryableRibbonClientConfiguration.class)
+@RibbonClient(name = "simplerzpat", configuration = RetryableRibbonClientConfiguration.class)
 class RetryableZuulProxyApplication {
 
 	@RequestMapping(value = "/poster", method = RequestMethod.POST)
@@ -140,7 +140,7 @@ class RetryableZuulProxyApplication {
 
 }
 
-// Load balancer with fixed server list for "simple" pointing to localhost
+// Load balancer with fixed server list for "simplerzpat" pointing to localhost
 @Configuration
 class RetryableRibbonClientConfiguration {
 

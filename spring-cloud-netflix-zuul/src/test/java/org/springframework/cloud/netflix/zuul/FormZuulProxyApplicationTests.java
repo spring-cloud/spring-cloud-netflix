@@ -69,7 +69,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FormZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple:/simple/**" })
+		"zuul.routes.simplefzpat:/simplefzpat/**" })
 @DirtiesContext
 public class FormZuulProxyApplicationTests {
 
@@ -93,7 +93,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-		ResponseEntity result = sendPost("/simple/form", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/form", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -106,7 +106,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		ResponseEntity result = sendPost("/simple/form", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/form", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -125,7 +125,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		ResponseEntity result = sendPost("/simple/file", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/file", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! bar", result.getBody());
@@ -145,7 +145,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		ResponseEntity result = sendPost("/simple/fileandform", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/fileandform", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! bar!field!data", result.getBody());
@@ -162,7 +162,7 @@ public class FormZuulProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-		ResponseEntity result = sendPost("/simple/json", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/json", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]} as application/json", result.getBody());
@@ -178,7 +178,7 @@ public class FormZuulProxyApplicationTests {
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
-		ResponseEntity result = sendPost("/simple/form", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/form", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -194,7 +194,7 @@ public class FormZuulProxyApplicationTests {
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
-		ResponseEntity result = sendPost("/simple/form?uriParam=uriValue", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/form?uriParam=uriValue", form, headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {uriParam=[uriValue], foo=[bar]}", result.getBody());
@@ -202,7 +202,7 @@ public class FormZuulProxyApplicationTests {
 
 	@Test
 	public void getWithUrlParams() throws Exception {
-		ResponseEntity<String> result = sendGet("/simple/form?uriParam=uriValue");
+		ResponseEntity<String> result = sendGet("/simplefzpat/form?uriParam=uriValue");
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {uriParam=[uriValue]}", result.getBody());
@@ -225,8 +225,7 @@ public class FormZuulProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @RibbonClients({
-		@RibbonClient(name = "simple", configuration = FormRibbonClientConfiguration.class),
-		@RibbonClient(name = "psimple", configuration = FormRibbonClientConfiguration.class) })
+		@RibbonClient(name = "simplefzpat", configuration = FormRibbonClientConfiguration.class) })
 class FormZuulProxyApplication {
 
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
@@ -306,7 +305,7 @@ class FormZuulProxyApplication {
 
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(FormZuulProxyApplication.class)
-				.properties("zuul.routes.simple:/simple/**",
+				.properties("zuul.routes.simplefzpat:/simplefzpat/**",
 						"zuul.routes.direct.url:http://localhost:9999",
 						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
 				.run(args);
@@ -314,7 +313,7 @@ class FormZuulProxyApplication {
 
 }
 
-// Load balancer with fixed server list for "simple" pointing to localhost
+// Load balancer with fixed server list for "simplefzpat" pointing to localhost
 @Configuration
 class FormRibbonClientConfiguration {
 

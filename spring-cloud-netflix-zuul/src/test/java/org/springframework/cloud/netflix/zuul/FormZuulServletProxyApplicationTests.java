@@ -67,7 +67,7 @@ import static org.junit.Assert.assertEquals;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = "zuul.routes.simple:/simple/**")
+@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = "zuul.routes.simplefzspat:/simplefzspat/**")
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
@@ -91,7 +91,7 @@ public class FormZuulServletProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simple/form",
+		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/form",
 				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -103,7 +103,7 @@ public class FormZuulServletProxyApplicationTests {
 		form.set("foo", "bar");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simple/form",
+		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/form",
 				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -120,7 +120,7 @@ public class FormZuulServletProxyApplicationTests {
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		headers.set("Transfer-Encoding", "chunked");
 		headers.setContentLength(-1);
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simple/file",
+		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/file",
 				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! bar", result.getBody());
@@ -133,7 +133,7 @@ public class FormZuulServletProxyApplicationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
-		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simple/form",
+		ResponseEntity<String> result = testRestTemplate.exchange("/zuul/simplefzspat/form",
 				HttpMethod.POST, new HttpEntity<>(form, headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {foo=[bar]}", result.getBody());
@@ -145,7 +145,7 @@ public class FormZuulServletProxyApplicationTests {
 @EnableAutoConfiguration
 @RestController
 @EnableZuulProxy
-@RibbonClients(@RibbonClient(name = "simple", configuration = ServletFormRibbonClientConfiguration.class))
+@RibbonClients(@RibbonClient(name = "simplefzspat", configuration = ServletFormRibbonClientConfiguration.class))
 class FormZuulServletProxyApplication {
 
 	private static final Log log = LogFactory.getLog(FormZuulServletProxyApplication.class);
@@ -220,7 +220,7 @@ class FormZuulServletProxyApplication {
 
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(FormZuulProxyApplication.class)
-				.properties("zuul.routes.simple:/zuul/simple/**",
+				.properties("zuul.routes.simplefzspat:/zuul/simplefzspat/**",
 						"zuul.routes.direct.url:http://localhost:9999",
 						"zuul.routes.direct.path:/zuul/direct/**",
 						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
@@ -229,7 +229,7 @@ class FormZuulServletProxyApplication {
 
 }
 
-// Load balancer with fixed server list for "simple" pointing to localhost
+// Load balancer with fixed server list for "simplefzspat" pointing to localhost
 @Configuration
 class ServletFormRibbonClientConfiguration {
 

@@ -50,7 +50,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ZuulProxyApplicationTests.ZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"zuul.routes.simple:/simple/**", "logging.level.org.apache.http: DEBUG" })
+		"zuul.routes.simplezpat:/simplezpat/**", "logging.level.org.apache.http: DEBUG" })
 @DirtiesContext
 public class ZuulProxyApplicationTests {
 
@@ -71,7 +71,7 @@ public class ZuulProxyApplicationTests {
 	@Test
 	public void getHasCorrectTransferEncoding() {
 		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/simple/transferencoding",
+				"http://localhost:" + this.port + "/simplezpat/transferencoding",
 				String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
@@ -80,7 +80,7 @@ public class ZuulProxyApplicationTests {
 	@Test
 	public void postHasCorrectTransferEncoding() {
 		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
-				"http://localhost:" + this.port + "/simple/transferencoding",
+				"http://localhost:" + this.port + "/simplezpat/transferencoding",
 				new HttpEntity<>("hello"), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
@@ -91,7 +91,7 @@ public class ZuulProxyApplicationTests {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
-	@RibbonClient(name = "simple", configuration = TestRibbonClientConfiguration.class)
+	@RibbonClient(name = "simplezpat", configuration = TestRibbonClientConfiguration.class)
 	static class ZuulProxyApplication {
 
 		@RequestMapping(value = "/transferencoding", method = RequestMethod.GET)
@@ -115,7 +115,7 @@ public class ZuulProxyApplicationTests {
 
 	}
 
-	// Load balancer with fixed server list for "simple" pointing to localhost
+	// Load balancer with fixed server list for "simplezpat" pointing to localhost
 	@Configuration
 	static class TestRibbonClientConfiguration {
 
