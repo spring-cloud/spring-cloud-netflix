@@ -64,10 +64,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = "zuul.routes.simplefzspat:/simplefzspat/**")
+@SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = RANDOM_PORT,
+		properties = {"zuul.routes.simplefzspat:/simplefzspat/**", "logging.level.org.springframework.cloud.netflix.zuul: DEBUG"})
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
