@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest(classes = FiltersEndpointApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		value = { "server.contextPath: /app" })
+@DirtiesContext
 public class FiltersEndpointTests {
 
 	@Autowired

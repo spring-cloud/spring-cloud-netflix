@@ -93,6 +93,7 @@ public class SpringClientFactoryTests {
 		ApacheHttpClient4 jerseyClient = (ApacheHttpClient4) client.getJerseyClient();
 		assertEquals(CookiePolicy.IGNORE_COOKIES, jerseyClient.getClientHandler()
 				.getHttpClient().getParams().getParameter(ClientPNames.COOKIE_POLICY));
+		parent.close();
 		factory.destroy();
 	}
 	

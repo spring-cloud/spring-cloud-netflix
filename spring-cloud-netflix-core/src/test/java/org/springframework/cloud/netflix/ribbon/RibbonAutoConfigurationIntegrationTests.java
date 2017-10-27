@@ -23,7 +23,6 @@ import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoCon
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfigurationIntegrationTests.TestConfiguration;
-import org.springframework.cloud.netflix.test.TestUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
@@ -47,7 +46,6 @@ public class RibbonAutoConfigurationIntegrationTests {
 
 	@Test
 	public void serverListIsConfigured() throws Exception {
-		TestUtils.assumeTestIgnored(RibbonAutoConfigurationIntegrationTests.class);
 		IClientConfig config = this.factory.getClientConfig("client");
 		assertEquals(25000,
 				config.getPropertyAsInteger(CommonClientConfigKey.ConnectTimeout, 3000));
