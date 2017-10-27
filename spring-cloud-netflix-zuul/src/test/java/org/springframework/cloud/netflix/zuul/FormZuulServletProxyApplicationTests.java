@@ -69,7 +69,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FormZuulServletProxyApplication.class, webEnvironment = RANDOM_PORT,
-		properties = {"zuul.routes.simplefzspat:/simplefzspat/**", "logging.level.org.springframework.cloud.netflix.zuul: DEBUG"})
+		properties = {"zuul.routes[simplefzspat].path:/simplefzspat/**", "zuul.routes[simplefzspat].serviceId:simplefzspat"})
 @DirtiesContext
 public class FormZuulServletProxyApplicationTests {
 
