@@ -58,8 +58,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RetryableZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simplerzpat.path: /simplerzpat/**", "zuul.routes.simplerzpat.retryable: true",
-		"ribbon.OkToRetryOnAllOperations: true",
+		"zuul.routes[simplerzpat].path: /simplerzpat/**", "zuul.routes[simplerzpat].retryable: true",
+		"zuul.routes[simplerzpat].serviceId: simplerzpat", "ribbon.OkToRetryOnAllOperations: true",
 		"simplerzpat.ribbon.retryableStatusCodes: 404" })
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
