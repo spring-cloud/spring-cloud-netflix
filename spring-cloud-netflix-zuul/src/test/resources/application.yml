@@ -7,16 +7,16 @@ server:
 spring:
   application:
     name: testclient
-zuul:
+#zuul:
   #prefix: /api
   #strip-prefix: true
-  routes:
-    test:
-      serviceId: testclient
-      path: /testing123/**
-    stores:
-      url: http://localhost:8081
-      path: /stores/**
+#  routes:
+#    test:
+#      serviceId: testclient
+#      path: /testing123/**
+#    stores:
+#      url: http://localhost:8081
+#      path: /stores/**
 hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
 management:
   context-path: /admin
