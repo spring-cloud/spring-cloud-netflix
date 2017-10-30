@@ -22,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
@@ -97,8 +100,13 @@ public class HystrixStreamAutoConfiguration {
 	}
 
 	@Bean
-	public HystrixStreamTask hystrixStreamTask() {
-		return new HystrixStreamTask(this.outboundChannel, this.registration,
+	public HystrixStreamTask hystrixStreamTask(DiscoveryClient discoveryClient) {
+		ServiceInstance serviceInstance = this.registration;
+		if (serviceInstance == null && discoveryClient instanceof SimpleDiscoveryClient) {
+			serviceInstance = ((SimpleDiscoveryClient) discoveryClient)
+					.getLocalServiceInstance();
+		}
+		return new HystrixStreamTask(this.outboundChannel, serviceInstance,
 				this.properties);
 	}
 
