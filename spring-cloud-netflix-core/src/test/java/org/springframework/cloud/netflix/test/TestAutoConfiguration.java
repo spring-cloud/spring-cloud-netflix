@@ -39,7 +39,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class TestAutoConfiguration {
 
 	public static final String USER = "user";
-	public static final String PASSWORD = "password";
+	public static final String PASSWORD = "{noop}password";
 
 	@Configuration
 	@Order(Ordered.HIGHEST_PRECEDENCE)

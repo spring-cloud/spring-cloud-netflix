@@ -63,13 +63,13 @@ public class RoutesEndpointIntegrationTests {
 
 	@Test
 	public void getRoutesTest() {
-		Map<String, String> routes = restTemplate.getForObject("/admin/routes", Map.class);
+		Map<String, String> routes = restTemplate.getForObject("/application/routes", Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 	}
 
 	@Test
 	public void postRoutesTest() {
-		Map<String, String> routes = restTemplate.postForObject("/admin/routes", null, Map.class);
+		Map<String, String> routes = restTemplate.postForObject("/application/routes", null, Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 		assertTrue(refreshListener.wasCalled());
 	}
@@ -77,7 +77,7 @@ public class RoutesEndpointIntegrationTests {
 	@Test
 	public void getRouteDetailsTest() {
 		ResponseEntity<Map<String, RoutesEndpoint.RouteDetails>> responseEntity = restTemplate.exchange(
-				"/admin/routes/details", HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
+				"/application/routes/details", HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
 				});
 
 		assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));

@@ -96,7 +96,7 @@ public class HystrixOnlyTests {
 
 	private Map getHealth() {
 		return new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/admin/health", HttpMethod.GET,
+				"http://localhost:" + this.port + "/application/health", HttpMethod.GET,
 				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)),
 				Map.class).getBody();
 	}

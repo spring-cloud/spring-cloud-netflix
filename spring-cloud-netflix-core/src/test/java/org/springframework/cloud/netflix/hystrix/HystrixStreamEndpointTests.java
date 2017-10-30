@@ -76,7 +76,7 @@ public class HystrixStreamEndpointTests {
 				String.class);
 		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
 
-		URL hystrixUrl = new URL(url + "/admin/hystrix.stream");
+		URL hystrixUrl = new URL(url + "/application/hystrix.stream");
 
 		List<String> data = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {

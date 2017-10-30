@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration;
 import org.springframework.boot.actuate.autoconfigure.web.servlet.ManagementServletContext;
 import org.springframework.boot.actuate.health.Health;
@@ -29,6 +28,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.context.annotation.Bean;
 
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
 
 /**
@@ -55,7 +55,7 @@ class HystrixManagementContextConfiguration {
 
 	@Bean
 	public ServletRegistrationBean<HystrixMetricsStreamServlet> hystrixMetricsStreamServlet() {
-		String path = this.managementServletContext.getContextPath()
+		String path = this.managementServletContext.getServletPath()
 				+ this.properties.getPath();
 		String urlMapping = (path.endsWith("/") ? path + "*" : path + "/*");
 		ServletRegistrationBean<HystrixMetricsStreamServlet> registration = new ServletRegistrationBean<>(

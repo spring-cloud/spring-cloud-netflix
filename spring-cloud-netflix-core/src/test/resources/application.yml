@@ -35,8 +35,6 @@ badClients:
   ribbon:
     MaxAutoRetriesNextServer: 10
     ReadTimeout: 200
-management:
-  context-path: /admin
 endpoints:
   health:
     sensitive: false

@@ -142,7 +142,7 @@ public class EurekaServerMockApplication {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-			manager.createUser(User.withUsername("test").password("test").roles("USER").build());
+			manager.createUser(User.withUsername("test").password("{noop}test").roles("USER").build());
 			return manager;
 		}
 

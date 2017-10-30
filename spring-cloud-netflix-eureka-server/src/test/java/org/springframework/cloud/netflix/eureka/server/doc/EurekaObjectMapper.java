@@ -20,12 +20,12 @@ import java.io.IOException;
 
 import javax.ws.rs.core.MediaType;
 
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
-import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
 import com.netflix.discovery.converters.EntityBodyConverter;
+import io.restassured.mapper.ObjectMapperDeserializationContext;
+import io.restassured.mapper.ObjectMapperSerializationContext;
 
 final class EurekaObjectMapper
-		implements com.jayway.restassured.mapper.ObjectMapper {
+		implements io.restassured.mapper.ObjectMapper {
 	private EntityBodyConverter converter = new EntityBodyConverter();
 
 	@Override
