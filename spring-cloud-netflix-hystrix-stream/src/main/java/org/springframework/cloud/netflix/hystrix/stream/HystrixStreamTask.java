@@ -22,6 +22,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.util.Assert;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.netflix.hystrix.HystrixCircuitBreaker;
@@ -31,19 +43,6 @@ import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixThreadPoolKey;
 import com.netflix.hystrix.HystrixThreadPoolMetrics;
 import com.netflix.hystrix.util.HystrixRollingNumberEvent;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.BeansException;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.serviceregistry.Registration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * @author Spencer Gibb
@@ -57,7 +56,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 	private MessageChannel outboundChannel;
 
-	private Registration registration;
+	private ServiceInstance registration;
 
 	private HystrixStreamProperties properties;
 
@@ -69,11 +68,18 @@ public class HystrixStreamTask implements ApplicationContextAware {
 	private final JsonFactory jsonFactory = new JsonFactory();
 
 	public HystrixStreamTask(MessageChannel outboundChannel,
-							 Registration registration, HystrixStreamProperties properties) {
+							 ServiceInstance registration, HystrixStreamProperties properties) {
+		Assert.notNull(outboundChannel, "outboundChannel may not be null");
+		Assert.notNull(registration, "registration may not be null");
+		Assert.notNull(properties, "properties may not be null");
 		this.outboundChannel = outboundChannel;
 		this.registration = registration;
 		this.properties = properties;
 		this.jsonMetrics = new LinkedBlockingQueue<>(properties.getSize());
+	}
+
+	/* for testing */ ServiceInstance getRegistration() {
+		return registration;
 	}
 
 	@Override
