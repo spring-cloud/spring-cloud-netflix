@@ -26,6 +26,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClient;
+import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryProperties;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
@@ -100,10 +101,10 @@ public class HystrixStreamAutoConfiguration {
 	}
 
 	@Bean
-	public HystrixStreamTask hystrixStreamTask(SimpleDiscoveryClient simpleDiscoveryClient) {
+	public HystrixStreamTask hystrixStreamTask(SimpleDiscoveryProperties simpleDiscoveryProperties) {
 		ServiceInstance serviceInstance = this.registration;
 		if (serviceInstance == null) {
-			serviceInstance = simpleDiscoveryClient.getLocalServiceInstance();
+			serviceInstance = simpleDiscoveryProperties.getLocal();
 		}
 		return new HystrixStreamTask(this.outboundChannel, serviceInstance,
 				this.properties);
