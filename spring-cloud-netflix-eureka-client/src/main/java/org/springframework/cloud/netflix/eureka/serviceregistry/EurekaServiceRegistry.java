@@ -45,9 +45,8 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		reg.getApplicationInfoManager()
 				.setInstanceStatus(reg.getInstanceConfig().getInitialStatus());
 
-		if (reg.getHealthCheckHandler() != null) {
-			reg.getEurekaClient().registerHealthCheck(reg.getHealthCheckHandler());
-		}
+		reg.getHealthCheckHandler().ifAvailable(healthCheckHandler ->
+				reg.getEurekaClient().registerHealthCheck(healthCheckHandler));
 	}
 	
 	private void maybeInitializeClient(EurekaRegistration reg) {

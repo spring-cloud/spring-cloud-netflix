@@ -27,6 +27,7 @@ import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
@@ -96,8 +97,6 @@ public class EurekaClientAutoConfiguration {
 	private static final Log log = LogFactory.getLog(EurekaClientAutoConfiguration.class);
 
 	private ConfigurableEnvironment env;
-	@Autowired(required = false)
-	private HealthCheckHandler healthCheckHandler;
 
 	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) {
 		this.env = env;
@@ -185,7 +184,7 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
 	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
-	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
+	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager, ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 		return EurekaRegistration.builder(instanceConfig)
 				.with(applicationInfoManager)
 				.with(eurekaClient)

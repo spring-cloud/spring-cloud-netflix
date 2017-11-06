@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
@@ -51,9 +52,9 @@ public class EurekaRegistration implements Registration, Closeable {
 	private final AtomicReference<CloudEurekaClient> cloudEurekaClient = new AtomicReference<>();
 	private final CloudEurekaInstanceConfig instanceConfig;
 	private final ApplicationInfoManager applicationInfoManager;
-	private HealthCheckHandler healthCheckHandler;
+	private ObjectProvider<HealthCheckHandler> healthCheckHandler;
 
-	private EurekaRegistration(CloudEurekaInstanceConfig instanceConfig, EurekaClient eurekaClient, ApplicationInfoManager applicationInfoManager, HealthCheckHandler healthCheckHandler) {
+	private EurekaRegistration(CloudEurekaInstanceConfig instanceConfig, EurekaClient eurekaClient, ApplicationInfoManager applicationInfoManager, ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 		this.eurekaClient = eurekaClient;
 		this.instanceConfig = instanceConfig;
 		this.applicationInfoManager = applicationInfoManager;
@@ -68,7 +69,7 @@ public class EurekaRegistration implements Registration, Closeable {
 		private final CloudEurekaInstanceConfig instanceConfig;
 		private ApplicationInfoManager applicationInfoManager;
 		private EurekaClient eurekaClient;
-		private HealthCheckHandler healthCheckHandler;
+		private ObjectProvider<HealthCheckHandler> healthCheckHandler;
 
 		private EurekaClientConfig clientConfig;
 		private ApplicationEventPublisher publisher;
@@ -87,7 +88,7 @@ public class EurekaRegistration implements Registration, Closeable {
 			return this;
 		}
 
-		public Builder with(HealthCheckHandler healthCheckHandler) {
+		public Builder with(ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 			this.healthCheckHandler = healthCheckHandler;
 			return this;
 		}
@@ -177,11 +178,11 @@ public class EurekaRegistration implements Registration, Closeable {
 		return applicationInfoManager;
 	}
 
-	public HealthCheckHandler getHealthCheckHandler() {
+	public ObjectProvider<HealthCheckHandler> getHealthCheckHandler() {
 		return healthCheckHandler;
 	}
 
-	public void setHealthCheckHandler(HealthCheckHandler healthCheckHandler) {
+	public void setHealthCheckHandler(ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 		this.healthCheckHandler = healthCheckHandler;
 	}
 
