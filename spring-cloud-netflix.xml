@@ -608,8 +608,9 @@ in order for the Hystrix Dashboard to make a successful connection to the stream
 <title>Turbine</title>
 <simpara>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <link xl:href="https://github.com/Netflix/Turbine">Turbine</link> is an application that aggregates all of the relevant <literal>/hystrix.stream</literal> endpoints into a combined <literal>/turbine.stream</literal> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <literal>@EnableTurbine</literal> annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from <link xl:href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</link> apply.  The only difference is that the <literal>turbine.instanceUrlSuffix</literal> does not need the port prepended as this is handled automatically unless <literal>turbine.instanceInsertPort=false</literal>.</simpara>
 <note>
-<simpara>By default, Turbine looks for the <literal>/hystrix.stream</literal> endpoint on a registered instance by looking up its <literal>homePageUrl</literal> entry in Eureka, then appending <literal>/hystrix.stream</literal> to it. This means that if <literal>spring-boot-actuator</literal> is running on its own port (which is the default), the call to <literal>/hystrix.stream</literal> will fail.
-To make turbine find the Hystrix stream at the correct port, you need to add <literal>management.port</literal> to the instances' metadata:</simpara>
+<simpara>By default, Turbine looks for the <literal>/hystrix.stream</literal> endpoint on a registered instance by looking up its <literal>hostName</literal> and <literal>port</literal> entries in Eureka, then appending <literal>/hystrix.stream</literal> to it.
+If the instance&#8217;s metadata contains <literal>management.port</literal>, it will be used instead of the <literal>port</literal> value for the <literal>/hystrix.stream</literal> endpoint.
+By default, metadata entry <literal>management.port</literal> is equal to the <literal>management.port</literal> configuration property, it can be overridden though with following configuration:</simpara>
 </note>
 <screen>eureka:
   instance:
