@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -27,7 +26,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.context.scope.GenericScope;
@@ -75,6 +73,54 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void shouldSetManagementPortInMetadataMapIfEqualToServerPort() throws Exception {
+		addEnvironment(this.context, "server.port=8989");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+
+		assertEquals("8989", instance.getMetadataMap().get("management.port"));
+	}
+
+	@Test
+	public void shouldNotSetManagementAndJmxPortsInMetadataMap() throws Exception {
+		addEnvironment(this.context, "server.port=8989", "management.port=0");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+
+		assertEquals(null, instance.getMetadataMap().get("management.port"));
+		assertEquals(null, instance.getMetadataMap().get("jmx.port"));
+	}
+
+	@Test
+	public void shouldSetManagementAndJmxPortsInMetadataMap() throws Exception {
+		addEnvironment(this.context, "management.port=9999",
+				"com.sun.management.jmxremote.port=6789");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertEquals("9999", instance.getMetadataMap().get("management.port"));
+		assertEquals("6789", instance.getMetadataMap().get("jmx.port"));
+	}
+
+	@Test
+	public void shouldNotResetManagementAndJmxPortsInMetadataMap() throws Exception {
+		addEnvironment(this.context, "management.port=9999",
+				"eureka.instance.metadata-map.jmx.port=9898",
+				"eureka.instance.metadata-map.management.port=7878");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertEquals("7878", instance.getMetadataMap().get("management.port"));
+		assertEquals("9898", instance.getMetadataMap().get("jmx.port"));
+	}
+
+	@Test
 	public void nonSecurePortPeriods() {
 		testNonSecurePort("server.port");
 	}
@@ -110,7 +156,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void managementPort() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999");
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
@@ -121,7 +167,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void statusPageUrlPathAndManagementPort() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
 				"eureka.instance.statusPageUrlPath=/myStatusPage");
 		setupContext(RefreshAutoConfiguration.class);
@@ -133,7 +179,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void healthCheckUrlPathAndManagementPort() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
 				"eureka.instance.healthCheckUrlPath=/myHealthCheck");
 		setupContext(RefreshAutoConfiguration.class);
@@ -145,7 +191,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void statusPageUrlPathAndManagementPortAndContextPath() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "management.contextPath=/manage",
 				"eureka.instance.statusPageUrlPath=/myStatusPage");
 		setupContext(RefreshAutoConfiguration.class);
@@ -157,7 +203,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void healthCheckUrlPathAndManagementPortAndContextPath() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "management.contextPath=/manage",
 				"eureka.instance.healthCheckUrlPath=/myHealthCheck");
 		setupContext(RefreshAutoConfiguration.class);
@@ -169,7 +215,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void statusPageUrlPathAndManagementPortAndContextPathKebobCase() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "management.context-path=/manage",
 				"eureka.instance.statusPageUrlPath=/myStatusPage");
 		setupContext(RefreshAutoConfiguration.class);
@@ -181,7 +227,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void healthCheckUrlPathAndManagementPortAndContextPathKebobCase() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "management.context-path=/manage",
 				"eureka.instance.healthCheckUrlPath=/myHealthCheck");
 		setupContext(RefreshAutoConfiguration.class);
@@ -193,7 +239,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void statusPageUrlPathAndManagementPortKabobCase() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
 				"eureka.instance.status-page-url-path=/myStatusPage");
 		setupContext(RefreshAutoConfiguration.class);
@@ -205,7 +251,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void statusPageUrlAndPreferIpAddress() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "eureka.instance.hostname=foo",
 				"eureka.instance.preferIpAddress:true");
 
@@ -219,7 +265,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void healthCheckUrlPathAndManagementPortKabobCase() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
 				"eureka.instance.health-check-url-path=/myHealthCheck");
 		setupContext(RefreshAutoConfiguration.class);
@@ -231,7 +277,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void statusPageUrlPathAndManagementPortUpperCase() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
 				"EUREKA_INSTANCE_STATUS_PAGE_URL_PATH=/myStatusPage");
 		setupContext(RefreshAutoConfiguration.class);
@@ -243,7 +289,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void healthCheckUrlPathAndManagementPortUpperCase() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999",
 				"EUREKA_INSTANCE_HEALTH_CHECK_URL_PATH=/myHealthCheck");
 		setupContext(RefreshAutoConfiguration.class);
@@ -255,7 +301,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void hostname() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "eureka.instance.hostname=foo");
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
@@ -275,7 +321,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void basicAuth() {
-		EnvironmentTestUtils.addEnvironment(this.context, "server.port=8989",
+		addEnvironment(this.context, "server.port=8989",
 				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka");
 		setupContext(MockClientConfiguration.class);
 		// ApacheHttpClient4 http = this.context.getBean(ApacheHttpClient4.class);
@@ -292,7 +338,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void testAppName() throws Exception {
-		EnvironmentTestUtils.addEnvironment(this.context, "spring.application.name=mytest");
+		addEnvironment(this.context, "spring.application.name=mytest");
 		setupContext();
 		assertEquals("mytest", getInstanceConfig().getAppname());
 		assertEquals("mytest", getInstanceConfig().getVirtualHostName());
@@ -301,7 +347,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void testAppNameUpper() throws Exception {
-		EnvironmentTestUtils.addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestupper");
+		addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestupper");
 		setupContext();
 		assertEquals("mytestupper", getInstanceConfig().getAppname());
 		assertEquals("mytestupper", getInstanceConfig().getVirtualHostName());
@@ -310,7 +356,7 @@ public class EurekaClientAutoConfigurationTests {
 
 	@Test
 	public void testInstanceNamePreferred() throws Exception {
-		EnvironmentTestUtils.addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestspringappname",
+		addEnvironment(this.context, "SPRING_APPLICATION_NAME=mytestspringappname",
 				"eureka.instance.appname=mytesteurekaappname");
 		setupContext();
 		assertEquals("mytesteurekaappname", getInstanceConfig().getAppname());
@@ -349,7 +395,7 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	private void testSecurePort(String propName) {
-		EnvironmentTestUtils.addEnvironment(this.context, "eureka.instance.securePortEnabled=true");
+		addEnvironment(this.context, "eureka.instance.securePortEnabled=true");
 		addEnvironment(this.context, propName + ":8443");
 		setupContext();
 		assertEquals(8443, getInstanceConfig().getSecurePort());
