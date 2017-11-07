@@ -369,6 +369,46 @@
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-gson</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jackson-jaxb</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jackson</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-java8</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jaxb</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jaxrs</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-ribbon</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-sax</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.netflix.hystrix</groupId>
 				<artifactId>hystrix-core</artifactId>
 				<version>${hystrix.version}</version>
