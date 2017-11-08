@@ -1248,7 +1248,7 @@ protected interface HystrixClient {
 static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClient> {
 	@Override
 	public HystrixClient create(Throwable cause) {
-		return new HystrixClientWithFallBackFactory() {
+		return new HystrixClient() {
 			@Override
 			public Hello iFailSometimes() {
 				return new Hello("fallback; reason was: " + cause.getMessage());
