@@ -155,8 +155,7 @@ public abstract class StreamSourceTestBase {
 				if (message == null) {
 					return message;
 				}
-				Object fromMessage = converter().fromMessage(message, String.class);
-				return MessageBuilder.createMessage(fromMessage, message.getHeaders());
+				return MessageBuilder.createMessage(message.getPayload(), message.getHeaders());
 			}
 			catch (Exception e) {
 				log.error("Exception occurred while trying to read a message from "

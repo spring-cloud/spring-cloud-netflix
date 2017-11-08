@@ -91,9 +91,7 @@ public class HystrixStreamTests {
 		assertThat(this.registration.getServiceId()).isEqualTo("mytestapp");
 		this.task.gatherMetrics();
 		Message<?> message = this.collector.forChannel(output).take();
-		// TODO: possible regression with Edgware?
-		assertThat(message.getPayload()).isInstanceOf(byte[].class);
-		JsonNode tree = mapper.readTree(new String((byte[]) message.getPayload()));
+		JsonNode tree = mapper.readTree((String)message.getPayload());
 		assertThat(tree.hasNonNull("origin"));
 		assertThat(tree.hasNonNull("data"));
 	}
