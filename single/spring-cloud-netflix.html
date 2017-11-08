@@ -644,7 +644,7 @@ favor for an opt-in approach.</p></td></tr></table></div></div><div class="secti
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">static</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> HystrixClientFallbackFactory <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">implements</span> FallbackFactory&lt;HystrixClient&gt; {
 	<em><span class="hl-annotation" style="color: gray">@Override</span></em>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> HystrixClient create(Throwable cause) {
-		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HystrixClientWithFallBackFactory() {
+		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> HystrixClient() {
 			<em><span class="hl-annotation" style="color: gray">@Override</span></em>
 			<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Hello iFailSometimes() {
 				<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> Hello(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"fallback; reason was: "</span> + cause.getMessage());
