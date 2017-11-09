@@ -142,6 +142,7 @@
 		<!-- Not part of the reactor build: build and deploy separately -->
 		<!--module>spring-cloud-netflix-hystrix-contract</module-->
 		<module>spring-cloud-netflix-core</module>
+		<module>spring-cloud-netflix-core-test</module>
 		<module>spring-cloud-netflix-hystrix-dashboard</module>
 		<module>spring-cloud-netflix-hystrix-amqp</module>
 		<module>spring-cloud-netflix-hystrix-stream</module>
