@@ -24,6 +24,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
@@ -35,6 +36,8 @@ import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.backoff.BackOffPolicy;
+import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,7 +54,11 @@ import com.netflix.loadbalancer.Server;
 public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient
 		implements ServiceInstanceChooser {
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory = new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
+	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
+			new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 
+	@Deprecated
+	//TODO remove in 2.0.x
 	public RetryableRibbonLoadBalancingHttpClient(IClientConfig config,
 			ServerIntrospector serverIntrospector,
 			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
@@ -59,11 +66,22 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
+	@Deprecated
+	//TODO remove in 2.0.x
 	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
 			IClientConfig config, ServerIntrospector serverIntrospector,
 			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(delegate, config, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+	}
+
+	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
+												  IClientConfig config, ServerIntrospector serverIntrospector,
+												  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+												  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+		super(delegate, config, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
 	}
 
 	@Override
@@ -137,6 +155,8 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable
 				? new NeverRetryPolicy()
 				: new RetryPolicy(request, retryPolicy, this, this.getClientName()));
+		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());
+		retryTemplate.setBackOffPolicy(backOffPolicy == null ? new NoBackOffPolicy() : backOffPolicy);
 		return retryTemplate.execute(callback);
 	}
 

@@ -2724,6 +2724,27 @@ https://github.com/spring-projects/spring-retry[Spring Retry] on your applicatio
 When Spring Retry is present load balanced `RestTemplates`, Feign, and Zuul will automatically
 retry any failed requests (assuming you configuration allows it to).
 
+==== BackOff Policies
+By default no backoff policy is used when retrying requests.  If you would like to configure
+a backoff policy you will need to create a bean of type `LoadBalancedBackOffPolicyFactory`
+which will be used to create a `BackOffPolicy` for a given service.
+
+[source,java,indent=0]
+----
+@Configuration
+public class MyConfiguration {
+    @Bean
+    LoadBalancedBackOffPolicyFactory backOffPolciyFactory() {
+        return new LoadBalancedBackOffPolicyFactory() {
+            @Override
+            public BackOffPolicy createBackOffPolicy(String service) {
+                return new ExponentialBackOffPolicy();
+            }
+        };
+    }
+}
+----
+
 ==== Configuration
 
 Anytime Ribbon is used with Spring Retry you can control the retry functionality by configuring

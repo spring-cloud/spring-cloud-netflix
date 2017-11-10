@@ -23,6 +23,7 @@ import feign.Response;
 
 import java.io.IOException;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
@@ -32,6 +33,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.backoff.BackOffPolicy;
+import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
@@ -48,12 +51,26 @@ import com.netflix.loadbalancer.Server;
 public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements ServiceInstanceChooser {
 
 	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
+	private final LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory;
 
+	@Deprecated
+	//TODO remove in 2.0.x
 	public RetryableFeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
 							 ServerIntrospector serverIntrospector, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(lb, clientConfig, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
+		this.loadBalancedBackOffPolicyFactory = new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
+	}
+
+	public RetryableFeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
+									  ServerIntrospector serverIntrospector, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+									  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+		super(lb, clientConfig, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
+		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory == null ?
+				new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory() : loadBalancedBackOffPolicyFactory;
 	}
 
 	@Override
@@ -72,6 +89,8 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 		}
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		RetryTemplate retryTemplate = new RetryTemplate();
+		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());
+		retryTemplate.setBackOffPolicy(backOffPolicy == null ? new NoBackOffPolicy() : backOffPolicy);
 		retryTemplate.setRetryPolicy(retryPolicy == null ? new NeverRetryPolicy()
 				: new FeignRetryPolicy(request.toHttpRequest(), retryPolicy, this, this.getClientName()));
 		return retryTemplate.execute(new RetryCallback<RibbonResponse, IOException>() {
