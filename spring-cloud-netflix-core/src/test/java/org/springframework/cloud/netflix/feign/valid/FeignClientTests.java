@@ -34,9 +34,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.ImmutableMap;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +82,7 @@ import com.netflix.loadbalancer.ServerList;
 import feign.Client;
 import feign.Feign;
 import feign.Logger;
+import feign.HeaderMap;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Target;
@@ -91,6 +95,7 @@ import rx.Single;
  * @author Spencer Gibb
  * @author Jakub Narloch
  * @author Erik Kringen
+ * @author Thiru
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = FeignClientTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -178,6 +183,9 @@ public class FeignClientTests {
 
 		@RequestMapping(method = RequestMethod.GET, path = "/helloheadersplaceholders", headers = "myPlaceholderHeader=${feignClient.myPlaceholderHeader}")
 		String getHelloHeadersPlaceholders();
+
+		@RequestMapping(method = RequestMethod.GET, path = "/ignoredHeaderMap")
+		ResponseEntity<Map> ignoredHeaderMap(@HeaderMap Map headers);
 
 		@RequestMapping(method = RequestMethod.GET, path = "/helloparams")
 		List<String> getParams(@RequestParam("params") List<String> params);
@@ -428,6 +436,11 @@ public class FeignClientTests {
 			return myPlaceholderHeader;
 		}
 
+		@RequestMapping(method = RequestMethod.GET, path = "/ignoredHeaderMap")
+		public Map ignoredHeaderMap(@HeaderMap Map myPlaceholderHeader) {
+			return myPlaceholderHeader;
+		}
+
 		@RequestMapping(method = RequestMethod.GET, path = "/helloparams")
 		public List<String> getParams(@RequestParam("params") List<String> params) {
 			return params;
@@ -540,6 +553,14 @@ public class FeignClientTests {
 		String header = this.testClient.getHelloHeadersPlaceholders();
 		assertNotNull("header was null", header);
 		assertEquals("header was wrong", "myPlaceholderHeaderValue", header);
+	}
+
+	@Test(expected = HystrixRuntimeException.class)
+	public void testHeaderMapIsIgnoredAndHeadersAreAddedInBody() throws Exception {
+		ImmutableMap<String, String> map = ImmutableMap
+				.of("key", "value");
+		ResponseEntity<Map> responseEntity = this.testClient.ignoredHeaderMap(map);
+		assertThat(responseEntity.getStatusCode(), is(HttpStatus.METHOD_NOT_ALLOWED));
 	}
 
 	@Test
