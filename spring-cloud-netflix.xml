@@ -1988,6 +1988,15 @@ type <literal>ZuulFallbackProvider</literal> and have the <literal>getRoute</lit
     }
 }</programlisting>
 </section>
+<section xml:id="_zuul_timeouts">
+<title>Zuul Timeouts</title>
+<simpara>If you want to configure the socket timeouts and read timeouts for requests proxied through
+Zuul there are two options based on your configuration.</simpara>
+<simpara>If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
+<literal>ribbon.ReadTimeout</literal> and <literal>ribbon.SocketTimeout</literal>.</simpara>
+<simpara>If you have configured Zuul routes by specifying URLs than you will need to use
+<literal>zuul.host.connect-timeout-millis</literal> and <literal>zuul.host.socket-timeout-millis</literal>.</simpara>
+</section>
 <section xml:id="zuul-redirect-location-rewrite">
 <title>Rewriting <literal>Location</literal> header</title>
 <simpara>If Zuul is fronting a web application then there may be a need to re-write the <literal>Location</literal> header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application&#8217;s url instead of the Zuul url.
