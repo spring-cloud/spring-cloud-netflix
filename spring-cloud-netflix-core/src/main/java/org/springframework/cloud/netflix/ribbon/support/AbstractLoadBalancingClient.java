@@ -17,6 +17,7 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
+import com.netflix.loadbalancer.reactive.LoadBalancerCommand;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
@@ -139,5 +140,12 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 			}
 		}
 		return this.secure;
+	}
+
+	@Override
+	protected void customizeLoadBalancerCommandBuilder(S request, IClientConfig config, LoadBalancerCommand.Builder<T> builder) {
+		if (request.getLoadBalancerKey() != null) {
+			builder.withServerLocator(request.getLoadBalancerKey());
+		}
 	}
 }

@@ -124,7 +124,7 @@ public class ApacheHttpClientConfigurationTests {
 	public void testRibbonLoadBalancingHttpClient() {
 		RibbonCommandContext context = new RibbonCommandContext("foo"," GET", "http://localhost",
 				false, new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
-				null, new ArrayList<RibbonRequestCustomizer>(), 0l);
+				null, new ArrayList<RibbonRequestCustomizer>(), 0l, null);
 		HttpClientRibbonCommand command = httpClientRibbonCommandFactory.create(context);
 		RibbonLoadBalancingHttpClient ribbonClient = command.getClient();
 		CloseableHttpClient httpClient = getField(ribbonClient, "delegate");
