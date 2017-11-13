@@ -67,6 +67,7 @@ public class ZuulMetricsApplicationTests {
 	}
 
 	@Test
+	@SuppressWarnings("all")
 	public void shouldIncrementCounters() throws Exception {
 		new ZuulException("any", 500, "cause");
 		new ZuulException("any", 500, "cause");
