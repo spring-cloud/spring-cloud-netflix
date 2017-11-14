@@ -190,6 +190,34 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void statusPageUrl_and_healthCheckUrl_do_not_contain_server_context_path() throws Exception {
+		addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "server.contextPath=/service");
+
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().endsWith(":9999/info"));
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().endsWith(":9999/health"));
+	}
+
+	@Test
+	public void statusPageUrl_and_healthCheckUrl_contain_management_context_path() throws Exception {
+		addEnvironment(this.context,
+				"server.port=8989", "management.contextPath=/management");
+
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().endsWith(":8989/management/info"));
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().endsWith(":8989/management/health"));
+	}
+
+	@Test
 	public void statusPageUrlPathAndManagementPortAndContextPath() {
 		addEnvironment(this.context, "server.port=8989",
 				"management.port=9999", "management.contextPath=/manage",
