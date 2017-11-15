@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author Biju Kunjummen
  */
-
+// tag::sample_zuul_slice_test[]
 @RunWith(SpringRunner.class)
 @ZuulProxyTest(properties = {
 	// @formatter:off
@@ -85,6 +85,5 @@ public class ZuulProxySliceTest {
 		assertThat(applicationContext.getBeansOfType(SomeServiceBean.class)).isEmpty();
 	}
 
-
-
 }
+// end::sample_zuul_slice_test[]

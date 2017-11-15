@@ -2124,6 +2124,56 @@ public class ZuulConfig {
 Use this filter with caution though, the filter acts on the `Location` header of ALL 3XX response codes which may not be appropriate in all scenarios, say if the user is redirecting to an external URL.
 ====
 
+
+=== Testing Zuul Proxy
+
+Zuul Proxy related properties and filters can be tested in a focused way using the `@ZuulProxyTest` annotation. `spring-cloud-netflix-core-test` module
+can be added in as a dependency:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-netflix-core-test</artifactId>
+    <scope>test</scope>
+</dependency>
+---- 
+
+
+`@ZuulProxyTest` provides the following features:
+
+* Auto-configures Zuul related configuration 
+* Configures the Spring Web Mvc infrastructure
+* Configures `MockMvc` which provides a way to test Zuul endpoints without needing a full Http Server
+* Configures https://cloud.spring.io/spring-cloud-contract/multi/multi__spring_cloud_contract_wiremock.html[Spring Cloud Contract Wiremock] 
+to be able to simulate proxied endpoints
+* Limits scanned beans to `ZuulFilter` and `ServiceRouteMapper` types
+
+Here is an example of using `@ZuulProxyTest` to test a sample Zuul configuration:
+
+[source,java]
+----
+include::../../../../spring-cloud-netflix-core-test/src/test/java/org/springframework/cloud/netflix/zuul/slice/ZuulProxySliceTest.java[tags=sample_zuul_slice_test,indent=0]
+----
+
+There are a few things to keep in mind when using the `@ZuulProxyTest`:
+
+* Discovery client(Eureka, Consul) is not available for the tests, any proxied url will have to be explicitly configured using ribbon properties. For eg:
+[source,java]
+----
+sample1.ribbon.listOfServers=http://localhost:${wiremock.server.port}
+----
+
+* Spring Cloud Contract Wiremock is used for recording the behavior of proxied services and the port is random, to get hold of the proxied services port
+for tests, the `wiremock.server.port` property can be used.
+
+* The behavior of the proxied services will have to be specified using http://wiremock.org/[Wiremock]
+[source,java]
+----
+stubFor(WireMock.get(urlEqualTo("/test"))
+	.willReturn(aResponse().withStatus(200).withBody("sample1")));
+----
+
 [[zuul-developer-guide]]
 === Zuul Developer Guide
 
