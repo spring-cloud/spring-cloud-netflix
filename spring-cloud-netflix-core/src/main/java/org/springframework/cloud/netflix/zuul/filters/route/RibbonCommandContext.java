@@ -65,7 +65,6 @@ public class RibbonCommandContext {
 			requestCustomizers, null, null);
 	}
 
-	@Deprecated
 	public RibbonCommandContext(String serviceId, String method, String uri,
 								Boolean retryable, MultiValueMap<String, String> headers,
 								MultiValueMap<String, String> params, InputStream requestEntity,

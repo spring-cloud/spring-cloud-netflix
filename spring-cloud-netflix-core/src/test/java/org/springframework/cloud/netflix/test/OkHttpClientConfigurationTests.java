@@ -101,7 +101,7 @@ public class OkHttpClientConfigurationTests {
 	public void testOkHttpLoadBalancingHttpClient() {
 		RibbonCommandContext context = new RibbonCommandContext("foo"," GET", "http://localhost",
 				false, new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
-				null, new ArrayList<RibbonRequestCustomizer>(), 0l, null);
+				null, new ArrayList<RibbonRequestCustomizer>(), 0l);
 		OkHttpRibbonCommand command = okHttpRibbonCommandFactory.create(context);
 		OkHttpLoadBalancingClient ribbonClient = command.getClient();
 		OkHttpClient httpClient = getField(ribbonClient, "delegate");
