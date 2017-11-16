@@ -39,7 +39,7 @@ public class CachingSpringLoadBalancerFactory {
 
 	private final SpringClientFactory factory;
 	private final LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
-	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory;
+	private final LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory;
 	private boolean enableRetry = false;
 
 	private volatile Map<String, FeignLoadBalancer> cache = new ConcurrentReferenceHashMap<>();
@@ -47,6 +47,7 @@ public class CachingSpringLoadBalancerFactory {
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory) {
 		this.factory = factory;
 		this.loadBalancedRetryPolicyFactory = new RibbonLoadBalancedRetryPolicyFactory(factory);
+		this.loadBalancedBackOffPolicyFactory = null;
 	}
 
 	@Deprecated
@@ -55,6 +56,7 @@ public class CachingSpringLoadBalancerFactory {
 											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		this.factory = factory;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.loadBalancedBackOffPolicyFactory = null;
 	}
 
 	@Deprecated
@@ -64,6 +66,7 @@ public class CachingSpringLoadBalancerFactory {
 		this.factory = factory;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.enableRetry = enableRetry;
+		this.loadBalancedBackOffPolicyFactory = null;
 	}
 
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory,
@@ -71,7 +74,6 @@ public class CachingSpringLoadBalancerFactory {
 											LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
 		this.factory = factory;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
-		this.loadBalancedBackOffPolicyFactory = new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
 		this.enableRetry = true;
 	}
