@@ -31,6 +31,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
@@ -151,9 +152,11 @@ public class HttpClientRibbonConfiguration {
 	public RetryableRibbonLoadBalancingHttpClient retryableRibbonLoadBalancingHttpClient(
 			IClientConfig config, ServerIntrospector serverIntrospector,
 			ILoadBalancer loadBalancer, RetryHandler retryHandler,
-			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, CloseableHttpClient httpClient) {
+			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, CloseableHttpClient httpClient,
+			LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
 		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
-				httpClient, config, serverIntrospector, loadBalancedRetryPolicyFactory);
+				httpClient, config, serverIntrospector, loadBalancedRetryPolicyFactory,
+				loadBalancedBackOffPolicyFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
 		Monitors.registerObject("Client_" + this.name, client);
