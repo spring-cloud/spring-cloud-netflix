@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-11-16</date>
+<date>2017-11-17</date>
 </info>
 <preface>
 <title></title>
@@ -2622,6 +2622,24 @@ automatically.  To accomplish this when using Sping Cloud Netflix you need to in
 <link xl:href="https://github.com/spring-projects/spring-retry">Spring Retry</link> on your application&#8217;s classpath.
 When Spring Retry is present load balanced <literal>RestTemplates</literal>, Feign, and Zuul will automatically
 retry any failed requests (assuming you configuration allows it to).</simpara>
+<section xml:id="_backoff_policies">
+<title>BackOff Policies</title>
+<simpara>By default no backoff policy is used when retrying requests.  If you would like to configure
+a backoff policy you will need to create a bean of type <literal>LoadBalancedBackOffPolicyFactory</literal>
+which will be used to create a <literal>BackOffPolicy</literal> for a given service.</simpara>
+<programlisting language="java" linenumbering="unnumbered">@Configuration
+public class MyConfiguration {
+    @Bean
+    LoadBalancedBackOffPolicyFactory backOffPolciyFactory() {
+        return new LoadBalancedBackOffPolicyFactory() {
+            @Override
+            public BackOffPolicy createBackOffPolicy(String service) {
+                return new ExponentialBackOffPolicy();
+            }
+        };
+    }
+}</programlisting>
+</section>
 <section xml:id="_configuration">
 <title>Configuration</title>
 <simpara>Anytime Ribbon is used with Spring Retry you can control the retry functionality by configuring
