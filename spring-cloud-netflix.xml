@@ -929,6 +929,29 @@ This lazy loading behavior can be changed to instead eagerly load up these child
 </para>
 </formalpara>
 </section>
+<section xml:id="how-to-provdie-a-key-to-ribbon">
+<title>How to Provide a Key to Ribbon&#8217;s <literal>IRule</literal></title>
+<simpara>If you need to provide your own <literal>IRule</literal> implementation to handle a special routing requirement like a canary test,
+you probably want to pass some information to the <literal>choose</literal> method of <literal>IRule</literal>.</simpara>
+<formalpara>
+<title>com.netflix.loadbalancer.IRule.java</title>
+<para>
+<screen>public interface IRule{
+    public Server choose(Object key);
+         :</screen>
+</para>
+</formalpara>
+<simpara>You can provide some information that will be used to choose a target server by your <literal>IRule</literal> implementation like
+the following:</simpara>
+<screen>RequestContext.getCurrentContext()
+              .set(FilterConstants.LOAD_BALANCER_KEY, "canary-test");</screen>
+<simpara>If you put any object into the <literal>RequestContext</literal> with a key <literal>FilterConstants.LOAD_BALANCER_KEY</literal>, it will
+be passed to the <literal>choose</literal> method of <literal>IRule</literal> implementation. Above code must be executed before <literal>RibbonRoutingFilter</literal>
+is executed and Zuul&#8217;s pre filter is the best place to do that. You can easily access HTTP headers and query parameters
+via <literal>RequestContext</literal> in pre filter, so it can be used to determine <literal>LOAD_BALANCER_KEY</literal> that will be passed to Ribbon.
+If you don&#8217;t put any value with <literal>LOAD_BALANCER_KEY</literal> in <literal>RequestContext</literal>, null will be passed as a parameter of <literal>choose</literal>
+method.</simpara>
+</section>
 </chapter>
 <chapter xml:id="spring-cloud-feign">
 <title>Declarative REST Client: Feign</title>

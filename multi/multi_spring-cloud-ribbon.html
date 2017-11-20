@@ -148,4 +148,16 @@ This lazy loading behavior can be changed to instead eagerly load up these child
   threadPool:
     useSeparateThreadPools: true
     threadPoolKeyPrefix: zuulgw</pre><p>
-</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__hystrix_timeouts_and_ribbon_clients.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi_spring-cloud-feign.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">5.&nbsp;Hystrix Timeouts And Ribbon Clients&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;7.&nbsp;Declarative REST Client: Feign</td></tr></table></div></body></html>
+</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="how-to-provdie-a-key-to-ribbon" href="#how-to-provdie-a-key-to-ribbon"></a>6.11&nbsp;How to Provide a Key to Ribbon&#8217;s <code class="literal">IRule</code></h2></div></div></div><p>If you need to provide your own <code class="literal">IRule</code> implementation to handle a special routing requirement like a canary test,
+you probably want to pass some information to the <code class="literal">choose</code> method of <code class="literal">IRule</code>.</p><p><b>com.netflix.loadbalancer.IRule.java.&nbsp;</b>
+</p><pre class="screen">public interface IRule{
+    public Server choose(Object key);
+         :</pre><p>
+</p><p>You can provide some information that will be used to choose a target server by your <code class="literal">IRule</code> implementation like
+the following:</p><pre class="screen">RequestContext.getCurrentContext()
+              .set(FilterConstants.LOAD_BALANCER_KEY, "canary-test");</pre><p>If you put any object into the <code class="literal">RequestContext</code> with a key <code class="literal">FilterConstants.LOAD_BALANCER_KEY</code>, it will
+be passed to the <code class="literal">choose</code> method of <code class="literal">IRule</code> implementation. Above code must be executed before <code class="literal">RibbonRoutingFilter</code>
+is executed and Zuul&#8217;s pre filter is the best place to do that. You can easily access HTTP headers and query parameters
+via <code class="literal">RequestContext</code> in pre filter, so it can be used to determine <code class="literal">LOAD_BALANCER_KEY</code> that will be passed to Ribbon.
+If you don&#8217;t put any value with <code class="literal">LOAD_BALANCER_KEY</code> in <code class="literal">RequestContext</code>, null will be passed as a parameter of <code class="literal">choose</code>
+method.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="multi__hystrix_timeouts_and_ribbon_clients.html">Prev</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="multi_spring-cloud-feign.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">5.&nbsp;Hystrix Timeouts And Ribbon Clients&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="multi_spring-cloud-netflix.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;7.&nbsp;Declarative REST Client: Feign</td></tr></table></div></body></html>
