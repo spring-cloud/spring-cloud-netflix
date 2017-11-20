@@ -27,9 +27,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -90,5 +92,19 @@ public class RibbonCommandContextTest {
 				HttpMethod.POST.toString(), "/my/route", true, headers, params,
 				new ByteArrayInputStream(TEST_CONTENT),
 				Lists.newArrayList(requestCustomizer));
+	}
+
+	@Test
+	public void testNullSafetyWithNullableParameters() throws Exception {
+		LinkedMultiValueMap headers = new LinkedMultiValueMap();
+		LinkedMultiValueMap params = new LinkedMultiValueMap();
+
+		RibbonCommandContext testContext = new RibbonCommandContext("serviceId",
+				HttpMethod.POST.toString(), "/my/route", true, headers, params,
+				new ByteArrayInputStream(TEST_CONTENT), Collections.<RibbonRequestCustomizer>emptyList(),
+				null, null);
+
+		assertNotEquals(0, testContext.hashCode());
+		assertNotNull(testContext.toString());
 	}
 }

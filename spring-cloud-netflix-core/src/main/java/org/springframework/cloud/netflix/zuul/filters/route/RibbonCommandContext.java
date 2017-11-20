@@ -32,6 +32,7 @@ import java.util.Objects;
 
 /**
  * @author Spencer Gibb
+ * @author Yongsung Yoon
  */
 public class RibbonCommandContext {
 	private final String serviceId;
@@ -43,6 +44,7 @@ public class RibbonCommandContext {
 	private final List<RibbonRequestCustomizer> requestCustomizers;
 	private InputStream requestEntity;
 	private Long contentLength;
+	private Object loadBalancerKey;
 
 	/**
 	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
@@ -52,7 +54,7 @@ public class RibbonCommandContext {
 								String uri, Boolean retryable, MultiValueMap<String, String> headers,
 								MultiValueMap<String, String> params, InputStream requestEntity) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-			new ArrayList<RibbonRequestCustomizer>(), null);
+			new ArrayList<RibbonRequestCustomizer>(), null, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
@@ -60,13 +62,22 @@ public class RibbonCommandContext {
 								MultiValueMap<String, String> params, InputStream requestEntity,
 								List<RibbonRequestCustomizer> requestCustomizers) {
 		this(serviceId, method, uri, retryable, headers, params, requestEntity,
-			requestCustomizers, null);
+			requestCustomizers, null, null);
 	}
 
 	public RibbonCommandContext(String serviceId, String method, String uri,
 								Boolean retryable, MultiValueMap<String, String> headers,
 								MultiValueMap<String, String> params, InputStream requestEntity,
 								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength) {
+		this(serviceId, method, uri, retryable, headers, params, requestEntity,
+			requestCustomizers, contentLength, null);
+	}
+
+	public RibbonCommandContext(String serviceId, String method, String uri,
+								Boolean retryable, MultiValueMap<String, String> headers,
+								MultiValueMap<String, String> params, InputStream requestEntity,
+								List<RibbonRequestCustomizer> requestCustomizers, Long contentLength,
+								Object loadBalancerKey) {
 		Assert.notNull(serviceId, "serviceId may not be null");
 		Assert.notNull(method, "method may not be null");
 		Assert.notNull(uri, "uri may not be null");
@@ -82,6 +93,7 @@ public class RibbonCommandContext {
 		this.requestEntity = requestEntity;
 		this.requestCustomizers = requestCustomizers;
 		this.contentLength = contentLength;
+		this.loadBalancerKey = loadBalancerKey;
 	}
 
 	public URI uri() {
@@ -155,6 +167,14 @@ public class RibbonCommandContext {
 		this.contentLength = contentLength;
 	}
 
+	public Object getLoadBalancerKey() {
+		return loadBalancerKey;
+	}
+
+	public void setLoadBalancerKey(Object loadBalancerKey) {
+		this.loadBalancerKey = loadBalancerKey;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -169,13 +189,14 @@ public class RibbonCommandContext {
 			.equals(params, that.params) && Objects
 			.equals(requestEntity, that.requestEntity) && Objects
 			.equals(requestCustomizers, that.requestCustomizers) && Objects
-			.equals(contentLength, that.contentLength);
+			.equals(contentLength, that.contentLength) && Objects
+			.equals(loadBalancerKey, that.loadBalancerKey);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(serviceId, method, uri, retryable, headers, params,
-			requestEntity, requestCustomizers, contentLength);
+			requestEntity, requestCustomizers, contentLength, loadBalancerKey);
 	}
 
 	@Override
@@ -190,6 +211,7 @@ public class RibbonCommandContext {
 		sb.append(", requestEntity=").append(requestEntity);
 		sb.append(", requestCustomizers=").append(requestCustomizers);
 		sb.append(", contentLength=").append(contentLength);
+		sb.append(", loadBalancerKey=").append(loadBalancerKey);
 		sb.append('}');
 		return sb.toString();
 	}
