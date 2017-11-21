@@ -34,6 +34,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
@@ -115,9 +116,10 @@ public class OkHttpRibbonConfiguration {
 																		ILoadBalancer loadBalancer,
 																		RetryHandler retryHandler,
 																		LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
-																		OkHttpClient delegate) {
+																		OkHttpClient delegate,
+																		LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
 		RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(delegate, config,
-				serverIntrospector, loadBalancedRetryPolicyFactory);
+				serverIntrospector, loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
 		Monitors.registerObject("Client_" + this.name, client);

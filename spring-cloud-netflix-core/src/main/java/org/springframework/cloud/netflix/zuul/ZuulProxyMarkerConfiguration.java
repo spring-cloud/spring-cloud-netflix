@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Responsible for adding in a marker bean to trigger activation of 
- * {@link ZuulServerAutoConfiguration}
+ * {@link ZuulProxyAutoConfiguration}
  *
  * @author Biju Kunjummen
  */

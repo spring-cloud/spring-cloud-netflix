@@ -669,8 +669,10 @@ in order for the Hystrix Dashboard to make a successful connection to the stream
 
 Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  https://github.com/Netflix/Turbine[Turbine] is an application that aggregates all of the relevant `/hystrix.stream` endpoints into a combined `/turbine.stream` for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the `@EnableTurbine` annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)[the Turbine 1 wiki] apply.  The only difference is that the `turbine.instanceUrlSuffix` does not need the port prepended as this is handled automatically unless `turbine.instanceInsertPort=false`.
 
-NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `homePageUrl` entry in Eureka, then appending `/hystrix.stream` to it. This means that if `spring-boot-actuator` is running on its own port (which is the default), the call to `/hystrix.stream` will fail.
-To make turbine find the Hystrix stream at the correct port, you need to add `management.port` to the instances' metadata:
+NOTE: By default, Turbine looks for the `/hystrix.stream` endpoint on a registered instance by looking up its `hostName` and `port` entries in Eureka, then appending `/hystrix.stream` to it.
+If the instance's metadata contains `management.port`, it will be used instead of the `port` value for the `/hystrix.stream` endpoint.
+By default, metadata entry `management.port` is equal to the `management.port` configuration property, it can be overridden though with following configuration:
+
 ----
 eureka:
   instance:
@@ -955,7 +957,33 @@ zuul:
     threadPoolKeyPrefix: zuulgw
 ----
 
+[[how-to-provdie-a-key-to-ribbon]]
+=== How to Provide a Key to Ribbon's `IRule`
 
+If you need to provide your own `IRule` implementation to handle a special routing requirement like a canary test,
+you probably want to pass some information to the `choose` method of `IRule`.
+
+.com.netflix.loadbalancer.IRule.java
+----
+public interface IRule{
+    public Server choose(Object key);
+         :
+----
+
+You can provide some information that will be used to choose a target server by your `IRule` implementation like
+the following:
+
+----
+RequestContext.getCurrentContext()
+              .set(FilterConstants.LOAD_BALANCER_KEY, "canary-test");
+----
+
+If you put any object into the `RequestContext` with a key `FilterConstants.LOAD_BALANCER_KEY`, it will
+be passed to the `choose` method of `IRule` implementation. Above code must be executed before `RibbonRoutingFilter`
+is executed and Zuul's pre filter is the best place to do that. You can easily access HTTP headers and query parameters
+via `RequestContext` in pre filter, so it can be used to determine `LOAD_BALANCER_KEY` that will be passed to Ribbon.
+If you don't put any value with `LOAD_BALANCER_KEY` in `RequestContext`, null will be passed as a parameter of `choose`
+method.
 
 [[spring-cloud-feign]]
 == Declarative REST Client: Feign
@@ -1247,7 +1275,7 @@ protected interface HystrixClient {
 static class HystrixClientFallbackFactory implements FallbackFactory<HystrixClient> {
 	@Override
 	public HystrixClient create(Throwable cause) {
-		return new HystrixClientWithFallBackFactory() {
+		return new HystrixClient() {
 			@Override
 			public Hello iFailSometimes() {
 				return new Hello("fallback; reason was: " + cause.getMessage());
@@ -2185,6 +2213,17 @@ class MyFallbackProvider implements FallbackProvider {
 }
 ----
 
+=== Zuul Timeouts
+
+If you want to configure the socket timeouts and read timeouts for requests proxied through
+Zuul there are two options based on your configuration.
+
+If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
+`ribbon.ReadTimeout` and `ribbon.SocketTimeout`.
+
+If you have configured Zuul routes by specifying URLs than you will need to use
+`zuul.host.connect-timeout-millis` and `zuul.host.socket-timeout-millis`.
+
 [[zuul-redirect-location-rewrite]]
 === Rewriting `Location` header
 
@@ -2821,6 +2860,27 @@ automatically.  To accomplish this when using Sping Cloud Netflix you need to in
 https://github.com/spring-projects/spring-retry[Spring Retry] on your application's classpath.
 When Spring Retry is present load balanced `RestTemplates`, Feign, and Zuul will automatically
 retry any failed requests (assuming you configuration allows it to).
+
+==== BackOff Policies
+By default no backoff policy is used when retrying requests.  If you would like to configure
+a backoff policy you will need to create a bean of type `LoadBalancedBackOffPolicyFactory`
+which will be used to create a `BackOffPolicy` for a given service.
+
+[source,java,indent=0]
+----
+@Configuration
+public class MyConfiguration {
+    @Bean
+    LoadBalancedBackOffPolicyFactory backOffPolciyFactory() {
+        return new LoadBalancedBackOffPolicyFactory() {
+            @Override
+            public BackOffPolicy createBackOffPolicy(String service) {
+                return new ExponentialBackOffPolicy();
+            }
+        };
+    }
+}
+----
 
 ==== Configuration
 
