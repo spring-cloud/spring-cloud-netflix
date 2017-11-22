@@ -108,6 +108,10 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		return commandSetter.andCommandPropertiesDefaults(setter);
 		// @formatter:on
 	}
+	
+	public boolean isExecuteWithLoadBalancer() {
+		return false;
+	}
 
 	@Override
 	protected ClientHttpResponse run() throws Exception {
@@ -115,7 +119,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 		RQ request = createRequest();
 		RS response;
-		if (!RibbonClientConfiguration.RIBBON_RESTCLIENT_ENABLED
+		if (isExecuteWithLoadBalancer()
 				&& request!= null &&  request.isRetriable()) {
 			response = this.client.execute(request, config);
 		} else {
