@@ -44,7 +44,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
 		properties = {"spring.application.name=eureka", "server.servlet.context-path=/context",
-		"management.security.enabled=false", "endpoints.default.web.enabled=true" })
+		"management.security.enabled=false", "management.endpoints.web.expose=*" })
 public class ApplicationContextTests {
 
 	@LocalServerPort

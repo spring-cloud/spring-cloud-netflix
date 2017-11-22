@@ -51,7 +51,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT,
-		value = {"zuul.routes.sslservice.url=https://localhost:8443", "management.security.enabled=false"})
+		value = {"zuul.routes.sslservice.url=https://localhost:8443", "management.security.enabled=false", "management.endpoints.web.expose=*"})
 @DirtiesContext
 public class RoutesEndpointIntegrationTests {
 
@@ -62,12 +62,14 @@ public class RoutesEndpointIntegrationTests {
 	private SimpleZuulProxyApplication.RoutesRefreshListener refreshListener;
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getRoutesTest() {
 		Map<String, String> routes = restTemplate.getForObject("/application/routes", Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void postRoutesTest() {
 		Map<String, String> routes = restTemplate.postForObject("/application/routes", null, Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
