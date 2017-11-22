@@ -18,7 +18,7 @@
 		<eureka.version>1.8.4</eureka.version>
 		<feign.version>9.5.1</feign.version>
 		<hystrix.version>1.5.12</hystrix.version>
-		<ribbon.version>2.2.2</ribbon.version>
+		<ribbon.version>2.2.4</ribbon.version>
 		<servo.version>0.10.1</servo.version>
 		<zuul.version>1.3.0</zuul.version>
 		<rxjava.version>1.2.0</rxjava.version>
@@ -299,6 +299,46 @@
 			<dependency>
 				<groupId>io.github.openfeign</groupId>
 				<artifactId>feign-okhttp</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-gson</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jackson-jaxb</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jackson</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-java8</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jaxb</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-jaxrs</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-ribbon</artifactId>
+				<version>${feign.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.github.openfeign</groupId>
+				<artifactId>feign-sax</artifactId>
 				<version>${feign.version}</version>
 			</dependency>
 			<dependency>

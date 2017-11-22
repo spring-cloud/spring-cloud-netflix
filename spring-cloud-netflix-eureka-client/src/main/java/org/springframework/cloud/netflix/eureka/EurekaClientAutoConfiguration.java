@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -23,7 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +50,9 @@ import org.springframework.cloud.client.serviceregistry.ServiceRegistryAutoConfi
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.cloud.netflix.eureka.config.DiscoveryClientOptionalArgsConfiguration;
+import org.springframework.cloud.netflix.eureka.metadata.DefaultManagementMetadataProvider;
+import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadata;
+import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvider;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
@@ -119,56 +121,74 @@ public class EurekaClientAutoConfiguration {
 		return client;
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public ManagementMetadataProvider serviceManagementMetadataProvider() {
+		return new DefaultManagementMetadataProvider();
+	}
+
 	private String getProperty(String property) {
 		return this.env.containsProperty(property) ? this.env.getProperty(property) : "";
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
-	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils) {
+	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils,
+															 ManagementMetadataProvider managementMetadataProvider) {
 		String hostname = getProperty("eureka.instance.hostname");
 		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
 		boolean isSecurePortEnabled = Boolean.parseBoolean(getProperty("eureka.instance.secure-port-enabled"));
-		int nonSecurePort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
 
-		int managementPort = Integer.valueOf(env.getProperty("management.port", String.valueOf(nonSecurePort)));
-		String managementContextPath = env.getProperty("management.context-path", env.getProperty("server.servlet.context-path", "/"));
+		String serverContextPath = env.getProperty("server.context-path", "/");
+		int serverPort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
+
+		Integer managementPort = env.getProperty("management.server.port", Integer.class);// nullable. should be wrapped into optional
+		String managementContextPath = env.getProperty("management.server.context-path");// nullable. should be wrapped into optional
+		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
-		instance.setNonSecurePort(nonSecurePort);
+
+		instance.setNonSecurePort(serverPort);
 		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
 
 		if(isSecurePortEnabled) {
-			int securePort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
-			instance.setSecurePort(securePort);
+			instance.setSecurePort(serverPort);
 		}
 
-		if (managementPort != nonSecurePort && managementPort != 0) {
-			if (StringUtils.hasText(hostname)) {
-				instance.setHostname(hostname);
-			}
-			String statusPageUrlPath = getProperty("eureka.instance.status-page-url-path");
-			String healthCheckUrlPath = getProperty("eureka.instance.health-check-url-path");
-			if (!managementContextPath.endsWith("/")) {
-				managementContextPath = managementContextPath + "/";
-			}
-			if (StringUtils.hasText(statusPageUrlPath)) {
-				instance.setStatusPageUrlPath(statusPageUrlPath);
-			}
-			if (StringUtils.hasText(healthCheckUrlPath)) {
-				instance.setHealthCheckUrlPath(healthCheckUrlPath);
-			}
+		if (StringUtils.hasText(hostname)) {
+			instance.setHostname(hostname);
+		}
+		String statusPageUrlPath = getProperty("eureka.instance.status-page-url-path");
+		String healthCheckUrlPath = getProperty("eureka.instance.health-check-url-path");
 
-			String scheme = instance.getSecurePortEnabled() ? "https" : "http";
-			try {
-				URL base = new URL(scheme, instance.getHostname(), managementPort, managementContextPath);
-				instance.setStatusPageUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getStatusPageUrlPath(), '/')).toString());
-				instance.setHealthCheckUrl(new URL(base, StringUtils.trimLeadingCharacter(instance.getHealthCheckUrlPath(), '/')).toString());
-			} catch (MalformedURLException e) {
-				log.error("Unable to set status page or health check url.", e);
+		if (StringUtils.hasText(statusPageUrlPath)) {
+			instance.setStatusPageUrlPath(statusPageUrlPath);
+		}
+		if (StringUtils.hasText(healthCheckUrlPath)) {
+			instance.setHealthCheckUrlPath(healthCheckUrlPath);
+		}
+
+		ManagementMetadata metadata = managementMetadataProvider.get(instance, serverPort,
+				serverContextPath, managementContextPath, managementPort);
+
+		if(metadata != null) {
+			instance.setStatusPageUrl(metadata.getStatusPageUrl());
+			instance.setHealthCheckUrl(metadata.getHealthCheckUrl());
+			Map<String, String> metadataMap = instance.getMetadataMap();
+			if (metadataMap.get("management.port") == null) {
+				metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
 			}
 		}
+
+		setupJmxPort(instance, jmxPort);
 		return instance;
+	}
+
+	private void setupJmxPort(EurekaInstanceConfigBean instance, Integer jmxPort) {
+		Map<String, String> metadataMap = instance.getMetadataMap();
+		if (metadataMap.get("jmx.port") == null && jmxPort != null) {
+			metadataMap.put("jmx.port", String.valueOf(jmxPort));
+		}
 	}
 
 	@Bean

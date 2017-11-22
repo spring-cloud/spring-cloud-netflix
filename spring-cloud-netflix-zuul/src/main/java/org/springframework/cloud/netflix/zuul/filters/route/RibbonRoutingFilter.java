@@ -44,6 +44,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RIBBON_ROUTING_FILTER_ORDER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.LOAD_BALANCER_KEY;
 
 /**
  * Route {@link ZuulFilter} that uses Ribbon, Hystrix and pluggable http clients to send requests.
@@ -135,6 +136,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 
 		String serviceId = (String) context.get(SERVICE_ID_KEY);
 		Boolean retryable = (Boolean) context.get(RETRYABLE_KEY);
+		Object loadBalancerKey = context.get(LOAD_BALANCER_KEY);
 
 		String uri = this.helper.buildZuulRequestURI(request);
 
@@ -144,7 +146,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		long contentLength = useServlet31 ? request.getContentLengthLong(): request.getContentLength();
 
 		return new RibbonCommandContext(serviceId, verb, uri, retryable, headers, params,
-				requestEntity, this.requestCustomizers, contentLength);
+				requestEntity, this.requestCustomizers, contentLength, loadBalancerKey);
 	}
 
 	protected ClientHttpResponse forward(RibbonCommandContext context) throws Exception {

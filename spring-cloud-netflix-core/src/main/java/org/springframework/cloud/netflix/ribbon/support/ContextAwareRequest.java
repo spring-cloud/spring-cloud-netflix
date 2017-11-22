@@ -43,6 +43,7 @@ public abstract class ContextAwareRequest extends ClientRequest implements HttpR
 		}
 		this.uri = context.uri();
 		this.isRetriable = context.getRetryable();
+		this.loadBalancerKey = context.getLoadBalancerKey();
 	}
 
 	public RibbonCommandContext getContext() {
@@ -73,7 +74,8 @@ public abstract class ContextAwareRequest extends ClientRequest implements HttpR
 		RibbonCommandContext commandContext = new RibbonCommandContext(this.context.getServiceId(),
 				this.context.getMethod(), uri.toString(), this.context.getRetryable(),
 				this.context.getHeaders(), this.context.getParams(), this.context.getRequestEntity(),
-				this.context.getRequestCustomizers(), this.context.getContentLength());
+				this.context.getRequestCustomizers(), this.context.getContentLength(),
+				this.context.getLoadBalancerKey());
 		return commandContext;
 	}
 }

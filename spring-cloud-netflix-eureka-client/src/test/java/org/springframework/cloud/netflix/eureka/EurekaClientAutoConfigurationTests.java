@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -79,6 +78,54 @@ public class EurekaClientAutoConfigurationTests {
 		}
 		this.context.register(TestConfiguration.class);
 		this.context.refresh();
+	}
+
+	@Test
+	public void shouldSetManagementPortInMetadataMapIfEqualToServerPort() throws Exception {
+		addEnvironment(this.context, "server.port=8989");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+
+		assertEquals("8989", instance.getMetadataMap().get("management.port"));
+	}
+
+	@Test
+	public void shouldNotSetManagementAndJmxPortsInMetadataMap() throws Exception {
+		addEnvironment(this.context, "server.port=8989", "management.port=0");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+
+		assertEquals(null, instance.getMetadataMap().get("management.port"));
+		assertEquals(null, instance.getMetadataMap().get("jmx.port"));
+	}
+
+	@Test
+	public void shouldSetManagementAndJmxPortsInMetadataMap() throws Exception {
+		addEnvironment(this.context, "management.port=9999",
+				"com.sun.management.jmxremote.port=6789");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertEquals("9999", instance.getMetadataMap().get("management.port"));
+		assertEquals("6789", instance.getMetadataMap().get("jmx.port"));
+	}
+
+	@Test
+	public void shouldNotResetManagementAndJmxPortsInMetadataMap() throws Exception {
+		addEnvironment(this.context, "management.port=9999",
+				"eureka.instance.metadata-map.jmx.port=9898",
+				"eureka.instance.metadata-map.management.port=7878");
+		setupContext(RefreshAutoConfiguration.class);
+
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertEquals("7878", instance.getMetadataMap().get("management.port"));
+		assertEquals("9898", instance.getMetadataMap().get("jmx.port"));
 	}
 
 	@Test
@@ -151,6 +198,34 @@ public class EurekaClientAutoConfigurationTests {
 				.getBean(EurekaInstanceConfigBean.class);
 		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
 				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+	}
+
+	@Test
+	public void statusPageUrl_and_healthCheckUrl_do_not_contain_server_context_path() throws Exception {
+		addEnvironment(this.context, "server.port=8989",
+				"management.port=9999", "server.contextPath=/service");
+
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().endsWith(":9999/info"));
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().endsWith(":9999/health"));
+	}
+
+	@Test
+	public void statusPageUrl_and_healthCheckUrl_contain_management_context_path() throws Exception {
+		addEnvironment(this.context,
+				"server.port=8989", "management.contextPath=/management");
+
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
+				instance.getStatusPageUrl().endsWith(":8989/management/info"));
+		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
+				instance.getHealthCheckUrl().endsWith(":8989/management/health"));
 	}
 
 	@Test

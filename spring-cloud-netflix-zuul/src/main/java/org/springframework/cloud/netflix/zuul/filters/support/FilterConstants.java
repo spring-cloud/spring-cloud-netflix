@@ -70,6 +70,11 @@ public class FilterConstants {
 	 */
 	public static final String SERVICE_ID_KEY = "serviceId";
 
+	/**
+	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use in {@link org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter}
+	 */
+	public static final String LOAD_BALANCER_KEY = "loadBalancerKey";
+
 	// ORDER constants -----------------------------------
 
 	/**
