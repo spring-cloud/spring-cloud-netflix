@@ -15,20 +15,17 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import java.net.URI;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
-import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpRequest;
@@ -39,10 +36,16 @@ import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * An OK HTTP client which leverages Spring Retry to retry failed request.
@@ -134,7 +137,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
 	}
 
-	static class RetryPolicy extends FeignRetryPolicy {
+	static class RetryPolicy extends InterceptorRetryPolicy {
 		public RetryPolicy(HttpRequest request, LoadBalancedRetryPolicy policy, ServiceInstanceChooser serviceInstanceChooser, String serviceName) {
 			super(request, policy, serviceInstanceChooser, serviceName);
 		}

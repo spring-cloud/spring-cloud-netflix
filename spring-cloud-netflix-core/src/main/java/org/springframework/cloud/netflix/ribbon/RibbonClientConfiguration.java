@@ -75,6 +75,9 @@ public class RibbonClientConfiguration {
 	@Value("${ribbon.client.name}")
 	private String name = "client";
 
+	@Value("${ribbon.restclient.enabled:false}")
+	public static boolean RIBBON_RESTCLIENT_ENABLED;
+	
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be
 	// associated with ribbon clients
 
