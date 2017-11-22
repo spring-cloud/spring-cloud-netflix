@@ -119,7 +119,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 		RQ request = createRequest();
 		RS response;
-		if (isExecuteWithLoadBalancer()
+		if (!isExecuteWithLoadBalancer()
 				&& request!= null &&  request.isRetriable()) {
 			response = this.client.execute(request, config);
 		} else {
