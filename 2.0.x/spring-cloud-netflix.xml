@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-11-21</date>
+<date>2017-11-22</date>
 </info>
 <preface>
 <title></title>
@@ -608,8 +608,9 @@ in order for the Hystrix Dashboard to make a successful connection to the stream
 <title>Turbine</title>
 <simpara>Looking at an individual instances Hystrix data is not very useful in terms of the overall health of the system.  <link xl:href="https://github.com/Netflix/Turbine">Turbine</link> is an application that aggregates all of the relevant <literal>/hystrix.stream</literal> endpoints into a combined <literal>/turbine.stream</literal> for use in the Hystrix Dashboard.  Individual instances are located via Eureka.  Running Turbine is as simple as annotating your main class with the <literal>@EnableTurbine</literal> annotation  (e.g. using spring-cloud-starter-netflix-turbine to set up the classpath).  All of the documented configuration properties from <link xl:href="https://github.com/Netflix/Turbine/wiki/Configuration-(1.x)">the Turbine 1 wiki</link> apply.  The only difference is that the <literal>turbine.instanceUrlSuffix</literal> does not need the port prepended as this is handled automatically unless <literal>turbine.instanceInsertPort=false</literal>.</simpara>
 <note>
-<simpara>By default, Turbine looks for the <literal>/hystrix.stream</literal> endpoint on a registered instance by looking up its <literal>homePageUrl</literal> entry in Eureka, then appending <literal>/hystrix.stream</literal> to it. This means that if <literal>spring-boot-actuator</literal> is running on its own port (which is the default), the call to <literal>/hystrix.stream</literal> will fail.
-To make turbine find the Hystrix stream at the correct port, you need to add <literal>management.port</literal> to the instances' metadata:</simpara>
+<simpara>By default, Turbine looks for the <literal>/hystrix.stream</literal> endpoint on a registered instance by looking up its <literal>hostName</literal> and <literal>port</literal> entries in Eureka, then appending <literal>/hystrix.stream</literal> to it.
+If the instance&#8217;s metadata contains <literal>management.port</literal>, it will be used instead of the <literal>port</literal> value for the <literal>/hystrix.stream</literal> endpoint.
+By default, metadata entry <literal>management.port</literal> is equal to the <literal>management.port</literal> configuration property, it can be overridden though with following configuration:</simpara>
 </note>
 <screen>eureka:
   instance:
@@ -928,6 +929,29 @@ This lazy loading behavior can be changed to instead eagerly load up these child
 </para>
 </formalpara>
 </section>
+<section xml:id="how-to-provdie-a-key-to-ribbon">
+<title>How to Provide a Key to Ribbon&#8217;s <literal>IRule</literal></title>
+<simpara>If you need to provide your own <literal>IRule</literal> implementation to handle a special routing requirement like a canary test,
+you probably want to pass some information to the <literal>choose</literal> method of <literal>IRule</literal>.</simpara>
+<formalpara>
+<title>com.netflix.loadbalancer.IRule.java</title>
+<para>
+<screen>public interface IRule{
+    public Server choose(Object key);
+         :</screen>
+</para>
+</formalpara>
+<simpara>You can provide some information that will be used to choose a target server by your <literal>IRule</literal> implementation like
+the following:</simpara>
+<screen>RequestContext.getCurrentContext()
+              .set(FilterConstants.LOAD_BALANCER_KEY, "canary-test");</screen>
+<simpara>If you put any object into the <literal>RequestContext</literal> with a key <literal>FilterConstants.LOAD_BALANCER_KEY</literal>, it will
+be passed to the <literal>choose</literal> method of <literal>IRule</literal> implementation. Above code must be executed before <literal>RibbonRoutingFilter</literal>
+is executed and Zuul&#8217;s pre filter is the best place to do that. You can easily access HTTP headers and query parameters
+via <literal>RequestContext</literal> in pre filter, so it can be used to determine <literal>LOAD_BALANCER_KEY</literal> that will be passed to Ribbon.
+If you don&#8217;t put any value with <literal>LOAD_BALANCER_KEY</literal> in <literal>RequestContext</literal>, null will be passed as a parameter of <literal>choose</literal>
+method.</simpara>
+</section>
 </chapter>
 <chapter xml:id="spring-cloud-feign">
 <title>Declarative REST Client: Feign</title>
@@ -1186,7 +1210,7 @@ protected interface HystrixClient {
 static class HystrixClientFallbackFactory implements FallbackFactory&lt;HystrixClient&gt; {
 	@Override
 	public HystrixClient create(Throwable cause) {
-		return new HystrixClientWithFallBackFactory() {
+		return new HystrixClient() {
 			@Override
 			public Hello iFailSometimes() {
 				return new Hello("fallback; reason was: " + cause.getMessage());
@@ -1987,6 +2011,15 @@ type <literal>ZuulFallbackProvider</literal> and have the <literal>getRoute</lit
     }
 }</programlisting>
 </section>
+<section xml:id="_zuul_timeouts">
+<title>Zuul Timeouts</title>
+<simpara>If you want to configure the socket timeouts and read timeouts for requests proxied through
+Zuul there are two options based on your configuration.</simpara>
+<simpara>If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
+<literal>ribbon.ReadTimeout</literal> and <literal>ribbon.SocketTimeout</literal>.</simpara>
+<simpara>If you have configured Zuul routes by specifying URLs than you will need to use
+<literal>zuul.host.connect-timeout-millis</literal> and <literal>zuul.host.socket-timeout-millis</literal>.</simpara>
+</section>
 <section xml:id="zuul-redirect-location-rewrite">
 <title>Rewriting <literal>Location</literal> header</title>
 <simpara>If Zuul is fronting a web application then there may be a need to re-write the <literal>Location</literal> header when the web application redirects through a http status code of 3XX, otherwise the browser will end up redirecting to the web application&#8217;s url instead of the Zuul url.
@@ -2537,6 +2570,24 @@ automatically.  To accomplish this when using Sping Cloud Netflix you need to in
 <link xl:href="https://github.com/spring-projects/spring-retry">Spring Retry</link> on your application&#8217;s classpath.
 When Spring Retry is present load balanced <literal>RestTemplates</literal>, Feign, and Zuul will automatically
 retry any failed requests (assuming you configuration allows it to).</simpara>
+<section xml:id="_backoff_policies">
+<title>BackOff Policies</title>
+<simpara>By default no backoff policy is used when retrying requests.  If you would like to configure
+a backoff policy you will need to create a bean of type <literal>LoadBalancedBackOffPolicyFactory</literal>
+which will be used to create a <literal>BackOffPolicy</literal> for a given service.</simpara>
+<programlisting language="java" linenumbering="unnumbered">@Configuration
+public class MyConfiguration {
+    @Bean
+    LoadBalancedBackOffPolicyFactory backOffPolciyFactory() {
+        return new LoadBalancedBackOffPolicyFactory() {
+            @Override
+            public BackOffPolicy createBackOffPolicy(String service) {
+                return new ExponentialBackOffPolicy();
+            }
+        };
+    }
+}</programlisting>
+</section>
 <section xml:id="_configuration">
 <title>Configuration</title>
 <simpara>Anytime Ribbon is used with Spring Retry you can control the retry functionality by configuring
