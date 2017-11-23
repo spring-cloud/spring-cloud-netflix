@@ -288,13 +288,14 @@ public class EurekaController {
 	private String scrubBasicAuth(String urlList){
 		String[] urls=urlList.split(",");
 		String filteredUrls="";
+		StringBuilder sb = new StringBuilder();
 		for(String u : urls){
 			if(u.contains("@")){
-				filteredUrls+=u.substring(0,u.indexOf("//")+2)+u.substring(u.indexOf("@")+1,u.length())+",";
+				sb.append(u.substring(0,u.indexOf("//")+2)).append(u.substring(u.indexOf("@")+1,u.length())).append(",");
 			}else{
-				filteredUrls+=u+",";
+				sb.append(u).append(",");
 			}
 		}
-		return filteredUrls.substring(0,filteredUrls.length()-1);
+		return sb.substring(0,filteredUrls.length()-1);
 	}
 }
