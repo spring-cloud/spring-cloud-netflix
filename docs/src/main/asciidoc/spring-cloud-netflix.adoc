@@ -29,15 +29,13 @@ When a client registers with Eureka, it provides meta-data about itself
 such as host and port, health indicator URL, home page etc.  Eureka
 receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is
-normally removed from the registry, if self-preservation is turned-off.
+normally removed from the registry.
 
 Example eureka client:
 
 [source,java,indent=0]
 ----
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
+@SpringBootApplication
 @RestController
 public class Application {
 
