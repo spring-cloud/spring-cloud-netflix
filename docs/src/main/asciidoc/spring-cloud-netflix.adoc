@@ -1194,7 +1194,7 @@ class FooController {
 
 	private FooClient adminClient;
 
-    @Autowired
+    	@Autowired
 	public FooController(
 			Decoder decoder, Encoder encoder, Client client) {
 		this.fooClient = Feign.builder().client(client)
@@ -1227,7 +1227,7 @@ To disable Hystrix support on a per-client basis create a vanilla `Feign.Builder
 ----
 @Configuration
 public class FooConfiguration {
-    @Bean
+    	@Bean
 	@Scope("prototype")
 	public Feign.Builder feignBuilder() {
 		return Feign.builder();
