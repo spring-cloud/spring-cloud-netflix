@@ -35,9 +35,7 @@ Example eureka client:
 
 [source,java,indent=0]
 ----
-@Configuration
-@ComponentScan
-@EnableAutoConfiguration
+@SpringBootApplication
 @RestController
 public class Application {
 
