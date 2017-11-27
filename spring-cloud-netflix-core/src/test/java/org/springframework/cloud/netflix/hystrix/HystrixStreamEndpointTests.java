@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -56,7 +57,7 @@ import static org.junit.Assert.fail;
 		"spring.application.name=hystrixstreamtest" })
 @DirtiesContext
 public class HystrixStreamEndpointTests {
-
+	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 	private static final Log log = LogFactory.getLog(HystrixStreamEndpointTests.class);
 
 	@LocalServerPort
@@ -76,7 +77,7 @@ public class HystrixStreamEndpointTests {
 				String.class);
 		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
 
-		URL hystrixUrl = new URL(url + "/application/hystrix.stream");
+		URL hystrixUrl = new URL(url + BASE_PATH + "/hystrix.stream");
 
 		List<String> data = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {

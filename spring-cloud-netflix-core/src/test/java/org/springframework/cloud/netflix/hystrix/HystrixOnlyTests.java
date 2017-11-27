@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
@@ -46,6 +46,7 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.cloud.netflix.test.TestAutoConfiguration.PASSWORD;
 import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
 
@@ -53,10 +54,12 @@ import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = RANDOM_PORT,
+		properties = "management.endpoint.health.show-details=true")
 @DirtiesContext
 @ActiveProfiles("proxysecurity")
 public class HystrixOnlyTests {
+	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
 	private int port;
@@ -96,7 +99,7 @@ public class HystrixOnlyTests {
 
 	private Map getHealth() {
 		return new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/application/health", HttpMethod.GET,
+				"http://localhost:" + this.port + BASE_PATH + "/health", HttpMethod.GET,
 				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)),
 				Map.class).getBody();
 	}
