@@ -22,12 +22,10 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
-import org.springframework.cloud.netflix.zuul.RoutesRefreshedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
@@ -54,6 +52,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		value = {"zuul.routes.sslservice.url=https://localhost:8443", "management.security.enabled=false", "management.endpoints.web.expose=*"})
 @DirtiesContext
 public class RoutesEndpointIntegrationTests {
+	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@Autowired
 	private TestRestTemplate restTemplate;
@@ -64,14 +63,14 @@ public class RoutesEndpointIntegrationTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void getRoutesTest() {
-		Map<String, String> routes = restTemplate.getForObject("/application/routes", Map.class);
+		Map<String, String> routes = restTemplate.getForObject(BASE_PATH + "/routes", Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void postRoutesTest() {
-		Map<String, String> routes = restTemplate.postForObject("/application/routes", null, Map.class);
+		Map<String, String> routes = restTemplate.postForObject(BASE_PATH + "/routes", null, Map.class);
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 		assertTrue(refreshListener.wasCalled());
 	}
@@ -79,7 +78,7 @@ public class RoutesEndpointIntegrationTests {
 	@Test
 	public void getRouteDetailsTest() {
 		ResponseEntity<Map<String, RoutesEndpoint.RouteDetails>> responseEntity = restTemplate.exchange(
-				"/application/routes/details", HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
+				BASE_PATH + "/routes/details", HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
 				});
 
 		assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));

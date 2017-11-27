@@ -22,6 +22,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,6 +55,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
 		"spring.jmx.enabled=true", "management.security.enabled=false", "management.endpoints.web.expose=*" })
 public class ApplicationTests {
+	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
 	private int port = 0;
@@ -76,7 +78,7 @@ public class ApplicationTests {
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/application/env", HttpMethod.GET,
+				"http://localhost:" + this.port + BASE_PATH + "/env", HttpMethod.GET,
 				new HttpEntity<>("parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}

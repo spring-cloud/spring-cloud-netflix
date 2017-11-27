@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +47,7 @@ import static org.junit.Assert.assertTrue;
 		properties = {"spring.application.name=eureka", "server.servlet.context-path=/context",
 		"management.security.enabled=false", "management.endpoints.web.expose=*" })
 public class ApplicationContextTests {
+	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
 	private int port = 0;
@@ -95,7 +97,7 @@ public class ApplicationContextTests {
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/context/application/env", HttpMethod.GET,
+				"http://localhost:" + this.port + "/context" + BASE_PATH + "/env", HttpMethod.GET,
 				new HttpEntity<>("parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}

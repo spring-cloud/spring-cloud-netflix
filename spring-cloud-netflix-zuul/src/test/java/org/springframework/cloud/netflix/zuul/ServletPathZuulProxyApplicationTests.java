@@ -49,9 +49,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+@SpringBootTest(classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class, webEnvironment = RANDOM_PORT, properties = {
 		"server.servlet.path: /app" })
 @DirtiesContext
 public class ServletPathZuulProxyApplicationTests {
@@ -99,8 +100,7 @@ public class ServletPathZuulProxyApplicationTests {
 		HttpHeaders httpHeaders = result.getHeaders();
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("http://localhost:9000",
-				httpHeaders.getFirst("Access-Control-Allow-Origin"));
+		assertEquals("*", httpHeaders.getFirst("Access-Control-Allow-Origin"));
 	}
 
 	@Test
@@ -115,8 +115,7 @@ public class ServletPathZuulProxyApplicationTests {
 		HttpHeaders httpHeaders = result.getHeaders();
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("http://localhost:9000",
-				httpHeaders.getFirst("Access-Control-Allow-Origin"));
+		assertEquals("*", httpHeaders.getFirst("Access-Control-Allow-Origin"));
 	}
 
 	@Test
