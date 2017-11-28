@@ -18,18 +18,13 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -43,15 +38,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.context.RequestContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.myroute.service-id=eager", "zuul.routes.myroute.path=/eager/**" })
+@SpringBootTest(webEnvironment = RANDOM_PORT, value = {
+		"zuul.routes.myroute.service-id=lazy", "zuul.routes.myroute.path=/lazy/**" })
 @DirtiesContext
 public class LazyLoadOfZuulConfigurationTests {
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	protected int port;
 
 	@After
@@ -60,11 +60,11 @@ public class LazyLoadOfZuulConfigurationTests {
 	}
 
 	@Test
-	public void testEagerLoading() {
+	public void testLazyLoading() {
 		// Child context FooConfig should be lazily created..
 		assertThat(Foo.getInstanceCount()).isEqualTo(0);
 
-		String uri = String.format("http://localhost:%d/eager/sample", this.port);
+		String uri = String.format("http://localhost:%d/lazy/sample", this.port);
 
 		ResponseEntity<String> result = new TestRestTemplate().getForEntity(uri,
 				String.class);
@@ -79,7 +79,7 @@ public class LazyLoadOfZuulConfigurationTests {
 	@EnableAutoConfiguration
 	@Configuration
 	@EnableZuulProxy
-	@RibbonClients(@RibbonClient(name = "eager", configuration = FooConfig.class))
+	@RibbonClients(@RibbonClient(name = "lazy", configuration = FooConfig.class))
 	static class TestConfig {
 
 	}
@@ -103,7 +103,7 @@ public class LazyLoadOfZuulConfigurationTests {
 			return new Foo();
 		}
 
-		@Value("${local.server.port}")
+		@LocalServerPort
 		private int port;
 
 		@Bean
