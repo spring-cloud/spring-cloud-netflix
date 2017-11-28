@@ -611,7 +611,7 @@ a separate request interceptor.</p><pre class="programlisting"><em><span class="
 
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">private</span> FooClient adminClient;
 
-    <em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
+    	<em><span class="hl-annotation" style="color: gray">@Autowired</span></em>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> FooController(
 			Decoder decoder, Encoder encoder, Client client) {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">this</span>.fooClient = Feign.builder().client(client)
@@ -628,7 +628,7 @@ a separate request interceptor.</p><pre class="programlisting"><em><span class="
 }</pre><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>In the above example <code class="literal">FeignClientsConfiguration.class</code> is the default configuration
 provided by Spring Cloud Netflix.</p></td></tr></table></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p><code class="literal">PROD-SVC</code> is the name of the service the Clients will be making requests to.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-feign-hystrix" href="#spring-cloud-feign-hystrix"></a>7.4&nbsp;Feign Hystrix Support</h2></div></div></div><p>If Hystrix is on the classpath and <code class="literal">feign.hystrix.enabled=true</code>, Feign will wrap all methods with a circuit breaker. Returning a <code class="literal">com.netflix.hystrix.HystrixCommand</code> is also available. This lets you use reactive patterns (with a call to <code class="literal">.toObservable()</code> or <code class="literal">.observe()</code> or asynchronous use (with a call to <code class="literal">.queue()</code>).</p><p>To disable Hystrix support on a per-client basis create a vanilla <code class="literal">Feign.Builder</code> with the "prototype" scope, e.g.:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> FooConfiguration {
-    <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
+    	<em><span class="hl-annotation" style="color: gray">@Bean</span></em>
 	<em><span class="hl-annotation" style="color: gray">@Scope("prototype")</span></em>
 	<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> Feign.Builder feignBuilder() {
 		<span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> Feign.builder();
