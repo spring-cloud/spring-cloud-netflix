@@ -17,6 +17,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import com.netflix.zuul.context.RequestContext;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -34,11 +37,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(value = { "zuul.routes.myroute.service-id=eager",
+@SpringBootTest(properties = { "zuul.routes.eagerroute.service-id=eager",
 		"zuul.ribbon.eager-load.enabled=true" })
 @DirtiesContext
 public class EagerLoadOfZuulConfigurationTests {
 
+	@Before
+	public void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
+
+	@After
+	public void clear() {
+		RequestContext.getCurrentContext().clear();
+	}
 	@Test
 	public void testEagerLoading() {
 		// Child context FooConfig should have been eagerly instantiated..

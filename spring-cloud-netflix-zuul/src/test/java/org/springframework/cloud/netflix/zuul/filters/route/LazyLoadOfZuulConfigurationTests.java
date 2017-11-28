@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -46,13 +47,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT, value = {
-		"zuul.routes.myroute.service-id=lazy", "zuul.routes.myroute.path=/lazy/**" })
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
+		"zuul.routes.lazyroute.service-id=lazy", "zuul.routes.lazyroute.path=/lazy/**",
+		"zuul.ribbon.eager-load.enabled=false"})
 @DirtiesContext
 public class LazyLoadOfZuulConfigurationTests {
 
 	@LocalServerPort
 	protected int port;
+
+	@Before
+	public void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	@After
 	public void clear() {
