@@ -49,6 +49,7 @@ import com.netflix.eureka.util.StatusInfo;
 
 /**
  * @author Spencer Gibb
+ * @author Gang Li
  */
 @Controller
 @RequestMapping("${eureka.dashboard.path:/}")
@@ -287,12 +288,12 @@ public class EurekaController {
 
 	private String scrubBasicAuth(String urlList){
 		String[] urls=urlList.split(",");
-		String filteredUrls="";
+		StringBuilder filteredUrls = new StringBuilder();
 		for(String u : urls){
 			if(u.contains("@")){
-				filteredUrls+=u.substring(0,u.indexOf("//")+2)+u.substring(u.indexOf("@")+1,u.length())+",";
+				filteredUrls.append(u.substring(0,u.indexOf("//")+2)).append(u.substring(u.indexOf("@")+1,u.length())).append(",");
 			}else{
-				filteredUrls+=u+",";
+				filteredUrls.append(u).append(",");
 			}
 		}
 		return filteredUrls.substring(0,filteredUrls.length()-1);
