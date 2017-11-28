@@ -33,9 +33,7 @@ receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is
 normally removed from the registry.</simpara>
 <simpara>Example eureka client:</simpara>
-<programlisting language="java" linenumbering="unnumbered">@Configuration
-@ComponentScan
-@EnableAutoConfiguration
+<programlisting language="java" linenumbering="unnumbered">@SpringBootApplication
 @RestController
 public class Application {
 
@@ -962,9 +960,7 @@ method.</simpara>
 and artifact id <literal>spring-cloud-starter-openfeign</literal>. See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link>
 for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 <simpara>Example spring boot app</simpara>
-<programlisting language="java" linenumbering="unnumbered">@Configuration
-@ComponentScan
-@EnableAutoConfiguration
+<programlisting language="java" linenumbering="unnumbered">@SpringBootApplication
 @EnableFeignClients
 public class Application {
 

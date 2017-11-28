@@ -6,9 +6,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 such as host and port, health indicator URL, home page etc.  Eureka
 receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is
-normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
+normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SpringBootApplication</span></em>
 <em><span class="hl-annotation" style="color: gray">@RestController</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 

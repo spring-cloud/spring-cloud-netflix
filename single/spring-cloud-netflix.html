@@ -11,9 +11,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 such as host and port, health indicator URL, home page etc.  Eureka
 receives heartbeat messages from each instance belonging to a service.
 If the heartbeat fails over a configurable timetable, the instance is
-normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
+normally removed from the registry.</p><p>Example eureka client:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SpringBootApplication</span></em>
 <em><span class="hl-annotation" style="color: gray">@RestController</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 
@@ -518,9 +516,7 @@ via <code class="literal">RequestContext</code> in pre filter, so it can be used
 If you don&#8217;t put any value with <code class="literal">LOAD_BALANCER_KEY</code> in <code class="literal">RequestContext</code>, null will be passed as a parameter of <code class="literal">choose</code>
 method.</p></div></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="spring-cloud-feign" href="#spring-cloud-feign"></a>7.&nbsp;Declarative REST Client: Feign</h1></div></div></div><p><a class="link" href="https://github.com/Netflix/feign" target="_top">Feign</a> is a declarative web service client.  It makes writing web service clients easier.  To use Feign create an interface and annotate it.  It has pluggable annotation support including Feign annotations and JAX-RS annotations. Feign also supports pluggable encoders and decoders.  Spring Cloud adds support for Spring MVC annotations and for using the same <code class="literal">HttpMessageConverters</code> used by default in Spring Web.  Spring Cloud integrates Ribbon and Eureka to provide a load balanced http client when using Feign.</p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="netflix-feign-starter" href="#netflix-feign-starter"></a>7.1&nbsp;How to Include Feign</h2></div></div></div><p>To include Feign in your project use the starter with group <code class="literal">org.springframework.cloud</code>
 and artifact id <code class="literal">spring-cloud-starter-openfeign</code>. See the <a class="link" href="http://projects.spring.io/spring-cloud/" target="_top">Spring Cloud Project page</a>
-for details on setting up your build system with the current Spring Cloud Release Train.</p><p>Example spring boot app</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
-<em><span class="hl-annotation" style="color: gray">@ComponentScan</span></em>
-<em><span class="hl-annotation" style="color: gray">@EnableAutoConfiguration</span></em>
+for details on setting up your build system with the current Spring Cloud Release Train.</p><p>Example spring boot app</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@SpringBootApplication</span></em>
 <em><span class="hl-annotation" style="color: gray">@EnableFeignClients</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> Application {
 
