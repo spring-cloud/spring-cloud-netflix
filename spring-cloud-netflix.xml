@@ -4,11 +4,11 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-11-27</date>
+<date>2017-11-28</date>
 </info>
 <preface>
 <title></title>
-<simpara><emphasis role="strong">1.4.1.BUILD-SNAPSHOT</emphasis></simpara>
+<simpara><emphasis role="strong">2.0.0.BUILD-SNAPSHOT</emphasis></simpara>
 <simpara>This project provides Netflix OSS integrations for Spring Boot apps through autoconfiguration
 and binding to the Spring Environment and other Spring programming model idioms. With a few
 simple annotations you can quickly enable and configure the common patterns inside your
@@ -255,7 +255,7 @@ Spring Cloud will auto configure a transport client based on Spring
 <literal>RestTemplate</literal>.</simpara>
 <screen>&lt;dependency&gt;
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-cloud-starter-eureka&lt;/artifactId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
     &lt;exclusions&gt;
         &lt;exclusion&gt;
             &lt;groupId&gt;com.sun.jersey&lt;/groupId&gt;
@@ -1707,7 +1707,7 @@ routes:</simpara>
 <simpara>Additional route details can be requested by adding the <literal>?format=details</literal> query
 string to <literal>/routes</literal>. This will produce the following output:</simpara>
 <formalpara>
-<title>GET /routes?format=details</title>
+<title>GET /routes/details</title>
 <para>
 <programlisting language="json" linenumbering="unnumbered">{
   "/stores/**": {
@@ -2375,81 +2375,6 @@ might result in a YAML document like the following</simpara>
 info:
   description: Spring Cloud Samples
   url: https://github.com/spring-cloud-samples</programlisting>
-</chapter>
-<chapter xml:id="netflix-rxjava-springmvc">
-<title>RxJava with Spring MVC</title>
-<simpara>Spring Cloud Netflix includes <link xl:href="https://github.com/ReactiveX/RxJava">RxJava</link>.</simpara>
-<blockquote>
-<simpara>RxJava is a Java VM implementation of <link xl:href="http://reactivex.io/">Reactive Extensions</link>: a library for composing asynchronous and event-based programs by using observable sequences.</simpara>
-</blockquote>
-<simpara>Spring Cloud Netflix provides support for returning <literal>rx.Single</literal> objects from Spring MVC Controllers. It also supports using <literal>rx.Observable</literal> objects for <link xl:href="https://en.wikipedia.org/wiki/Server-sent_events">Server-sent events (SSE)</link>. This can be very convenient if your internal APIs are already built using RxJava (see <xref linkend="spring-cloud-feign-hystrix"/> for examples).</simpara>
-<simpara>Here are some examples of using <literal>rx.Single</literal>:</simpara>
-<programlisting language="java" linenumbering="unnumbered">@RequestMapping(method = RequestMethod.GET, value = "/single")
-public Single&lt;String&gt; single() {
-	return Single.just("single value");
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/singleWithResponse")
-public ResponseEntity&lt;Single&lt;String&gt;&gt; singleWithResponse() {
-	return new ResponseEntity&lt;&gt;(Single.just("single value"),
-			HttpStatus.NOT_FOUND);
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/singleCreatedWithResponse")
-public Single&lt;ResponseEntity&lt;String&gt;&gt; singleOuterWithResponse() {
-	return Single.just(new ResponseEntity&lt;&gt;("single value", HttpStatus.CREATED));
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/throw")
-public Single&lt;Object&gt; error() {
-	return Single.error(new RuntimeException("Unexpected"));
-}</programlisting>
-<simpara>If you have an <literal>Observable</literal>, rather than a single, you can use <literal>.toSingle()</literal> or <literal>.toList().toSingle()</literal>. Here are some examples:</simpara>
-<programlisting language="java" linenumbering="unnumbered">@RequestMapping(method = RequestMethod.GET, value = "/single")
-public Single&lt;String&gt; single() {
-	return Observable.just("single value").toSingle();
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/multiple")
-public Single&lt;List&lt;String&gt;&gt; multiple() {
-	return Observable.just("multiple", "values").toList().toSingle();
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/responseWithObservable")
-public ResponseEntity&lt;Single&lt;String&gt;&gt; responseWithObservable() {
-
-	Observable&lt;String&gt; observable = Observable.just("single value");
-	HttpHeaders headers = new HttpHeaders();
-	headers.setContentType(APPLICATION_JSON_UTF8);
-	return new ResponseEntity&lt;&gt;(observable.toSingle(), headers, HttpStatus.CREATED);
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/timeout")
-public Observable&lt;String&gt; timeout() {
-	return Observable.timer(1, TimeUnit.MINUTES).map(new Func1&lt;Long, String&gt;() {
-		@Override
-		public String call(Long aLong) {
-			return "single value";
-		}
-	});
-}</programlisting>
-<simpara>If you have a streaming endpoint and client, SSE could be an option. To convert <literal>rx.Observable</literal> to a Spring <literal>SseEmitter</literal> use <literal>RxResponse.sse()</literal>. Here are some examples:</simpara>
-<programlisting language="java" linenumbering="unnumbered">@RequestMapping(method = RequestMethod.GET, value = "/sse")
-public SseEmitter single() {
-	return RxResponse.sse(Observable.just("single value"));
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/messages")
-public SseEmitter messages() {
-	return RxResponse.sse(Observable.just("message 1", "message 2", "message 3"));
-}
-
-@RequestMapping(method = RequestMethod.GET, value = "/events")
-public SseEmitter event() {
-	return RxResponse.sse(APPLICATION_JSON_UTF8,
-			Observable.just(new EventDto("Spring io", getDate(2016, 5, 19)),
-					new EventDto("SpringOnePlatform", getDate(2016, 8, 1))));
-}</programlisting>
 </chapter>
 <chapter xml:id="netflix-metrics">
 <title>Metrics: Spectator, Servo, and Atlas</title>
