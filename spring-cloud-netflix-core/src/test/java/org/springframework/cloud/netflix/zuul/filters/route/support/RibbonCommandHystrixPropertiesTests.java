@@ -16,24 +16,33 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
+import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandProperties.Setter;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ReflectionUtils;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Yongsung Yoon
  */
-public class RibbonCommandHystrixThreadPoolKeyTests {
+public class RibbonCommandHystrixPropertiesTests {
 
 	private ZuulProperties zuulProperties;
 
@@ -119,6 +128,65 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 		assertThat(ribbonCommand2.getThreadPoolKey().name())
 				.isEqualTo(ribbonCommand2.getCommandGroup().name());
 	}
+
+	@Test
+	public void testDefaultTimeout() {
+		ConfigurableApplicationContext context = runHystrixProps(0, null);
+		try {
+			Setter commandPropertiesDefaults = getCommandPropertiesDefaults("testcmd3");
+			assertThat(commandPropertiesDefaults.getExecutionTimeoutInMilliseconds()).isEqualTo(2000);
+		} finally {
+			if (context != null)
+				context.close();
+		}
+	}
+
+	@Test
+	public void testCustomDefaultTimeout() {
+		int timeout = 3333;
+		ConfigurableApplicationContext context = runHystrixProps(timeout, "default");
+		try {
+			Setter setter = getCommandPropertiesDefaults("testcmd4");
+			assertThat(setter.getExecutionTimeoutInMilliseconds()).isEqualTo(timeout);
+		} finally {
+			if (context != null)
+				context.close();
+		}
+	}
+
+	@Test
+	public void testCustomTimeout() {
+		int timeout = 4444;
+		ConfigurableApplicationContext context = runHystrixProps(timeout, "testcmd5");
+		try {
+			Setter setter = getCommandPropertiesDefaults("testcmd5");
+			assertThat(setter.getExecutionTimeoutInMilliseconds()).isEqualTo(timeout);
+		} finally {
+			if (context != null)
+				context.close();
+		}
+	}
+
+	public ConfigurableApplicationContext runHystrixProps(int timeout, String commandKey) {
+		ArrayList<String> args = new ArrayList<>();
+		args.add("--server.port=0");
+		args.add("--spring.config.name=ribbonhystrixcommandproperties");
+		if (commandKey != null) {
+			args.add("--hystrix.command."+ commandKey +".execution.isolation.thread.timeoutInMilliseconds="+timeout);
+		}
+		return new SpringApplication(Config.class).run(args.toArray(new String[0]));
+	}
+
+	public Setter getCommandPropertiesDefaults(String commandKey) {
+		HystrixCommand.Setter setter = AbstractRibbonCommand.getSetter(commandKey, this.zuulProperties);
+		Field field = ReflectionUtils.findField(HystrixCommand.Setter.class, "commandPropertiesDefaults");
+		ReflectionUtils.makeAccessible(field);
+		return (Setter) ReflectionUtils.getField(field, setter);
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	protected static class Config {}
 
 	public static class TestRibbonCommand extends
 			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {

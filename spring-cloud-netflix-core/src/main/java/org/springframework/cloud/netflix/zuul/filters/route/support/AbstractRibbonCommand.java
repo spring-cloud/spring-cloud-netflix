@@ -90,9 +90,14 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		Setter commandSetter = Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
 								.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
 
+		int defaultTimeoutMillis = RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT + RibbonClientConfiguration.DEFAULT_READ_TIMEOUT;
+		String defaultTimeoutProp = "hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds";
+		String commandTimeoutProp = "hystrix.command."+commandKey+".execution.isolation.thread.timeoutInMilliseconds";
+		DynamicIntProperty defaultTimeout = DynamicPropertyFactory.getInstance().getIntProperty(defaultTimeoutProp, defaultTimeoutMillis);
+		DynamicIntProperty timeout = DynamicPropertyFactory.getInstance().getIntProperty(commandTimeoutProp, defaultTimeout.get());
 		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
-				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(
-						RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT + RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
+				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy())
+				.withExecutionTimeoutInMilliseconds(timeout.get());
 		if (zuulProperties.getRibbonIsolationStrategy() == ExecutionIsolationStrategy.SEMAPHORE){
 			final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
 			// we want to default to semaphore-isolation since this wraps

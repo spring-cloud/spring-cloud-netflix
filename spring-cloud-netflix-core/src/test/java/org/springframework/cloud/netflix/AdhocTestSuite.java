@@ -22,7 +22,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest;
-import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandHystrixThreadPoolKeyTests;
+import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandHystrixPropertiesTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -30,7 +30,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonComman
  * @author Dave Syer
  */
 @RunWith(Suite.class)
-@SuiteClasses({ RibbonCommandHystrixThreadPoolKeyTests.class,
+@SuiteClasses({ RibbonCommandHystrixPropertiesTests.class,
 		RibbonCommandCauseFallbackPropagationTest.class })
 @Ignore
 public class AdhocTestSuite {
