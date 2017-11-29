@@ -16,17 +16,25 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.client.config.IClientConfigKey;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.client.config.IClientConfigKey;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerStats;
+
 
 /**
  * {@link LoadBalancedRetryPolicy} for Ribbon clients.
@@ -41,6 +49,8 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 	private RibbonLoadBalancerContext lbContext;
 	private ServiceInstanceChooser loadBalanceChooser;
 	List<Integer> retryableStatusCodes = new ArrayList<>();
+	
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	public RibbonLoadBalancedRetryPolicy(String serviceId, RibbonLoadBalancerContext context, ServiceInstanceChooser loadBalanceChooser) {
 		this.serviceId = serviceId;
@@ -91,6 +101,11 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 
 	@Override
 	public void registerThrowable(LoadBalancedRetryContext context, Throwable throwable) {
+		//if this is a circuit tripping exception then notify the load balancer
+		if (lbContext.getRetryHandler().isCircuitTrippingException(throwable)) {
+			updateServerInstanceStats(context);
+		}
+		
 		//Check if we need to ask the load balancer for a new server.
 		//Do this before we increment the counters because the first call to this method
 		//is not a retry it is just an initial failure.
@@ -112,6 +127,19 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 			sameServerCount++;
 		}
 
+	}
+	
+	private void updateServerInstanceStats(LoadBalancedRetryContext context) {
+		ServiceInstance serviceInstance = context.getServiceInstance();
+		if (serviceInstance instanceof RibbonServer) {
+			Server lbServer = ((RibbonServer)serviceInstance).getServer();
+			ServerStats serverStats = lbContext.getServerStats(lbServer);
+			serverStats.incrementSuccessiveConnectionFailureCount();
+			serverStats.addToFailureCount();    				
+			logger.debug(lbServer.getHostPort() + " RetryCount: " + context.getRetryCount() 
+				+ " Successive Failures: " + serverStats.getSuccessiveConnectionFailureCount() 
+				+ " CirtuitBreakerTripped:" + serverStats.isCircuitBreakerTripped());
+		}
 	}
 
 	@Override

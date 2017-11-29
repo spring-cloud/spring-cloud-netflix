@@ -144,13 +144,22 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		// @formatter:on
 	}
 
+	public boolean isExecuteWithLoadBalancer() {
+		return false;
+	}
+	
 	@Override
 	protected ClientHttpResponse run() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
 
 		RQ request = createRequest();
-		RS response = this.client.executeWithLoadBalancer(request, config);
-
+		RS response;
+		if (!isExecuteWithLoadBalancer()
+				&& request!= null &&  request.isRetriable()) {
+			response = this.client.execute(request, config);
+		} else {
+			response = this.client.executeWithLoadBalancer(request, config);
+		}
 		context.set("ribbonResponse", response);
 
 		// Explicitly close the HttpResponse if the Hystrix command timed out to
