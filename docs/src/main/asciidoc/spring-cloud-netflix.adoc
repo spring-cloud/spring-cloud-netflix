@@ -2114,10 +2114,10 @@ class MyFallbackProvider implements FallbackProvider {
 If you want to configure the socket timeouts and read timeouts for requests proxied through
 Zuul there are two options based on your configuration.
 
-If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
+If Zuul is using service discovery then you need to configure these timeouts via Ribbon properties,
 `ribbon.ReadTimeout` and `ribbon.SocketTimeout`.
 
-If you have configured Zuul routes by specifying URLs than you will need to use
+If you have configured Zuul routes by specifying URLs then you will need to use
 `zuul.host.connect-timeout-millis` and `zuul.host.socket-timeout-millis`.
 
 [[zuul-redirect-location-rewrite]]
