@@ -5,6 +5,7 @@
       "serviceId":"application",
       "id":"application:0"
    },
+   "event" : "message",
    "data":{
       "type":"HystrixCommand",
       "name":"application.hello",

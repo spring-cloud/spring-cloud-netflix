@@ -138,6 +138,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 				json.writeStartObject();
 
 				addServiceData(json, registration);
+				json.writeStringField("event", "message");
 				json.writeObjectFieldStart("data");
 				json.writeStringField("type", "HystrixCommand");
 				String name = key.name();
