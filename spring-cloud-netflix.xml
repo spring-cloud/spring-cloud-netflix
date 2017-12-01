@@ -1844,7 +1844,7 @@ ignored. For example:</simpara>
 <section xml:id="_disable_zuul_filters">
 <title>Disable Zuul Filters</title>
 <simpara>Zuul for Spring Cloud comes with a number of <literal>ZuulFilter</literal> beans enabled by default
-in both proxy and server mode.  See <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-zuul/src/main/java/org/springframework/cloud/netflix/zuul/filters">the zuul filters package</link> for the
+in both proxy and server mode.  See <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters">the zuul filters package</link> for the
 possible filters that are enabled.  If you want to disable one, simply set
 <literal>zuul.&lt;SimpleClassName&gt;.&lt;filterType&gt;.disable=true</literal>. By convention, the package after
 <literal>filters</literal> is the Zuul filter type. For example to disable

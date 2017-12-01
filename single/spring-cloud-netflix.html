@@ -993,7 +993,7 @@ ignored. For example:</p><p><b>application.yml.&nbsp;</b>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  routes</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">    api</span>: /api/**</pre><p>
 </p><p>maps all paths in "/api/**" to the Zuul filter chain.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_disable_zuul_filters" href="#_disable_zuul_filters"></a>9.11&nbsp;Disable Zuul Filters</h2></div></div></div><p>Zuul for Spring Cloud comes with a number of <code class="literal">ZuulFilter</code> beans enabled by default
-in both proxy and server mode.  See <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-zuul/src/main/java/org/springframework/cloud/netflix/zuul/filters" target="_top">the zuul filters package</a> for the
+in both proxy and server mode.  See <a class="link" href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters" target="_top">the zuul filters package</a> for the
 possible filters that are enabled.  If you want to disable one, simply set
 <code class="literal">zuul.&lt;SimpleClassName&gt;.&lt;filterType&gt;.disable=true</code>. By convention, the package after
 <code class="literal">filters</code> is the Zuul filter type. For example to disable
