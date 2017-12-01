@@ -191,12 +191,24 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 		finally {
 			/**
-			* Closing the wrapping InputStream itself has no effect on closing the underlying tcp connection since it's a wrapped stream. I guess for http
-			* keep-alive. When closing the wrapping stream it tries to reach the end of the current request, which is impossible for infinite http streams. So
-			* instead of closing the InputStream we close the HTTP response.
+			* We must ensure that the InputStream provided by our upstream pooling mechanism is ALWAYS closed
+		 	* even in the case of wrapped streams, which are supplied by pooled sources such as Apache's
+		 	* PoolingHttpClientConnectionManager. In that particular case, the underlying HTTP connection will
+		 	* web returned back to the connection pool iif either close() is explicitly called, a read
+			* error occurs, or the end of the underlying stream is reached. If, however a write error occurs, we will
+			* end up leaking a connection from the pool without an explicit close()
 			*
-			* @author Johannes Edmeier
+			* @author Craig Rueda
 			*/
+			if (is != null) {
+				try {
+					is.close();
+				}
+				catch (Exception ex) {
+					log.warn("Error while closing upstream input stream", ex);
+				}
+			}
+
 			try {
 				Object zuulResponse = RequestContext.getCurrentContext()
 						.get("zuulResponse");
@@ -207,7 +219,7 @@ public class SendResponseFilter extends ZuulFilter {
 				// The container will close the stream for us
 			}
 			catch (IOException ex) {
-			log.warn("Error while sending response to client: " + ex.getMessage());
+				log.warn("Error while sending response to client: " + ex.getMessage());
 			}
 		}
 	}
