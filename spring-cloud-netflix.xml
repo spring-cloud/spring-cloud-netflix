@@ -2011,9 +2011,9 @@ type <literal>ZuulFallbackProvider</literal> and have the <literal>getRoute</lit
 <title>Zuul Timeouts</title>
 <simpara>If you want to configure the socket timeouts and read timeouts for requests proxied through
 Zuul there are two options based on your configuration.</simpara>
-<simpara>If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
+<simpara>If Zuul is using service discovery then you need to configure these timeouts via Ribbon properties,
 <literal>ribbon.ReadTimeout</literal> and <literal>ribbon.SocketTimeout</literal>.</simpara>
-<simpara>If you have configured Zuul routes by specifying URLs than you will need to use
+<simpara>If you have configured Zuul routes by specifying URLs then you will need to use
 <literal>zuul.host.connect-timeout-millis</literal> and <literal>zuul.host.socket-timeout-millis</literal>.</simpara>
 </section>
 <section xml:id="zuul-redirect-location-rewrite">
