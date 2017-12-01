@@ -50,6 +50,7 @@ import rx.subjects.PublishSubject;
 
 /**
  * @author Spencer Gibb
+ * @author Daniel Lavoie
  */
 @Configuration
 @EnableConfigurationProperties(TurbineStreamProperties.class)
@@ -103,6 +104,9 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 					return output.doOnUnsubscribe(
 							() -> log.info("Unsubscribing RxNetty server connection"))
 							.flatMap(data -> response.writeAndFlush(new ServerSentEvent(
+									null,
+									Unpooled.copiedBuffer("message",
+											StandardCharsets.UTF_8),
 									Unpooled.copiedBuffer(JsonUtility.mapToJson(data),
 											StandardCharsets.UTF_8))));
 				}, serveSseConfigurator());

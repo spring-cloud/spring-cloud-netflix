@@ -22,6 +22,7 @@ org.springframework.cloud.contract.spec.Contract.make {
         body(HystrixContractUtils.simpleBody())
         testMatchers {
            jsonPath('$.origin', byCommand('assertOrigin($it)'))
+           jsonPath('$.event', byCommand('assertEvent($it)'))
            jsonPath('$.data', byCommand('assertData($it)'))
         }
     }
