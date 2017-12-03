@@ -194,11 +194,11 @@ public class SendResponseFilter extends ZuulFilter {
 			* We must ensure that the InputStream provided by our upstream pooling mechanism is ALWAYS closed
 		 	* even in the case of wrapped streams, which are supplied by pooled sources such as Apache's
 		 	* PoolingHttpClientConnectionManager. In that particular case, the underlying HTTP connection will
-		 	* web returned back to the connection pool iif either close() is explicitly called, a read
+		 	* be returned back to the connection pool iif either close() is explicitly called, a read
 			* error occurs, or the end of the underlying stream is reached. If, however a write error occurs, we will
 			* end up leaking a connection from the pool without an explicit close()
 			*
-			* @author Craig Rueda
+			* @author Johannes Edmeier
 			*/
 			if (is != null) {
 				try {
