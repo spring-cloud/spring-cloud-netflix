@@ -4,7 +4,7 @@
 :github-code: http://github.com/{github-repo}/tree/{github-tag}
 :all: {asterisk}{asterisk}
 :nofooter:
-:imagesdir: ./images
+:branch: 1.4.x
 = Spring Cloud Netflix
 
 *{spring-cloud-version}*
@@ -530,12 +530,12 @@ example `eureka.instance.hostname=${HOST_NAME}`.
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].  In a microservice architecture it is common to have multiple layers of service calls.
 
 .Microservice Graph
-image::HystrixGraph.png[]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/Hystrix.png[]
 
 A service failure in the lower level of services can cause cascading failure all the way up to the user. When calls to a particular service is greater than `circuitBreaker.requestVolumeThreshold` (default: 20 requests) and failue percentage is greater than `circuitBreaker.errorThresholdPercentage` (default: >50%) in a rolling window defined  by `metrics.rollingStats.timeInMilliseconds` (default: 10 seconds), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.
 
 .Hystrix fallback prevents cascading failures
-image::HystrixFallback.png[]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/HystrixFallback.png[]
 
 Having an open circuit stops cascading failures and allows overwhelmed or failing services time to heal.  The fallback can be another Hystrix protected call, static data or a sane empty value.  Fallbacks may be chained so the first fallback makes some other business call which in turn falls back to static data.
 
@@ -641,7 +641,7 @@ To enable the Hystrix metrics stream include a dependency on `spring-boot-starte
 One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.  The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.
 
 .Hystrix Dashboard
-image::Hystrix.png[]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/Hystrix.png[]
 
 == Hystrix Timeouts And Ribbon Clients
 
@@ -2631,7 +2631,7 @@ The counter records a single time-normalized statistic.
 A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency:
 
 .Request Latency
-image::RequestLatency.png[]
+image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/RequestLatency.png[]
 
 [source,java]
 ----
