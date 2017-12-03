@@ -87,6 +87,10 @@ public abstract class StreamSourceTestBase {
 				"application.hello");
 	}
 
+	public void assertEvent(Object input) {
+		HystrixContractUtils.checkEvent((String) input);
+	}
+
 	@EnableAutoConfiguration
 	@EnableCircuitBreaker
 	@RestController

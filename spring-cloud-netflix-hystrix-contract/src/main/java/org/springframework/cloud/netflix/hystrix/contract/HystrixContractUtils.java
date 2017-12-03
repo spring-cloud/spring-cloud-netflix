@@ -15,6 +15,8 @@
  */
 package org.springframework.cloud.netflix.hystrix.contract;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -22,10 +24,9 @@ import java.util.Map;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.StreamUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Dave Syer
+ * @author Daniel Lavoie
  *
  */
 public class HystrixContractUtils {
@@ -39,6 +40,11 @@ public class HystrixContractUtils {
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot read stub", e);
 		}
+	}
+
+	public static void checkEvent(String event) {
+		assertThat(event).isNotNull();
+		assertThat(event).isEqualTo("message");
 	}
 
 	public static void checkOrigin(Map<String, Object> origin) {

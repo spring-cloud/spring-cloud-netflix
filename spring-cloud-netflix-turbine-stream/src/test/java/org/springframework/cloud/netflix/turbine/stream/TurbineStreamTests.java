@@ -16,16 +16,15 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,13 +48,13 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.integration.support.management.MessageChannelMetrics;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
+ * @author Daniel Lavoie
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = TurbineStreamTests.Application.class, webEnvironment = WebEnvironment.NONE, value = {
@@ -68,9 +67,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs" })
 @AutoConfigureStubRunner
 public class TurbineStreamTests {
-
-	private static Log log = LogFactory.getLog(TurbineStreamTests.class);
-
 	@Autowired
 	StubTrigger stubTrigger;
 
@@ -85,8 +81,6 @@ public class TurbineStreamTests {
 
 	@Autowired
 	TurbineStreamConfiguration turbine;
-
-	private CountDownLatch latch = new CountDownLatch(1);
 
 	@EnableAutoConfiguration
 	@EnableTurbineStream
@@ -108,16 +102,16 @@ public class TurbineStreamTests {
 		assertThat(metrics).containsEntry("type", "HystrixCommand");
 		assertThat(((MessageChannelMetrics) input).getSendCount()).isEqualTo(count + 1);
 	}
+	
+	private boolean containsMetrics(String line) {
+		return line.startsWith("data:") && !line.contains("Ping");
+	}
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> extractMetrics(String body) throws Exception {
-		String[] split = body.split("data:");
-		for (String value : split) {
-			if (value.contains("Ping") || value.length() == 0) {
-				continue;
-			}
-			else {
-				return mapper.readValue(value, Map.class);
+		for (String value : body.split("\n")) {
+			if (containsMetrics(value)) {
+				return mapper.readValue(value.split("data:")[1], Map.class);
 			}
 		}
 		return null;
@@ -128,21 +122,23 @@ public class TurbineStreamTests {
 		// The message has to be sent after the endpoint is activated, so this is a
 		// convenient place to put it
 		stubTrigger.trigger("metrics");
-		byte[] bytes = new byte[1024];
-		StringBuilder builder = new StringBuilder();
-		int read = 0;
-		while (read >= 0
-				&& StringUtils.countOccurrencesOf(builder.toString(), "\n") < 2) {
-			read = response.getBody().read(bytes, 0, bytes.length);
-			if (read > 0) {
-				latch.countDown();
-				builder.append(new String(bytes, 0, read));
+
+		String responseBody = "";
+		boolean metricFound = false;
+		try (BufferedReader buffer = new BufferedReader(
+				new InputStreamReader(response.getBody()))) {
+			do {
+				String line = buffer.readLine();
+				responseBody += line + "\n";
+				if (containsMetrics(line)) {
+					metricFound = true;
+				}
 			}
-			log.debug("Building: " + builder);
+			while (!metricFound);
 		}
-		log.debug("Done: " + builder);
+
 		return ResponseEntity.status(response.getStatusCode())
-				.headers(response.getHeaders()).body(builder.toString());
+				.headers(response.getHeaders()).body(responseBody);
 	}
 
 	/**
