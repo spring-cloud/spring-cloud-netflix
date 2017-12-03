@@ -481,9 +481,9 @@ example <literal>eureka.instance.hostname=${HOST_NAME}</literal>.</simpara>
 <title>Microservice Graph</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/HystrixGraph.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/1.4.x/docs/src/main/asciidoc/images/Hystrix.png"/>
 </imageobject>
-<textobject><phrase>HystrixGraph</phrase></textobject>
+<textobject><phrase>Hystrix</phrase></textobject>
 </mediaobject>
 </figure>
 <simpara>A service failure in the lower level of services can cause cascading failure all the way up to the user. When calls to a particular service is greater than <literal>circuitBreaker.requestVolumeThreshold</literal> (default: 20 requests) and failue percentage is greater than <literal>circuitBreaker.errorThresholdPercentage</literal> (default: &gt;50%) in a rolling window defined  by <literal>metrics.rollingStats.timeInMilliseconds</literal> (default: 10 seconds), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.</simpara>
@@ -491,7 +491,7 @@ example <literal>eureka.instance.hostname=${HOST_NAME}</literal>.</simpara>
 <title>Hystrix fallback prevents cascading failures</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/HystrixFallback.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/1.4.x/docs/src/main/asciidoc/images/HystrixFallback.png"/>
 </imageobject>
 <textobject><phrase>HystrixFallback</phrase></textobject>
 </mediaobject>
@@ -579,7 +579,7 @@ for details on the properties available.</simpara>
 <title>Hystrix Dashboard</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/Hystrix.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/1.4.x/docs/src/main/asciidoc/images/Hystrix.png"/>
 </imageobject>
 <textobject><phrase>Hystrix</phrase></textobject>
 </mediaobject>
@@ -2550,7 +2550,7 @@ counter.increment(10); // increment by a discrete amount</programlisting>
 <title>Request Latency</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/RequestLatency.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/1.4.x/docs/src/main/asciidoc/images/RequestLatency.png"/>
 </imageobject>
 <textobject><phrase>RequestLatency</phrase></textobject>
 </mediaobject>
