@@ -53,7 +53,6 @@ import javax.annotation.PreDestroy;
 /**
  * @author Spencer Gibb
  * @author Julien Roy
- * @author Gang Li
  */
 @Configuration
 @ConditionalOnClass(Feign.class)
