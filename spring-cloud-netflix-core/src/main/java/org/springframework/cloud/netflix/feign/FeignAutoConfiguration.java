@@ -53,6 +53,7 @@ import javax.annotation.PreDestroy;
 /**
  * @author Spencer Gibb
  * @author Julien Roy
+ * @author Gang Li
  */
 @Configuration
 @ConditionalOnClass(Feign.class)
@@ -132,7 +133,6 @@ public class FeignAutoConfiguration {
 		}
 
 		@Bean
-
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
 				HttpClientConnectionManager httpClientConnectionManager,
 				FeignHttpClientProperties httpClientProperties) {
