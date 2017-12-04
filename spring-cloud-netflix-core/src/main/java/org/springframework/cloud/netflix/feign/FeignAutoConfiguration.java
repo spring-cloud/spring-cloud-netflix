@@ -132,7 +132,6 @@ public class FeignAutoConfiguration {
 		}
 
 		@Bean
-
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
 				HttpClientConnectionManager httpClientConnectionManager,
 				FeignHttpClientProperties httpClientProperties) {
