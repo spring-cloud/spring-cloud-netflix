@@ -73,6 +73,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Bilal Alp
+ * @author Quentin Castel
  */
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
@@ -142,7 +143,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private void initialize() {
 		if(!customHttpClient) {
 			this.connectionManager = connectionManagerFactory.newConnectionManager(
-					this.sslHostnameValidationEnabled,
+					!this.sslHostnameValidationEnabled,
 					this.hostProperties.getMaxTotalConnections(),
 					this.hostProperties.getMaxPerRouteConnections(),
 					this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
