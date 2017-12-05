@@ -31,6 +31,7 @@ import java.util.List;
 /**
  * {@link LoadBalancedRetryPolicy} for Ribbon clients.
  * @author Ryan Baxter
+ * @author Gang Li
  */
 public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 
@@ -67,8 +68,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 	}
 
 	public boolean canRetry(LoadBalancedRetryContext context) {
-		HttpMethod method = context.getRequest().getMethod();
-		return HttpMethod.GET == method || lbContext.isOkToRetryOnAllOperations();
+		return lbContext.isOkToRetryOnAllOperations();
 	}
 
 	@Override
