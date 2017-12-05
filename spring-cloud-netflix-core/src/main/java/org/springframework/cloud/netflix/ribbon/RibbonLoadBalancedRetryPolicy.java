@@ -68,8 +68,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 	}
 
 	public boolean canRetry(LoadBalancedRetryContext context) {
-		HttpMethod method = context.getRequest().getMethod();
-		return lbContext.isOkToRetryOnAllOperations() || HttpMethod.GET == method;
+		return lbContext.isOkToRetryOnAllOperations();
 	}
 
 	@Override
