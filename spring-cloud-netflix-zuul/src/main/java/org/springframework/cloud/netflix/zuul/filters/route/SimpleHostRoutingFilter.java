@@ -63,6 +63,7 @@ import org.springframework.util.StringUtils;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_ENTITY_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SIMPLE_HOST_ROUTING_FILTER_ORDER;
 
