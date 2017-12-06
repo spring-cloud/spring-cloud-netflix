@@ -233,7 +233,7 @@ public class SimpleHostRoutingFilterTests {
 	}
 	
 	@Test
-	public void putRequestBuiltWithBody() {
+	public void putRequestBuiltWithBody() throws Exception {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
@@ -245,7 +245,7 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
-	public void postRequestBuiltWithBody() {
+	public void postRequestBuiltWithBody() throws Exception {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
