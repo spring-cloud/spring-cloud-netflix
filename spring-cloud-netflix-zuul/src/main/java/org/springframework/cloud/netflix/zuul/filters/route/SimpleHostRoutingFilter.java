@@ -73,6 +73,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Bilal Alp
+ * @author Gang Li
  */
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
@@ -338,13 +339,17 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		return httpHost;
 	}
 
-	private InputStream getRequestBody(HttpServletRequest request) {
+	protected InputStream getRequestBody(HttpServletRequest request) {
 		InputStream requestEntity = null;
 		try {
-			requestEntity = request.getInputStream();
+			requestEntity = (InputStream) RequestContext.getCurrentContext()
+				.get(REQUEST_ENTITY_KEY);
+			if (requestEntity == null) {
+				requestEntity = request.getInputStream();
+			}
 		}
 		catch (IOException ex) {
-			// no requestBody is ok.
+			log.error("error during getRequestBody", ex);
 		}
 		return requestEntity;
 	}
