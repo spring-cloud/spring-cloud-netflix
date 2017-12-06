@@ -229,6 +229,30 @@ public class SimpleHostRoutingFilterTests {
 		InputStream inputStream = getFilter().getRequestBody(request);
 		assertTrue(Arrays.equals("{1}".getBytes(), copyToByteArray(inputStream)));
 	}
+	
+	@Test
+	public void putRequestBuiltWithBody() {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
+			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
+		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
+
+	@Test
+	public void postRequestBuiltWithBody() {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
+			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
+		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
 
 	private void setupContext() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
