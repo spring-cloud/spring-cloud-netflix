@@ -20,6 +20,7 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.Arrays;
