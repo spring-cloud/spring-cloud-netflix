@@ -106,6 +106,7 @@ public class SimpleHostRoutingFilterTests {
 		if (this.context != null) {
 			this.context.close();
 		}
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
