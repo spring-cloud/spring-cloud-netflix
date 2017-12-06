@@ -80,6 +80,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 /**
  * @author Andreas Kluth
  * @author Spencer Gibb
+ * @author Gang Li
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SampleApplication.class,
@@ -206,6 +207,19 @@ public class SimpleHostRoutingFilterTests {
 		filter.onPropertyChange(event);
 		CloseableHttpClient newhttpClient = (CloseableHttpClient) ReflectionTestUtils.getField(filter, "httpClient");
 		Assertions.assertThat(httpClient).isNotEqualTo(newhttpClient);
+	}
+	
+	@Test
+	public void getRequestBody() throws Exception {
+		setupContext();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContent("{1}".getBytes());
+		request.addHeader("singleName", "singleValue");
+		request.addHeader("multiName", "multiValue1");
+		request.addHeader("multiName", "multiValue2");
+		RequestContext.getCurrentContext().setRequest(request);
+		InputStream inputStream = getFilter().getRequestBody(request);
+		assertTrue(Arrays.equals("{1}".getBytes(), copyToByteArray(inputStream)));
 	}
 
 	private void setupContext() {
