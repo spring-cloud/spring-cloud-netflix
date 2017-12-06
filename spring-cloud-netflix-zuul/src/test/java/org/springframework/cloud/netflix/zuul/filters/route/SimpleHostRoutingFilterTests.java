@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -253,6 +254,26 @@ public class SimpleHostRoutingFilterTests {
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
 		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
+	
+	@Test
+	public void shouldFilterFalse() throws Exception {
+		setupContext();
+		assertEquals(false, getFilter().shouldFilter());
+	}
+
+	@Test
+	public void shouldFilterTrue() throws Exception {
+		setupContext();
+		RequestContext.getCurrentContext().set("routeHost", new URL("http://localhost:8080"));
+		RequestContext.getCurrentContext().set("sendZuulResponse", true);
+		assertEquals(true, getFilter().shouldFilter());
+	}
+
+	@Test
+	public void filterOrder() throws Exception {
+		setupContext();
+		assertEquals(100, getFilter().filterOrder());
 	}
 
 	private void setupContext() {
