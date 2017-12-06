@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
-
+import com.netflix.zuul.context.RequestContext;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -94,6 +94,12 @@ public class SimpleHostRoutingFilterTests {
 
 	@LocalServerPort
 	private int port;
+	
+	@Before
+	public void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	@After
 	public void clear() {
