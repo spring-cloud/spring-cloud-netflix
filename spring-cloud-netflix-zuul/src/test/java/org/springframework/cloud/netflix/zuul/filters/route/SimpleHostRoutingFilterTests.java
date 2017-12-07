@@ -37,6 +37,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.Configurable;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -254,6 +255,17 @@ public class SimpleHostRoutingFilterTests {
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
 		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
+
+	@Test
+	public void pathRequestBuiltWithBody() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
+			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
+		assertTrue(basicHttpRequest.getEntity() != null);
 	}
 	
 	@Test
