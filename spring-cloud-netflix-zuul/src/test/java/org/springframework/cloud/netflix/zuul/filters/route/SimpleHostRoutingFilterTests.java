@@ -20,7 +20,9 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,18 +30,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
-
+import com.netflix.zuul.context.RequestContext;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.Configurable;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
@@ -80,6 +84,7 @@ import static org.springframework.util.StreamUtils.copyToString;
 /**
  * @author Andreas Kluth
  * @author Spencer Gibb
+ * @author Gang Li
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SampleApplication.class,
@@ -92,12 +97,19 @@ public class SimpleHostRoutingFilterTests {
 
 	@LocalServerPort
 	private int port;
+	
+	@Before
+	public void setTestRequestContext() {
+		RequestContext context = new RequestContext();
+		RequestContext.testSetCurrentContext(context);
+	}
 
 	@After
 	public void clear() {
 		if (this.context != null) {
 			this.context.close();
 		}
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
@@ -206,6 +218,74 @@ public class SimpleHostRoutingFilterTests {
 		filter.onPropertyChange(event);
 		CloseableHttpClient newhttpClient = (CloseableHttpClient) ReflectionTestUtils.getField(filter, "httpClient");
 		Assertions.assertThat(httpClient).isNotEqualTo(newhttpClient);
+	}
+	
+	@Test
+	public void getRequestBody() throws Exception {
+		setupContext();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.setContent("{1}".getBytes());
+		request.addHeader("singleName", "singleValue");
+		request.addHeader("multiName", "multiValue1");
+		request.addHeader("multiName", "multiValue2");
+		RequestContext.getCurrentContext().setRequest(request);
+		InputStream inputStream = getFilter().getRequestBody(request);
+		assertTrue(Arrays.equals("{1}".getBytes(), copyToByteArray(inputStream)));
+	}
+	
+	@Test
+	public void putRequestBuiltWithBody() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
+			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
+		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
+
+	@Test
+	public void postRequestBuiltWithBody() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
+			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
+		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
+		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
+	}
+
+	@Test
+	public void pathRequestBuiltWithBody() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
+			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
+		assertTrue(basicHttpRequest.getEntity() != null);
+	}
+	
+	@Test
+	public void shouldFilterFalse() throws Exception {
+		setupContext();
+		assertEquals(false, getFilter().shouldFilter());
+	}
+
+	@Test
+	public void shouldFilterTrue() throws Exception {
+		setupContext();
+		RequestContext.getCurrentContext().set("routeHost", new URL("http://localhost:8080"));
+		RequestContext.getCurrentContext().set("sendZuulResponse", true);
+		assertEquals(true, getFilter().shouldFilter());
+	}
+
+	@Test
+	public void filterOrder() throws Exception {
+		setupContext();
+		assertEquals(100, getFilter().filterOrder());
 	}
 
 	private void setupContext() {
