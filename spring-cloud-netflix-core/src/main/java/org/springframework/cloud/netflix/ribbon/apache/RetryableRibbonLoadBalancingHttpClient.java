@@ -84,11 +84,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 								newRequest.getURI().getFragment()));
 					}
 				}
-				if (isSecure(configOverride)) {
-					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
-							.scheme("https").build().toUri();
-					newRequest = newRequest.withNewUri(secureUri);
-				}
+				newRequest = getSecureRequest(request, configOverride);
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
