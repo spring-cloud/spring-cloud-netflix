@@ -16,8 +16,10 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -29,6 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
@@ -36,11 +39,14 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFac
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.LinkedMultiValueMap;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
@@ -56,6 +62,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -189,6 +196,15 @@ public class RibbonLoadBalancingHttpClientTests {
 															  boolean retryable, boolean retryOnAllOps,
 															  String serviceName, String host, int port,
 															  HttpClient delegate, ILoadBalancer lb, String statusCodes) throws Exception {
+		return setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps, serviceName, host, port,
+				delegate, lb, statusCodes, false);
+	}
+
+	private RetryableRibbonLoadBalancingHttpClient setupClientForRetry(int retriesNextServer, int retriesSameServer,
+																	   boolean retryable, boolean retryOnAllOps,
+																	   String serviceName, String host, int port,
+																	   HttpClient delegate, ILoadBalancer lb, String statusCodes,
+																	   boolean isSecure) throws Exception {
 		ServerIntrospector introspector = mock(ServerIntrospector.class);
 		RetryHandler retryHandler = new DefaultLoadBalancerRetryHandler(retriesSameServer, retriesNextServer, retryable);
 		doReturn(new Server(host, port)).when(lb).chooseServer(eq(serviceName));
@@ -197,6 +213,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		clientConfig.set(CommonClientConfigKey.MaxAutoRetriesNextServer, retriesNextServer);
 		clientConfig.set(CommonClientConfigKey.MaxAutoRetries, retriesSameServer);
 		clientConfig.set(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES, statusCodes);
+		clientConfig.set(CommonClientConfigKey.IsSecure, isSecure);
 		clientConfig.setClientName(serviceName);
 		RibbonLoadBalancerContext context = new RibbonLoadBalancerContext(lb, clientConfig, retryHandler);
 		SpringClientFactory clientFactory = mock(SpringClientFactory.class);
@@ -305,6 +322,83 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(1)).chooseServer(eq(serviceName));
+	}
+
+	@Test
+	public void testDoubleEncoding() throws Exception {
+		String serviceName = "foo";
+		String host = serviceName;
+		int port = 80;
+		HttpMethod method = HttpMethod.GET;
+		final URI uri = new URI("https://" + host + ":" + port + "/a%2Bb");
+		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
+		clientConfig.setClientName(serviceName);
+		ServerIntrospector introspector = mock(ServerIntrospector.class);
+		RibbonCommandContext context = new RibbonCommandContext(serviceName, method.toString(), uri.toString(), false,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
+				new ByteArrayInputStream(new String("bar").getBytes()),
+				new ArrayList<RibbonRequestCustomizer>());
+		RibbonApacheHttpRequest request = new RibbonApacheHttpRequest(context);
+		HttpClient delegate = mock(HttpClient.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(response).getStatusLine();
+		doReturn(response).
+				when(delegate).execute(any(HttpUriRequest.class));
+		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(delegate, clientConfig, introspector);
+		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
+		verify(response, times(0)).close();
+		verify(delegate, times(1)).execute(argThat(new ArgumentMatcher<HttpUriRequest>() {
+			@Override
+			public boolean matches(Object argument) {
+				if(argument instanceof HttpUriRequest) {
+					HttpUriRequest arg = (HttpUriRequest)argument;
+					return arg.getURI().equals(uri);
+				}
+				return false;
+			}
+		}));
+	}
+
+	@Test
+	public void testDoubleEncodingWithRetry() throws Exception {
+		int retriesNextServer = 0;
+		int retriesSameServer = 0;
+		boolean retryable = true;
+		boolean retryOnAllOps = true;
+		String serviceName = "foo";
+		String host = serviceName;
+		int port = 80;
+		HttpMethod method = HttpMethod.GET;
+		final URI uri = new URI("https://" + host + ":" + port + "/a%2Bb");
+		RibbonCommandContext context = new RibbonCommandContext(serviceName, method.toString(), uri.toString(), true,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
+				new ByteArrayInputStream(new String("bar").getBytes()),
+				new ArrayList<RibbonRequestCustomizer>());
+		RibbonApacheHttpRequest request = new RibbonApacheHttpRequest(context);
+		HttpClient delegate = mock(HttpClient.class);
+		final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
+		StatusLine statusLine = mock(StatusLine.class);
+		doReturn(200).when(statusLine).getStatusCode();
+		doReturn(statusLine).when(response).getStatusLine();
+		doReturn(response).
+				when(delegate).execute(any(HttpUriRequest.class));
+		ILoadBalancer lb = mock(ILoadBalancer.class);
+		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
+				serviceName, host, port, delegate, lb, "", true);
+		client.execute(request, null);
+		verify(response, times(0)).close();
+		verify(delegate, times(1)).execute(argThat(new ArgumentMatcher<HttpUriRequest>() {
+			@Override
+			public boolean matches(Object argument) {
+				if(argument instanceof HttpUriRequest) {
+					HttpUriRequest arg = (HttpUriRequest)argument;
+					return arg.getURI().equals(uri);
+				}
+				return false;
+			}
+		}));
 	}
 
 	@Test
