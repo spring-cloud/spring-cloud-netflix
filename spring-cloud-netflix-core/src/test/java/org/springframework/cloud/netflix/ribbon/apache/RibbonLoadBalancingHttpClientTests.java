@@ -387,6 +387,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		ILoadBalancer lb = mock(ILoadBalancer.class);
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
 				serviceName, host, port, delegate, lb, "", true);
+		client.execute(request, null);
 		verify(response, times(0)).close();
 		verify(delegate, times(1)).execute(argThat(new ArgumentMatcher<HttpUriRequest>() {
 			@Override
