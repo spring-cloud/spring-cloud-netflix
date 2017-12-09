@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2017-12-01</date>
+<date>2017-12-08</date>
 </info>
 <preface>
 <title></title>
@@ -479,9 +479,9 @@ example <literal>eureka.instance.hostname=${HOST_NAME}</literal>.</simpara>
 <title>Microservice Graph</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/HystrixGraph.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/Hystrix.png"/>
 </imageobject>
-<textobject><phrase>HystrixGraph</phrase></textobject>
+<textobject><phrase>Hystrix</phrase></textobject>
 </mediaobject>
 </figure>
 <simpara>A service failure in the lower level of services can cause cascading failure all the way up to the user. When calls to a particular service is greater than <literal>circuitBreaker.requestVolumeThreshold</literal> (default: 20 requests) and failue percentage is greater than <literal>circuitBreaker.errorThresholdPercentage</literal> (default: &gt;50%) in a rolling window defined  by <literal>metrics.rollingStats.timeInMilliseconds</literal> (default: 10 seconds), the circuit opens and the call is not made.  In cases of error and an open circuit a fallback can be provided by the developer.</simpara>
@@ -489,7 +489,7 @@ example <literal>eureka.instance.hostname=${HOST_NAME}</literal>.</simpara>
 <title>Hystrix fallback prevents cascading failures</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/HystrixFallback.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/HystrixFallback.png"/>
 </imageobject>
 <textobject><phrase>HystrixFallback</phrase></textobject>
 </mediaobject>
@@ -577,7 +577,7 @@ for details on the properties available.</simpara>
 <title>Hystrix Dashboard</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/Hystrix.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/Hystrix.png"/>
 </imageobject>
 <textobject><phrase>Hystrix</phrase></textobject>
 </mediaobject>
@@ -1844,7 +1844,7 @@ ignored. For example:</simpara>
 <section xml:id="_disable_zuul_filters">
 <title>Disable Zuul Filters</title>
 <simpara>Zuul for Spring Cloud comes with a number of <literal>ZuulFilter</literal> beans enabled by default
-in both proxy and server mode.  See <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters">the zuul filters package</link> for the
+in both proxy and server mode.  See <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-zuul/src/main/java/org/springframework/cloud/netflix/zuul/filters">the zuul filters package</link> for the
 possible filters that are enabled.  If you want to disable one, simply set
 <literal>zuul.&lt;SimpleClassName&gt;.&lt;filterType&gt;.disable=true</literal>. By convention, the package after
 <literal>filters</literal> is the Zuul filter type. For example to disable
@@ -2471,7 +2471,7 @@ counter.increment(10); // increment by a discrete amount</programlisting>
 <title>Request Latency</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="images/RequestLatency.png"/>
+<imagedata fileref="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/RequestLatency.png"/>
 </imageobject>
 <textobject><phrase>RequestLatency</phrase></textobject>
 </mediaobject>
