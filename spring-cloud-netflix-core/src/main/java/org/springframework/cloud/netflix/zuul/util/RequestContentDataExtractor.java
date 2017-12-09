@@ -41,13 +41,13 @@ public class RequestContentDataExtractor {
 	}
 
 	private static MultiValueMap<String, Object> extractFromRequest(HttpServletRequest request) throws IOException {
-		MultiValueMap<String, Object> builder	 = new LinkedMultiValueMap<>();
-		Set<String>				   queryParams = findQueryParams(request);
+		MultiValueMap<String, Object> builder = new LinkedMultiValueMap<>();
+		Set<String>	queryParams = findQueryParams(request);
 
 		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
 			String key = entry.getKey();
 
-			if (!queryParams.contains(key)) {
+			if (!queryParams.contains(key) && entry.getValue() != null) {
 				for (String value : entry.getValue()) {
 					builder.add(key, value);
 				}
@@ -59,8 +59,8 @@ public class RequestContentDataExtractor {
 
 	private static MultiValueMap<String, Object> extractFromMultipartRequest(MultipartHttpServletRequest request)
 			throws IOException {
-		MultiValueMap<String, Object> builder	 = new LinkedMultiValueMap<>();
-		Set<String>				   queryParams = findQueryParams(request);
+		MultiValueMap<String, Object> builder = new LinkedMultiValueMap<>();
+		Set<String>	queryParams = findQueryParams(request);
 
 		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
 			String key = entry.getKey();
@@ -97,7 +97,7 @@ public class RequestContentDataExtractor {
 
 	private static Set<String> findQueryParams(HttpServletRequest request) {
 		Set<String> result = new HashSet<>();
-		String	  query  = request.getQueryString();
+		String query  = request.getQueryString();
 
 		if (query != null) {
 			for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
