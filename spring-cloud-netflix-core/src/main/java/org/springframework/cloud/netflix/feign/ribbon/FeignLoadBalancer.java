@@ -105,7 +105,7 @@ public class FeignLoadBalancer extends
 		return super.reconstructURIWithServer(server, uri);
 	}
 
-	static class RibbonRequest extends ClientRequest implements Cloneable {
+	protected static class RibbonRequest extends ClientRequest implements Cloneable {
 
 		private final Request request;
 		private final Client client;
@@ -169,7 +169,7 @@ public class FeignLoadBalancer extends
 		}
 	}
 
-	static class RibbonResponse implements IResponse {
+	protected static class RibbonResponse implements IResponse {
 
 		private final URI uri;
 		private final Response response;
