@@ -77,11 +77,7 @@ public class RibbonLoadBalancingHttpClient extends
 				config.get(CommonClientConfigKey.FollowRedirects, this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
-		if (isSecure(configOverride)) {
-			final URI secureUri = UriComponentsBuilder.fromUri(request.getUri())
-					.scheme("https").build().toUri();
-			request = request.withNewUri(secureUri);
-		}
+		request = getSecureRequest(request, configOverride);
 		final HttpUriRequest httpUriRequest = request.toRequest(requestConfig);
 		final HttpResponse httpResponse = this.delegate.execute(httpUriRequest);
 		return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
@@ -99,5 +95,14 @@ public class RibbonLoadBalancingHttpClient extends
 			RibbonApacheHttpRequest request, IClientConfig requestConfig) {
 		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT,
 				requestConfig);
+	}
+
+	protected RibbonApacheHttpRequest getSecureRequest(RibbonApacheHttpRequest request, IClientConfig configOverride) {
+		if (isSecure(configOverride)) {
+			final URI secureUri = UriComponentsBuilder.fromUri(request.getUri())
+					.scheme("https").build(true).toUri();
+			return request.withNewUri(secureUri);
+		}
+		return request;
 	}
 }

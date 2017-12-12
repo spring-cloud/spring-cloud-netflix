@@ -32,6 +32,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.monitoring.CounterFactory;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -44,6 +45,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
@@ -59,6 +61,8 @@ import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientFacto
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.metrics.EmptyCounterFactory;
+import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -98,11 +102,17 @@ public class SimpleHostRoutingFilterTests {
 	@LocalServerPort
 	private int port;
 
+	@Before
+	public void setup() {
+		CounterFactory.initialize(new EmptyCounterFactory());
+	}
+
 	@After
 	public void clear() {
 		if (this.context != null) {
 			this.context.close();
 		}
+		CounterFactory.initialize(null);
 	}
 
 	@Test
@@ -281,7 +291,7 @@ public class SimpleHostRoutingFilterTests {
 		assertEquals(100, getFilter().filterOrder());
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test(expected = ZuulRuntimeException.class)
 	public void run() throws Exception {
 		setupContext();
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
