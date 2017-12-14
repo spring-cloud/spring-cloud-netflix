@@ -32,10 +32,6 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
             <optional>true</optional>
         </dependency>
-
-
-
-
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-commons</artifactId>
@@ -127,6 +123,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-
 </project>

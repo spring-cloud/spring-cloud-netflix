@@ -12,6 +12,7 @@ import com.netflix.loadbalancer.IRule;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListFilter;
 
+import static org.springframework.cloud.netflix.ribbon.SpringClientFactory.NAMESPACE;
 import static org.springframework.cloud.netflix.ribbon.SpringClientFactory.instantiateWithConfig;
 
 
@@ -39,7 +40,7 @@ public class PropertiesFactory {
 	public String getClassName(Class clazz, String name) {
 		if (this.classToProperty.containsKey(clazz)) {
 			String classNameProperty = this.classToProperty.get(clazz);
-			String className = environment.getProperty(name + "." + SpringClientFactory.NAMESPACE + "." + classNameProperty);
+			String className = environment.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
 			return className;
 		}
 		return null;
