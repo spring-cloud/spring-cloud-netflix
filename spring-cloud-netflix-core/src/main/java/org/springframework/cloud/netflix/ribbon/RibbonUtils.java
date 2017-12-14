@@ -107,7 +107,9 @@ public class RibbonUtils {
 			scheme = "http";
 		}
 
-		if (unsecureSchemeMapping.containsKey(scheme) && isSecure(config, serverIntrospector, server)) {
+		if (!StringUtils.isEmpty(uri.toString())
+				&& unsecureSchemeMapping.containsKey(scheme)
+				&& isSecure(config, serverIntrospector, server)) {
 			return upgradeConnection(uri, unsecureSchemeMapping.get(scheme));
 		}
 		return uri;
