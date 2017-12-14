@@ -25,18 +25,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
 /**
  * @author Spencer Gibb
  * @author Ryan Baxter
+ * @author Tim Ysewyn
  */
 public class OkHttpLoadBalancingClient
 		extends AbstractLoadBalancingClient<OkHttpRibbonRequest, OkHttpRibbonResponse, OkHttpClient> {
@@ -91,7 +91,7 @@ public class OkHttpLoadBalancingClient
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = updateToHttpsIfNeeded(original, this.config, this.serverIntrospector,
+		URI uri = updateToSecureConnectionIfNeeded(original, this.config, this.serverIntrospector,
 				server);
 		return super.reconstructURIWithServer(server, uri);
 	}

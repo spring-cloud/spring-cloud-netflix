@@ -11,15 +11,27 @@ import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.Server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Spencer Gibb
  * @author Jacques-Etienne Beaudet
+ * @author Tim Ysewyn
  */
 public class RibbonUtils {
 
 	public static final String VALUE_NOT_SET = "__not__set__";
 
 	public static final String DEFAULT_NAMESPACE = "ribbon";
+
+	private static final Map<String, String> unsecureSchemeMapping;
+	static
+	{
+		unsecureSchemeMapping = new HashMap<>();
+		unsecureSchemeMapping.put("http", "https");
+		unsecureSchemeMapping.put("ws", "wss");
+	}
 
 	public static void setRibbonProperty(String serviceId, String suffix, String value) {
 		// how to set the namespace properly?
@@ -67,20 +79,42 @@ public class RibbonUtils {
 	 * @param serverIntrospector
 	 * @param server
 	 * @return
+	 *
+	 * @deprecated use {@link #updateToSecureConnectionIfNeeded}
 	 */
 	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config, ServerIntrospector serverIntrospector,
 			Server server) {
+		return updateToSecureConnectionIfNeeded(uri, config, serverIntrospector, server);
+	}
+
+	/**
+	 * Replace the scheme to the secure variant if needed. If the {@link #unsecureSchemeMapping} map contains the uri
+	 * scheme and {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the scheme.
+	 * This assumes the uri is already encoded to avoid double encoding.
+	 *
+	 * @param uri
+	 * @param config
+	 * @param serverIntrospector
+	 * @param server
+	 * @return
+	 */
+	public static URI updateToSecureConnectionIfNeeded(URI uri, IClientConfig config,
+													   ServerIntrospector serverIntrospector, Server server) {
 		String scheme = uri.getScheme();
-		if (!"".equals(uri.toString()) && !"https".equals(scheme) && isSecure(config, serverIntrospector, server)) {
-			UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri).scheme("https");
-			if (uri.getRawQuery() != null) {
-				// When building the URI, UriComponentsBuilder verify the allowed characters and does not 
-				// support the '+' so we replace it for its equivalent '%20'.
-				// See issue https://jira.spring.io/browse/SPR-10172
-				uriComponentsBuilder.replaceQuery(uri.getRawQuery().replace("+", "%20"));
-			}
-			return uriComponentsBuilder.build(true).toUri();
+		if (scheme != null && unsecureSchemeMapping.containsKey(scheme) && isSecure(config, serverIntrospector, server)) {
+			return upgradeConnection(uri, unsecureSchemeMapping.get(scheme));
 		}
 		return uri;
+	}
+
+	private static URI upgradeConnection(URI uri, String scheme) {
+		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri).scheme(scheme);
+		if (uri.getRawQuery() != null) {
+			// When building the URI, UriComponentsBuilder verify the allowed characters and does not
+			// support the '+' so we replace it for its equivalent '%20'.
+			// See issue https://jira.spring.io/browse/SPR-10172
+			uriComponentsBuilder.replaceQuery(uri.getRawQuery().replace("+", "%20"));
+		}
+		return uriComponentsBuilder.build(true).toUri();
 	}
 }

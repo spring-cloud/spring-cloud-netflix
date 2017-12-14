@@ -34,6 +34,7 @@ import com.netflix.loadbalancer.Server;
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Ryan Baxter
+ * @author Tim Ysewyn
  */
 public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
@@ -52,7 +53,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		Server server = new Server(instance.getHost(), instance.getPort());
 		IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
 		ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
-		URI uri = RibbonUtils.updateToHttpsIfNeeded(original, clientConfig,
+		URI uri = RibbonUtils.updateToSecureConnectionIfNeeded(original, clientConfig,
 				serverIntrospector, server);
 		return context.reconstructURIWithServer(server, uri);
 	}
