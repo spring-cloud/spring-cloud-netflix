@@ -2,6 +2,7 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
 
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.netflix.client.config.CommonClientConfigKey;
@@ -101,7 +102,12 @@ public class RibbonUtils {
 	public static URI updateToSecureConnectionIfNeeded(URI uri, IClientConfig config,
 													   ServerIntrospector serverIntrospector, Server server) {
 		String scheme = uri.getScheme();
-		if (scheme != null && unsecureSchemeMapping.containsKey(scheme) && isSecure(config, serverIntrospector, server)) {
+
+		if (StringUtils.isEmpty(scheme)) {
+			scheme = "http";
+		}
+
+		if (unsecureSchemeMapping.containsKey(scheme) && isSecure(config, serverIntrospector, server)) {
 			return upgradeConnection(uri, unsecureSchemeMapping.get(scheme));
 		}
 		return uri;
