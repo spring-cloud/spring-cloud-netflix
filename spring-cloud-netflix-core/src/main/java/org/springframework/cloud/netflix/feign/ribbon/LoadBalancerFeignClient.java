@@ -16,19 +16,17 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import java.io.IOException;
-import java.net.URI;
-
-import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
-
 import com.netflix.client.ClientException;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-
 import feign.Client;
 import feign.Request;
 import feign.Response;
+import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
+
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * @author Dave Syer
@@ -72,7 +70,7 @@ public class LoadBalancerFeignClient implements Client {
 		}
 	}
 
-	IClientConfig getClientConfig(Request.Options options, String clientName) {
+	protected IClientConfig getClientConfig(Request.Options options, String clientName) {
 		IClientConfig requestConfig;
 		if (options == DEFAULT_OPTIONS) {
 			requestConfig = this.clientFactory.getClientConfig(clientName);
