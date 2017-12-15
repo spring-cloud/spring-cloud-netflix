@@ -249,7 +249,6 @@ public class SpringMvcContract extends Contract.BaseContract
 
 	private void parseProduces(MethodMetadata md, Method method,
 			RequestMapping annotation) {
-		checkAtMostOne(method, annotation.produces(), "produces");
 		String[] serverProduces = annotation.produces();
 		String clientAccepts = serverProduces.length == 0 ? null
 				: emptyToNull(serverProduces[0]);
@@ -260,7 +259,6 @@ public class SpringMvcContract extends Contract.BaseContract
 
 	private void parseConsumes(MethodMetadata md, Method method,
 			RequestMapping annotation) {
-		checkAtMostOne(method, annotation.consumes(), "consumes");
 		String[] serverConsumes = annotation.consumes();
 		String clientProduces = serverConsumes.length == 0 ? null
 				: emptyToNull(serverConsumes[0]);
