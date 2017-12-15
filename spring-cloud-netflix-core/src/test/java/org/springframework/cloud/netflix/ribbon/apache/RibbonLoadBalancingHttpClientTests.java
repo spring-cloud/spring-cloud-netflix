@@ -36,6 +36,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 
 import org.mockito.ArgumentMatcher;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -89,6 +90,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	private ILoadBalancer loadBalancer;
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory = new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
+	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.NoRetryListener();
 
 	@Before
 	public void setup() {
@@ -243,7 +245,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		doReturn(clientConfig).when(clientFactory).getClientConfig(eq(serviceName));
 		LoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
 		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(delegate, clientConfig,
-				introspector, factory, loadBalancedBackOffPolicyFactory);
+				introspector, factory, loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory);
 		client.setLoadBalancer(lb);
 		ReflectionTestUtils.setField(client, "delegate", delegate);
 		return client;

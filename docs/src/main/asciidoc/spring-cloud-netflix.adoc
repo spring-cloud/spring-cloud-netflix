@@ -2749,6 +2749,43 @@ public class MyConfiguration {
 }
 ----
 
+==== RetryListener
+By default, retrylistener is not used when retrying requests. If you want to configure a reterylistener (or more),
+you need to create a bean of type "LoadBalancedRetryListenerFactory" that will be used to create a RetryListener (or more)
+for the given service.
+
+[source,java,indent=0]
+----
+@Configuration
+public class MyConfiguration {
+    @Bean
+    LoadBalancedRetryListenerFactory retryListenerFactory() {
+        return new LoadBalancedRetryListenerFactory() {
+            @Override
+            public RetryListener[] createRetryListeners(String service) {
+                return new RetryListener[]{new RetryListener() {
+                    @Override
+                    public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
+                        //TODO Do you business...
+                        return true;
+                    }
+
+                    @Override
+                     public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+                        //TODO Do you business...
+                    }
+
+                    @Override
+                    public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+                        //TODO Do you business...
+                    }
+                }};
+            }
+        };
+    }
+}
+----
+
 ==== Configuration
 
 Anytime Ribbon is used with Spring Retry you can control the retry functionality by configuring
