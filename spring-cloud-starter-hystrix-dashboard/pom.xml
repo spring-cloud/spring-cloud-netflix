@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
 	<name>spring-cloud-starter-hystrix-dashboard</name>
-	<description>Spring Cloud Starter Hystrix Dashboard (deprecated, please use spring-cloud-starter-hystrix-dashboard)</description>
+	<description>Spring Cloud Starter Hystrix Dashboard (deprecated, please use spring-cloud-starter-netflix-hystrix-dashboard)</description>
 	<url>https://projects.spring.io/spring-cloud</url>
 	<organization>
 		<name>Pivotal Software, Inc.</name>
