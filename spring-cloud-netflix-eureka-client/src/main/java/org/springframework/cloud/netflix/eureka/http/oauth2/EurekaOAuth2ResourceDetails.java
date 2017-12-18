@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.eureka.http;
+package org.springframework.cloud.netflix.eureka.http.oauth2;
 
-import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 
 /**
- * Eureka client extension that allows customization of the transport client.
+ * Configuration Properties to define OAuth2 resource details for the Eureka Client
  * 
  * @author Daniel Lavoie
  */
-public class RestTemplateDiscoveryClientOptionalArgs
-		extends AbstractDiscoveryClientOptionalArgs<Void> {
-	public RestTemplateDiscoveryClientOptionalArgs(
-			RestTemplateTransportClientFactories restTemplateTransportClientFactories) {
-		setTransportClientFactories(restTemplateTransportClientFactories);
-	}
+@ConfigurationProperties("eureka.client.oauth2")
+public class EurekaOAuth2ResourceDetails extends ClientCredentialsResourceDetails {
+
 }

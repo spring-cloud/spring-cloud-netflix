@@ -1,0 +1,5 @@
+eureka:
+  client:
+    oauth2:
+      client_secret: client-secret
+      client_id: client-id
