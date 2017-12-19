@@ -31,10 +31,6 @@ public class RibbonRetryPolicy extends InterceptorRetryPolicy {
 		 * the policy even on its first execution.  So the fact that we didnt have a service instance set
 		 * in the RetryContext signaled that it was the first execution and we should return true.
 		 *
-		 * In the Feign scenario, Feign as actually already queried the load balancer for a service instance
-		 * and we set that service instance in the context when we call the open method of the policy.  So in
-		 * the Feign case we just return true if the retry count is 0 indicating we haven't yet made a failed
-		 * request.
 		 */
 		if(context.getRetryCount() == 0) {
 			return true;
@@ -44,24 +40,18 @@ public class RibbonRetryPolicy extends InterceptorRetryPolicy {
 
 	@Override
 	public RetryContext open(RetryContext parent) {
-		/*
-		 * With Feign (unlike Ribbon) the request already has the URI for the service instance
-		 * we are going to make the request to, so extract that information and set the service
-		 * instance in the context.  In the Ribbon scenario the URI in the request object still has
-		 * the service id so we choose and set the service instance later on.
-		 */
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(parent, this.request);
-		context.setServiceInstance(new FeignRetryPolicyServiceInstance(serviceId, request));
+		context.setServiceInstance(new RibbonRetryPolicyServiceInstance(serviceId, request));
 		return context;
 	}
 
-	class FeignRetryPolicyServiceInstance implements ServiceInstance {
+	class RibbonRetryPolicyServiceInstance implements ServiceInstance {
 
 		private String serviceId;
 		private HttpRequest request;
 		private Map<String, String> metadata;
 
-		FeignRetryPolicyServiceInstance(String serviceId, HttpRequest request) {
+		RibbonRetryPolicyServiceInstance(String serviceId, HttpRequest request) {
 			this.serviceId = serviceId;
 			this.request = request;
 			this.metadata = new HashMap<String, String>();
