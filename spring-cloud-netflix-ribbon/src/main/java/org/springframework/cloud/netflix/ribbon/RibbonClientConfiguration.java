@@ -53,10 +53,11 @@ import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.setRibbonProperty;
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
 /**
  * @author Dave Syer
+ * @author Tim Ysewyn
  */
 @SuppressWarnings("deprecation")
 @Configuration
@@ -189,7 +190,7 @@ public class RibbonClientConfiguration {
 
 		@Override
 		public URI reconstructURIWithServer(Server server, URI original) {
-			URI uri = updateToHttpsIfNeeded(original, this.config,
+			URI uri = updateToSecureConnectionIfNeeded(original, this.config,
 					this.serverIntrospector, server);
 			return super.reconstructURIWithServer(server, uri);
 		}

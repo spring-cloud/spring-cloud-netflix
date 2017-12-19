@@ -59,6 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Spencer Gibb
  * @author Jakub Narloch
  * @author Venil Noronha
+ * @author Gang Li
  */
 class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
@@ -278,35 +279,15 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 
 	protected ClassPathScanningCandidateComponentProvider getScanner() {
 		return new ClassPathScanningCandidateComponentProvider(false, this.environment) {
-
 			@Override
-			protected boolean isCandidateComponent(
-					AnnotatedBeanDefinition beanDefinition) {
+			protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
+				boolean isCandidate = false;
 				if (beanDefinition.getMetadata().isIndependent()) {
-					// TODO until SPR-11711 will be resolved
-					if (beanDefinition.getMetadata().isInterface()
-							&& beanDefinition.getMetadata()
-									.getInterfaceNames().length == 1
-							&& Annotation.class.getName().equals(beanDefinition
-									.getMetadata().getInterfaceNames()[0])) {
-						try {
-							Class<?> target = ClassUtils.forName(
-									beanDefinition.getMetadata().getClassName(),
-									FeignClientsRegistrar.this.classLoader);
-							return !target.isAnnotation();
-						}
-						catch (Exception ex) {
-							this.logger.error(
-									"Could not load target class: "
-											+ beanDefinition.getMetadata().getClassName(),
-									ex);
-
-						}
+					if (!beanDefinition.getMetadata().isAnnotation()) {
+						isCandidate = true;
 					}
-					return true;
 				}
-				return false;
-
+				return isCandidate;
 			}
 		};
 	}

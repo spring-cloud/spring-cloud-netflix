@@ -32,9 +32,12 @@ import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
+
 /**
  * @author Christian Lohmann
  * @author Ryan Baxter
+ * @author Tim Ysewyn
  */
 // TODO: rename (ie new class that extends this in Dalston) to ApacheHttpLoadBalancingClient
 public class RibbonLoadBalancingHttpClient extends
@@ -83,7 +86,7 @@ public class RibbonLoadBalancingHttpClient extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = RibbonUtils.updateToHttpsIfNeeded(original, this.config, this.serverIntrospector,
+		URI uri = updateToSecureConnectionIfNeeded(original, this.config, this.serverIntrospector,
 				server);
 		return super.reconstructURIWithServer(server, uri);
 	}

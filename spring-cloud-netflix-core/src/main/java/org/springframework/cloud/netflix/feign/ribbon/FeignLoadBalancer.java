@@ -43,8 +43,14 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
-import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToHttpsIfNeeded;
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
+/**
+ * @author Dave Syer
+ * @author Spencer Gibb
+ * @author Ryan Baxter
+ * @author Tim Ysewyn
+ */
 public class FeignLoadBalancer extends
 		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
 
@@ -101,11 +107,11 @@ public class FeignLoadBalancer extends
 
 	@Override
 	public URI reconstructURIWithServer(Server server, URI original) {
-		URI uri = updateToHttpsIfNeeded(original, this.clientConfig, this.serverIntrospector, server);
+		URI uri = updateToSecureConnectionIfNeeded(original, this.clientConfig, this.serverIntrospector, server);
 		return super.reconstructURIWithServer(server, uri);
 	}
 
-	static class RibbonRequest extends ClientRequest implements Cloneable {
+	protected static class RibbonRequest extends ClientRequest implements Cloneable {
 
 		private final Request request;
 		private final Client client;
@@ -169,7 +175,7 @@ public class FeignLoadBalancer extends
 		}
 	}
 
-	static class RibbonResponse implements IResponse {
+	protected static class RibbonResponse implements IResponse {
 
 		private final URI uri;
 		private final Response response;
