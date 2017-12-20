@@ -41,7 +41,7 @@ public class RibbonApplicationContextInitializer
 		this.clientNames = clientNames;
 	}
 
-	private void initialize() {
+	protected void initialize() {
 		if (clientNames != null) {
 			for (String clientName : clientNames) {
 				this.springClientFactory.getContext(clientName);
