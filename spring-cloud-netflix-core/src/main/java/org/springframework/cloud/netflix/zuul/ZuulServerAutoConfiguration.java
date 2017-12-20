@@ -160,8 +160,8 @@ public class ZuulServerAutoConfiguration {
 	// post filters
 
 	@Bean
-	public SendResponseFilter sendResponseFilter() {
-		return new SendResponseFilter();
+	public SendResponseFilter sendResponseFilter(ZuulProperties properties) {
+		return new SendResponseFilter(zuulProperties);
 	}
 
 	@Bean
