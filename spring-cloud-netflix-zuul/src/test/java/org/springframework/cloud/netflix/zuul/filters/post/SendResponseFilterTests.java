@@ -28,14 +28,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.util.WebUtils;
 
-import com.netflix.config.ConfigurationManager;
-import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 
@@ -89,9 +88,10 @@ public class SendResponseFilterTests {
 
 	@Test
 	public void runWithDebugHeader() throws Exception {
-		ConfigurationManager.getConfigInstance().setProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER, true);
+		ZuulProperties properties = new ZuulProperties();
+		properties.setIncludeDebugHeader(true);
 
-		SendResponseFilter filter = createFilter("hello", null, new MockHttpServletResponse(), false);
+		SendResponseFilter filter = createFilter(properties, "hello", null, new MockHttpServletResponse(), false);
 		Debug.addRoutingDebug("test");
 		filter.run();
 
@@ -102,9 +102,10 @@ public class SendResponseFilterTests {
 
 	@Test
 	public void runWithOriginContentLength() throws Exception {
-		ConfigurationManager.getConfigInstance().setProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH, true);
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
 
-		SendResponseFilter filter = createFilter("hello", null, new MockHttpServletResponse(), false);
+		SendResponseFilter filter = createFilter(properties, "hello", null, new MockHttpServletResponse(), false);
 		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
 		RequestContext.getCurrentContext().setResponseGZipped(false);
 		filter.run();
@@ -154,6 +155,10 @@ public class SendResponseFilterTests {
 	}
 
 	private SendResponseFilter createFilter(String content, String characterEncoding, MockHttpServletResponse response, boolean streamContent) throws Exception {
+	    return createFilter(new ZuulProperties(), content, characterEncoding, response, streamContent);
+    }
+
+    private SendResponseFilter createFilter(ZuulProperties properties, String content, String characterEncoding, MockHttpServletResponse response, boolean streamContent) throws Exception {
 		HttpServletRequest request = new MockHttpServletRequest();
 		RequestContext context = new RequestContext();
 		context.setRequest(request);
@@ -173,7 +178,7 @@ public class SendResponseFilterTests {
 
 		context.set("error.status_code", HttpStatus.NOT_FOUND.value());
 		RequestContext.testSetCurrentContext(context);
-		SendResponseFilter filter = new SendResponseFilter();
+		SendResponseFilter filter = new SendResponseFilter(properties);
 		return filter;
 	}
 
