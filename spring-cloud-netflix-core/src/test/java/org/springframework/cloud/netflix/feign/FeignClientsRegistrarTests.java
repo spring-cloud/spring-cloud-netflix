@@ -20,13 +20,19 @@ package org.springframework.cloud.netflix.feign;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author Spencer Gibb
+ * @author Gang Li
  */
 public class FeignClientsRegistrarTests {
 
@@ -73,5 +79,41 @@ public class FeignClientsRegistrarTests {
 		FeignClientsRegistrar registrar = new FeignClientsRegistrar();
 		registrar.setEnvironment(new MockEnvironment());
 		return registrar.getName(Collections.<String, Object>singletonMap("name", name));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testFallback() {
+		new AnnotationConfigApplicationContext(fallbackTestConfig.class);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testFallbackFactory() {
+		new AnnotationConfigApplicationContext(fallbackFactoryTestConfig.class);
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableFeignClients(clients = { FeignClientsRegistrarTests.fallbackClient.class})
+	protected static class fallbackTestConfig {
+
+	}
+
+	@FeignClient(name = "fallbackTestClient", url = "http://localhost:8080/", fallback = fallbackClient.class)
+	protected interface fallbackClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		String fallbackTest();
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableFeignClients(clients = { FeignClientsRegistrarTests.fallbackFactoryClient.class})
+	protected static class fallbackFactoryTestConfig {
+
+	}
+
+	@FeignClient(name = "fallbackFactoryTestClient", url = "http://localhost:8081/", fallbackFactory = fallbackFactoryClient.class)
+	protected interface fallbackFactoryClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		String fallbackFactoryTest();
 	}
 }
