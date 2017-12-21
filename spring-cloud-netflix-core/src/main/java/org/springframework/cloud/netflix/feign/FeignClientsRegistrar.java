@@ -208,6 +208,14 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		AnnotationAttributes annotation = AnnotationAttributes.fromMap(attributes);
 		// This blows up if an aliased property is overspecified
 		// FIXME annotation.getAliasedString("name", FeignClient.class, null);
+		Assert.isTrue(
+			!annotation.getClass("fallback").isInterface(),
+			"Fallback class must implement the interface annotated by @FeignClient"
+		);
+		Assert.isTrue(
+			!annotation.getClass("fallbackFactory").isInterface(),
+			"Fallback factory must produce instances of fallback classes that implement the interface annotated by @FeignClient"
+		);
 	}
 
 	/* for testing */ String getName(Map<String, Object> attributes) {
