@@ -88,7 +88,7 @@ public class RetryableFeignLoadBalancerTests {
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
 			new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
-			new LoadBalancedRetryListenerFactory.NoRetryListenerFactory();
+			new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 
 	private Integer defaultConnectTimeout = 10000;
 	private Integer defaultReadTimeout = 10000;

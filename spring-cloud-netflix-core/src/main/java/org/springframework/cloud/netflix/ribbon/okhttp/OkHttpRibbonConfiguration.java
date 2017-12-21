@@ -108,7 +108,6 @@ public class OkHttpRibbonConfiguration {
 		}
 	}
 
-
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")

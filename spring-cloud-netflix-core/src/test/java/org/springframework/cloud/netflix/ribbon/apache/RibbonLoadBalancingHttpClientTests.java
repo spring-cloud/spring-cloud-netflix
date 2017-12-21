@@ -93,7 +93,7 @@ public class RibbonLoadBalancingHttpClientTests {
 
 	private ILoadBalancer loadBalancer;
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory = new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
-	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.NoRetryListenerFactory();
+	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 
 	@Before
 	public void setup() {

@@ -53,7 +53,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
 			new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
-		    new LoadBalancedRetryListenerFactory.NoRetryListenerFactory();
+		    new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 
 	@Deprecated
 	//TODO remove in 2.0.x
@@ -71,6 +71,17 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
 		super(delegate, config, serverIntrospector);
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+	}
+
+	@Deprecated
+	//TODO remove in 2.0.x
+	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
+												  IClientConfig config, ServerIntrospector serverIntrospector,
+												  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+												  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+		super(delegate, config, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
 	}
 
 	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,

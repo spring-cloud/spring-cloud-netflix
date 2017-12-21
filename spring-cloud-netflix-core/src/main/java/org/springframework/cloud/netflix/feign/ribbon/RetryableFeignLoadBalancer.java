@@ -59,7 +59,20 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
 		this.loadBalancedBackOffPolicyFactory = new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
-		this.loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.NoRetryListenerFactory();
+		this.loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
+	}
+
+	@Deprecated
+	//TODO remove in 2.0.x
+	public RetryableFeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
+									  ServerIntrospector serverIntrospector, LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+									  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+		super(lb, clientConfig, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
+		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory == null ?
+				new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory() : loadBalancedBackOffPolicyFactory;
+		this.loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 	}
 
 	public RetryableFeignLoadBalancer(ILoadBalancer lb, IClientConfig clientConfig,
@@ -70,9 +83,9 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.setRetryHandler(new DefaultLoadBalancerRetryHandler(clientConfig));
 		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory == null ?
-				new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory() : loadBalancedBackOffPolicyFactory;
+			new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory() : loadBalancedBackOffPolicyFactory;
 		this.loadBalancedRetryListenerFactory = loadBalancedRetryListenerFactory == null ?
-				new LoadBalancedRetryListenerFactory.NoRetryListenerFactory() : loadBalancedRetryListenerFactory;
+			new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory() : loadBalancedRetryListenerFactory;
 	}
 
 	@Override
