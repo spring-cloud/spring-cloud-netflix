@@ -136,6 +136,7 @@ public class EurekaClientAutoConfiguration {
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils,
 															 ManagementMetadataProvider managementMetadataProvider) {
 		String hostname = getProperty("eureka.instance.hostname");
+		String ipAddress = getProperty("eureka.instance.ipAddress");
 		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
 		boolean isSecurePortEnabled = Boolean.parseBoolean(getProperty("eureka.instance.secure-port-enabled"));
 
@@ -150,6 +151,9 @@ public class EurekaClientAutoConfiguration {
 		instance.setNonSecurePort(serverPort);
 		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
+		if (StringUtils.hasText(ipAddress)) {
+			instance.setIpAddress(ipAddress);
+		}
 
 		if(isSecurePortEnabled) {
 			instance.setSecurePort(serverPort);
