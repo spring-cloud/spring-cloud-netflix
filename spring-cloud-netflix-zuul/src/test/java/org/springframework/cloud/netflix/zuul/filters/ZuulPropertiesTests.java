@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,7 +95,7 @@ public class ZuulPropertiesTests {
 	public void createWithSensitiveHeaders() {
 		this.zuul.setSensitiveHeaders(Collections.singleton("x-bar"));
 		ZuulRoute route = new ZuulRoute("foo", "/path", "foo", "/path",
-				false, false, Collections.singleton("x-foo"));
+				false, false, Collections.singleton("x-foo"), null);
 		this.zuul.getRoutes().put("foo", route);
 		ZuulRoute foo = this.zuul.getRoutes().get("foo");
 		assertTrue(foo.getSensitiveHeaders().contains("x-foo"));

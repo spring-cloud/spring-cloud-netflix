@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
@@ -71,6 +72,11 @@ public class RoutesEndpointDetailsTests {
 
 			@Override
 			public Route getMatchingRoute(String path) {
+				return null;
+			}
+
+			@Override
+			public Route getMatchingRoute(RequestWrapper request) {
 				return null;
 			}
 		};

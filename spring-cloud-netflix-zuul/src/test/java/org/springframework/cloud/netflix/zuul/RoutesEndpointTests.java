@@ -28,6 +28,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 
@@ -59,6 +60,11 @@ public class RoutesEndpointTests {
 
 			@Override
 			public Route getMatchingRoute(String path) {
+				return null;
+			}
+
+			@Override
+			public Route getMatchingRoute(RequestWrapper request) {
 				return null;
 			}
 		};

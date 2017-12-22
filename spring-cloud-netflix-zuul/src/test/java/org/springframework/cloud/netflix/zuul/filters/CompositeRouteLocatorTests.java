@@ -85,8 +85,13 @@ public class CompositeRouteLocatorTests {
 
 		@Override
 		public Route getMatchingRoute(String path) {
+			return getMatchingRoute(RequestWrapper.fromPath(path));
+		}
+
+		@Override
+		public Route getMatchingRoute(RequestWrapper request) {
 			for (Route route : routes) {
-				if (path.startsWith(route.getPath())) {
+				if (request.getPath().startsWith(route.getPath())) {
 					return route;
 				}
 			}

@@ -23,13 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-import org.springframework.cloud.netflix.zuul.filters.Route;
-import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.*;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
 
@@ -109,8 +107,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx.getRequest());
-		Route route = this.routeLocator.getMatchingRoute(requestURI);
+		RequestWrapper request = getRequest(ctx);
+		Route route = this.routeLocator.getMatchingRoute(request);
 		if (route != null) {
 			String location = route.getLocation();
 			if (location != null) {
@@ -162,9 +160,9 @@ public class PreDecorationFilter extends ZuulFilter {
 			}
 		}
 		else {
-			log.warn("No route found for uri: " + requestURI);
+			log.warn("No route found for uri: " + request.getPath());
 
-			String fallBackUri = requestURI;
+			String fallBackUri = request.getPath();
 			String fallbackPrefix = this.dispatcherServletPath; // default fallback
 																// servlet is
 																// DispatcherServlet
@@ -189,6 +187,13 @@ public class PreDecorationFilter extends ZuulFilter {
 			ctx.set(FORWARD_TO_KEY, forwardURI);
 		}
 		return null;
+	}
+
+	private RequestWrapper getRequest(RequestContext ctx) {
+		HttpServletRequest request = ctx.getRequest();
+		String requestUri = this.urlPathHelper.getPathWithinApplication(request);
+		HttpMethod method = HttpMethod.resolve(request.getMethod());
+		return RequestWrapper.from(requestUri, method);
 	}
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {

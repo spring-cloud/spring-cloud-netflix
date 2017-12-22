@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -255,10 +256,12 @@ public class ZuulProperties {
 
 		private boolean customSensitiveHeaders = false;
 
+		private HttpMethod method;
+
 		public ZuulRoute() {}
 
 		public ZuulRoute(String id, String path, String serviceId, String url,
-				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
+						 boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders, HttpMethod method) {
 			this.id = id;
 			this.path = path;
 			this.serviceId = serviceId;
@@ -267,6 +270,7 @@ public class ZuulProperties {
 			this.retryable = retryable;
 			this.sensitiveHeaders = sensitiveHeaders;
 			this.customSensitiveHeaders = sensitiveHeaders != null;
+			this.method = method;
 		}
 
 		public ZuulRoute(String text) {
@@ -386,6 +390,14 @@ public class ZuulProperties {
 			this.customSensitiveHeaders = customSensitiveHeaders;
 		}
 
+		public HttpMethod getMethod() {
+			return method;
+		}
+
+		public void setMethod(HttpMethod method) {
+			this.method = method;
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
@@ -397,6 +409,7 @@ public class ZuulProperties {
 					Objects.equals(retryable, that.retryable) &&
 					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
 					Objects.equals(serviceId, that.serviceId) &&
+					Objects.equals(method, that.method) &&
 					stripPrefix == that.stripPrefix &&
 					Objects.equals(url, that.url);
 		}
@@ -404,7 +417,7 @@ public class ZuulProperties {
 		@Override
 		public int hashCode() {
 			return Objects.hash(customSensitiveHeaders, id, path, retryable,
-					sensitiveHeaders, serviceId, stripPrefix, url);
+					sensitiveHeaders, serviceId, method, stripPrefix, url);
 		}
 
 		@Override public String toString() {
@@ -416,6 +429,7 @@ public class ZuulProperties {
 					.append("retryable=").append(retryable).append(", ")
 					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
 					.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
+					.append("method=").append(method).append(", ")
 					.append("}").toString();
 		}
 

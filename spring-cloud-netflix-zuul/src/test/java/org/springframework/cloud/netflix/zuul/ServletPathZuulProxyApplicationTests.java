@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -129,7 +128,7 @@ public class ServletPathZuulProxyApplicationTests {
 	@Test
 	public void stripPrefixFalseAppendsPath() {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/app/local", false, false, null));
+				"http://localhost:" + this.port + "/app/local", false, false, null, null));
 		this.endpoint.reset();
 		ResponseEntity<String> result = testRestTemplate.exchange("/app/strip",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);

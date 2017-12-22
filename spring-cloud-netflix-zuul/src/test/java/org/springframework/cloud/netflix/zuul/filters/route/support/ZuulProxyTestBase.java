@@ -176,7 +176,7 @@ public abstract class ZuulProxyTestBase {
 	@Test
 	public void stripPrefixFalseAppendsPath() {
 		this.routes.addRoute(new ZuulProperties.ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/local", false, false, null));
+				"http://localhost:" + this.port + "/local", false, false, null, null));
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/strip", HttpMethod.GET,
