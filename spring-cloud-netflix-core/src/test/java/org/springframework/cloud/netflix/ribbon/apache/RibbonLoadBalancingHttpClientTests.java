@@ -635,7 +635,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	}
 
 	@Test(expected = TerminatedRetryException.class)
-	public void RetryListenerTestNoRetry() throws Exception {
+	public void retryListenerTestNoRetry() throws Exception {
 		int retriesNextServer = 1;
 		int retriesSameServer = 1;
 		boolean retryable = true;
