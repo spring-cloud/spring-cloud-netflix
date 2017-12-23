@@ -36,12 +36,15 @@ import com.netflix.eureka.util.EurekaMonitors;
 import com.thoughtworks.xstream.XStream;
 
 import lombok.extern.apachecommons.CommonsLog;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Spencer Gibb
  */
 @CommonsLog
 public class EurekaServerBootstrap {
+	private static final Log log = LogFactory.getLog(EurekaServerBootstrap.class);
 	private static final String TEST = "test";
 
 	private static final String ARCHAIUS_DEPLOYMENT_ENVIRONMENT = "archaius.deployment.environment";
