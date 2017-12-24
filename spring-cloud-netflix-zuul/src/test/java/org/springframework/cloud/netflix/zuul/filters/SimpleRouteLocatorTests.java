@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -27,9 +28,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.http.HttpMethod;
 
 import com.google.common.collect.ImmutableMap;
-import org.springframework.http.HttpMethod;
 
 /**
  * @author Tom Cawley
@@ -66,7 +67,7 @@ public class SimpleRouteLocatorTests {
 		// when
 		Route result = underTest.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
 		// then
-		assertThat(result).isNotNull().isEqualTo(createRoute("foo", "/1", "/foo"));
+		assertThat(result).isNotNull().isEqualTo(createRoute("foo", "/1", "/foo", HttpMethod.GET));
 	}
 
 	@Test
@@ -76,7 +77,7 @@ public class SimpleRouteLocatorTests {
 		// when
 		Route result = underTest.getMatchingRoute(RequestWrapper.fromPath("/foo/1"));
 		// then
-		assertThat(result).isNotNull().isEqualTo(createRoute("foo", "/1", "/foo"));
+		assertThat(result).isNotNull().isEqualTo(createRoute("foo", "/1", "/foo", HttpMethod.GET));
 	}
 
     @Test
@@ -101,8 +102,12 @@ public class SimpleRouteLocatorTests {
 
 	private ZuulRoute createZuulRoute(String path, String location, HttpMethod method) {
 		ZuulRoute zuulRoute = new ZuulRoute(path, location);
-		zuulRoute.setMethod(method);
+		zuulRoute.setMethods(Collections.singleton(method));
 		return zuulRoute;
+	}
+
+	private Route createRoute(String id, String path, String prefix, HttpMethod method) {
+		return new Route(id, path, id, prefix, false, null, true, Collections.singleton(method));
 	}
 
 	private Route createRoute(String id, String path, String prefix) {

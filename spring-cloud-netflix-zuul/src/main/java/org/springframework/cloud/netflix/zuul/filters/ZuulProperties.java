@@ -16,25 +16,20 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
+import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
+import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 
 /**
  * @author Spencer Gibb
@@ -256,12 +251,12 @@ public class ZuulProperties {
 
 		private boolean customSensitiveHeaders = false;
 
-		private HttpMethod method;
+		private Set<HttpMethod> methods;
 
 		public ZuulRoute() {}
 
 		public ZuulRoute(String id, String path, String serviceId, String url,
-						 boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders, HttpMethod method) {
+						 boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders, Set<HttpMethod> methods) {
 			this.id = id;
 			this.path = path;
 			this.serviceId = serviceId;
@@ -270,7 +265,7 @@ public class ZuulProperties {
 			this.retryable = retryable;
 			this.sensitiveHeaders = sensitiveHeaders;
 			this.customSensitiveHeaders = sensitiveHeaders != null;
-			this.method = method;
+			this.methods = methods;
 		}
 
 		public ZuulRoute(String text) {
@@ -322,7 +317,7 @@ public class ZuulProperties {
 		public Route getRoute(String prefix) {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
 					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,
-					this.stripPrefix);
+					this.stripPrefix, this.methods);
 		}
 
 		public void setSensitiveHeaders(Set<String> headers) {
@@ -390,12 +385,12 @@ public class ZuulProperties {
 			this.customSensitiveHeaders = customSensitiveHeaders;
 		}
 
-		public HttpMethod getMethod() {
-			return method;
+		public Set<HttpMethod> getMethods() {
+			return methods;
 		}
 
-		public void setMethod(HttpMethod method) {
-			this.method = method;
+		public void setMethods(Set<HttpMethod> methods) {
+			this.methods = methods;
 		}
 
 		@Override
@@ -409,7 +404,7 @@ public class ZuulProperties {
 					Objects.equals(retryable, that.retryable) &&
 					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
 					Objects.equals(serviceId, that.serviceId) &&
-					Objects.equals(method, that.method) &&
+					Objects.equals(methods, that.methods) &&
 					stripPrefix == that.stripPrefix &&
 					Objects.equals(url, that.url);
 		}
@@ -417,7 +412,7 @@ public class ZuulProperties {
 		@Override
 		public int hashCode() {
 			return Objects.hash(customSensitiveHeaders, id, path, retryable,
-					sensitiveHeaders, serviceId, method, stripPrefix, url);
+					sensitiveHeaders, serviceId, methods, stripPrefix, url);
 		}
 
 		@Override public String toString() {
@@ -429,7 +424,7 @@ public class ZuulProperties {
 					.append("retryable=").append(retryable).append(", ")
 					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
 					.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
-					.append("method=").append(method).append(", ")
+					.append("methods=").append(methods).append(", ")
 					.append("}").toString();
 		}
 
