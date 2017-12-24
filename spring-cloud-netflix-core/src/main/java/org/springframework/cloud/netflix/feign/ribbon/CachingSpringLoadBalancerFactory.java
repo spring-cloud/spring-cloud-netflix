@@ -67,7 +67,8 @@ public class CachingSpringLoadBalancerFactory {
 	@Deprecated
 	//TODO remove in 2.0.0x
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory,
-											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, boolean enableRetry) {
+											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+											boolean enableRetry) {
 		this.factory = factory;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.enableRetry = enableRetry;
@@ -78,8 +79,8 @@ public class CachingSpringLoadBalancerFactory {
 	@Deprecated
 	//TODO remove in 2.0.0x
 	public CachingSpringLoadBalancerFactory(SpringClientFactory factory,
-												 LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
-												 LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+											LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+											LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
 		this.factory = factory;
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
