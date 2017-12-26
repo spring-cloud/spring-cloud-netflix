@@ -26,6 +26,7 @@ import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommand;
+import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonCommand;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -46,7 +47,7 @@ public class RibbonCommandHystrixTimeoutTest {
     private ZuulProperties zuulProperties;
 
     @Before
-    public void setUp()	{
+    public void setUp() {
         zuulProperties = new ZuulProperties();
     }
 
@@ -54,6 +55,13 @@ public class RibbonCommandHystrixTimeoutTest {
     public void testHystrixTimeout() {
         RibbonCommandContext context = mock(RibbonCommandContext.class);
         HttpClientRibbonCommand command = new HttpClientRibbonCommand("cmd", null, context, zuulProperties);
+        assertEquals(command.getProperties().executionTimeoutInMilliseconds().get().intValue(), 60000);
+    }
+
+    @Test
+    public void testHystrixTimeoutWithOkHttp() {
+        RibbonCommandContext context = mock(RibbonCommandContext.class);
+        OkHttpRibbonCommand command = new OkHttpRibbonCommand("cmd", null, context, zuulProperties);
         assertEquals(command.getProperties().executionTimeoutInMilliseconds().get().intValue(), 60000);
     }
 
