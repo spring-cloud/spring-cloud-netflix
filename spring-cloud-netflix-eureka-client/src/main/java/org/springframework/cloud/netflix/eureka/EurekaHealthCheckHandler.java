@@ -111,7 +111,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 		return STATUS_MAPPING.get(status);
 	}
 
-  protected CompositeHealthIndicator getHealthIndicator() {
-    return healthIndicator;
-  }
+	protected CompositeHealthIndicator getHealthIndicator() {
+		return healthIndicator;
+	}
 }
