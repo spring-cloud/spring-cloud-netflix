@@ -57,7 +57,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 				put(Status.UP, InstanceStatus.UP);
 			}};
 
-	private final CompositeHealthIndicator healthIndicator;
+	protected final CompositeHealthIndicator healthIndicator;
 
 	private ApplicationContext applicationContext;
 
