@@ -100,7 +100,7 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	}
 
 	protected InstanceStatus getHealthStatus() {
-		final Status status = healthIndicator.health().getStatus();
+		final Status status = getHealthIndicator().health().getStatus();
 		return mapToInstanceStatus(status);
 	}
 
