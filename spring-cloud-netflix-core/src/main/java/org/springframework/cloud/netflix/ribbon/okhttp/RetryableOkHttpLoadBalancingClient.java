@@ -15,11 +15,13 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 
+import java.io.IOException;
 import java.net.URI;
+
+import okio.Buffer;
+import okio.BufferedSource;
 import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
@@ -32,8 +34,10 @@ import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpRequest;
+import org.springframework.retry.RecoveryCallback;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryException;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
@@ -71,7 +75,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 	}
 
 	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request, LoadBalancedRetryPolicy retryPolicy,
-													RetryCallback<OkHttpRibbonResponse, Exception> callback)
+                                                  RetryCallback<OkHttpRibbonResponse, Exception> callback,
+                                                  RecoveryCallback<OkHttpRibbonResponse> recoveryCallback)
 			throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());
@@ -80,7 +85,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()
 				: new RetryPolicy(request, retryPolicy, this, this.getClientName()));
-		return retryTemplate.execute(callback);
+		return retryTemplate.execute(callback, recoveryCallback);
 	}
 
 	@Override
@@ -113,14 +118,52 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				final Request request = newRequest.toRequest();
 				Response response = httpClient.newCall(request).execute();
 				if(retryPolicy.retryableStatusCode(response.code())) {
-					response.close();
-					throw new RetryableStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName, response.code());
+                    response = closeConnectionAndRebuildResponse(response);
+                    throw new RetryableStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName,
+                            response.code(), response, newRequest.getUri());
 				}
 				return new OkHttpRibbonResponse(response, newRequest.getUri());
 			}
 		};
-		return this.executeWithRetry(ribbonRequest, retryPolicy, retryCallback);
+        RecoveryCallback<OkHttpRibbonResponse> recoveryCallback = new RecoveryCallback<OkHttpRibbonResponse>() {
+            @Override
+            public OkHttpRibbonResponse recover(RetryContext context) throws Exception {
+                Throwable lastThrowable = context.getLastThrowable();
+                if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
+                    RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
+                    return new OkHttpRibbonResponse((Response) ex.getResponse(), ex.getUri());
+                }
+                throw new RetryException("Could not recover", lastThrowable);
+            }
+        };
+		return this.executeWithRetry(ribbonRequest, retryPolicy, retryCallback, recoveryCallback);
 	}
+
+    private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
+        final ResponseBody body = response.body();
+        if (body != null) {
+            final byte[] bytes = body.bytes(); //read content and close the connection
+            return response.newBuilder().body(new ResponseBody() { //set content into response
+                @Override
+                public MediaType contentType() {
+                    return body.contentType();
+                }
+
+                @Override
+                public long contentLength() {
+                    return body.contentLength();
+                }
+
+                @Override
+                public BufferedSource source() {
+                    Buffer buffer = new Buffer();
+                    buffer.write(bytes);
+                    return buffer;
+                }
+            }).build();
+        }
+        return response;
+    }
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
