@@ -15,13 +15,17 @@
  */
 package org.springframework.cloud.netflix.ribbon.apache;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.util.EntityUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
@@ -32,8 +36,10 @@ import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpRequest;
+import org.springframework.retry.RecoveryCallback;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryException;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -68,7 +74,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 
 		final RequestConfig requestConfig = builder.build();
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
-		RetryCallback retryCallback = new RetryCallback() {
+		RetryCallback<RibbonApacheHttpResponse, Exception> retryCallback = new RetryCallback<RibbonApacheHttpResponse, Exception>() {
 			@Override
 			public RibbonApacheHttpResponse doWithRetry(RetryContext context) throws Exception {
 				//on retries the policy will choose the server and set it in the context
@@ -92,25 +98,48 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
-					if(CloseableHttpResponse.class.isInstance(httpResponse)) {
-						((CloseableHttpResponse)httpResponse).close();
-					}
-					throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
-							httpResponse.getStatusLine().getStatusCode());
+                    closeConnectionAndRebuildResponse(httpResponse);
+                    throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
+                            httpResponse.getStatusLine().getStatusCode(), httpResponse, httpUriRequest.getURI());
 				}
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}
 		};
-		return this.executeWithRetry(request, retryPolicy, retryCallback);
+        RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback = new RecoveryCallback<RibbonApacheHttpResponse>() {
+            @Override
+            public RibbonApacheHttpResponse recover(RetryContext context) throws Exception {
+                Throwable lastThrowable = context.getLastThrowable();
+                if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
+                    RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
+                    return new RibbonApacheHttpResponse((HttpResponse) ex.getResponse(), ex.getUri());
+                }
+                throw new RetryException("Could not recover", lastThrowable);
+            }
+        };
+		return this.executeWithRetry(request, retryPolicy, retryCallback, recoveryCallback);
 	}
 
-	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy, RetryCallback<RibbonApacheHttpResponse, IOException> callback) throws Exception {
+    private void closeConnectionAndRebuildResponse(HttpResponse httpResponse) throws IOException {
+        HttpEntity origin = httpResponse.getEntity();
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setContentLength(origin.getContentLength());
+        entity.setChunked(origin.isChunked());
+        entity.setContentType(origin.getContentType());
+        entity.setContentEncoding(origin.getContentEncoding());
+        byte[] content = EntityUtils.toByteArray(origin);                //read content and close the connection
+        entity.setContent(new ByteArrayInputStream(content));            //set content into response
+        httpResponse.setEntity(entity);                                  //response don't need to close again
+    }
+
+	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
+                                                      RetryCallback<RibbonApacheHttpResponse, Exception> callback,
+                                                      RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = request.getContext() == null ? true :
 				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()
 				: new RetryPolicy(request, retryPolicy, this, this.getClientName()));
-		return retryTemplate.execute(callback);
+		return retryTemplate.execute(callback, recoveryCallback);
 	}
 
 	@Override

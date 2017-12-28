@@ -16,8 +16,13 @@
 
 package org.springframework.cloud.netflix.ribbon.apache;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -25,10 +30,14 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
@@ -40,6 +49,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.retry.RetryException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
@@ -57,11 +67,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Sébastien Nussbaumer
@@ -334,8 +340,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
 		try {
 			client.execute(request, null);
-			fail("Expected IOException");
-		} catch(IOException e) {} finally {
+			fail("Expected RetryException");
+		} catch(RetryException e) {} finally {
 			verify(response, times(0)).close();
 			verify(delegate, times(1)).execute(any(HttpUriRequest.class));
 			verify(lb, times(0)).chooseServer(eq(serviceName));
@@ -374,10 +380,55 @@ public class RibbonLoadBalancingHttpClientTests {
 		doReturn(uri).when(uriRequest).getURI();
 		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
 		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
-		verify(fourOFourResponse, times(1)).close();
 		verify(delegate, times(2)).execute(any(HttpUriRequest.class));
 		verify(lb, times(0)).chooseServer(eq(serviceName));
 	}
+
+    @Test
+    public void testRetryFail() throws Exception {
+        int retriesNextServer = 0;
+        int retriesSameServer = 1;
+        boolean retryable = true;
+        boolean retryOnAllOps = false;
+        String serviceName = "foo";
+        String host = serviceName;
+        int port = 80;
+        HttpMethod method = HttpMethod.GET;
+        URI uri = new URI("http://" + host + ":" + port);
+        HttpClient delegate = mock(HttpClient.class);
+
+        StatusLine fourOFourStatusLine = mock(StatusLine.class);
+        BasicHttpResponse fourOFourResponse = mock(BasicHttpResponse.class);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                HttpEntity entity = mock(HttpEntity.class);
+                doReturn(new ByteArrayInputStream("test".getBytes())).when(entity).getContent();
+                return entity;
+            }
+        }).when(fourOFourResponse).getEntity();
+        doReturn(404).when(fourOFourStatusLine).getStatusCode();
+        doReturn(fourOFourStatusLine).when(fourOFourResponse).getStatusLine();
+        doCallRealMethod().when(fourOFourResponse).setEntity(any(HttpEntity.class));
+
+        doReturn(fourOFourResponse).when(delegate).execute(any(HttpUriRequest.class));
+        ILoadBalancer lb = mock(ILoadBalancer.class);
+        RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
+                serviceName, host, port, delegate, lb, "404");
+        RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+        doReturn(uri).when(request).getURI();
+        doReturn(method).when(request).getMethod();
+        doReturn(request).when(request).withNewUri(any(URI.class));
+        HttpUriRequest uriRequest = mock(HttpUriRequest.class);
+        doReturn(uri).when(uriRequest).getURI();
+        doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
+        RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
+        verify(delegate, times(2)).execute(any(HttpUriRequest.class));
+        byte[] buf = new byte[100];
+        InputStream inputStream = returnedResponse.getInputStream();
+        int read = inputStream.read(buf);
+        assertThat(new String(buf, 0, read), is("test"));
+    }
 
 	@Configuration
 	protected static class UseDefaults {
