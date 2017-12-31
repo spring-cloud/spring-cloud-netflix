@@ -70,7 +70,6 @@ public interface FilterConstants {
 	 */
 	String SERVICE_ID_KEY = "serviceId";
 
-	String HTTP_METHOD_KEY = "methods";
 
 	// ORDER constants -----------------------------------
 
@@ -83,6 +82,8 @@ public interface FilterConstants {
 	 * Filter Order for {@link org.springframework.cloud.netflix.zuul.filters.pre.FormBodyWrapperFilter#filterOrder()}
 	 */
 	int FORM_BODY_WRAPPER_FILTER_ORDER = -1;
+
+	int HTTP_METHOD_FILTER_ORDER = 3;
 
 	/**
 	 * Filter Order for {@link org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter}

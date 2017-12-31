@@ -40,6 +40,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.discovery.ServiceRouteMapper;
 import org.springframework.cloud.netflix.zuul.filters.discovery.SimpleServiceRouteMapper;
+import org.springframework.cloud.netflix.zuul.filters.pre.HttpMethodFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
@@ -90,6 +91,11 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
 		return new PreDecorationFilter(routeLocator, this.server.getServletPrefix(), this.zuulProperties,
 				proxyRequestHelper);
+	}
+
+	@Bean
+	public HttpMethodFilter httpMethodFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
+		return new HttpMethodFilter(routeLocator, proxyRequestHelper);
 	}
 
 	// route filters

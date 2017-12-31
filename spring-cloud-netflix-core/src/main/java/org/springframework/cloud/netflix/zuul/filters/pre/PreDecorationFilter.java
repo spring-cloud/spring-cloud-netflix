@@ -98,7 +98,6 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (location != null) {
 				ctx.put(REQUEST_URI_KEY, route.getPath());
 				ctx.put(PROXY_KEY, route.getId());
-				this.proxyRequestHelper.setAllowedMethods(route.getMethods());
 				if (!route.isCustomSensitiveHeaders()) {
 					this.proxyRequestHelper
 							.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));
