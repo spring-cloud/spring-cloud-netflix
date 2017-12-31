@@ -22,11 +22,7 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -108,6 +104,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private PoolingHttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
 
+
 	@EventListener
 	public void onPropertyChange(EnvironmentChangeEvent event) {
 		boolean createNewClient = false;
@@ -169,12 +166,16 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	@Override
 	public boolean shouldFilter() {
-		return RequestContext.getCurrentContext().getRouteHost() != null
-				&& RequestContext.getCurrentContext().sendZuulResponse();
+		boolean originFilterResult = RequestContext.getCurrentContext().getRouteHost() != null
+				&& RequestContext.getCurrentContext().sendZuulResponse();       //origin filter result in source code
+        //http method filter decision
+        String httpMethod = RequestContext.getCurrentContext().getRequest().getMethod();
+        return originFilterResult && helper.isIncludedMethod(httpMethod);
 	}
 
 	@Override
 	public Object run() {
+		log.info("I am run my zuul from netflix !!!!!!!!");
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 		MultiValueMap<String, String> headers = this.helper

@@ -36,25 +36,7 @@ import org.springframework.web.util.UrlPathHelper;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_LOCATION_PREFIX;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_PORT;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_SCHEME;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTP_PORT;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTP_SCHEME;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PROXY_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.RETRYABLE_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_HEADER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_HEADER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_FOR_HEADER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_HOST_HEADER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PORT_HEADER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PREFIX_HEADER;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PROTO_HEADER;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.*;
 
 /**
  * Pre {@link ZuulFilter} that determines where and how to route based on the supplied {@link RouteLocator}.
@@ -116,6 +98,7 @@ public class PreDecorationFilter extends ZuulFilter {
 			if (location != null) {
 				ctx.put(REQUEST_URI_KEY, route.getPath());
 				ctx.put(PROXY_KEY, route.getId());
+				this.proxyRequestHelper.setAllowedMethods(route.getMethods());
 				if (!route.isCustomSensitiveHeaders()) {
 					this.proxyRequestHelper
 							.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));

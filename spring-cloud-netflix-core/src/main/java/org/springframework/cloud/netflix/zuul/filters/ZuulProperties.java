@@ -240,10 +240,16 @@ public class ZuulProperties {
 		 */
 		private Set<String> sensitiveHeaders = new LinkedHashSet<>();
 
+        /**
+         * supported http methods
+         * the filter will run only the request method type in the list
+         */
+		private Set<String> methods = new LinkedHashSet<>();
+
 		private boolean customSensitiveHeaders = false;
 
 		public ZuulRoute(String id, String path, String serviceId, String url,
-				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
+				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders, Set<String> methods) {
 			this.id = id;
 			this.path = path;
 			this.serviceId = serviceId;
@@ -251,6 +257,7 @@ public class ZuulProperties {
 			this.stripPrefix = stripPrefix;
 			this.retryable = retryable;
 			this.sensitiveHeaders = sensitiveHeaders;
+			this.methods = methods;
 			this.customSensitiveHeaders = sensitiveHeaders != null;
 		}
 
@@ -302,7 +309,7 @@ public class ZuulProperties {
 
 		public Route getRoute(String prefix) {
 			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
-					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null);
+					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,  this.methods);
 		}
 
 		public void setSensitiveHeaders(Set<String> headers) {

@@ -70,6 +70,8 @@ public interface FilterConstants {
 	 */
 	String SERVICE_ID_KEY = "serviceId";
 
+	String HTTP_METHOD_KEY = "methods";
+
 	// ORDER constants -----------------------------------
 
 	/**

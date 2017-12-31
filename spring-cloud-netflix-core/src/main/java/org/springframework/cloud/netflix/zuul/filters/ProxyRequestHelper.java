@@ -64,6 +64,8 @@ public class ProxyRequestHelper {
 
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
+	private Set<String> allowedMethods = new LinkedHashSet<>();
+
 	private Set<String> sensitiveHeaders = new LinkedHashSet<>();
 
 	private Set<String> whitelistHosts = new LinkedHashSet<>();
@@ -188,6 +190,14 @@ public class ProxyRequestHelper {
 			}
 		}
 	}
+
+	public void setAllowedMethods(Set<String> allowedMethods) {
+	    this.allowedMethods = allowedMethods;
+    }
+
+    public boolean isIncludedMethod(String httpMethod) {
+        return this.allowedMethods.isEmpty() || this.allowedMethods.contains(httpMethod);
+    }
 
 	public void addIgnoredHeaders(String... names) {
 		RequestContext ctx = RequestContext.getCurrentContext();
