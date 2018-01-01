@@ -39,4 +39,9 @@ public interface RouteLocator {
 	 */
 	Route getMatchingRoute(String path);
 
+	/**
+	 * choose the Route by the path and http method
+	 */
+	Route getMatchingRoute(String path, String method);
+
 }

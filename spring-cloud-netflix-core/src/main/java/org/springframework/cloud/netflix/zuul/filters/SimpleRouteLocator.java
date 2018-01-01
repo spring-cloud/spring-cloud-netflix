@@ -16,11 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -82,12 +78,29 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 	@Override
 	public Route getMatchingRoute(final String path) {
-
 		return getSimpleMatchingRoute(path);
-
 	}
 
+	@Override
+	public Route getMatchingRoute(String path, String method) {
+		return getSimpleMatchingRoute(path, method);
+	}
+
+	protected Route getSimpleMatchingRoute(final String path, final String method) {
+	    getSimpleMatchingRouteCheck(path);
+        String adjustedPath = adjustPath(path);
+        ZuulRoute route = getZuulRoute(path, method);
+        return getRoute(route, adjustedPath);
+    }
+
 	protected Route getSimpleMatchingRoute(final String path) {
+		getSimpleMatchingRouteCheck(path);
+		String adjustedPath = adjustPath(path);
+		ZuulRoute route = getZuulRoute(adjustedPath);
+		return getRoute(route, adjustedPath);
+	}
+
+	private void getSimpleMatchingRouteCheck(final String path) {
 		if (log.isDebugEnabled()) {
 			log.debug("Finding route for path: " + path);
 		}
@@ -104,12 +117,6 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 			log.debug("RequestUtils.isZuulServletRequest()="
 					+ RequestUtils.isZuulServletRequest());
 		}
-
-		String adjustedPath = adjustPath(path);
-
-		ZuulRoute route = getZuulRoute(adjustedPath);
-
-		return getRoute(route, adjustedPath);
 	}
 
 	protected ZuulRoute getZuulRoute(String adjustedPath) {
@@ -124,6 +131,24 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		return null;
 	}
+
+    protected ZuulRoute getZuulRoute(String adjustedPath, String method) {
+        if (!matchesIgnoredPatterns(adjustedPath)) {
+            for (Entry<String, ZuulRoute> entry : this.routes.get().entrySet()) {
+                String pattern = entry.getKey();
+                ZuulRoute zuulRoute = entry.getValue();
+                Set<String> allowedMethods = zuulRoute.getMethods();
+                log.debug("Matching pattern:" + pattern);
+                //add http method decision,
+                // return the zuul route when the request method are configured
+                if (this.pathMatcher.match(pattern, adjustedPath)
+                        && (allowedMethods.isEmpty() || (allowedMethods.contains(method)))) {
+                    return zuulRoute;
+                }
+            }
+        }
+        return null;
+    }
 
 	protected Route getRoute(ZuulRoute route, String path) {
 		if (route == null) {

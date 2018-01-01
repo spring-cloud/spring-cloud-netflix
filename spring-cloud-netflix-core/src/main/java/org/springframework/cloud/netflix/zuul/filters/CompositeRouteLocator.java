@@ -69,6 +69,17 @@ public class CompositeRouteLocator implements RefreshableRouteLocator {
 	}
 
 	@Override
+	public Route getMatchingRoute(String path, String method) {
+		for (RouteLocator locator : routeLocators) {
+			Route route = locator.getMatchingRoute(path, method);
+			if (route != null) {
+				return route;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public void refresh() {
 		for (RouteLocator locator : routeLocators) {
 			if (locator instanceof RefreshableRouteLocator) {
