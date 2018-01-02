@@ -1,4 +1,4 @@
 #!/bin/bash
 
-(cd spring-cloud-netflix-hystrix-contract && ../mvnw clean install -B -Pdocs ${@})
-./mvnw clean install -B -Pdocs ${@}
+(cd spring-cloud-netflix-hystrix-contract && ../mvnw clean -DskipTests=true install -B -Pdocs ${@})
+./mvnw clean -DskipTests=true install -B -Pdocs ${@}

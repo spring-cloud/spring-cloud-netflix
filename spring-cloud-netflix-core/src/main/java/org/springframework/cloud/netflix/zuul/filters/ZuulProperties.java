@@ -106,7 +106,7 @@ public class ZuulProperties {
 	 * see https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers
 	 */
 	private boolean ignoreSecurityHeaders = true;
-	
+
 	/**
 	 * Flag to force the original query string encoding when building the backend URI in
 	 * SimpleHostRoutingFilter. When activated, query string will be built using
@@ -137,7 +137,7 @@ public class ZuulProperties {
 	/**
 	 * Flag to enable/disable request tracing via {@link TraceProxyRequestHelper}.  Enabled by default.
 	 */
-	private boolean traceRequestEnabled = true;
+	private TraceProxyRequestHelper traceProxyRequestHelper = new TraceProxyRequestHelper();
 
 	/**
 	 * Flag to say that path elements past the first semicolon can be dropped.
@@ -161,11 +161,11 @@ public class ZuulProperties {
 	private boolean sslHostnameValidationEnabled =true;
 
 	private ExecutionIsolationStrategy ribbonIsolationStrategy = SEMAPHORE;
-	
+
 	private HystrixSemaphore semaphore = new HystrixSemaphore();
 
 	private HystrixThreadPool threadPool = new HystrixThreadPool();
-	
+
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
@@ -530,7 +530,7 @@ public class ZuulProperties {
 			return sb.toString();
 		}
 	}
-	
+
 	public static class HystrixSemaphore {
 		/**
 		 * The maximum number of total semaphores for Hystrix.
@@ -730,14 +730,12 @@ public class ZuulProperties {
 		this.traceRequestBody = traceRequestBody;
 	}
 
-	public boolean isTraceRequestEnabled() {
-
-		return traceRequestEnabled;
+	public TraceProxyRequestHelper getTraceProxyRequestHelper() {
+		return traceProxyRequestHelper;
 	}
 
-	public void setTraceRequestEnabled(final boolean traceRequestEnabled) {
-
-		this.traceRequestEnabled = traceRequestEnabled;
+	public void setTraceProxyRequestHelper(final TraceProxyRequestHelper traceProxyRequestHelper) {
+		this.traceProxyRequestHelper = traceProxyRequestHelper;
 	}
 
 	public boolean isRemoveSemicolonContent() {
@@ -844,6 +842,7 @@ public class ZuulProperties {
 				.append("ignoreLocalService=").append(ignoreLocalService).append(", ")
 				.append("host=").append(host).append(", ")
 				.append("traceRequestBody=").append(traceRequestBody).append(", ")
+				.append("traceProxyRequestHelper.enabled=").append(traceProxyRequestHelper.isEnabled()).append(", ")
 				.append("removeSemicolonContent=").append(removeSemicolonContent).append(", ")
 				.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
 				.append("sslHostnameValidationEnabled=").append(sslHostnameValidationEnabled).append(", ")
@@ -853,4 +852,23 @@ public class ZuulProperties {
 				.append("}").toString();
 	}
 
+	public class Enabled {
+		private boolean enabled = false;
+
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(final boolean enabled) {
+			this.enabled = enabled;
+		}
+	}
+
+	public class TraceProxyRequestHelper extends Enabled {
+
+		public TraceProxyRequestHelper() {
+			// Default to enabled
+			setEnabled(true);
+		}
+	}
 }

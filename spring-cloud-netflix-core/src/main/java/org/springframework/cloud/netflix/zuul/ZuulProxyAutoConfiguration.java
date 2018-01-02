@@ -188,7 +188,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 		@Bean
 		public ProxyRequestHelper proxyRequestHelper(ZuulProperties zuulProperties) {
 			ProxyRequestHelper helper;
-			if (zuulProperties.isTraceRequestEnabled()) {
+			if (zuulProperties.getTraceProxyRequestHelper().isEnabled()) {
 				helper = new TraceProxyRequestHelper();
 				if (this.traces != null) {
 					((TraceProxyRequestHelper)helper).setTraces(this.traces);

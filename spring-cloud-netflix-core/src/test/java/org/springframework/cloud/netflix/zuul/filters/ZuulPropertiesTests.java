@@ -109,4 +109,9 @@ public class ZuulPropertiesTests {
 		assertFalse(this.zuul.getThreadPool().isUseSeparateThreadPools());
 		assertEquals("", this.zuul.getThreadPool().getThreadPoolKeyPrefix());
 	}
+
+	@Test
+	public void defaultTraceProxyRequestHelperEnabled() {
+		assertTrue(this.zuul.getTraceProxyRequestHelper().isEnabled());
+	}
 }
