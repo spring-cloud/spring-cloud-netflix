@@ -135,6 +135,11 @@ public class ZuulProperties {
 	private boolean traceRequestBody = true;
 
 	/**
+	 * Flag to enable/disable request tracing via {@link TraceProxyRequestHelper}.  Enabled by default.
+	 */
+	private boolean traceRequestEnabled = true;
+
+	/**
 	 * Flag to say that path elements past the first semicolon can be dropped.
 	 */
 	private boolean removeSemicolonContent = true;
@@ -723,6 +728,16 @@ public class ZuulProperties {
 
 	public void setTraceRequestBody(boolean traceRequestBody) {
 		this.traceRequestBody = traceRequestBody;
+	}
+
+	public boolean isTraceRequestEnabled() {
+
+		return traceRequestEnabled;
+	}
+
+	public void setTraceRequestEnabled(final boolean traceRequestEnabled) {
+
+		this.traceRequestEnabled = traceRequestEnabled;
 	}
 
 	public boolean isRemoveSemicolonContent() {
