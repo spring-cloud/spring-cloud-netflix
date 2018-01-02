@@ -250,7 +250,7 @@ locally, e.g. with a normal Spring <code class="literal">@RequestMapping</code>.
 <code class="literal">/third/**</code> are also forwarded, but with a different prefix
 (i.e. <code class="literal">/third/foo</code> is forwarded to <code class="literal">/3rd/foo</code>).</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>The ignored patterns aren&#8217;t completely ignored, they just
 aren&#8217;t handled by the proxy (so they are also effectively forwarded
-locally).</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_uploading_files_through_zuul" href="#_uploading_files_through_zuul"></a>9.8&nbsp;Uploading Files through Zuul</h2></div></div></div><p>If you <code class="literal">@EnableZuulProxy</code> you can use the proxy paths to
+locally).</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_uploading_files_through_zuul" href="#_uploading_files_through_zuul"></a>9.8&nbsp;Uploading Files through Zuul</h2></div></div></div><p>If you use <code class="literal">@EnableZuulProxy</code>, you can use the proxy paths to
 upload files and it should just work as long as the files
 are small. For large files there is an alternative path
 which bypasses the Spring <code class="literal">DispatcherServlet</code> (to
