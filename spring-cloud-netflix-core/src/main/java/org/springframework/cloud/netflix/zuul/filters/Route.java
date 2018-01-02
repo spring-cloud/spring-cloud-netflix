@@ -27,6 +27,24 @@ import lombok.Data;
 public class Route {
 
 	public Route(String id, String path, String location, String prefix,
+				 Boolean retryable, Set<String> ignoredHeaders) {
+		this.id = id;
+		this.prefix = StringUtils.hasText(prefix) ? prefix : "";
+		this.path = path;
+		this.fullPath = prefix + path;
+		this.location = location;
+		this.retryable = retryable;
+		this.sensitiveHeaders = new LinkedHashSet<>();
+		if (ignoredHeaders != null) {
+			this.customSensitiveHeaders = true;
+			for (String header : ignoredHeaders) {
+				this.sensitiveHeaders.add(header.toLowerCase());
+			}
+		}
+	}
+
+
+	public Route(String id, String path, String location, String prefix,
 			Boolean retryable, Set<String> ignoredHeaders, Set<String> methods) {
 		this.id = id;
 		this.prefix = StringUtils.hasText(prefix) ? prefix : "";

@@ -95,7 +95,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	@Bean
 	public HttpMethodFilter httpMethodFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
-		return new HttpMethodFilter(routeLocator, proxyRequestHelper);
+		return new HttpMethodFilter(routeLocator, proxyRequestHelper, this.server.getServletPrefix(), this.zuulProperties);
 	}
 
 	// route filters

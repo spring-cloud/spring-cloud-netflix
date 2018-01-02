@@ -175,7 +175,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	@Override
 	public Object run() {
-		log.info("I am run my zuul from netflix !!!!!!!!");
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
 		MultiValueMap<String, String> headers = this.helper
