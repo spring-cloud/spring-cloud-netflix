@@ -135,6 +135,7 @@ public class EurekaClientAutoConfiguration {
 		String hostname = eurekaPropertyResolver.getProperty("hostname");
 
 		boolean preferIpAddress = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("preferIpAddress"));
+		String ipAddress = eurekaPropertyResolver.getProperty("ipAddress");
 		boolean isSecurePortEnabled = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("securePortEnabled"));
 		String serverContextPath = propertyResolver.getProperty("server.contextPath", "/");
 		int serverPort = Integer.valueOf(propertyResolver.getProperty("server.port", propertyResolver.getProperty("port", "8080")));
@@ -147,6 +148,9 @@ public class EurekaClientAutoConfiguration {
 		instance.setNonSecurePort(serverPort);
 		instance.setInstanceId(getDefaultInstanceId(propertyResolver));
 		instance.setPreferIpAddress(preferIpAddress);
+		if (StringUtils.hasText(ipAddress)) {
+			instance.setIpAddress(ipAddress);
+		}
 
 		if(isSecurePortEnabled) {
 			instance.setSecurePort(serverPort);
