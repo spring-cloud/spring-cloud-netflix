@@ -166,11 +166,8 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	@Override
 	public boolean shouldFilter() {
-		boolean originFilterResult = RequestContext.getCurrentContext().getRouteHost() != null
-				&& RequestContext.getCurrentContext().sendZuulResponse();       //origin filter result in source code
-        //http method filter decision
-        String httpMethod = RequestContext.getCurrentContext().getRequest().getMethod();
-        return originFilterResult && helper.isIncludedMethod(httpMethod);
+		return RequestContext.getCurrentContext().getRouteHost() != null
+				&& RequestContext.getCurrentContext().sendZuulResponse();
 	}
 
 	@Override
