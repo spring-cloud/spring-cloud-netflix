@@ -106,7 +106,7 @@ public class ZuulProperties {
 	 * see https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers
 	 */
 	private boolean ignoreSecurityHeaders = true;
-        
+	
 	/**
 	 * Flag to force the original query string encoding when building the backend URI in
 	 * SimpleHostRoutingFilter. When activated, query string will be built using
@@ -161,11 +161,11 @@ public class ZuulProperties {
 	private boolean sslHostnameValidationEnabled =true;
 
 	private ExecutionIsolationStrategy ribbonIsolationStrategy = SEMAPHORE;
-        
+	
 	private HystrixSemaphore semaphore = new HystrixSemaphore();
 
 	private HystrixThreadPool threadPool = new HystrixThreadPool();
-        
+	
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
@@ -530,7 +530,7 @@ public class ZuulProperties {
 			return sb.toString();
 		}
 	}
-        
+	
 	public static class HystrixSemaphore {
 		/**
 		 * The maximum number of total semaphores for Hystrix.
