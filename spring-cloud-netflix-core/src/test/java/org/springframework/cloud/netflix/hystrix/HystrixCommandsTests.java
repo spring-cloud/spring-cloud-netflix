@@ -53,7 +53,7 @@ public class HystrixCommandsTests {
 			Thread.sleep(1500);
 			return "timeout";
 		})).commandName("failcmd").toMono())
-				.expectError(HystrixRuntimeException.class);
+				.verifyError(HystrixRuntimeException.class);
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class HystrixCommandsTests {
 				.expectNext("1")
 				.thenAwait(Duration.ofSeconds(1))
 				.thenRequest(1)
-				.expectError();
+				.verifyError();
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class HystrixCommandsTests {
 				throw new RuntimeException(e);
 			}
 		})).commandName("failcmd").toFlux())
-				.expectError(HystrixRuntimeException.class);
+				.verifyError(HystrixRuntimeException.class);
 	}
 
 	@Test
