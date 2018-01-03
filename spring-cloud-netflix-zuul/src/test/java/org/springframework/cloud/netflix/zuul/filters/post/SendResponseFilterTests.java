@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import javax.servlet.ServletOutputStream;
@@ -47,6 +48,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
@@ -116,13 +118,14 @@ public class SendResponseFilterTests {
 	}
 
 	@Test
-	public void closeResponseOutpusStreamError() throws Exception {
+	public void closeResponseOutputStreamError() throws Exception {
 		HttpServletResponse response = mock(HttpServletResponse.class);
+		InputStream mockStream = spy(new ByteArrayInputStream("Hello\n".getBytes("UTF-8")));
 
 		RequestContext context = new RequestContext();
 		context.setRequest(new MockHttpServletRequest());
 		context.setResponse(response);
-		context.setResponseDataStream(new ByteArrayInputStream("Hello\n".getBytes("UTF-8")));
+		context.setResponseDataStream(mockStream);
 		Closeable zuulResponse = mock(Closeable.class);
 		context.set("zuulResponse", zuulResponse);
 		RequestContext.testSetCurrentContext(context);
@@ -141,6 +144,29 @@ public class SendResponseFilterTests {
 		}
 
 		verify(zuulResponse).close();
+		verify(mockStream).close();
+	}
+
+	@Test
+	public void testCloseResponseDataStream() throws Exception {
+		HttpServletResponse response = mock(HttpServletResponse.class);
+		InputStream mockStream = spy(new ByteArrayInputStream("Hello\n".getBytes("UTF-8")));
+
+		RequestContext context = new RequestContext();
+		context.setRequest(new MockHttpServletRequest());
+		context.setResponse(response);
+		context.setResponseDataStream(mockStream);
+		Closeable zuulResponse = mock(Closeable.class);
+		context.set("zuulResponse", zuulResponse);
+		RequestContext.testSetCurrentContext(context);
+
+		when(response.getOutputStream()).thenReturn(mock(ServletOutputStream.class));
+
+		SendResponseFilter filter = new SendResponseFilter();
+
+		filter.run();
+
+		verify(mockStream).close();
 	}
 
 	private void runFilter(String characterEncoding, String content, boolean streamContent) throws Exception {
