@@ -852,8 +852,11 @@ public class ZuulProperties {
 				.append("}").toString();
 	}
 
-	public class Enabled {
-		private boolean enabled = false;
+	public class TraceProxyRequestHelper {
+
+		private boolean enabled = true;
+
+		public TraceProxyRequestHelper() {}
 
 		public boolean isEnabled() {
 			return enabled;
@@ -861,14 +864,6 @@ public class ZuulProperties {
 
 		public void setEnabled(final boolean enabled) {
 			this.enabled = enabled;
-		}
-	}
-
-	public class TraceProxyRequestHelper extends Enabled {
-
-		public TraceProxyRequestHelper() {
-			// Default to enabled
-			setEnabled(true);
 		}
 	}
 }
