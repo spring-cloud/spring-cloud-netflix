@@ -160,7 +160,22 @@ public class ZuulProperties {
 	private HystrixSemaphore semaphore = new HystrixSemaphore();
 
 	private HystrixThreadPool threadPool = new HystrixThreadPool();
-	
+
+	/**
+	 * Setting for SendResponseFilter to conditionally set Content-Length header.
+	 */
+	private boolean setContentLength = false;
+
+	/**
+	 * Setting for SendResponseFilter to conditionally include X-Zuul-Debug-Header header.
+	 */
+	private boolean includeDebugHeader = false;
+
+    /**
+     * Setting for SendResponseFilter for the initial stream buffer size.
+     */
+    private int initialStreamBufferSize = 8192;
+
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
@@ -774,6 +789,30 @@ public class ZuulProperties {
 		this.threadPool = threadPool;
 	}
 
+	public boolean isSetContentLength() {
+		return setContentLength;
+	}
+
+	public void setSetContentLength(boolean setContentLength) {
+		this.setContentLength = setContentLength;
+	}
+
+	public boolean isIncludeDebugHeader() {
+		return includeDebugHeader;
+	}
+
+	public void setIncludeDebugHeader(boolean includeDebugHeader) {
+		this.includeDebugHeader = includeDebugHeader;
+	}
+
+	public int getInitialStreamBufferSize() {
+		return initialStreamBufferSize;
+	}
+
+	public void setInitialStreamBufferSize(int initialStreamBufferSize) {
+		this.initialStreamBufferSize = initialStreamBufferSize;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -798,6 +837,9 @@ public class ZuulProperties {
 				Objects.equals(servletPath, that.servletPath) &&
 				sslHostnameValidationEnabled == that.sslHostnameValidationEnabled &&
 				stripPrefix == that.stripPrefix &&
+				setContentLength == that.setContentLength &&
+				includeDebugHeader == that.includeDebugHeader &&
+				initialStreamBufferSize == that.initialStreamBufferSize &&
 				Objects.equals(threadPool, that.threadPool) &&
 				traceRequestBody == that.traceRequestBody;
 	}
@@ -808,7 +850,8 @@ public class ZuulProperties {
 				host, ignoredHeaders, ignoredPatterns, ignoredServices, ignoreLocalService,
 				ignoreSecurityHeaders, prefix, removeSemicolonContent, retryable,
 				ribbonIsolationStrategy, routes, semaphore, sensitiveHeaders, servletPath,
-				sslHostnameValidationEnabled, stripPrefix, threadPool, traceRequestBody);
+				sslHostnameValidationEnabled, stripPrefix, threadPool, traceRequestBody,
+				setContentLength, includeDebugHeader, initialStreamBufferSize);
 	}
 
 	@Override
@@ -835,6 +878,9 @@ public class ZuulProperties {
 				.append("ribbonIsolationStrategy=").append(ribbonIsolationStrategy).append(", ")
 				.append("semaphore=").append(semaphore).append(", ")
 				.append("threadPool=").append(threadPool).append(", ")
+				.append("setContentLength=").append(setContentLength).append(", ")
+				.append("includeDebugHeader=").append(includeDebugHeader).append(", ")
+				.append("initialStreamBufferSize=").append(initialStreamBufferSize).append(", ")
 				.append("}").toString();
 	}
 

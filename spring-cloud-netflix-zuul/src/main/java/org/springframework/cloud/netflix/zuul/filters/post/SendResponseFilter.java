@@ -28,14 +28,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.util.ReflectionUtils;
 
-import com.netflix.config.DynamicBooleanProperty;
-import com.netflix.config.DynamicIntProperty;
-import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.util.Pair;
 import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.constants.ZuulConstants;
 import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
@@ -56,21 +53,18 @@ public class SendResponseFilter extends ZuulFilter {
 
 	private static final Log log = LogFactory.getLog(SendResponseFilter.class);
 
-	private static DynamicBooleanProperty INCLUDE_DEBUG_HEADER = DynamicPropertyFactory
-			.getInstance()
-			.getBooleanProperty(ZuulConstants.ZUUL_INCLUDE_DEBUG_HEADER, false);
-
-	private static DynamicIntProperty INITIAL_STREAM_BUFFER_SIZE = DynamicPropertyFactory
-			.getInstance()
-			.getIntProperty(ZuulConstants.ZUUL_INITIAL_STREAM_BUFFER_SIZE, 8192);
-
-	private static DynamicBooleanProperty SET_CONTENT_LENGTH = DynamicPropertyFactory
-			.getInstance()
-			.getBooleanProperty(ZuulConstants.ZUUL_SET_CONTENT_LENGTH, false);
 	private boolean useServlet31 = true;
+	private ZuulProperties zuulProperties;
 
+	private ThreadLocal<byte[]> buffers;
+
+	@Deprecated
 	public SendResponseFilter() {
-		super();
+	   	this(new ZuulProperties());
+    }
+
+	public SendResponseFilter(ZuulProperties zuulProperties) {
+		this.zuulProperties = zuulProperties;
 		// To support Servlet API 3.1 we need to check if setContentLengthLong exists
 		// minimum support in Spring 5 is 3.0 so we need to keep tihs
 		try {
@@ -78,19 +72,13 @@ public class SendResponseFilter extends ZuulFilter {
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;
 		}
+		buffers = ThreadLocal.withInitial(() -> new byte[zuulProperties.getInitialStreamBufferSize()]);
 	}
 
 	/* for testing */ boolean isUseServlet31() {
 		return useServlet31;
 	}
 
-	private ThreadLocal<byte[]> buffers = new ThreadLocal<byte[]>() {
-		@Override
-		protected byte[] initialValue() {
-			return new byte[INITIAL_STREAM_BUFFER_SIZE.get()];
-		}
-	};
-	
 	@Override
 	public String filterType() {
 		return POST_TYPE;
@@ -223,7 +211,7 @@ public class SendResponseFilter extends ZuulFilter {
 	private void addResponseHeaders() {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletResponse servletResponse = context.getResponse();
-		if (INCLUDE_DEBUG_HEADER.get()) {
+		if (this.zuulProperties.isIncludeDebugHeader()) {
 			@SuppressWarnings("unchecked")
 			List<String> rd = (List<String>) context.get(ROUTING_DEBUG_KEY);
 			if (rd != null) {
@@ -242,7 +230,7 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 		// Only inserts Content-Length if origin provides it and origin response is not
 		// gzipped
-		if (SET_CONTENT_LENGTH.get()) {
+		if (this.zuulProperties.isSetContentLength()) {
 			Long contentLength = context.getOriginContentLength();
 			if ( contentLength != null && !context.getResponseGZipped()) {
 				if(useServlet31) {

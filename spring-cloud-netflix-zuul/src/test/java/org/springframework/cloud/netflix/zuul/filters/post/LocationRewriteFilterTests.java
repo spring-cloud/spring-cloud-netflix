@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -55,6 +56,12 @@ public class LocationRewriteFilterTests {
 	public void before() {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
+	}
+
+
+	@After
+	public void reset() {
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
