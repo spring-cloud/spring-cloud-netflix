@@ -307,7 +307,7 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void statusPageAndHealthCheckUrlsShouldSetUserDefinedIpAddress() {
 		addEnvironment(this.context, "server.port=8989",
-				"management.port=9999", "eureka.instance.hostname=foo",
+				"management.server.port=9999", "eureka.instance.hostname=foo",
 				"eureka.instance.ipAddress:192.168.13.90",
 				"eureka.instance.preferIpAddress:true");
 
