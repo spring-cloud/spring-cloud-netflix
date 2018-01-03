@@ -220,7 +220,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
 		return httpClientFactory.createBuilder().
 				setDefaultRequestConfig(requestConfig).
-				setConnectionManager(this.connectionManager).build();
+				setConnectionManager(this.connectionManager).disableRedirectHandling().build();
 	}
 
 	private CloseableHttpResponse forward(CloseableHttpClient httpclient, String verb,
