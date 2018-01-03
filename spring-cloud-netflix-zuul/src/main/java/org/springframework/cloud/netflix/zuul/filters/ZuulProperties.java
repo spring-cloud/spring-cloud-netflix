@@ -18,8 +18,15 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -37,6 +44,7 @@ import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
  * @author Mathias Düsterhöft
  * @author Bilal Alp
  * @author Gregor Zurowski
+ * @author Arnold Galovics
  */
 @ConfigurationProperties("zuul")
 public class ZuulProperties {

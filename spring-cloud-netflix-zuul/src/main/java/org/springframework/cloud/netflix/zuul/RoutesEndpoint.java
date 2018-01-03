@@ -41,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * @author Dave Syer
  * @author Ryan Baxter
  * @author Gregor Zurowski
+ * @author Arnold Galovics
  */
 @Endpoint(id = RoutesEndpoint.ID)
 public class RoutesEndpoint implements ApplicationEventPublisherAware {

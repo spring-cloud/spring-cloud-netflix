@@ -21,8 +21,13 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.logging.Log;
@@ -42,6 +47,7 @@ import com.google.common.collect.Sets;
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
  *
  * @author Dave Syer
+ * @author Arnold Galovics
  */
 public class SimpleRouteLocator implements RouteLocator, Ordered {
 

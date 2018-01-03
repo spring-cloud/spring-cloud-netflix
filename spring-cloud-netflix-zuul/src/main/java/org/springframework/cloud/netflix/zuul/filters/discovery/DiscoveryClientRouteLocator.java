@@ -19,8 +19,12 @@ package org.springframework.cloud.netflix.zuul.filters.discovery;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +47,7 @@ import com.google.common.collect.Sets;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Arnold Galovics
  */
 public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		implements RefreshableRouteLocator {
