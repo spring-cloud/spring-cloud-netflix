@@ -93,6 +93,8 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	@Override
 	protected void onCacheRefreshed() {
+		super.onCacheRefreshed();
+
 		if (this.cacheRefreshedCount != null) { //might be called during construction and will be null
 			long newCount = this.cacheRefreshedCount.incrementAndGet();
 			log.trace("onCacheRefreshed called with count: " + newCount);
