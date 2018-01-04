@@ -22,7 +22,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -122,38 +121,38 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
-                    closeConnectionAndRebuildResponse(httpResponse);
-                    throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
-                            httpResponse.getStatusLine().getStatusCode(), httpResponse, httpUriRequest.getURI());
+					closeConnectionAndRebuildResponse(httpResponse);
+					throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
+							httpResponse.getStatusLine().getStatusCode(), httpResponse, httpUriRequest.getURI());
 				}
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}
 		};
-        RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback = new RecoveryCallback<RibbonApacheHttpResponse>() {
-            @Override
-            public RibbonApacheHttpResponse recover(RetryContext context) throws Exception {
-                Throwable lastThrowable = context.getLastThrowable();
-                if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
-                    RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
-                    return new RibbonApacheHttpResponse((HttpResponse) ex.getResponse(), ex.getUri());
-                }
-                throw new RetryException("Could not recover", lastThrowable);
-            }
-        };
+		RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback = new RecoveryCallback<RibbonApacheHttpResponse>() {
+			@Override
+			public RibbonApacheHttpResponse recover(RetryContext context) throws Exception {
+				Throwable lastThrowable = context.getLastThrowable();
+				if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
+					RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
+					return new RibbonApacheHttpResponse((HttpResponse) ex.getResponse(), ex.getUri());
+				}
+				throw new RetryException("Could not recover", lastThrowable);
+			}
+		};
 		return this.executeWithRetry(request, retryPolicy, retryCallback ,recoveryCallback);
 	}
 
-    private void closeConnectionAndRebuildResponse(HttpResponse httpResponse) throws IOException {
-        HttpEntity origin = httpResponse.getEntity();
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setContentLength(origin.getContentLength());
-        entity.setChunked(origin.isChunked());
-        entity.setContentType(origin.getContentType());
-        entity.setContentEncoding(origin.getContentEncoding());
-        byte[] content = EntityUtils.toByteArray(origin);                //read content and close the connection
-        entity.setContent(new ByteArrayInputStream(content));            //set content into response
-        httpResponse.setEntity(entity);                                  //response don't need to close again
-    }
+	private void closeConnectionAndRebuildResponse(HttpResponse httpResponse) throws IOException {
+		HttpEntity origin = httpResponse.getEntity();
+		BasicHttpEntity entity = new BasicHttpEntity();
+		entity.setContentLength(origin.getContentLength());
+		entity.setChunked(origin.isChunked());
+		entity.setContentType(origin.getContentType());
+		entity.setContentEncoding(origin.getContentEncoding());
+		byte[] content = EntityUtils.toByteArray(origin);                //read content and close the connection
+		entity.setContent(new ByteArrayInputStream(content));            //set content into response
+		httpResponse.setEntity(entity);                                  //response don't need to close again
+	}
 
 	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
                                                       RetryCallback<RibbonApacheHttpResponse, Exception> callback,

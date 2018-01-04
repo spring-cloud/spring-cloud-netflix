@@ -21,7 +21,12 @@ package org.springframework.cloud.netflix.feign.ribbon;
 import feign.Request;
 import feign.Response;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
@@ -113,62 +118,62 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 				}
 				Response response = request.client().execute(feignRequest, options);
 				if(retryPolicy.retryableStatusCode(response.status())) {
-                    response = closeConnectionAndRebuildResponse(response);
-                    throw new RetryableStatusCodeException(RetryableFeignLoadBalancer.this.clientName,
-                            response.status(), response, request.getUri());
+					response = closeConnectionAndRebuildResponse(response);
+					throw new RetryableStatusCodeException(RetryableFeignLoadBalancer.this.clientName,
+							response.status(), response, request.getUri());
 				}
 				return new RibbonResponse(request.getUri(), response);
 			}
 		}, new RecoveryCallback<RibbonResponse>() {
-            @Override
-            public RibbonResponse recover(RetryContext retryContext) throws Exception {
-                Throwable lastThrowable = retryContext.getLastThrowable();
-                if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
-                    RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
-                    return new RibbonResponse(ex.getUri(), (Response) ex.getResponse());
-                }
-                throw new RetryException("Could not recover", lastThrowable);
-            }
-        });
+			@Override
+			public RibbonResponse recover(RetryContext retryContext) throws Exception {
+				Throwable lastThrowable = retryContext.getLastThrowable();
+				if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
+					RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
+					return new RibbonResponse(ex.getUri(), (Response) ex.getResponse());
+				}
+				throw new RetryException("Could not recover", lastThrowable);
+			}
+		});
 	}
 
-    private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
-        Response.Body body = response.body();
-        InputStream in = body.asInputStream();
-        ByteArrayOutputStream temp = new ByteArrayOutputStream();
-        byte[] buffer = new byte[4096];
-        int length = 0;
-        while ((length = in.read(buffer)) != -1) {
-            temp.write(buffer, 0, length);
-        }
-        response.close(); //read content and close the connection
-        final byte[] data = temp.toByteArray();
-        return response.toBuilder().body(new Response.Body() { //set content into response
-            @Override
-            public Integer length() {
-                return data.length;
-            }
+	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
+		Response.Body body = response.body();
+		InputStream in = body.asInputStream();
+		ByteArrayOutputStream temp = new ByteArrayOutputStream();
+		byte[] buffer = new byte[4096];
+		int length = 0;
+		while ((length = in.read(buffer)) != -1) {
+			temp.write(buffer, 0, length);
+		}
+		response.close(); //read content and close the connection
+		final byte[] data = temp.toByteArray();
+		return response.toBuilder().body(new Response.Body() { //set content into response
+			@Override
+			public Integer length() {
+				return data.length;
+			}
 
-            @Override
-            public boolean isRepeatable() {
-                return true;
-            }
+			@Override
+			public boolean isRepeatable() {
+				return true;
+			}
 
-            @Override
-            public InputStream asInputStream() throws IOException {
-                return new ByteArrayInputStream(data);
-            }
+			@Override
+			public InputStream asInputStream() throws IOException {
+				return new ByteArrayInputStream(data);
+			}
 
-            @Override
-            public Reader asReader() throws IOException {
-                return new InputStreamReader(asInputStream(), "UTF-8");
-            }
+			@Override
+			public Reader asReader() throws IOException {
+				return new InputStreamReader(asInputStream(), "UTF-8");
+			}
 
-            @Override
-            public void close() throws IOException {
-            }
-        }).build();
-    }
+			@Override
+			public void close() throws IOException {
+			}
+		}).build();
+	}
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(

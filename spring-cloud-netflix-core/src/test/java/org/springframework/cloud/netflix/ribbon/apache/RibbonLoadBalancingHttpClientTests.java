@@ -23,7 +23,12 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import org.apache.http.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.HttpEntity;
+import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -80,7 +85,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
 
 /**
  * @author Sébastien Nussbaumer
@@ -501,206 +512,206 @@ public class RibbonLoadBalancingHttpClientTests {
 		assertEquals(1, myBackOffPolicyFactory.getCount());
 	}
 
-    @Test
-    public void testRetryFail() throws Exception {
-        int retriesNextServer = 0;
-        int retriesSameServer = 1;
-        boolean retryable = true;
-        boolean retryOnAllOps = false;
-        String serviceName = "foo";
-        String host = serviceName;
-        int port = 80;
-        HttpMethod method = HttpMethod.GET;
-        URI uri = new URI("http://" + host + ":" + port);
-        CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+	@Test
+	public void testRetryFail() throws Exception {
+		int retriesNextServer = 0;
+		int retriesSameServer = 1;
+		boolean retryable = true;
+		boolean retryOnAllOps = false;
+		String serviceName = "foo";
+		String host = serviceName;
+		int port = 80;
+		HttpMethod method = HttpMethod.GET;
+		URI uri = new URI("http://" + host + ":" + port);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
 
-        StatusLine fourOFourStatusLine = mock(StatusLine.class);
-        BasicHttpResponse fourOFourResponse = mock(BasicHttpResponse.class);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                HttpEntity entity = mock(HttpEntity.class);
-                doReturn(new ByteArrayInputStream("test".getBytes())).when(entity).getContent();
-                return entity;
-            }
-        }).when(fourOFourResponse).getEntity();
-        doReturn(404).when(fourOFourStatusLine).getStatusCode();
-        doReturn(fourOFourStatusLine).when(fourOFourResponse).getStatusLine();
-        doCallRealMethod().when(fourOFourResponse).setEntity(any(HttpEntity.class));
-        doReturn(new CloseableHttpResonseImpl(fourOFourResponse)).when(delegate).execute(any(HttpUriRequest.class));
+		StatusLine fourOFourStatusLine = mock(StatusLine.class);
+		BasicHttpResponse fourOFourResponse = mock(BasicHttpResponse.class);
+		doAnswer(new Answer() {
+			@Override
+			public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+				HttpEntity entity = mock(HttpEntity.class);
+				doReturn(new ByteArrayInputStream("test".getBytes())).when(entity).getContent();
+				return entity;
+			}
+		}).when(fourOFourResponse).getEntity();
+		doReturn(404).when(fourOFourStatusLine).getStatusCode();
+		doReturn(fourOFourStatusLine).when(fourOFourResponse).getStatusLine();
+		doCallRealMethod().when(fourOFourResponse).setEntity(any(HttpEntity.class));
+		doReturn(new CloseableHttpResonseImpl(fourOFourResponse)).when(delegate).execute(any(HttpUriRequest.class));
 
-        ILoadBalancer lb = mock(ILoadBalancer.class);
-        MyBackOffPolicyFactory myBackOffPolicyFactory = new MyBackOffPolicyFactory();
-        RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
-                serviceName, host, port, delegate, lb, "404", myBackOffPolicyFactory);
-        RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
-        doReturn(uri).when(request).getURI();
-        doReturn(method).when(request).getMethod();
-        doReturn(request).when(request).withNewUri(any(URI.class));
-        HttpUriRequest uriRequest = mock(HttpUriRequest.class);
-        doReturn(uri).when(uriRequest).getURI();
-        doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
-        RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
-        verify(delegate, times(2)).execute(any(HttpUriRequest.class));
-        byte[] buf = new byte[100];
-        InputStream inputStream = returnedResponse.getInputStream();
-        int read = inputStream.read(buf);
-        assertThat(new String(buf, 0, read), is("test"));
-    }
+		ILoadBalancer lb = mock(ILoadBalancer.class);
+		MyBackOffPolicyFactory myBackOffPolicyFactory = new MyBackOffPolicyFactory();
+		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
+				serviceName, host, port, delegate, lb, "404", myBackOffPolicyFactory);
+		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+		doReturn(uri).when(request).getURI();
+		doReturn(method).when(request).getMethod();
+		doReturn(request).when(request).withNewUri(any(URI.class));
+		HttpUriRequest uriRequest = mock(HttpUriRequest.class);
+		doReturn(uri).when(uriRequest).getURI();
+		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
+		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
+		verify(delegate, times(2)).execute(any(HttpUriRequest.class));
+		byte[] buf = new byte[100];
+		InputStream inputStream = returnedResponse.getInputStream();
+		int read = inputStream.read(buf);
+		assertThat(new String(buf, 0, read), is("test"));
+	}
 
-    private static class CloseableHttpResonseImpl implements CloseableHttpResponse {
-	    private BasicHttpResponse basicHttpResponse;
+	private static class CloseableHttpResonseImpl implements CloseableHttpResponse {
+		private BasicHttpResponse basicHttpResponse;
 
-        public CloseableHttpResonseImpl(BasicHttpResponse basicHttpResponse) {
-            this.basicHttpResponse = basicHttpResponse;
-        }
+		public CloseableHttpResonseImpl(BasicHttpResponse basicHttpResponse) {
+			this.basicHttpResponse = basicHttpResponse;
+		}
 
-        @Override
-        public ProtocolVersion getProtocolVersion() {
-            return basicHttpResponse.getProtocolVersion();
-        }
+		@Override
+		public ProtocolVersion getProtocolVersion() {
+			return basicHttpResponse.getProtocolVersion();
+		}
 
-        @Override
-        public StatusLine getStatusLine() {
-            return basicHttpResponse.getStatusLine();
-        }
+		@Override
+		public StatusLine getStatusLine() {
+			return basicHttpResponse.getStatusLine();
+		}
 
-        @Override
-        public HttpEntity getEntity() {
-            return basicHttpResponse.getEntity();
-        }
+		@Override
+		public HttpEntity getEntity() {
+			return basicHttpResponse.getEntity();
+		}
 
-        @Override
-        public Locale getLocale() {
-            return basicHttpResponse.getLocale();
-        }
+		@Override
+		public Locale getLocale() {
+			return basicHttpResponse.getLocale();
+		}
 
-        @Override
-        public void setStatusLine(StatusLine statusline) {
-            basicHttpResponse.setStatusLine(statusline);
-        }
+		@Override
+		public void setStatusLine(StatusLine statusline) {
+			basicHttpResponse.setStatusLine(statusline);
+		}
 
-        @Override
-        public void setStatusLine(ProtocolVersion ver, int code) {
-            basicHttpResponse.setStatusLine(ver, code);
-        }
+		@Override
+		public void setStatusLine(ProtocolVersion ver, int code) {
+			basicHttpResponse.setStatusLine(ver, code);
+		}
 
-        @Override
-        public void setStatusLine(ProtocolVersion ver, int code, String reason) {
-            basicHttpResponse.setStatusLine(ver, code, reason);
-        }
+		@Override
+		public void setStatusLine(ProtocolVersion ver, int code, String reason) {
+			basicHttpResponse.setStatusLine(ver, code, reason);
+		}
 
-        @Override
-        public void setStatusCode(int code) {
-            basicHttpResponse.setStatusCode(code);
-        }
+		@Override
+		public void setStatusCode(int code) {
+			basicHttpResponse.setStatusCode(code);
+		}
 
-        @Override
-        public void setReasonPhrase(String reason) {
-            basicHttpResponse.setReasonPhrase(reason);
-        }
+		@Override
+		public void setReasonPhrase(String reason) {
+			basicHttpResponse.setReasonPhrase(reason);
+		}
 
-        @Override
-        public void setEntity(HttpEntity entity) {
-            basicHttpResponse.setEntity(entity);
-        }
+		@Override
+		public void setEntity(HttpEntity entity) {
+			basicHttpResponse.setEntity(entity);
+		}
 
-        @Override
-        public void setLocale(Locale locale) {
-            basicHttpResponse.setLocale(locale);
-        }
+		@Override
+		public void setLocale(Locale locale) {
+			basicHttpResponse.setLocale(locale);
+		}
 
-        @Override
-        public String toString() {
-            return basicHttpResponse.toString();
-        }
+		@Override
+		public String toString() {
+			return basicHttpResponse.toString();
+		}
 
-        @Override
-        public boolean containsHeader(String name) {
-            return basicHttpResponse.containsHeader(name);
-        }
+		@Override
+		public boolean containsHeader(String name) {
+			return basicHttpResponse.containsHeader(name);
+		}
 
-        @Override
-        public Header[] getHeaders(String name) {
-            return basicHttpResponse.getHeaders(name);
-        }
+		@Override
+		public Header[] getHeaders(String name) {
+			return basicHttpResponse.getHeaders(name);
+		}
 
-        @Override
-        public Header getFirstHeader(String name) {
-            return basicHttpResponse.getFirstHeader(name);
-        }
+		@Override
+		public Header getFirstHeader(String name) {
+			return basicHttpResponse.getFirstHeader(name);
+		}
 
-        @Override
-        public Header getLastHeader(String name) {
-            return basicHttpResponse.getLastHeader(name);
-        }
+		@Override
+		public Header getLastHeader(String name) {
+			return basicHttpResponse.getLastHeader(name);
+		}
 
-        @Override
-        public Header[] getAllHeaders() {
-            return basicHttpResponse.getAllHeaders();
-        }
+		@Override
+		public Header[] getAllHeaders() {
+			return basicHttpResponse.getAllHeaders();
+		}
 
-        @Override
-        public void addHeader(Header header) {
-            basicHttpResponse.addHeader(header);
-        }
+		@Override
+		public void addHeader(Header header) {
+			basicHttpResponse.addHeader(header);
+		}
 
-        @Override
-        public void addHeader(String name, String value) {
-            basicHttpResponse.addHeader(name, value);
-        }
+		@Override
+		public void addHeader(String name, String value) {
+			basicHttpResponse.addHeader(name, value);
+		}
 
-        @Override
-        public void setHeader(Header header) {
-            basicHttpResponse.setHeader(header);
-        }
+		@Override
+		public void setHeader(Header header) {
+			basicHttpResponse.setHeader(header);
+		}
 
-        @Override
-        public void setHeader(String name, String value) {
-            basicHttpResponse.setHeader(name, value);
-        }
+		@Override
+		public void setHeader(String name, String value) {
+			basicHttpResponse.setHeader(name, value);
+		}
 
-        @Override
-        public void setHeaders(Header[] headers) {
-            basicHttpResponse.setHeaders(headers);
-        }
+		@Override
+		public void setHeaders(Header[] headers) {
+			basicHttpResponse.setHeaders(headers);
+		}
 
-        @Override
-        public void removeHeader(Header header) {
-            basicHttpResponse.removeHeader(header);
-        }
+		@Override
+		public void removeHeader(Header header) {
+			basicHttpResponse.removeHeader(header);
+		}
 
-        @Override
-        public void removeHeaders(String name) {
-            basicHttpResponse.removeHeaders(name);
-        }
+		@Override
+		public void removeHeaders(String name) {
+			basicHttpResponse.removeHeaders(name);
+		}
 
-        @Override
-        public HeaderIterator headerIterator() {
-            return basicHttpResponse.headerIterator();
-        }
+		@Override
+		public HeaderIterator headerIterator() {
+			return basicHttpResponse.headerIterator();
+		}
 
-        @Override
-        public HeaderIterator headerIterator(String name) {
-            return basicHttpResponse.headerIterator(name);
-        }
+		@Override
+		public HeaderIterator headerIterator(String name) {
+			return basicHttpResponse.headerIterator(name);
+		}
 
-        @Override
-        @Deprecated
-        public HttpParams getParams() {
-            return basicHttpResponse.getParams();
-        }
+		@Override
+		@Deprecated
+		public HttpParams getParams() {
+			return basicHttpResponse.getParams();
+		}
 
-        @Override
-        @Deprecated
-        public void setParams(HttpParams params) {
-            basicHttpResponse.setParams(params);
-        }
+		@Override
+		@Deprecated
+		public void setParams(HttpParams params) {
+			basicHttpResponse.setParams(params);
+		}
 
-        @Override
-        public void close() throws IOException {
-        }
-    }
+		@Override
+		public void close() throws IOException {
+		}
+	}
 
 	@Configuration
 	protected static class UseDefaults {

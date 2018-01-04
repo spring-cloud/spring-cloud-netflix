@@ -15,7 +15,11 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.*;
+import okhttp3.OkHttpClient;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.net.URI;
@@ -118,52 +122,52 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				final Request request = newRequest.toRequest();
 				Response response = httpClient.newCall(request).execute();
 				if(retryPolicy.retryableStatusCode(response.code())) {
-                    response = closeConnectionAndRebuildResponse(response);
-                    throw new RetryableStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName,
-                            response.code(), response, newRequest.getUri());
+					response = closeConnectionAndRebuildResponse(response);
+					throw new RetryableStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName,
+							response.code(), response, newRequest.getUri());
 				}
 				return new OkHttpRibbonResponse(response, newRequest.getUri());
 			}
 		};
-        RecoveryCallback<OkHttpRibbonResponse> recoveryCallback = new RecoveryCallback<OkHttpRibbonResponse>() {
-            @Override
-            public OkHttpRibbonResponse recover(RetryContext context) throws Exception {
-                Throwable lastThrowable = context.getLastThrowable();
-                if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
-                    RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
-                    return new OkHttpRibbonResponse((Response) ex.getResponse(), ex.getUri());
-                }
-                throw new RetryException("Could not recover", lastThrowable);
-            }
-        };
+		RecoveryCallback<OkHttpRibbonResponse> recoveryCallback = new RecoveryCallback<OkHttpRibbonResponse>() {
+			@Override
+			public OkHttpRibbonResponse recover(RetryContext context) throws Exception {
+				Throwable lastThrowable = context.getLastThrowable();
+				if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
+					RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
+					return new OkHttpRibbonResponse((Response) ex.getResponse(), ex.getUri());
+				}
+				throw new RetryException("Could not recover", lastThrowable);
+			}
+		};
 		return this.executeWithRetry(ribbonRequest, retryPolicy, retryCallback, recoveryCallback);
 	}
 
-    private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
-        final ResponseBody body = response.body();
-        if (body != null) {
-            final byte[] bytes = body.bytes(); //read content and close the connection
-            return response.newBuilder().body(new ResponseBody() { //set content into response
-                @Override
-                public MediaType contentType() {
-                    return body.contentType();
-                }
+	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
+		final ResponseBody body = response.body();
+		if (body != null) {
+			final byte[] bytes = body.bytes(); //read content and close the connection
+			return response.newBuilder().body(new ResponseBody() { //set content into response
+				@Override
+				public MediaType contentType() {
+					return body.contentType();
+				}
 
-                @Override
-                public long contentLength() {
-                    return body.contentLength();
-                }
+				@Override
+				public long contentLength() {
+					return body.contentLength();
+				}
 
-                @Override
-                public BufferedSource source() {
-                    Buffer buffer = new Buffer();
-                    buffer.write(bytes);
-                    return buffer;
-                }
-            }).build();
-        }
-        return response;
-    }
+				@Override
+				public BufferedSource source() {
+					Buffer buffer = new Buffer();
+					buffer.write(bytes);
+					return buffer;
+				}
+			}).build();
+		}
+		return response;
+	}
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
