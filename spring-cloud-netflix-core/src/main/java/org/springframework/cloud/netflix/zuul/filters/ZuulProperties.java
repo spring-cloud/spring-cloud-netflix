@@ -852,7 +852,7 @@ public class ZuulProperties {
 				.append("}").toString();
 	}
 
-	public class TraceProxyRequestHelper {
+	public static class TraceProxyRequestHelper {
 
 		private boolean enabled = true;
 
