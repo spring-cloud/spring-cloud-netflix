@@ -35,6 +35,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
@@ -58,8 +59,7 @@ public class OkHttpRibbonConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(ConnectionPool.class)
-		public ConnectionPool httpClientConnectionPool(IClientConfig config,
-													   OkHttpClientConnectionPoolFactory connectionPoolFactory) {
+		public ConnectionPool httpClientConnectionPool(IClientConfig config, OkHttpClientConnectionPoolFactory connectionPoolFactory) {
 			Integer maxTotalConnections = config.getPropertyAsInteger(
 					CommonClientConfigKey.MaxTotalConnections,
 					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
@@ -80,8 +80,7 @@ public class OkHttpRibbonConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean(OkHttpClient.class)
-		public OkHttpClient client(OkHttpClientFactory httpClientFactory,
-								   ConnectionPool connectionPool, IClientConfig config) {
+		public OkHttpClient client(OkHttpClientFactory httpClientFactory, ConnectionPool connectionPool, IClientConfig config) {
 			Boolean followRedirects = config.getPropertyAsBoolean(
 					CommonClientConfigKey.FollowRedirects,
 					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
@@ -107,19 +106,20 @@ public class OkHttpRibbonConfiguration {
 		}
 	}
 
-
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
-	public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(IClientConfig config,
-																		ServerIntrospector serverIntrospector,
-																		ILoadBalancer loadBalancer,
-																		RetryHandler retryHandler,
-																		LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
-																		OkHttpClient delegate,
-																		LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+	public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(
+		IClientConfig config,
+		ServerIntrospector serverIntrospector,
+		ILoadBalancer loadBalancer,
+		RetryHandler retryHandler,
+		LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+		OkHttpClient delegate,
+		LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory,
+		LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory) {
 		RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(delegate, config,
-				serverIntrospector, loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory);
+				serverIntrospector, loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
 		Monitors.registerObject("Client_" + this.name, client);
@@ -129,9 +129,10 @@ public class OkHttpRibbonConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
-	public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(IClientConfig config,
-																		ServerIntrospector serverIntrospector, ILoadBalancer loadBalancer,
-																		RetryHandler retryHandler, OkHttpClient delegate) {
+	public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
+		IClientConfig config,
+		ServerIntrospector serverIntrospector, ILoadBalancer loadBalancer,
+		RetryHandler retryHandler, OkHttpClient delegate) {
 		OkHttpLoadBalancingClient client = new OkHttpLoadBalancingClient(delegate, config,
 				serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
