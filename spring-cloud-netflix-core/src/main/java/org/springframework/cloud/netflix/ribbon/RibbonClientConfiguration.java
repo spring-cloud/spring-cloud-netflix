@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
+import java.net.UnknownHostException;
 
 import javax.annotation.PostConstruct;
 
@@ -33,11 +34,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import com.netflix.client.ClientException;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.client.http.HttpRequest;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.DummyPing;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -178,7 +182,7 @@ public class RibbonClientConfiguration {
 		setRibbonProperty(name, DeploymentContextBasedVipAddresses.key(), name);
 	}
 
-	static class OverrideRestClient extends RestClient {
+	public static class OverrideRestClient extends RestClient {
 
 		private IClientConfig config;
 		private ServerIntrospector serverIntrospector;
@@ -206,6 +210,50 @@ public class RibbonClientConfiguration {
 			return apache;
 		}
 
+		@Override
+		public RequestSpecificRetryHandler getRequestSpecificRetryHandler(HttpRequest request, IClientConfig requestConfig) {
+	        if (!request.isRetriable()) {
+	            return new OverrideRequestSpecificRetryHandler(false, false, this.getRetryHandler(), requestConfig);
+	        }
+	        if (this.isOkToRetryOnAllOperations()) {
+	            return new OverrideRequestSpecificRetryHandler(true, true, this.getRetryHandler(), requestConfig);
+	        }
+	        if (request.getVerb() != HttpRequest.Verb.GET) {
+	            return new OverrideRequestSpecificRetryHandler(true, false, this.getRetryHandler(), requestConfig);
+	        } else {
+	            return new OverrideRequestSpecificRetryHandler(true, true, this.getRetryHandler(), requestConfig);
+	        } 
+		}
 	}
 
+	
+	public static class OverrideRequestSpecificRetryHandler extends RequestSpecificRetryHandler {
+
+		public OverrideRequestSpecificRetryHandler(boolean okToRetryOnConnectErrors, boolean okToRetryOnAllErrors,
+				RetryHandler baseRetryHandler, IClientConfig requestConfig) 
+		{
+			super(okToRetryOnConnectErrors, okToRetryOnAllErrors, baseRetryHandler, requestConfig);
+			
+			// DNS resolution failures should be treated as connection related issue as well
+			//
+			this.connectionRelated.add(UnknownHostException.class);
+		}
+		
+		@Override
+		public boolean isRetriableException(Throwable e, boolean sameServer) {
+			// Treat SERVER_THROTTLED as a special case 
+		    // (see https://github.com/spring-cloud/spring-cloud-netflix/issues/2585)
+			//
+			if (e instanceof ClientException) {
+				ClientException ce = (ClientException) e;
+				if (ce.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
+					return !sameServer;
+				}
+			}
+
+			// Delegate to standard logic
+			//
+			return super.isRetriableException(e, sameServer);
+		}
+	}
 }
