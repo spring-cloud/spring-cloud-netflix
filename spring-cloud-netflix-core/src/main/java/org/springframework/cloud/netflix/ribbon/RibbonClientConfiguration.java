@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
+import java.net.UnknownHostException;
 
 import javax.annotation.PostConstruct;
 
@@ -34,10 +35,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.client.http.HttpRequest;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.DummyPing;
 import com.netflix.loadbalancer.ILoadBalancer;
@@ -206,6 +209,28 @@ public class RibbonClientConfiguration {
 			return apache;
 		}
 
+		@Override
+		public RequestSpecificRetryHandler getRequestSpecificRetryHandler(HttpRequest request,IClientConfig requestConfig) {
+			if (!request.isRetriable()) {
+	            return new OverrideRequestSpecificRetryHandler(false, false, this.getRetryHandler(), requestConfig);
+	        }
+	        if (this.okToRetryOnAllOperations) {
+	            return new OverrideRequestSpecificRetryHandler(true, true, this.getRetryHandler(), requestConfig);
+	        }
+	        if (request.getVerb() != HttpRequest.Verb.GET) {
+	            return new OverrideRequestSpecificRetryHandler(true, false, this.getRetryHandler(), requestConfig);
+	        } else {
+	            return new OverrideRequestSpecificRetryHandler(true, true, this.getRetryHandler(), requestConfig);
+	        } 
+		}
 	}
 
+	static class OverrideRequestSpecificRetryHandler extends RequestSpecificRetryHandler {
+		public OverrideRequestSpecificRetryHandler(boolean okToRetryOnConnectErrors, boolean okToRetryOnAllErrors,
+				RetryHandler baseRetryHandler, IClientConfig requestConfig) {
+			super(okToRetryOnConnectErrors, okToRetryOnAllErrors, baseRetryHandler, requestConfig);
+			this.connectionRelated.add(UnknownHostException.class);
+		}
+		
+	}
 }
