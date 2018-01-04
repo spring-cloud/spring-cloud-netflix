@@ -31,6 +31,8 @@ import org.springframework.boot.actuate.health.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryCompositeHealthIndicator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.Lifecycle;
+import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
@@ -43,11 +45,14 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
  * implementation will perform aggregation of all registered {@link HealthIndicator}
  * through registered {@link HealthAggregator}.
  *
+ * A {@code null} status is returned when the application context is closed (or in the process of being closed). This 
+ * prevents Eureka from updating the health status and only consider the status present in the current InstanceInfo.
+ * 
  * @author Jakub Narloch
  * @see HealthCheckHandler
  * @see HealthAggregator
  */
-public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
+public class EurekaHealthCheckHandler implements HealthCheckHandler, ApplicationContextAware, InitializingBean, Ordered, Lifecycle {
 
 	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING =
 			new HashMap<Status, InstanceInfo.InstanceStatus>() {{
@@ -61,6 +66,11 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	private ApplicationContext applicationContext;
 
+	/**
+	 * {@code true} when the context stop sequence has been initiated.
+	 */
+	private boolean stopping = false;
+	
 	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
 		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
 		this.healthIndicator = new CompositeHealthIndicator(healthAggregator);
@@ -96,7 +106,14 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-		return getHealthStatus();
+		// Return nothing if the context is being stopped so the status held by the InstanceInfo remains unchanged.
+		// See GH1571
+		if( this.stopping ) {
+			return null;
+		}
+		else {
+			return getHealthStatus();
+		}
 	}
 
 	protected InstanceStatus getHealthStatus() {
@@ -113,5 +130,28 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	protected CompositeHealthIndicator getHealthIndicator() {
 		return healthIndicator;
+	}
+
+	@Override
+	public int getOrder() {
+		// registered with a high order priority so the close() method is invoked early and *BEFORE* EurekaAutoServiceRegistration 
+		// (must be in effect when the registration is closed and the eureka replication triggered -> health check handler is 
+		// consulted at that moment)
+		return Ordered.HIGHEST_PRECEDENCE;
+	}
+
+	@Override
+	public void start() {
+		this.stopping = false;
+	}
+
+	@Override
+	public void stop() {
+		this.stopping = true;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return true;
 	}
 }
