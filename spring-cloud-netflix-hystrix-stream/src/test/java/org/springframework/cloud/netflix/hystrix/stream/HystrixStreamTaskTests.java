@@ -22,6 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -50,6 +52,17 @@ public class HystrixStreamTaskTests {
 		this.hystrixStreamTask.sendMetrics();
 
 		then(this.outboundChannel).should().send(any(Message.class));
+	}
+
+	@Test
+	public void should_send_metrics_only_one_message() throws Exception {
+		this.hystrixStreamTask.jsonMetrics.put("someJson");
+		this.hystrixStreamTask.jsonMetrics.put("someJson1");
+		this.hystrixStreamTask.jsonMetrics.put("someJson2");
+
+		this.hystrixStreamTask.sendMetrics();
+
+		verify(this.outboundChannel, times(1)).send(any(Message.class));
 	}
 
 	@Test
