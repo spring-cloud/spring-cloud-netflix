@@ -263,7 +263,6 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
 						<configuration>
 							<!-- Sets the VM argument line used when unit tests are run. -->
 							<argLine>${surefireArgLine}</argLine>
