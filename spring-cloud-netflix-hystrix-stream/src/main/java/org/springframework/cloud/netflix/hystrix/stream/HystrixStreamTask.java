@@ -24,6 +24,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONArray;
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.context.ApplicationContext;
@@ -98,22 +99,20 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			if (log.isTraceEnabled()) {
 				log.trace("sending stream metrics size: " + metrics.size());
 			}
-			for (String json : metrics) {
-				// TODO: batch all metrics to one message
-				try {
-					// TODO: remove the explicit content type when s-c-stream can handle
-					// that for us
-					this.outboundChannel.send(MessageBuilder.withPayload(json)
-							.setHeader(MessageHeaders.CONTENT_TYPE,
-									this.properties.getContentType())
-							.build());
-				}
-				catch (Exception ex) {
-					if (log.isTraceEnabled()) {
-						log.trace("failed sending stream metrics: " + ex.getMessage());
-					}
+			String payload = new JSONArray(metrics).toString();
+			try {
+				// TODO: remove the explicit content type when s-c-stream can handle
+				// that for us
+				this.outboundChannel.send(MessageBuilder.withPayload(payload)
+						.setHeader(MessageHeaders.CONTENT_TYPE,
+								this.properties.getContentType())
+						.build());
+			} catch (Exception ex) {
+				if (log.isTraceEnabled()) {
+					log.trace("failed sending stream metrics: " + ex.getMessage());
 				}
 			}
+
 		}
 	}
 
