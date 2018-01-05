@@ -46,20 +46,12 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledNIWSServerList;
  */
 @Configuration
 @EnableConfigurationProperties
-@RibbonEurekaAutoConfiguration.ConditionalOnRibbonAndEurekaEnabled
+@ConditionalOnRibbonAndEurekaEnabled
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
 @RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class)
 public class RibbonEurekaAutoConfiguration {
 
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	@Documented
-	@Conditional(OnRibbonAndEurekaEnabledCondition.class)
-	@interface ConditionalOnRibbonAndEurekaEnabled {
-
-	}
-
-	private static class OnRibbonAndEurekaEnabledCondition extends AllNestedConditions {
+	static class OnRibbonAndEurekaEnabledCondition extends AllNestedConditions {
 
 		public OnRibbonAndEurekaEnabledCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
