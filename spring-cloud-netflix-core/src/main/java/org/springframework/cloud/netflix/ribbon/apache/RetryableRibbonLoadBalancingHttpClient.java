@@ -157,7 +157,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				throw new RetryException("Could not recover", lastThrowable);
 			}
 		};
-		return this.executeWithRetry(request, retryPolicy, retryCallback ,recoveryCallback);
+		return this.executeWithRetry(request, retryPolicy, retryCallback, recoveryCallback);
 	}
 
 	private void closeConnectionAndRebuildResponse(HttpResponse httpResponse) throws IOException {
