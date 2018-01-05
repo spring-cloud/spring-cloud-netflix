@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
  * @author Gang Li
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RibbonCommandSemaphoreHystrixTimeoutTest.SimpleApplication.class,
+@SpringBootTest(classes = RibbonCommandThreadHystrixTimeoutTest.SimpleApplication.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     value = {"hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds:3000"})
 @DirtiesContext
