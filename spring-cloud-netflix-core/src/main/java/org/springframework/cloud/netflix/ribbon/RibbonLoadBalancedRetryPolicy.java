@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.ribbon;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.config.IClientConfigKey;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
@@ -35,6 +37,7 @@ import java.util.List;
 public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 
 	public static final IClientConfigKey<String> RETRYABLE_STATUS_CODES = new CommonClientConfigKey<String>("retryableStatusCodes") {};
+	private static Log log = LogFactory.getLog(RibbonLoadBalancedRetryPolicy.class);
 	private int sameServerCount = 0;
 	private int nextServerCount = 0;
 	private String serviceId;
@@ -60,7 +63,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 				try {
 					retryableStatusCodes.add(Integer.valueOf(code.trim()));
 				} catch (NumberFormatException e) {
-					//TODO log
+					log.warn("Can't add status code " + code, e);
 				}
 			}
 		}
