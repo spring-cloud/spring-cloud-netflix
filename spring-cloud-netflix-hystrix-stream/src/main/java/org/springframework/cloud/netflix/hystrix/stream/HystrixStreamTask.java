@@ -16,15 +16,17 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONArray;
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.context.ApplicationContext;
@@ -68,6 +70,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 	private final JsonFactory jsonFactory = new JsonFactory();
 
+	private final ObjectMapper mapper = new ObjectMapper();
+
 	public HystrixStreamTask(MessageChannel outboundChannel,
 							 ServiceInstance registration, HystrixStreamProperties properties) {
 		Assert.notNull(outboundChannel, "outboundChannel may not be null");
@@ -99,8 +103,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			if (log.isTraceEnabled()) {
 				log.trace("sending stream metrics size: " + metrics.size());
 			}
-			String payload = new JSONArray(metrics).toString();
 			try {
+				String payload = writeMetricsToJsonArray(metrics);
 				// TODO: remove the explicit content type when s-c-stream can handle
 				// that for us
 				this.outboundChannel.send(MessageBuilder.withPayload(payload)
@@ -387,6 +391,13 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			json.writeStringField("id", this.context.getId());
 		}
 		json.writeEndObject();
+	}
+
+	private String writeMetricsToJsonArray(List<String> metrics) throws IOException {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		this.mapper.writeValue(out,metrics);
+		final byte [] data = out.toByteArray();
+		return new String(data);
 	}
 
 }
