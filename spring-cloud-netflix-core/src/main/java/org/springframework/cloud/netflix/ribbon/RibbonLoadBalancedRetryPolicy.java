@@ -63,7 +63,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 				try {
 					retryableStatusCodes.add(Integer.valueOf(code.trim()));
 				} catch (NumberFormatException e) {
-					log.warn("Can't add status code: " + code, e);
+					log.warn("We cant add the status code because the code [ " + code + " ] could not be converted to an integer. ", e);
 				}
 			}
 		}
