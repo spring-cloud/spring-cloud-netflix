@@ -135,6 +135,11 @@ public class ZuulProperties {
 	private boolean traceRequestBody = true;
 
 	/**
+	 * Flag to enable/disable request tracing via {@link TraceProxyRequestHelper}.  Enabled by default.
+	 */
+	private TraceProxyRequestHelper traceProxyRequestHelper = new TraceProxyRequestHelper();
+
+	/**
 	 * Flag to say that path elements past the first semicolon can be dropped.
 	 */
 	private boolean removeSemicolonContent = true;
@@ -725,6 +730,14 @@ public class ZuulProperties {
 		this.traceRequestBody = traceRequestBody;
 	}
 
+	public TraceProxyRequestHelper getTraceProxyRequestHelper() {
+		return traceProxyRequestHelper;
+	}
+
+	public void setTraceProxyRequestHelper(final TraceProxyRequestHelper traceProxyRequestHelper) {
+		this.traceProxyRequestHelper = traceProxyRequestHelper;
+	}
+
 	public boolean isRemoveSemicolonContent() {
 		return removeSemicolonContent;
 	}
@@ -829,6 +842,7 @@ public class ZuulProperties {
 				.append("ignoreLocalService=").append(ignoreLocalService).append(", ")
 				.append("host=").append(host).append(", ")
 				.append("traceRequestBody=").append(traceRequestBody).append(", ")
+				.append("traceProxyRequestHelper.enabled=").append(traceProxyRequestHelper.isEnabled()).append(", ")
 				.append("removeSemicolonContent=").append(removeSemicolonContent).append(", ")
 				.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
 				.append("sslHostnameValidationEnabled=").append(sslHostnameValidationEnabled).append(", ")
@@ -838,4 +852,18 @@ public class ZuulProperties {
 				.append("}").toString();
 	}
 
+	public static class TraceProxyRequestHelper {
+
+		private boolean enabled = true;
+
+		public TraceProxyRequestHelper() {}
+
+		public boolean isEnabled() {
+			return enabled;
+		}
+
+		public void setEnabled(final boolean enabled) {
+			this.enabled = enabled;
+		}
+	}
 }

@@ -109,4 +109,25 @@ public class ZuulPropertiesTests {
 		assertFalse(this.zuul.getThreadPool().isUseSeparateThreadPools());
 		assertEquals("", this.zuul.getThreadPool().getThreadPoolKeyPrefix());
 	}
+
+	@Test
+	public void defaultTraceProxyRequestHelperEnabled() {
+		assertTrue(this.zuul.getTraceProxyRequestHelper().isEnabled());
+	}
+
+	@Test
+	public void disableTraceProxyRequestHelper() {
+
+		this.zuul.getTraceProxyRequestHelper().setEnabled(false);
+		assertFalse(this.zuul.getTraceProxyRequestHelper().isEnabled());
+	}
+
+	@Test
+	public void setTraceProxyRequestHelper() {
+
+		ZuulProperties.TraceProxyRequestHelper traceProxyRequestHelper = new ZuulProperties.TraceProxyRequestHelper();
+		traceProxyRequestHelper.setEnabled(false);
+		this.zuul.setTraceProxyRequestHelper(traceProxyRequestHelper);
+		assertFalse(this.zuul.getTraceProxyRequestHelper().isEnabled());
+	}
 }
