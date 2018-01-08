@@ -1813,6 +1813,37 @@ A GET to the filters endpoint at `/filters` will return a map of Zuul
 filters by type. For each filter type in the map, you will find a list
 of all the filters of that type, along with their details.
 
+==== Proxy Request Tracing
+
+Having Spring Boot Actuator on the classpath also enables request tracing (i.e., debug logging) in two forms:
+
+* Spring Boot Actuator's `WebRequestTraceFilter`
+* Zuul's `TraceProxyRequestHelper`
+
+===== WebRequestTraceFilter
+
+`WebRequestTraceFilter` is Spring Boot Actuator's default request tracing feature, implemented as a Servlet Filter,
+that logs all requests to a `TraceRepository`.  You can customize what attributes of requests/responses you want logged
+(e.g., headers) and can provide your own implementation of a `TraceRepository` that allows you to log to, for example,
+a log file or database.
+
+===== TraceProxyRequestHelper
+
+`TraceProxyRequestHelper` is zuul's proxy request logging equivalent to `WebRequestTraceFilter` and also logs to the
+`TraceRepository`.  Note, that if you configure a `TraceRepository` you'll get two log entries for each proxied request,
+one from `WebRequestTraceFilter`, and the other from `TraceProxyRequestHelper`.  You can specifically disable
+`TraceProxyRequstHelper` via `zuul.trace-proxy-request-helper.enabled` property (enabled by default).
+
+Example configuration:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  trace-proxy-request-helper:
+    enabled: false
+----
+
 === Strangulation Patterns and Local Forwards
 
 A common pattern when migrating an existing application or API is to
