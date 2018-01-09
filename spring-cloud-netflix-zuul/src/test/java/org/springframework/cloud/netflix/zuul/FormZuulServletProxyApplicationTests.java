@@ -220,15 +220,6 @@ class FormZuulServletProxyApplication {
 		};
 	}
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(FormZuulProxyApplication.class)
-				.properties("zuul.routes.simplefzspat:/zuul/simplefzspat/**",
-						"zuul.routes.direct.url:http://localhost:9999",
-						"zuul.routes.direct.path:/zuul/direct/**",
-						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
-				.run(args);
-	}
-
 }
 
 // Load balancer with fixed server list for "simplefzspat" pointing to localhost

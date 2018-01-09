@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -90,13 +89,6 @@ public class FeignRibbonClientRetryTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/retryme")
 		public int retryMe() {
 			return this.retries.getAndIncrement();
-		}
-
-		public static void main(String[] args) throws InterruptedException {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclientretrytest",
-							"management.contextPath=/admin")
-					.run(args);
 		}
 	}
 

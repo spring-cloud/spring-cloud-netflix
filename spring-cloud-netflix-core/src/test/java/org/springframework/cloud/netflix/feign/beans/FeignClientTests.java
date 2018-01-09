@@ -77,13 +77,6 @@ public class FeignClientTests {
 		public Hello getHello() {
 			return new Hello("hello world 1");
 		}
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclienttest",
-							"management.contextPath=/admin")
-					.run(args);
-		}
 	}
 
 	public static class Hello {

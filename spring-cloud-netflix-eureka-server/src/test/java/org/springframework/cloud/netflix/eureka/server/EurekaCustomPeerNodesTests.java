@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,13 +53,6 @@ public class EurekaCustomPeerNodesTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(ApplicationContextTests.Application.class)
-					.properties("spring.application.name=eureka",
-							"server.contextPath=/context")
-					.run(args);
-		}
 
 		@Bean
 		public PeerEurekaNodes myPeerEurekaNodes(PeerAwareInstanceRegistry registry,

@@ -106,13 +106,5 @@ public class ApplicationContextTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=eureka",
-							"server.servlet.contextPath=/context")
-					.run(args);
-		}
-
 	}
 }

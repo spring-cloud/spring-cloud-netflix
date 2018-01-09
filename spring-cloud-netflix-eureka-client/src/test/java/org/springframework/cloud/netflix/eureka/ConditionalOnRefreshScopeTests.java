@@ -16,48 +16,38 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import org.junit.After;
 import org.junit.Test;
-import org.springframework.boot.Banner.Mode;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration.ConditionalOnRefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.WebApplicationType.NONE;
 
 /**
  * @author Dave Syer
- *
+ * @author Biju Kunjummen
  */
 public class ConditionalOnRefreshScopeTests {
 
-	private AssertableApplicationContext context;
-
-	@After
-	public void close() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
-
 	@Test
 	public void refreshScopeIncluded() {
-		this.context = AssertableApplicationContext.get(() -> new SpringApplicationBuilder(RefreshAutoConfiguration.class,
-				Beans.class).web(NONE).bannerMode(Mode.OFF).run());
-		assertThat(this.context).hasSingleBean(
-				org.springframework.cloud.context.scope.refresh.RefreshScope.class);
-		assertThat(this.context).getBean("foo").isEqualTo("foo");
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
+				.withUserConfiguration(Beans.class).run(c -> {
+					assertThat(c).hasSingleBean(
+							org.springframework.cloud.context.scope.refresh.RefreshScope.class);
+					assertThat(c.getBean("foo")).isEqualTo("foo");
+				});
 	}
 
 	@Test
 	public void refreshScopeNotIncluded() {
-		this.context = AssertableApplicationContext.get(() -> new SpringApplicationBuilder(Beans.class).web(NONE)
-				.bannerMode(Mode.OFF).run());
-		assertThat(this.context).doesNotHaveBean("foo");
+		new ApplicationContextRunner().withUserConfiguration(Beans.class).run(c -> {
+			assertThat(c).doesNotHaveBean("foo");
+		});
 	}
 
 	@Configuration

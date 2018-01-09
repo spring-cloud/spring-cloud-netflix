@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.turbine;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -34,10 +33,6 @@ public class TurbineHttpTests {
 	@EnableAutoConfiguration
 	@EnableTurbine
 	public static class TurbineHttpSampleApplication {
-		public static void main(String[] args) {
-			new SpringApplicationBuilder().sources(TurbineHttpSampleApplication.class)
-					.run(args);
-		}
 	}
 
 	@Test

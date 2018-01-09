@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,28 @@ package org.springframework.cloud.netflix.ribbon;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 /**
  * @author Ryan Baxter
+ * @author Biju Kunjummen
  */
 @RunWith(ModifiedClassPathRunner.class)
-@ClassPathExclusions( {"ribbon-{version:\\d.*}.jar"} )
+@ClassPathExclusions({ "ribbon-{version:\\d.*}.jar" })
 public class RibbonDisabledTests {
-
-	@Test(expected = ArrayStoreException.class)
+	@Test
 	public void testRibbonDisabled() {
-		new SpringApplicationBuilder().web(false).sources(RibbonAutoConfiguration.class)
-				.run().close();
+		assertThatThrownBy(() -> new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class))
+				.run(context -> assertThat(
+						context.getBeanNamesForType(SpringClientFactory.class))
+								.hasSize(0))).hasCauseExactlyInstanceOf(
+										ArrayStoreException.class);
 	}
 }

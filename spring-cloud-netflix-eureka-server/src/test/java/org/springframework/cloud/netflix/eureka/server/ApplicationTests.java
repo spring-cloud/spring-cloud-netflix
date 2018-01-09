@@ -123,10 +123,6 @@ public class ApplicationTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=eureka").run(args);
-		}
 	}
 
 }

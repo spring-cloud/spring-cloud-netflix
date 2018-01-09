@@ -88,13 +88,6 @@ public class FeignClientScanningTests {
 		public String getHello() {
 			return "hello world 1";
 		}
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclienttest",
-							"management.contextPath=/admin")
-					.run(args);
-		}
 	}
 
 	@Test
