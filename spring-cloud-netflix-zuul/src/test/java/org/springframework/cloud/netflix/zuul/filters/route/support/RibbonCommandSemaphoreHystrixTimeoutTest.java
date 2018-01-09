@@ -39,7 +39,8 @@ import static org.mockito.Mockito.mock;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = RibbonCommandSemaphoreHystrixTimeoutTest.SimpleApplication.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    value = {"hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds:6000"})
+    value = {"hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds:6000",
+        "hystrix.command.cmd.execution.isolation.thread.timeoutInMilliseconds:3000"})
 @DirtiesContext
 public class RibbonCommandSemaphoreHystrixTimeoutTest {
 
@@ -51,16 +52,30 @@ public class RibbonCommandSemaphoreHystrixTimeoutTest {
     }
 
     @Test
-    public void testHystrixTimeout() {
+    public void testHystrixTimeoutWithCmdKey() {
         RibbonCommandContext context = mock(RibbonCommandContext.class);
         HttpClientRibbonCommand command = new HttpClientRibbonCommand("cmd", null, context, zuulProperties);
+        assertEquals(command.getProperties().executionTimeoutInMilliseconds().get().intValue(), 3000);
+    }
+
+    @Test
+    public void testHystrixTimeoutWithOkHttpWithCmdKey() {
+        RibbonCommandContext context = mock(RibbonCommandContext.class);
+        OkHttpRibbonCommand command = new OkHttpRibbonCommand("cmd", null, context, zuulProperties);
+        assertEquals(command.getProperties().executionTimeoutInMilliseconds().get().intValue(), 3000);
+    }
+
+    @Test
+    public void testHystrixTimeoutWithDefault() {
+        RibbonCommandContext context = mock(RibbonCommandContext.class);
+        HttpClientRibbonCommand command = new HttpClientRibbonCommand("test", null, context, zuulProperties);
         assertEquals(command.getProperties().executionTimeoutInMilliseconds().get().intValue(), 6000);
     }
 
     @Test
-    public void testHystrixTimeoutWithOkHttp() {
+    public void testHystrixTimeoutWithOkHttpWithDefault() {
         RibbonCommandContext context = mock(RibbonCommandContext.class);
-        OkHttpRibbonCommand command = new OkHttpRibbonCommand("cmd", null, context, zuulProperties);
+        OkHttpRibbonCommand command = new OkHttpRibbonCommand("test", null, context, zuulProperties);
         assertEquals(command.getProperties().executionTimeoutInMilliseconds().get().intValue(), 6000);
     }
 
