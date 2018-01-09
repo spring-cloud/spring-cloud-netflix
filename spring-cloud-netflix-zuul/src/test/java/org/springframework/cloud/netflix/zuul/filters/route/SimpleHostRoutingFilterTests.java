@@ -212,6 +212,20 @@ public class SimpleHostRoutingFilterTests {
 		assertTrue("Get 1".equals(responseString));
 	}
 
+
+	@Test
+	public void redirectTest() throws Exception {
+		setupContext();
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/redirect", inputStreamEntity,
+				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+
+		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
+		assertEquals(302, response.getStatusLine().getStatusCode());
+		String responseString = copyToString(response.getEntity().getContent(), Charset.forName("UTF-8"));
+		assertTrue(response.getLastHeader("Location").getValue().contains("/app/get/5"));
+	}
+
 	@Test
 	public void zuulHostKeysUpdateHttpClient() {
 		setupContext();
@@ -356,6 +370,12 @@ class SampleApplication {
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
 		return "Get " + id;
+	}
+
+	@RequestMapping(value = "/redirect", method = RequestMethod.GET)
+	public String redirect(HttpServletResponse response) throws IOException {
+		response.sendRedirect("/app/get/5");
+		return null;
 	}
 }
 
