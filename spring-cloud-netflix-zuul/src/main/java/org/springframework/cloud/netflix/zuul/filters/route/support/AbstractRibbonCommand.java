@@ -55,9 +55,17 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	 * Indicates that the users has not configured the
 	 * hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds parameter.
 	 * Because if the timeout value is 0 then it can be considered meaningless,
-	 * so we can use 0 to determine whether this attribute configurationed.
+	 * so we can use 0 to determine whether this attribute configured.
 	 */
 	private static final int NO_TIMEOUT_PROPERTY = 0;
+
+	/**
+	 * Indicates that the users has not configured the
+	 * hystrix.command.commandKey.execution.isolation.thread.timeoutInMilliseconds parameter.
+	 * Because if the timeout value is 0 then it can be considered meaningless,
+	 * so we can use 0 to determine whether this attribute configured.
+	 */
+	private static final int NO_OVERRIDE_TIMEOUT_PROPERTY = 0;
 
 	public AbstractRibbonCommand(LBC client, RibbonCommandContext context,
 			ZuulProperties zuulProperties) {
@@ -102,7 +110,9 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 			.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy());
 		final DynamicIntProperty timeout = DynamicPropertyFactory.getInstance().getIntProperty(
 			"hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", NO_TIMEOUT_PROPERTY);
-		if (timeout.get() == NO_TIMEOUT_PROPERTY) {
+		final DynamicIntProperty overrideTimeout = DynamicPropertyFactory.getInstance().getIntProperty(
+			"hystrix.command." + commandKey + ".execution.isolation.thread.timeoutInMilliseconds", NO_OVERRIDE_TIMEOUT_PROPERTY);
+		if (timeout.get() == NO_TIMEOUT_PROPERTY && overrideTimeout.get() == NO_OVERRIDE_TIMEOUT_PROPERTY) {
 			setter.withExecutionTimeoutInMilliseconds(
 				RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT + RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
 		}
