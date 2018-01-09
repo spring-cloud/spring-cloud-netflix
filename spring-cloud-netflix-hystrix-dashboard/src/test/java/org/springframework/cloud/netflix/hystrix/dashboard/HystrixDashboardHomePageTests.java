@@ -16,13 +16,10 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -33,6 +30,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
@@ -78,11 +77,6 @@ public class HystrixDashboardHomePageTests {
 		@RequestMapping("/")
 		public String home() {
 			return "forward:/hystrix";
-		}
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=hystrix-dashboard").run();
 		}
 
 	}

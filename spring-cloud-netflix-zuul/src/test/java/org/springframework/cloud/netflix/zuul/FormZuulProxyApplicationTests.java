@@ -23,24 +23,17 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.servlet.http.Part;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -61,6 +54,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static org.junit.Assert.assertEquals;
@@ -304,11 +302,6 @@ class FormZuulProxyApplication {
 	}
 
 	public static void main(String[] args) {
-		new SpringApplicationBuilder(FormZuulProxyApplication.class)
-				.properties("zuul.routes.simplefzpat:/simplefzpat/**",
-						"zuul.routes.direct.url:http://localhost:9999",
-						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
-				.run(args);
 	}
 
 }
