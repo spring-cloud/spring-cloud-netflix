@@ -17,12 +17,10 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
-
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -31,9 +29,11 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFa
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonClientName;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -42,6 +42,9 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.servo.monitor.Monitors;
 
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+
 /**
  * @author Spencer Gibb
  */
@@ -49,7 +52,7 @@ import com.netflix.servo.monitor.Monitors;
 @ConditionalOnProperty("ribbon.okhttp.enabled")
 @ConditionalOnClass(name = "okhttp3.OkHttpClient")
 public class OkHttpRibbonConfiguration {
-	@Value("${ribbon.client.name}")
+	@RibbonClientName
 	private String name = "client";
 
 	@Configuration

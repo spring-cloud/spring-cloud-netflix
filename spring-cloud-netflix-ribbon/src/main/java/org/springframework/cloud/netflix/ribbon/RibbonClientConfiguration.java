@@ -21,7 +21,6 @@ import javax.annotation.PostConstruct;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
@@ -70,7 +69,7 @@ public class RibbonClientConfiguration {
 	public static final int DEFAULT_CONNECT_TIMEOUT = 1000;
 	public static final int DEFAULT_READ_TIMEOUT = 1000;
 
-	@Value("${ribbon.client.name}")
+	@RibbonClientName
 	private String name = "client";
 
 	// TODO: maybe re-instate autowired load balancers: identified by name they could be

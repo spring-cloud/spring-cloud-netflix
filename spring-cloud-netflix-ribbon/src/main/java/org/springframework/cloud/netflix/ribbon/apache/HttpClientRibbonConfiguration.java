@@ -20,13 +20,14 @@ package org.springframework.cloud.netflix.ribbon.apache;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PreDestroy;
+
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -35,9 +36,11 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFa
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonClientName;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -53,7 +56,7 @@ import com.netflix.servo.monitor.Monitors;
 @ConditionalOnClass(name = "org.apache.http.client.HttpClient")
 @ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 public class HttpClientRibbonConfiguration {
-	@Value("${ribbon.client.name}")
+	@RibbonClientName
 	private String name = "client";
 
 	@Configuration

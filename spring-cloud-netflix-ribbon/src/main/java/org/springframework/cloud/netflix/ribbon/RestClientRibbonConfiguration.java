@@ -17,11 +17,11 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
@@ -36,7 +36,7 @@ import com.netflix.servo.monitor.Monitors;
 @Configuration
 @RibbonAutoConfiguration.ConditionalOnRibbonRestClient
 class RestClientRibbonConfiguration {
-	@Value("${ribbon.client.name}")
+	@RibbonClientName
 	private String name = "client";
 
 	/**
