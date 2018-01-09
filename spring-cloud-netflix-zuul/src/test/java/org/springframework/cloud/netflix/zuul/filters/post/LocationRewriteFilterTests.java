@@ -26,9 +26,11 @@ import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -158,6 +160,7 @@ public class LocationRewriteFilterTests {
 		httpServletRequest.setServerName(ZUUL_HOST);
 		httpServletRequest.setScheme(ZUUL_SCHEME);
 		httpServletRequest.setServerPort(ZUUL_PORT);
+		httpServletRequest.setMethod(HttpMethod.GET.name());
 		context.setRequest(httpServletRequest);
 
 		MockHttpServletResponse httpServletResponse = new MockHttpServletResponse();
@@ -166,7 +169,7 @@ public class LocationRewriteFilterTests {
 		context.setResponse(httpServletResponse);
 
 		RouteLocator routeLocator = mock(RouteLocator.class);
-		when(routeLocator.getMatchingRoute(toZuulRequestUri)).thenReturn(route);
+		when(routeLocator.getMatchingRoute(RequestWrapper.from(toZuulRequestUri, HttpMethod.GET))).thenReturn(route);
 		LocationRewriteFilter filter = new LocationRewriteFilter(zuulProperties,
 				routeLocator);
 

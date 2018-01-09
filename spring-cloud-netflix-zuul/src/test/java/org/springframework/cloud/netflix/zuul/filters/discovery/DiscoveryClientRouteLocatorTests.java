@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -124,7 +125,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("foo", route.getId());
 	}
@@ -137,7 +138,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -152,7 +153,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/app/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/app/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -165,7 +166,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/zuul/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/zuul/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 
@@ -180,7 +181,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/foo/1", route.getPath());
 	}
@@ -193,7 +194,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/1", route.getPath());
 	}
@@ -206,7 +207,7 @@ public class DiscoveryClientRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
@@ -222,7 +223,7 @@ public class DiscoveryClientRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/app/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/app/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
@@ -237,7 +238,7 @@ public class DiscoveryClientRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/zuul/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/zuul/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
@@ -251,7 +252,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", zuulRoute);
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -264,7 +265,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/bar/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/bar/1", HttpMethod.GET));
 		assertEquals("bar", route.getLocation());
 		assertEquals("bar", route.getId());
 	}
@@ -277,7 +278,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
 
@@ -291,7 +292,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setPrefix("/proxy");
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/1", route.getPath());
 	}
@@ -305,7 +306,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**"));
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/app/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/app/foo/1", HttpMethod.GET));
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
 
@@ -320,7 +321,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/foo/1", route.getPath());
 	}
@@ -337,7 +338,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
 	}
 
@@ -351,7 +352,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/proxy/1", route.getPath());
 	}
@@ -367,7 +368,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.setStripPrefix(false);
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
 	}
 
@@ -381,7 +382,7 @@ public class DiscoveryClientRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertEquals("foo", route.getLocation());
 		assertEquals("/foo/1", route.getPath());
 	}
@@ -397,7 +398,7 @@ public class DiscoveryClientRouteLocatorTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null, null));
 		this.properties.setPrefix("/proxy");
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/proxy/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/proxy/foo/1", HttpMethod.GET));
 		assertNull("routes did not ignore " + "/proxy" + IGNOREDPATTERN, route);
 	}
 
@@ -412,7 +413,7 @@ public class DiscoveryClientRouteLocatorTests {
 		this.properties.getRoutes().put("foo", zuulRoute);
 		this.properties.init();
 		routeLocator.getRoutes(); // force refresh
-		Route route = routeLocator.getMatchingRoute("/foo/1");
+		Route route = routeLocator.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
 		assertNull("routes did not ignore " + IGNOREDPATTERN, route);
 	}
 

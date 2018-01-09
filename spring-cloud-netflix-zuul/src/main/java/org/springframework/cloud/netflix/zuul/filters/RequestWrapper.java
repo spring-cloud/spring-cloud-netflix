@@ -69,11 +69,6 @@ public class RequestWrapper {
 		return "RequestWrapper{" + "path='" + path + '\'' + ", method=" + method + '}';
 	}
 
-	public static RequestWrapper fromPath(String path) {
-		Objects.requireNonNull(path, "path must not be null");
-		return new RequestWrapper(path, null);
-	}
-
 	public static RequestWrapper from(String path, HttpMethod method) {
 		Objects.requireNonNull(path, "path must not be null");
 		Objects.requireNonNull(method, "method must not be null");

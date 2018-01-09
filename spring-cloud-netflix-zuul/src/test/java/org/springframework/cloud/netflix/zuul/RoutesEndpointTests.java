@@ -59,11 +59,6 @@ public class RoutesEndpointTests {
 			}
 
 			@Override
-			public Route getMatchingRoute(String path) {
-				return null;
-			}
-
-			@Override
 			public Route getMatchingRoute(RequestWrapper request) {
 				return null;
 			}

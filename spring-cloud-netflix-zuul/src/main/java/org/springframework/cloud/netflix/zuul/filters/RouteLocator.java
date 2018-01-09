@@ -36,15 +36,7 @@ public interface RouteLocator {
 	List<Route> getRoutes();
 
 	/**
-	 * Maps a path to an actual route with full metadata.
-	 */
-	@Deprecated
-	Route getMatchingRoute(String path);
-
-	/**
 	 * Maps a request to an actual route with full metadata.
 	 */
-	default Route getMatchingRoute(RequestWrapper request) {
-		return getMatchingRoute(request.getPath());
-	}
+	Route getMatchingRoute(RequestWrapper request);
 }

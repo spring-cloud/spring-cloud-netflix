@@ -32,6 +32,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,7 +66,7 @@ public class SimpleZuulServerApplicationTests {
 	private RouteLocator routes;
 
 	private String getRoute(String path) {
-		return this.routes.getMatchingRoute(path).getLocation();
+		return this.routes.getMatchingRoute(RequestWrapper.from(path, HttpMethod.GET)).getLocation();
 	}
 
 	@Before

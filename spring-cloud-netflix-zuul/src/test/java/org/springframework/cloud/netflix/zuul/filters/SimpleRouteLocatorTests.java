@@ -20,7 +20,9 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +31,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.http.HttpMethod;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Tom Cawley
@@ -53,7 +53,7 @@ public class SimpleRouteLocatorTests {
 	@Test
 	public void testGetRoutesWorkProperly() {
 		// given
-		given(zuulProperties.getRoutes()).willReturn(ImmutableMap.of("foo", new ZuulRoute("/foo/**", "foo")));
+		given(zuulProperties.getRoutes()).willReturn(mapOf("foo", new ZuulRoute("/foo/**", "foo")));
 		// when
 		List<Route> result = underTest.getRoutes();
 		// then
@@ -63,19 +63,9 @@ public class SimpleRouteLocatorTests {
 	@Test
 	public void testGetMatchingRouteShouldReturnRouteWhenMatches() {
 		// given
-		given(zuulProperties.getRoutes()).willReturn(ImmutableMap.of("foo", createZuulRoute("/foo/**", "foo", HttpMethod.GET)));
+		given(zuulProperties.getRoutes()).willReturn(mapOf("foo", createZuulRoute("/foo/**", "foo", HttpMethod.GET)));
 		// when
 		Route result = underTest.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
-		// then
-		assertThat(result).isNotNull().isEqualTo(createRoute("foo", "/1", "/foo", HttpMethod.GET));
-	}
-
-	@Test
-	public void testGetMatchingRouteShouldReturnRouteWhenNullMethodGiven() {
-		// given
-		given(zuulProperties.getRoutes()).willReturn(ImmutableMap.of("foo", createZuulRoute("/foo/**", "foo", HttpMethod.GET)));
-		// when
-		Route result = underTest.getMatchingRoute(RequestWrapper.fromPath("/foo/1"));
 		// then
 		assertThat(result).isNotNull().isEqualTo(createRoute("foo", "/1", "/foo", HttpMethod.GET));
 	}
@@ -83,7 +73,7 @@ public class SimpleRouteLocatorTests {
     @Test
     public void testGetMatchingRouteShouldReturnRouteWhenNullMethodGivenInProperties() {
         // given
-        given(zuulProperties.getRoutes()).willReturn(ImmutableMap.of("foo", new ZuulRoute("/foo/**", "foo")));
+        given(zuulProperties.getRoutes()).willReturn(mapOf("foo", new ZuulRoute("/foo/**", "foo")));
         // when
         Route result = underTest.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.GET));
         // then
@@ -93,11 +83,17 @@ public class SimpleRouteLocatorTests {
 	@Test
 	public void testGetMatchingRouteShouldReturnNullWhenMethodDoesNotMatch() {
 		// given
-		given(zuulProperties.getRoutes()).willReturn(ImmutableMap.of("foo", createZuulRoute("/foo/**", "foo", HttpMethod.GET)));
+		given(zuulProperties.getRoutes()).willReturn(mapOf("foo", createZuulRoute("/foo/**", "foo", HttpMethod.GET)));
 		// when
 		Route result = underTest.getMatchingRoute(RequestWrapper.from("/foo/1", HttpMethod.POST));
 		// then
 		assertThat(result).isNull();
+	}
+
+	private <K, V> Map<K, V> mapOf(K k1, V v1) {
+		Map<K, V> result = new HashMap<>();
+		result.put(k1, v1);
+		return result;
 	}
 
 	private ZuulRoute createZuulRoute(String path, String location, HttpMethod method) {

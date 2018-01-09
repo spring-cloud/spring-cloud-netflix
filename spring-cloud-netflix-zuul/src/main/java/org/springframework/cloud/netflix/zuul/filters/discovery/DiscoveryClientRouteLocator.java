@@ -20,6 +20,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
-
-import com.google.common.collect.Sets;
 
 /**
  * A {@link RouteLocator} that combines static, configured routes with those from a
@@ -131,7 +130,7 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 				// configured
 				String key = "/" + mapRouteToService(serviceId) + "/**";
 				if (staticServices.containsKey(serviceId)) {
-					Set<ZuulRoute> methodMap = Sets.newHashSet(staticServices.get(serviceId).values());
+					Set<ZuulRoute> methodMap = new HashSet<>(staticServices.get(serviceId).values());
 					for (ZuulRoute staticRoute : methodMap) {
 						if (staticRoute.getUrl() == null) {
 							// Explicitly configured with no URL, cannot be ignored

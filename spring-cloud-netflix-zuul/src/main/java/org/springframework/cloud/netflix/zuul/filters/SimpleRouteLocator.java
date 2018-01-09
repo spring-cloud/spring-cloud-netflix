@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,8 +41,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
-
-import com.google.common.collect.Sets;
 
 /**
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
@@ -88,11 +87,6 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	@Override
 	public Collection<String> getIgnoredPaths() {
 		return this.properties.getIgnoredPatterns();
-	}
-
-	@Override
-	public Route getMatchingRoute(String path) {
-		return getMatchingRoute(RequestWrapper.fromPath(path));
 	}
 
 	@Override
@@ -146,9 +140,6 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	}
 
 	private boolean matchesMethod(HttpMethod method, Entry<HttpMethod, ZuulRoute> zuulRoute) {
-		if (method == null) {
-			return true;
-		}
 		return method.equals(zuulRoute.getKey());
 	}
 
@@ -200,7 +191,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 			String path = route.getPath();
 			Set<HttpMethod> methods = route.getMethods();
 			if (CollectionUtils.isEmpty(methods)) {
-				methods = Sets.newHashSet(HttpMethod.values());
+				methods = Arrays.stream(HttpMethod.values()).collect(toSet());
 			}
 			Map<HttpMethod, ZuulRoute> routeMap = methods.stream().collect(toMap(identity(), method -> route));
 			Map<HttpMethod, ZuulRoute> existingMappings = routesMap.get(path);
