@@ -150,9 +150,10 @@
 		<module>spring-cloud-netflix-turbine-stream</module>
 		<module>spring-cloud-netflix-sidecar</module>
 		<module>spring-cloud-netflix-zuul</module>
+		<module>spring-cloud-netflix-ribbon</module>
 		<module>spring-cloud-starter-netflix</module>
 		<module>docs</module>
-	</modules>
+    </modules>
 	<profiles>
 		<profile>
 			<id>spring</id>
