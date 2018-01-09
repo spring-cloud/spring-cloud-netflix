@@ -17,6 +17,9 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
 import java.net.URI;
 
 import org.junit.After;
@@ -46,9 +49,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ServletPathZuulProxyApplicationTests.ServletPathZuulProxyApplication.class, webEnvironment = RANDOM_PORT, properties = {

@@ -16,28 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.netflix.util.Pair;
-import com.netflix.zuul.context.RequestContext;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
-import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
-import org.springframework.http.HttpMethod;
-import org.springframework.mock.web.MockHttpServletRequest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -46,6 +24,27 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SERVICE_ID_KEY;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.http.HttpMethod;
+import org.springframework.mock.web.MockHttpServletRequest;
+
+import com.netflix.util.Pair;
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * @author Dave Syer

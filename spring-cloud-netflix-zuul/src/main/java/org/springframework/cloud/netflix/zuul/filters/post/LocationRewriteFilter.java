@@ -16,9 +16,13 @@
  */
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import com.netflix.util.Pair;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
+
+import java.net.URI;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -32,11 +36,9 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UrlPathHelper;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
+import com.netflix.util.Pair;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * {@link ZuulFilter} Responsible for rewriting the Location header to be the Zuul URL

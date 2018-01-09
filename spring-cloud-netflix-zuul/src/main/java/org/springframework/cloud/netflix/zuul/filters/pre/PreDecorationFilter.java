@@ -16,24 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.pre;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.cloud.netflix.zuul.filters.*;
-import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
-import org.springframework.cloud.netflix.zuul.util.RequestUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.util.StringUtils;
-import org.springframework.web.util.UrlPathHelper;
-
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_LOCATION_PREFIX;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.HTTPS_PORT;
@@ -53,6 +35,28 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PORT_HEADER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PREFIX_HEADER;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PROTO_HEADER;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
+import org.springframework.cloud.netflix.zuul.filters.Route;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
+import org.springframework.cloud.netflix.zuul.util.RequestUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UrlPathHelper;
+
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * Pre {@link ZuulFilter} that determines where and how to route based on the supplied {@link RouteLocator}.
