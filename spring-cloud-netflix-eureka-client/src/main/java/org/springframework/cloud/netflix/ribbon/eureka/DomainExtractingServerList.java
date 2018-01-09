@@ -19,8 +19,9 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
+
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
@@ -32,15 +33,14 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 public class DomainExtractingServerList implements ServerList<DiscoveryEnabledServer> {
 
 	private ServerList<DiscoveryEnabledServer> list;
-
-	private IClientConfig clientConfig;
+	private final RibbonProperties ribbon;
 
 	private boolean approximateZoneFromHostname;
 
 	public DomainExtractingServerList(ServerList<DiscoveryEnabledServer> list,
 			IClientConfig clientConfig, boolean approximateZoneFromHostname) {
 		this.list = list;
-		this.clientConfig = clientConfig;
+		this.ribbon = RibbonProperties.from(clientConfig);
 		this.approximateZoneFromHostname = approximateZoneFromHostname;
 	}
 
@@ -60,10 +60,8 @@ public class DomainExtractingServerList implements ServerList<DiscoveryEnabledSe
 
 	private List<DiscoveryEnabledServer> setZones(List<DiscoveryEnabledServer> servers) {
 		List<DiscoveryEnabledServer> result = new ArrayList<>();
-		boolean isSecure = this.clientConfig.getPropertyAsBoolean(
-				CommonClientConfigKey.IsSecure, Boolean.TRUE);
-		boolean shouldUseIpAddr = this.clientConfig.getPropertyAsBoolean(
-				CommonClientConfigKey.UseIPAddrForServer, Boolean.FALSE);
+		boolean isSecure = this.ribbon.isSecure(true);
+		boolean shouldUseIpAddr = this.ribbon.isUseIPAddrForServer();
 		for (DiscoveryEnabledServer server : servers) {
 			result.add(new DomainExtractingServer(server, isSecure, shouldUseIpAddr,
 					this.approximateZoneFromHostname));

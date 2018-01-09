@@ -37,14 +37,13 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientName;
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.servo.monitor.Monitors;
@@ -73,27 +72,12 @@ public class HttpClientRibbonConfiguration {
 		public HttpClientConnectionManager httpClientConnectionManager(
 				IClientConfig config,
 				ApacheHttpClientConnectionManagerFactory connectionManagerFactory) {
-			Integer maxTotalConnections = config.getPropertyAsInteger(
-					CommonClientConfigKey.MaxTotalConnections,
-					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
-			Integer maxConnectionsPerHost = config.getPropertyAsInteger(
-					CommonClientConfigKey.MaxConnectionsPerHost,
-					DefaultClientConfigImpl.DEFAULT_MAX_CONNECTIONS_PER_HOST);
-			Integer timerRepeat = config.getPropertyAsInteger(
-					CommonClientConfigKey.ConnectionCleanerRepeatInterval,
-					DefaultClientConfigImpl.DEFAULT_CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS);
-			Object timeToLiveObj = config
-					.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
-			Long timeToLive = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME;
-			Object ttlUnitObj = config
-					.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
-			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
-			if (timeToLiveObj instanceof Long) {
-				timeToLive = (Long) timeToLiveObj;
-			}
-			if (ttlUnitObj instanceof TimeUnit) {
-				ttlUnit = (TimeUnit) ttlUnitObj;
-			}
+			RibbonProperties ribbon = RibbonProperties.from(config);
+			int maxTotalConnections = ribbon.maxTotalConnections();
+			int maxConnectionsPerHost = ribbon.maxConnectionsPerHost();
+			int timerRepeat = ribbon.connectionCleanerRepeatInterval();
+			long timeToLive = ribbon.poolKeepAliveTime();
+			TimeUnit ttlUnit = ribbon.getPoolKeepAliveTimeUnits();
 			final HttpClientConnectionManager connectionManager = connectionManagerFactory
 					.newConnectionManager(false, maxTotalConnections,
 							maxConnectionsPerHost, timeToLive, ttlUnit, registryBuilder);
@@ -110,12 +94,9 @@ public class HttpClientRibbonConfiguration {
 		@ConditionalOnMissingBean(CloseableHttpClient.class)
 		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
 											  HttpClientConnectionManager connectionManager, IClientConfig config) {
-			Boolean followRedirects = config.getPropertyAsBoolean(
-					CommonClientConfigKey.FollowRedirects,
-					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
-			Integer connectTimeout = config.getPropertyAsInteger(
-					CommonClientConfigKey.ConnectTimeout,
-					DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
+			RibbonProperties ribbon = RibbonProperties.from(config);
+			Boolean followRedirects = ribbon.isFollowRedirects();
+			Integer connectTimeout = ribbon.connectTimeout();
 			RequestConfig defaultRequestConfig = RequestConfig.custom()
 					.setConnectTimeout(connectTimeout)
 					.setRedirectsEnabled(followRedirects).build();

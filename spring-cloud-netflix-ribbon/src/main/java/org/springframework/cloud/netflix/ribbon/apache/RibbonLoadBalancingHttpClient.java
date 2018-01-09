@@ -17,18 +17,19 @@
 package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.net.URI;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.cloud.netflix.ribbon.RibbonUtils;
+
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 
@@ -54,13 +55,12 @@ public class RibbonLoadBalancingHttpClient extends
 	}
 
 	protected CloseableHttpClient createDelegate(IClientConfig config) {
+		RibbonProperties ribbon = RibbonProperties.from(config);
 		return HttpClientBuilder.create()
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
-				.setMaxConnTotal(config.getPropertyAsInteger(
-						CommonClientConfigKey.MaxTotalConnections, 0))
+				.setMaxConnTotal(ribbon.maxTotalConnections(0))
 				// already defaults to 0 in builder, so resetting to 0 won't hurt
-				.setMaxConnPerRoute(config.getPropertyAsInteger(
-						CommonClientConfigKey.MaxConnectionsPerHost, 0))
+				.setMaxConnPerRoute(ribbon.maxConnectionsPerHost(0))
 				.disableCookieManagement().useSystemProperties() // for proxy
 				.build();
 	}
@@ -68,16 +68,14 @@ public class RibbonLoadBalancingHttpClient extends
 	@Override
 	public RibbonApacheHttpResponse execute(RibbonApacheHttpRequest request,
 											final IClientConfig configOverride) throws Exception {
-		final RequestConfig.Builder builder = RequestConfig.custom();
 		IClientConfig config = configOverride != null ? configOverride : this.config;
-		builder.setConnectTimeout(
-				config.get(CommonClientConfigKey.ConnectTimeout, this.connectTimeout));
-		builder.setSocketTimeout(
-				config.get(CommonClientConfigKey.ReadTimeout, this.readTimeout));
-		builder.setRedirectsEnabled(
-				config.get(CommonClientConfigKey.FollowRedirects, this.followRedirects));
+		RibbonProperties ribbon = RibbonProperties.from(config);
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectTimeout(ribbon.connectTimeout(this.connectTimeout))
+				.setSocketTimeout(ribbon.readTimeout(this.readTimeout))
+				.setRedirectsEnabled(ribbon.isFollowRedirects(this.followRedirects))
+				.build();
 
-		final RequestConfig requestConfig = builder.build();
 		request = getSecureRequest(request, configOverride);
 		final HttpUriRequest httpUriRequest = request.toRequest(requestConfig);
 		final HttpResponse httpResponse = this.delegate.execute(httpUriRequest);

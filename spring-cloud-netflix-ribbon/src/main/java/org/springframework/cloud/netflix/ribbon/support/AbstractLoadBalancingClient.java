@@ -18,17 +18,20 @@
 package org.springframework.cloud.netflix.ribbon.support;
 
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.reactive.LoadBalancerCommand;
+
+import static org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT;
+import static org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.DEFAULT_READ_TIMEOUT;
 
 /**
  * @author Spencer Gibb
@@ -91,20 +94,12 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	@Override
 	public void initWithNiwsConfig(IClientConfig clientConfig) {
 		super.initWithNiwsConfig(clientConfig);
-		this.connectTimeout = clientConfig.getPropertyAsInteger(
-				CommonClientConfigKey.ConnectTimeout,
-				RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT);
-		this.readTimeout = clientConfig.getPropertyAsInteger(
-				CommonClientConfigKey.ReadTimeout,
-				RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
-		this.secure = clientConfig.getPropertyAsBoolean(CommonClientConfigKey.IsSecure,
-				false);
-		this.followRedirects = clientConfig.getPropertyAsBoolean(
-				CommonClientConfigKey.FollowRedirects,
-				DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
-		this.okToRetryOnAllOperations = clientConfig.getPropertyAsBoolean(
-				CommonClientConfigKey.OkToRetryOnAllOperations,
-				DefaultClientConfigImpl.DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
+		RibbonProperties ribbon = RibbonProperties.from(clientConfig);
+		this.connectTimeout = ribbon.connectTimeout(DEFAULT_CONNECT_TIMEOUT);
+		this.readTimeout = ribbon.readTimeout(DEFAULT_READ_TIMEOUT);
+		this.secure = ribbon.isSecure();
+		this.followRedirects = ribbon.isFollowRedirects();
+		this.okToRetryOnAllOperations = ribbon.isOkToRetryOnAllOperations();
 	}
 
 	protected abstract D createDelegate(IClientConfig config);
@@ -133,10 +128,7 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 
 	protected boolean isSecure(final IClientConfig config) {
 		if(config != null) {
-			Boolean result = config.get(CommonClientConfigKey.IsSecure);
-			if(result != null) {
-				return result;
-			}
+			return RibbonProperties.from(config).isSecure(this.secure);
 		}
 		return this.secure;
 	}

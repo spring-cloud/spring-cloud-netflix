@@ -30,14 +30,13 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientName;
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.servo.monitor.Monitors;
@@ -63,21 +62,10 @@ public class OkHttpRibbonConfiguration {
 		@ConditionalOnMissingBean(ConnectionPool.class)
 		public ConnectionPool httpClientConnectionPool(IClientConfig config,
 													   OkHttpClientConnectionPoolFactory connectionPoolFactory) {
-			Integer maxTotalConnections = config.getPropertyAsInteger(
-					CommonClientConfigKey.MaxTotalConnections,
-					DefaultClientConfigImpl.DEFAULT_MAX_TOTAL_CONNECTIONS);
-			Object timeToLiveObj = config
-					.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
-			Long timeToLive = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME;
-			Object ttlUnitObj = config
-					.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
-			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
-			if (timeToLiveObj instanceof Long) {
-				timeToLive = (Long) timeToLiveObj;
-			}
-			if (ttlUnitObj instanceof TimeUnit) {
-				ttlUnit = (TimeUnit) ttlUnitObj;
-			}
+			RibbonProperties ribbon = RibbonProperties.from(config);
+			int maxTotalConnections = ribbon.maxTotalConnections();
+			long timeToLive = ribbon.poolKeepAliveTime();
+			TimeUnit ttlUnit = ribbon.getPoolKeepAliveTimeUnits();
 			return connectionPoolFactory.create(maxTotalConnections, timeToLive, ttlUnit);
 		}
 
@@ -85,19 +73,13 @@ public class OkHttpRibbonConfiguration {
 		@ConditionalOnMissingBean(OkHttpClient.class)
 		public OkHttpClient client(OkHttpClientFactory httpClientFactory,
 								   ConnectionPool connectionPool, IClientConfig config) {
-			Boolean followRedirects = config.getPropertyAsBoolean(
-					CommonClientConfigKey.FollowRedirects,
-					DefaultClientConfigImpl.DEFAULT_FOLLOW_REDIRECTS);
-			Integer connectTimeout = config.getPropertyAsInteger(
-					CommonClientConfigKey.ConnectTimeout,
-					DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
-			Integer readTimeout = config.getPropertyAsInteger(CommonClientConfigKey.ReadTimeout,
-					DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT);
-			this.httpClient = httpClientFactory.createBuilder(false).
-					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
-					readTimeout(readTimeout, TimeUnit.MILLISECONDS).
-					followRedirects(followRedirects).
-					connectionPool(connectionPool).build();
+			RibbonProperties ribbon = RibbonProperties.from(config);
+			this.httpClient = httpClientFactory.createBuilder(false)
+					.connectTimeout(ribbon.connectTimeout(), TimeUnit.MILLISECONDS)
+					.readTimeout(ribbon.readTimeout(), TimeUnit.MILLISECONDS)
+					.followRedirects(ribbon.isFollowRedirects())
+					.connectionPool(connectionPool)
+					.build();
 			return this.httpClient;
 		}
 

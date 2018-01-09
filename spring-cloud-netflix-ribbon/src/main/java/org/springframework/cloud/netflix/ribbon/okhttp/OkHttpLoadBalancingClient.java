@@ -16,20 +16,22 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
+import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import com.netflix.client.config.CommonClientConfigKey;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author Spencer Gibb
@@ -71,17 +73,14 @@ public class OkHttpLoadBalancingClient
 	}
 
 	OkHttpClient getOkHttpClient(IClientConfig configOverride, boolean secure) {
-		OkHttpClient.Builder builder = this.delegate.newBuilder();
 		IClientConfig config = configOverride != null ? configOverride : this.config;
-		builder.connectTimeout(config.get(
-				CommonClientConfigKey.ConnectTimeout, this.connectTimeout), TimeUnit.MILLISECONDS);
-		builder.readTimeout(config.get(
-				CommonClientConfigKey.ReadTimeout, this.readTimeout), TimeUnit.MILLISECONDS);
-		builder.followRedirects(config.get(
-				CommonClientConfigKey.FollowRedirects, this.followRedirects));
+		RibbonProperties ribbon = RibbonProperties.from(config);
+		OkHttpClient.Builder builder = this.delegate.newBuilder()
+				.connectTimeout(ribbon.connectTimeout(this.connectTimeout), TimeUnit.MILLISECONDS)
+				.readTimeout(ribbon.readTimeout(this.readTimeout), TimeUnit.MILLISECONDS)
+				.followRedirects(ribbon.isFollowRedirects(this.followRedirects));
 		if (secure) {
-			builder.followSslRedirects(configOverride.get(
-					CommonClientConfigKey.FollowRedirects, this.followRedirects));
+			builder.followSslRedirects(ribbon.isFollowRedirects(this.followRedirects));
 		}
 
 		return builder.build();
