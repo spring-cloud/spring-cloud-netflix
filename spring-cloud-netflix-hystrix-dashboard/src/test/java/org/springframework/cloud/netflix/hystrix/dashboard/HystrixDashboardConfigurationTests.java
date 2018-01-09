@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,28 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
+import java.util.Map;
+
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
+import org.junit.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-import java.util.Map;
-
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.junit.After;
-import org.junit.Test;
-import org.springframework.boot.Banner.Mode;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.util.ReflectionTestUtils;
-
 /**
  * @author Roy Clarkson
  * @author Fahim Farook
+ * @author Biju Kunjummen
  */
 public class HystrixDashboardConfigurationTests {
 
-	private ConfigurableApplicationContext context;
-
-	@After
-	public void close() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
-	
 	@Test
 	public void normal() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -107,14 +96,20 @@ public class HystrixDashboardConfigurationTests {
 	
 	@Test
 	public void initParameters() {
-		this.context = new SpringApplicationBuilder(HystrixDashboardConfiguration.class)
-							.properties("hystrix.dashboard.init-parameters.wl-dispatch-polixy=work-manager-hystrix")
-							.web(false).bannerMode(Mode.OFF).run();
-		final ServletRegistrationBean registration = this.context.getBean(ServletRegistrationBean.class);
-		assertNotNull(registration);
-		
-		final Map<String, String> initParameters = registration.getInitParameters();
-		assertNotNull(initParameters);
-		assertThat(initParameters.get("wl-dispatch-polixy"), is("work-manager-hystrix"));
+		new ApplicationContextRunner()
+				.withUserConfiguration(HystrixDashboardConfiguration.class)
+				.withPropertyValues(
+						"hystrix.dashboard.init-parameters.wl-dispatch-polixy=work-manager-hystrix")
+				.run(context -> {
+					final ServletRegistrationBean registration = context
+							.getBean(ServletRegistrationBean.class);
+					assertNotNull(registration);
+
+					final Map<String, String> initParameters = registration
+							.getInitParameters();
+					assertNotNull(initParameters);
+					assertThat(initParameters.get("wl-dispatch-polixy"),
+							is("work-manager-hystrix"));
+				});
 	}
 }

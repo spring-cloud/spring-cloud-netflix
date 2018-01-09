@@ -487,13 +487,6 @@ public class FeignClientTests {
 			}
 			return result;
 		}
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclienttest",
-							"management.contextPath=/admin")
-					.run(args);
-		}
 	}
 
 	private static ArrayList<Hello> getHelloList() {

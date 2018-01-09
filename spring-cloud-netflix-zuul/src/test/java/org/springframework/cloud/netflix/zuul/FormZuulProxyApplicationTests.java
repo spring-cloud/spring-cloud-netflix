@@ -36,7 +36,6 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
 import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -302,15 +301,6 @@ class FormZuulProxyApplication {
 			}
 		};
 	}
-
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(FormZuulProxyApplication.class)
-				.properties("zuul.routes.simplefzpat:/simplefzpat/**",
-						"zuul.routes.direct.url:http://localhost:9999",
-						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
-				.run(args);
-	}
-
 }
 
 // Load balancer with fixed server list for "simplefzpat" pointing to localhost

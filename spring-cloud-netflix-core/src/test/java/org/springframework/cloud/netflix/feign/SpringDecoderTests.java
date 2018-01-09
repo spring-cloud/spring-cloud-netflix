@@ -244,13 +244,6 @@ public class SpringDecoderTests extends FeignClientFactoryBean {
 		public ResponseEntity<?> getWildcard() {
 			return ResponseEntity.ok(new Hello("wildcard"));
 		}
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=springdecodertest",
-							"management.contextPath=/admin")
-					.run(args);
-		}
 	}
 
 }

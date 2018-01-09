@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.testclients.TestClient;
@@ -71,13 +70,6 @@ public class FeignClientEnvVarTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public String getHello() {
 			return "hello world 1";
-		}
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclienttest",
-							"management.contextPath=/admin")
-					.run(args);
 		}
 	}
 
