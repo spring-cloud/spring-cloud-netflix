@@ -1192,15 +1192,17 @@ class FooController {
 
     	@Autowired
 	public FooController(
-			Decoder decoder, Encoder encoder, Client client) {
+			Decoder decoder, Encoder encoder, Client client, Contract contract) {
 		this.fooClient = Feign.builder().client(client)
 				.encoder(encoder)
 				.decoder(decoder)
+                .contract(contract)
 				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
 				.target(FooClient.class, "http://PROD-SVC");
 		this.adminClient = Feign.builder().client(client)
 				.encoder(encoder)
 				.decoder(decoder)
+				.contract(contract)
 				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
 				.target(FooClient.class, "http://PROD-SVC");
     }
