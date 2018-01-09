@@ -16,9 +16,10 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 import org.junit.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +34,7 @@ public class HystrixConfigurationTests {
 		new ApplicationContextRunner()
 			.withUserConfiguration(HystrixCircuitBreakerConfiguration.class)
 			.run(c -> {
-				assertThat(c.getBean(HystrixCommandAspect.class)).isNotNull();			
+				assertThat(c).hasSingleBean(HystrixCommandAspect.class);
 			});
 	}
 

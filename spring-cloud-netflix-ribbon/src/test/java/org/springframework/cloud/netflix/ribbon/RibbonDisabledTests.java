@@ -38,9 +38,9 @@ public class RibbonDisabledTests {
 	public void testRibbonDisabled() {
 		assertThatThrownBy(() -> new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class))
-				.run(context -> assertThat(
-						context.getBeanNamesForType(SpringClientFactory.class))
-								.hasSize(0))).hasCauseExactlyInstanceOf(
-										ArrayStoreException.class);
+				.run(context -> {
+					assertThat(context.getBeanNamesForType(SpringClientFactory.class))
+							.hasSize(0);
+				})).hasCauseExactlyInstanceOf(ArrayStoreException.class);
 	}
 }

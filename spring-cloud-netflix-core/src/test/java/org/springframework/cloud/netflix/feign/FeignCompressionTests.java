@@ -17,9 +17,8 @@
 
 package org.springframework.cloud.netflix.feign;
 
-import feign.Client;
-import feign.RequestInterceptor;
-import feign.httpclient.ApacheHttpClient;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,9 @@ import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Map;
+import feign.Client;
+import feign.RequestInterceptor;
+import feign.httpclient.ApacheHttpClient;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -46,23 +47,30 @@ import static org.junit.Assert.assertTrue;
  * @author Biju Kunjummen
  */
 @RunWith(ModifiedClassPathRunner.class)
-@ClassPathExclusions({"ribbon-loadbalancer-{version:\\d.*}.jar"})
+@ClassPathExclusions({ "ribbon-loadbalancer-{version:\\d.*}.jar" })
 public class FeignCompressionTests {
 
 	@Test
 	public void testInterceptors() {
 		new ApplicationContextRunner()
-			.withPropertyValues("feign.compression.response.enabled=true",
-				"feign.compression.request.enabled=true", "feign.okhttp.enabled=false")
-			.withConfiguration(AutoConfigurations.of(ArchaiusAutoConfiguration.class, FeignAutoConfiguration.class, FeignContentGzipEncodingAutoConfiguration.class,
-				FeignAcceptGzipEncodingAutoConfiguration.class, HttpClientConfiguration.class, PlainConfig.class))
-			.run(context -> {
-				FeignContext feignContext = context.getBean(FeignContext.class);
-				Map<String, RequestInterceptor> interceptors = feignContext.getInstances("foo", RequestInterceptor.class);
-				assertEquals(2, interceptors.size());
-				assertTrue(FeignAcceptGzipEncodingInterceptor.class.isInstance(interceptors.get("feignAcceptGzipEncodingInterceptor")));
-				assertTrue(FeignContentGzipEncodingInterceptor.class.isInstance(interceptors.get("feignContentGzipEncodingInterceptor")));				
-			});
+				.withPropertyValues("feign.compression.response.enabled=true",
+						"feign.compression.request.enabled=true",
+						"feign.okhttp.enabled=false")
+				.withConfiguration(AutoConfigurations.of(ArchaiusAutoConfiguration.class,
+						FeignAutoConfiguration.class,
+						FeignContentGzipEncodingAutoConfiguration.class,
+						FeignAcceptGzipEncodingAutoConfiguration.class,
+						HttpClientConfiguration.class, PlainConfig.class))
+				.run(context -> {
+					FeignContext feignContext = context.getBean(FeignContext.class);
+					Map<String, RequestInterceptor> interceptors = feignContext
+							.getInstances("foo", RequestInterceptor.class);
+					assertEquals(2, interceptors.size());
+					assertTrue(FeignAcceptGzipEncodingInterceptor.class.isInstance(
+							interceptors.get("feignAcceptGzipEncodingInterceptor")));
+					assertTrue(FeignContentGzipEncodingInterceptor.class.isInstance(
+							interceptors.get("feignContentGzipEncodingInterceptor")));
+				});
 	}
 
 	@Configuration
@@ -73,13 +81,17 @@ public class FeignCompressionTests {
 
 		@Bean
 		public ApacheHttpClient client() {
-			/* We know our client is an AppacheHttpClient because we disabled the OK HTTP client.  FeignAcceptGzipEncodingAutoConfiguration
-			 * won't load unless there is a bean of type ApacheHttpClient (not Client) in this test because the bean is not
-			 * yet created and so the application context doesnt know that the Client bean is actually an instance of ApacheHttpClient,
-			 * therefore FeignAcceptGzipEncodingAutoConfiguration will not be loaded.  We just create a bean here of type
-			 * ApacheHttpClient so that the configuration will be loaded correctly.
+			/*
+			 * We know our client is an AppacheHttpClient because we disabled the OK HTTP
+			 * client. FeignAcceptGzipEncodingAutoConfiguration won't load unless there is
+			 * a bean of type ApacheHttpClient (not Client) in this test because the bean
+			 * is not yet created and so the application context doesnt know that the
+			 * Client bean is actually an instance of ApacheHttpClient, therefore
+			 * FeignAcceptGzipEncodingAutoConfiguration will not be loaded. We just create
+			 * a bean here of type ApacheHttpClient so that the configuration will be
+			 * loaded correctly.
 			 */
-			return (ApacheHttpClient)client;
+			return (ApacheHttpClient) client;
 		}
 	}
 }

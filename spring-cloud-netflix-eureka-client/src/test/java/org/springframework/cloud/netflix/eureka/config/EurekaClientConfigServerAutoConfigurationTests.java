@@ -16,12 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
-import com.netflix.appinfo.EurekaInstanceConfig;
 import org.junit.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+
+import com.netflix.appinfo.EurekaInstanceConfig;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,9 +34,8 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 
 	@Test
 	public void offByDefault() {
-		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations
-						.of(EurekaClientConfigServerAutoConfiguration.class))
+		new ApplicationContextRunner().withConfiguration(
+				AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class))
 				.run(c -> {
 					assertEquals(0,
 							c.getBeanNamesForType(EurekaInstanceConfigBean.class).length);

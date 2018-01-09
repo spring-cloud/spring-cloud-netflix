@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.netflix.hystrix.dashboard;
 
+import java.util.Map;
+
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
@@ -23,8 +25,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;

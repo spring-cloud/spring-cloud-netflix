@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -31,8 +33,6 @@ import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpCl
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -46,21 +46,29 @@ public class SpringRetryDisabledTests {
 	@Test
 	public void testLoadBalancedRetryFactoryBean() {
 		new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class,LoadBalancerAutoConfiguration.class, RibbonClientConfiguration.class,
-				FeignRibbonClientAutoConfiguration.class))
-			.run(context -> {
-				Map<String, LoadBalancedRetryPolicyFactory> factories =  context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
-				assertThat(factories.values()).hasSize(1);
-				assertThat(factories.values().toArray()[0]).isInstanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class);
-				Map<String, RibbonLoadBalancingHttpClient> clients =  context.getBeansOfType(RibbonLoadBalancingHttpClient.class);
-				assertThat(clients.values()).hasSize(1);
-				assertThat(clients.values().toArray()[0]).isInstanceOf(RibbonLoadBalancingHttpClient.class);
-				Map<String, CachingSpringLoadBalancerFactory> lbFactorys =  context.getBeansOfType(CachingSpringLoadBalancerFactory.class);
-				assertThat(lbFactorys.values()).hasSize(1);
-				FeignLoadBalancer lb =lbFactorys.values().iterator().next().create("foo");
-				assertThat(lb).isInstanceOf(FeignLoadBalancer.class);
-				assertThat(lb).isNotInstanceOf(RetryableFeignLoadBalancer.class);
-			});
+				.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class,
+						LoadBalancerAutoConfiguration.class,
+						RibbonClientConfiguration.class,
+						FeignRibbonClientAutoConfiguration.class))
+				.run(context -> {
+					Map<String, LoadBalancedRetryPolicyFactory> factories = context
+							.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
+					assertThat(factories.values()).hasSize(1);
+					assertThat(factories.values().toArray()[0]).isInstanceOf(
+							LoadBalancedRetryPolicyFactory.NeverRetryFactory.class);
+					Map<String, RibbonLoadBalancingHttpClient> clients = context
+							.getBeansOfType(RibbonLoadBalancingHttpClient.class);
+					assertThat(clients.values()).hasSize(1);
+					assertThat(clients.values().toArray()[0])
+							.isInstanceOf(RibbonLoadBalancingHttpClient.class);
+					Map<String, CachingSpringLoadBalancerFactory> lbFactorys = context
+							.getBeansOfType(CachingSpringLoadBalancerFactory.class);
+					assertThat(lbFactorys.values()).hasSize(1);
+					FeignLoadBalancer lb = lbFactorys.values().iterator().next()
+							.create("foo");
+					assertThat(lb).isInstanceOf(FeignLoadBalancer.class);
+					assertThat(lb).isNotInstanceOf(RetryableFeignLoadBalancer.class);
+				});
 
 	}
 }
