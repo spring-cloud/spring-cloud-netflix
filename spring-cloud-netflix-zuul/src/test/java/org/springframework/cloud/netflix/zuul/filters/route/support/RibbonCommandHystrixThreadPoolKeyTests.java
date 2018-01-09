@@ -120,6 +120,20 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 				.isEqualTo(ribbonCommand2.getCommandGroup().name());
 	}
 
+	@Test
+	public void testTimeoutWithSemaphoreIsolation() throws Exception {
+		zuulProperties.setRibbonIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE);
+		TestRibbonCommand ribbonCommand = new TestRibbonCommand("testCommand", zuulProperties);
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue()).isEqualTo(2000);
+	}
+
+	@Test
+	public void testTimeoutWithThreadIsolation() throws Exception {
+		zuulProperties.setRibbonIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD);
+		TestRibbonCommand ribbonCommand = new TestRibbonCommand("testCommand", zuulProperties);
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue()).isEqualTo(2000);
+	}
+
 	public static class TestRibbonCommand extends
 			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
 		public TestRibbonCommand(String commandKey, ZuulProperties zuulProperties) {
