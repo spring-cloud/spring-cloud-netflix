@@ -20,13 +20,19 @@ package org.springframework.cloud.netflix.feign;
 import java.util.Collections;
 
 import org.junit.Test;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
  * @author Spencer Gibb
+ * @author Gang Li
  */
 public class FeignClientsRegistrarTests {
 
@@ -74,4 +80,42 @@ public class FeignClientsRegistrarTests {
 		registrar.setEnvironment(new MockEnvironment());
 		return registrar.getName(Collections.<String, Object>singletonMap("name", name));
 	}
+
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testFallback() {
+		new AnnotationConfigApplicationContext(FallbackTestConfig.class);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testFallbackFactory() {
+		new AnnotationConfigApplicationContext(FallbackFactoryTestConfig.class);
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableFeignClients(clients = { FeignClientsRegistrarTests.FallbackClient.class})
+	protected static class FallbackTestConfig {
+
+	}
+
+	@FeignClient(name = "fallbackTestClient", url = "http://localhost:8080/", fallback = FallbackClient.class)
+	protected interface FallbackClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		String fallbackTest();
+	}
+
+	@Configuration
+	@EnableAutoConfiguration
+	@EnableFeignClients(clients = { FeignClientsRegistrarTests.FallbackFactoryClient.class})
+	protected static class FallbackFactoryTestConfig {
+
+	}
+
+	@FeignClient(name = "fallbackFactoryTestClient", url = "http://localhost:8081/", fallbackFactory = FallbackFactoryClient.class)
+	protected interface FallbackFactoryClient {
+		@RequestMapping(method = RequestMethod.GET, value = "/hello")
+		String fallbackFactoryTest();
+	}
+
 }

@@ -300,6 +300,25 @@ public class EurekaClientAutoConfigurationTests {
 
 		assertEquals("statusPageUrl is wrong", "http://" + instance.getIpAddress() + ":9999/info",
 				instance.getStatusPageUrl());
+		assertEquals("healthCheckUrl is wrong", "http://" + instance.getIpAddress() + ":9999/health",
+				instance.getHealthCheckUrl());
+	}
+
+	@Test
+	public void statusPageAndHealthCheckUrlsShouldSetUserDefinedIpAddress() {
+		addEnvironment(this.context, "server.port=8989",
+				"management.server.port=9999", "eureka.instance.hostname=foo",
+				"eureka.instance.ipAddress:192.168.13.90",
+				"eureka.instance.preferIpAddress:true");
+
+		setupContext(RefreshAutoConfiguration.class);
+		EurekaInstanceConfigBean instance = this.context
+				.getBean(EurekaInstanceConfigBean.class);
+
+		assertEquals("statusPageUrl is wrong", "http://192.168.13.90:9999/info",
+				instance.getStatusPageUrl());
+		assertEquals("healthCheckUrl is wrong", "http://192.168.13.90:9999/health",
+				instance.getHealthCheckUrl());
 	}
 
 	@Test
