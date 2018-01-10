@@ -42,7 +42,6 @@ import javax.servlet.http.HttpServletRequest;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-
 /**
  * @author Eko Kurniawan Khannedy
  */
