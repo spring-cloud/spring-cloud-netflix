@@ -149,13 +149,13 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				return new OkHttpRibbonResponse(response, newRequest.getUri());
 			}
 		};
-        RibbonRecoveryCallback<OkHttpRibbonResponse, Response> recoveryCallback = new RibbonRecoveryCallback<OkHttpRibbonResponse, Response>() {
-            @Override
-            protected OkHttpRibbonResponse createResponse(Response response, URI uri) {
-                return new OkHttpRibbonResponse(response, uri);
-            }
-        };
-        return this.executeWithRetry(ribbonRequest, retryPolicy, retryCallback, recoveryCallback);
+		RibbonRecoveryCallback<OkHttpRibbonResponse, Response> recoveryCallback = new RibbonRecoveryCallback<OkHttpRibbonResponse, Response>() {
+			@Override
+			protected OkHttpRibbonResponse createResponse(Response response, URI uri) {
+				return new OkHttpRibbonResponse(response, uri);
+			}
+		};
+		return this.executeWithRetry(ribbonRequest, retryPolicy, retryCallback, recoveryCallback);
 	}
 
 	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {

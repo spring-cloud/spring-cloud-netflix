@@ -150,11 +150,11 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 				return new RibbonResponse(request.getUri(), response);
 			}
 		}, new RibbonRecoveryCallback<RibbonResponse, Response>() {
-            @Override
-            protected RibbonResponse createResponse(Response response, URI uri) {
-                return new RibbonResponse(uri, response);
-            }
-        });
+			@Override
+			protected RibbonResponse createResponse(Response response, URI uri) {
+				return new RibbonResponse(uri, response);
+			}
+		});
 	}
 
 	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {

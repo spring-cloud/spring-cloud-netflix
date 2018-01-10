@@ -146,12 +146,12 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}
 		};
-        RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
-            @Override
-            protected RibbonApacheHttpResponse createResponse(HttpResponse response, URI uri) {
-                return new RibbonApacheHttpResponse(response, uri);
-            }
-        };
+		RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
+			@Override
+			protected RibbonApacheHttpResponse createResponse(HttpResponse response, URI uri) {
+				return new RibbonApacheHttpResponse(response, uri);
+			}
+		};
 		return this.executeWithRetry(request, retryPolicy, retryCallback, recoveryCallback);
 	}
 
