@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

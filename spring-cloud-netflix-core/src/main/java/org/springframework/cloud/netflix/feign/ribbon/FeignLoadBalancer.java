@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,7 +40,6 @@ import com.netflix.client.ClientRequest;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -54,6 +55,7 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
 public class FeignLoadBalancer extends
 		AbstractLoadBalancerAwareClient<FeignLoadBalancer.RibbonRequest, FeignLoadBalancer.RibbonResponse> {
 
+	private final RibbonProperties ribbon;
 	protected int connectTimeout;
 	protected int readTimeout;
 	protected IClientConfig clientConfig;
@@ -64,8 +66,10 @@ public class FeignLoadBalancer extends
 		super(lb, clientConfig);
 		this.setRetryHandler(RetryHandler.DEFAULT);
 		this.clientConfig = clientConfig;
-		this.connectTimeout = clientConfig.get(CommonClientConfigKey.ConnectTimeout);
-		this.readTimeout = clientConfig.get(CommonClientConfigKey.ReadTimeout);
+		this.ribbon = RibbonProperties.from(clientConfig);
+		RibbonProperties ribbon = this.ribbon;
+		this.connectTimeout = ribbon.getConnectTimeout();
+		this.readTimeout = ribbon.getReadTimeout();
 		this.serverIntrospector = serverIntrospector;
 	}
 
@@ -74,11 +78,10 @@ public class FeignLoadBalancer extends
 			throws IOException {
 		Request.Options options;
 		if (configOverride != null) {
+			RibbonProperties override = RibbonProperties.from(configOverride);
 			options = new Request.Options(
-					configOverride.get(CommonClientConfigKey.ConnectTimeout,
-							this.connectTimeout),
-					(configOverride.get(CommonClientConfigKey.ReadTimeout,
-							this.readTimeout)));
+					override.connectTimeout(this.connectTimeout),
+					override.readTimeout(this.readTimeout));
 		}
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
@@ -90,8 +93,7 @@ public class FeignLoadBalancer extends
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(
 			RibbonRequest request, IClientConfig requestConfig) {
-		if (this.clientConfig.get(CommonClientConfigKey.OkToRetryOnAllOperations,
-				false)) {
+		if (this.ribbon.isOkToRetryOnAllOperations()) {
 			return new RequestSpecificRetryHandler(true, true, this.getRetryHandler(),
 					requestConfig);
 		}

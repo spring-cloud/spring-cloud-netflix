@@ -30,6 +30,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
@@ -39,7 +40,6 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RequestSpecificRetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
@@ -78,11 +78,10 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 			throws IOException {
 		final Request.Options options;
 		if (configOverride != null) {
+			RibbonProperties ribbon = RibbonProperties.from(configOverride);
 			options = new Request.Options(
-					configOverride.get(CommonClientConfigKey.ConnectTimeout,
-							this.connectTimeout),
-					(configOverride.get(CommonClientConfigKey.ReadTimeout,
-							this.readTimeout)));
+					ribbon.connectTimeout(this.connectTimeout),
+					ribbon.readTimeout(this.readTimeout));
 		}
 		else {
 			options = new Request.Options(this.connectTimeout, this.readTimeout);
