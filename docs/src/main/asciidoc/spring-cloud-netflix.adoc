@@ -1214,6 +1214,10 @@ provided by Spring Cloud Netflix.
 
 NOTE: `PROD-SVC` is the name of the service the Clients will be making requests to.
 
+NOTE: The Feign Contract object defines what annotations and values are valid on interfaces. The
+autowired Contract bean provides supports for SpringMVC annotations, instead of
+the default Feign native annotations.
+
 [[spring-cloud-feign-hystrix]]
 === Feign Hystrix Support
 
