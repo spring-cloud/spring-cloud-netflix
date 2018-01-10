@@ -13,8 +13,6 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListFilter;
 
 import static org.springframework.cloud.netflix.ribbon.SpringClientFactory.NAMESPACE;
-import static org.springframework.cloud.netflix.ribbon.SpringClientFactory.instantiateWithConfig;
-
 
 /**
  * @author Spencer Gibb

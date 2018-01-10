@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
 import org.springframework.test.util.ReflectionTestUtils;
 import com.netflix.loadbalancer.Server;
 

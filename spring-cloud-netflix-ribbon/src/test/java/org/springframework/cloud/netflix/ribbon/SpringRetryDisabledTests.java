@@ -33,8 +33,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
 
 /**
  * @author Ryan Baxter
