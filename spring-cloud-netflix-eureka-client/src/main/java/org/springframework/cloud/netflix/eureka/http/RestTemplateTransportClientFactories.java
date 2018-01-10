@@ -33,6 +33,12 @@ import javax.net.ssl.SSLContext;
  */
 public class RestTemplateTransportClientFactories
 		implements TransportClientFactories<Void> {
+	private final RestTemplateTransportClientFactory restTemplateTransportClientFactory;
+
+	public RestTemplateTransportClientFactories(
+			RestTemplateTransportClientFactory restTemplateTransportClientFactory) {
+		this.restTemplateTransportClientFactory = restTemplateTransportClientFactory;
+	}
 
 	@Override
 	public TransportClientFactory newTransportClientFactory(
@@ -44,15 +50,15 @@ public class RestTemplateTransportClientFactories
 	public TransportClientFactory newTransportClientFactory(
 			EurekaClientConfig clientConfig, Collection<Void> additionalFilters,
 			InstanceInfo myInstanceInfo) {
-		return new RestTemplateTransportClientFactory();
+		return restTemplateTransportClientFactory;
 	}
 
 	@Override
-	public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
-															final Collection<Void> additionalFilters,
-															final InstanceInfo myInstanceInfo,
-															final Optional<SSLContext> sslContext,
-															final Optional<HostnameVerifier> hostnameVerifier) {
-		return new RestTemplateTransportClientFactory();
+	public TransportClientFactory newTransportClientFactory(
+			final EurekaClientConfig clientConfig,
+			final Collection<Void> additionalFilters, final InstanceInfo myInstanceInfo,
+			final Optional<SSLContext> sslContext,
+			final Optional<HostnameVerifier> hostnameVerifier) {
+		return restTemplateTransportClientFactory;
 	}
 }

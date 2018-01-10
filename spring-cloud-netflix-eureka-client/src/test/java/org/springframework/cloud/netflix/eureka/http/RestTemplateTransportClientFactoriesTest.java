@@ -24,6 +24,8 @@ import org.junit.Test;
 public class RestTemplateTransportClientFactoriesTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void testJerseyIsUnsuported() {
-		new RestTemplateTransportClientFactories().newTransportClientFactory(null, null);
+		new RestTemplateTransportClientFactories(new RestTemplateTransportClientFactory(
+				new BasicEurekaRestTemplateFactory()))
+				.newTransportClientFactory(null, null);
 	}
 }

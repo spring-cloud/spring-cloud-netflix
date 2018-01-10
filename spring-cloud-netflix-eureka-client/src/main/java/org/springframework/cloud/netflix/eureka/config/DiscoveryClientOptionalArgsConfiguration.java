@@ -16,12 +16,17 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.cloud.netflix.eureka.MutableDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.BasicEurekaRestTemplateFactory;
+import org.springframework.cloud.netflix.eureka.http.EurekaRestTemplateFactory;
 import org.springframework.cloud.netflix.eureka.http.RestTemplateDiscoveryClientOptionalArgs;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactories;
+import org.springframework.cloud.netflix.eureka.http.RestTemplateTransportClientFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,12 +36,37 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
  * @author Daniel Lavoie
  */
 @Configuration
+@AutoConfigureAfter(EurekaOAuth2AutoConfiguration.class)
 public class DiscoveryClientOptionalArgsConfiguration {
+
+	@Bean
+	@ConditionalOnMissingBean(value = EurekaRestTemplateFactory.class)
+	public EurekaRestTemplateFactory eurekaRestTemplateFactory() {
+		return new BasicEurekaRestTemplateFactory();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public RestTemplateTransportClientFactory restTemplateTransportClientFactory(
+			EurekaRestTemplateFactory eurekaRestTemplateFactory) {
+		return new RestTemplateTransportClientFactory(eurekaRestTemplateFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public RestTemplateTransportClientFactories restTemplateTransportClientFactories(
+			RestTemplateTransportClientFactory restTemplateTransportClientFactory) {
+		return new RestTemplateTransportClientFactories(
+				restTemplateTransportClientFactory);
+	}
+
 	@Bean
 	@ConditionalOnMissingClass("com.sun.jersey.api.client.filter.ClientFilter")
 	@ConditionalOnMissingBean(value = AbstractDiscoveryClientOptionalArgs.class, search = SearchStrategy.CURRENT)
-	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs() {
-		return new RestTemplateDiscoveryClientOptionalArgs();
+	public RestTemplateDiscoveryClientOptionalArgs restTemplateDiscoveryClientOptionalArgs(
+			RestTemplateTransportClientFactories restTemplateTransportClientFactories) {
+		return new RestTemplateDiscoveryClientOptionalArgs(
+				restTemplateTransportClientFactories);
 	}
 
 	@Bean

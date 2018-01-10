@@ -65,8 +65,9 @@ public class EurekaServerMockApplication {
 	 */
 	@Bean
 	public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
-		return new RestTemplateTransportClientFactory()
-				.mappingJacksonHttpMessageConverter();
+		return new RestTemplateTransportClientFactory(
+				new BasicEurekaRestTemplateFactory())
+						.mappingJacksonHttpMessageConverter();
 	}
 
 	@ResponseStatus(HttpStatus.OK)
@@ -75,7 +76,8 @@ public class EurekaServerMockApplication {
 			@RequestBody InstanceInfo instanceInfo) {
 		isTrue(instanceInfo.getPort() != DEFAULT_PORT && instanceInfo.getPort() != 0,
 				"Port not received from client");
-		isTrue(instanceInfo.getSecurePort() != DEFAULT_SECURE_PORT && instanceInfo.getSecurePort() != 0,
+		isTrue(instanceInfo.getSecurePort() != DEFAULT_SECURE_PORT
+				&& instanceInfo.getSecurePort() != 0,
 				"Secure Port not received from client");
 		// Nothing to do
 	}
@@ -132,8 +134,8 @@ public class EurekaServerMockApplication {
 
 	@Configuration
 	@Order(Ordered.HIGHEST_PRECEDENCE)
-	protected static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
-
+	protected static class TestSecurityConfiguration
+			extends WebSecurityConfigurerAdapter {
 
 		TestSecurityConfiguration() {
 			super(true);
@@ -142,15 +144,15 @@ public class EurekaServerMockApplication {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-			manager.createUser(User.withUsername("test").password("{noop}test").roles("USER").build());
+			manager.createUser(User.withUsername("test").password("{noop}test")
+					.roles("USER").build());
 			return manager;
 		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// super.configure(http);
-			http.antMatcher("/apps/**")
-					.httpBasic();
+			http.antMatcher("/apps/**").httpBasic();
 		}
 
 	}

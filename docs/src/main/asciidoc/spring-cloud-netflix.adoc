@@ -85,14 +85,35 @@ See {github-code}/spring-cloud-netflix-eureka-client/src/main/java/org/springfra
 
 To disable the Eureka Discovery Client you can set `eureka.client.enabled` to `false`.
 
-=== Authenticating with the Eureka Server
+=== Basic authentication with the Eureka Server
 
 HTTP basic authentication will be automatically added to your eureka
 client if one of the `eureka.client.serviceUrl.defaultZone` URLs has
 credentials embedded in it (curl style, like
-`http://user:password@localhost:8761/eureka`). For more complex needs
-you can create a `@Bean` of type `DiscoveryClientOptionalArgs` and
-inject `ClientFilter` instances into it, all of which will be applied
+`http://user:password@localhost:8761/eureka`).
+
+=== OAuth2 client support
+
+OAuth 2 support will be auto configured when `org.springframework.security.oauth:spring-security-oauth2` 
+is available in your classpath and you provide a `@Bean` of type `EurekaOAuth2ResourceDetails` within 
+your context. OAuth2 resource details can by configured with the following properties: 
+
+.application.yml
+----
+ eureka:
+  client:
+    oauth2:
+      client_secret: client-secret
+      client_id: user
+      access_token_uri: oauth2-token-uri
+----
+
+IMPORTANT: OAuth2 client support is only supported with Rest Template. Jersey dependencies must be excluded. See <<EurekaClient without Jersey>> for more information.
+
+=== Custom authentication
+
+For more complex needs you can create a `@Bean` of type `DiscoveryClientOptionalArgs` and
+inject `ClientFilter` or `RestTemplace` instances into it, all of which will be applied
 to the calls from the client to the server.
 
 NOTE: Because of a limitation in Eureka it isn't possible to support

@@ -44,6 +44,8 @@ import com.netflix.discovery.shared.transport.EurekaHttpResponse.EurekaHttpRespo
 import com.netflix.discovery.util.StringUtil;
 
 /**
+ * {@link RestTemplate} based implementation of an {@link EurekaHttpClient}.
+ * 
  * @author Daniel Lavoie
  */
 public class RestTemplateEurekaHttpClient implements EurekaHttpClient {

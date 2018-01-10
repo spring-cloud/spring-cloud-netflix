@@ -16,17 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
+import org.springframework.web.client.RestTemplate;
 
 /**
- * Eureka client extension that allows customization of the transport client.
- * 
  * @author Daniel Lavoie
  */
-public class RestTemplateDiscoveryClientOptionalArgs
-		extends AbstractDiscoveryClientOptionalArgs<Void> {
-	public RestTemplateDiscoveryClientOptionalArgs(
-			RestTemplateTransportClientFactories restTemplateTransportClientFactories) {
-		setTransportClientFactories(restTemplateTransportClientFactories);
-	}
+public interface EurekaRestTemplateFactory {
+	RestTemplate newRestTemplate(String serviceUrl);
 }

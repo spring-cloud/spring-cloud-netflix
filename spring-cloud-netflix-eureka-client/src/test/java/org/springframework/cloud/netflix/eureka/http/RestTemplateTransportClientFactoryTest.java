@@ -30,7 +30,8 @@ public class RestTemplateTransportClientFactoryTest {
 
 	@Before
 	public void setup() {
-		transportClientFatory = new RestTemplateTransportClientFactory();
+		transportClientFatory = new RestTemplateTransportClientFactory(
+				new BasicEurekaRestTemplateFactory());
 	}
 
 	@Test

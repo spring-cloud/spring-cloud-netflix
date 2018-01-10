@@ -16,10 +16,6 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,28 +46,22 @@ import com.netflix.discovery.shared.transport.TransportClientFactory;
  * @author Daniel Lavoie
  */
 public class RestTemplateTransportClientFactory implements TransportClientFactory {
+	private EurekaRestTemplateFactory eurekaRestTemplateFactory;
 
-	@Override
-	public EurekaHttpClient newClient(EurekaEndpoint serviceUrl) {
-		return new RestTemplateEurekaHttpClient(restTemplate(serviceUrl.getServiceUrl()),
-				serviceUrl.getServiceUrl());
+	public RestTemplateTransportClientFactory(
+			EurekaRestTemplateFactory eurekaRestTemplateFactory) {
+		this.eurekaRestTemplateFactory = eurekaRestTemplateFactory;
 	}
 
-	private RestTemplate restTemplate(String serviceUrl) {
-		RestTemplate restTemplate = new RestTemplate();
-		try {
-			URI serviceURI = new URI(serviceUrl);
-			if (serviceURI.getUserInfo() != null) {
-				String[] credentials = serviceURI.getUserInfo().split(":");
-				if (credentials.length == 2) {
-					restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(
-							credentials[0], credentials[1]));
-				}
-			}
-		}
-		catch (URISyntaxException ignore) {
+	@Override
+	public EurekaHttpClient newClient(EurekaEndpoint eurekaEndpoint) {
+		return new RestTemplateEurekaHttpClient(
+				newRestTemplate(eurekaEndpoint.getServiceUrl()),
+				eurekaEndpoint.getServiceUrl());
+	}
 
-		}
+	private RestTemplate newRestTemplate(String serviceUrl) {
+		RestTemplate restTemplate = eurekaRestTemplateFactory.newRestTemplate(serviceUrl);
 
 		restTemplate.getMessageConverters().add(0, mappingJacksonHttpMessageConverter());
 
@@ -96,34 +86,34 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 				.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE));
 
 		SimpleModule jsonModule = new SimpleModule();
-		jsonModule.setSerializerModifier(createJsonSerializerModifier());//keyFormatter, compact));
+		jsonModule.setSerializerModifier(createJsonSerializerModifier());// keyFormatter,
+																			// compact));
 		converter.getObjectMapper().registerModule(jsonModule);
 
 		converter.getObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true);
 		converter.getObjectMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE,
 				true);
-		converter.getObjectMapper().addMixIn(Applications.class, ApplicationsJsonMixIn.class);
-		converter.getObjectMapper().addMixIn(InstanceInfo.class, InstanceInfoJsonMixIn.class);
-
-		// converter.getObjectMapper().addMixIn(DataCenterInfo.class, DataCenterInfoXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(InstanceInfo.PortWrapper.class, PortWrapperXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(Application.class, ApplicationXmlMixIn.class);
-		// converter.getObjectMapper().addMixIn(Applications.class, ApplicationsXmlMixIn.class);
-
+		converter.getObjectMapper().addMixIn(Applications.class,
+				ApplicationsJsonMixIn.class);
+		converter.getObjectMapper().addMixIn(InstanceInfo.class,
+				InstanceInfoJsonMixIn.class);
 
 		return converter;
 	}
 
-	public static BeanSerializerModifier createJsonSerializerModifier() {//final KeyFormatter keyFormatter, final boolean compactMode) {
+	public static BeanSerializerModifier createJsonSerializerModifier() {
 		return new BeanSerializerModifier() {
 			@Override
 			public JsonSerializer<?> modifySerializer(SerializationConfig config,
-													  BeanDescription beanDesc, JsonSerializer<?> serializer) {
-				/*if (beanDesc.getBeanClass().isAssignableFrom(Applications.class)) {
-					return new ApplicationsJsonBeanSerializer((BeanSerializerBase) serializer, keyFormatter);
-				}*/
+					BeanDescription beanDesc, JsonSerializer<?> serializer) {
+				/*
+				 * if (beanDesc.getBeanClass().isAssignableFrom(Applications.class)) {
+				 * return new ApplicationsJsonBeanSerializer((BeanSerializerBase)
+				 * serializer, keyFormatter); }
+				 */
 				if (beanDesc.getBeanClass().isAssignableFrom(InstanceInfo.class)) {
-					return new InstanceInfoJsonBeanSerializer((BeanSerializerBase) serializer, false);
+					return new InstanceInfoJsonBeanSerializer(
+							(BeanSerializerBase) serializer, false);
 				}
 				return serializer;
 			}
