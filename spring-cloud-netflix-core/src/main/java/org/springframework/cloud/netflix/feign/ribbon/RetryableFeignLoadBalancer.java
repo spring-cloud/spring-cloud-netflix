@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
@@ -37,11 +38,10 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFact
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
+import org.springframework.cloud.netflix.ribbon.RibbonRecoveryCallback;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
-import org.springframework.retry.RecoveryCallback;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
-import org.springframework.retry.RetryException;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
@@ -149,17 +149,12 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 				}
 				return new RibbonResponse(request.getUri(), response);
 			}
-		}, new RecoveryCallback<RibbonResponse>() {
-			@Override
-			public RibbonResponse recover(RetryContext retryContext) throws Exception {
-				Throwable lastThrowable = retryContext.getLastThrowable();
-				if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
-					RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
-					return new RibbonResponse(ex.getUri(), (Response) ex.getResponse());
-				}
-				throw new RetryException("Could not recover", lastThrowable);
-			}
-		});
+		}, new RibbonRecoveryCallback<RibbonResponse, Response>() {
+            @Override
+            protected RibbonResponse createResponse(Response response, URI uri) {
+                return new RibbonResponse(uri, response);
+            }
+        });
 	}
 
 	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {

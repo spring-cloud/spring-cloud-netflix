@@ -36,12 +36,12 @@ import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeExceptio
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.feign.ribbon.FeignRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
+import org.springframework.cloud.netflix.ribbon.RibbonRecoveryCallback;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RecoveryCallback;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
-import org.springframework.retry.RetryException;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
@@ -146,17 +146,12 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}
 		};
-		RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback = new RecoveryCallback<RibbonApacheHttpResponse>() {
-			@Override
-			public RibbonApacheHttpResponse recover(RetryContext context) throws Exception {
-				Throwable lastThrowable = context.getLastThrowable();
-				if (lastThrowable != null && lastThrowable instanceof RetryableStatusCodeException) {
-					RetryableStatusCodeException ex = (RetryableStatusCodeException) lastThrowable;
-					return new RibbonApacheHttpResponse((HttpResponse) ex.getResponse(), ex.getUri());
-				}
-				throw new RetryException("Could not recover", lastThrowable);
-			}
-		};
+        RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
+            @Override
+            protected RibbonApacheHttpResponse createResponse(HttpResponse response, URI uri) {
+                return new RibbonApacheHttpResponse(response, uri);
+            }
+        };
 		return this.executeWithRetry(request, retryPolicy, retryCallback, recoveryCallback);
 	}
 
