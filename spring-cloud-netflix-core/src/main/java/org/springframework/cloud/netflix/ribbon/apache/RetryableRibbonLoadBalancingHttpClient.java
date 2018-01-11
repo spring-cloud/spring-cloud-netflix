@@ -168,8 +168,8 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	}
 
 	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
-                                                      RetryCallback<RibbonApacheHttpResponse, Exception> callback,
-                                                      RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback) throws Exception {
+													  RetryCallback<RibbonApacheHttpResponse, Exception> callback,
+													  RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = request.getContext() == null ? true :
 				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);

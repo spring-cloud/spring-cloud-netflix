@@ -96,8 +96,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 	}
 
 	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request, LoadBalancedRetryPolicy retryPolicy,
-                                                  RetryCallback<OkHttpRibbonResponse, Exception> callback,
-                                                  RecoveryCallback<OkHttpRibbonResponse> recoveryCallback) throws Exception {
+												  RetryCallback<OkHttpRibbonResponse, Exception> callback,
+												  RecoveryCallback<OkHttpRibbonResponse> recoveryCallback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());
 		retryTemplate.setBackOffPolicy(backOffPolicy == null ? new NoBackOffPolicy() : backOffPolicy);
