@@ -175,7 +175,7 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "zuul.ribbon.eager-load.enabled", matchIfMissing = false)
+	@ConditionalOnProperty(value = "zuul.ribbon.eager-load.enabled")
 	public ZuulRouteApplicationContextInitializer zuulRoutesApplicationContextInitiazer(
 			SpringClientFactory springClientFactory) {
 		return new ZuulRouteApplicationContextInitializer(springClientFactory,
