@@ -19,7 +19,6 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
