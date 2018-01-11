@@ -1094,15 +1094,17 @@ class FooController {
 
     	@Autowired
 	public FooController(
-			Decoder decoder, Encoder encoder, Client client) {
+			Decoder decoder, Encoder encoder, Client client, Contract contract) {
 		this.fooClient = Feign.builder().client(client)
 				.encoder(encoder)
 				.decoder(decoder)
+                .contract(contract)
 				.requestInterceptor(new BasicAuthRequestInterceptor("user", "user"))
 				.target(FooClient.class, "http://PROD-SVC");
 		this.adminClient = Feign.builder().client(client)
 				.encoder(encoder)
 				.decoder(decoder)
+				.contract(contract)
 				.requestInterceptor(new BasicAuthRequestInterceptor("admin", "admin"))
 				.target(FooClient.class, "http://PROD-SVC");
     }
@@ -1113,6 +1115,11 @@ provided by Spring Cloud Netflix.</simpara>
 </note>
 <note>
 <simpara><literal>PROD-SVC</literal> is the name of the service the Clients will be making requests to.</simpara>
+</note>
+<note>
+<simpara>The Feign <literal>Contract</literal> object defines what annotations and values are valid on interfaces. The
+autowired <literal>Contract</literal> bean provides supports for SpringMVC annotations, instead of
+the default Feign native annotations.</simpara>
 </note>
 </section>
 <section xml:id="spring-cloud-feign-hystrix">
