@@ -54,6 +54,9 @@ public class HystrixStreamAggregator {
 
 	@ServiceActivator(inputChannel = TurbineStreamClient.INPUT)
 	public void sendToSubject(@Payload String payload) {
+		if (log.isTraceEnabled()) {
+			log.trace("Received hystrix stream payload string: " + payload);
+		}
 		if (payload.startsWith("\"")) {
 			// Legacy payload from an Angel client
 			payload = payload.substring(1, payload.length() - 1);

@@ -24,8 +24,6 @@ import java.net.URI;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.stubrunner.StubTrigger;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
 import org.springframework.http.HttpHeaders;
@@ -51,15 +49,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Spencer Gibb
  * @author Daniel Lavoie
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TurbineStreamTests.Application.class, webEnvironment = WebEnvironment.NONE, value = {
-		"turbine.stream.port=0", "spring.jmx.enabled=true",
-		"spring.main.web-application-type=servlet",
+@SpringBootTest(classes = TurbineStreamTests.Application.class, webEnvironment = RANDOM_PORT, properties = {
 		// TODO: we don't need this if we harmonize the turbine and hystrix destinations
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
@@ -82,21 +79,23 @@ public class TurbineStreamTests {
 	@Autowired
 	TurbineStreamConfiguration turbine;
 
+	@LocalServerPort
+	int port;
+
 	@EnableAutoConfiguration
 	@EnableTurbineStream
 	public static class Application {
 	}
 
 	@Test
-	@Ignore // FIXME 2.0.0 Elmurst stream missing class @Controller?
 	public void contextLoads() throws Exception {
 		rest.getInterceptors().add(new NonClosingInterceptor());
 		int count = ((MessageChannelMetrics) input).getSendCount();
 		ResponseEntity<String> response = rest.execute(
-				new URI("http://localhost:" + turbine.getTurbinePort() + "/"),
+				new URI("http://localhost:" + port + "/"),
 				HttpMethod.GET, null, this::extract);
-		assertThat(response.getHeaders().getContentType())
-				.isEqualTo(MediaType.TEXT_EVENT_STREAM);
+		assertThat(response.getHeaders().getContentType().isCompatibleWith(MediaType.TEXT_EVENT_STREAM))
+				.isTrue();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, Object> metrics = extractMetrics(response.getBody());
 		assertThat(metrics).containsEntry("type", "HystrixCommand");

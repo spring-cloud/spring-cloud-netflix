@@ -22,29 +22,25 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.reactivex.netty.RxNetty;
-import io.reactivex.netty.protocol.http.server.HttpServer;
-import io.reactivex.netty.protocol.http.sse.ServerSentEvent;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.actuator.HasFeatures;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.netflix.turbine.aggregator.InstanceKey;
 import com.netflix.turbine.aggregator.StreamAggregator;
 import com.netflix.turbine.internal.JsonUtility;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.context.SmartLifecycle;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.util.SocketUtils;
-
 import static io.reactivex.netty.pipeline.PipelineConfigurators.serveSseConfigurator;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.reactivex.netty.RxNetty;
+import io.reactivex.netty.protocol.http.server.HttpServer;
+import io.reactivex.netty.protocol.http.sse.ServerSentEvent;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
@@ -54,7 +50,7 @@ import rx.subjects.PublishSubject;
  */
 @Configuration
 @EnableConfigurationProperties(TurbineStreamProperties.class)
-public class TurbineStreamConfiguration implements SmartLifecycle {
+public class TurbineStreamConfiguration /*implements SmartLifecycle*/ {
 
 	private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
 
@@ -77,6 +73,11 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	}
 
 	@Bean
+	public TurbineController turbineController(PublishSubject<Map<String, Object>> hystrixSubject) {
+		return new TurbineController(hystrixSubject);
+	}
+
+	// @Bean
 	@SuppressWarnings("deprecation")
 	public HttpServer<ByteBuf, ServerSentEvent> aggregatorServer() {
 		// multicast so multiple concurrent subscribers get the same stream
@@ -91,11 +92,11 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 				.refCount();
 		Observable<Map<String, Object>> output = Observable.merge(publishedStreams, ping);
 
-		this.turbinePort = this.properties.getPort();
+		// this.turbinePort = this.properties.getPort();
 
-		if (this.turbinePort <= 0) {
-			this.turbinePort = SocketUtils.findAvailableTcpPort(40000);
-		}
+		// if (this.turbinePort <= 0) {
+		// 	this.turbinePort = SocketUtils.findAvailableTcpPort(40000);
+		// }
 
 		HttpServer<ByteBuf, ServerSentEvent> httpServer = RxNetty
 				.createHttpServer(this.turbinePort, (request, response) -> {
@@ -112,6 +113,7 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 				}, serveSseConfigurator());
 		return httpServer;
 	}
+    /*
 
 	@Override
 	public boolean isAutoStartup() {
@@ -152,6 +154,7 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 	public int getPhase() {
 		return 0;
 	}
+    */
 
 	public int getTurbinePort() {
 		return this.turbinePort;

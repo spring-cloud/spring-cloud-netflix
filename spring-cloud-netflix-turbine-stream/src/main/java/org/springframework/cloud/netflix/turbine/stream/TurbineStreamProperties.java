@@ -30,20 +30,9 @@ import org.springframework.http.MediaType;
 @ConfigurationProperties("turbine.stream")
 public class TurbineStreamProperties {
 
-	@Value("${server.port:8989}")
-	private int port = 8989;
-
 	private String destination = HystrixConstants.HYSTRIX_STREAM_DESTINATION;
 
 	private String contentType = MediaType.APPLICATION_JSON_VALUE;
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
 
 	public String getDestination() {
 		return destination;
@@ -68,18 +57,18 @@ public class TurbineStreamProperties {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		TurbineStreamProperties that = (TurbineStreamProperties) o;
-		return port == that.port && Objects.equals(destination, that.destination)
+		return Objects.equals(destination, that.destination)
 				&& Objects.equals(contentType, that.contentType);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(port, destination, contentType);
+		return Objects.hash(destination, contentType);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder("TurbineStreamProperties{").append("port=").append(port)
+		return new StringBuilder("TurbineStreamProperties{")
 				.append(", ").append("destination='").append(destination).append("', ")
 				.append("contentType='").append(contentType).append("'}").toString();
 	}

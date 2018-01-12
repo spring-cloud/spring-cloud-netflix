@@ -15,7 +15,7 @@
 	<description>Spring Cloud Netflix Hystrix Contract</description>
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
-		<donotreplacespring-cloud-contract.version>1.1.2.RELEASE</donotreplacespring-cloud-contract.version>
+		<donotreplacespring-cloud-contract.version>1.2.4.RELEASE</donotreplacespring-cloud-contract.version>
 	</properties>
 	<dependencies>
 		<dependency>

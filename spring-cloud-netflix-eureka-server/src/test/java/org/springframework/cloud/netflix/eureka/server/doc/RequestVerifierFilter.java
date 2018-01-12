@@ -17,6 +17,8 @@ package org.springframework.cloud.netflix.eureka.server.doc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -324,4 +326,18 @@ class WireMockRestAssuredRequestAdapter implements Request {
 		return false;
 	}
 
+	@Override
+	public boolean isMultipart() {
+		return false;
+	}
+
+	@Override
+	public Collection<Part> getParts() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Part getPart(String s) {
+		return null;
+	}
 }
