@@ -115,7 +115,7 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "ribbon.eager-load.enabled", matchIfMissing = false)
+	@ConditionalOnProperty(value = "ribbon.eager-load.enabled")
 	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
 		return new RibbonApplicationContextInitializer(springClientFactory(),
 				ribbonEagerLoadProperties.getClients());

@@ -100,7 +100,7 @@ public class FeignClientsConfiguration {
 		@Bean
 		@Scope("prototype")
 		@ConditionalOnMissingBean
-		@ConditionalOnProperty(name = "feign.hystrix.enabled", matchIfMissing = false)
+		@ConditionalOnProperty(name = "feign.hystrix.enabled")
 		public Feign.Builder feignHystrixBuilder() {
 			return HystrixFeign.builder();
 		}
