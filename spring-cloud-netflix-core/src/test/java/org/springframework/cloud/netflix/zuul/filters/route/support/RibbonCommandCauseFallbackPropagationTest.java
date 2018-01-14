@@ -27,6 +27,7 @@ import com.netflix.client.ClientException;
 import com.netflix.client.ClientRequest;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
+import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
@@ -147,7 +148,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
 				ZuulFallbackProvider fallbackProvider, int timeout) {
 			// different name is used because of properties caching
-			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties())
+			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(), new DefaultClientConfigImpl())
 					.andCommandPropertiesDefaults(defauts(timeout)), client, null,
 					fallbackProvider, null);
 		}
