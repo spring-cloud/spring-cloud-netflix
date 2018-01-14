@@ -93,11 +93,18 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 				0).get();
 		int commandHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command." + commandKey + ".execution.isolation.thread.timeoutInMilliseconds",
 				0).get();
-		int ribbonReadTimeout = config == null ? RibbonClientConfiguration.DEFAULT_READ_TIMEOUT :
-				config.get(IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT).intValue();
-		int ribbonConnectTimeout = config == null ? RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT :
-				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT).intValue();
-		int ribbonTimeout = ribbonConnectTimeout + ribbonReadTimeout;
+		int ribbonTimeout;
+		if (config == null) {
+			ribbonTimeout = RibbonClientConfiguration.DEFAULT_READ_TIMEOUT + RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT;
+		} else {
+			int ribbonReadTimeout = dynamicPropertyFactory.getIntProperty(
+				commandKey + "." + config.getNameSpace() + ".ReadTimeout",
+				config.get(IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT).intValue()).get();
+			int ribbonConnectTimeout = dynamicPropertyFactory.getIntProperty(
+				commandKey + "." + config.getNameSpace() + ".ConnectTimeout",
+				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT).intValue()).get();
+			ribbonTimeout = ribbonConnectTimeout + ribbonReadTimeout;
+		}
 		int hystrixTimeout;
 		if(commandHystrixTimeout > 0) {
 			hystrixTimeout = commandHystrixTimeout;
