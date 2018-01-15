@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 
 /**
  * @author Ryan Baxter
+ * @author Gang Li
  */
 public class OkHttpRibbonCommandFactoryTest {
 
@@ -54,7 +55,7 @@ public class OkHttpRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		OkHttpRibbonCommand ribbonCommand = this.commandFactory.create(context);
-		assertEquals(2000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
 	}
 
 	@Test
@@ -86,7 +87,66 @@ public class OkHttpRibbonCommandFactoryTest {
 	}
 
 	@Test
-	public void testHystrixTimeoutValueRibbonTimeouts() throws Exception {
+	public void testHystrixDefaultAndRibbonSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", 30);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ReadTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetries", 1);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetriesNextServer", 2);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(30, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testHystrixCommandAndRibbonSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", 30);
+		ConfigurationManager.getConfigInstance().setProperty("hystrix.command.service.execution.isolation.thread.timeoutInMilliseconds", 50);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ReadTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetries", 1);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetriesNextServer", 2);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(50, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testDefaultRibbonSetting() throws Exception {
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testRibbonAndRibbonRetriesDefaultSetting() throws Exception {
 		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
 		ZuulProperties zuulProperties = new ZuulProperties();
 		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
@@ -100,33 +160,13 @@ public class OkHttpRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
-		assertEquals(600, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+		assertEquals(1200, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
 	}
 
 	@Test
-	public void testHystrixTimeoutValueWithRibbonCommdKeyTimeouts() throws Exception {
-		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 999);
-		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ReadTimeout", 888);
-		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
-		ZuulProperties zuulProperties = new ZuulProperties();
-		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
-		IClientConfig clientConfig = new DefaultClientConfigImpl();
-		clientConfig.set(IClientConfigKey.Keys.ConnectTimeout, 100);
-		clientConfig.set(IClientConfigKey.Keys.ReadTimeout, 500);
-		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
-			eq(OkHttpLoadBalancingClient.class));
-		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
-		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
-		RibbonCommandContext context = mock(RibbonCommandContext.class);
-		doReturn("service").when(context).getServiceId();
-		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
-		assertEquals(1887, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
-	}
-
-	@Test
-	public void testHystrixTimeoutValueWithRibbonCommandKeyAndNameSpaceTimeouts() throws Exception {
-		ConfigurationManager.getConfigInstance().setProperty("service.test.ConnectTimeout", 999);
-		ConfigurationManager.getConfigInstance().setProperty("service.test.ReadTimeout", 888);
+	public void testRibbonTimeoutAndRibbonRetriesDefaultAndNameSpaceSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("service.test.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.test.ReadTimeout", 1000);
 		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
 		ZuulProperties zuulProperties = new ZuulProperties();
 		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
@@ -140,7 +180,110 @@ public class OkHttpRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
-		assertEquals(1887, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testRibbonTimeoutAndRibbonRetriesDefaultAndDefaultSpaceSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ReadTimeout", 1000);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		clientConfig.set(IClientConfigKey.Keys.ConnectTimeout, 100);
+		clientConfig.set(IClientConfigKey.Keys.ReadTimeout, 500);
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testRibbonTimeoutAndRibbonNameSpaceRetriesDefaultAndDefaultSpaceSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ReadTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.test.MaxAutoRetriesNextServer", 2);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl("test");
+		clientConfig.set(IClientConfigKey.Keys.ConnectTimeout, 100);
+		clientConfig.set(IClientConfigKey.Keys.ReadTimeout, 500);
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(1800, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testRibbonRetriesAndRibbonTimeoutSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetries", 1);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetriesNextServer", 2);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		clientConfig.set(IClientConfigKey.Keys.ConnectTimeout, 100);
+		clientConfig.set(IClientConfigKey.Keys.ReadTimeout, 500);
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(3600, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testRibbonCommandRetriesAndRibbonCommandTimeoutSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ReadTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetries", 1);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetriesNextServer", 2);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		clientConfig.set(IClientConfigKey.Keys.ConnectTimeout, 100);
+		clientConfig.set(IClientConfigKey.Keys.ReadTimeout, 500);
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(12000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
+	}
+
+	@Test
+	public void testRibbonCommandRetriesAndRibbonCommandTimeoutPartOfSetting() throws Exception {
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.ConnectTimeout", 1000);
+		ConfigurationManager.getConfigInstance().setProperty("service.ribbon.MaxAutoRetries", 1);
+		SpringClientFactory springClientFactory = mock(SpringClientFactory.class);
+		ZuulProperties zuulProperties = new ZuulProperties();
+		OkHttpLoadBalancingClient loadBalancingHttpClient = mock(OkHttpLoadBalancingClient.class);
+		IClientConfig clientConfig = new DefaultClientConfigImpl();
+		clientConfig.set(IClientConfigKey.Keys.ConnectTimeout, 100);
+		clientConfig.set(IClientConfigKey.Keys.ReadTimeout, 500);
+		doReturn(loadBalancingHttpClient).when(springClientFactory).getClient(anyString(),
+			eq(OkHttpLoadBalancingClient.class));
+		doReturn(clientConfig).when(springClientFactory).getClientConfig(anyString());
+		OkHttpRibbonCommandFactory commandFactory = new OkHttpRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		RibbonCommandContext context = mock(RibbonCommandContext.class);
+		doReturn("service").when(context).getServiceId();
+		OkHttpRibbonCommand ribbonCommand = commandFactory.create(context);
+		assertEquals(6000, ribbonCommand.getProperties().executionTimeoutInMilliseconds().get().intValue());
 	}
 
 }

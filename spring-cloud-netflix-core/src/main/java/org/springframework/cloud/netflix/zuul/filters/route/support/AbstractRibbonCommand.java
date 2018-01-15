@@ -99,17 +99,25 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		} else {
 			int ribbonReadTimeout = dynamicPropertyFactory.getIntProperty(
 				commandKey + "." + config.getNameSpace() + ".ReadTimeout",
-				config.get(IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT).intValue()).get();
+				config.get(IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT)).get();
 			int ribbonConnectTimeout = dynamicPropertyFactory.getIntProperty(
 				commandKey + "." + config.getNameSpace() + ".ConnectTimeout",
-				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT).intValue()).get();
-			ribbonTimeout = ribbonConnectTimeout + ribbonReadTimeout;
+				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT)).get();
+			//Because ribbon.maxAutoRetries defaults to 0, here we set default Value to 0
+			int maxAutoRetries = dynamicPropertyFactory.getIntProperty(
+				commandKey + "." + config.getNameSpace() + ".MaxAutoRetries",
+				config.get(IClientConfigKey.Keys.MaxAutoRetries, 0)).get();
+			//Because ribbon.maxAutoRetriesNextServer defaults to 1, here we set default Value to 1
+			int maxAutoRetriesNextServer = dynamicPropertyFactory.getIntProperty(
+				commandKey + "." + config.getNameSpace() + ".MaxAutoRetriesNextServer",
+				config.get(IClientConfigKey.Keys.MaxAutoRetriesNextServer, 1)).get();
+			ribbonTimeout = (ribbonReadTimeout + ribbonConnectTimeout) * (maxAutoRetries + 1) * (maxAutoRetriesNextServer + 1);
 		}
 		int hystrixTimeout;
 		if(commandHystrixTimeout > 0) {
 			hystrixTimeout = commandHystrixTimeout;
 		}
-		else if( defaultHystrixTimeout > 0) {
+		else if(defaultHystrixTimeout > 0) {
 			hystrixTimeout = defaultHystrixTimeout;
 		} else {
 			hystrixTimeout = ribbonTimeout;
