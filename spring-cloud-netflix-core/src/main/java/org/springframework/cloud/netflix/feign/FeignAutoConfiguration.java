@@ -118,7 +118,7 @@ public class FeignAutoConfiguration {
 				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
 				FeignHttpClientProperties httpClientProperties) {
 			final HttpClientConnectionManager connectionManager = connectionManagerFactory
-					.newConnectionManager(false, httpClientProperties.getMaxConnections(),
+					.newConnectionManager(httpClientProperties.isDisableSslValidation(), httpClientProperties.getMaxConnections(),
 							httpClientProperties.getMaxConnectionsPerRoute(),
 							httpClientProperties.getTimeToLive(),
 							httpClientProperties.getTimeToLiveUnit(), registryBuilder);
@@ -185,7 +185,8 @@ public class FeignAutoConfiguration {
 										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
 			Boolean followRedirects = httpClientProperties.isFollowRedirects();
 			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
-			this.okHttpClient = httpClientFactory.createBuilder(false).
+			Boolean disableSslValidation = httpClientProperties.isDisableSslValidation();
+			this.okHttpClient = httpClientFactory.createBuilder(disableSslValidation).
 					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
 					followRedirects(followRedirects).
 					connectionPool(connectionPool).build();
