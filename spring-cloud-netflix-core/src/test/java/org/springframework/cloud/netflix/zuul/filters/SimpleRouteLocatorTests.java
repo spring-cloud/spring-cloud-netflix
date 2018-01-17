@@ -70,6 +70,15 @@ public class SimpleRouteLocatorTests {
 	}
 
 	@Test
+	public void testPrefix() {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setPrefix("/test/");
+		RouteLocator locator = new FilteringRouteLocator("/", properties);
+		properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+		assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
+	}
+
+	@Test
 	public void test_getMatchingRouteFilterRouteAcceptor() {
 		RouteLocator locator = new FilteringRouteLocator("/", this.zuul);
 		this.zuul.getRoutes().clear();
