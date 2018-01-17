@@ -1294,7 +1294,7 @@ public class FooConfiguration {
 </chapter>
 <chapter xml:id="_router_and_filter_zuul">
 <title>Router and Filter: Zuul</title>
-<simpara>Routing in an integral part of a microservice architecture.  For example, <literal>/</literal> may be mapped to your web application, <literal>/api/users</literal> is mapped to the user service and <literal>/api/shop</literal> is mapped to the shop service.  <link xl:href="https://github.com/Netflix/zuul">Zuul</link> is a JVM based router and server side load balancer by Netflix.</simpara>
+<simpara>Routing is an integral part of a microservice architecture.  For example, <literal>/</literal> may be mapped to your web application, <literal>/api/users</literal> is mapped to the user service and <literal>/api/shop</literal> is mapped to the shop service.  <link xl:href="https://github.com/Netflix/zuul">Zuul</link> is a JVM based router and server side load balancer by Netflix.</simpara>
 <simpara><link xl:href="http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27">Netflix uses Zuul</link> for the following:</simpara>
 <itemizedlist>
 <listitem>
