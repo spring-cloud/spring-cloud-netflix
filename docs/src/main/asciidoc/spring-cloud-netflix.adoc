@@ -1416,7 +1416,7 @@ Archaius has its own set of configuration files and loading priorities.  Spring 
 
 == Router and Filter: Zuul
 
-Routing in an integral part of a microservice architecture.  For example, `/` may be mapped to your web application, `/api/users` is mapped to the user service and `/api/shop` is mapped to the shop service.  https://github.com/Netflix/zuul[Zuul] is a JVM based router and server side load balancer by Netflix.
+Routing is an integral part of a microservice architecture.  For example, `/` may be mapped to your web application, `/api/users` is mapped to the user service and `/api/shop` is mapped to the shop service.  https://github.com/Netflix/zuul[Zuul] is a JVM based router and server side load balancer by Netflix.
 
 http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27[Netflix uses Zuul] for the following:
 
