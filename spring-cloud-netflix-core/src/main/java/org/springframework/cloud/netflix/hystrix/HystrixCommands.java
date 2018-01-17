@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixObservableCommand;
 import com.netflix.hystrix.HystrixObservableCommand.Setter;
 
@@ -49,6 +50,7 @@ public class HystrixCommands {
 		private String groupName;
 		private Publisher<T> fallback;
 		private Setter setter;
+		private HystrixCommandProperties.Setter commandProperties;
 		private boolean eager = false;
 		private Function<HystrixObservableCommand<T>, Observable<T>> toObservable;
 
@@ -74,6 +76,22 @@ public class HystrixCommands {
 		public PublisherBuilder<T> setter(Setter setter) {
 			this.setter = setter;
 			return this;
+		}
+
+		public PublisherBuilder<T> commandProperties(
+				HystrixCommandProperties.Setter commandProperties) {
+			this.commandProperties = commandProperties;
+			return this;
+		}
+
+		public PublisherBuilder<T> commandProperties(
+				Function<HystrixCommandProperties.Setter, HystrixCommandProperties.Setter> commandProperties) {
+			if (commandProperties == null) {
+				throw new IllegalArgumentException(
+						"commandProperties must not both be null");
+			}
+			return this.commandProperties(
+					commandProperties.apply(HystrixCommandProperties.Setter()));
 		}
 
 		public PublisherBuilder<T> eager() {
@@ -126,7 +144,11 @@ public class HystrixCommands {
 
 				HystrixCommandGroupKey groupKey = HystrixCommandGroupKey.Factory.asKey(groupNameToUse);
 				HystrixCommandKey commandKey = HystrixCommandKey.Factory.asKey(this.commandName);
-				setterToUse = Setter.withGroupKey(groupKey).andCommandKey(commandKey);
+				HystrixCommandProperties.Setter commandProperties = this.commandProperties != null
+						? this.commandProperties
+						: HystrixCommandProperties.Setter();
+				setterToUse = Setter.withGroupKey(groupKey).andCommandKey(commandKey)
+						.andCommandPropertiesDefaults(commandProperties);
 			}
 			return setterToUse;
 		}
