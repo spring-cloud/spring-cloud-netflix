@@ -16,14 +16,15 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -38,9 +39,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -91,13 +91,7 @@ public class FeignRibbonClientRetryTests {
 		public int retryMe() {
 			return this.retries.getAndIncrement();
 		}
-
-		public static void main(String[] args) throws InterruptedException {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclientretrytest",
-							"management.contextPath=/admin")
-					.run(args);
-		}
+		
 	}
 
 	@Test

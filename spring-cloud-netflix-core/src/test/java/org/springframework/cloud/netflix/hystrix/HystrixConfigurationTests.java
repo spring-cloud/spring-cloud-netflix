@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,25 @@
 package org.springframework.cloud.netflix.hystrix;
 
 import org.junit.Test;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
+ * @author Biju Kunjummen
  */
 public class HystrixConfigurationTests {
 
 	@Test
 	public void nonWebAppStartsUp() {
-		new SpringApplicationBuilder(HystrixCircuitBreakerConfiguration.class).web(false)
-				.run().close();
+		new ApplicationContextRunner()
+			.withUserConfiguration(HystrixCircuitBreakerConfiguration.class)
+			.run(c -> {
+				assertThat(c).hasSingleBean(HystrixCommandAspect.class);
+			});
 	}
 
 }
