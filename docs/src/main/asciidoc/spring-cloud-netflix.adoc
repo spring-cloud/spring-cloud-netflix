@@ -2130,12 +2130,11 @@ Zuul timeout including any potential retries that might be made.For example:
 
 .application.yml
 ----
-zuul:
-  ribbon:
-    ReadTimeout:100
-    ConnectTimeout:500
-    MaxAutoRetries:0
-    MaxAutoRetriesNextServer:1
+ribbon:
+  ReadTimeout:100
+  ConnectTimeout:500
+  MaxAutoRetries:0
+  MaxAutoRetriesNextServer:1
 ----
 At this point Zuul timeout is 1200ms.
 
