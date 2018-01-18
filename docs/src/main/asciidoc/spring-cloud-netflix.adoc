@@ -2118,8 +2118,26 @@ class MyFallbackProvider implements FallbackProvider {
 If you want to configure the socket timeouts and read timeouts for requests proxied through
 Zuul there are two options based on your configuration.
 
-If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
-`ribbon.ReadTimeout` and `ribbon.SocketTimeout`.
+If Zuul is using service discovery then its timeout mechanism should follow the following principles:
+
+- If `hystrix.command.commandKey.execution.isolation.thread.timeoutInMilliseconds` is set use that timeout.
+- Else if `hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds` is set use that timeout.
+- Else if `clientName.nameSpace.ReadTimeout` and `clientName.nameSpace.ConnectTimeout` is set use that timeout.
+- Else if the `ribbon.ConnectTimeout` and `ibbon.ReadTimeout` is set use that timeout.
+- Else use the default ribbon connect and read timeouts.
+
+Zuul timeout including any potential retries that might be made.For example:
+
+.application.yml
+----
+zuul:
+  ribbon:
+    ReadTimeout:100
+    ConnectTimeout:500
+    MaxAutoRetries:0
+    MaxAutoRetriesNextServer:1
+----
+At this point Zuul timeout is 1200ms.
 
 If you have configured Zuul routes by specifying URLs than you will need to use
 `zuul.host.connect-timeout-millis` and `zuul.host.socket-timeout-millis`.
