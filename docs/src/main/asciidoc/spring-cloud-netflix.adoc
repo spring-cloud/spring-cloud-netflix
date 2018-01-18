@@ -2123,7 +2123,7 @@ If Zuul is using service discovery then its timeout mechanism should follow the 
 - If `hystrix.command.commandKey.execution.isolation.thread.timeoutInMilliseconds` is set use that timeout.
 - Else if `hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds` is set use that timeout.
 - Else if `clientName.nameSpace.ReadTimeout` and `clientName.nameSpace.ConnectTimeout` is set use that timeout.
-- Else if the `ribbon.ConnectTimeout` and `ibbon.ReadTimeout` is set use that timeout.
+- Else if the `ribbon.ConnectTimeout` and `ribbon.ReadTimeout` is set use that timeout.
 - Else use the default ribbon connect and read timeouts.
 
 Zuul timeout including any potential retries that might be made.For example:
