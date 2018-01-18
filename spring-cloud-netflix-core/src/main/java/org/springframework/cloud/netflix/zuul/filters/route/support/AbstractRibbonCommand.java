@@ -29,6 +29,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.client.ClientHttpResponse;
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
+import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.config.IClientConfigKey;
 import com.netflix.client.http.HttpResponse;
@@ -89,10 +90,13 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 
 	protected static HystrixCommandProperties.Setter createSetter(IClientConfig config, String commandKey, ZuulProperties zuulProperties) {
 		DynamicPropertyFactory dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
-		int defaultHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds",
-				0).get();
-		int commandHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command." + commandKey + ".execution.isolation.thread.timeoutInMilliseconds",
-				0).get();
+		int ribbonTimeout = getRibbonTimeout(config, commandKey, dynamicPropertyFactory);
+		int hystrixTimeout = getHystrixTimeout(ribbonTimeout, commandKey, dynamicPropertyFactory);
+		return HystrixCommandProperties.Setter().withExecutionIsolationStrategy(
+				zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(hystrixTimeout);
+	}
+
+	protected static int getRibbonTimeout(IClientConfig config, String commandKey, DynamicPropertyFactory dynamicPropertyFactory) {
 		int ribbonTimeout;
 		if (config == null) {
 			ribbonTimeout = RibbonClientConfiguration.DEFAULT_READ_TIMEOUT + RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT;
@@ -103,16 +107,22 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 			int ribbonConnectTimeout = dynamicPropertyFactory.getIntProperty(
 				commandKey + "." + config.getNameSpace() + ".ConnectTimeout",
 				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT)).get();
-			//Because ribbon.maxAutoRetries defaults to 0, here we set default Value to 0
 			int maxAutoRetries = dynamicPropertyFactory.getIntProperty(
 				commandKey + "." + config.getNameSpace() + ".MaxAutoRetries",
-				config.get(IClientConfigKey.Keys.MaxAutoRetries, 0)).get();
-			//Because ribbon.maxAutoRetriesNextServer defaults to 1, here we set default Value to 1
+				config.get(IClientConfigKey.Keys.MaxAutoRetries, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES)).get();
 			int maxAutoRetriesNextServer = dynamicPropertyFactory.getIntProperty(
 				commandKey + "." + config.getNameSpace() + ".MaxAutoRetriesNextServer",
-				config.get(IClientConfigKey.Keys.MaxAutoRetriesNextServer, 1)).get();
+				config.get(IClientConfigKey.Keys.MaxAutoRetriesNextServer, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES_NEXT_SERVER)).get();
 			ribbonTimeout = (ribbonReadTimeout + ribbonConnectTimeout) * (maxAutoRetries + 1) * (maxAutoRetriesNextServer + 1);
 		}
+		return ribbonTimeout;
+	}
+
+	protected static int getHystrixTimeout(int ribbonTimeout, String commandKey, DynamicPropertyFactory dynamicPropertyFactory) {
+		int defaultHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds",
+			0).get();
+		int commandHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command." + commandKey + ".execution.isolation.thread.timeoutInMilliseconds",
+			0).get();
 		int hystrixTimeout;
 		if(commandHystrixTimeout > 0) {
 			hystrixTimeout = commandHystrixTimeout;
@@ -124,10 +134,9 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		}
 		if(hystrixTimeout < ribbonTimeout) {
 			LOGGER.warn("The Hystrix timeout of " + hystrixTimeout + "ms for the command " + commandKey +
-					" is set lower than the combination of the Ribbon read and connect timeout, " + ribbonTimeout + "ms.");
+				" is set lower than the combination of the Ribbon read and connect timeout, " + ribbonTimeout + "ms.");
 		}
-		return HystrixCommandProperties.Setter().withExecutionIsolationStrategy(
-				zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(hystrixTimeout);
+		return hystrixTimeout;
 	}
 
 	@Deprecated
