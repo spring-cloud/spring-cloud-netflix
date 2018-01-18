@@ -7,7 +7,7 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
@@ -36,7 +36,7 @@ public class HttpClientRibbonCommandFactoryTest {
 		doReturn(loadBalancingHttpClient).when(this.springClientFactory).getClient(anyString(),
 				eq(RibbonLoadBalancingHttpClient.class));
 		doReturn(clientConfig).when(this.springClientFactory).getClientConfig(anyString());
-		this.ribbonCommandFactory = new HttpClientRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<ZuulFallbackProvider>());
+		this.ribbonCommandFactory = new HttpClientRibbonCommandFactory(springClientFactory, zuulProperties, new HashSet<FallbackProvider>());
 	}
 
 	@Test
