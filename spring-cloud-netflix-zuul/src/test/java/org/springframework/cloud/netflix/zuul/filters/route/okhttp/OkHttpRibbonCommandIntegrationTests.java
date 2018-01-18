@@ -38,8 +38,8 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -113,7 +113,7 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@Autowired(required = false)
-		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+		private Set<FallbackProvider> zuulFallbackProviders = Collections.emptySet();
 
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(

@@ -32,29 +32,40 @@ import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Dominik Mostek
  */
 public class RibbonCommandCauseFallbackPropagationTest {
 
+	private RibbonCommandContext context;
+
+	@Before
+	public void setup() {
+		context = mock(RibbonCommandContext.class);
+		doReturn("fooRoute").when(context).getServiceId();
+	}
+
 	@Test
 	public void providerIsCalledInCaseOfException() throws Exception {
-		TestZuulFallbackProviderWithoutCause provider = new TestZuulFallbackProviderWithoutCause(
-				HttpStatus.INTERNAL_SERVER_ERROR);
+		FallbackProvider provider = new TestFallbackProvider(getClientHttpResponse(
+				HttpStatus.INTERNAL_SERVER_ERROR));
 		RuntimeException exception = new RuntimeException("Failed!");
 		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider);
+				provider, context);
 
 		ClientHttpResponse response = testCommand.execute();
 
@@ -68,7 +79,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				.withResponse(HttpStatus.NOT_FOUND);
 		RuntimeException exception = new RuntimeException("Failed!");
 		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider);
+				provider, context);
 
 		ClientHttpResponse response = testCommand.execute();
 
@@ -86,7 +97,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				.withResponse(HttpStatus.BAD_GATEWAY);
 		final RuntimeException exception = new RuntimeException("Failed!");
 		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider) {
+				provider, context) {
 			@Override
 			public Throwable getFailedExecutionException() {
 				return null;
@@ -110,7 +121,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				.withResponse(HttpStatus.CONFLICT);
 		RuntimeException exception = new RuntimeException("Failed!");
 		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
-				provider, 1) {
+				provider, 1, context) {
 			@Override
 			protected ClientRequest createRequest() throws Exception {
 				Thread.sleep(5);
@@ -132,23 +143,23 @@ public class RibbonCommandCauseFallbackPropagationTest {
 
 		public TestRibbonCommand(
 				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulFallbackProvider fallbackProvider) {
-			this(client, new ZuulProperties(), fallbackProvider);
+				FallbackProvider fallbackProvider, RibbonCommandContext context) {
+			this(client, new ZuulProperties(), fallbackProvider, context);
 		}
 
 		public TestRibbonCommand(
 				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulProperties zuulProperties, ZuulFallbackProvider fallbackProvider) {
-			super("testCommand" + UUID.randomUUID(), client, null, zuulProperties,
+				ZuulProperties zuulProperties, FallbackProvider fallbackProvider, RibbonCommandContext context) {
+			super("testCommand" + UUID.randomUUID(), client, context, zuulProperties,
 					fallbackProvider);
 		}
 
 		public TestRibbonCommand(
 				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulFallbackProvider fallbackProvider, int timeout) {
+				FallbackProvider fallbackProvider, int timeout, RibbonCommandContext context) {
 			// different name is used because of properties caching
 			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties())
-					.andCommandPropertiesDefaults(defauts(timeout)), client, null,
+					.andCommandPropertiesDefaults(defauts(timeout)), client, context,
 					fallbackProvider, null);
 		}
 
@@ -204,7 +215,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 		}
 
 		@Override
-		public ClientHttpResponse fallbackResponse(final Throwable cause) {
+		public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
 			this.cause = cause;
 			return response;
 		}
@@ -214,42 +225,12 @@ public class RibbonCommandCauseFallbackPropagationTest {
 			return "test-route";
 		}
 
-		@Override
-		public ClientHttpResponse fallbackResponse() {
-			throw new UnsupportedOperationException(
-					"fallback without cause is not supported");
-		}
-
 		public Throwable getCause() {
 			return cause;
 		}
 
 		public static TestFallbackProvider withResponse(final HttpStatus status) {
 			return new TestFallbackProvider(getClientHttpResponse(status));
-		}
-	}
-
-	public static class TestZuulFallbackProviderWithoutCause
-			implements ZuulFallbackProvider {
-
-		private final ClientHttpResponse response;
-
-		public TestZuulFallbackProviderWithoutCause(final ClientHttpResponse response) {
-			this.response = response;
-		}
-
-		public TestZuulFallbackProviderWithoutCause(final HttpStatus status) {
-			this(getClientHttpResponse(status));
-		}
-
-		@Override
-		public String getRoute() {
-			return "test-route";
-		}
-
-		@Override
-		public ClientHttpResponse fallbackResponse() {
-			return response;
 		}
 	}
 
