@@ -1814,121 +1814,23 @@ possible filters that are enabled.  If you want to disable one, simply set
 <section xml:id="hystrix-fallbacks-for-routes">
 <title>Providing Hystrix Fallbacks For Routes</title>
 <simpara>When a circuit for a given route in Zuul is tripped you can provide a fallback response
-by creating a bean of type <literal>ZuulFallbackProvider</literal>.  Within this bean you need to specify
+by creating a bean of type <literal>FallbackProvider</literal>.  Within this bean you need to specify
 the route ID the fallback is for and provide a <literal>ClientHttpResponse</literal> to return
-as a fallback.  Here is a very simple <literal>ZuulFallbackProvider</literal> implementation.</simpara>
-<programlisting language="java" linenumbering="unnumbered">class MyFallbackProvider implements ZuulFallbackProvider {
+as a fallback.  Here is a very simple <literal>FallbackProvider</literal> implementation.</simpara>
+<programlisting language="java" linenumbering="unnumbered">class MyFallbackProvider implements FallbackProvider {
+
     @Override
     public String getRoute() {
         return "customers";
     }
 
     @Override
-    public ClientHttpResponse fallbackResponse() {
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
-            }
-
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return 200;
-            }
-
-            @Override
-            public String getStatusText() throws IOException {
-                return "OK";
-            }
-
-            @Override
-            public void close() {
-
-            }
-
-            @Override
-            public InputStream getBody() throws IOException {
-                return new ByteArrayInputStream("fallback".getBytes());
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                return headers;
-            }
-        };
-    }
-}</programlisting>
-<simpara>And here is what the route configuration would look like.</simpara>
-<programlisting language="yaml" linenumbering="unnumbered">zuul:
-  routes:
-    customers: /customers/**</programlisting>
-<simpara>If you would like to provide a default fallback for all routes than you can create a bean of
-type <literal>ZuulFallbackProvider</literal> and have the <literal>getRoute</literal> method return <literal>*</literal> or <literal>null</literal>.</simpara>
-<programlisting language="java" linenumbering="unnumbered">class MyFallbackProvider implements ZuulFallbackProvider {
-    @Override
-    public String getRoute() {
-        return "*";
-    }
-
-    @Override
-    public ClientHttpResponse fallbackResponse() {
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
-            }
-
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return 200;
-            }
-
-            @Override
-            public String getStatusText() throws IOException {
-                return "OK";
-            }
-
-            @Override
-            public void close() {
-
-            }
-
-            @Override
-            public InputStream getBody() throws IOException {
-                return new ByteArrayInputStream("fallback".getBytes());
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                return headers;
-            }
-        };
-    }
-}</programlisting>
-<simpara>If you would like to choose the response based on the cause of the failure use <literal>FallbackProvider</literal> which will replace <literal>ZuulFallbackProvder</literal> in future versions.</simpara>
-<programlisting language="java" linenumbering="unnumbered">class MyFallbackProvider implements FallbackProvider {
-
-    @Override
-    public String getRoute() {
-        return "*";
-    }
-
-    @Override
-    public ClientHttpResponse fallbackResponse(final Throwable cause) {
+    public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
         if (cause instanceof HystrixTimeoutException) {
             return response(HttpStatus.GATEWAY_TIMEOUT);
         } else {
-            return fallbackResponse();
+            return response(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @Override
-    public ClientHttpResponse fallbackResponse() {
-        return response(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ClientHttpResponse response(final HttpStatus status) {
@@ -1950,6 +1852,55 @@ type <literal>ZuulFallbackProvider</literal> and have the <literal>getRoute</lit
 
             @Override
             public void close() {
+            }
+
+            @Override
+            public InputStream getBody() throws IOException {
+                return new ByteArrayInputStream("fallback".getBytes());
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                return headers;
+            }
+        };
+    }
+}</programlisting>
+<simpara>And here is what the route configuration would look like.</simpara>
+<programlisting language="yaml" linenumbering="unnumbered">zuul:
+  routes:
+    customers: /customers/**</programlisting>
+<simpara>If you would like to provide a default fallback for all routes than you can create a bean of
+type <literal>FallbackProvider</literal> and have the <literal>getRoute</literal> method return <literal>*</literal> or <literal>null</literal>.</simpara>
+<programlisting language="java" linenumbering="unnumbered">class MyFallbackProvider implements FallbackProvider {
+    @Override
+    public String getRoute() {
+        return "*";
+    }
+
+    @Override
+    public ClientHttpResponse fallbackResponse(String route, Throwable throwable) {
+        return new ClientHttpResponse() {
+            @Override
+            public HttpStatus getStatusCode() throws IOException {
+                return HttpStatus.OK;
+            }
+
+            @Override
+            public int getRawStatusCode() throws IOException {
+                return 200;
+            }
+
+            @Override
+            public String getStatusText() throws IOException {
+                return "OK";
+            }
+
+            @Override
+            public void close() {
+
             }
 
             @Override
