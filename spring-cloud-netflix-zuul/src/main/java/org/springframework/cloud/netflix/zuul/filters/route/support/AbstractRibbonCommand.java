@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -27,6 +29,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
 import com.netflix.client.config.IClientConfig;
+import com.netflix.client.config.IClientConfigKey;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.config.DynamicIntProperty;
 import com.netflix.config.DynamicPropertyFactory;
@@ -45,6 +48,7 @@ import com.netflix.zuul.context.RequestContext;
 public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwareClient<RQ, RS>, RQ extends ClientRequest, RS extends HttpResponse>
 		extends HystrixCommand<ClientHttpResponse> implements RibbonCommand {
 
+	private static final Log LOGGER = LogFactory.getLog(AbstractRibbonCommand.class);
 	protected final LBC client;
 	protected RibbonCommandContext context;
 	protected FallbackProvider zuulFallbackProvider;
@@ -69,7 +73,7 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	public AbstractRibbonCommand(String commandKey, LBC client,
 								 RibbonCommandContext context, ZuulProperties zuulProperties,
 								 FallbackProvider fallbackProvider, IClientConfig config) {
-		this(getSetter(commandKey, zuulProperties), client, context, fallbackProvider, config);
+		this(getSetter(commandKey, zuulProperties, config), client, context, fallbackProvider, config);
 	}
 
 	protected AbstractRibbonCommand(Setter setter, LBC client,
@@ -82,16 +86,47 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		this.config = config;
 	}
 
+	protected static HystrixCommandProperties.Setter createSetter(IClientConfig config, String commandKey, ZuulProperties zuulProperties) {
+		DynamicPropertyFactory dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
+		int defaultHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds",
+				0).get();
+		int commandHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command." + commandKey + ".execution.isolation.thread.timeoutInMilliseconds",
+				0).get();
+		int ribbonReadTimeout = config == null ? RibbonClientConfiguration.DEFAULT_READ_TIMEOUT :
+				config.get(IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT).intValue();
+		int ribbonConnectTimeout = config == null ? RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT :
+				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT).intValue();
+		int ribbonTimeout = ribbonConnectTimeout + ribbonReadTimeout;
+		int hystrixTimeout;
+		if(commandHystrixTimeout > 0) {
+			hystrixTimeout = commandHystrixTimeout;
+		}
+		else if( defaultHystrixTimeout > 0) {
+			hystrixTimeout = defaultHystrixTimeout;
+		} else {
+			hystrixTimeout = ribbonTimeout;
+		}
+		if(hystrixTimeout < ribbonTimeout) {
+			LOGGER.warn("The Hystrix timeout of " + hystrixTimeout + "ms for the command " + commandKey +
+					" is set lower than the combination of the Ribbon read and connect timeout, " + ribbonTimeout + "ms.");
+		}
+		return HystrixCommandProperties.Setter().withExecutionIsolationStrategy(
+				zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(hystrixTimeout);
+	}
+
+	@Deprecated
+	//TODO remove in 2.0.x
+	protected static Setter getSetter(final String commandKey, ZuulProperties zuulProperties) {
+		return getSetter(commandKey, zuulProperties, null);
+	}
+
 	protected static Setter getSetter(final String commandKey,
-			ZuulProperties zuulProperties) {
+			ZuulProperties zuulProperties, IClientConfig config) {
 
 		// @formatter:off
 		Setter commandSetter = Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
 								.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
-
-		final HystrixCommandProperties.Setter setter = HystrixCommandProperties.Setter()
-				.withExecutionIsolationStrategy(zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(
-						RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT + RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
+		final HystrixCommandProperties.Setter setter = createSetter(config, commandKey, zuulProperties);
 		if (zuulProperties.getRibbonIsolationStrategy() == ExecutionIsolationStrategy.SEMAPHORE){
 			final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
 			// we want to default to semaphore-isolation since this wraps
