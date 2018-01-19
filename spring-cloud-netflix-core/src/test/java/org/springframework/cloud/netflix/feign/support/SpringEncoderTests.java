@@ -96,6 +96,17 @@ public class SpringEncoderTests {
 
 		assertThat("request charset is not null", request.charset(), is(nullValue()));
 	}
+
+	@Test
+	public void testBinaryHttpMessageConverter() {
+		SpringEncoder encoder = this.context.getInstance("foo", SpringEncoder.class);
+		assertThat(encoder, is(notNullValue()));
+		RequestTemplate request = new RequestTemplate();
+
+		encoder.encode(20, null, request);
+
+		assertThat("request charset is not null", request.charset(), is(nullValue()));
+	}
 	
 	class MediaTypeMatcher implements ArgumentMatcher<MediaType> {
 
@@ -145,6 +156,38 @@ public class SpringEncoderTests {
 			return new MyHttpMessageConverter();
 		}
 
+		@Bean
+		HttpMessageConverter<?> myBinaryHttpMessageConverter() {
+			return new MyBinaryHttpMessageConverter();
+		}
+
+		private static class MyBinaryHttpMessageConverter extends AbstractGenericHttpMessageConverter<Integer> implements BinaryHttpMessageConverter<Integer> {
+
+			public MyBinaryHttpMessageConverter() {
+				super(new MediaType("application", "mytype"));
+			}
+
+			@Override
+			public boolean canWrite(Class<?> clazz, MediaType mediaType) {
+				return clazz == Integer.class;
+			}
+
+			@Override
+			protected void writeInternal(Integer i, Type type, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+
+			}
+
+			@Override
+			protected Integer readInternal(Class<? extends Integer> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+				return null;
+			}
+
+			@Override
+			public Integer read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+				return null;
+			}
+		}
+
 		private static class MyHttpMessageConverter
 				extends AbstractGenericHttpMessageConverter<Object> {
 
@@ -164,10 +207,7 @@ public class SpringEncoderTests {
 
 			@Override
 			public boolean canWrite(Class<?> clazz, MediaType mediaType) {
-				if (clazz == String.class) {
-					return true;
-				}
-				return false;
+				return clazz == String.class;
 			}
 
 			@Override

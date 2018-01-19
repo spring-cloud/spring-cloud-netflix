@@ -100,7 +100,8 @@ public class SpringEncoder implements Encoder {
 					request.headers(getHeaders(outputMessage.getHeaders()));
 
 					// do not use charset for binary data
-					if (messageConverter instanceof ByteArrayHttpMessageConverter) {
+					if (messageConverter instanceof ByteArrayHttpMessageConverter ||
+							messageConverter instanceof BinaryHttpMessageConverter) {
 						request.body(outputMessage.getOutputStream().toByteArray(), null);
 					} else {
 						request.body(outputMessage.getOutputStream().toByteArray(), Charset.forName("UTF-8"));
