@@ -451,7 +451,7 @@ public class RibbonLoadBalancingHttpClientTests {
 			public boolean matches(Object argument) {
 				if(argument instanceof HttpUriRequest) {
 					HttpUriRequest arg = (HttpUriRequest)argument;
-					return arg.getURI().getPath().equals(uri.getPath());
+					return arg.getURI().equals(uri);
 				}
 				return false;
 			}
