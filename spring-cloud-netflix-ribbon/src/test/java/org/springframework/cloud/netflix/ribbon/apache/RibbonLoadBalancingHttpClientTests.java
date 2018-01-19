@@ -430,7 +430,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		String host = serviceName;
 		int port = 80;
 		HttpMethod method = HttpMethod.GET;
-		final URI uri = new URI("https://" + host + ":" + port + "/a%2Bb");
+		final URI uri = new URI("https://" + host + ":" + port + "/a%20b");
 		RibbonCommandContext context = new RibbonCommandContext(serviceName, method.toString(), uri.toString(), true,
 				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(),
 				new ByteArrayInputStream(new String("bar").getBytes()),

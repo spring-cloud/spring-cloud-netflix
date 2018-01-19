@@ -16,7 +16,6 @@
 package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.io.IOException;
-import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -42,6 +41,7 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.web.util.UriComponentsBuilder;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
@@ -112,31 +112,32 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		final RequestConfig requestConfig = builder.build();
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
 		RetryCallback retryCallback = context -> {
-            //on retries the policy will choose the server and set it in the context
-            //extract the server and update the request being made
-            RibbonApacheHttpRequest newRequest = request;
-            if(context instanceof LoadBalancedRetryContext) {
-                ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-                if(service != null) {
-                    //Reconstruct the request URI using the host and port set in the retry context
-                    newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
-                            newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
-                            newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
-                            newRequest.getURI().getFragment()));
-                }
-            }
-            newRequest = getSecureRequest(request, configOverride);
-            HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
-            final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
-            if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
-                if(CloseableHttpResponse.class.isInstance(httpResponse)) {
-                    ((CloseableHttpResponse)httpResponse).close();
-                }
-                throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
-                        httpResponse.getStatusLine().getStatusCode());
-            }
-            return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
-        };
+			//on retries the policy will choose the server and set it in the context
+			//extract the server and update the request being made
+			RibbonApacheHttpRequest newRequest = request;
+			if(context instanceof LoadBalancedRetryContext) {
+				ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
+				if(service != null) {
+					//Reconstruct the request URI using the host and port set in the retry context
+					newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
+							.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
+							.port(service.getPort()).path(newRequest.getURI().getPath())
+							.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
+							.build().encode().toUri());
+				}
+			}
+			newRequest = getSecureRequest(newRequest, configOverride);
+			HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
+			final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
+			if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
+				if(CloseableHttpResponse.class.isInstance(httpResponse)) {
+					((CloseableHttpResponse)httpResponse).close();
+				}
+				throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
+						httpResponse.getStatusLine().getStatusCode());
+			}
+			return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
+		};
 		return this.executeWithRetry(request, retryPolicy, retryCallback);
 	}
 
