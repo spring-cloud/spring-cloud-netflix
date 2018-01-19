@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
+import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
@@ -144,18 +146,17 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		// @formatter:on
 	}
 
-	public boolean isExecuteWithLoadBalancer() {
-		return false;
-	}
-	
 	@Override
 	protected ClientHttpResponse run() throws Exception {
 		final RequestContext context = RequestContext.getCurrentContext();
 
 		RQ request = createRequest();
 		RS response;
-		if (!isExecuteWithLoadBalancer()
-				&& request!= null &&  request.isRetriable()) {
+		
+		boolean retryableClient = this.client instanceof AbstractLoadBalancingClient
+				&& ((AbstractLoadBalancingClient)this.client).isClientRetryable((ContextAwareRequest)request);
+		
+		if (retryableClient) {
 			response = this.client.execute(request, config);
 		} else {
 			response = this.client.executeWithLoadBalancer(request, config);

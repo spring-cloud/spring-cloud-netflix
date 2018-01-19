@@ -34,6 +34,7 @@ import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
@@ -147,11 +148,20 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		};
 		return this.executeWithRetry(request, retryPolicy, retryCallback);
 	}
+	
+	@Override
+	public boolean isClientRetryable(ContextAwareRequest request) {
+		return request!= null && isRequestRetryable(request);
+	}
+	
+	private boolean isRequestRetryable(ContextAwareRequest request) {
+		return request.getContext() == null ? true :
+			BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
+	}
 
 	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy, RetryCallback<RibbonApacheHttpResponse, IOException> callback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
-		boolean retryable = request.getContext() == null ? true :
-				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
+		boolean retryable = isRequestRetryable(request);
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()
 				: new RetryPolicy(request, retryPolicy, this, this.getClientName()));
 		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());

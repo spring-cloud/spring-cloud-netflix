@@ -64,11 +64,6 @@ public class RestClientRibbonCommand extends AbstractRibbonCommand<RestClient, H
 		this(commandKey, restClient, new RibbonCommandContext(commandKey, verb.verb(),
 				uri, retryable, headers, params, requestEntity), new ZuulProperties());
 	}
-	
-	@Override
-	public boolean isExecuteWithLoadBalancer() {
-		return true;
-	}
 
 	@Override
 	protected HttpRequest createRequest() throws Exception {

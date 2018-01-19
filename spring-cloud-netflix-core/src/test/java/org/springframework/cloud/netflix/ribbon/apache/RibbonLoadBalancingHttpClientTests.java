@@ -451,7 +451,7 @@ public class RibbonLoadBalancingHttpClientTests {
 			public boolean matches(Object argument) {
 				if(argument instanceof HttpUriRequest) {
 					HttpUriRequest arg = (HttpUriRequest)argument;
-					return arg.getURI().equals(uri);
+					return arg.getURI().getPath().equals(uri.getPath());
 				}
 				return false;
 			}
@@ -564,7 +564,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
-		verify(lb, times(1)).chooseServer(eq(serviceName));
+		verify(lb, times(2)).chooseServer(eq(serviceName));
 		assertEquals(2, myBackOffPolicyFactory.getCount());
 		assertEquals(2, myRetryListeners.getOnError());
 	}
@@ -601,7 +601,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
-		verify(lb, times(1)).chooseServer(eq(serviceName));
+		verify(lb, times(2)).chooseServer(eq(serviceName));
 		assertEquals(2, myBackOffPolicyFactory.getCount());
 		assertEquals(0, myRetryListeners.getOnError());
 	}
@@ -670,7 +670,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RibbonApacheHttpResponse returnedResponse = client.execute(request, null);
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
-		verify(lb, times(1)).chooseServer(eq(serviceName));
+		verify(lb, times(2)).chooseServer(eq(serviceName));
 		assertEquals(2, myBackOffPolicyFactory.getCount());
 	}
 
