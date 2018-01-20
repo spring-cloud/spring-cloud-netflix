@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,16 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
-import org.junit.After;
-import org.junit.Before;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
-import org.springframework.context.ConfigurableApplicationContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -36,33 +35,25 @@ import static org.hamcrest.Matchers.instanceOf;
 
 /**
  * @author Ryan Baxter
+ * @author Biju Kunjummen
  */
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({"spring-retry-*.jar", "spring-boot-starter-aop-*.jar"})
 public class SpringRetryDisabledTests {
 
-	private ConfigurableApplicationContext context;
-
-	@Before
-	public void setUp() {
-		context = new SpringApplicationBuilder().web(false)
-				.sources(RibbonAutoConfiguration.class,LoadBalancerAutoConfiguration.class, RibbonClientConfiguration.class).run();
-	}
-
-	@After
-	public void tearDown() {
-		if(context != null) {
-			context.close();
-		}
-	}
-
 	@Test
-	public void testLoadBalancedRetryFactoryBean() throws Exception {
-		Map<String, LoadBalancedRetryPolicyFactory> factories =  context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
-		assertThat(factories.values(), hasSize(1));
-		assertThat(factories.values().toArray()[0], instanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class));
-		Map<String, RibbonLoadBalancingHttpClient> clients =  context.getBeansOfType(RibbonLoadBalancingHttpClient.class);
-		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0], instanceOf(RibbonLoadBalancingHttpClient.class));
+	public void testLoadBalancedRetryFactoryBean() {
+		new ApplicationContextRunner()
+			.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class,
+				LoadBalancerAutoConfiguration.class,
+				RibbonClientConfiguration.class))
+			.run(context -> {
+				Map<String, LoadBalancedRetryPolicyFactory> factories = context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
+				assertThat(factories.values(), hasSize(1));
+				assertThat(factories.values().toArray()[0], instanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class));
+				Map<String, RibbonLoadBalancingHttpClient> clients = context.getBeansOfType(RibbonLoadBalancingHttpClient.class);
+				assertThat(clients.values(), hasSize(1));
+				assertThat(clients.values().toArray()[0], instanceOf(RibbonLoadBalancingHttpClient.class));
+			});
 	}
 }

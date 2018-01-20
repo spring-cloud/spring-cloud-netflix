@@ -24,6 +24,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
@@ -32,6 +33,7 @@ import org.springframework.cloud.netflix.ribbon.support.RibbonRetryPolicy;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryListener;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
@@ -47,12 +49,15 @@ import com.netflix.loadbalancer.Server;
 /**
  * An OK HTTP client which leverages Spring Retry to retry failed request.
  * @author Ryan Baxter
+ * @author Gang Li
  */
 public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClient implements ServiceInstanceChooser {
 
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
-			new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
+		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
+	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
+		new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 
 	@Deprecated
 	//TODO remove in 2.0.x
@@ -62,6 +67,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
 	}
 
+	@Deprecated
+	//TODO remove in 2.0.x
 	public RetryableOkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector,
 											  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
 											  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
@@ -70,12 +77,25 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
 	}
 
+	public RetryableOkHttpLoadBalancingClient(OkHttpClient delegate, IClientConfig config, ServerIntrospector serverIntrospector,
+											  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
+											  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory,
+											  LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory) {
+		super(delegate, config, serverIntrospector);
+		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
+		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
+		this.loadBalancedRetryListenerFactory = loadBalancedRetryListenerFactory;
+	}
+
 	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request, LoadBalancedRetryPolicy retryPolicy,
-												  RetryCallback<OkHttpRibbonResponse, Exception> callback)
-			throws Exception {
+												  RetryCallback<OkHttpRibbonResponse, Exception> callback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());
 		retryTemplate.setBackOffPolicy(backOffPolicy == null ? new NoBackOffPolicy() : backOffPolicy);
+		RetryListener[] retryListeners = this.loadBalancedRetryListenerFactory.createRetryListeners(this.getClientName());
+		if (retryListeners != null && retryListeners.length != 0) {
+			retryTemplate.setListeners(retryListeners);
+		}
 		boolean retryable = request.getContext() == null ? true :
 				BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()

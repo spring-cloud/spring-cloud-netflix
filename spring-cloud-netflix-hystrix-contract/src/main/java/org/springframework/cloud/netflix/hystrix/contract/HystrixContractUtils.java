@@ -51,8 +51,8 @@ public class HystrixContractUtils {
 		assertThat(origin.get("host")).isNotNull();
 		assertThat(origin.get("port")).isNotNull();
 		assertThat(origin.get("serviceId")).isEqualTo("application");
-		// TODO: should be server.port (but in a test it's a random port so -1)?
-		assertThat(origin.get("id")).isEqualTo("application:-1");
+		// TODO: boot 2 changed application context id generation
+		assertThat(origin.get("id")).asString().startsWith("application");
 	}
 
 	public static void checkData(Map<String, Object> data, String group, String name) {

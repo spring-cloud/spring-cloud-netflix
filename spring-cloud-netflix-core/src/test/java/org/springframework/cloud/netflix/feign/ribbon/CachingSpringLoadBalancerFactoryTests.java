@@ -23,6 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
@@ -41,6 +43,12 @@ public class CachingSpringLoadBalancerFactoryTests {
 
 	@Mock
 	private RibbonLoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
+
+	@Mock
+	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory;
+
+	@Mock
+	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory;
 
 	private CachingSpringLoadBalancerFactory factory;
 
@@ -76,6 +84,53 @@ public class CachingSpringLoadBalancerFactoryTests {
 		assertNotNull("client was null", client);
 
 		verify(this.delegate, times(1)).getClientConfig("client2");
+	}
+
+	@Test
+	public void delegateCreatesWithNoRetry() {
+		IClientConfig config = new DefaultClientConfigImpl();
+		config.set(CommonClientConfigKey.ConnectTimeout, 1000);
+		config.set(CommonClientConfigKey.ReadTimeout, 500);
+		when(this.delegate.getClientConfig("retry")).thenReturn(config);
+		CachingSpringLoadBalancerFactory factory = new CachingSpringLoadBalancerFactory(this.delegate);
+		FeignLoadBalancer client = this.factory.create("retry");
+		assertNotNull("client was null", client);
+	}
+
+	@Test
+	public void delegateCreatesWithRetry() {
+		IClientConfig config = new DefaultClientConfigImpl();
+		config.set(CommonClientConfigKey.ConnectTimeout, 1000);
+		config.set(CommonClientConfigKey.ReadTimeout, 500);
+		when(this.delegate.getClientConfig("retry")).thenReturn(config);
+		CachingSpringLoadBalancerFactory factory = new CachingSpringLoadBalancerFactory(
+			this.delegate, loadBalancedRetryPolicyFactory, false);
+		FeignLoadBalancer client = this.factory.create("retry");
+		assertNotNull("client was null", client);
+	}
+
+	@Test
+	public void delegateCreatesWithBackOff() {
+		IClientConfig config = new DefaultClientConfigImpl();
+		config.set(CommonClientConfigKey.ConnectTimeout, 1000);
+		config.set(CommonClientConfigKey.ReadTimeout, 500);
+		when(this.delegate.getClientConfig("retry")).thenReturn(config);
+		CachingSpringLoadBalancerFactory factory = new CachingSpringLoadBalancerFactory(
+			this.delegate, loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory);
+		FeignLoadBalancer client = this.factory.create("retry");
+		assertNotNull("client was null", client);
+	}
+
+	@Test
+	public void delegateCreatesWithRetryListener() {
+		IClientConfig config = new DefaultClientConfigImpl();
+		config.set(CommonClientConfigKey.ConnectTimeout, 1000);
+		config.set(CommonClientConfigKey.ReadTimeout, 500);
+		when(this.delegate.getClientConfig("retry")).thenReturn(config);
+		CachingSpringLoadBalancerFactory factory = new CachingSpringLoadBalancerFactory(
+			this.delegate, loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory);
+		FeignLoadBalancer client = this.factory.create("retry");
+		assertNotNull("client was null", client);
 	}
 
 }

@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -111,13 +110,6 @@ public class FeignRibbonClientPathTests {
 		@RequestMapping(method = RequestMethod.GET, value = "/hello")
 		public Hello getHello() {
 			return new Hello("hello world");
-		}
-
-		public static void main(String[] args) throws InterruptedException {
-			new SpringApplicationBuilder(Application.class).properties(
-				"spring.application.name=feignribbonclientpathtest",
-				"management.contextPath=/admin"
-			).run(args);
 		}
 
 	}

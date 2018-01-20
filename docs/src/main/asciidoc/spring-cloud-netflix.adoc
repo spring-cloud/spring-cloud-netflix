@@ -1416,7 +1416,7 @@ Archaius has its own set of configuration files and loading priorities.  Spring 
 
 == Router and Filter: Zuul
 
-Routing in an integral part of a microservice architecture.  For example, `/` may be mapped to your web application, `/api/users` is mapped to the user service and `/api/shop` is mapped to the shop service.  https://github.com/Netflix/zuul[Zuul] is a JVM based router and server side load balancer by Netflix.
+Routing is an integral part of a microservice architecture.  For example, `/` may be mapped to your web application, `/api/users` is mapped to the user service and `/api/shop` is mapped to the shop service.  https://github.com/Netflix/zuul[Zuul] is a JVM based router and server side load balancer by Netflix.
 
 http://www.slideshare.net/MikeyCohen1/edge-architecture-ieee-international-conference-on-cloud-engineering-32240146/27[Netflix uses Zuul] for the following:
 
@@ -1943,39 +1943,47 @@ possible filters that are enabled.  If you want to disable one, simply set
 === Providing Hystrix Fallbacks For Routes
 
 When a circuit for a given route in Zuul is tripped you can provide a fallback response
-by creating a bean of type `ZuulFallbackProvider`.  Within this bean you need to specify
+by creating a bean of type `FallbackProvider`.  Within this bean you need to specify
 the route ID the fallback is for and provide a `ClientHttpResponse` to return
-as a fallback.  Here is a very simple `ZuulFallbackProvider` implementation.
+as a fallback.  Here is a very simple `FallbackProvider` implementation.
 
 [source,java]
 ----
-class MyFallbackProvider implements ZuulFallbackProvider {
+class MyFallbackProvider implements FallbackProvider {
+
     @Override
     public String getRoute() {
         return "customers";
     }
 
     @Override
-    public ClientHttpResponse fallbackResponse() {
+    public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
+        if (cause instanceof HystrixTimeoutException) {
+            return response(HttpStatus.GATEWAY_TIMEOUT);
+        } else {
+            return response(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ClientHttpResponse response(final HttpStatus status) {
         return new ClientHttpResponse() {
             @Override
             public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
+                return status;
             }
 
             @Override
             public int getRawStatusCode() throws IOException {
-                return 200;
+                return status.value();
             }
 
             @Override
             public String getStatusText() throws IOException {
-                return "OK";
+                return status.getReasonPhrase();
             }
 
             @Override
             public void close() {
-
             }
 
             @Override
@@ -2004,18 +2012,18 @@ zuul:
 ----
 
 If you would like to provide a default fallback for all routes than you can create a bean of
-type `ZuulFallbackProvider` and have the `getRoute` method return `*` or `null`.
+type `FallbackProvider` and have the `getRoute` method return `*` or `null`.
 
 [source,java]
 ----
-class MyFallbackProvider implements ZuulFallbackProvider {
+class MyFallbackProvider implements FallbackProvider {
     @Override
     public String getRoute() {
         return "*";
     }
 
     @Override
-    public ClientHttpResponse fallbackResponse() {
+    public ClientHttpResponse fallbackResponse(String route, Throwable throwable) {
         return new ClientHttpResponse() {
             @Override
             public HttpStatus getStatusCode() throws IOException {
@@ -2035,68 +2043,6 @@ class MyFallbackProvider implements ZuulFallbackProvider {
             @Override
             public void close() {
 
-            }
-
-            @Override
-            public InputStream getBody() throws IOException {
-                return new ByteArrayInputStream("fallback".getBytes());
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                return headers;
-            }
-        };
-    }
-}
-----
-
-If you would like to choose the response based on the cause of the failure use `FallbackProvider` which will replace `ZuulFallbackProvder` in future versions.
-
-[source,java]
-----
-class MyFallbackProvider implements FallbackProvider {
-
-    @Override
-    public String getRoute() {
-        return "*";
-    }
-
-    @Override
-    public ClientHttpResponse fallbackResponse(final Throwable cause) {
-        if (cause instanceof HystrixTimeoutException) {
-            return response(HttpStatus.GATEWAY_TIMEOUT);
-        } else {
-            return fallbackResponse();
-        }
-    }
-
-    @Override
-    public ClientHttpResponse fallbackResponse() {
-        return response(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private ClientHttpResponse response(final HttpStatus status) {
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return status;
-            }
-
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return status.value();
-            }
-
-            @Override
-            public String getStatusText() throws IOException {
-                return status.getReasonPhrase();
-            }
-
-            @Override
-            public void close() {
             }
 
             @Override

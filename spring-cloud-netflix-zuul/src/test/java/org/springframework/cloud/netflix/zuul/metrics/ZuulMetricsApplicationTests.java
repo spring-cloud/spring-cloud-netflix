@@ -32,7 +32,6 @@ import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
 
-import static io.micrometer.core.instrument.MockClock.clock;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -72,7 +71,6 @@ public class ZuulMetricsApplicationTests {
 		new ZuulException("any", 500, "cause");
 		new ZuulException("any", 500, "cause");
 
-		clock(meterRegistry).add(SimpleConfig.DEFAULT_STEP);
 		Double count = meterRegistry.counter("ZUUL::EXCEPTION:cause:500").count();
 		assertEquals(count.longValue(), 2L);
 
@@ -80,7 +78,6 @@ public class ZuulMetricsApplicationTests {
 		new ZuulException("any", 404, "cause2");
 		new ZuulException("any", 404, "cause2");
 
-		clock(meterRegistry).add(SimpleConfig.DEFAULT_STEP);
 		count = meterRegistry.counter("ZUUL::EXCEPTION:cause2:404").count();
 		assertEquals(count.longValue(), 3L);
 	}

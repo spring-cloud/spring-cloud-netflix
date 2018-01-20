@@ -46,8 +46,8 @@ import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonRetryIntegrationTestBase.RetryableTestConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -397,8 +397,8 @@ public abstract class ZuulProxyTestBase {
 		}
 
 		@Bean
-		public ZuulFallbackProvider fallbackProvider() {
-			return new FallbackProvider();
+		public FallbackProvider fallbackProvider() {
+			return new ZuulFallbackProvider();
 		}
 
 		@Bean
@@ -443,7 +443,7 @@ public abstract class ZuulProxyTestBase {
 
 	}
 
-	public static class FallbackProvider implements ZuulFallbackProvider {
+	public static class ZuulFallbackProvider implements FallbackProvider {
 
 		@Override
 		public String getRoute() {
@@ -451,7 +451,7 @@ public abstract class ZuulProxyTestBase {
 		}
 
 		@Override
-		public ClientHttpResponse fallbackResponse() {
+		public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
 			return new ClientHttpResponse() {
 				@Override
 				public HttpStatus getStatusCode() throws IOException {

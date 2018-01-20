@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -56,6 +57,25 @@ public class SimpleRouteLocatorTests {
 		final List<Route> routes = locator.getRoutes();
 		assertThat(routes, hasItem(createRoute("bar", "/**", "/bar")));
 		assertThat(routes, hasSize(1));
+	}
+
+	@Test
+	public void testStripPrefix() {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setPrefix("/test");
+		properties.setStripPrefix(true);
+		RouteLocator locator = new FilteringRouteLocator("/", properties);
+		properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+		assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
+	}
+
+	@Test
+	public void testPrefix() {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setPrefix("/test/");
+		RouteLocator locator = new FilteringRouteLocator("/", properties);
+		properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+		assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
 	}
 
 	@Test

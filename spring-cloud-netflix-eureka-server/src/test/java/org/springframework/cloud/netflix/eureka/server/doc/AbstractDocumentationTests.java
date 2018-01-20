@@ -18,21 +18,11 @@ package org.springframework.cloud.netflix.eureka.server.doc;
 
 import java.util.UUID;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
-
-import io.restassured.RestAssured;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.filter.Filter;
-import io.restassured.specification.RequestSpecification;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -47,6 +37,15 @@ import org.springframework.restdocs.restassured3.RestDocumentationFilter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl;
+
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.Filter;
+import io.restassured.specification.RequestSpecification;
 
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -158,11 +157,6 @@ public abstract class AbstractDocumentationTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class).properties(
-					"spring.application.name=eureka", "management.security.enabled=false",
-					"eureka.client.registerWithEureka=true").run(args);
-		}
 	}
 
 }

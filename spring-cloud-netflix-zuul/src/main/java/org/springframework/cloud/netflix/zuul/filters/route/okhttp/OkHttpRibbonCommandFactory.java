@@ -23,7 +23,7 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.okhttp.OkHttpLoadBalancingClient;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.AbstractRibbonCommandFactory;
 
 /**
@@ -37,11 +37,11 @@ public class OkHttpRibbonCommandFactory extends AbstractRibbonCommandFactory {
 	private ZuulProperties zuulProperties;
 
 	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-		this(clientFactory, zuulProperties, Collections.<ZuulFallbackProvider>emptySet());
+		this(clientFactory, zuulProperties, Collections.<FallbackProvider>emptySet());
 	}
 
 	public OkHttpRibbonCommandFactory(SpringClientFactory clientFactory, ZuulProperties zuulProperties,
-									  Set<ZuulFallbackProvider> zuulFallbackProviders) {
+									  Set<FallbackProvider> zuulFallbackProviders) {
 		super(zuulFallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
@@ -50,7 +50,7 @@ public class OkHttpRibbonCommandFactory extends AbstractRibbonCommandFactory {
 	@Override
 	public OkHttpRibbonCommand create(final RibbonCommandContext context) {
 		final String serviceId = context.getServiceId();
-		ZuulFallbackProvider fallbackProvider = getFallbackProvider(serviceId);
+		FallbackProvider fallbackProvider = getFallbackProvider(serviceId);
 		final OkHttpLoadBalancingClient client = this.clientFactory.getClient(
 				serviceId, OkHttpLoadBalancingClient.class);
 		client.setLoadBalancer(this.clientFactory.getLoadBalancer(serviceId));
