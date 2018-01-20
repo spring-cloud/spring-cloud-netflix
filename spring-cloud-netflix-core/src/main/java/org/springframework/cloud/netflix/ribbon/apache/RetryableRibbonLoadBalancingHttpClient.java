@@ -42,6 +42,7 @@ import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -124,13 +125,14 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
 					if(service != null) {
 						//Reconstruct the request URI using the host and port set in the retry context
-						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
-								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
-								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
-								newRequest.getURI().getFragment()));
+						newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
+								.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
+								.port(service.getPort()).path(newRequest.getURI().getPath())
+								.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
+								.build().encode().toUri());
 					}
 				}
-				newRequest = getSecureRequest(request, configOverride);
+				newRequest = getSecureRequest(newRequest, configOverride);
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
