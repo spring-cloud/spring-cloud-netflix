@@ -156,8 +156,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		RibbonCommand command = this.ribbonCommandFactory.create(context);
 		try {
 			ClientHttpResponse response = command.execute();
-			this.helper.appendDebug(info, response.getStatusCode().value(),
-					response.getHeaders());
+			this.helper.appendDebug(info, response.getRawStatusCode(), response.getHeaders());
 			return response;
 		}
 		catch (HystrixRuntimeException ex) {
@@ -225,7 +224,7 @@ public class RibbonRoutingFilter extends ZuulFilter {
 	protected void setResponse(ClientHttpResponse resp)
 			throws ClientException, IOException {
 		RequestContext.getCurrentContext().set("zuulResponse", resp);
-		this.helper.setResponse(resp.getStatusCode().value(),
+		this.helper.setResponse(resp.getRawStatusCode(),
 				resp.getBody() == null ? null : resp.getBody(), resp.getHeaders());
 	}
 
