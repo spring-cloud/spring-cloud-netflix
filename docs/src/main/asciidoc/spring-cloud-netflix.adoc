@@ -2118,25 +2118,54 @@ class MyFallbackProvider implements FallbackProvider {
 If you want to configure the socket timeouts and read timeouts for requests proxied through
 Zuul there are two options based on your configuration.
 
-If Zuul is using service discovery then its timeout mechanism should follow the following principles:
+If Zuul is using service discovery then you need to configure these timeouts via Ribbon properties,
+`ribbon.ReadTimeout` and `ribbon.SocketTimeout`. On the other hand if Zuul using service discovery and Hystrix commands wrap the Ribbon client,
+then its timeout mechanism should follow the following principles(Hystrix timeout should including any potential retries,
+the total number of potential retries can be configured via `ribbon.MaxAutoRetries` and `ribbon.MaxAutoRetriesNextServer`):
 
 - If `hystrix.command.commandKey.execution.isolation.thread.timeoutInMilliseconds` is set use that timeout.
+
 - Else if `hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds` is set use that timeout.
+
 - Else if `clientName.nameSpace.ReadTimeout` and `clientName.nameSpace.ConnectTimeout` is set use that timeout.
+
+[NOTE]
+====
+If the `commndKey.nameSpace.MaxAutoRetriesNextServer` and `commndKey.nameSpace.MaxAutoRetries` parameters are not configured then
+we use `ribbon.MaxAutoRetries` and `ribbon.MaxAutoRetriesNextServer` , if `ribbon.MaxAutoRetries` and `ribbon.MaxAutoRetriesNextServer`
+parameters are not configured then we use the default number of times.
+====
+
 - Else if the `ribbon.ConnectTimeout` and `ribbon.ReadTimeout` is set use that timeout.
+
+[NOTE]
+====
+if `ribbon.MaxAutoRetries` and `ribbon.MaxAutoRetriesNextServer`
+parameters are not configured then we use the default number of times.
+====
+
 - Else use the default ribbon connect and read timeouts.
 
-Zuul timeout including any potential retries that might be made.For example:
+[NOTE]
+====
+Using the default number of retries.
+====
+
+For example:
 
 .application.yml
+
 ----
 ribbon:
   ReadTimeout:100
   ConnectTimeout:500
-  MaxAutoRetries:0
+  MaxAutoRetries:1
   MaxAutoRetriesNextServer:1
 ----
-At this point Zuul timeout is 1200ms.
+
+Hystrix timeout calculation formula should be like this
+(`ribbon.ConnectTimeout` + `ribbon.ReadTimeout`) * (`ribbon.MaxAutoRetries` + 1) * (`ribbon.MaxAutoRetriesNextServer` + 1),
+so Hystrix timeout time is 2400ms.
 
 If you have configured Zuul routes by specifying URLs than you will need to use
 `zuul.host.connect-timeout-millis` and `zuul.host.socket-timeout-millis`.
