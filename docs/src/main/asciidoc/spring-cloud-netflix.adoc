@@ -2145,8 +2145,8 @@ default Hystrix timeout will be set to `4000ms`.
 
 If you set `hystrix.command.commandKey.execution.isolation.thread.timeoutInMilliseconds`, where
 `commandKey` is the route id, or set `hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds`
-than these values will be used for the Hystrix timeout regardless of what you have set for the `ribbon.*`
-properties.  If you set either of these properties *YOU* are responsible for making sure it takes
+than these values will be used for the Hystrix timeout regardless of what you have set for the `ribbon.*` properties.
+If you set either of these properties *YOU* are responsible for making sure it takes
 into account the Ribbon connect and read timeouts as well as any retries that may happen.
 
 ==== URL Configuration
