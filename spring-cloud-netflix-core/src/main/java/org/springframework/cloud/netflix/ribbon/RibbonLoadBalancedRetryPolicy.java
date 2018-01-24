@@ -50,7 +50,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 	private ServiceInstanceChooser loadBalanceChooser;
 	List<Integer> retryableStatusCodes = new ArrayList<>();
 	
-	protected static final Log LOGGER = LogFactory.getLog(RibbonLoadBalancedRetryPolicy.class);
+	private static final Log LOGGER = LogFactory.getLog(RibbonLoadBalancedRetryPolicy.class);
 
 	public RibbonLoadBalancedRetryPolicy(String serviceId, RibbonLoadBalancerContext context, ServiceInstanceChooser loadBalanceChooser) {
 		this.serviceId = serviceId;
