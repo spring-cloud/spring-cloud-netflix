@@ -50,7 +50,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 	private ServiceInstanceChooser loadBalanceChooser;
 	List<Integer> retryableStatusCodes = new ArrayList<>();
 	
-	protected final Log logger = LogFactory.getLog(getClass());
+	protected final Log LOGGER = LogFactory.getLog(getClass());
 
 	public RibbonLoadBalancedRetryPolicy(String serviceId, RibbonLoadBalancerContext context, ServiceInstanceChooser loadBalanceChooser) {
 		this.serviceId = serviceId;
@@ -136,7 +136,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 			ServerStats serverStats = lbContext.getServerStats(lbServer);
 			serverStats.incrementSuccessiveConnectionFailureCount();
 			serverStats.addToFailureCount();    				
-			logger.debug(lbServer.getHostPort() + " RetryCount: " + context.getRetryCount() 
+			LOGGER.debug(lbServer.getHostPort() + " RetryCount: " + context.getRetryCount() 
 				+ " Successive Failures: " + serverStats.getSuccessiveConnectionFailureCount() 
 				+ " CirtuitBreakerTripped:" + serverStats.isCircuitBreakerTripped());
 		}

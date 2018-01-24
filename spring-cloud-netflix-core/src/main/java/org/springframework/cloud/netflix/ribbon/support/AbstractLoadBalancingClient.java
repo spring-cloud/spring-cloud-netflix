@@ -51,7 +51,9 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	protected final IClientConfig config;
 	protected final ServerIntrospector serverIntrospector;
 	
-	public boolean isClientRetryable(ContextAwareRequest request) {return false;}
+	public boolean isClientRetryable(ContextAwareRequest request) {
+		return false;
+	}
 
 	@Deprecated
 	public AbstractLoadBalancingClient() {
