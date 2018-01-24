@@ -107,7 +107,7 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 									null,
 									Unpooled.copiedBuffer("message",
 											StandardCharsets.UTF_8),
-									Unpooled.copiedBuffer(JsonUtility.mapToJson(data),
+									Unpooled.copiedBuffer(JsonUtility.mapToJson(data)+"\n",
 											StandardCharsets.UTF_8))));
 				}, serveSseConfigurator());
 		return httpServer;
