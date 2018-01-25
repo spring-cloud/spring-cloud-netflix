@@ -36,6 +36,7 @@ import org.springframework.http.HttpRequest;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -214,6 +215,37 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		assertThat(context.isExhaustedOnly(), is(true));
 		assertThat(policy.retryableStatusCode(400), is(false));
 		verify(context, times(4)).setServiceInstance(any(ServiceInstance.class));
+	}
+
+	@Test
+	public void testCiruitRelatedExceptionsUpdateServerStats() throws Exception {
+		int sameServer = 3;
+		int nextServer = 3;
+		
+		RibbonServer server = getRibbonServer();
+		IClientConfig config = mock(IClientConfig.class);
+		
+		doReturn(sameServer).when(config).get(eq(CommonClientConfigKey.MaxAutoRetries), anyInt());
+		doReturn(nextServer).when(config).get(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
+		doReturn(false).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), eq(false));
+		doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
+		doReturn("").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
+		clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+		
+		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		HttpRequest request = mock(HttpRequest.class);
+		
+		LoadBalancedRetryContext context = spy(new LoadBalancedRetryContext(null, request));
+		doReturn(server).when(context).getServiceInstance();
+		
+		policy.registerThrowable(context, new IOException());
+		verify(serverStats, times(0)).incrementSuccessiveConnectionFailureCount();
+		
+		// Circuit Related should increment failure count
+		policy.registerThrowable(context, new SocketException());
+		verify(serverStats, times(1)).incrementSuccessiveConnectionFailureCount();
 	}
 
 	@Test

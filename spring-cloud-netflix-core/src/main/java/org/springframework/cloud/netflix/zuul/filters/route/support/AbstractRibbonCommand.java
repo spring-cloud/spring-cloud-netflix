@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonHttpResponse;
+import org.springframework.cloud.netflix.ribbon.support.AbstractLoadBalancingClient;
+import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandContext;
@@ -174,8 +176,16 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 		final RequestContext context = RequestContext.getCurrentContext();
 
 		RQ request = createRequest();
-		RS response = this.client.executeWithLoadBalancer(request, config);
-
+		RS response;
+		
+		boolean retryableClient = this.client instanceof AbstractLoadBalancingClient
+				&& ((AbstractLoadBalancingClient)this.client).isClientRetryable((ContextAwareRequest)request);
+		
+		if (retryableClient) {
+			response = this.client.execute(request, config);
+		} else {
+			response = this.client.executeWithLoadBalancer(request, config);
+		}
 		context.set("ribbonResponse", response);
 
 		// Explicitly close the HttpResponse if the Hystrix command timed out to
