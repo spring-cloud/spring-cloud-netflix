@@ -2115,11 +2115,44 @@ class MyFallbackProvider implements FallbackProvider {
 
 === Zuul Timeouts
 
-If you want to configure the socket timeouts and read timeouts for requests proxied through
-Zuul there are two options based on your configuration.
+==== Service Discovery Configuration
 
-If Zuul is using service discovery than you need to configure these timeouts via Ribbon properties,
-`ribbon.ReadTimeout` and `ribbon.SocketTimeout`.
+If Zuul is using service discovery there are two timeouts you need to be concerned
+with, the Hystrix timeout (since all routes are wrapped in Hystrix commands by default)
+and the Ribbon timeout.  The Hystrix timeout needs to take into account the Ribbon
+read and connect timeout PLUS the total number of retries that will happen for that
+service.  By default Spring Cloud Zuul will do its best to calculate the Hystrix timeout
+for you *UNLESS* you specify the Hystrix timeout explicitly.
+
+The Hystrix timeout is calculated using the following formula:
+```
+(ribbon.ConnectTimeout + ribbon.ReadTimeout) * (ribbon.MaxAutoRetries + 1) * (ribbon.MaxAutoRetriesNextServer + 1)
+```
+
+As an example, if you set the following properties in your application properties
+
+.application.yml
+----
+ribbon:
+  ReadTimeout:100
+  ConnectTimeout:500
+  MaxAutoRetries:1
+  MaxAutoRetriesNextServer:1
+----
+Then the Hystrix timeout (for all routes in this case) will be set to `2400ms.`
+
+NOTE: You can configure the Hystrix timeout for individual routes using `service.ribbon.*` properties.
+
+NOTE: If you choose to not configure the above properties than the default values will be used therefore the
+default Hystrix timeout will be set to `4000ms`.
+
+If you set `hystrix.command.commandKey.execution.isolation.thread.timeoutInMilliseconds`, where
+`commandKey` is the route id, or set `hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds`
+than these values will be used for the Hystrix timeout regardless of what you have set for the `ribbon.*` properties.
+If you set either of these properties **YOU** are responsible for making sure it takes
+into account the Ribbon connect and read timeouts as well as any retries that may happen.
+
+==== URL Configuration
 
 If you have configured Zuul routes by specifying URLs than you will need to use
 `zuul.host.connect-timeout-millis` and `zuul.host.socket-timeout-millis`.

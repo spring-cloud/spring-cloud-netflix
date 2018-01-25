@@ -29,6 +29,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.client.ClientHttpResponse;
 import com.netflix.client.AbstractLoadBalancerAwareClient;
 import com.netflix.client.ClientRequest;
+import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.config.IClientConfigKey;
 import com.netflix.client.http.HttpResponse;
@@ -88,31 +89,55 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	}
 
 	protected static HystrixCommandProperties.Setter createSetter(IClientConfig config, String commandKey, ZuulProperties zuulProperties) {
+		int hystrixTimeout = getHystrixTimeout(config, commandKey);
+		return HystrixCommandProperties.Setter().withExecutionIsolationStrategy(
+				zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(hystrixTimeout);
+	}
+
+	protected static int getHystrixTimeout(IClientConfig config, String commandKey) {
+		int ribbonTimeout = getRibbonTimeout(config, commandKey);
 		DynamicPropertyFactory dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
 		int defaultHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds",
-				0).get();
+			0).get();
 		int commandHystrixTimeout = dynamicPropertyFactory.getIntProperty("hystrix.command." + commandKey + ".execution.isolation.thread.timeoutInMilliseconds",
-				0).get();
-		int ribbonReadTimeout = config == null ? RibbonClientConfiguration.DEFAULT_READ_TIMEOUT :
-				config.get(IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT).intValue();
-		int ribbonConnectTimeout = config == null ? RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT :
-				config.get(IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT).intValue();
-		int ribbonTimeout = ribbonConnectTimeout + ribbonReadTimeout;
+			0).get();
 		int hystrixTimeout;
 		if(commandHystrixTimeout > 0) {
 			hystrixTimeout = commandHystrixTimeout;
 		}
-		else if( defaultHystrixTimeout > 0) {
+		else if(defaultHystrixTimeout > 0) {
 			hystrixTimeout = defaultHystrixTimeout;
 		} else {
 			hystrixTimeout = ribbonTimeout;
 		}
 		if(hystrixTimeout < ribbonTimeout) {
 			LOGGER.warn("The Hystrix timeout of " + hystrixTimeout + "ms for the command " + commandKey +
-					" is set lower than the combination of the Ribbon read and connect timeout, " + ribbonTimeout + "ms.");
+				" is set lower than the combination of the Ribbon read and connect timeout, " + ribbonTimeout + "ms.");
 		}
-		return HystrixCommandProperties.Setter().withExecutionIsolationStrategy(
-				zuulProperties.getRibbonIsolationStrategy()).withExecutionTimeoutInMilliseconds(hystrixTimeout);
+		return hystrixTimeout;
+	}
+
+	protected static int getRibbonTimeout(IClientConfig config, String commandKey) {
+		int ribbonTimeout;
+		if (config == null) {
+			ribbonTimeout = RibbonClientConfiguration.DEFAULT_READ_TIMEOUT + RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT;
+		} else {
+			int ribbonReadTimeout = getTimeout(config, commandKey, "ReadTimeout",
+				IClientConfigKey.Keys.ReadTimeout, RibbonClientConfiguration.DEFAULT_READ_TIMEOUT);
+			int ribbonConnectTimeout = getTimeout(config, commandKey, "ConnectTimeout",
+				IClientConfigKey.Keys.ConnectTimeout, RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT);
+			int maxAutoRetries = getTimeout(config, commandKey, "MaxAutoRetries",
+				IClientConfigKey.Keys.MaxAutoRetries, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES);
+			int maxAutoRetriesNextServer = getTimeout(config, commandKey, "MaxAutoRetriesNextServer",
+				IClientConfigKey.Keys.MaxAutoRetriesNextServer, DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES_NEXT_SERVER);
+			ribbonTimeout = (ribbonReadTimeout + ribbonConnectTimeout) * (maxAutoRetries + 1) * (maxAutoRetriesNextServer + 1);
+		}
+		return ribbonTimeout;
+	}
+
+	private static int getTimeout(IClientConfig config, String commandKey, String property, IClientConfigKey<Integer> configKey, int defaultValue) {
+		DynamicPropertyFactory dynamicPropertyFactory = DynamicPropertyFactory.getInstance();
+		return dynamicPropertyFactory.getIntProperty(commandKey + "." + config.getNameSpace() + "." + property, config.get(configKey, defaultValue)).get();
 	}
 
 	@Deprecated
