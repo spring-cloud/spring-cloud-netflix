@@ -18,16 +18,23 @@
 
 package org.springframework.cloud.netflix.feign.ribbon;
 
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import feign.Client;
 import feign.Request;
 import feign.Response;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,6 +54,7 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryException;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.TerminatedRetryException;
 import org.springframework.retry.backoff.BackOffContext;
@@ -68,6 +76,7 @@ import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_MAX_AUTO
 import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_MAX_AUTO_RETRIES_NEXT_SERVER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -153,7 +162,7 @@ public class RetryableFeignLoadBalancerTests {
 		try {
 			feignLb.execute(request, null);
 		} catch(Exception e) {
-			assertThat(e, instanceOf(IOException.class));
+			assertThat(e, instanceOf(RetryException.class));
 		} finally {
 			verify(client, times(1)).execute(any(Request.class), any(Request.Options.class));
 		}
@@ -218,6 +227,64 @@ public class RetryableFeignLoadBalancerTests {
 		assertEquals(200, ribbonResponse.toResponse().status());
 		verify(client, times(2)).execute(any(Request.class), any(Request.Options.class));
 		assertEquals(1, backOffPolicyFactory.getCount());
+	}
+
+	@Test
+	public void executeRetryFail() throws Exception {
+		RibbonLoadBalancerContext lbContext = new RibbonLoadBalancerContext(lb, config);
+		lbContext.setRetryHandler(new DefaultLoadBalancerRetryHandler(1, 0, true));
+		SpringClientFactory clientFactory = mock(SpringClientFactory.class);
+		IClientConfig config = mock(IClientConfig.class);
+		doReturn(1).when(config).get(eq(CommonClientConfigKey.MaxAutoRetries), anyInt());
+		doReturn(0).when(config).get(eq(CommonClientConfigKey.MaxAutoRetriesNextServer), anyInt());
+		doReturn(true).when(config).get(eq(CommonClientConfigKey.OkToRetryOnAllOperations), eq(false));
+		doReturn(defaultConnectTimeout).when(config).get(eq(CommonClientConfigKey.ConnectTimeout));
+		doReturn(defaultReadTimeout).when(config).get(eq(CommonClientConfigKey.ReadTimeout));
+		doReturn("404").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES), eq(""));
+		doReturn(config).when(clientFactory).getClientConfig(eq("default"));
+		doReturn(lbContext).when(clientFactory).getLoadBalancerContext(any(String.class));
+		RibbonLoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
+		HttpRequest springRequest = mock(HttpRequest.class);
+		Request feignRequest = Request.create("GET", "http://foo", new HashMap<String, Collection<String>>(),
+				new byte[]{}, StandardCharsets.UTF_8);
+		Client client = mock(Client.class);
+		FeignLoadBalancer.RibbonRequest request = new FeignLoadBalancer.RibbonRequest(client, feignRequest, new URI("http://foo"));
+		Response fourOFourResponse = Response.builder().status(404).headers(new HashMap<String, Collection<String>>())
+				.body(new Response.Body() { //set content into response
+					@Override
+					public Integer length() {
+						return "test".getBytes().length;
+					}
+
+					@Override
+					public boolean isRepeatable() {
+						return true;
+					}
+
+					@Override
+					public InputStream asInputStream() throws IOException {
+						return new ByteArrayInputStream("test".getBytes());
+					}
+
+					@Override
+					public Reader asReader() throws IOException {
+						return new InputStreamReader(asInputStream(), "UTF-8");
+					}
+
+					@Override
+					public void close() throws IOException {
+					}
+				}).build();
+		doReturn(fourOFourResponse).when(client).execute(any(Request.class), any(Request.Options.class));
+		MyBackOffPolicyFactory backOffPolicyFactory = new MyBackOffPolicyFactory();
+		RetryableFeignLoadBalancer feignLb = new RetryableFeignLoadBalancer(lb, config, inspector, loadBalancedRetryPolicyFactory, backOffPolicyFactory);
+		FeignLoadBalancer.RibbonResponse ribbonResponse = feignLb.execute(request, null);
+		verify(client, times(2)).execute(any(Request.class), any(Request.Options.class));
+		assertEquals(1, backOffPolicyFactory.getCount());
+		InputStream inputStream = ribbonResponse.toResponse().body().asInputStream();
+		byte[] buf = new byte[100];
+		int read = inputStream.read(buf);
+		Assert.assertThat(new String(buf, 0, read), is("test"));
 	}
 
 	@Test
