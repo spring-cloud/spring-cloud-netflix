@@ -2125,7 +2125,10 @@ service.  By default Spring Cloud Zuul will do its best to calculate the Hystrix
 for you *UNLESS* you specify the Hystrix timeout explicitly.
 
 The Hystrix timeout is calculated using the following formula:
-`(ribbon.ConnectTimeout + ribbon.ReadTimeout) * (ribbon.MaxAutoRetries + 1) * (ribbon.MaxAutoRetriesNextServer + 1)`
+```
+(ribbon.ConnectTimeout + ribbon.ReadTimeout) * (ribbon.MaxAutoRetries + 1) * (ribbon.MaxAutoRetriesNextServer + 1)
+```
+
 As an example, if you set the following properties in your application properties
 
 .application.yml
