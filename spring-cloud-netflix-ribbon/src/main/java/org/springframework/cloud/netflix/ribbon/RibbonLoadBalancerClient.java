@@ -50,7 +50,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		String serviceId = instance.getServiceId();
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
-		Server server = new Server(instance.getHost(), instance.getPort());
+		Server server = new Server(instance.getScheme(), instance.getHost(), instance.getPort());
 		IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
 		ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
 		URI uri = RibbonUtils.updateToSecureConnectionIfNeeded(original, clientConfig,
@@ -192,6 +192,11 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 		public Server getServer() {
 			return this.server;
+		}
+
+		@Override
+		public String getScheme() {
+			return this.server.getScheme();
 		}
 
 		@Override
