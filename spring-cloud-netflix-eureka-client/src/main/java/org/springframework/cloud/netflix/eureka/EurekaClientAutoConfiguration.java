@@ -94,16 +94,9 @@ import com.netflix.discovery.EurekaClientConfig;
 		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration"})
 public class EurekaClientAutoConfiguration {
 
-	private ConfigurableEnvironment env;
 	@Autowired(required = false)
 	private HealthCheckHandler healthCheckHandler;
-	private RelaxedPropertyResolver propertyResolver;
-
-	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) {
-		this.env = env;
-		this.propertyResolver = new RelaxedPropertyResolver(env);
-	}
-
+	
 	@Bean
 	public HasFeatures eurekaFeature() {
 		return HasFeatures.namedFeature("Eureka Client", EurekaClient.class);
@@ -111,9 +104,9 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
-	public EurekaClientConfigBean eurekaClientConfigBean() {
+	public EurekaClientConfigBean eurekaClientConfigBean(ConfigurableEnvironment env) {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		if ("bootstrap".equals(propertyResolver.getProperty("spring.config.name"))) {
+		if ("bootstrap".equals(new RelaxedPropertyResolver(env).getProperty("spring.config.name"))) {
 			// We don't register during bootstrap by default, but there will be another
 			// chance later.
 			client.setRegisterWithEureka(false);
@@ -130,23 +123,24 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils,
-															 ManagementMetadataProvider managementMetadataProvider) throws MalformedURLException {
-		PropertyResolver eurekaPropertyResolver = new RelaxedPropertyResolver(this.env, "eureka.instance.");
+															 ManagementMetadataProvider managementMetadataProvider, ConfigurableEnvironment env) throws MalformedURLException {
+		PropertyResolver environmentPropertyResolver = new RelaxedPropertyResolver(env);
+		PropertyResolver eurekaPropertyResolver = new RelaxedPropertyResolver(env, "eureka.instance.");
 		String hostname = eurekaPropertyResolver.getProperty("hostname");
 
 		boolean preferIpAddress = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("preferIpAddress"));
 		String ipAddress = eurekaPropertyResolver.getProperty("ipAddress");
 		boolean isSecurePortEnabled = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("securePortEnabled"));
-		String serverContextPath = propertyResolver.getProperty("server.contextPath", "/");
-		int serverPort = Integer.valueOf(propertyResolver.getProperty("server.port", propertyResolver.getProperty("port", "8080")));
+		String serverContextPath = environmentPropertyResolver.getProperty("server.contextPath", "/");
+		int serverPort = Integer.valueOf(environmentPropertyResolver.getProperty("server.port", environmentPropertyResolver.getProperty("port", "8080")));
 
-		Integer managementPort = propertyResolver.getProperty("management.port", Integer.class);// nullable. should be wrapped into optional
-		String managementContextPath = propertyResolver.getProperty("management.contextPath");// nullable. should be wrapped into optional
-		Integer jmxPort = propertyResolver.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
+		Integer managementPort = environmentPropertyResolver.getProperty("management.port", Integer.class);// nullable. should be wrapped into optional
+		String managementContextPath = environmentPropertyResolver.getProperty("management.contextPath");// nullable. should be wrapped into optional
+		Integer jmxPort = environmentPropertyResolver.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
 		instance.setNonSecurePort(serverPort);
-		instance.setInstanceId(getDefaultInstanceId(propertyResolver));
+		instance.setInstanceId(getDefaultInstanceId(environmentPropertyResolver));
 		instance.setPreferIpAddress(preferIpAddress);
 		if (StringUtils.hasText(ipAddress)) {
 			instance.setIpAddress(ipAddress);
