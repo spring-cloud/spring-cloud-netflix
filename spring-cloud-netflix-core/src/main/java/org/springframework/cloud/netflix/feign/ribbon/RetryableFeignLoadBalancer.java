@@ -159,6 +159,9 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 
 	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
 		Response.Body body = response.body();
+		if (body == null) {
+			return response;
+		}
 		InputStream in = body.asInputStream();
 		ByteArrayOutputStream temp = new ByteArrayOutputStream();
 		byte[] buffer = new byte[4096];

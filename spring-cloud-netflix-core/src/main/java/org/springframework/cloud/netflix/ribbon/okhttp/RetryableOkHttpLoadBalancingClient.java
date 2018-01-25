@@ -160,28 +160,28 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 
 	private Response closeConnectionAndRebuildResponse(Response response) throws IOException {
 		final ResponseBody body = response.body();
-		if (body != null) {
-			final byte[] bytes = body.bytes(); //read content and close the connection
-			return response.newBuilder().body(new ResponseBody() { //set content into response
-				@Override
-				public MediaType contentType() {
-					return body.contentType();
-				}
-
-				@Override
-				public long contentLength() {
-					return body.contentLength();
-				}
-
-				@Override
-				public BufferedSource source() {
-					Buffer buffer = new Buffer();
-					buffer.write(bytes);
-					return buffer;
-				}
-			}).build();
+		if (body == null) {
+			return response;
 		}
-		return response;
+		final byte[] bytes = body.bytes(); //read content and close the connection
+		return response.newBuilder().body(new ResponseBody() { //set content into response
+			@Override
+			public MediaType contentType() {
+				return body.contentType();
+			}
+
+			@Override
+			public long contentLength() {
+				return body.contentLength();
+			}
+
+			@Override
+			public BufferedSource source() {
+				Buffer buffer = new Buffer();
+				buffer.write(bytes);
+				return buffer;
+			}
+		}).build();
 	}
 
 	@Override
