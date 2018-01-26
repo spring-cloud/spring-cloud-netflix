@@ -1131,6 +1131,9 @@ feign:
           - com.example.FooRequestInterceptor
           - com.example.BarRequestInterceptor
         decode404: false
+        encoder: com.example.SimpleEncoder
+        decoder: com.example.SimpleDecoder
+        contract: com.example.SimpleContract
 ----
 
 Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
