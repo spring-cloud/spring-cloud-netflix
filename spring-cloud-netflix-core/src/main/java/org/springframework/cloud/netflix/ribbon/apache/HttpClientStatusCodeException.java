@@ -15,10 +15,12 @@
  */
 package org.springframework.cloud.netflix.ribbon.apache;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
@@ -38,7 +40,12 @@ public class HttpClientStatusCodeException extends RetryableStatusCodeException 
 		this.response.setStatusCode(response.getStatusLine().getStatusCode());
 		this.response.setReasonPhrase(response.getStatusLine().getReasonPhrase());
 		this.response.setHeaders(response.getAllHeaders());
-		EntityUtils.updateEntity(this.response, response.getEntity());
+		ByteArrayInputStream is = new ByteArrayInputStream(
+				EntityUtils.toByteArray(response.getEntity()));
+		BasicHttpEntity entity = new BasicHttpEntity();
+		entity.setContent(is);
+		entity.setContentLength(response.getEntity().getContentLength());
+		EntityUtils.updateEntity(this.response, entity);
 		if(CloseableHttpResponse.class.isInstance(response)) {
 			((CloseableHttpResponse)response).close();
 		}

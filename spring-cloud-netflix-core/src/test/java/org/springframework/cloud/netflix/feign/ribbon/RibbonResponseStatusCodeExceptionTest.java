@@ -55,7 +55,7 @@ public class RibbonResponseStatusCodeExceptionTest {
 		assertEquals(200, ex.getResponse().status());
 		assertEquals(request, ex.getResponse().request());
 		assertEquals("Success", ex.getResponse().reason());
-		assertEquals("foo", StreamUtils.copyToString(response.body().asInputStream(), Charset.defaultCharset()));
+		assertEquals("foo", StreamUtils.copyToString(ex.getResponse().body().asInputStream(), Charset.defaultCharset()));
 		assertTrue(is.isClosed());
 		assertEquals(1, is.getNumberOfTimesCloseCalled());
 	}

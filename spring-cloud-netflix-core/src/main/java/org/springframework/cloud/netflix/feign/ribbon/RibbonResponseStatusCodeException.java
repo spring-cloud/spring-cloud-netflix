@@ -17,8 +17,11 @@ package org.springframework.cloud.netflix.feign.ribbon;
 
 import feign.Response;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
+import org.springframework.util.StreamUtils;
 
 /**
  * A {@link RetryableStatusCodeException} for {@link Response}s
@@ -27,10 +30,12 @@ import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeExceptio
 public class RibbonResponseStatusCodeException extends RetryableStatusCodeException {
 	private Response response;
 
-	public RibbonResponseStatusCodeException(String serviceId, Response response, URI uri) {
+	public RibbonResponseStatusCodeException(String serviceId, Response response, URI uri) throws IOException {
 		super(serviceId, response.status(), response, uri);
-		this.response = Response.builder().body(response.body()).headers(response.headers()).reason(response.reason()).
-				status(response.status()).request(response.request()).build();
+		byte[] byteArray = StreamUtils.copyToByteArray(response.body().asInputStream());
+		this.response = Response.builder().body(new ByteArrayInputStream(byteArray), byteArray.length)
+				.headers(response.headers()).reason(response.reason())
+				.status(response.status()).request(response.request()).build();
 		response.close();
 	}
 
