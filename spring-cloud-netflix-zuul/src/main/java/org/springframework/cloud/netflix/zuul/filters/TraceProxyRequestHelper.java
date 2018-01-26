@@ -48,7 +48,8 @@ import javax.servlet.http.HttpServletRequest;
 public class TraceProxyRequestHelper extends ProxyRequestHelper {
 
 	private HttpTraceRepository traces;
-	private final HttpExchangeTracer tracer = new HttpExchangeTracer(Include.defaultIncludes());
+	private final HttpExchangeTracer tracer = new HttpExchangeTracer(
+			Include.defaultIncludes());
 
 	public void setTraces(HttpTraceRepository traces) {
 		this.traces = traces;
@@ -78,7 +79,8 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 					debugRequestEntity(info, request.getInputStream());
 				}
 			}
-			HttpTrace httpTrace = tracer.receivedRequest(new ServletTraceableRequest(request));
+			HttpTrace httpTrace = tracer
+					.receivedRequest(new ServletTraceableRequest(request));
 			this.traces.add(httpTrace);
 			return info;
 		}
@@ -94,9 +96,9 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 		}
 
 		@Override
-        public String getMethod() {
-            return request.getMethod();
-        }
+		public String getMethod() {
+			return request.getMethod();
+		}
 
 		@Override
 		public URI getUri() {
