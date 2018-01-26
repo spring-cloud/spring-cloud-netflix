@@ -18,7 +18,6 @@
 package org.springframework.cloud.netflix.zuul;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.Part;
@@ -27,8 +26,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
-import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.actuate.web.trace.HttpTraceRepository;
+import org.springframework.boot.actuate.web.trace.InMemoryHttpTraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -289,16 +288,8 @@ class FormZuulProxyApplication {
 	}
 
 	@Bean
-	public TraceRepository traceRepository() {
-		return new InMemoryTraceRepository() {
-			@Override
-			public void add(Map<String, Object> map) {
-				if (map.containsKey("body")) {
-					map.get("body");
-				}
-				super.add(map);
-			}
-		};
+	public HttpTraceRepository traceRepository() {
+		return new InMemoryHttpTraceRepository();
 	}
 
 	public static void main(String[] args) {
