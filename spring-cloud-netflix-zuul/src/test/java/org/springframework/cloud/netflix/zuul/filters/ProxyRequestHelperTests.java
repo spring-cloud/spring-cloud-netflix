@@ -21,14 +21,15 @@ import java.util.List;
 
 import com.netflix.zuul.context.RequestContext;
 
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
-import org.springframework.boot.actuate.trace.Trace;
-import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.actuate.web.trace.HttpTrace;
+import org.springframework.boot.actuate.web.trace.HttpTraceRepository;
+import org.springframework.boot.actuate.web.trace.InMemoryHttpTraceRepository;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -53,7 +54,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 public class ProxyRequestHelperTests {
 
 	@Mock
-	private TraceRepository traceRepository;
+	private HttpTraceRepository traceRepository;
 
 	@Before
 	public void init() {
@@ -81,16 +82,15 @@ public class ProxyRequestHelperTests {
 		RequestContext.getCurrentContext().setRequest(request);
 
 		TraceProxyRequestHelper helper = new TraceProxyRequestHelper();
-		this.traceRepository = new InMemoryTraceRepository();
+		this.traceRepository = new InMemoryHttpTraceRepository();
 		helper.setTraces(this.traceRepository);
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
 		helper.debug("POST", "http://example.com", headers,
-				new LinkedMultiValueMap<String, String>(), request.getInputStream());
-		Trace actual = this.traceRepository.findAll().get(0);
-		assertThat((String) actual.getInfo().get("body"), equalTo("{}"));
-
+				new LinkedMultiValueMap<>(), request.getInputStream());
+		HttpTrace actual = this.traceRepository.findAll().get(0);
+		Assertions.assertThat(actual.getRequest().getHeaders()).containsKeys("singleName", "multiName");
 	}
 
 	@Test
