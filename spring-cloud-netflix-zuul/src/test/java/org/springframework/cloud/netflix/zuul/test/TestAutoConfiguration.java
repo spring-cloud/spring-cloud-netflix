@@ -24,7 +24,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 /**
  * @author Spencer Gibb
@@ -43,6 +45,12 @@ public class TestAutoConfiguration {
 			super(true);
 		}
 
+		@Override
+		public void configure(WebSecurity web) throws Exception {
+			StrictHttpFirewall httpFirewall = new StrictHttpFirewall();
+			httpFirewall.setAllowSemicolon(true);
+			web.httpFirewall(httpFirewall);
+		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {

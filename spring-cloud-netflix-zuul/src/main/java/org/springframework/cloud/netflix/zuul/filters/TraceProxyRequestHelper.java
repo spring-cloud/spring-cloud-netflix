@@ -20,26 +20,38 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.actuate.web.trace.HttpExchangeTracer;
+import org.springframework.boot.actuate.web.trace.HttpTrace;
+import org.springframework.boot.actuate.web.trace.HttpTraceRepository;
+import org.springframework.boot.actuate.web.trace.Include;
+import org.springframework.boot.actuate.web.trace.TraceableRequest;
 import org.springframework.util.MultiValueMap;
 
 import com.netflix.zuul.context.RequestContext;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Spencer Gibb
  */
 public class TraceProxyRequestHelper extends ProxyRequestHelper {
 
-	private TraceRepository traces;
+	private HttpTraceRepository traces;
+	private final HttpExchangeTracer tracer = new HttpExchangeTracer(
+			Include.defaultIncludes());
 
-	public void setTraces(TraceRepository traces) {
+	public void setTraces(HttpTraceRepository traces) {
 		this.traces = traces;
 	}
 
@@ -60,17 +72,71 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 			trace.put("request", input);
 			info.put("headers", trace);
 			debugHeaders(headers, input);
-			RequestContext ctx = RequestContext.getCurrentContext();
-			if (shouldDebugBody(ctx)) {
+			HttpServletRequest request = context.getRequest();
+			if (shouldDebugBody(context)) {
 				// Prevent input stream from being read if it needs to go downstream
 				if (requestEntity != null) {
-					debugRequestEntity(info, ctx.getRequest().getInputStream());
+					debugRequestEntity(info, request.getInputStream());
 				}
 			}
-			this.traces.add(info);
+			HttpTrace httpTrace = tracer
+					.receivedRequest(new ServletTraceableRequest(request));
+			this.traces.add(httpTrace);
 			return info;
 		}
 		return info;
+	}
+
+	private class ServletTraceableRequest implements TraceableRequest {
+		private HttpServletRequest request;
+
+		public ServletTraceableRequest(HttpServletRequest request) {
+
+			this.request = request;
+		}
+
+		@Override
+		public String getMethod() {
+			return request.getMethod();
+		}
+
+		@Override
+		public URI getUri() {
+			StringBuffer urlBuffer = request.getRequestURL();
+			if (StringUtils.hasText(request.getQueryString())) {
+				urlBuffer.append("?");
+				urlBuffer.append(request.getQueryString());
+			}
+			return URI.create(urlBuffer.toString());
+		}
+
+		@Override
+		public Map<String, List<String>> getHeaders() {
+			return extractHeaders();
+		}
+
+		@Override
+		public String getRemoteAddress() {
+			return request.getRemoteAddr();
+		}
+
+		private Map<String, List<String>> extractHeaders() {
+			Map<String, List<String>> headers = new LinkedHashMap<>();
+			Enumeration<String> names = request.getHeaderNames();
+			while (names.hasMoreElements()) {
+				String name = names.nextElement();
+				headers.put(name, toList(request.getHeaders(name)));
+			}
+			return headers;
+		}
+
+		private List<String> toList(Enumeration<String> enumeration) {
+			List<String> list = new ArrayList<>();
+			while (enumeration.hasMoreElements()) {
+				list.add(enumeration.nextElement());
+			}
+			return list;
+		}
 	}
 
 	void debugHeaders(MultiValueMap<String, String> headers, Map<String, Object> map) {

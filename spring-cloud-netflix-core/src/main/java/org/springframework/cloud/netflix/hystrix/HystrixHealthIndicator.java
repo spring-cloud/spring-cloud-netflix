@@ -56,7 +56,7 @@ public class HystrixHealthIndicator extends AbstractHealthIndicator {
 		// If there is at least one open circuit report OUT_OF_SERVICE adding the command
 		// group
 		// and key name
-		if (openCircuitBreakers.size() > 0) {
+		if (!openCircuitBreakers.isEmpty()) {
 			builder.status(CIRCUIT_OPEN).withDetail("openCircuitBreakers",
 					openCircuitBreakers);
 		}

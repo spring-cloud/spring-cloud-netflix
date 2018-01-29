@@ -309,7 +309,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public FilterRegistrationBean traceFilterRegistration(
-			@Qualifier("webRequestLoggingFilter") Filter filter) {
+			@Qualifier("httpTraceFilter") Filter filter) {
 		FilterRegistrationBean bean = new FilterRegistrationBean();
 		bean.setFilter(filter);
 		bean.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
