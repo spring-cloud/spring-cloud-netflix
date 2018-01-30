@@ -58,7 +58,6 @@ class RestClientRibbonConfiguration {
 		RestClient client = new RibbonClientConfiguration.OverrideRestClient(config, serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
-		Monitors.registerObject("Client_" + this.name, client);
 		return client;
 	}
 }
