@@ -48,7 +48,7 @@ public class ZonePreferenceServerListFilter extends ZoneAffinityServerListFilter
 	public List<Server> getFilteredListOfServers(List<Server> servers) {
 		List<Server> output = super.getFilteredListOfServers(servers);
 		if (this.zone != null && output.size() == servers.size()) {
-			List<Server> local = new ArrayList<Server>();
+			List<Server> local = new ArrayList<>();
 			for (Server server : output) {
 				if (this.zone.equalsIgnoreCase(server.getZone())) {
 					local.add(server);

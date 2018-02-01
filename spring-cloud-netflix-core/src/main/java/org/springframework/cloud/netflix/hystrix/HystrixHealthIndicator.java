@@ -41,7 +41,7 @@ public class HystrixHealthIndicator extends AbstractHealthIndicator {
 
 	@Override
 	protected void doHealthCheck(Builder builder) throws Exception {
-		List<String> openCircuitBreakers = new ArrayList<String>();
+		List<String> openCircuitBreakers = new ArrayList<>();
 
 		// Collect all open circuit breakers from Hystrix
 		for (HystrixCommandMetrics metrics : HystrixCommandMetrics.getInstances()) {
