@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 
 import com.netflix.appinfo.InstanceInfo;
+
+import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 
 /**
  * @author Spencer Gibb
@@ -89,11 +91,17 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 	@Override
 	public Object getStatus(EurekaRegistration registration) {
-		HashMap<String, Object> status = new HashMap<>();
+		String appname = registration.getInstanceConfig().getAppname();
+		String instanceId = registration.getInstanceConfig().getInstanceId();
+		InstanceInfo info = registration.getEurekaClient().getInstanceInfo(appname, instanceId);
 
-		InstanceInfo info = registration.getApplicationInfoManager().getInfo();
-		status.put("status", info.getStatus().toString());
-		status.put("overriddenStatus", info.getOverriddenStatus().toString());
+		HashMap<String, Object> status = new HashMap<>();
+		if (info != null) {
+			status.put("status", info.getStatus().toString());
+			status.put("overriddenStatus", info.getOverriddenStatus().toString());
+		} else {
+			status.put("status", UNKNOWN.toString());
+		}
 
 		return status;
 	}
