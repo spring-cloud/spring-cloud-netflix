@@ -308,7 +308,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private MultiValueMap<String, String> revertHeaders(Header[] headers) {
-		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		for (Header header : headers) {
 			String name = header.getName();
 			if (!map.containsKey(name)) {

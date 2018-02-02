@@ -155,7 +155,7 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 		if (this.traces != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> trace = (Map<String, Object>) info.get("headers");
-			Map<String, Object> output = new LinkedHashMap<String, Object>();
+			Map<String, Object> output = new LinkedHashMap<>();
 			trace.put("response", output);
 			debugHeaders(headers, output);
 			output.put("status", "" + status);

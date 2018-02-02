@@ -54,7 +54,7 @@ public class RibbonRetryPolicy extends InterceptorRetryPolicy {
 		RibbonRetryPolicyServiceInstance(String serviceId, HttpRequest request) {
 			this.serviceId = serviceId;
 			this.request = request;
-			this.metadata = new HashMap<String, String>();
+			this.metadata = new HashMap<>();
 		}
 
 		@Override

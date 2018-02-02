@@ -175,7 +175,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	 * {@link ZuulProperties}, but subclasses can add dynamic calculations.
 	 */
 	protected Map<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<String, ZuulRoute>();
+		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
 		for (ZuulRoute route : this.properties.getRoutes().values()) {
 			routesMap.put(route.getPath(), route);
 		}
