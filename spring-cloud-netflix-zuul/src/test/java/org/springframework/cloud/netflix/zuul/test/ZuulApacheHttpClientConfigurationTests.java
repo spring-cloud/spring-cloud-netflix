@@ -104,6 +104,10 @@ public class ZuulApacheHttpClientConfigurationTests {
 	static class TestConfig {
 
 		static class MyApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
+			public MyApacheHttpClientFactory(HttpClientBuilder builder) {
+				super(builder);
+			}
+
 			@Override
 			public HttpClientBuilder createBuilder() {
 				CloseableHttpClient client =  mock(CloseableHttpClient.class);
@@ -125,9 +129,9 @@ public class ZuulApacheHttpClientConfigurationTests {
 		}
 
 		@Bean
-		public ApacheHttpClientFactory apacheHttpClientFactory() {
-																		   return new MyApacheHttpClientFactory();
-																												  }
+		public ApacheHttpClientFactory apacheHttpClientFactory(HttpClientBuilder builder) {
+			return new MyApacheHttpClientFactory(builder);
+		}
 	}
 
 }

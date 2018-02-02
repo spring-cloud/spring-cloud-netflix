@@ -42,6 +42,7 @@ import org.apache.http.client.methods.Configurable;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -338,7 +339,7 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(); }
+		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(HttpClientBuilder.create()); }
 
 		@Bean
 		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() { return new DefaultApacheHttpClientConnectionManagerFactory(); }
