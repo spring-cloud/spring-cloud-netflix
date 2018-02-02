@@ -70,7 +70,7 @@ public class EurekaDashboardProperties {
 
 	@Override
 	public String toString() {
-		final StringBuffer sb = new StringBuffer("EurekaDashboardProperties{");
+		final StringBuilder sb = new StringBuilder("EurekaDashboardProperties{");
 		sb.append("path='").append(path).append('\'');
 		sb.append(", enabled=").append(enabled);
 		sb.append('}');
