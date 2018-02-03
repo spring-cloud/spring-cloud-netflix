@@ -1781,8 +1781,7 @@ routes:
 }
 ----
 
-Additional route details can be requested by adding the `?format=details` query
-string to `/routes`. This will produce the following output:
+Additional route details can be requested through the `/routes/details` endpoint. This will produce the following output:
 
 .GET /routes/details
 [source,json]
@@ -1801,12 +1800,12 @@ string to `/routes`. This will produce the following output:
 }
 ----
 
-A POST will force a refresh of the existing routes (e.g. in
+A POST to `/routes` will force a refresh of the existing routes (e.g. in
 case there have been changes in the service catalog).  You can disable
 this endpoint by setting `endpoints.routes.enabled` to `false`.
 
 NOTE: the routes should respond automatically to changes in the
-service catalog, but the POST to /routes is a way to force the change
+service catalog, but the POST to `/routes` is a way to force the change
 to happen immediately.
 
 ==== Filters Endpoint
