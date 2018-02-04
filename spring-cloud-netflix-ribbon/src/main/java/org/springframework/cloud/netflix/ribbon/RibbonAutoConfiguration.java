@@ -35,6 +35,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.loadbalancer.AsyncLoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
@@ -109,13 +110,20 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
+	@ConditionalOnMissingBean
+	public LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory() {
+		return new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
+	}
+
+	@Bean
 	@ConditionalOnMissingBean
 	public PropertiesFactory propertiesFactory() {
 		return new PropertiesFactory();
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "ribbon.eager-load.enabled", matchIfMissing = false)
+	@ConditionalOnProperty(value = "ribbon.eager-load.enabled")
 	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
 		return new RibbonApplicationContextInitializer(springClientFactory(),
 				ribbonEagerLoadProperties.getClients());

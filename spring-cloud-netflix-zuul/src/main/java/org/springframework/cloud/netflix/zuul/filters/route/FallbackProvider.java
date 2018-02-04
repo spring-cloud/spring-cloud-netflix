@@ -19,18 +19,25 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import org.springframework.http.client.ClientHttpResponse;
 
 /**
- * Extension of {@link ZuulFallbackProvider} which adds possibility to choose proper response
- * based on the exception which caused the main method to fail.
+ * Provides fallback when a failure occurs on a route.
  *
+ * @author Ryan Baxter
  * @author Dominik Mostek
  */
-public interface FallbackProvider extends ZuulFallbackProvider {
+public interface FallbackProvider {
+
+	/**
+	 * The route this fallback will be used for.
+	 * @return The route the fallback will be used for.
+	 */
+	public String getRoute();
 
 	/**
 	 * Provides a fallback response based on the cause of the failed execution.
 	 *
-	 * @param cause cause of the main method failure
+	 * @param route The route the fallback is for
+	 * @param cause cause of the main method failure, may be <code>null</code>
 	 * @return the fallback response
 	 */
-	ClientHttpResponse fallbackResponse(Throwable cause);
+	ClientHttpResponse fallbackResponse(String route, Throwable cause);
 }

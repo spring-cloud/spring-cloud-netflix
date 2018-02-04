@@ -144,7 +144,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private void initialize() {
 		if(!customHttpClient) {
 			this.connectionManager = connectionManagerFactory.newConnectionManager(
-					this.sslHostnameValidationEnabled,
+					!this.sslHostnameValidationEnabled,
 					this.hostProperties.getMaxTotalConnections(),
 					this.hostProperties.getMaxPerRouteConnections(),
 					this.hostProperties.getTimeToLive(), this.hostProperties.getTimeUnit(),
@@ -308,7 +308,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	}
 
 	private MultiValueMap<String, String> revertHeaders(Header[] headers) {
-		MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		for (Header header : headers) {
 			String name = header.getName();
 			if (!map.containsKey(name)) {

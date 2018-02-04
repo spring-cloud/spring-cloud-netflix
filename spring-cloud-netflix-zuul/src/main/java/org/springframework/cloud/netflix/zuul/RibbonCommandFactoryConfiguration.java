@@ -31,9 +31,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonCommandFactory;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +51,7 @@ public class RibbonCommandFactoryConfiguration {
 	protected static class RestClientRibbonConfiguration {
 
 		@Autowired(required = false)
-		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+		private Set<FallbackProvider> zuulFallbackProviders = Collections.emptySet();
 
 		@Bean
 		@ConditionalOnMissingBean
@@ -68,7 +68,7 @@ public class RibbonCommandFactoryConfiguration {
 	protected static class OkHttpRibbonConfiguration {
 
 		@Autowired(required = false)
-		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+		private Set<FallbackProvider> zuulFallbackProviders = Collections.emptySet();
 
 		@Bean
 		@ConditionalOnMissingBean
@@ -84,7 +84,7 @@ public class RibbonCommandFactoryConfiguration {
 	protected static class HttpClientRibbonConfiguration {
 
 		@Autowired(required = false)
-		private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
+		private Set<FallbackProvider> zuulFallbackProviders = Collections.emptySet();
 
 		@Bean
 		@ConditionalOnMissingBean

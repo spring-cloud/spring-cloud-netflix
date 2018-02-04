@@ -52,11 +52,11 @@ import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.support.NoEncodingFormHttpMessageConverter;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
 import org.springframework.context.annotation.Bean;
@@ -291,7 +291,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@Autowired(required = false)
-		private Set<ZuulFallbackProvider> fallbackProviders = Collections.emptySet();
+		private Set<FallbackProvider> fallbackProviders = Collections.emptySet();
 
 		@RequestMapping("/trailing-slash")
 		public String trailingSlash(HttpServletRequest request) {
@@ -360,7 +360,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			private SpringClientFactory clientFactory;
 
 			public MyRibbonCommandFactory(SpringClientFactory clientFactory,
-										  Set<ZuulFallbackProvider> fallbackProviders) {
+										  Set<FallbackProvider> fallbackProviders) {
 				super(clientFactory, new ZuulProperties(), fallbackProviders);
 				this.clientFactory = clientFactory;
 			}

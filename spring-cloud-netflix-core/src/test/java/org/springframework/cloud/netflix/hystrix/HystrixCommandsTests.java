@@ -134,4 +134,17 @@ public class HystrixCommandsTests {
 				.verifyComplete();
 	}
 
+	@Test
+	public void extendTimeout() {
+		StepVerifier.create(HystrixCommands.from(Mono.fromCallable(() -> {
+			Thread.sleep(1500);
+			return "works";
+		})).commandName("extendTimeout")
+				.commandProperties(
+						setter -> setter.withExecutionTimeoutInMilliseconds(2000))
+				.toMono())
+				.expectNext("works")
+				.verifyComplete();
+	}
+
 }

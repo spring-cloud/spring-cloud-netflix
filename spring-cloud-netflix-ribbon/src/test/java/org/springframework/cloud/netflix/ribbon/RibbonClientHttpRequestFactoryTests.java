@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,11 +31,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.AbstractClientHttpRequestFactoryWrapper;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -73,11 +70,7 @@ public class RibbonClientHttpRequestFactoryTests {
 	@Test
 	public void requestFactoryIsRibbon() {
 		ClientHttpRequestFactory requestFactory = this.restTemplate.getRequestFactory();
-		assertThat(requestFactory).isInstanceOf(AbstractClientHttpRequestFactoryWrapper.class);
-		Field field = ReflectionUtils.findField(AbstractClientHttpRequestFactoryWrapper.class, "requestFactory");
-		ReflectionUtils.makeAccessible(field);
-		ClientHttpRequestFactory delegate = (ClientHttpRequestFactory) ReflectionUtils.getField(field, requestFactory);
-		assertThat(delegate).isInstanceOf(RibbonClientHttpRequestFactory.class);
+		assertThat(requestFactory).isInstanceOf(RibbonClientHttpRequestFactory.class);
 	}
 
 	@Test

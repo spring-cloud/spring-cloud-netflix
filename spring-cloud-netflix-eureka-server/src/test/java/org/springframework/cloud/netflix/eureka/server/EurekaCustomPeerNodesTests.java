@@ -17,12 +17,10 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +32,8 @@ import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.ServerCodecs;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
@@ -54,13 +54,6 @@ public class EurekaCustomPeerNodesTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(ApplicationContextTests.Application.class)
-					.properties("spring.application.name=eureka",
-							"server.contextPath=/context")
-					.run(args);
-		}
 
 		@Bean
 		public PeerEurekaNodes myPeerEurekaNodes(PeerAwareInstanceRegistry registry,

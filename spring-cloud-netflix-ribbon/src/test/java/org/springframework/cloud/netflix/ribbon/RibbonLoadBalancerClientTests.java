@@ -21,6 +21,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,7 +29,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
-import org.springframework.web.util.DefaultUriTemplateHandler;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.BaseLoadBalancer;
@@ -36,12 +38,10 @@ import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyDouble;
@@ -99,8 +99,9 @@ public class RibbonLoadBalancerClientTests {
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		URI uri = client.reconstructURI(serviceInstance,
 				new URL(scheme + "://" + server.getServiceId()).toURI());
-		assertEquals(server.getHost(), uri.getHost());
-		assertEquals(server.getPort(), uri.getPort());
+		assertThat(uri).hasScheme(scheme)
+				.hasHost(serviceInstance.getHost())
+				.hasPort(serviceInstance.getPort());
 	}
 
 	@Test
@@ -122,10 +123,27 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 
-		URI expanded = new DefaultUriTemplateHandler()
+		URI expanded = new DefaultUriBuilderFactory()
 				.expand(scheme + "://" + server.getServiceId() + path);
 		URI reconstructed = client.reconstructURI(serviceInstance, expanded);
-		assertEquals(expanded.getPath(), reconstructed.getPath());
+		assertThat(reconstructed).hasPath(path);
+	}
+
+	@Test
+	public void testReconstructHonorsRibbonServerScheme() {
+		RibbonServer server = new RibbonServer("testService",
+				new Server("ws", "myhost", 9080), false,
+				Collections.singletonMap("mykey", "myvalue"));
+
+		IClientConfig config = mock(IClientConfig.class);
+		when(config.get(CommonClientConfigKey.IsSecure)).thenReturn(false);
+		when(clientFactory.getClientConfig(server.getServiceId())).thenReturn(config);
+
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+		ServiceInstance serviceInstance = client.choose(server.getServiceId());
+		URI uri = client.reconstructURI(serviceInstance, URI.create("http://testService"));
+
+		assertThat(uri).hasScheme("ws").hasHost("myhost").hasPort(9080);
 	}
 
 	@Test
@@ -193,13 +211,10 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		final String returnVal = "myval";
 		Object actualReturn = client.execute(server.getServiceId(),
-				new LoadBalancerRequest<Object>() {
-					@Override
-					public Object apply(ServiceInstance instance) throws Exception {
-						assertServiceInstance(server, instance);
-						return returnVal;
-					}
-				});
+				(LoadBalancerRequest<Object>) instance -> {
+                    assertServiceInstance(server, instance);
+                    return returnVal;
+                });
 		verifyServerStats();
 		assertEquals("retVal was wrong", returnVal, actualReturn);
 	}
@@ -210,13 +225,10 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(ribbonServer);
 		try {
 			client.execute(ribbonServer.getServiceId(),
-					new LoadBalancerRequest<Object>() {
-						@Override
-						public Object apply(ServiceInstance instance) throws Exception {
-							assertServiceInstance(ribbonServer, instance);
-							throw new RuntimeException();
-						}
-					});
+					instance -> {
+                        assertServiceInstance(ribbonServer, instance);
+                        throw new RuntimeException();
+                    });
 			fail("Should have thrown exception");
 		}
 		catch (Exception ex) {
@@ -231,17 +243,14 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(ribbonServer);
 		try {
 			client.execute(ribbonServer.getServiceId(),
-					new LoadBalancerRequest<Object>() {
-						@Override
-						public Object apply(ServiceInstance instance) throws Exception {
-							assertServiceInstance(ribbonServer, instance);
-							throw new IOException();
-						}
-					});
+					instance -> {
+                        assertServiceInstance(ribbonServer, instance);
+                        throw new IOException();
+                    });
 			fail("Should have thrown exception");
 		}
 		catch (Exception ex) {
-			assertThat("wrong exception type", ex, is(instanceOf(IOException.class)));
+		    assertThat(ex).isInstanceOf(IOException.class);
 		}
 		verifyServerStats();
 	}

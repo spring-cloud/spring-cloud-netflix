@@ -152,7 +152,10 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		String targetPath = path;
 		String prefix = this.properties.getPrefix();
-		if (path.startsWith(prefix) && this.properties.isStripPrefix()) {
+		if(prefix.endsWith("/")) {
+			prefix = prefix.substring(0, prefix.length() - 1);
+		}
+		if (path.startsWith(prefix + "/") && this.properties.isStripPrefix()) {
 			targetPath = path.substring(prefix.length());
 		}
 		if (route.isStripPrefix()) {

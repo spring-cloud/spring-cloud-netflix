@@ -28,8 +28,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -231,10 +230,6 @@ public class RefreshablePeerEurekaNodesTests {
 	@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class
 			})
 	protected static class Application {
-
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(RefreshablePeerEurekaNodesTests.Application.class).run(args);
-		}
 	}
 
 	/*

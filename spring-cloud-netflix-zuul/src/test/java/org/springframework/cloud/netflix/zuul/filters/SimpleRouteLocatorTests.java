@@ -17,8 +17,10 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +92,25 @@ public class SimpleRouteLocatorTests {
 		assertThat(result).isNull();
 	}
 
+    @Test
+    public void testStripPrefix() {
+        ZuulProperties properties = new ZuulProperties();
+        properties.setPrefix("/test");
+        properties.setStripPrefix(true);
+        RouteLocator locator = new FilteringRouteLocator("/", properties);
+        properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+        assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
+    }
+
+    @Test
+    public void testPrefix() {
+        ZuulProperties properties = new ZuulProperties();
+        properties.setPrefix("/test/");
+        RouteLocator locator = new FilteringRouteLocator("/", properties);
+        properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+        assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
+    }
+
 	private <K, V> Map<K, V> mapOf(K k1, V v1) {
 		Map<K, V> result = new HashMap<>();
 		result.put(k1, v1);
@@ -109,4 +130,41 @@ public class SimpleRouteLocatorTests {
 	private Route createRoute(String id, String path, String prefix) {
 		return new Route(id, path, id, prefix, false, null);
 	}
+
+    private static class FilteringRouteLocator extends SimpleRouteLocator {
+        public FilteringRouteLocator(String servletPath, ZuulProperties properties) {
+            super(servletPath, properties);
+        }
+
+        @Override
+        public List<Route> getRoutes() {
+            List<Route> values = new ArrayList<>();
+
+            for (Map.Entry<String, Map<HttpMethod, ZuulRoute>> entry : getRoutesMap().entrySet()) {
+                ZuulRoute route = entry.getValue().values().iterator().next();
+                if (acceptRoute(route)) {
+                    String path = route.getPath();
+                    values.add(getRoute(route, path));
+                }
+            }
+            return values;
+        }
+
+        private boolean acceptRoute(ZuulRoute route) {
+            return route != null && !(route.getId().equals("foo"));
+        }
+
+        protected Route getRoute(ZuulRoute route, String path) {
+            if (acceptRoute(route)) {
+                return super.getRoute(route, path);
+            }
+            return null;
+        }
+
+        // For testing, expose as public so we can call getRoutesMap() directly.
+        @Override
+        public Map<String, Map<HttpMethod, ZuulRoute>> getRoutesMap() {
+            return super.getRoutesMap();
+        }
+    }
 }

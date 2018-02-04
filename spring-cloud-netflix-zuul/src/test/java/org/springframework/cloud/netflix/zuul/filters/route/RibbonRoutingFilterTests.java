@@ -17,6 +17,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 
 import com.netflix.zuul.context.RequestContext;
@@ -26,7 +29,14 @@ import org.junit.Test;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import javax.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,6 +46,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 /**
  * @author Spencer Gibb
  * @author Yongsung Yoon
+ * @author Gang Li
  */
 public class RibbonRoutingFilterTests {
 
@@ -75,18 +86,106 @@ public class RibbonRoutingFilterTests {
 		assertThat(commandContext.getLoadBalancerKey()).isNull();
 	}
 
+	@Test
+	public void testSetResponseWithNonHttpStatusCode() throws Exception {
+		ClientHttpResponse response = this.createClientHttpResponseWithNonStatus();
+		this.filter.setResponse(response);
+		assertThat(517).isEqualTo(this.requestContext.get("responseStatusCode"));
+	}
+
+	@Test
+	public void testSetResponseWithHttpStatusCode() throws Exception {
+		ClientHttpResponse response = this.createClientHttpResponse();
+		this.filter.setResponse(response);
+		assertThat(200).isEqualTo(this.requestContext.get("responseStatusCode"));
+	}
+
 	private void setUpRequestContext() {
 		requestContext = RequestContext.getCurrentContext();
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+		HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 		mockRequest.setMethod("GET");
 		mockRequest.setRequestURI("/foo/bar");
 		requestContext.setRequest(mockRequest);
 		requestContext.setRequestQueryParams(Collections.EMPTY_MAP);
 		requestContext.set(SERVICE_ID_KEY, "testServiceId");
+		requestContext.set("response", httpServletResponse);
 	}
 
 	private void setupRibbonRoutingFilter() {
 		RibbonCommandFactory factory = mock(RibbonCommandFactory.class);
 		filter = new RibbonRoutingFilter(new ProxyRequestHelper(), factory, Collections.<RibbonRequestCustomizer>emptyList());
+	}
+
+	private ClientHttpResponse createClientHttpResponseWithNonStatus() {
+		return new ClientHttpResponse() {
+			@Override
+			public HttpStatus getStatusCode() throws IOException {
+				return null;
+			}
+
+			@Override
+			public int getRawStatusCode() throws IOException {
+				return 517;
+			}
+
+			@Override
+			public String getStatusText() throws IOException {
+				return "Fail";
+			}
+
+			@Override
+			public void close() {
+
+			}
+
+			@Override
+			public InputStream getBody() throws IOException {
+				return new ByteArrayInputStream("Fail".getBytes());
+			}
+
+			@Override
+			public HttpHeaders getHeaders() {
+				HttpHeaders httpHeaders = new HttpHeaders();
+				httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+				return httpHeaders;
+			}
+		};
+	}
+
+	private ClientHttpResponse createClientHttpResponse() {
+		return new ClientHttpResponse() {
+			@Override
+			public HttpStatus getStatusCode() throws IOException {
+				return HttpStatus.OK;
+			}
+
+			@Override
+			public int getRawStatusCode() throws IOException {
+				return 200;
+			}
+
+			@Override
+			public String getStatusText() throws IOException {
+				return "OK";
+			}
+
+			@Override
+			public void close() {
+
+			}
+
+			@Override
+			public InputStream getBody() throws IOException {
+				return new ByteArrayInputStream("OK".getBytes());
+			}
+
+			@Override
+			public HttpHeaders getHeaders() {
+				HttpHeaders httpHeaders = new HttpHeaders();
+				httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+				return httpHeaders;
+			}
+		};
 	}
 }

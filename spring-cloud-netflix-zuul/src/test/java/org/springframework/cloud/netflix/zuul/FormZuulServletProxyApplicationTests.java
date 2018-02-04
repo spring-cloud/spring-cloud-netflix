@@ -19,12 +19,6 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,14 +26,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.trace.InMemoryTraceRepository;
-import org.springframework.boot.actuate.trace.TraceRepository;
+import org.springframework.boot.actuate.web.trace.HttpTraceRepository;
+import org.springframework.boot.actuate.web.trace.InMemoryHttpTraceRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -62,6 +53,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -208,25 +204,8 @@ class FormZuulServletProxyApplication {
 	}
 
 	@Bean
-	public TraceRepository traceRepository() {
-		return new InMemoryTraceRepository() {
-			@Override
-			public void add(Map<String, Object> map) {
-				if (map.containsKey("body")) {
-					map.get("body");
-				}
-				super.add(map);
-			}
-		};
-	}
-
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(FormZuulProxyApplication.class)
-				.properties("zuul.routes.simplefzspat:/zuul/simplefzspat/**",
-						"zuul.routes.direct.url:http://localhost:9999",
-						"zuul.routes.direct.path:/zuul/direct/**",
-						"multipart.maxFileSize:4096MB", "multipart.maxRequestSize:4096MB")
-				.run(args);
+	public HttpTraceRepository traceRepository() {
+		return new InMemoryHttpTraceRepository();
 	}
 
 }

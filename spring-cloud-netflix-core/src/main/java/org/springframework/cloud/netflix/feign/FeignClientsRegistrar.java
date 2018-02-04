@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -60,14 +59,12 @@ import org.springframework.util.StringUtils;
  * @author Gang Li
  */
 class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
-		ResourceLoaderAware, BeanClassLoaderAware, EnvironmentAware {
+		ResourceLoaderAware, EnvironmentAware {
 
 	// patterned after Spring Integration IntegrationComponentScanRegistrar
 	// and RibbonClientsConfigurationRegistgrar
 
 	private ResourceLoader resourceLoader;
-
-	private ClassLoader classLoader;
 
 	private Environment environment;
 
@@ -77,11 +74,6 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
 		this.resourceLoader = resourceLoader;
-	}
-
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
 	}
 
 	@Override
@@ -386,8 +378,7 @@ class FeignClientsRegistrar implements ImportBeanDefinitionRegistrar,
 		 * @param delegates must not be {@literal null}.
 		 */
 		public AllTypeFilter(List<TypeFilter> delegates) {
-
-			Assert.notNull(delegates);
+			Assert.notNull(delegates, "This argument is required, it must not be null");
 			this.delegates = delegates;
 		}
 

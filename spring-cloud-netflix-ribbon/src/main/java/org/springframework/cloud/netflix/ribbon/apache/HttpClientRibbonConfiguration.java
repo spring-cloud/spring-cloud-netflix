@@ -33,6 +33,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
@@ -119,10 +120,9 @@ public class HttpClientRibbonConfiguration {
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
 	public RibbonLoadBalancingHttpClient ribbonLoadBalancingHttpClient(
-			IClientConfig config, ServerIntrospector serverIntrospector,
-			ILoadBalancer loadBalancer, RetryHandler retryHandler, CloseableHttpClient httpClient) {
-		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
-				httpClient, config, serverIntrospector);
+		IClientConfig config, ServerIntrospector serverIntrospector,
+		ILoadBalancer loadBalancer, RetryHandler retryHandler, CloseableHttpClient httpClient) {
+		RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(httpClient, config, serverIntrospector);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
 		Monitors.registerObject("Client_" + this.name, client);
@@ -133,13 +133,14 @@ public class HttpClientRibbonConfiguration {
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
 	public RetryableRibbonLoadBalancingHttpClient retryableRibbonLoadBalancingHttpClient(
-			IClientConfig config, ServerIntrospector serverIntrospector,
-			ILoadBalancer loadBalancer, RetryHandler retryHandler,
-			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, CloseableHttpClient httpClient,
-			LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
+		IClientConfig config, ServerIntrospector serverIntrospector,
+		ILoadBalancer loadBalancer, RetryHandler retryHandler,
+		LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory, CloseableHttpClient httpClient,
+		LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory,
+		LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory) {
 		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
-				httpClient, config, serverIntrospector, loadBalancedRetryPolicyFactory,
-				loadBalancedBackOffPolicyFactory);
+			httpClient, config, serverIntrospector, loadBalancedRetryPolicyFactory,
+			loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
 		Monitors.registerObject("Client_" + this.name, client);

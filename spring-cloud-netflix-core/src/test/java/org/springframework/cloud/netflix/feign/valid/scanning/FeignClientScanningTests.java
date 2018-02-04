@@ -16,15 +16,11 @@
 
 package org.springframework.cloud.netflix.feign.valid.scanning;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -43,6 +39,9 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
 import feign.Client;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Spencer Gibb
@@ -89,12 +88,6 @@ public class FeignClientScanningTests {
 			return "hello world 1";
 		}
 
-		public static void main(String[] args) {
-			new SpringApplicationBuilder(Application.class)
-					.properties("spring.application.name=feignclienttest",
-							"management.contextPath=/admin")
-					.run(args);
-		}
 	}
 
 	@Test

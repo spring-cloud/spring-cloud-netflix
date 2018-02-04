@@ -41,7 +41,7 @@ public class HystrixHealthIndicator extends AbstractHealthIndicator {
 
 	@Override
 	protected void doHealthCheck(Builder builder) throws Exception {
-		List<String> openCircuitBreakers = new ArrayList<String>();
+		List<String> openCircuitBreakers = new ArrayList<>();
 
 		// Collect all open circuit breakers from Hystrix
 		for (HystrixCommandMetrics metrics : HystrixCommandMetrics.getInstances()) {
@@ -56,7 +56,7 @@ public class HystrixHealthIndicator extends AbstractHealthIndicator {
 		// If there is at least one open circuit report OUT_OF_SERVICE adding the command
 		// group
 		// and key name
-		if (openCircuitBreakers.size() > 0) {
+		if (!openCircuitBreakers.isEmpty()) {
 			builder.status(CIRCUIT_OPEN).withDetail("openCircuitBreakers",
 					openCircuitBreakers);
 		}

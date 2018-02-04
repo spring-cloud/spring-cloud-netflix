@@ -39,12 +39,12 @@ public class RestClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 	private ZuulProperties zuulProperties;
 
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory) {
-		this(clientFactory, new ZuulProperties(), Collections.<ZuulFallbackProvider>emptySet());
+		this(clientFactory, new ZuulProperties(), Collections.<FallbackProvider>emptySet());
 	}
 
 	public RestClientRibbonCommandFactory(SpringClientFactory clientFactory,
 										  ZuulProperties zuulProperties,
-										  Set<ZuulFallbackProvider> zuulFallbackProviders) {
+										  Set<FallbackProvider> zuulFallbackProviders) {
 		super(zuulFallbackProviders);
 		this.clientFactory = clientFactory;
 		this.zuulProperties = zuulProperties;
@@ -54,7 +54,7 @@ public class RestClientRibbonCommandFactory extends AbstractRibbonCommandFactory
 	@SuppressWarnings("deprecation")
 	public RestClientRibbonCommand create(RibbonCommandContext context) {
 		String serviceId = context.getServiceId();
-		ZuulFallbackProvider fallbackProvider = getFallbackProvider(serviceId);
+		FallbackProvider fallbackProvider = getFallbackProvider(serviceId);
 		RestClient restClient = this.clientFactory.getClient(serviceId,
 				RestClient.class);
 		return new RestClientRibbonCommand(context.getServiceId(), restClient, context,
