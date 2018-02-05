@@ -142,6 +142,7 @@ public class EurekaClientAutoConfiguration {
 		instance.setNonSecurePort(serverPort);
 		instance.setInstanceId(getDefaultInstanceId(environmentPropertyResolver));
 		instance.setPreferIpAddress(preferIpAddress);
+		instance.setSecurePortEnabled(isSecurePortEnabled);
 		if (StringUtils.hasText(ipAddress)) {
 			instance.setIpAddress(ipAddress);
 		}
@@ -169,6 +170,9 @@ public class EurekaClientAutoConfiguration {
 		if(metadata != null) {
 			instance.setStatusPageUrl(metadata.getStatusPageUrl());
 			instance.setHealthCheckUrl(metadata.getHealthCheckUrl());
+			if(instance.isSecurePortEnabled()) {
+				instance.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
+			}
 			Map<String, String> metadataMap = instance.getMetadataMap();
 			if (metadataMap.get("management.port") == null) {
 				metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
