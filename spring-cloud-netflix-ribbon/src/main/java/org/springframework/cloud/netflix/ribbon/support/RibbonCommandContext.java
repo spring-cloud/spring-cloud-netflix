@@ -198,7 +198,7 @@ public class RibbonCommandContext {
 
 	@Override
 	public String toString() {
-		final StringBuffer sb = new StringBuffer("RibbonCommandContext{");
+		final StringBuilder sb = new StringBuilder("RibbonCommandContext{");
 		sb.append("serviceId='").append(serviceId).append('\'');
 		sb.append(", method='").append(method).append('\'');
 		sb.append(", uri='").append(uri).append('\'');
