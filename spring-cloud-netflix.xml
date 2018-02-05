@@ -1660,8 +1660,7 @@ routes:</simpara>
 }</programlisting>
 </para>
 </formalpara>
-<simpara>Additional route details can be requested by adding the <literal>?format=details</literal> query
-string to <literal>/routes</literal>. This will produce the following output:</simpara>
+<simpara>Additional route details can be requested through the <literal>/routes/details</literal> endpoint. This will produce the following output:</simpara>
 <formalpara>
 <title>GET /routes/details</title>
 <para>
@@ -1679,12 +1678,12 @@ string to <literal>/routes</literal>. This will produce the following output:</s
 }</programlisting>
 </para>
 </formalpara>
-<simpara>A POST will force a refresh of the existing routes (e.g. in
+<simpara>A POST to <literal>/routes</literal> will force a refresh of the existing routes (e.g. in
 case there have been changes in the service catalog).  You can disable
 this endpoint by setting <literal>endpoints.routes.enabled</literal> to <literal>false</literal>.</simpara>
 <note>
 <simpara>the routes should respond automatically to changes in the
-service catalog, but the POST to /routes is a way to force the change
+service catalog, but the POST to <literal>/routes</literal> is a way to force the change
 to happen immediately.</simpara>
 </note>
 </section>
