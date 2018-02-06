@@ -40,6 +40,7 @@ import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.util.StreamUtils;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -136,8 +137,10 @@ public class RetryableFeignLoadBalancer extends FeignLoadBalancer implements Ser
 				}
 				Response response = request.client().execute(feignRequest, options);
 				if (retryPolicy.retryableStatusCode(response.status())) {
+					byte[] byteArray = StreamUtils.copyToByteArray(response.body().asInputStream());
+					response.close();
 					throw new RibbonResponseStatusCodeException(RetryableFeignLoadBalancer.this.clientName, response,
-							request.getUri());
+							byteArray, request.getUri());
 				}
 				return new RibbonResponse(request.getUri(), response);
 			}

@@ -30,13 +30,11 @@ import org.springframework.util.StreamUtils;
 public class RibbonResponseStatusCodeException extends RetryableStatusCodeException {
 	private Response response;
 
-	public RibbonResponseStatusCodeException(String serviceId, Response response, URI uri) throws IOException {
+	public RibbonResponseStatusCodeException(String serviceId, Response response, byte[] body, URI uri) throws IOException {
 		super(serviceId, response.status(), response, uri);
-		byte[] byteArray = StreamUtils.copyToByteArray(response.body().asInputStream());
-		this.response = Response.builder().body(new ByteArrayInputStream(byteArray), byteArray.length)
+		this.response = Response.builder().body(new ByteArrayInputStream(body), body.length)
 				.headers(response.headers()).reason(response.reason())
 				.status(response.status()).request(response.request()).build();
-		response.close();
 	}
 
 	@Override

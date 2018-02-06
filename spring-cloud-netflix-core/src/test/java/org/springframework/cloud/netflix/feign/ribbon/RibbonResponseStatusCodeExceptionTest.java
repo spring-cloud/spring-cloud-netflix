@@ -19,7 +19,6 @@ import feign.Request;
 import feign.Response;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.StreamUtils;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Ryan Baxter
@@ -49,41 +47,14 @@ public class RibbonResponseStatusCodeExceptionTest {
 		headers.put("foo", fooValues);
 		Request request = Request.create("GET", "http://service.com",
 				new HashMap<String, Collection<String>>(), new byte[]{}, Charset.defaultCharset());
-		MyByteArrayInputStream is = new MyByteArrayInputStream("foo".getBytes());
-		Response response = Response.builder().status(200).reason("Success").request(request).body(is, 3).headers(headers).build();
-		RibbonResponseStatusCodeException ex = new RibbonResponseStatusCodeException("service", response, new URI(request.url()));
+		byte[] body = "foo".getBytes();
+		ByteArrayInputStream is = new ByteArrayInputStream(body);
+		Response response = Response.builder().status(200).reason("Success").request(request).body(is, body.length).headers(headers).build();
+		RibbonResponseStatusCodeException ex = new RibbonResponseStatusCodeException("service", response, body,
+				new URI(request.url()));
 		assertEquals(200, ex.getResponse().status());
 		assertEquals(request, ex.getResponse().request());
 		assertEquals("Success", ex.getResponse().reason());
 		assertEquals("foo", StreamUtils.copyToString(ex.getResponse().body().asInputStream(), Charset.defaultCharset()));
-		assertTrue(is.isClosed());
-		assertEquals(1, is.getNumberOfTimesCloseCalled());
-	}
-
-	static class MyByteArrayInputStream extends ByteArrayInputStream {
-		private boolean closed = false;
-		private int times = 0;
-		public MyByteArrayInputStream(byte[] buf) {
-			super(buf);
-		}
-
-		public boolean isClosed() {
-			return closed;
-		}
-
-		public int getNumberOfTimesCloseCalled() {
-			return times;
-		}
-
-		@Override
-		public void close() throws IOException {
-			times++;
-			try {
-				super.close();
-				closed = true;
-			} catch(IOException e) {
-				throw e;
-			}
-		}
 	}
 }
