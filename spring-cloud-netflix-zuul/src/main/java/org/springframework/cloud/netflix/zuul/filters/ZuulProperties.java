@@ -529,7 +529,7 @@ public class ZuulProperties {
 
 		@Override
 		public String toString() {
-			final StringBuffer sb = new StringBuffer("Host{");
+			final StringBuilder sb = new StringBuilder("Host{");
 			sb.append("maxTotalConnections=").append(maxTotalConnections);
 			sb.append(", maxPerRouteConnections=").append(maxPerRouteConnections);
 			sb.append(", socketTimeoutMillis=").append(socketTimeoutMillis);
@@ -576,7 +576,7 @@ public class ZuulProperties {
 
 		@Override
 		public String toString() {
-			final StringBuffer sb = new StringBuffer("HystrixSemaphore{");
+			final StringBuilder sb = new StringBuilder("HystrixSemaphore{");
 			sb.append("maxSemaphores=").append(maxSemaphores);
 			sb.append('}');
 			return sb.toString();

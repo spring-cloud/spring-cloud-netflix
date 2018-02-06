@@ -201,7 +201,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 		@Override
 		public String toString() {
-			final StringBuffer sb = new StringBuffer("RibbonServer{");
+			final StringBuilder sb = new StringBuilder("RibbonServer{");
 			sb.append("serviceId='").append(serviceId).append('\'');
 			sb.append(", server=").append(server);
 			sb.append(", secure=").append(secure);

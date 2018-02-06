@@ -99,10 +99,10 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 
 	@Override
 	protected LinkedHashMap<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<String, ZuulRoute>();
+		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
 		routesMap.putAll(super.locateRoutes());
 		if (this.discovery != null) {
-			Map<String, ZuulRoute> staticServices = new LinkedHashMap<String, ZuulRoute>();
+			Map<String, ZuulRoute> staticServices = new LinkedHashMap<>();
 			for (ZuulRoute route : routesMap.values()) {
 				String serviceId = route.getServiceId();
 				if (serviceId == null) {

@@ -24,6 +24,7 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.After;
 import org.junit.Before;
@@ -216,8 +217,8 @@ class SampleCustomZuulProxyApplication {
 	protected static class CustomZuulProxyConfig {
 
 		@Bean
-		public ApacheHttpClientFactory customHttpClientFactory() {
-			return new CustomApacheHttpClientFactory();
+		public ApacheHttpClientFactory customHttpClientFactory(HttpClientBuilder builder) {
+			return new CustomApacheHttpClientFactory(builder);
 		}
 
 		@Bean
@@ -250,6 +251,9 @@ class SampleCustomZuulProxyApplication {
 
 
 		private class CustomApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
+			public CustomApacheHttpClientFactory(HttpClientBuilder builder) {
+				super(builder);
+			}
 		}
 	}
 

@@ -38,7 +38,7 @@ public class ArchaiusEndpoint {
 
 	@ReadOperation
 	public Map<String, Object> invoke() {
-		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		Map<String, Object> map = new LinkedHashMap<>();
 		AbstractConfiguration config = ConfigurationManager.getConfigInstance();
 		if (config instanceof ConcurrentCompositeConfiguration) {
 			ConcurrentCompositeConfiguration composite = (ConcurrentCompositeConfiguration) config;

@@ -81,7 +81,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	/**
 	 * List of packages containing Jersey resources required by the Eureka server
 	 */
-	private static String[] EUREKA_PACKAGES = new String[] { "com.netflix.discovery",
+	private static final String[] EUREKA_PACKAGES = new String[] { "com.netflix.discovery",
 			"com.netflix.eureka" };
 
 	@Autowired
@@ -283,7 +283,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 
 		// Find classes in Eureka packages (or subpackages)
 		//
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+		Set<Class<?>> classes = new HashSet<>();
 		for (String basePackage : EUREKA_PACKAGES) {
 			Set<BeanDefinition> beans = provider.findCandidateComponents(basePackage);
 			for (BeanDefinition bd : beans) {
@@ -295,7 +295,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 
 		// Construct the Jersey ResourceConfig
 		//
-		Map<String, Object> propsAndFeatures = new HashMap<String, Object>();
+		Map<String, Object> propsAndFeatures = new HashMap<>();
 		propsAndFeatures.put(
 				// Skip static content used by the webapp
 				ServletContainer.PROPERTY_WEB_PAGE_CONTENT_REGEX,

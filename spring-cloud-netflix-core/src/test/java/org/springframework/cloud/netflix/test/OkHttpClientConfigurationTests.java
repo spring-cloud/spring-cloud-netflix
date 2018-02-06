@@ -103,6 +103,9 @@ public class OkHttpClientConfigurationTests {
 		}
 
 		static class MyOkHttpClientFactory extends DefaultOkHttpClientFactory {
+			public MyOkHttpClientFactory(OkHttpClient.Builder builder) {
+				super(builder);
+			}
 		}
 
 		@Bean
@@ -111,9 +114,9 @@ public class OkHttpClientConfigurationTests {
 		}
 
 		@Bean
-		public OkHttpClientFactory clientFactory() {
-												 return new MyOkHttpClientFactory();
-																					}
+		public OkHttpClientFactory clientFactory(OkHttpClient.Builder builder) {
+			return new MyOkHttpClientFactory(builder);
+		}
 
 		@Bean
 		public OkHttpClient client() {

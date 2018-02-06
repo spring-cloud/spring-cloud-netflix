@@ -92,10 +92,10 @@ public class HystrixStreamTests {
 		this.task.gatherMetrics();
 		Message<?> message = this.collector.forChannel(output).take();
 		JsonNode tree = mapper.readTree((String)message.getPayload());
-		assertThat(tree.hasNonNull("origin"));
-		assertThat(tree.hasNonNull("data"));
-		assertThat(tree.hasNonNull("event"));
-		assertThat(tree.findValue("event").asText().equals("message"));
+		assertThat(tree.hasNonNull("origin")).isTrue();
+		assertThat(tree.hasNonNull("data")).isTrue();
+		assertThat(tree.hasNonNull("event")).isTrue();
+		assertThat(tree.findValue("event").asText()).isEqualTo("message");
 	}
 
 }

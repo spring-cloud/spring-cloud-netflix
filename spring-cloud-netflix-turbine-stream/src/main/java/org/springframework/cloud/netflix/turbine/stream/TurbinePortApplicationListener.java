@@ -22,7 +22,7 @@ public class TurbinePortApplicationListener implements
 			return;
 		}
 		if (serverPort != Integer.valueOf(-1)) {
-			Map<String, Object> ports = new HashMap<String, Object>();
+			Map<String, Object> ports = new HashMap<>();
 			if (turbinePort == null) {
 				// The actual server.port used by the application forced to be -1 (no user
 				// endpoints) because no value was provided for turbine

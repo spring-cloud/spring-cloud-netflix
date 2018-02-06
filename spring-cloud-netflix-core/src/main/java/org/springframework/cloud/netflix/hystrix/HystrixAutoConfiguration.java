@@ -68,7 +68,7 @@ public class HystrixAutoConfiguration {
 	@Configuration
 	@ConditionalOnWebApplication(type = SERVLET)
 	@ConditionalOnBean(HystrixCommandAspect.class) // only install the stream if enabled
-	@ConditionalOnClass({ Health.class, HystrixMetricsStreamServlet.class })
+	@ConditionalOnClass({ HystrixMetricsStreamServlet.class })
 	@EnableConfigurationProperties(HystrixProperties.class)
 	protected static class HystrixServletAutoConfiguration {
 
@@ -87,7 +87,7 @@ public class HystrixAutoConfiguration {
 	@Configuration
 	@ConditionalOnWebApplication(type = REACTIVE)
 	@ConditionalOnBean(HystrixCommandAspect.class) // only install the stream if enabled
-	@ConditionalOnClass({ Health.class, DispatcherHandler.class })
+	@ConditionalOnClass({ DispatcherHandler.class })
 	@EnableConfigurationProperties(HystrixProperties.class)
 	protected static class HystrixWebfluxManagementContextConfiguration {
 
@@ -102,7 +102,7 @@ public class HystrixAutoConfiguration {
 
 		@Bean
 		public HasFeatures hystrixStreamFeature() {
-			return HasFeatures.namedFeature("Hystrix Stream Webflux", HystrixMetricsStreamServlet.class);
+			return HasFeatures.namedFeature("Hystrix Stream Webflux", HystrixWebfluxEndpoint.class);
 		}
 	}
 }

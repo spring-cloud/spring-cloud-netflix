@@ -157,7 +157,7 @@ public class FeignLoadBalancer extends
 
 				@Override
 				public HttpHeaders getHeaders() {
-					Map<String, List<String>> headers = new HashMap<String, List<String>>();
+					Map<String, List<String>> headers = new HashMap<>();
 					Map<String, Collection<String>> feignHeaders = RibbonRequest.this.toRequest().headers();
 					for(String key : feignHeaders.keySet()) {
 						headers.put(key, new ArrayList<String>(feignHeaders.get(key)));
