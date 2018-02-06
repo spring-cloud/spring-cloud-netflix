@@ -137,7 +137,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
 					throw new HttpClientStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
-							httpResponse, httpUriRequest.getURI());
+							httpResponse, HttpClientUtils.createEntity(httpResponse), httpUriRequest.getURI());
 				}
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}

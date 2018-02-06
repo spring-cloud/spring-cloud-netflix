@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Locale;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -57,7 +58,9 @@ public class HttpClientStatusCodeExceptionTest {
 		entity.setContent(new ByteArrayInputStream("foo".getBytes()));
 		entity.setContentLength(3);
 		doReturn(entity).when(response).getEntity();
-		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service", response, new URI("http://service.com"));
+		HttpEntity copiedEntity = HttpClientUtils.createEntity(response);
+		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service", response, copiedEntity,
+				new URI("http://service.com"));
 		assertEquals("en", ex.getResponse().getLocale().toString());
 		assertArrayEquals(headers, ex.getResponse().getAllHeaders());
 		assertEquals("Success", ex.getResponse().getStatusLine().getReasonPhrase());

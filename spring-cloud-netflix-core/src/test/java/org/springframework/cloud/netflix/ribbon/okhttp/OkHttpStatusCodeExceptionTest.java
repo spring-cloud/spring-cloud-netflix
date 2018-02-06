@@ -42,7 +42,8 @@ public class OkHttpStatusCodeExceptionTest {
 		Response response = new Response.Builder().code(200).headers(headers).code(200).message("Success")
 				.body(ResponseBody.create(MediaType.parse("text/plain"), "foo")).protocol(Protocol.HTTP_1_1)
 				.request(new Request.Builder().url("http://service.com").build()).build();
-		OkHttpStatusCodeException ex = new OkHttpStatusCodeException("service", response, new URI("http://service.com"));
+		ResponseBody body = response.peekBody(Integer.MAX_VALUE);
+		OkHttpStatusCodeException ex = new OkHttpStatusCodeException("service", response, body, new URI("http://service.com"));
 		assertEquals(headers, ex.getResponse().headers());
 		assertEquals(200, ex.getResponse().code());
 		assertEquals("Success", ex.getResponse().message());

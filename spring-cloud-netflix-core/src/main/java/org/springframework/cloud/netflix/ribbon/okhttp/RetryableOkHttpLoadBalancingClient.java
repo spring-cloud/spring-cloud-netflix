@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.ribbon.okhttp;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
@@ -135,8 +136,10 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				final Request request = newRequest.toRequest();
 				Response response = httpClient.newCall(request).execute();
 				if(retryPolicy.retryableStatusCode(response.code())) {
+					ResponseBody responseBody = response.peekBody(Integer.MAX_VALUE);
+					response.close();
 					throw new OkHttpStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName,
-							response, newRequest.getURI());
+							response, responseBody, newRequest.getURI());
 				}
 				return new OkHttpRibbonResponse(response, newRequest.getUri());
 			}

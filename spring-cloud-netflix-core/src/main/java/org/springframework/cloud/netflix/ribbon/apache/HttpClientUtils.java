@@ -17,35 +17,34 @@ package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
 
 /**
- * A {@link RetryableStatusCodeException} for {@link HttpResponse}s
+ * Provides basic utilities for {@link org.apache.http.client.HttpClient}
  * @author Ryan Baxter
  */
-public class HttpClientStatusCodeException extends RetryableStatusCodeException {
+public class HttpClientUtils {
 
-	private BasicHttpResponse response;
-
-	public HttpClientStatusCodeException(String serviceId, HttpResponse response, HttpEntity entity, URI uri) throws IOException {
-		super(serviceId, response.getStatusLine().getStatusCode(), response, uri);
-		this.response = new BasicHttpResponse(response.getStatusLine());
-		this.response.setLocale(response.getLocale());
-		this.response.setStatusCode(response.getStatusLine().getStatusCode());
-		this.response.setReasonPhrase(response.getStatusLine().getReasonPhrase());
-		this.response.setHeaders(response.getAllHeaders());
-		EntityUtils.updateEntity(this.response, entity);
-	}
-
-	@Override
-	public HttpResponse getResponse() {
-		return this.response;
+	/**
+	 * Creates an new {@link HttpEntity} by copying the {@link HttpEntity} from the {@link HttpResponse}.
+	 * This method will close the response after copying the entity.
+	 * @param response The response to create the {@link HttpEntity} from
+	 * @return A new {@link HttpEntity}
+	 * @throws IOException thrown if there is a problem closing the response.
+	 */
+	public static HttpEntity createEntity(HttpResponse response) throws IOException {
+		ByteArrayInputStream is = new ByteArrayInputStream(
+				EntityUtils.toByteArray(response.getEntity()));
+		BasicHttpEntity entity = new BasicHttpEntity();
+		entity.setContent(is);
+		entity.setContentLength(response.getEntity().getContentLength());
+		if(CloseableHttpResponse.class.isInstance(response)) {
+			((CloseableHttpResponse)response).close();
+		}
+		return entity;
 	}
 }

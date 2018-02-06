@@ -16,6 +16,7 @@
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,14 +29,13 @@ import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeExceptio
 public class OkHttpStatusCodeException extends RetryableStatusCodeException {
 	private Response response;
 
-	public OkHttpStatusCodeException(String serviceId, Response response, URI uri) throws IOException {
+	public OkHttpStatusCodeException(String serviceId, Response response, ResponseBody responseBody, URI uri) {
 		super(serviceId, response.code(), response, uri);
 		this.response = new Response.Builder().code(response.code()).message(response.message()).protocol(response.protocol())
 				.request(response.request()).headers(response.headers()).handshake(response.handshake())
 				.cacheResponse(response.cacheResponse()).networkResponse(response.networkResponse())
 				.priorResponse(response.priorResponse()).sentRequestAtMillis(response.sentRequestAtMillis())
-				.body(response.peekBody(Integer.MAX_VALUE)).build();
-		response.close();
+				.body(responseBody).build();
 	}
 
 	@Override
