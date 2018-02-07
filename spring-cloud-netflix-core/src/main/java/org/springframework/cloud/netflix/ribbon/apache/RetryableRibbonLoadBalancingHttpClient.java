@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
@@ -29,13 +28,14 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.RetryableStatusCodeException;
+import org.springframework.cloud.client.loadbalancer.RibbonRecoveryCallback;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.http.HttpRequest;
+import org.springframework.retry.RecoveryCallback;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
@@ -116,9 +116,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 
 		final RequestConfig requestConfig = builder.build();
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
-		RetryCallback retryCallback = new RetryCallback() {
+		RetryCallback<RibbonApacheHttpResponse, IOException> retryCallback = new RetryCallback<RibbonApacheHttpResponse, IOException>() {
 			@Override
-			public RibbonApacheHttpResponse doWithRetry(RetryContext context) throws Exception {
+			public RibbonApacheHttpResponse doWithRetry(RetryContext context) throws IOException {
 				//on retries the policy will choose the server and set it in the context
 				//extract the server and update the request being made
 				RibbonApacheHttpRequest newRequest = request;
@@ -137,16 +137,19 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
 				final HttpResponse httpResponse = RetryableRibbonLoadBalancingHttpClient.this.delegate.execute(httpUriRequest);
 				if(retryPolicy.retryableStatusCode(httpResponse.getStatusLine().getStatusCode())) {
-					if(CloseableHttpResponse.class.isInstance(httpResponse)) {
-						((CloseableHttpResponse)httpResponse).close();
-					}
-					throw new RetryableStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
-							httpResponse.getStatusLine().getStatusCode());
+					throw new HttpClientStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
+							httpResponse, HttpClientUtils.createEntity(httpResponse), httpUriRequest.getURI());
 				}
 				return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 			}
 		};
-		return this.executeWithRetry(request, retryPolicy, retryCallback);
+		RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
+			@Override
+			protected RibbonApacheHttpResponse createResponse(HttpResponse response, URI uri) {
+				return new RibbonApacheHttpResponse(response, uri);
+			}
+ 		};
+		return this.executeWithRetry(request, retryPolicy, retryCallback, recoveryCallback);
 	}
 	
 	@Override
@@ -159,7 +162,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
 	}
 
-	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy, RetryCallback<RibbonApacheHttpResponse, IOException> callback) throws Exception {
+	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
+													  RetryCallback<RibbonApacheHttpResponse, IOException> callback,
+													  RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = isRequestRetryable(request);
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()
@@ -170,7 +175,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		if (retryListeners != null && retryListeners.length != 0) {
 			retryTemplate.setListeners(retryListeners);
 		}
-		return retryTemplate.execute(callback);
+		return retryTemplate.execute(callback, recoveryCallback);
 	}
 
 	@Override
