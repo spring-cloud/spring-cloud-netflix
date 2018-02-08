@@ -40,7 +40,6 @@ import com.netflix.loadbalancer.ServerStats;
 import com.netflix.niws.client.http.HttpClientLoadBalancerErrorHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
