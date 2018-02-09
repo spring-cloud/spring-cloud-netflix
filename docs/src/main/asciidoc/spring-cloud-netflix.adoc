@@ -797,7 +797,7 @@ one of the beans described.  Example:
 
 [source,java,indent=0]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
+include::../../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
 ----
 
 This replaces the `NoOpPing` with `PingUrl` and provides a custom `serverListFilter`
@@ -806,7 +806,7 @@ This replaces the `NoOpPing` with `PingUrl` and provides a custom `serverListFil
 A default configuration can be provided for all Ribbon Clients using the `@RibbonClients` annotation and registering a default configuration as shown in the following example:
 [source,java,indent=0]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
+include::../../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
 
 ----
 
