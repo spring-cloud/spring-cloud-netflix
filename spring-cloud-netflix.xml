@@ -719,13 +719,60 @@ explicitly in the <literal>@ComponentScan</literal>).</simpara>
 <simpara>Creating a bean of one of those type and placing it in a <literal>@RibbonClient</literal>
 configuration (such as <literal>FooConfiguration</literal> above) allows you to override each
 one of the beans described.  Example:</simpara>
-<programlisting language="java" linenumbering="unnumbered">Unresolved directive in spring-cloud-netflix.adoc - include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]</programlisting>
+<programlisting language="java" linenumbering="unnumbered">@Configuration
+protected static class FooConfiguration {
+	@Bean
+	public ZonePreferenceServerListFilter serverListFilter() {
+		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
+		filter.setZone("myTestZone");
+		return filter;
+	}
+
+	@Bean
+	public IPing ribbonPing() {
+		return new PingUrl();
+	}
+}</programlisting>
 <simpara>This replaces the <literal>NoOpPing</literal> with <literal>PingUrl</literal> and provides a custom <literal>serverListFilter</literal></simpara>
 </section>
 <section xml:id="_customizing_default_for_all_ribbon_clients">
 <title>Customizing default for all Ribbon Clients</title>
 <simpara>A default configuration can be provided for all Ribbon Clients using the <literal>@RibbonClients</literal> annotation and registering a default configuration as shown in the following example:</simpara>
-<programlisting language="java" linenumbering="unnumbered">Unresolved directive in spring-cloud-netflix.adoc - include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]</programlisting>
+<programlisting language="java" linenumbering="unnumbered">@RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
+public class RibbonClientDefaultConfigurationTestsConfig {
+
+	public static class BazServiceList extends ConfigurationBasedServerList {
+		public BazServiceList(IClientConfig config) {
+			super.initWithNiwsConfig(config);
+		}
+	}
+}
+
+@Configuration
+class DefaultRibbonConfig {
+
+	@Bean
+	public IRule ribbonRule() {
+		return new BestAvailableRule();
+	}
+
+	@Bean
+	public IPing ribbonPing() {
+		return new PingUrl();
+	}
+
+	@Bean
+	public ServerList&lt;Server&gt; ribbonServerList(IClientConfig config) {
+		return new RibbonClientDefaultConfigurationTestsConfig.BazServiceList(config);
+	}
+
+	@Bean
+	public ServerListSubsetFilter serverListFilter() {
+		ServerListSubsetFilter filter = new ServerListSubsetFilter();
+		return filter;
+	}
+
+}</programlisting>
 </section>
 <section xml:id="_customizing_the_ribbon_client_using_properties">
 <title>Customizing the Ribbon Client using properties</title>
