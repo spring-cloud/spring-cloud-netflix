@@ -30,17 +30,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.springframework.boot.actuate.web.trace.HttpExchangeTracer;
-import org.springframework.boot.actuate.web.trace.HttpTrace;
-import org.springframework.boot.actuate.web.trace.HttpTraceRepository;
-import org.springframework.boot.actuate.web.trace.Include;
-import org.springframework.boot.actuate.web.trace.TraceableRequest;
-import org.springframework.util.MultiValueMap;
+import javax.servlet.http.HttpServletRequest;
 
 import com.netflix.zuul.context.RequestContext;
-import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.boot.actuate.trace.http.HttpExchangeTracer;
+import org.springframework.boot.actuate.trace.http.HttpTrace;
+import org.springframework.boot.actuate.trace.http.HttpTraceRepository;
+import org.springframework.boot.actuate.trace.http.Include;
+import org.springframework.boot.actuate.trace.http.TraceableRequest;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Spencer Gibb
