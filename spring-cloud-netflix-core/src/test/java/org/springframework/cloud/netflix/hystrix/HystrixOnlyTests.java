@@ -54,7 +54,7 @@ import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = RANDOM_PORT,
-		properties = "management.endpoint.health.show-details=true")
+		properties = "management.endpoint.health.show-details=ALWAYS")
 @DirtiesContext
 @ActiveProfiles("proxysecurity")
 public class HystrixOnlyTests {
