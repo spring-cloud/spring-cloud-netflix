@@ -404,7 +404,7 @@ Due to Gradle's dependency resolution rules and the lack of a parent bom feature
 ----
 buildscript {
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RC1")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:{spring-boot-docs-version}")
   }
 }
 
