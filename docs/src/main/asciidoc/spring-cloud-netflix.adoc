@@ -404,7 +404,7 @@ Due to Gradle's dependency resolution rules and the lack of a parent bom feature
 ----
 buildscript {
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RC1")
   }
 }
 
@@ -412,7 +412,7 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Brixton.RELEASE"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.M6"
   }
 }
 ----
