@@ -45,6 +45,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.WebRequest;
 
 import static feign.Util.checkState;
 import static feign.Util.emptyToNull;
@@ -226,6 +227,12 @@ public class SpringMvcContract extends Contract.BaseContract
 		AnnotatedParameterProcessor.AnnotatedParameterContext context = new SimpleAnnotatedParameterContext(
 				data, paramIndex);
 		Method method = this.processedMethods.get(data.configKey());
+
+		// skip WebRequest parameter processing
+		if (method.getParameterTypes()[paramIndex].isAssignableFrom(WebRequest.class)) {
+		    return true;
+		}
+		
 		for (Annotation parameterAnnotation : annotations) {
 			AnnotatedParameterProcessor processor = this.annotatedArgumentProcessors
 					.get(parameterAnnotation.annotationType());

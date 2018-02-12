@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.WebRequest;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
@@ -435,6 +436,19 @@ public class SpringMvcContractTests {
 				"queryMapMoreThanOnce", MultiValueMap.class, MultiValueMap.class);
 		this.contract.parseAndValidateMetadata(method.getDeclaringClass(), method);
 	}
+	
+	@Test
+    public void testProcessWebRequest() throws Exception {
+        Method method = TestTemplate_WebRequest.class.getDeclaredMethod("getTest",
+                String.class, WebRequest.class);
+        MethodMetadata data = this.contract
+                .parseAndValidateMetadata(method.getDeclaringClass(), method);
+
+        assertEquals(Integer.valueOf(0), data.bodyIndex());
+        assertEquals(String.class, data.bodyType());
+        assertEquals("/test/{id}", data.template().url());
+        assertEquals("POST", data.template().method());
+    }
 
 	public interface TestTemplate_Simple {
 		@RequestMapping(value = "/test/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -591,4 +605,9 @@ public class SpringMvcContractTests {
 					.append("}").toString();
 		}
 	}
+	
+	public interface TestTemplate_WebRequest {
+        @RequestMapping(value = "/test/{id}", method = RequestMethod.POST)
+        ResponseEntity<TestObject> getTest(@RequestBody String id, WebRequest request);
+    }
 }
