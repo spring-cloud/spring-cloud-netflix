@@ -412,7 +412,7 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.M6"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:{spring-cloud-version}"
   }
 }
 ----
