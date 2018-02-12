@@ -40,6 +40,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties(FeignClientEncodingProperties.class)
 @ConditionalOnClass(Feign.class)
 @ConditionalOnBean(Client.class)
+//The OK HTTP client uses "transparent" compression.
+//If the content-encoding header is present it disable transparent compression
 @ConditionalOnMissingBean(OkHttpClient.class)
 @ConditionalOnProperty(value = "feign.compression.request.enabled", matchIfMissing = false)
 @AutoConfigureAfter(FeignAutoConfiguration.class)
