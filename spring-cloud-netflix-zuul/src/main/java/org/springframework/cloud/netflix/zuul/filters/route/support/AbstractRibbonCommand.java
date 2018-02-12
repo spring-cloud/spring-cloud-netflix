@@ -123,9 +123,33 @@ public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwar
 	protected static Setter getSetter(final String commandKey,
 			ZuulProperties zuulProperties, IClientConfig config) {
 
-		// @formatter:off
-		Setter commandSetter = Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("RibbonCommand"))
-								.andCommandKey(HystrixCommandKey.Factory.asKey(commandKey));
+		RequestContext requestContext = RequestContext.getCurrentContext();
+		String routeId = (String)requestContext.get("proxy");
+		String groupKey = "RibbonCommand";
+		String commandKeyFinal = commandKey;
+		if(routeId!=null){
+			/**
+			 * Get the routeId from context, so in this case, we can support configure hystrix thread isolation in service level, 
+			 * and made statistics by routeId level. take as following example:
+			 * 
+			 * zull configuration:
+			 * zuul.routes.basic-service-user.id = basic-service-user           ==>define routeId
+			 * zuul.routes.basic-service-user.path = /basic-service/users/**    ==>define url pattern of the routeId
+			 * zuul.routes.basic-service-user.serviceId = basic-service         ==>group the defined routeId into backend service
+			 * 
+			 * hystrix configuration
+			 * hystrix.threadpool.basic-service.coreSize = 30   ==>define thread pool in backend service level
+			 * hystrix.command.basic-service-user.execution.isolation.thread.timeoutInMilliseconds = 10000 ==>define command in route level
+			 * 
+			 */
+			groupKey = commandKey;
+			commandKeyFinal = routeId;
+		}
+		Setter commandSetter = Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(groupKey))
+				.andCommandKey(HystrixCommandKey.Factory.asKey(commandKeyFinal));
+		
+		
+
 		final HystrixCommandProperties.Setter setter = createSetter(config, commandKey, zuulProperties);
 		if (zuulProperties.getRibbonIsolationStrategy() == ExecutionIsolationStrategy.SEMAPHORE){
 			final String name = ZuulConstants.ZUUL_EUREKA + commandKey + ".semaphore.maxSemaphores";
