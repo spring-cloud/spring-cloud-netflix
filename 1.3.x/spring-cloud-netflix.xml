@@ -335,7 +335,7 @@ normal Eureka functionality under <literal>/eureka/*</literal>.</simpara>
 <para>
 <programlisting language="java" linenumbering="unnumbered">buildscript {
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.10.RELEASE")
   }
 }
 
@@ -343,7 +343,7 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Brixton.RELEASE"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.SR5"
   }
 }</programlisting>
 </para>
@@ -2206,10 +2206,10 @@ public SseEmitter event() {
 </warning>
 <programlisting language="java" linenumbering="unnumbered">// recommended
 String orderid = "1";
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+restTemplate.getForObject("http://testclient/orders/{orderid}", String.class, orderid)
 
 // avoid
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)</programlisting>
+restTemplate.getForObject("http://testclient/orders/1", String.class)</programlisting>
 </section>
 <section xml:id="netflix-metrics-spectator">
 <title>Metrics Collection: Spectator</title>
