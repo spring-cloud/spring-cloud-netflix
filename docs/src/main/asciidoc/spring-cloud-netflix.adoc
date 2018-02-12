@@ -406,7 +406,7 @@ Due to Gradle's dependency resolution rules and the lack of a parent bom feature
 ----
 buildscript {
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.10.RELEASE")
   }
 }
 
@@ -414,7 +414,7 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Brixton.RELEASE"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Edgware.SR2"
   }
 }
 ----
@@ -2622,10 +2622,10 @@ WARNING: Avoid using hardcoded url parameters within `RestTemplate`.  When targe
 ----
 // recommended
 String orderid = "1";
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
+restTemplate.getForObject("http://testclient/orders/{orderid}", String.class, orderid)
 
 // avoid
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
+restTemplate.getForObject("http://testclient/orders/1", String.class)
 ----
 
 [[netflix-metrics-spectator]]
