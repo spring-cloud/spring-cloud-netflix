@@ -358,7 +358,7 @@ normal Eureka functionality under <literal>/eureka/*</literal>.</simpara>
 <para>
 <programlisting language="java" linenumbering="unnumbered">buildscript {
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RC1")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:{spring-boot-docs-version}")
   }
 }
 
@@ -366,7 +366,7 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.M6"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:{spring-cloud-version}"
   }
 }</programlisting>
 </para>

@@ -14,7 +14,7 @@ for details on setting up your build system with the current Spring Cloud Releas
 normal Eureka functionality under <code class="literal">/eureka/*</code>.</p><p>Eureka background reading: see <a class="link" href="https://github.com/cfregly/fluxcapacitor/wiki/NetflixOSS-FAQ#eureka-service-discovery-load-balancer" target="_top">flux capacitor</a> and <a class="link" href="https://groups.google.com/forum/?fromgroups#!topic/eureka_netflix/g3p2r7gHnN0" target="_top">google group discussion</a>.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>Due to Gradle&#8217;s dependency resolution rules and the lack of a parent bom feature, simply depending on spring-cloud-starter-netflix-eureka-server can cause failures on application startup. To remedy this the Spring Boot Gradle plugin must be added and the Spring cloud starter parent bom must be imported like so:</p><p><b>build.gradle.&nbsp;</b>
 </p><pre class="programlisting">buildscript {
   dependencies {
-    classpath(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RC1"</span>)
+    classpath(<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"org.springframework.boot:spring-boot-gradle-plugin:{spring-boot-docs-version}"</span>)
   }
 }
 
@@ -22,7 +22,7 @@ apply plugin: <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"s
 
 dependencyManagement {
   imports {
-    mavenBom <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"org.springframework.cloud:spring-cloud-dependencies:Finchley.M6"</span>
+    mavenBom <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"org.springframework.cloud:spring-cloud-dependencies:{spring-cloud-version}"</span>
   }
 }</pre><p>
 </p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-eureka-server-zones-and-regions" href="#spring-cloud-eureka-server-zones-and-regions"></a>2.3&nbsp;High Availability, Zones and Regions</h2></div></div></div><p>The Eureka server does not have a backend store, but the service
