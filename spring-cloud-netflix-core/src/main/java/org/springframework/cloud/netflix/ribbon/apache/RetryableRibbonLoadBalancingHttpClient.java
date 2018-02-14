@@ -44,6 +44,8 @@ import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -125,9 +127,11 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
 					if (service == null) {
-						throw new IOException("Load balancer does not have available server for client: " + clientName);
+						ClientException clientException = new ClientException("Load balancer does not have available server for client: " + clientName);
+						throw new IOException(clientException);
 					} else if (service.getHost() == null) {
-						throw new IOException("Invalid Server for: " + service.getServiceId() + " null Host");
+						ClientException clientException = new ClientException("Invalid Server for: " + service.getServiceId() + " null Host");
+						throw new IOException(clientException);
 					} else {
 						//Reconstruct the request URI using the host and port set in the retry context
 						newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
