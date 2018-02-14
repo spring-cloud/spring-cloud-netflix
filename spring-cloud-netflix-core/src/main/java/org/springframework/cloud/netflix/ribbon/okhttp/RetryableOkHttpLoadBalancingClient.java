@@ -44,6 +44,8 @@ import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
@@ -128,7 +130,11 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				OkHttpRibbonRequest newRequest = ribbonRequest;
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if(service != null) {
+					if (service == null) {
+						throw new ClientException("Load balancer does not have available server for client: " + clientName);
+					} else if (service.getHost() == null) {
+						throw new ClientException("Invalid Server for: " + service.getServiceId() + " null Host");
+					} else {
 						//Reconstruct the request URI using the host and port set in the retry context
 						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
 								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
@@ -166,8 +172,10 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 	@Override
 	public ServiceInstance choose(String serviceId) {
 		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId,
-				server);
+		if (server != null) {
+			return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
+		}
+		return null;
 	}
 
 	@Override

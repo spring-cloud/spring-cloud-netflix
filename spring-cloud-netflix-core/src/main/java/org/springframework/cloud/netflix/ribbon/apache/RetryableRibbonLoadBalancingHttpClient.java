@@ -124,7 +124,11 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				RibbonApacheHttpRequest newRequest = request;
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if(service != null) {
+					if (service == null) {
+						throw new IOException("Load balancer does not have available server for client: " + clientName);
+					} else if (service.getHost() == null) {
+						throw new IOException("Invalid Server for: " + service.getServiceId() + " null Host");
+					} else {
 						//Reconstruct the request URI using the host and port set in the retry context
 						newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
 								.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
@@ -181,7 +185,10 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	@Override
 	public ServiceInstance choose(String serviceId) {
 		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
+		if (server != null) {
+			return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
+		}
+		return null;
 	}
 
 	@Override

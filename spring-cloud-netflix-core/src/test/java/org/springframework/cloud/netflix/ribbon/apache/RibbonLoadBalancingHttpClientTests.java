@@ -74,6 +74,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -731,6 +732,81 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
 		assertEquals(2, myBackOffPolicyFactory.getCount());
+	}
+	
+	private RetryableRibbonLoadBalancingHttpClient setupClientForServerValidation(String serviceName, String host, int port,
+			CloseableHttpClient delegate, ILoadBalancer lb) throws Exception {
+		ServerIntrospector introspector = mock(ServerIntrospector.class);
+		RetryHandler retryHandler = new DefaultLoadBalancerRetryHandler(1, 1, true);
+		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
+		clientConfig.set(CommonClientConfigKey.OkToRetryOnAllOperations, true);
+		clientConfig.set(CommonClientConfigKey.MaxAutoRetriesNextServer, 0);
+		clientConfig.set(CommonClientConfigKey.MaxAutoRetries, 1);
+		clientConfig.set(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES, "");
+		clientConfig.set(CommonClientConfigKey.IsSecure, false);
+		clientConfig.setClientName(serviceName);
+		RibbonLoadBalancerContext context = new RibbonLoadBalancerContext(lb, clientConfig, retryHandler);
+		SpringClientFactory clientFactory = mock(SpringClientFactory.class);
+		doReturn(context).when(clientFactory).getLoadBalancerContext(eq(serviceName));
+		doReturn(clientConfig).when(clientFactory).getClientConfig(eq(serviceName));
+		LoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
+		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(delegate,
+				clientConfig, introspector, factory, loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory);
+		client.setLoadBalancer(lb);
+		ReflectionTestUtils.setField(client, "delegate", delegate);
+		return client;
+	}
+	
+	@Test
+	public void noServersFoundTest() throws Exception {
+		String serviceName = "noservers";
+		String host = serviceName;
+		int port = 80;
+		HttpMethod method = HttpMethod.POST;
+		URI uri = new URI("http://" + host + ":" + port);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+		ILoadBalancer lb = mock(ILoadBalancer.class);
+		
+		RetryableRibbonLoadBalancingHttpClient client = setupClientForServerValidation(serviceName, host, port, delegate, lb);
+		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+		doReturn(null).when(lb).chooseServer(eq(serviceName));
+		doReturn(method).when(request).getMethod();
+		doReturn(uri).when(request).getURI();
+		doReturn(request).when(request).withNewUri(any(URI.class));
+		HttpUriRequest uriRequest = mock(HttpUriRequest.class);
+		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
+		try {
+			client.execute(request, null);
+			fail("Expected IOException for no servers available");
+		} catch (IOException ex) {
+			assertThat(ex.getMessage(), containsString("Load balancer does not have available server for client"));
+		}
+	}
+	
+	@Test
+	public void invalidServerTest() throws Exception {
+		String serviceName = "noservers";
+		String host = serviceName;
+		int port = 80;
+		HttpMethod method = HttpMethod.POST;
+		URI uri = new URI("http://" + host + ":" + port);
+		CloseableHttpClient delegate = mock(CloseableHttpClient.class);
+		ILoadBalancer lb = mock(ILoadBalancer.class);
+		
+		RetryableRibbonLoadBalancingHttpClient client = setupClientForServerValidation(serviceName, host, port, delegate, lb);
+		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
+		doReturn(new Server(null,8000)).when(lb).chooseServer(eq(serviceName));
+		doReturn(method).when(request).getMethod();
+		doReturn(uri).when(request).getURI();
+		doReturn(request).when(request).withNewUri(any(URI.class));
+		HttpUriRequest uriRequest = mock(HttpUriRequest.class);
+		doReturn(uriRequest).when(request).toRequest(any(RequestConfig.class));
+		try {
+			client.execute(request, null);
+			fail("Expected IOException for no servers available");
+		} catch (IOException ex) {
+			assertThat(ex.getMessage(), containsString("Invalid Server for: "));
+		}
 	}
 
 	@Configuration
