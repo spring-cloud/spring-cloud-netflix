@@ -16,18 +16,18 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.Configuration;
+import io.netty.buffer.ByteBuf;
+import io.reactivex.netty.protocol.http.server.HttpServerRequest;
+import io.reactivex.netty.protocol.http.server.HttpServerResponse;
+import io.reactivex.netty.protocol.http.sse.ServerSentEvent;
+import rx.Observable;
 
-@Configuration
-@EnableAutoConfiguration
-@EnableTurbineStream
-public class TurbineApplication {
+/**
+ * @author Daniel Lavoie
+ */
+public interface TurbineSecurityFilter {
+	Observable<Boolean> hasPermission(HttpServerRequest<ByteBuf> request, HttpServerResponse<ServerSentEvent> response);
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(TurbineApplication.class).properties(
-				"spring.config.name=turbine").run(args);
-	}
-
+	Observable<Boolean> validateRequest(HttpServerRequest<ByteBuf> request,
+			HttpServerResponse<ServerSentEvent> response);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -67,6 +66,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs" })
 @AutoConfigureStubRunner
 public class TurbineStreamTests {
+	
 	@Autowired
 	StubTrigger stubTrigger;
 
@@ -88,7 +88,6 @@ public class TurbineStreamTests {
 	}
 
 	@Test
-	@Ignore // FIXME 2.0.0 Elmurst stream missing class @Controller?
 	public void contextLoads() throws Exception {
 		rest.getInterceptors().add(new NonClosingInterceptor());
 		int count = ((MessageChannelMetrics) input).getSendCount();
