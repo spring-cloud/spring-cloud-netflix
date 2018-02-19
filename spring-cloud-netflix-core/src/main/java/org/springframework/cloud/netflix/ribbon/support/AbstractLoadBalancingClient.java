@@ -18,11 +18,16 @@
 package org.springframework.cloud.netflix.ribbon.support;
 
 import com.netflix.loadbalancer.reactive.LoadBalancerCommand;
+
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 
 import com.netflix.client.AbstractLoadBalancerAwareClient;
+import com.netflix.client.ClientException;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
@@ -30,12 +35,13 @@ import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
 
 /**
  * @author Spencer Gibb
  */
 public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest, T extends IResponse, D> extends
-		AbstractLoadBalancerAwareClient<S, T> {
+		AbstractLoadBalancerAwareClient<S, T> implements ServiceInstanceChooser {
 
 	protected int connectTimeout;
 
@@ -54,7 +60,7 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	public boolean isClientRetryable(ContextAwareRequest request) {
 		return false;
 	}
-
+	
 	@Deprecated
 	public AbstractLoadBalancingClient() {
 		super(null);
@@ -150,6 +156,23 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	protected void customizeLoadBalancerCommandBuilder(S request, IClientConfig config, LoadBalancerCommand.Builder<T> builder) {
 		if (request.getLoadBalancerKey() != null) {
 			builder.withServerLocator(request.getLoadBalancerKey());
+		}
+	}
+	
+	@Override
+	public ServiceInstance choose(String serviceId) {
+		Server server = this.getLoadBalancer().chooseServer(serviceId);
+		if (server != null) {
+			return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
+		}
+		return null;
+	}
+	
+	public void validateServiceInstance(ServiceInstance serviceInstance) throws ClientException {
+		if (serviceInstance == null) {
+			throw new ClientException("Load balancer does not have available server for client: " + clientName);
+		} else if (serviceInstance.getHost() == null) {
+			throw new ClientException("Invalid Server for: " + serviceInstance.getServiceId() + " null Host");
 		}
 	}
 }

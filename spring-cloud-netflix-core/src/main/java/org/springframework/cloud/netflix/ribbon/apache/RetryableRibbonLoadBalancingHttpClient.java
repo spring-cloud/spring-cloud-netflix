@@ -57,8 +57,7 @@ import com.netflix.loadbalancer.Server;
  * @author Ryan Baxter
  * @author Gang Li
  */
-public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient
-		implements ServiceInstanceChooser {
+public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient {
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory = new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
 		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
@@ -126,20 +125,17 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				RibbonApacheHttpRequest newRequest = request;
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if (service == null) {
-						ClientException clientException = new ClientException("Load balancer does not have available server for client: " + clientName);
+					try {
+						validateServiceInstance(service);
+					} catch (ClientException clientException) {
 						throw new IOException(clientException);
-					} else if (service.getHost() == null) {
-						ClientException clientException = new ClientException("Invalid Server for: " + service.getServiceId() + " null Host");
-						throw new IOException(clientException);
-					} else {
-						//Reconstruct the request URI using the host and port set in the retry context
-						newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
-								.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
-								.port(service.getPort()).path(newRequest.getURI().getPath())
-								.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
-								.build().encode().toUri());
 					}
+					//Reconstruct the request URI using the host and port set in the retry context
+					newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
+							.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
+							.port(service.getPort()).path(newRequest.getURI().getPath())
+							.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
+							.build().encode().toUri());
 				}
 				newRequest = getSecureRequest(newRequest, configOverride);
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
@@ -184,15 +180,6 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			retryTemplate.setListeners(retryListeners);
 		}
 		return retryTemplate.execute(callback, recoveryCallback);
-	}
-
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		if (server != null) {
-			return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
-		}
-		return null;
 	}
 
 	@Override

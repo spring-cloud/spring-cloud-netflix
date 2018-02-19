@@ -56,7 +56,7 @@ import com.netflix.loadbalancer.Server;
  * @author Ryan Baxter
  * @author Gang Li
  */
-public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClient implements ServiceInstanceChooser {
+public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClient {
 
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
@@ -130,17 +130,12 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				OkHttpRibbonRequest newRequest = ribbonRequest;
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if (service == null) {
-						throw new ClientException("Load balancer does not have available server for client: " + clientName);
-					} else if (service.getHost() == null) {
-						throw new ClientException("Invalid Server for: " + service.getServiceId() + " null Host");
-					} else {
-						//Reconstruct the request URI using the host and port set in the retry context
-						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
-								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
-								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
-								newRequest.getURI().getFragment()));
-					}
+					validateServiceInstance(service);
+					//Reconstruct the request URI using the host and port set in the retry context
+					newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
+							newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
+							newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
+							newRequest.getURI().getFragment()));
 				}
 				if (isSecure(configOverride)) {
 					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
@@ -169,14 +164,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		});
 	}
 
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		if (server != null) {
-			return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
-		}
-		return null;
-	}
+	
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(OkHttpRibbonRequest request, IClientConfig requestConfig) {
