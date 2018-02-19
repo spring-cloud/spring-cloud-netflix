@@ -64,6 +64,7 @@ import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 
+import com.netflix.client.ClientException;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -778,7 +779,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		try {
 			client.execute(request, null);
 			fail("Expected IOException for no servers available");
-		} catch (IOException ex) {
+		} catch (ClientException ex) {
 			assertThat(ex.getMessage(), containsString("Load balancer does not have available server for client"));
 		}
 	}
@@ -804,7 +805,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		try {
 			client.execute(request, null);
 			fail("Expected IOException for no servers available");
-		} catch (IOException ex) {
+		} catch (ClientException ex) {
 			assertThat(ex.getMessage(), containsString("Invalid Server for: "));
 		}
 	}
