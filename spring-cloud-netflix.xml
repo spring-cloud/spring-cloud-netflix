@@ -1093,7 +1093,10 @@ public class FooConfiguration {
         requestInterceptors:
           - com.example.FooRequestInterceptor
           - com.example.BarRequestInterceptor
-        decode404: false</programlisting>
+        decode404: false
+        encoder: com.example.SimpleEncoder
+        decoder: com.example.SimpleDecoder
+        contract: com.example.SimpleContract</programlisting>
 <simpara>Default configurations can be specified in the <literal>@EnableFeignClients</literal> attribute <literal>defaultConfiguration</literal> in a similar manner as described above. The difference is that this configuration will apply to <emphasis>all</emphasis> feign clients.</simpara>
 <simpara>If you prefer using configuration properties to configured all <literal>@FeignClient</literal>, you can create configuration properties with <literal>default</literal> feign name.</simpara>
 <simpara>application.yml</simpara>
