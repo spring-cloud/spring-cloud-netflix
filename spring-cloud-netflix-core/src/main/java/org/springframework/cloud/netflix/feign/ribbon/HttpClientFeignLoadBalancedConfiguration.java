@@ -65,7 +65,7 @@ class HttpClientFeignLoadBalancedConfiguration {
 				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
 				FeignHttpClientProperties httpClientProperties) {
 			final HttpClientConnectionManager connectionManager = connectionManagerFactory
-					.newConnectionManager(false, httpClientProperties.getMaxConnections(),
+					.newConnectionManager(httpClientProperties.isDisableSslValidation(), httpClientProperties.getMaxConnections(),
 							httpClientProperties.getMaxConnectionsPerRoute(),
 							httpClientProperties.getTimeToLive(),
 							httpClientProperties.getTimeToLiveUnit(), registryBuilder);
