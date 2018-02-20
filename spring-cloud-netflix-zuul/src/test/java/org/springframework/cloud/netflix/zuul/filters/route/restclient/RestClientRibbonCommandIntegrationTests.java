@@ -70,6 +70,9 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.mock.http.client.MockClientHttpResponse;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -409,6 +412,20 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 						new Server(UUID.randomUUID().toString(), 4322));
 			}
 
+		}
+
+		//This is needed to allow semicolon separators used in matrix variables
+		@Configuration
+		static class CustomHttpFirewallConfig implements WebSecurityConfigurer<WebSecurity> {
+			@Override
+			public void init(WebSecurity webSecurity) throws Exception {}
+
+			@Override
+			public void configure(WebSecurity builder) throws Exception {
+				StrictHttpFirewall firewall = new StrictHttpFirewall();
+				firewall.setAllowSemicolon(true);
+				builder.httpFirewall(firewall);
+			}
 		}
 
 		static class MyRouteLocator extends DiscoveryClientRouteLocator {

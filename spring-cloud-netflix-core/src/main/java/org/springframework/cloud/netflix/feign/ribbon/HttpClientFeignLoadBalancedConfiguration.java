@@ -28,6 +28,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -78,17 +79,31 @@ class HttpClientFeignLoadBalancedConfiguration {
 		}
 
 		@Bean
-		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory,
-											  HttpClientConnectionManager httpClientConnectionManager,
+		@ConditionalOnProperty(value = "feign.compression.response.enabled", havingValue = "true")
+		public CloseableHttpClient customHttpClient(HttpClientConnectionManager httpClientConnectionManager,
 											  FeignHttpClientProperties httpClientProperties) {
+			HttpClientBuilder builder = HttpClientBuilder.create().disableCookieManagement().useSystemProperties();
+			this.httpClient = createClient(builder, httpClientConnectionManager, httpClientProperties);
+			return this.httpClient;
+		}
+
+		@Bean
+		@ConditionalOnProperty(value = "feign.compression.response.enabled", havingValue = "false", matchIfMissing = true)
+		public CloseableHttpClient httpClient(ApacheHttpClientFactory httpClientFactory, HttpClientConnectionManager httpClientConnectionManager,
+											  FeignHttpClientProperties httpClientProperties) {
+			this.httpClient = createClient(httpClientFactory.createBuilder(), httpClientConnectionManager, httpClientProperties);
+			return this.httpClient;
+		}
+
+		private CloseableHttpClient createClient(HttpClientBuilder builder, HttpClientConnectionManager httpClientConnectionManager,
+												 FeignHttpClientProperties httpClientProperties) {
 			RequestConfig defaultRequestConfig = RequestConfig.custom()
 					.setConnectTimeout(httpClientProperties.getConnectionTimeout())
 					.setRedirectsEnabled(httpClientProperties.isFollowRedirects())
 					.build();
-			this.httpClient = httpClientFactory.createBuilder().
-					setDefaultRequestConfig(defaultRequestConfig).
+			CloseableHttpClient httpClient = builder.setDefaultRequestConfig(defaultRequestConfig).
 					setConnectionManager(httpClientConnectionManager).build();
-			return this.httpClient;
+			return httpClient;
 		}
 
 		@PreDestroy

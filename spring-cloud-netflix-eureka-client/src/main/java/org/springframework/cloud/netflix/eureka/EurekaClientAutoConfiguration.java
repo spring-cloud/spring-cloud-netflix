@@ -95,8 +95,6 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration"})
 public class EurekaClientAutoConfiguration {
 
-	private static final Log log = LogFactory.getLog(EurekaClientAutoConfiguration.class);
-
 	private ConfigurableEnvironment env;
 
 	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) {
@@ -110,7 +108,7 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
-	public EurekaClientConfigBean eurekaClientConfigBean() {
+	public EurekaClientConfigBean eurekaClientConfigBean(ConfigurableEnvironment env) {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
 		if ("bootstrap".equals(this.env.getProperty("spring.config.name"))) {
 			// We don't register during bootstrap by default, but there will be another
@@ -150,6 +148,7 @@ public class EurekaClientAutoConfiguration {
 		instance.setNonSecurePort(serverPort);
 		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
+		instance.setSecurePortEnabled(isSecurePortEnabled);
 		if (StringUtils.hasText(ipAddress)) {
 			instance.setIpAddress(ipAddress);
 		}
@@ -177,6 +176,9 @@ public class EurekaClientAutoConfiguration {
 		if(metadata != null) {
 			instance.setStatusPageUrl(metadata.getStatusPageUrl());
 			instance.setHealthCheckUrl(metadata.getHealthCheckUrl());
+			if(instance.isSecurePortEnabled()) {
+				instance.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
+			}
 			Map<String, String> metadataMap = instance.getMetadataMap();
 			if (metadataMap.get("management.port") == null) {
 				metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
