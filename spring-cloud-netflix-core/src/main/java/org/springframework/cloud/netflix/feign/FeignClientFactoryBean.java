@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,6 +178,18 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 			if (config.getDecode404()) {
 				builder.decode404();
 			}
+		}
+
+		if (Objects.nonNull(config.getEncoder())) {
+			builder.encoder(getOrInstantiate(config.getEncoder()));
+		}
+
+		if (Objects.nonNull(config.getDecoder())) {
+			builder.decoder(getOrInstantiate(config.getDecoder()));
+		}
+
+		if (Objects.nonNull(config.getContract())) {
+			builder.contract(getOrInstantiate(config.getContract()));
 		}
 	}
 

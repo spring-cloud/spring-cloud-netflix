@@ -15,9 +15,12 @@
  */
 package org.springframework.cloud.netflix.feign;
 
+import feign.Contract;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.Retryer;
+import feign.codec.Decoder;
+import feign.codec.Encoder;
 import feign.codec.ErrorDecoder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -93,6 +96,12 @@ public class FeignClientProperties {
 
 		private Boolean decode404;
 
+		private Class<Decoder> decoder;
+
+		private Class<Encoder> encoder;
+
+		private Class<Contract> contract;
+
 		public Logger.Level getLoggerLevel() {
 			return loggerLevel;
 		}
@@ -149,6 +158,30 @@ public class FeignClientProperties {
 			this.decode404 = decode404;
 		}
 
+		public Class<Decoder> getDecoder() {
+			return decoder;
+		}
+
+		public void setDecoder(Class<Decoder> decoder) {
+			this.decoder = decoder;
+		}
+
+		public Class<Encoder> getEncoder() {
+			return encoder;
+		}
+
+		public void setEncoder(Class<Encoder> encoder) {
+			this.encoder = encoder;
+		}
+
+		public Class<Contract> getContract() {
+			return contract;
+		}
+
+		public void setContract(Class<Contract> contract) {
+			this.contract = contract;
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
@@ -160,13 +193,16 @@ public class FeignClientProperties {
 					Objects.equals(retryer, that.retryer) &&
 					Objects.equals(errorDecoder, that.errorDecoder) &&
 					Objects.equals(requestInterceptors, that.requestInterceptors) &&
-					Objects.equals(decode404, that.decode404);
+					Objects.equals(decode404, that.decode404) &&
+					Objects.equals(encoder, that.encoder) &&
+					Objects.equals(decoder, that.decoder) &&
+					Objects.equals(contract, that.contract);
 		}
 
 		@Override
 		public int hashCode() {
 			return Objects.hash(loggerLevel, connectTimeout, readTimeout, retryer,
-					errorDecoder, requestInterceptors, decode404);
+					errorDecoder, requestInterceptors, decode404, encoder, decoder, contract);
 		}
 	}
 
