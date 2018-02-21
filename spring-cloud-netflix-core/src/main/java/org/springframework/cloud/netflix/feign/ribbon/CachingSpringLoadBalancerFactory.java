@@ -98,13 +98,14 @@ public class CachingSpringLoadBalancerFactory {
 	}
 
 	public FeignLoadBalancer create(String clientName) {
-		if (this.cache.containsKey(clientName)) {
-			return this.cache.get(clientName);
+		FeignLoadBalancer client = this.cache.get(clientName);
+		if (client != null) {
+			return client;
 		}
 		IClientConfig config = this.factory.getClientConfig(clientName);
 		ILoadBalancer lb = this.factory.getLoadBalancer(clientName);
 		ServerIntrospector serverIntrospector = this.factory.getInstance(clientName, ServerIntrospector.class);
-		FeignLoadBalancer client = enableRetry ? new RetryableFeignLoadBalancer(lb, config, serverIntrospector,
+		client = enableRetry ? new RetryableFeignLoadBalancer(lb, config, serverIntrospector,
 			loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory) : new FeignLoadBalancer(lb, config, serverIntrospector);
 		this.cache.put(clientName, client);
 		return client;
