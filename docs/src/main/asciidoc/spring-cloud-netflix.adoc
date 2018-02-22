@@ -404,7 +404,7 @@ Due to Gradle's dependency resolution rules and the lack of a parent bom feature
 ----
 buildscript {
   dependencies {
-    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:{spring-boot-docs-version}")
   }
 }
 
@@ -412,7 +412,7 @@ apply plugin: "spring-boot"
 
 dependencyManagement {
   imports {
-    mavenBom "org.springframework.cloud:spring-cloud-dependencies:Brixton.RELEASE"
+    mavenBom "org.springframework.cloud:spring-cloud-dependencies:{spring-cloud-version}"
   }
 }
 ----
@@ -797,7 +797,7 @@ one of the beans described.  Example:
 
 [source,java,indent=0]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
+include::../../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/RibbonClientsPreprocessorIntegrationTests.java[tags=sample_override_ribbon_config,indent=0]
 ----
 
 This replaces the `NoOpPing` with `PingUrl` and provides a custom `serverListFilter`
@@ -806,7 +806,7 @@ This replaces the `NoOpPing` with `PingUrl` and provides a custom `serverListFil
 A default configuration can be provided for all Ribbon Clients using the `@RibbonClients` annotation and registering a default configuration as shown in the following example:
 [source,java,indent=0]
 ----
-include::../../../../spring-cloud-netflix-core/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
+include::../../../../spring-cloud-netflix-ribbon/src/test/java/org/springframework/cloud/netflix/ribbon/test/RibbonClientDefaultConfigurationTestsConfig.java[tags=sample_default_ribbon_config,indent=0]
 
 ----
 
@@ -1131,6 +1131,9 @@ feign:
           - com.example.FooRequestInterceptor
           - com.example.BarRequestInterceptor
         decode404: false
+        encoder: com.example.SimpleEncoder
+        decoder: com.example.SimpleDecoder
+        contract: com.example.SimpleContract
 ----
 
 Default configurations can be specified in the `@EnableFeignClients` attribute `defaultConfiguration` in a similar manner as described above. The difference is that this configuration will apply to _all_ feign clients.
@@ -2438,189 +2441,8 @@ info:
   url: https://github.com/spring-cloud-samples
 ----
 
-[[netflix-metrics]]
-== Metrics: Spectator, Servo, and Atlas
-
-When used together, Spectator/Servo and Atlas provide a near real-time operational insight platform.
-
-Spectator and Servo are Netflix's metrics collection libraries. Atlas is a Netflix metrics backend to manage dimensional time series data.
-
-Servo served Netflix for several years and is still usable, but is gradually being phased out in favor of Spectator, which is only designed to work with Java 8.  Spring Cloud Netflix provides support for both, but Java 8 based applications are encouraged to use Spectator.
-
-=== Dimensional vs. Hierarchical Metrics
-
-Spring Boot Actuator metrics are hierarchical and metrics are separated only by name. These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name separated by periods. Consider the following metrics for two endpoints, root and star-star:
-
-[source,json]
-----
-{
-    "counter.status.200.root": 20,
-    "counter.status.400.root": 3,
-    "counter.status.200.star-star": 5,
-}
-----
-
-The first metric gives us a normalized count of successful requests against the root endpoint per unit of time. But what if the system had 20 endpoints and you want to get a count of successful requests against all the endpoints? Some hierarchical metrics backends would allow you to specify a wild card such as `counter.status.200.\*` that would read all 20 metrics and aggregate the results. Alternatively, you could provide a `HandlerInterceptorAdapter` that intercepts and records a metric like `counter.status.200.all` for all successful requests irrespective of the endpoint, but now you must write 20+1 different metrics. Similarly if you want to know the total number of successful requests for all endpoints in the service, you could specify a wild card such as `counter.status.2*.*`.
-
-Even in the presence of wildcarding support on a hierarchical metrics backend, naming consistency can be difficult. Specifically the position of these tags in the name string can slip with time, breaking queries. For example, suppose we add an additional dimension to the hierarchical metrics above for HTTP method. Then `counter.status.200.root` becomes `counter.status.200.method.get.root`, etc. Our `counter.status.200.*` suddenly no longer has the same semantic meaning.  Furthermore, if the new dimension is not applied uniformly across the codebase, certain queries may become impossible. This can quickly get out of hand.
-
-Netflix metrics are tagged (a.k.a. dimensional). Each metric has a name, but this single named metric can contain multiple statistics and 'tag' key/value pairs that allows more querying flexibility. In fact, the statistics themselves are recorded in a special tag.
-
-Recorded with Netflix Servo or Spectator, a timer for the root endpoint described above contains 4 statistics per status code, where the count statistic is identical to Spring Boot Actuator's counter. In the event that we have encountered an HTTP 200 and 400 thus far, there will be 8 available data points:
-
-[source,json]
-----
-{
-    "root(status=200,stastic=count)": 20,
-    "root(status=200,stastic=max)": 0.7265630630000001,
-    "root(status=200,stastic=totalOfSquares)": 0.04759702862580789,
-    "root(status=200,stastic=totalTime)": 0.2093076914666667,
-    "root(status=400,stastic=count)": 1,
-    "root(status=400,stastic=max)": 0,
-    "root(status=400,stastic=totalOfSquares)": 0,
-    "root(status=400,stastic=totalTime)": 0,
-}
-----
-
-=== Default Metrics Collection
-
-Without any additional dependencies or configuration, a Spring Cloud based service will autoconfigure a Servo `MonitorRegistry` and begin collecting metrics on every Spring MVC request. By default, a Servo timer with the name `rest` will be recorded for each MVC request which is tagged with:
-
-1. HTTP method
-2. HTTP status (e.g. 200, 400, 500)
-3. URI (or "root" if the URI is empty), sanitized for Atlas
-4. The exception class name, if the request handler threw an exception
-5. The caller, if a request header with a key matching `netflix.metrics.rest.callerHeader` is set on the request. There is no default key for `netflix.metrics.rest.callerHeader`. You must add it to your application properties if you wish to collect caller information.
-
-Set the `netflix.metrics.rest.metricName` property to change the name of the metric from `rest` to a name you provide.
-
-If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runtime classpath, Spring Cloud will also collect metrics on every client call made with `RestTemplate`. A Servo timer with the name of `restclient` will be recorded for each MVC request which is tagged with:
-
-1. HTTP method
-2. HTTP status (e.g. 200, 400, 500), "CLIENT_ERROR" if the response returned null, or "IO_ERROR" if an `IOException` occurred during the execution of the `RestTemplate` method
-3. URI, sanitized for Atlas
-4. Client name
-
-WARNING: Avoid using hardcoded url parameters within `RestTemplate`.  When targeting dynamic endpoints use URL variables. This will avoid potential "GC Overhead Limit Reached" issues where `ServoMonitorCache` treats each url as a unique key.
-
-[source,java,indent=0]
-----
-// recommended
-String orderid = "1";
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
-
-// avoid
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
-----
-
-[[netflix-metrics-spectator]]
-=== Metrics Collection: Spectator
-
-To enable Spectator metrics, include a dependency on `spring-boot-starter-spectator`:
-
-[source,xml]
-----
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-spectator</artifactId>
-    </dependency>
-----
-
-In Spectator parlance, a meter is a named, typed, and tagged configuration and a metric represents the value of a given meter at a point in time. Spectator meters are created and controlled by a registry, which currently has several different implementations. Spectator provides 4 meter types: counter, timer, gauge, and distribution summary.
-
-Spring Cloud Spectator integration configures an injectable `com.netflix.spectator.api.Registry` instance for you. Specifically, it configures a `ServoRegistry` instance in order to unify the collection of REST metrics and the exporting of metrics to the Atlas backend under a single Servo API. Practically, this means that your code may use a mixture of Servo monitors and Spectator meters and both will be scooped up by Spring Boot Actuator `MetricReader` instances and both will be shipped to the Atlas backend.
-
-==== Spectator Counter
-
-A counter is used to measure the rate at which some event is occurring.
-
-[source,java]
-----
-// create a counter with a name and a set of tags
-Counter counter = registry.counter("counterName", "tagKey1", "tagValue1", ...);
-counter.increment(); // increment when an event occurs
-counter.increment(10); // increment by a discrete amount
-----
-
-The counter records a single time-normalized statistic.
-
-==== Spectator Timer
-
-A timer is used to measure how long some event is taking. Spring Cloud automatically records timers for Spring MVC requests and conditionally `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency:
-
-.Request Latency
-image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/RequestLatency.png[]
-
-[source,java]
-----
-// create a timer with a name and a set of tags
-Timer timer = registry.timer("timerName", "tagKey1", "tagValue1", ...);
-
-// execute an operation and time it at the same time
-T result = timer.record(() -> fooReturnsT());
-
-// alternatively, if you must manually record the time
-Long start = System.nanoTime();
-T result = fooReturnsT();
-timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS);
-----
-
-The timer simultaneously records 4 statistics: count, max, totalOfSquares, and totalTime.  The count statistic will always match the single normalized value provided by a counter if you had called `increment()` once on the counter for each time you recorded a timing, so it is rarely necessary to count and time separately for a single operation.
-
-For link:https://github.com/Netflix/spectator/wiki/Timer-Usage#longtasktimer[long running operations], Spectator provides a special `LongTaskTimer`.
-
-==== Spectator Gauge
-
-Gauges are used to determine some current value like the size of a queue or number of threads in a running state. Since gauges are sampled, they provide no information about how these values fluctuate between samples.
-
-The normal use of a gauge involves registering the gauge once in initialization with an id, a reference to the object to be sampled, and a function to get or compute a numeric value based on the object. The reference to the object is passed in separately and the Spectator registry will keep a weak reference to the object. If the object is garbage collected, then Spectator will automatically drop the registration. See link:https://github.com/Netflix/spectator/wiki/Gauge-Usage#using-lambda[the note] in Spectator's documentation about potential memory leaks if this API is misused.
-
-[source,java]
-----
-// the registry will automatically sample this gauge periodically
-registry.gauge("gaugeName", pool, Pool::numberOfRunningThreads);
-
-// manually sample a value in code at periodic intervals -- last resort!
-registry.gauge("gaugeName", Arrays.asList("tagKey1", "tagValue1", ...), 1000);
-----
-
-==== Spectator Distribution Summaries
-
-A distribution summary is used to track the distribution of events. It is similar to a timer, but more general in that the size does not have to be a period of time. For example, a distribution summary could be used to measure the payload sizes of requests hitting a server.
-
-[source,java]
-----
-// the registry will automatically sample this gauge periodically
-DistributionSummary ds = registry.distributionSummary("dsName", "tagKey1", "tagValue1", ...);
-ds.record(request.sizeInBytes());
-----
-
-[[netflix-metrics-servo]]
-=== Metrics Collection: Servo
-
-WARNING: If your code is compiled on Java 8, please use Spectator instead of Servo as Spectator is destined to replace Servo entirely in the long term.
-
-In Servo parlance, a monitor is a named, typed, and tagged configuration and a metric represents the value of a given monitor at a point in time. Servo monitors are logically equivalent to Spectator meters. Servo monitors are created and controlled by a `MonitorRegistry`. In spite of the above warning, Servo does have a link:https://github.com/Netflix/servo/wiki/Getting-Started[wider array] of monitor options than Spectator has meters.
-
-Spring Cloud integration configures an injectable `com.netflix.servo.MonitorRegistry` instance for you. Once you have created the appropriate `Monitor` type in Servo, the process of recording data is wholly similar to Spectator.
-
-==== Creating Servo Monitors
-
-If you are using the Servo `MonitorRegistry` instance provided by Spring Cloud (specifically, an instance of `DefaultMonitorRegistry`), Servo provides convenience classes for retrieving link:https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamiccounter[counters] and link:https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamictimer[timers].  These convenience classes ensure that only one `Monitor` is registered for each unique combination of name and tags.
-
-To manually create a Monitor type in Servo, especially for the more exotic monitor types for which convenience methods are not provided, instantiate the appropriate type by providing a `MonitorConfig` instance:
-
-[source,java]
-----
-MonitorConfig config = MonitorConfig.builder("timerName").withTag("tagKey1", "tagValue1").build();
-
-// somewhere we should cache this Monitor by MonitorConfig
-Timer timer = new BasicTimer(config);
-monitorRegistry.register(timer);
-----
-
 [[netflix-metrics-atlas]]
-=== Metrics Backend: Atlas
+== Metrics Backend: Atlas
 
 Atlas was developed by Netflix to manage dimensional time series data for near real-time operational insight. Atlas features in-memory data storage, allowing it to gather and report very large numbers of metrics, very quickly.
 
@@ -2628,22 +2450,7 @@ Atlas captures operational intelligence. Whereas business intelligence is data g
 
 Spring Cloud provides a `spring-cloud-starter-netflix-atlas` that has all the dependencies you need. Then just annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server with the `netflix.atlas.uri` property.
 
-==== Global tags
-
-Spring Cloud enables you to add tags to every metric sent to the Atlas backend. Global tags can be used to separate metrics by application name, environment, region, etc.
-
-Each bean implementing `AtlasTagProvider` will contribute to the global tag list:
-
-[source,java]
-----
-@Bean
-AtlasTagProvider atlasCommonTags(
-    @Value("${spring.application.name}") String appName) {
-  return () -> Collections.singletonMap("app", appName);
-}
-----
-
-==== Using Atlas
+=== Using Atlas
 
 To bootstrap a in-memory standalone Atlas instance:
 
@@ -2669,7 +2476,7 @@ The Atlas wiki contains a link:https://github.com/Netflix/atlas/wiki/Single-Line
 Make sure to check out the link:https://github.com/Netflix/atlas/wiki/Alerting-Philosophy[alerting philosophy] and docs on using link:https://github.com/Netflix/atlas/wiki/DES[double exponential smoothing] to generate dynamic alert thresholds.
 
 [[retrying-failed-requests]]
-=== Retrying Failed Requests
+== Retrying Failed Requests
 
 Spring Cloud Netflix offers a variety of ways to make HTTP requests.  You can use a load balanced
 `RestTemplate`, Ribbon, or Feign.  No matter how you choose to your HTTP requests, there is always
@@ -2679,7 +2486,7 @@ https://github.com/spring-projects/spring-retry[Spring Retry] on your applicatio
 When Spring Retry is present load balanced `RestTemplates`, Feign, and Zuul will automatically
 retry any failed requests (assuming you configuration allows it to).
 
-==== BackOff Policies
+=== BackOff Policies
 By default no backoff policy is used when retrying requests.  If you would like to configure
 a backoff policy you will need to create a bean of type `LoadBalancedBackOffPolicyFactory`
 which will be used to create a `BackOffPolicy` for a given service.
@@ -2700,7 +2507,7 @@ public class MyConfiguration {
 }
 ----
 
-==== Configuration
+=== Configuration
 
 Anytime Ribbon is used with Spring Retry you can control the retry functionality by configuring
 certain Ribbon properties.  The properties you can use are

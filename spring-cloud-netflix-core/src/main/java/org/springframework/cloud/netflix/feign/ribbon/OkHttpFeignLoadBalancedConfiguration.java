@@ -61,7 +61,7 @@ class OkHttpFeignLoadBalancedConfiguration {
 										   ConnectionPool connectionPool, FeignHttpClientProperties httpClientProperties) {
 			Boolean followRedirects = httpClientProperties.isFollowRedirects();
 			Integer connectTimeout = httpClientProperties.getConnectionTimeout();
-			this.okHttpClient = httpClientFactory.createBuilder(false).
+			this.okHttpClient = httpClientFactory.createBuilder(httpClientProperties.isDisableSslValidation()).
 					connectTimeout(connectTimeout, TimeUnit.MILLISECONDS).
 					followRedirects(followRedirects).
 					connectionPool(connectionPool).build();

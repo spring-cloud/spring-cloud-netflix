@@ -36,4 +36,4 @@ feignClient:
   localappName: localapp
   methodLevelRequestMappingPath: /hello2
   myPlaceholderHeader: myPlaceholderHeaderValue
-management.endpoints.web.expose: '*'
+management.endpoints.web.exposure.include: '*'

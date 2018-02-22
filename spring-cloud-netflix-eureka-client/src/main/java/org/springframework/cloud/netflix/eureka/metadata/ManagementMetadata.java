@@ -7,11 +7,13 @@ public class ManagementMetadata {
     private final String healthCheckUrl;
     private final String statusPageUrl;
     private final Integer managementPort;
+    private String secureHealthCheckUrl;
 
     public ManagementMetadata(String healthCheckUrl, String statusPageUrl, Integer managementPort) {
         this.healthCheckUrl = healthCheckUrl;
         this.statusPageUrl = statusPageUrl;
         this.managementPort = managementPort;
+        this.secureHealthCheckUrl = null;
     }
 
     public String getHealthCheckUrl() {
@@ -24,6 +26,14 @@ public class ManagementMetadata {
 
     public Integer getManagementPort() {
         return managementPort;
+    }
+
+    public String getSecureHealthCheckUrl() {
+        return secureHealthCheckUrl;
+    }
+
+    public void setSecureHealthCheckUrl(String secureHealthCheckUrl) {
+        this.secureHealthCheckUrl = secureHealthCheckUrl;
     }
 
     @Override
