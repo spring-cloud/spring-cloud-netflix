@@ -24,6 +24,7 @@ import org.apache.http.config.Lookup;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.impl.conn.DefaultHttpClientConnectionOperator;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ import static org.junit.Assert.assertNull;
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FeignRibbonHttpClientConfigurationTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+@SpringBootTest(classes = FeignRibbonHttpClientConfigurationTests.FeignRibbonHttpClientConfigurationTestsApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {"debug=true","feign.httpclient.disableSslValidation=true"})
 public class FeignRibbonHttpClientConfigurationTests {
 
@@ -78,7 +80,7 @@ public class FeignRibbonHttpClientConfigurationTests {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
-	public static class Application {
+	static class FeignRibbonHttpClientConfigurationTestsApplication {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(FeignRibbonClientRetryTests.Application.class)
 					.run(args);
