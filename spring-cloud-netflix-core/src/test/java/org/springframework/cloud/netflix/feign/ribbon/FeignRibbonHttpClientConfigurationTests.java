@@ -31,9 +31,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -42,8 +42,10 @@ import static org.junit.Assert.assertNull;
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FeignRibbonHttpClientConfigurationTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+@SpringBootTest(classes = FeignRibbonHttpClientConfigurationTests.FeignRibbonHttpClientConfigurationTestsApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {"debug=true","feign.httpclient.disableSslValidation=true"})
+@DirtiesContext
 public class FeignRibbonHttpClientConfigurationTests {
 
 	@Autowired
@@ -77,8 +79,7 @@ public class FeignRibbonHttpClientConfigurationTests {
 
 	@Configuration
 	@EnableAutoConfiguration
-	@RestController
-	public static class Application {
+	static class FeignRibbonHttpClientConfigurationTestsApplication {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(FeignRibbonClientRetryTests.Application.class)
 					.run(args);

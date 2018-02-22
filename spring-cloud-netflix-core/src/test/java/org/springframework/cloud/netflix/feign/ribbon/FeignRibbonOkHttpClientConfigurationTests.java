@@ -29,17 +29,19 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FeignRibbonOkHttpClientConfigurationTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+@SpringBootTest(classes = FeignRibbonOkHttpClientConfigurationTests.FeignRibbonOkHttpClientConfigurationTestsApplication.class,
+		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {"debug=true","feign.httpclient.disableSslValidation=true",
 				"feign.okhttp.enabled=true", "feign.httpclient.enabled=false"})
+@DirtiesContext
 public class FeignRibbonOkHttpClientConfigurationTests {
 
 	@Autowired
@@ -60,8 +62,7 @@ public class FeignRibbonOkHttpClientConfigurationTests {
 
 	@Configuration
 	@EnableAutoConfiguration
-	@RestController
-	public static class Application {
+	static class FeignRibbonOkHttpClientConfigurationTestsApplication {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(FeignRibbonClientRetryTests.Application.class)
 					.run(args);
