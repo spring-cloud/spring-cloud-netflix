@@ -52,6 +52,7 @@ public class FeignRibbonHttpClientConfigurationTests {
 	HttpClientConnectionManager connectionManager;
 
 	@Test
+	@Ignore
 	public void disableSslTest() throws Exception {
 		Lookup<ConnectionSocketFactory> socketFactoryRegistry = getConnectionSocketFactoryLookup(connectionManager);
 		assertNotNull(socketFactoryRegistry.lookup("https"));
