@@ -54,7 +54,7 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = FeignRibbonClientRetryTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=feignclientretrytest", "feign.okhttp.enabled=false",
 		"feign.httpclient.enabled=false", "feign.hystrix.enabled=false", "localapp.ribbon.MaxAutoRetries=2",
-		"localapp.ribbon.MaxAutoRetriesNextServer=3", "feign.httpclient.disableSslValidation=false"})
+		"localapp.ribbon.MaxAutoRetriesNextServer=3"})
 @DirtiesContext
 public class FeignRibbonClientRetryTests {
 

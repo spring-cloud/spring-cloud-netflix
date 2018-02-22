@@ -24,7 +24,6 @@ import org.apache.http.config.Lookup;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.impl.conn.DefaultHttpClientConnectionOperator;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +31,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -46,13 +45,13 @@ import static org.junit.Assert.assertNull;
 @SpringBootTest(classes = FeignRibbonHttpClientConfigurationTests.FeignRibbonHttpClientConfigurationTestsApplication.class,
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {"debug=true","feign.httpclient.disableSslValidation=true"})
+@DirtiesContext
 public class FeignRibbonHttpClientConfigurationTests {
 
 	@Autowired
 	HttpClientConnectionManager connectionManager;
 
 	@Test
-	@Ignore
 	public void disableSslTest() throws Exception {
 		Lookup<ConnectionSocketFactory> socketFactoryRegistry = getConnectionSocketFactoryLookup(connectionManager);
 		assertNotNull(socketFactoryRegistry.lookup("https"));
@@ -80,7 +79,6 @@ public class FeignRibbonHttpClientConfigurationTests {
 
 	@Configuration
 	@EnableAutoConfiguration
-	@RestController
 	static class FeignRibbonHttpClientConfigurationTestsApplication {
 		public static void main(String[] args) {
 			new SpringApplicationBuilder(FeignRibbonClientRetryTests.Application.class)
