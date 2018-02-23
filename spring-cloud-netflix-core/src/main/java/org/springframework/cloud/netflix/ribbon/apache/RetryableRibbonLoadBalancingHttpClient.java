@@ -44,6 +44,8 @@ import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
@@ -55,8 +57,7 @@ import com.netflix.loadbalancer.Server;
  * @author Ryan Baxter
  * @author Gang Li
  */
-public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient
-		implements ServiceInstanceChooser {
+public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient {
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory = new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
 		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
@@ -116,22 +117,21 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 
 		final RequestConfig requestConfig = builder.build();
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
-		RetryCallback<RibbonApacheHttpResponse, IOException> retryCallback = new RetryCallback<RibbonApacheHttpResponse, IOException>() {
+		RetryCallback<RibbonApacheHttpResponse, Exception> retryCallback = new RetryCallback<RibbonApacheHttpResponse, Exception>() {
 			@Override
-			public RibbonApacheHttpResponse doWithRetry(RetryContext context) throws IOException {
+			public RibbonApacheHttpResponse doWithRetry(RetryContext context) throws Exception {
 				//on retries the policy will choose the server and set it in the context
 				//extract the server and update the request being made
 				RibbonApacheHttpRequest newRequest = request;
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if(service != null) {
-						//Reconstruct the request URI using the host and port set in the retry context
-						newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
-								.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
-								.port(service.getPort()).path(newRequest.getURI().getPath())
-								.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
-								.build().encode().toUri());
-					}
+					validateServiceInstance(service);
+					//Reconstruct the request URI using the host and port set in the retry context
+					newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
+							.scheme(service.getUri().getScheme()).userInfo(newRequest.getURI().getUserInfo())
+							.port(service.getPort()).path(newRequest.getURI().getPath())
+							.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
+							.build().encode().toUri());
 				}
 				newRequest = getSecureRequest(newRequest, configOverride);
 				HttpUriRequest httpUriRequest = newRequest.toRequest(requestConfig);
@@ -163,7 +163,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	}
 
 	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
-													  RetryCallback<RibbonApacheHttpResponse, IOException> callback,
+													  RetryCallback<RibbonApacheHttpResponse, Exception> callback,
 													  RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = isRequestRetryable(request);
@@ -176,12 +176,6 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			retryTemplate.setListeners(retryListeners);
 		}
 		return retryTemplate.execute(callback, recoveryCallback);
-	}
-
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
 	}
 
 	@Override

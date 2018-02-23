@@ -44,6 +44,8 @@ import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
@@ -54,7 +56,7 @@ import com.netflix.loadbalancer.Server;
  * @author Ryan Baxter
  * @author Gang Li
  */
-public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClient implements ServiceInstanceChooser {
+public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClient {
 
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory;
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
@@ -128,13 +130,12 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				OkHttpRibbonRequest newRequest = ribbonRequest;
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
-					if(service != null) {
-						//Reconstruct the request URI using the host and port set in the retry context
-						newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
-								newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
-								newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
-								newRequest.getURI().getFragment()));
-					}
+					validateServiceInstance(service);
+					//Reconstruct the request URI using the host and port set in the retry context
+					newRequest = newRequest.withNewUri(new URI(service.getUri().getScheme(),
+							newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
+							newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
+							newRequest.getURI().getFragment()));
 				}
 				if (isSecure(configOverride)) {
 					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
@@ -163,12 +164,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		});
 	}
 
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId,
-				server);
-	}
+	
 
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(OkHttpRibbonRequest request, IClientConfig requestConfig) {
