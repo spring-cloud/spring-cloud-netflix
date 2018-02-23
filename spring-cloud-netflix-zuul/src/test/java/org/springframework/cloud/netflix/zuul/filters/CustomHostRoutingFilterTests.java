@@ -44,7 +44,6 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.RoutesEndpoint;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
-import org.springframework.cloud.openfeign.ribbon.FeignRibbonClientAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -213,7 +212,6 @@ class SampleCustomZuulProxyApplication {
 
 	@Configuration
 	@EnableZuulProxy
-	@AutoConfigureBefore({FeignRibbonClientAutoConfiguration.class})
 	protected static class CustomZuulProxyConfig {
 
 		@Bean

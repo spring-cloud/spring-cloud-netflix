@@ -25,7 +25,6 @@
 		<jackson.version>2.7.3</jackson.version>
 		<spring-cloud-commons.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-config.version>
-		<spring-cloud-openfeign.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-openfeign.version>
 		<spring-cloud-stream.version>Elmhurst.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
 		<donotreplacespring-cloud-contract.version>1.2.0.RELEASE</donotreplacespring-cloud-contract.version>
@@ -116,13 +115,6 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-contract-dependencies</artifactId>
 				<version>${donotreplacespring-cloud-contract.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-openfeign-dependencies</artifactId>
-				<version>${spring-cloud-openfeign.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

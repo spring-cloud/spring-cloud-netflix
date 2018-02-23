@@ -32,8 +32,4 @@ endpoints:
     sensitive: false
 hystrix:
   shareSecurityContext: true
-feignClient:
-  localappName: localapp
-  methodLevelRequestMappingPath: /hello2
-  myPlaceholderHeader: myPlaceholderHeaderValue
 management.endpoints.web.exposure.include: '*'
