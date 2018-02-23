@@ -152,7 +152,7 @@ Spring Cloud will auto configure a transport client based on Spring
     &lt;/exclusions&gt;
 &lt;/dependency&gt;</pre></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_alternatives_to_the_native_netflix_eurekaclient" href="#_alternatives_to_the_native_netflix_eurekaclient"></a>1.9&nbsp;Alternatives to the native Netflix EurekaClient</h2></div></div></div><p>You don&#8217;t have to use the raw Netflix <code class="literal">EurekaClient</code> and usually it
 is more convenient to use it behind a wrapper of some sort. Spring
-Cloud has support for <a class="link" href="multi_spring-cloud-feign.html" title="7.&nbsp;Declarative REST Client: Feign">Feign</a> (a REST client
+Cloud has support for <a class="link" href="">Feign</a> (a REST client
 builder) and also <a class="link" href="multi_spring-cloud-ribbon.html" title="6.&nbsp;Client Side Load Balancer: Ribbon">Spring <code class="literal">RestTemplate</code></a> using
 the logical Eureka service identifiers (VIPs) instead of physical
 URLs. To configure Ribbon with a fixed list of physical servers you
