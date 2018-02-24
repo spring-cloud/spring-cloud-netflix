@@ -16,7 +16,6 @@
 	<properties>
 		<archaius.version>0.7.5</archaius.version>
 		<eureka.version>1.8.6</eureka.version>
-		<feign.version>9.5.1</feign.version>
 		<hystrix.version>1.5.12</hystrix.version>
 		<ribbon.version>2.2.4</ribbon.version>
 		<servo.version>0.10.1</servo.version>
@@ -53,11 +52,6 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-openfeign</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -276,76 +270,6 @@
 				<groupId>com.thoughtworks.xstream</groupId>
 				<artifactId>xstream</artifactId>
 				<version>${xstream.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-core</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-slf4j</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-httpclient</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-hystrix</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-java8</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-okhttp</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-gson</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-jackson-jaxb</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-jackson</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-java8</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-jaxb</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-jaxrs</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-ribbon</artifactId>
-				<version>${feign.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.github.openfeign</groupId>
-				<artifactId>feign-sax</artifactId>
-				<version>${feign.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.netflix.hystrix</groupId>

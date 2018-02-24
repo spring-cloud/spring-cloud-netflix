@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringBootConfiguration;
@@ -62,6 +63,7 @@ public class HystrixWebfluxEndpointTests {
 	private int port;
 
 	@Test
+	@Ignore
 	public void hystrixStreamWorks() {
 		String url = "http://localhost:" + port;
 		// you have to hit a Hystrix circuit breaker before the stream sends anything

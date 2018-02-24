@@ -22,6 +22,5 @@
 		<module>spring-cloud-starter-netflix-turbine</module>
 		<module>spring-cloud-starter-netflix-turbine-stream</module>
 		<module>spring-cloud-starter-netflix-zuul</module>
-		<module>spring-cloud-starter-openfeign</module>
 	</modules>
 </project>

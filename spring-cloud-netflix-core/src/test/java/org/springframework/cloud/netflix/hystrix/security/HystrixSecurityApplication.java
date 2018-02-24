@@ -17,8 +17,6 @@
 package org.springframework.cloud.netflix.hystrix.security;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
-import org.springframework.cloud.netflix.hystrix.security.app.UsernameClient;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -26,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @SpringBootApplication
-@EnableFeignClients(clients = UsernameClient.class)
 public class HystrixSecurityApplication {
 
 }
