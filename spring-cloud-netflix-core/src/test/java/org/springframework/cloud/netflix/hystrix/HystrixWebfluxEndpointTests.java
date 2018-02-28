@@ -19,11 +19,14 @@ package org.springframework.cloud.netflix.hystrix;
 
 import java.util.Map;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -39,12 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
 
 /**
  * @author Dave Syer
@@ -63,7 +61,6 @@ public class HystrixWebfluxEndpointTests {
 	private int port;
 
 	@Test
-	@Ignore
 	public void hystrixStreamWorks() {
 		String url = "http://localhost:" + port;
 		// you have to hit a Hystrix circuit breaker before the stream sends anything
