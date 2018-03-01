@@ -1919,15 +1919,15 @@ info:
 
 When used together, Spectator (or Servo) and Atlas provide a near real-time operational insight platform.
 Spectator and Servo are Netflix's metrics collection libraries.
-Atlas is a Netflix metrics backend to manage dimensional time-series data.
+Atlas is a Netflix metrics backend that manages dimensional time-series data.
 
-Servo served Netflix for several years and is still usable, but is gradually being phased out in favor of Spectator, which is designed to work only with Java 8.
+Servo served Netflix for several years and is still usable but is gradually being phased out in favor of Spectator, which is designed to work only with Java 8.
 Spring Cloud Netflix provides support for both, but Java 8-based applications are encouraged to use Spectator.
 
 === Dimensional Versus Hierarchical Metrics
 
 Spring Boot Actuator metrics are hierarchical, and the metrics are separated only by name.
-These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name separated by periods.
+These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name (separated by periods).
 Consider the following metrics for two endpoints, `root` and `star-star`:
 
 [source,json]
@@ -1947,17 +1947,18 @@ Similarly, if you want to know the total number of successful requests for all e
 
 Even in the presence of wildcarding support on a hierarchical metrics backend, naming consistency can be difficult.
 Specifically, the position of these tags in the name string can slip with time, breaking queries.
-For example, suppose we add an additional dimension to the hierarchical metrics above for an HTTP method.
-Then `counter.status.200.root` becomes `counter.status.200.method.get.root` (or `post` and so on). Our `counter.status.200.*` suddenly no longer has the same semantic meaning.
+For example, suppose we add an additional dimension to the earlier hierarchical metrics for an HTTP method.
+Then `counter.status.200.root` becomes `counter.status.200.method.get.root` (or `post` and so on).
+Suddenly, Our `counter.status.200.*` no longer has the same semantic meaning.
 Furthermore, if the new dimension is not applied uniformly across the codebase, certain queries may become impossible.
 This can quickly get out of hand.
 
 Netflix metrics are tagged (in other words, they are dimensional).
-Each metric has a name, but this single named metric can contain multiple statistics and 'tag' key/value pairs that allows more querying flexibility.
+Each metric has a name, but this single named metric can contain multiple statistics and 'tag' key/value pairs, which allows more querying flexibility.
 In fact, the statistics themselves are recorded in a special tag.
 
-When recorded with Netflix Servo or Spectator, a timer for the root endpoint described above contains 4 statistics for each status code, where the count statistic is identical to Spring Boot Actuator's counter.
-When we have encountered an HTTP 200 and 400 with the preceding examples, there are 8 available data points:
+When recorded with Netflix Servo or Spectator, a timer for the root endpoint described earlier contains four statistics for each status code, where the count statistic is identical to Spring Boot Actuator's counter.
+When we have encountered an HTTP 200 and 400 with the preceding examples, there are eight available data points, as shown in the following example:
 
 [source,json]
 ----
@@ -1976,28 +1977,29 @@ When we have encountered an HTTP 200 and 400 with the preceding examples, there 
 === Default Metrics Collection
 
 Without any additional dependencies or configuration, a Spring Cloud based service autoconfigures a Servo `MonitorRegistry` and begins collecting metrics on every Spring MVC request.
-By default, a Servo timer with the name `rest` is recorded for each MVC request, which is tagged with the following information:
+By default, a Servo timer with a name of `rest` is recorded for each MVC request, which is tagged with the following information:
 
-1. HTTP method (`GET`, `POST`, and so on).
-2. HTTP status (`200`, `400`, `500`, and so on).
-3. URI (or "root" if the URI is empty), sanitized for Atlas.
-4. The exception class name, if the request handler threw an exception.
-5. The caller, if a request header with a key matching `netflix.metrics.rest.callerHeader` is set on the request. There is no default key for `netflix.metrics.rest.callerHeader`.
+* HTTP method (`GET`, `POST`, and so on).
+* HTTP status (`200`, `400`, `500`, and so on).
+* URI (or `root` if the URI is empty), sanitized for Atlas.
+* The exception class name, if the request handler threw an exception.
+* The caller, if a request header with a key matching `netflix.metrics.rest.callerHeader` is set on the request.
+There is no default key for `netflix.metrics.rest.callerHeader`.
 You must add it to your application properties if you wish to collect caller information.
 
 Set the `netflix.metrics.rest.metricName` property to change the name of the metric from `rest` to the name you provide.
 
 If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runtime classpath, Spring Cloud also collects metrics on every client call made with `RestTemplate`.
-A Servo timer with the name of `restclient` is recorded for each MVC request, which is tagged with the following information:
+A Servo timer with a name of `restclient` is recorded for each MVC request, which is tagged with the following information:
 
-1. HTTP method ('GET', 'POST', and so on).
-2. HTTP status (`200`, `400`, `500`, and so on), `CLIENT_ERROR` if the response returned null, or `IO_ERROR` if an `IOException` occurred during the execution of the `RestTemplate` method.
-3. URI, sanitized for Atlas.
-4. Client name.
+* HTTP method ('GET', 'POST', and so on).
+* HTTP status (`200`, `400`, `500`, and so on) and possibly `CLIENT_ERROR` if the response returned null or `IO_ERROR` if an `IOException` occurred during the execution of the `RestTemplate` method.
+* URI, sanitized for Atlas.
+* Client name.
 
-WARNING: Avoid using hardcoded URL parameters within `RestTemplate`.
+WARNING: Avoid using hard-coded URL parameters within `RestTemplate`.
 When targeting dynamic endpoints, use URL variables.
-Doing so avoids potential "GC Overhead Limit Reached" issues where `ServoMonitorCache` treats each URL as a unique key.
+Doing so avoids potential "`GC Overhead Limit Reached`" issues where `ServoMonitorCache` treats each URL as a unique key.
 The following example shows both the recommended and the problematic ways to set URL parameters:
 
 [source,java,indent=0]
@@ -2029,7 +2031,8 @@ Spectator provides four meter types: counter, timer, gauge, and distribution sum
 
 Spring Cloud Spectator integration configures an injectable `com.netflix.spectator.api.Registry` instance for you.
 Specifically, it configures a `ServoRegistry` instance in order to unify the collection of REST metrics and the exporting of metrics to the Atlas backend under a single Servo API.
-Practically, this means that your code may use a mixture of Servo monitors and Spectator meters and Spring Boot scoops up both Actuator `MetricReader` instances and ships them to the Atlas backend.
+Practically, this means that your code may use a mixture of Servo monitors and Spectator meters.
+Spring Boot scoops up both Actuator `MetricReader` instances and ships them to the Atlas backend.
 
 ==== Spectator Counter
 
@@ -2048,7 +2051,7 @@ The counter records a single time-normalized statistic.
 ==== Spectator Timer
 
 A timer measures how long some event takes.
-Spring Cloud automatically records timers for Spring MVC requests and conditionally `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency, as shown in the following example:
+Spring Cloud automatically records timers for Spring MVC requests and, conditionally, `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency, as shown in the following example:
 
 .Request Latency
 image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/RequestLatency.png[]
@@ -2068,18 +2071,20 @@ timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS);
 ----
 
 The timer simultaneously records four statistics: `count`, `max`, `totalOfSquares`, and `totalTime`.
-The count statistic always matches the single normalized value provided by a counter if you called `increment()` once on the counter for each time you recorded a timing, so it is rarely necessary to count and time separately for a single operation.
+The count statistic always matches the single normalized value provided by a counter as though you had called `increment()` once on the counter for each time you recorded a timing, so it is rarely necessary to count and time separately for a single operation.
 
-For link:https://github.com/Netflix/spectator/wiki/Timer-Usage#longtasktimer[long running operations], Spectator provides a special `LongTaskTimer`.
+For link:https://github.com/Netflix/spectator/wiki/Timer-Usage#longtasktimer[long-running operations], Spectator provides a special `LongTaskTimer`.
 
 ==== Spectator Gauge
 
-Gauges show some current value, such as the size of a queue or number of threads in a running state. Since gauges are sampled, they provide no information about how these values fluctuate between samples.
+Gauges show some current value, such as the size of a queue or number of threads in a running state.
+Since gauges are sampled, they provide no information about how these values fluctuate between samples.
 
 The normal use of a gauge involves registering the gauge once on initialization with an ID, a reference to the object to be sampled, and a function to get or compute a numeric value based on the object.
-The reference to the object is passed in separately and the Spectator registry keeps a weak reference to the object.
-If the object is garbage collected, then Spectator automatically drops the registration.
+The reference to the object is passed in separately, and the Spectator registry keeps a weak reference to the object.
+If the object is garbage collected, Spectator automatically drops the registration.
 See link:https://github.com/Netflix/spectator/wiki/Gauge-Usage#using-lambda[the note] in Spectator's documentation about potential memory leaks if this API is misused.
+The following listing shows how to automatically and manually sample a gauge:
 
 [source,java]
 ----
@@ -2089,6 +2094,8 @@ registry.gauge("gaugeName", pool, Pool::numberOfRunningThreads);
 // manually sample a value in code at periodic intervals -- last resort!
 registry.gauge("gaugeName", Arrays.asList("tagKey1", "tagValue1", ...), 1000);
 ----
+
+// TODO Why is the manual way a last resort?
 
 ==== Spectator Distribution Summaries
 
@@ -2136,14 +2143,16 @@ monitorRegistry.register(timer);
 [[netflix-metrics-atlas]]
 == Metrics Backend: Atlas
 
-Atlas was developed by Netflix to manage dimensional time-series data for near real-time operational insight. Atlas features in-memory data storage, letting it to gather and report large numbers of metrics quickly.
+Atlas was developed by Netflix to manage dimensional time-series data for near real-time operational insight.
+Atlas features in-memory data storage, letting it gather and report large numbers of metrics quickly.
 
 Atlas captures operational intelligence.
 Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.
 
-Spring Cloud provides a `spring-cloud-starter-netflix-atlas` that has all the dependencies you need. Then you can annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server with the `netflix.atlas.uri` property.
+Spring Cloud provides a `spring-cloud-starter-netflix-atlas` that has all the dependencies you need.
+Then you can annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server by setting the `netflix.atlas.uri` property.
 
-==== Global Tags
+=== Global Tags
 
 Spring Cloud lets you add tags to every metric sent to the Atlas backend.
 Global tags can be used to separate metrics by application name, environment, region, and so on.
@@ -2161,7 +2170,7 @@ AtlasTagProvider atlasCommonTags(
 
 ==== Using Atlas
 
-To bootstrap an in-memory standalone Atlas instance, use the following commads:
+To bootstrap an in-memory standalone Atlas instance, use the following commands:
 
 [source,bash]
 ----
@@ -2171,30 +2180,30 @@ $ java -jar atlas-1.4.2-standalone.jar
 
 TIP: An Atlas standalone node running on an r3.2xlarge (61GB RAM) can handle roughly 2 million metrics per minute for a given six-hour window.
 
-Once the application is running and you have collected a handful of metrics, verify that your setup is correct by listing tags on the Atlas server, as shown in the following example:
+Once the application is running and you have collected a handful of metrics, you can verify that your setup is correct by listing tags on the Atlas server, as shown in the following example:
 
 [source,bash]
 ----
 $ curl http://ATLAS/api/v1/tags
 ----
 
-TIP: After running several requests against your service, you can gather some very basic information on the request latency of every request by pasting the following URL in your browser: `http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg`
+TIP: After running several requests against your service, you can gather some basic information on the request latency of every request by pasting the following URL in your browser: `http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg`
 
 The Atlas wiki contains a link:https://github.com/Netflix/atlas/wiki/Single-Line[compilation of sample queries] for various scenarios.
 
-Make sure to check out the link:https://github.com/Netflix/atlas/wiki/Alerting-Philosophy[alerting philosophy] and docs on using link:https://github.com/Netflix/atlas/wiki/DES[double exponential smoothing] to generate dynamic alert thresholds.
+See the link:https://github.com/Netflix/atlas/wiki/Alerting-Philosophy[alerting philosophy] and docs on using link:https://github.com/Netflix/atlas/wiki/DES[double exponential smoothing] to generate dynamic alert thresholds.
 
 [[retrying-failed-requests]]
 == Retrying Failed Requests
 
 Spring Cloud Netflix offers a variety of ways to make HTTP requests.
 You can use a load balanced `RestTemplate`, Ribbon, or Feign.
-No matter how you choose to your HTTP requests, there is always a chance that a request may fail.
+No matter how you choose to create your HTTP requests, there is always a chance that a request may fail.
 When a request fails, you may want to have the request be retried automatically.
-To accomplish this when using Sping Cloud Netflix, you need to include https://github.com/spring-projects/spring-retry[Spring Retry] on your application's classpath.
-When Spring Retry is present, load-balanced `RestTemplates`, Feign, and Zuul automatically retry any failed requests (assuming you configuration allows doing so).
+To do so when using Sping Cloud Netflix, you need to include https://github.com/spring-projects/spring-retry[Spring Retry] on your application's classpath.
+When Spring Retry is present, load-balanced `RestTemplates`, Feign, and Zuul automatically retry any failed requests (assuming your configuration allows doing so).
 
-==== BackOff Policies
+=== BackOff Policies
 By default, no backoff policy is used when retrying requests.
 If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedBackOffPolicyFactory`, which is used to create a `BackOffPolicy` for a given service, as shown in the following example:
 
@@ -2216,12 +2225,12 @@ public class MyConfiguration {
 
 === Configuration
 
-Anytime Ribbon is used with Spring Retry, you can control the retry functionality by configuring certain Ribbon properties.
-You can use the `client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and `client.ribbon.OkToRetryOnAllOperations` properties.
+When you use Ribbon with Spring Retry, you can control the retry functionality by configuring certain Ribbon properties.
+To do so, set the `client.ribbon.MaxAutoRetries`, `client.ribbon.MaxAutoRetriesNextServer`, and `client.ribbon.OkToRetryOnAllOperations` properties.
 See the https://github.com/Netflix/ribbon/wiki/Getting-Started#the-properties-file-sample-clientproperties[Ribbon documentation] for a description of what these properties do.
 
 WARNING: Enabling `client.ribbon.OkToRetryOnAllOperations` includes retrying POST requests, which can have an impact
-on the server's resources due to the buffering of the request's body.
+on the server's resources, due to the buffering of the request body.
 
 In addition, you may want to retry requests when certain status codes are returned in the response.
 You can list the response codes you would like the Ribbon client to retry by setting the `clientName.ribbon.retryableStatusCodes` property, as shown in the following example:
