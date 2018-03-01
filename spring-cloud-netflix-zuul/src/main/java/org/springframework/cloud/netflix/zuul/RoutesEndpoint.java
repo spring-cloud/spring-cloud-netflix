@@ -29,6 +29,7 @@ import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.http.HttpMethod;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -40,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * @author Dave Syer
  * @author Ryan Baxter
  * @author Gregor Zurowski
+ * @author Arnold Galovics
  */
 @Endpoint(id = RoutesEndpoint.ID)
 public class RoutesEndpoint implements ApplicationEventPublisherAware {
@@ -120,6 +122,8 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 
 		private boolean prefixStripped;
 
+		private Set<HttpMethod> methods;
+
 		public RouteDetails() {
 		}
 
@@ -133,6 +137,7 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 			this.sensitiveHeaders = route.getSensitiveHeaders();
 			this.customSensitiveHeaders = route.isCustomSensitiveHeaders();
 			this.prefixStripped = route.isPrefixStripped();
+			this.methods = route.getMethods();
 		}
 
 		public String getId() {
@@ -171,6 +176,10 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 			return prefixStripped;
 		}
 
+		public Set<HttpMethod> getMethods() {
+			return methods;
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
@@ -183,6 +192,7 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 					Objects.equals(prefix, that.prefix) &&
 					Objects.equals(retryable, that.retryable) &&
 					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
+					Objects.equals(methods, that.methods) &&
 					customSensitiveHeaders == that.customSensitiveHeaders &&
 					prefixStripped == that.prefixStripped;
 		}
@@ -190,7 +200,7 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 		@Override
 		public int hashCode() {
 			return Objects.hash(id, fullPath, path, location, prefix, retryable,
-					sensitiveHeaders, customSensitiveHeaders, prefixStripped);
+					sensitiveHeaders, customSensitiveHeaders, prefixStripped, methods);
 		}
 	}
 

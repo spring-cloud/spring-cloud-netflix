@@ -18,6 +18,12 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,15 +37,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * @author Ryan Baxter
@@ -70,7 +71,7 @@ public class RoutesEndpointDetailsTests {
 			}
 
 			@Override
-			public Route getMatchingRoute(String path) {
+			public Route getMatchingRoute(RequestWrapper request) {
 				return null;
 			}
 		};

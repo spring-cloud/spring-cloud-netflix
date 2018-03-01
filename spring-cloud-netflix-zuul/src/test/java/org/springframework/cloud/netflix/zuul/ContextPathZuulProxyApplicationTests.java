@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +44,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.zuul.context.RequestContext;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ContextPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -88,7 +88,7 @@ public class ContextPathZuulProxyApplicationTests {
 	@Test
 	public void stripPrefixFalseAppendsPath() {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
-				"http://localhost:" + this.port + "/app/local", false, false, null));
+				"http://localhost:" + this.port + "/app/local", false, false, null, null));
 		this.endpoint.reset();
 		ResponseEntity<String> result = testRestTemplate.exchange(
 				"http://localhost:" + this.port + "/app/strip", HttpMethod.GET,

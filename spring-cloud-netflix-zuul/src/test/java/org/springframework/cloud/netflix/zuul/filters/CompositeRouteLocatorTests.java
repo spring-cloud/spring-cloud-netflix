@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
+import org.springframework.http.HttpMethod;
 
 /**
  * @author Johannes Edmeier
@@ -46,11 +47,11 @@ public class CompositeRouteLocatorTests {
 
 	@Test
 	public void test_getMatchingRoute() {
-		assertThat(locator.getMatchingRoute("/pathA"), notNullValue());
-		assertThat(locator.getMatchingRoute("/pathA").getId(), is("1"));
-		assertThat("Locator 1 should take precedence", locator.getMatchingRoute("/pathB").getId(),
+		assertThat(locator.getMatchingRoute(RequestWrapper.from("/pathA", HttpMethod.GET)), notNullValue());
+		assertThat(locator.getMatchingRoute(RequestWrapper.from("/pathA", HttpMethod.GET)).getId(), is("1"));
+		assertThat("Locator 1 should take precedence", locator.getMatchingRoute(RequestWrapper.from("/pathB", HttpMethod.GET)).getId(),
 				is("2"));
-		assertThat(locator.getMatchingRoute("/pathNot"), nullValue());
+		assertThat(locator.getMatchingRoute(RequestWrapper.from("/pathNot", HttpMethod.GET)), nullValue());
 	}
 
 	@Test
@@ -84,9 +85,9 @@ public class CompositeRouteLocatorTests {
 		}
 
 		@Override
-		public Route getMatchingRoute(String path) {
+		public Route getMatchingRoute(RequestWrapper request) {
 			for (Route route : routes) {
-				if (path.startsWith(route.getPath())) {
+				if (request.getPath().startsWith(route.getPath())) {
 					return route;
 				}
 			}

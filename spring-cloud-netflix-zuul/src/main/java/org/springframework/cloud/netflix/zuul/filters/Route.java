@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 
 public class Route {
@@ -42,9 +43,11 @@ public class Route {
 	}
 
 	public Route(String id, String path, String location, String prefix,
-		Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped) {
+		Boolean retryable, Set<String> ignoredHeaders, boolean prefixStripped,
+		Set<HttpMethod> methods) {
 		this(id, path, location, prefix, retryable, ignoredHeaders);
 		this.prefixStripped = prefixStripped;
+		this.methods = methods;
 	}
 
 	private String id;
@@ -64,6 +67,8 @@ public class Route {
 	private boolean customSensitiveHeaders;
 
 	private boolean prefixStripped = true;
+
+	private Set<HttpMethod> methods;
 
 	public boolean isCustomSensitiveHeaders() {
 		return this.customSensitiveHeaders;
@@ -137,6 +142,14 @@ public class Route {
 		this.prefixStripped = prefixStripped;
 	}
 
+	public Set<HttpMethod> getMethods() {
+		return methods;
+	}
+
+	public void setMethods(Set<HttpMethod> methods) {
+		this.methods = methods;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -150,13 +163,14 @@ public class Route {
 				Objects.equals(location, that.location) &&
 				Objects.equals(prefix, that.prefix) &&
 				Objects.equals(retryable, that.retryable) &&
+				Objects.equals(methods, that.methods) &&
 				Objects.equals(sensitiveHeaders, that.sensitiveHeaders);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, fullPath, path, location, prefix, retryable,
-				sensitiveHeaders, customSensitiveHeaders, prefixStripped);
+				sensitiveHeaders, customSensitiveHeaders, methods, prefixStripped);
 	}
 
 	@Override
@@ -170,7 +184,8 @@ public class Route {
 				.append("retryable=").append(retryable).append(", ")
 				.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
 				.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
-				.append("prefixStripped=").append(prefixStripped)
+				.append("prefixStripped=").append(prefixStripped).append(", ")
+				.append("methods=").append(methods)
 				.append("}").toString();
 	}
 }

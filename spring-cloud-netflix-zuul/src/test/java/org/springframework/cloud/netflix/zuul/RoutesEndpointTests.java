@@ -18,6 +18,8 @@
 
 package org.springframework.cloud.netflix.zuul;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,10 +29,9 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Ryan Baxter
@@ -57,7 +58,7 @@ public class RoutesEndpointTests {
 			}
 
 			@Override
-			public Route getMatchingRoute(String path) {
+			public Route getMatchingRoute(RequestWrapper request) {
 				return null;
 			}
 		};

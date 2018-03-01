@@ -17,22 +17,25 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import com.netflix.util.Pair;
-import com.netflix.zuul.context.RequestContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.cloud.netflix.zuul.filters.Route;
-import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
+import org.springframework.cloud.netflix.zuul.filters.Route;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.http.HttpMethod;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import com.netflix.util.Pair;
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * @author Biju Kunjummen
@@ -70,7 +73,7 @@ public class LocationRewriteFilterTests {
 		ZuulProperties zuulProperties = new ZuulProperties();
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/redirectingUri", "service1", "prefix", false,
-						Collections.EMPTY_SET, true),
+						Collections.EMPTY_SET, true, null),
 				"/prefix/redirectingUri", "/redirectedUri;someparam?param1=abc");
 		filter.run();
 		assertThat(getLocationHeader(context).second()).isEqualTo(String
@@ -94,7 +97,7 @@ public class LocationRewriteFilterTests {
 		ZuulProperties zuulProperties = new ZuulProperties();
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "prefix",
-						false, Collections.EMPTY_SET, false),
+						false, Collections.EMPTY_SET, false, null),
 				"/prefix/redirectingUri",
 				"/something/redirectedUri;someparam?param1=abc");
 		filter.run();
@@ -108,7 +111,7 @@ public class LocationRewriteFilterTests {
 		ZuulProperties zuulProperties = new ZuulProperties();
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "", false,
-						Collections.EMPTY_SET, true),
+						Collections.EMPTY_SET, true, null),
 				"/redirectingUri", "/something/redirectedUri;someparam?param1=abc");
 		filter.run();
 		assertThat(getLocationHeader(context).second()).isEqualTo(String.format(
@@ -123,7 +126,7 @@ public class LocationRewriteFilterTests {
 		zuulProperties.setStripPrefix(true);
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "prefix",
-						false, Collections.EMPTY_SET, true),
+						false, Collections.EMPTY_SET, true, null),
 				"/global/prefix/redirectingUri",
 				"/something/redirectedUri;someparam?param1=abc");
 		filter.run();
@@ -140,7 +143,7 @@ public class LocationRewriteFilterTests {
 		zuulProperties.setStripPrefix(false);
 		LocationRewriteFilter filter = setFilterUpWith(context, zuulProperties,
 				new Route("service1", "/something/redirectingUri", "service1", "prefix",
-						false, Collections.EMPTY_SET, true),
+						false, Collections.EMPTY_SET, true, null),
 				"/global/prefix/redirectingUri",
 				"/global/something/redirectedUri;someparam?param1=abc");
 		filter.run();
@@ -157,6 +160,7 @@ public class LocationRewriteFilterTests {
 		httpServletRequest.setServerName(ZUUL_HOST);
 		httpServletRequest.setScheme(ZUUL_SCHEME);
 		httpServletRequest.setServerPort(ZUUL_PORT);
+		httpServletRequest.setMethod(HttpMethod.GET.name());
 		context.setRequest(httpServletRequest);
 
 		MockHttpServletResponse httpServletResponse = new MockHttpServletResponse();
@@ -165,7 +169,7 @@ public class LocationRewriteFilterTests {
 		context.setResponse(httpServletResponse);
 
 		RouteLocator routeLocator = mock(RouteLocator.class);
-		when(routeLocator.getMatchingRoute(toZuulRequestUri)).thenReturn(route);
+		when(routeLocator.getMatchingRoute(RequestWrapper.from(toZuulRequestUri, HttpMethod.GET))).thenReturn(route);
 		LocationRewriteFilter filter = new LocationRewriteFilter(zuulProperties,
 				routeLocator);
 

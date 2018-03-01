@@ -16,19 +16,29 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import static java.lang.String.format;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
@@ -36,6 +46,7 @@ import org.springframework.util.StringUtils;
  * Simple {@link RouteLocator} based on configuration data held in {@link ZuulProperties}.
  *
  * @author Dave Syer
+ * @author Arnold Galovics
  */
 public class SimpleRouteLocator implements RouteLocator, Ordered {
 
@@ -50,7 +61,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	private String dispatcherServletPath = "/";
 	private String zuulServletPath;
 
-	private AtomicReference<Map<String, ZuulRoute>> routes = new AtomicReference<>();
+	private AtomicReference<Map<String, Map<HttpMethod, ZuulRoute>>> routes = new AtomicReference<>();
 	private int order = DEFAULT_ORDER;
 
 	public SimpleRouteLocator(String servletPath, ZuulProperties properties) {
@@ -65,8 +76,8 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	@Override
 	public List<Route> getRoutes() {
 		List<Route> values = new ArrayList<>();
-		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
-			ZuulRoute route = entry.getValue();
+		Set<ZuulRoute> routes = getRoutesMap().values().stream().map(Map::values).flatMap(Collection::stream).collect(toSet());
+		for (ZuulRoute route : routes) {
 			String path = route.getPath();
 			values.add(getRoute(route, path));
 		}
@@ -79,22 +90,20 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	}
 
 	@Override
-	public Route getMatchingRoute(final String path) {
-
-		return getSimpleMatchingRoute(path);
-
+	public Route getMatchingRoute(RequestWrapper request) {
+		return getSimpleMatchingRoute(request);
 	}
 
-	protected Map<String, ZuulRoute> getRoutesMap() {
+	protected Map<String, Map<HttpMethod, ZuulRoute>> getRoutesMap() {
 		if (this.routes.get() == null) {
 			this.routes.set(locateRoutes());
 		}
 		return this.routes.get();
 	}
 
-	protected Route getSimpleMatchingRoute(final String path) {
+	protected Route getSimpleMatchingRoute(final RequestWrapper request) {
 		if (log.isDebugEnabled()) {
-			log.debug("Finding route for path: " + path);
+			log.debug("Finding route for request: " + request);
 		}
 
 		// This is called for the initialization done in getRoutesMap()
@@ -109,24 +118,29 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 					+ RequestUtils.isZuulServletRequest());
 		}
 
-		String adjustedPath = adjustPath(path);
+		String adjustedPath = adjustPath(request.getPath());
 
-		ZuulRoute route = getZuulRoute(adjustedPath);
+		ZuulRoute route = getZuulRoute(adjustedPath, request.getMethod());
 
 		return getRoute(route, adjustedPath);
 	}
 
-	protected ZuulRoute getZuulRoute(String adjustedPath) {
+	protected ZuulRoute getZuulRoute(String adjustedPath, HttpMethod method) {
 		if (!matchesIgnoredPatterns(adjustedPath)) {
-			for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
+			for (Entry<String, Map<HttpMethod, ZuulRoute>> entry : getRoutesMap().entrySet()) {
 				String pattern = entry.getKey();
 				log.debug("Matching pattern:" + pattern);
 				if (this.pathMatcher.match(pattern, adjustedPath)) {
-					return entry.getValue();
+					Map<HttpMethod, ZuulRoute> methods = entry.getValue();
+					return methods.entrySet().stream().filter(e -> matchesMethod(method, e)).findAny().map(Entry::getValue).orElse(null);
 				}
 			}
 		}
 		return null;
+	}
+
+	private boolean matchesMethod(HttpMethod method, Entry<HttpMethod, ZuulRoute> zuulRoute) {
+		return method.equals(zuulRoute.getKey());
 	}
 
 	protected Route getRoute(ZuulRoute route, String path) {
@@ -159,7 +173,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
 				retryable,
 				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null, 
-				route.isStripPrefix());
+				route.isStripPrefix(), route.getMethods());
 	}
 
 	/**
@@ -174,10 +188,28 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	 * Compute a map of path pattern to route. The default is just a static map from the
 	 * {@link ZuulProperties}, but subclasses can add dynamic calculations.
 	 */
-	protected Map<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
+	protected Map<String, Map<HttpMethod, ZuulRoute>> locateRoutes() {
+		LinkedHashMap<String, Map<HttpMethod, ZuulRoute>> routesMap = new LinkedHashMap<>();
 		for (ZuulRoute route : this.properties.getRoutes().values()) {
-			routesMap.put(route.getPath(), route);
+			String path = route.getPath();
+			Set<HttpMethod> methods = route.getMethods();
+			if (CollectionUtils.isEmpty(methods)) {
+				methods = Arrays.stream(HttpMethod.values()).collect(toSet());
+			}
+			Map<HttpMethod, ZuulRoute> routeMap = methods.stream().collect(toMap(identity(), method -> route));
+			Map<HttpMethod, ZuulRoute> existingMappings = routesMap.get(path);
+			if (existingMappings != null) {
+				existingMappings.entrySet().forEach(e -> {
+					HttpMethod existingMethod = e.getKey();
+					ZuulRoute existingRoute = e.getValue();
+					if (!routeMap.containsKey(existingMethod)) {
+						routeMap.put(existingMethod, existingRoute);
+					} else {
+						log.warn(format("Duplicated route definition found for path: %s and method: %s", path, existingMethod));
+					}
+				});
+			}
+			routesMap.put(path, routeMap);
 		}
 		return routesMap;
 	}

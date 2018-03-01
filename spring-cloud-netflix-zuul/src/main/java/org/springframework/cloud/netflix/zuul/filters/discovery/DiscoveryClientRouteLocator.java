@@ -16,10 +16,16 @@
 
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +36,7 @@ import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
@@ -39,6 +46,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Spencer Gibb
  * @author Dave Syer
+ * @author Arnold Galovics
  */
 public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 		implements RefreshableRouteLocator {
@@ -98,53 +106,59 @@ public class DiscoveryClientRouteLocator extends SimpleRouteLocator
 	}
 
 	@Override
-	protected LinkedHashMap<String, ZuulRoute> locateRoutes() {
-		LinkedHashMap<String, ZuulRoute> routesMap = new LinkedHashMap<>();
-		routesMap.putAll(super.locateRoutes());
+	protected LinkedHashMap<String, Map<HttpMethod, ZuulRoute>> locateRoutes() {
+		LinkedHashMap<String, Map<HttpMethod, ZuulRoute>> routesMap = new LinkedHashMap<>(super.locateRoutes());
 		if (this.discovery != null) {
-			Map<String, ZuulRoute> staticServices = new LinkedHashMap<>();
-			for (ZuulRoute route : routesMap.values()) {
-				String serviceId = route.getServiceId();
-				if (serviceId == null) {
-					serviceId = route.getId();
-				}
-				if (serviceId != null) {
-					staticServices.put(serviceId, route);
+			Map<String, Map<HttpMethod, ZuulRoute>> staticServices = new LinkedHashMap<>();
+			for (Map<HttpMethod, ZuulRoute> map : routesMap.values()) {
+				for (Entry<HttpMethod, ZuulRoute> entry : map.entrySet()) {
+					ZuulRoute route = entry.getValue();
+					String serviceId = route.getServiceId();
+					if (serviceId == null) {
+						serviceId = route.getId();
+					}
+					if (serviceId != null) {
+						staticServices.put(serviceId, map);
+					}
 				}
 			}
 			// Add routes for discovery services by default
 			List<String> services = this.discovery.getServices();
-			String[] ignored = this.properties.getIgnoredServices()
-					.toArray(new String[0]);
+			String[] ignored = this.properties.getIgnoredServices().toArray(new String[0]);
 			for (String serviceId : services) {
 				// Ignore specifically ignored services and those that were manually
 				// configured
 				String key = "/" + mapRouteToService(serviceId) + "/**";
-				if (staticServices.containsKey(serviceId)
-						&& staticServices.get(serviceId).getUrl() == null) {
-					// Explicitly configured with no URL, cannot be ignored
-					// all static routes are already in routesMap
-					// Update location using serviceId if location is null
-					ZuulRoute staticRoute = staticServices.get(serviceId);
-					if (!StringUtils.hasText(staticRoute.getLocation())) {
-						staticRoute.setLocation(serviceId);
+				if (staticServices.containsKey(serviceId)) {
+					Set<ZuulRoute> methodMap = new HashSet<>(staticServices.get(serviceId).values());
+					for (ZuulRoute staticRoute : methodMap) {
+						if (staticRoute.getUrl() == null) {
+							// Explicitly configured with no URL, cannot be ignored
+							// all static routes are already in routesMap
+							// Update location using serviceId if location is null
+							if (!StringUtils.hasText(staticRoute.getLocation())) {
+								staticRoute.setLocation(serviceId);
+							}
+						}
 					}
 				}
 				if (!PatternMatchUtils.simpleMatch(ignored, serviceId)
 						&& !routesMap.containsKey(key)) {
 					// Not ignored
-					routesMap.put(key, new ZuulRoute(key, serviceId));
+					ZuulRoute zuulRoute = new ZuulRoute(key, serviceId);
+					Map<HttpMethod, ZuulRoute> methodMap = Arrays.stream(HttpMethod.values()).collect(toMap(identity(), m -> zuulRoute));
+					routesMap.put(key, methodMap);
 				}
 			}
 		}
 		if (routesMap.get(DEFAULT_ROUTE) != null) {
-			ZuulRoute defaultRoute = routesMap.get(DEFAULT_ROUTE);
+			Map<HttpMethod, ZuulRoute> defaultRoute = routesMap.get(DEFAULT_ROUTE);
 			// Move the defaultServiceId to the end
 			routesMap.remove(DEFAULT_ROUTE);
 			routesMap.put(DEFAULT_ROUTE, defaultRoute);
 		}
-		LinkedHashMap<String, ZuulRoute> values = new LinkedHashMap<>();
-		for (Entry<String, ZuulRoute> entry : routesMap.entrySet()) {
+		LinkedHashMap<String, Map<HttpMethod, ZuulRoute>> values = new LinkedHashMap<>();
+		for (Entry<String, Map<HttpMethod, ZuulRoute>> entry : routesMap.entrySet()) {
 			String path = entry.getKey();
 			// Prepend with slash if not already present.
 			if (!path.startsWith("/")) {

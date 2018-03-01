@@ -16,13 +16,19 @@
  */
 package org.springframework.cloud.netflix.zuul.filters.post;
 
-import com.netflix.util.Pair;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
+
+import java.net.URI;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.zuul.filters.RequestWrapper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.StringUtils;
@@ -30,10 +36,9 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UrlPathHelper;
 
-import java.net.URI;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_RESPONSE_FILTER_ORDER;
+import com.netflix.util.Pair;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 
 /**
  * {@link ZuulFilter} Responsible for rewriting the Location header to be the Zuul URL
@@ -81,8 +86,7 @@ public class LocationRewriteFilter extends ZuulFilter {
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		Route route = routeLocator.getMatchingRoute(
-				urlPathHelper.getPathWithinApplication(ctx.getRequest()));
+		Route route = routeLocator.getMatchingRoute(getRequest(ctx));
 
 		if (route != null) {
 			Pair<String, String> lh = locationHeader(ctx);
@@ -110,6 +114,13 @@ public class LocationRewriteFilter extends ZuulFilter {
 			}
 		}
 		return null;
+	}
+
+	private RequestWrapper getRequest(RequestContext ctx) {
+		HttpServletRequest request = ctx.getRequest();
+		String requestUri = this.urlPathHelper.getPathWithinApplication(request);
+		HttpMethod method = HttpMethod.resolve(request.getMethod());
+		return RequestWrapper.from(requestUri, method);
 	}
 
 	private String getRestoredPath(ZuulProperties zuulProperties, Route route,

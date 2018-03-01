@@ -21,6 +21,7 @@ import java.util.List;
 
 /**
  * @author Dave Syer
+ * @author Arnold Galovics
  */
 public interface RouteLocator {
 
@@ -35,8 +36,7 @@ public interface RouteLocator {
 	List<Route> getRoutes();
 
 	/**
-	 * Maps a path to an actual route with full metadata.
+	 * Maps a request to an actual route with full metadata.
 	 */
-	Route getMatchingRoute(String path);
-
+	Route getMatchingRoute(RequestWrapper request);
 }
