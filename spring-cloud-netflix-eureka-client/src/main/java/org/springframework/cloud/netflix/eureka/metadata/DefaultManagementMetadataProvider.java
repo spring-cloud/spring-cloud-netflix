@@ -71,6 +71,9 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 
     private String refineManagementContextPath(String serverContextPath, String managementContextPath,
                                                Integer managementPort) {
+        if (managementContextPath != null && managementPort == null) {
+            return serverContextPath + managementContextPath;
+        }
         if(managementContextPath != null) {
             return managementContextPath;
         }
@@ -86,7 +89,8 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
             if (!contextPath.endsWith("/")) {
                 contextPath = contextPath + "/";
             }
-            URL base = new URL(scheme, hostname, port, contextPath);
+            String refinedContextPath = '/' + StringUtils.trimLeadingCharacter(contextPath, '/') ;
+            URL base = new URL(scheme, hostname, port, refinedContextPath);
             String refinedStatusPath = StringUtils.trimLeadingCharacter(statusPath, '/');
             return new URL(base, refinedStatusPath).toString();
         } catch (MalformedURLException e) {
