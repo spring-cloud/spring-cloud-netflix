@@ -20,12 +20,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
@@ -49,11 +49,11 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 
 	@Test
 	public void testLoadBalancedRetryFactoryBean() throws Exception {
-		Map<String, LoadBalancedRetryPolicyFactory> factories = context
-				.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
+		Map<String, LoadBalancedRetryFactory> factories = context
+				.getBeansOfType(LoadBalancedRetryFactory.class);
 		assertThat(factories.values(), hasSize(1));
 		assertThat(factories.values().toArray()[0],
-				instanceOf(RibbonLoadBalancedRetryPolicyFactory.class));
+				instanceOf(RibbonLoadBalancedRetryFactory.class));
 		Map<String, OkHttpLoadBalancingClient> clients = context
 				.getBeansOfType(OkHttpLoadBalancingClient.class);
 		assertThat(clients.values(), hasSize(1));

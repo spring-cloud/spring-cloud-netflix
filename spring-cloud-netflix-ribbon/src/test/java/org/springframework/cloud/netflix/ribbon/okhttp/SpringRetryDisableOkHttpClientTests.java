@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -52,9 +52,8 @@ public class SpringRetryDisableOkHttpClientTests {
 			.withUserConfiguration(
 				OkHttpLoadBalancingClientTests.OkHttpClientConfiguration.class)
 			.run(context -> {
-				Map<String, LoadBalancedRetryPolicyFactory> factories = context.getBeansOfType(LoadBalancedRetryPolicyFactory.class);
-				assertThat(factories.values(), hasSize(1));
-				assertThat(factories.values().toArray()[0], instanceOf(LoadBalancedRetryPolicyFactory.NeverRetryFactory.class));
+				Map<String, LoadBalancedRetryFactory> factories = context.getBeansOfType(LoadBalancedRetryFactory.class);
+				assertThat(factories.values(), hasSize(0));
 				Map<String, OkHttpLoadBalancingClient> clients = context.getBeansOfType(OkHttpLoadBalancingClient.class);
 				assertThat(clients.values(), hasSize(1));
 				assertThat(clients.values().toArray()[0], instanceOf(OkHttpLoadBalancingClient.class));
