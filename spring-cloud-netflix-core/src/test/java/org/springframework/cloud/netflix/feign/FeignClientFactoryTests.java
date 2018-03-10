@@ -57,24 +57,14 @@ public class FeignClientFactoryTests {
     @Test
     public void testGetSuitableBeanContexts() {
 
-        ConfigurableApplicationContext parent = new SpringApplicationBuilder().web(false).sources(BarFooConfig.class).run();
-
+        AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
+        parent.refresh();
         FeignContext context = new FeignContext();
         context.setApplicationContext(parent);
-        context.setConfigurations(Arrays.asList(getSpec("foo", FooConfig.class),
-                getSpec("bar", BarConfig.class), getSpec("service",ServiceConfig.class)));
+        context.setConfigurations(Arrays.asList(getSpec("service", ServiceConfig.class)));
 
-        Foo foo = context.getInstance("foo", Foo.class);
-        assertThat("foo was not null", foo, is(nullValue()));
-
-        Bar bar = context.getInstance("bar", Bar.class);
-        assertThat("bar was not null", bar, is(nullValue()));
-
-        Foo foo2 = context.getInstance("service", Foo.class);
+        Foo foo2 = context.getSuitableInstance("service", Foo.class);
         assertThat("foo was null", foo2, is(notNullValue()));
-
-        Bar bar2 = context.getInstance("service", Bar.class);
-        assertThat("bar2 was null", bar2, is(notNullValue()));
     }
 
 
@@ -100,22 +90,15 @@ public class FeignClientFactoryTests {
 	}
 	static class Bar{}
 
-    @Configuration
-    class BarFooConfig {
+    static class ServiceConfig {
         @Bean
-        Foo serviceFoo() {
+        Foo foo() {
             return new Foo();
         }
 
         @Bean
-        Bar serviceBar() {
-            return new Bar();
+        Foo serviceFoo() {
+            return new Foo();
         }
     }
-
-    static class ServiceConfig {
-
-    }
-
-
 }
