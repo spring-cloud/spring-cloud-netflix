@@ -124,7 +124,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	}
 
 	protected <T> T get(FeignContext context, Class<T> type) {
-		T instance = context.getInstance(this.name, type);
+		T instance = context.getSuitableInstance(this.name, type);
 		if (instance == null) {
 			throw new IllegalStateException("No bean found of type " + type + " for "
 					+ this.name);
@@ -133,7 +133,7 @@ class FeignClientFactoryBean implements FactoryBean<Object>, InitializingBean,
 	}
 
 	protected <T> T getOptional(FeignContext context, Class<T> type) {
-		return context.getInstance(this.name, type);
+		return context.getSuitableInstance(this.name, type);
 	}
 
 	protected <T> T loadBalance(Feign.Builder builder, FeignContext context,

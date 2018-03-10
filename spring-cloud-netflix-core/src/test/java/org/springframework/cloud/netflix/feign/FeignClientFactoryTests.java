@@ -20,8 +20,11 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 
@@ -49,6 +52,33 @@ public class FeignClientFactoryTests {
 		assertThat("bar was not null", foobar, is(nullValue()));
 	}
 
+
+
+    @Test
+    public void testGetSuitableBeanContexts() {
+
+        ConfigurableApplicationContext parent = new SpringApplicationBuilder().web(false).sources(BarFooConfig.class).run();
+
+        FeignContext context = new FeignContext();
+        context.setApplicationContext(parent);
+        context.setConfigurations(Arrays.asList(getSpec("foo", FooConfig.class),
+                getSpec("bar", BarConfig.class), getSpec("service",ServiceConfig.class)));
+
+        Foo foo = context.getInstance("foo", Foo.class);
+        assertThat("foo was not null", foo, is(nullValue()));
+
+        Bar bar = context.getInstance("bar", Bar.class);
+        assertThat("bar was not null", bar, is(nullValue()));
+
+        Foo foo2 = context.getInstance("service", Foo.class);
+        assertThat("foo was null", foo2, is(notNullValue()));
+
+        Bar bar2 = context.getInstance("service", Bar.class);
+        assertThat("bar2 was null", bar2, is(notNullValue()));
+    }
+
+
+
 	private FeignClientSpecification getSpec(String name, Class<?> configClass) {
 		return new FeignClientSpecification(name, new Class[]{configClass});
 	}
@@ -69,4 +99,23 @@ public class FeignClientFactoryTests {
 		}
 	}
 	static class Bar{}
+
+    @Configuration
+    class BarFooConfig {
+        @Bean
+        Foo serviceFoo() {
+            return new Foo();
+        }
+
+        @Bean
+        Bar serviceBar() {
+            return new Bar();
+        }
+    }
+
+    static class ServiceConfig {
+
+    }
+
+
 }
