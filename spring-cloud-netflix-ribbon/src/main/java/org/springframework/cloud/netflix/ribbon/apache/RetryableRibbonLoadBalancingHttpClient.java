@@ -44,6 +44,8 @@ import org.springframework.retry.backoff.NoBackOffPolicy;
 import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
@@ -54,8 +56,7 @@ import com.netflix.loadbalancer.Server;
  * @author Ryan Baxter
  * @author Gang Li
  */
-public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient
-		implements ServiceInstanceChooser {
+public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient {
 	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory = new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
 		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
@@ -158,7 +159,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	}
 
 	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
-													  RetryCallback<RibbonApacheHttpResponse, IOException> callback,
+													  RetryCallback<RibbonApacheHttpResponse, Exception> callback,
 													  RecoveryCallback<RibbonApacheHttpResponse> recoveryCallback) throws Exception {
 		RetryTemplate retryTemplate = new RetryTemplate();
 		boolean retryable = isRequestRetryable(request);
@@ -171,12 +172,6 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			retryTemplate.setListeners(retryListeners);
 		}
 		return retryTemplate.execute(callback, recoveryCallback);
-	}
-
-	@Override
-	public ServiceInstance choose(String serviceId) {
-		Server server = this.getLoadBalancer().chooseServer(serviceId);
-		return new RibbonLoadBalancerClient.RibbonServer(serviceId, server);
 	}
 
 	@Override
