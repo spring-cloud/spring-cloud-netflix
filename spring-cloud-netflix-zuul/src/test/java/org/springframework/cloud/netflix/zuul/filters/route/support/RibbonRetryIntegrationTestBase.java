@@ -30,13 +30,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicyFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -210,23 +210,23 @@ public abstract class RibbonRetryIntegrationTestBase {
 			extends RibbonClientConfiguration {
 
 		@Bean
-		public LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory(
+		public LoadBalancedRetryFactory loadBalancedRetryPolicyFactory(
 				SpringClientFactory factory) {
-			return new MyRibbonRetryPolicyFactory(factory);
+			return new MyRibbonRetryFactory(factory);
 		}
 
-		public static class MyRibbonRetryPolicyFactory
-				extends RibbonLoadBalancedRetryPolicyFactory {
+		public static class MyRibbonRetryFactory
+				extends RibbonLoadBalancedRetryFactory {
 
 			private SpringClientFactory factory;
 
-			public MyRibbonRetryPolicyFactory(SpringClientFactory clientFactory) {
+			public MyRibbonRetryFactory(SpringClientFactory clientFactory) {
 				super(clientFactory);
 				this.factory = clientFactory;
 			}
 
 			@Override
-			public LoadBalancedRetryPolicy create(String serviceId,
+			public LoadBalancedRetryPolicy createRetryPolicy(String serviceId,
 					ServiceInstanceChooser loadBalanceChooser) {
 				RibbonLoadBalancerContext lbContext = this.factory
 						.getLoadBalancerContext(serviceId);
