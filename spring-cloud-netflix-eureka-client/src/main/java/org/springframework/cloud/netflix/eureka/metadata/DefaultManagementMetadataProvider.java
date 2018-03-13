@@ -71,6 +71,7 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 
     private String refineManagementContextPath(String serverContextPath, String managementContextPath,
                                                Integer managementPort) {
+        // management context path is relative to server context path when no management port is set
         if (managementContextPath != null && managementPort == null) {
             return serverContextPath + managementContextPath;
         }
