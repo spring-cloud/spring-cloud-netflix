@@ -15,7 +15,6 @@
  */
 package org.springframework.cloud.netflix.ribbon.apache;
 
-import java.io.IOException;
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpResponse;
@@ -23,15 +22,12 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRecoveryCallback;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
-import org.springframework.cloud.client.loadbalancer.RibbonRecoveryCallback;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
@@ -45,11 +41,9 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.netflix.client.ClientException;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.Server;
 
 /**
  * An Apache HTTP client which leverages Spring Retry to retry failed requests.
@@ -57,50 +51,13 @@ import com.netflix.loadbalancer.Server;
  * @author Gang Li
  */
 public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient {
-	private LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory = new LoadBalancedRetryPolicyFactory.NeverRetryFactory();
-	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory =
-		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
-	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
-		new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
-
-	@Deprecated
-	//TODO remove in 2.0.x
-	public RetryableRibbonLoadBalancingHttpClient(IClientConfig config,
-			ServerIntrospector serverIntrospector,
-			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-		super(config, serverIntrospector);
-		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
-	}
-
-	@Deprecated
-	//TODO remove in 2.0.x
-	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
-			IClientConfig config, ServerIntrospector serverIntrospector,
-			LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory) {
-		super(delegate, config, serverIntrospector);
-		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
-	}
-
-	@Deprecated
-	//TODO remove in 2.0.x
-	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
-												  IClientConfig config, ServerIntrospector serverIntrospector,
-												  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
-												  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory) {
-		super(delegate, config, serverIntrospector);
-		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
-		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
-	}
+	private LoadBalancedRetryFactory loadBalancedRetryFactory;
 
 	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
 												  IClientConfig config, ServerIntrospector serverIntrospector,
-												  LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
-												  LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory,
-												  LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory) {
+												  LoadBalancedRetryFactory loadBalancedRetryFactory) {
 		super(delegate, config, serverIntrospector);
-		this.loadBalancedRetryPolicyFactory = loadBalancedRetryPolicyFactory;
-		this.loadBalancedBackOffPolicyFactory = loadBalancedBackOffPolicyFactory;
-		this.loadBalancedRetryListenerFactory = loadBalancedRetryListenerFactory;
+		this.loadBalancedRetryFactory = loadBalancedRetryFactory;
 	}
 
 	@Override
@@ -113,14 +70,15 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		builder.setRedirectsEnabled(ribbon.isFollowRedirects(this.followRedirects));
 
 		final RequestConfig requestConfig = builder.build();
-		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryPolicyFactory.create(this.getClientName(), this);
+		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryFactory.createRetryPolicy(this.getClientName(), this);
 
-		RetryCallback<RibbonApacheHttpResponse, IOException> retryCallback = context -> {
+		RetryCallback<RibbonApacheHttpResponse, Exception> retryCallback = context -> {
 			//on retries the policy will choose the server and set it in the context
 			//extract the server and update the request being made
 			RibbonApacheHttpRequest newRequest = request;
 			if (context instanceof LoadBalancedRetryContext) {
 				ServiceInstance service = ((LoadBalancedRetryContext) context).getServiceInstance();
+				validateServiceInstance(service);
 				if (service != null) {
 					//Reconstruct the request URI using the host and port set in the retry context
 					newRequest = newRequest.withNewUri(UriComponentsBuilder.newInstance().host(service.getHost())
@@ -139,7 +97,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			}
 			return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 		};
-		RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new RibbonRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
+		LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
 			@Override
 			protected RibbonApacheHttpResponse createResponse(HttpResponse response, URI uri) {
 				return new RibbonApacheHttpResponse(response, uri);
@@ -165,9 +123,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		boolean retryable = isRequestRetryable(request);
 		retryTemplate.setRetryPolicy(retryPolicy == null || !retryable ? new NeverRetryPolicy()
 				: new RetryPolicy(request, retryPolicy, this, this.getClientName()));
-		BackOffPolicy backOffPolicy = loadBalancedBackOffPolicyFactory.createBackOffPolicy(this.getClientName());
+		BackOffPolicy backOffPolicy = loadBalancedRetryFactory.createBackOffPolicy(this.getClientName());
 		retryTemplate.setBackOffPolicy(backOffPolicy == null ? new NoBackOffPolicy() : backOffPolicy);
-		RetryListener[] retryListeners = this.loadBalancedRetryListenerFactory.createRetryListeners(this.getClientName());
+		RetryListener[] retryListeners = this.loadBalancedRetryFactory.createRetryListeners(this.getClientName());
 		if (retryListeners != null && retryListeners.length != 0) {
 			retryTemplate.setListeners(retryListeners);
 		}
