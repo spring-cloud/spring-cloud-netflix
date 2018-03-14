@@ -48,6 +48,11 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	private InetUtils inetUtils;
 
 	/**
+	 * Default prefix for actuator endpoints
+	 */
+	private String actuatorPrefix = "/actuator";
+
+	/**
 	 * Get the name of the application to be registered with eureka.
 	 */
 	private String appname = UNKNOWN;
@@ -169,7 +174,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	 * status of this instance. Users can provide a simple HTML indicating what is the
 	 * current status of the instance.
 	 */
-	private String statusPageUrlPath = "/info";
+	private String statusPageUrlPath = actuatorPrefix + "/info";
 
 	/**
 	 * Gets the absolute status page URL path for this instance. The users can provide the
@@ -213,7 +218,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	 * instance - for example, it can be used to determine whether to proceed deployments
 	 * to an entire farm or stop the deployments without causing further damage.
 	 */
-	private String healthCheckUrlPath = "/health";
+	private String healthCheckUrlPath = actuatorPrefix + "/health";
 
 	/**
 	 * Gets the absolute health check page URL for this instance. The users can provide
