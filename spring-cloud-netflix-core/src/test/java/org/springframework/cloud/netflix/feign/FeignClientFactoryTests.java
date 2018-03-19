@@ -20,8 +20,11 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 
@@ -49,6 +52,23 @@ public class FeignClientFactoryTests {
 		assertThat("bar was not null", foobar, is(nullValue()));
 	}
 
+
+
+    @Test
+    public void testGetSuitableBeanContexts() {
+
+        AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
+        parent.refresh();
+        FeignContext context = new FeignContext();
+        context.setApplicationContext(parent);
+        context.setConfigurations(Arrays.asList(getSpec("service", ServiceConfig.class)));
+
+        Foo foo2 = context.getSuitableInstance("service", Foo.class);
+        assertThat("foo was null", foo2, is(notNullValue()));
+    }
+
+
+
 	private FeignClientSpecification getSpec(String name, Class<?> configClass) {
 		return new FeignClientSpecification(name, new Class[]{configClass});
 	}
@@ -69,4 +89,16 @@ public class FeignClientFactoryTests {
 		}
 	}
 	static class Bar{}
+
+    static class ServiceConfig {
+        @Bean
+        Foo foo() {
+            return new Foo();
+        }
+
+        @Bean
+        Foo serviceFoo() {
+            return new Foo();
+        }
+    }
 }
