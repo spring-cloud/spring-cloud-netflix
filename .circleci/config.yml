@@ -18,8 +18,8 @@ jobs:
       - run:
           name: "Download dependencies"
           command: |
-          cd spring-cloud-netflix-hystrix-contract && ../mvnw clean install && \
-          ./mvnw -s .settings.xml -U --fail-never dependency:go-offline || true
+            cd spring-cloud-netflix-hystrix-contract && ../mvnw clean install && \
+            ./mvnw -s .settings.xml -U --fail-never dependency:go-offline || true
       - save_cache:
           key: sc-netflix-{{ .Branch }}
           paths:
