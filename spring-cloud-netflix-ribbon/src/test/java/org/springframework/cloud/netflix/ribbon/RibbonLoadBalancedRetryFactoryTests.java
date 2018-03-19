@@ -57,7 +57,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Ryan Baxter
  */
-public class RibbonLoadBalancedRetryPolicyFactoryTests {
+public class RibbonLoadBalancedRetryFactoryTests {
 
 	@Mock
 	private SpringClientFactory clientFactory;
@@ -107,8 +107,8 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
 		clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
-		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
-		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		RibbonLoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.createRetryPolicy(server.getServiceId(), client);
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.GET).when(request).getMethod();
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
@@ -135,8 +135,8 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
 		clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
-		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
-		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		RibbonLoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.createRetryPolicy(server.getServiceId(), client);
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.POST).when(request).getMethod();
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
@@ -163,8 +163,8 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		doReturn(config).when(clientFactory).getClientConfig(eq(server.getServiceId()));
 		clientFactory.getLoadBalancerContext(server.getServiceId()).initWithNiwsConfig(config);
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
-		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
-		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		RibbonLoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.createRetryPolicy(server.getServiceId(), client);
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.POST).when(request).getMethod();
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
@@ -186,8 +186,8 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		doReturn("").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
 		clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
-		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
-		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		RibbonLoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.createRetryPolicy(server.getServiceId(), client);
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.GET).when(request).getMethod();
 		LoadBalancedRetryContext context = spy(new LoadBalancedRetryContext(null, request));
@@ -232,8 +232,8 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		
-		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
-		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		RibbonLoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.createRetryPolicy(server.getServiceId(), client);
 		HttpRequest request = mock(HttpRequest.class);
 		
 		LoadBalancedRetryContext context = spy(new LoadBalancedRetryContext(null, request));
@@ -260,8 +260,8 @@ public class RibbonLoadBalancedRetryPolicyFactoryTests {
 		doReturn("404, 418,502,foo, ,").when(config).getPropertyAsString(eq(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES),eq(""));
 		clientFactory.getLoadBalancerContext(server.getServiceId()).setRetryHandler(new DefaultLoadBalancerRetryHandler(config));
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
-		RibbonLoadBalancedRetryPolicyFactory factory = new RibbonLoadBalancedRetryPolicyFactory(clientFactory);
-		LoadBalancedRetryPolicy policy = factory.create(server.getServiceId(), client);
+		RibbonLoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
+		LoadBalancedRetryPolicy policy = factory.createRetryPolicy(server.getServiceId(), client);
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.GET).when(request).getMethod();
 		assertThat(policy.retryableStatusCode(400), is(false));

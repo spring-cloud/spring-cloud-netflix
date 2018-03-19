@@ -15,26 +15,38 @@
  */
 package org.springframework.cloud.netflix.ribbon;
 
+import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
+import org.springframework.retry.RetryListener;
+import org.springframework.retry.backoff.BackOffPolicy;
 
 /**
  * @author Ryan Baxter
  */
-public class RibbonLoadBalancedRetryPolicyFactory implements LoadBalancedRetryPolicyFactory {
+public class RibbonLoadBalancedRetryFactory implements LoadBalancedRetryFactory {
 
 	private SpringClientFactory clientFactory;
 
-	public RibbonLoadBalancedRetryPolicyFactory(SpringClientFactory clientFactory) {
+	public RibbonLoadBalancedRetryFactory(SpringClientFactory clientFactory) {
 		this.clientFactory = clientFactory;
 	}
 
 	@Override
-	public LoadBalancedRetryPolicy create(String serviceId, ServiceInstanceChooser loadBalanceChooser) {
+	public LoadBalancedRetryPolicy createRetryPolicy(String service, ServiceInstanceChooser serviceInstanceChooser) {
 		RibbonLoadBalancerContext lbContext = this.clientFactory
-				.getLoadBalancerContext(serviceId);
-		return new RibbonLoadBalancedRetryPolicy(serviceId, lbContext, loadBalanceChooser, clientFactory.getClientConfig(serviceId));
+				.getLoadBalancerContext(service);
+		return new RibbonLoadBalancedRetryPolicy(service, lbContext, serviceInstanceChooser, clientFactory.getClientConfig(service));
+	}
+
+	@Override
+	public RetryListener[] createRetryListeners(String service) {
+		return new RetryListener[0];
+	}
+
+	@Override
+	public BackOffPolicy createBackOffPolicy(String service) {
+		return null;
 	}
 }
 

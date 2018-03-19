@@ -209,9 +209,9 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().endsWith(":9999/info"));
+				instance.getStatusPageUrl().endsWith(":9999/actuator/info"));
 		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().endsWith(":9999/health"));
+				instance.getHealthCheckUrl().endsWith(":9999/actuator/health"));
 	}
 
 	@Test
@@ -223,9 +223,9 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().endsWith(":8989/management/info"));
+				instance.getStatusPageUrl().endsWith(":8989/management/actuator/info"));
 		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().endsWith(":8989/management/health"));
+				instance.getHealthCheckUrl().endsWith(":8989/management/actuator/health"));
 	}
 
 	@Test
@@ -298,9 +298,9 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals("statusPageUrl is wrong", "http://" + instance.getIpAddress() + ":9999/info",
+		assertEquals("statusPageUrl is wrong", "http://" + instance.getIpAddress() + ":9999/actuator/info",
 				instance.getStatusPageUrl());
-		assertEquals("healthCheckUrl is wrong", "http://" + instance.getIpAddress() + ":9999/health",
+		assertEquals("healthCheckUrl is wrong", "http://" + instance.getIpAddress() + ":9999/actuator/health",
 				instance.getHealthCheckUrl());
 	}
 
@@ -315,9 +315,9 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals("statusPageUrl is wrong", "http://192.168.13.90:9999/info",
+		assertEquals("statusPageUrl is wrong", "http://192.168.13.90:9999/actuator/info",
 				instance.getStatusPageUrl());
-		assertEquals("healthCheckUrl is wrong", "http://192.168.13.90:9999/health",
+		assertEquals("healthCheckUrl is wrong", "http://192.168.13.90:9999/actuator/health",
 				instance.getHealthCheckUrl());
 	}
 

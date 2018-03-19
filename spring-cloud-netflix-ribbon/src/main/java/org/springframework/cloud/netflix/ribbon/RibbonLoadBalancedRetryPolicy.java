@@ -138,7 +138,7 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 			serverStats.addToFailureCount();    				
 			LOGGER.debug(lbServer.getHostPort() + " RetryCount: " + context.getRetryCount() 
 				+ " Successive Failures: " + serverStats.getSuccessiveConnectionFailureCount() 
-				+ " CirtuitBreakerTripped:" + serverStats.isCircuitBreakerTripped());
+				+ " CircuitBreakerTripped:" + serverStats.isCircuitBreakerTripped());
 		}
 	}
 
