@@ -51,7 +51,7 @@ public class SpringClusterMonitor extends AggregateClusterMonitor {
 
 		private final DynamicStringProperty defaultUrlClosureConfig = DynamicPropertyFactory
 				.getInstance().getStringProperty("turbine.instanceUrlSuffix",
-						"hystrix.stream");
+						"actuator/hystrix.stream");
 		private final DynamicBooleanProperty instanceInsertPort = DynamicPropertyFactory
 				.getInstance().getBooleanProperty("turbine.instanceInsertPort", true);
 
