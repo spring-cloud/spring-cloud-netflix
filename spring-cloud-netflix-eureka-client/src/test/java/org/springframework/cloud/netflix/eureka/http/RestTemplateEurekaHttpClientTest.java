@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import com.netflix.discovery.shared.Applications;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,7 +106,8 @@ public class RestTemplateEurekaHttpClientTest {
 
 	@Test
 	public void testGetApplications() {
-		Assert.assertNotNull(eurekaHttpClient.getApplications().getEntity());
+		Applications entity = eurekaHttpClient.getApplications().getEntity();
+		Assert.assertNotNull(entity);
 		Assert.assertNotNull(eurekaHttpClient.getApplications("us", "eu").getEntity());
 	}
 
