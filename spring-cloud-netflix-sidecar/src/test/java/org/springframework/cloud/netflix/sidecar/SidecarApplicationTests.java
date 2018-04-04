@@ -74,7 +74,7 @@ public class SidecarApplicationTests {
 		@Test
 		public void testEurekaConfigBeanEurekaInstanceHostnamePropertyShouldBeUsed() {
 			assertThat(this.config.getAppname(), equalTo("mytest"));
-			assertThat(this.config.getHostname(), equalTo("127.0.0.1"));
+			assertThat(this.config.getHostname(), equalTo("mhhost1"));
 			assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
 			assertThat(this.config.getNonSecurePort(), equalTo(7000));
 		}
