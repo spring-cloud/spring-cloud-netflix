@@ -74,7 +74,25 @@ public class SidecarApplicationTests {
 		@Test
 		public void testEurekaConfigBeanEurekaInstanceHostnamePropertyShouldBeUsed() {
 			assertThat(this.config.getAppname(), equalTo("mytest"));
-			assertThat(this.config.getHostname(), equalTo("mhhost1"));
+			assertThat(this.config.getHostname(), equalTo("127.0.0.1"));
+			assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
+			assertThat(this.config.getNonSecurePort(), equalTo(7000));
+		}
+	}
+
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ip-address=10.0.0.1",
+			"eureka.instance.prefer-ip-address=true"})
+	public static class PreferIpAddressTest {
+		@Autowired
+		EurekaInstanceConfigBean config;
+
+		@Test
+		public void testEurekaConfigBeanPreferIpAddress() {
+			assertThat(this.config.getAppname(), equalTo("mytest"));
+			assertThat(this.config.getHostname(), equalTo("10.0.0.1"));
 			assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
 			assertThat(this.config.getNonSecurePort(), equalTo(7000));
 		}
