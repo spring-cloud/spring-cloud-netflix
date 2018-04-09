@@ -85,7 +85,10 @@ public class InstanceInfoFactory {
 		for (Map.Entry<String, String> mapEntry : config.getMetadataMap().entrySet()) {
 			String key = mapEntry.getKey();
 			String value = mapEntry.getValue();
-			builder.add(key, value);
+			// only add the metadata if the value is present
+			if (value != null && !value.isEmpty()) {
+				builder.add(key, value);
+			}
 		}
 
 		InstanceInfo instanceInfo = builder.build();
