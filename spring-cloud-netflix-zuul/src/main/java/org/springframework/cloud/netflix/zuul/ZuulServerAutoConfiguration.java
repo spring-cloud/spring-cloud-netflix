@@ -32,6 +32,8 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
+import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
+import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocator;
@@ -238,16 +240,28 @@ public class ZuulServerAutoConfiguration {
 		public void onApplicationEvent(ApplicationEvent event) {
 			if (event instanceof ContextRefreshedEvent
 					|| event instanceof RefreshScopeRefreshedEvent
-					|| event instanceof RoutesRefreshedEvent) {
-				this.zuulHandlerMapping.setDirty(true);
-			}
-			else if (event instanceof HeartbeatEvent) {
-				if (this.heartbeatMonitor.update(((HeartbeatEvent) event).getValue())) {
-					this.zuulHandlerMapping.setDirty(true);
-				}
-			}
+					|| event instanceof RoutesRefreshedEvent
+				    || event instanceof InstanceRegisteredEvent) {
+        		reset();
+        	}
+        	else if (event instanceof ParentHeartbeatEvent) {
+        		ParentHeartbeatEvent e = (ParentHeartbeatEvent) event;
+        		resetIfNeeded(e.getValue());
+        	}
+        	else if (event instanceof HeartbeatEvent) {
+        		HeartbeatEvent e = (HeartbeatEvent) event;
+        		resetIfNeeded(e.getValue());
+        	}
 		}
 
+        private void resetIfNeeded(Object value) {
+        	if (this.heartbeatMonitor.update(value)) {
+        		reset();
+        	}
+        }
+        
+        private void reset() {
+        	this.zuulHandlerMapping.setDirty(true);
+        }
 	}
-
 }
