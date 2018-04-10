@@ -16,11 +16,31 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +50,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -40,20 +59,6 @@ import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_ZUUL_DEBUG_HEADER;
-
 /**
  * @author Spencer Gibb
  */
@@ -62,7 +67,10 @@ public class SendResponseFilterTests {
 	@Before
 	public void setTestRequestcontext() {
 		RequestContext context = new RequestContext();
+		context.setRequest(new MockHttpServletRequest());
+		context.setResponse(new MockHttpServletResponse());
 		context.setResponseGZipped(false);
+		
 		RequestContext.testSetCurrentContext(context);
 	}
 
@@ -123,39 +131,80 @@ public class SendResponseFilterTests {
 	}
 
 	/*
-	 * GZip requested and GZip response -> Content-Length forwarded asis
+	 * GZip requested and GZip response -> Content-Length forwarded asis, response compressed
 	 */
 	@Test
 	public void runWithOriginContentLength_gzipRequested_gzipResponse() throws Exception {
 		ZuulProperties properties = new ZuulProperties();
 		properties.setSetContentLength(true);
 
-		SendResponseFilter filter = createFilter(properties, "hello", "UTF-8", new MockHttpServletResponse(), true);
-		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
+		SendResponseFilter filter = new SendResponseFilter(properties);
+		
+		byte[] gzipData = gzipData("hello");
+		
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for test
 		RequestContext.getCurrentContext().setResponseGZipped(true);
+		RequestContext.getCurrentContext().setResponseDataStream( new ByteArrayInputStream(gzipData) );
 		((MockHttpServletRequest) RequestContext.getCurrentContext().getRequest()).addHeader(ZuulHeaders.ACCEPT_ENCODING, "gzip");
 		
 		filter.run();
 
-		String contentLength = RequestContext.getCurrentContext().getResponse().getHeader("Content-Length");
-		assertThat("wrong origin content length", contentLength, equalTo("6"));
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Length")).isEqualTo(Integer.toString(gzipData.length));
+		assertThat(response.getHeader("Content-Encoding")).isEqualTo("gzip");
+		assertThat(response.getContentAsByteArray()).isEqualTo(gzipData);
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new ByteArrayInputStream(response.getContentAsByteArray()))));
+		assertThat(reader.readLine()).isEqualTo("hello");
 	}
 	
 	/*
-	 * GZip NOT requested and GZip response -> Content-Length discarded
+	 * GZip NOT requested and GZip response -> Content-Length discarded and response uncompressed
 	 */
 	@Test
 	public void runWithOriginContentLength_gzipNotRequested_gzipResponse() throws Exception {
 		ZuulProperties properties = new ZuulProperties();
 		properties.setSetContentLength(true);
 
-		SendResponseFilter filter = createFilter(properties, "hello", "UTF-8", new MockHttpServletResponse(), true);
-		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
+		SendResponseFilter filter = new SendResponseFilter(properties);
+		
+		byte[] gzipData = gzipData("hello");
+		
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for test
 		RequestContext.getCurrentContext().setResponseGZipped(true);
+		RequestContext.getCurrentContext().setResponseDataStream( new ByteArrayInputStream(gzipData) );
 		
 		filter.run();
 
-		assertThat(RequestContext.getCurrentContext().getResponse().getHeader("Content-Length")).isNull();
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Length")).isNull();
+		assertThat(response.getHeader("Content-Encoding")).isNull();
+		assertThat("wrong content", response.getContentAsString(), equalTo("hello"));
+	}
+	
+	/*
+	 * Origin sends a non gzip response with Content-Encoding: gzip 
+	 * Request does not support GZIP -> filter fails to uncompress and send stream "asis". Content-Length is NOT preserved.
+	 */
+	@Test
+	public void invalidGzipResponseFromOrigin() throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = new SendResponseFilter(properties);
+		
+		byte[] gzipData = "hello".getBytes();
+		
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for test
+		RequestContext.getCurrentContext().setResponseGZipped(true); // say it is GZipped although not the case
+		RequestContext.getCurrentContext().setResponseDataStream( new ByteArrayInputStream(gzipData) );
+		
+		filter.run();
+
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Length")).isNull();
+		assertThat(response.getHeader("Content-Encoding")).isNull();
+		assertThat("wrong content", response.getContentAsString(), equalTo("hello")); // response sent "asis"
 	}
 	
 	@Test
@@ -250,4 +299,13 @@ public class SendResponseFilterTests {
 		return filter;
 	}
 
+	private byte[] gzipData(String content) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		PrintWriter gzip = new PrintWriter(new GZIPOutputStream(bos));
+		gzip.print(content);
+		gzip.flush();
+		gzip.close();
+		
+		return bos.toByteArray();
+	}
 }
