@@ -36,6 +36,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.util.WebUtils;
 
+import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.context.Debug;
 import com.netflix.zuul.context.RequestContext;
 
@@ -61,6 +62,7 @@ public class SendResponseFilterTests {
 	@Before
 	public void setTestRequestcontext() {
 		RequestContext context = new RequestContext();
+		context.setResponseGZipped(false);
 		RequestContext.testSetCurrentContext(context);
 	}
 
@@ -102,6 +104,9 @@ public class SendResponseFilterTests {
 		assertThat("wrong debug header", debugHeader, equalTo("[[[test]]]"));
 	}
 
+	/*
+	 * GZip NOT requested and NOT a GZip response -> Content-Length forwarded asis
+	 */
 	@Test
 	public void runWithOriginContentLength() throws Exception {
 		ZuulProperties properties = new ZuulProperties();
@@ -117,6 +122,42 @@ public class SendResponseFilterTests {
 		assertThat("wrong origin content length", contentLength, equalTo("6"));
 	}
 
+	/*
+	 * GZip requested and GZip response -> Content-Length forwarded asis
+	 */
+	@Test
+	public void runWithOriginContentLength_gzipRequested_gzipResponse() throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = createFilter(properties, "hello", "UTF-8", new MockHttpServletResponse(), true);
+		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
+		RequestContext.getCurrentContext().setResponseGZipped(true);
+		((MockHttpServletRequest) RequestContext.getCurrentContext().getRequest()).addHeader(ZuulHeaders.ACCEPT_ENCODING, "gzip");
+		
+		filter.run();
+
+		String contentLength = RequestContext.getCurrentContext().getResponse().getHeader("Content-Length");
+		assertThat("wrong origin content length", contentLength, equalTo("6"));
+	}
+	
+	/*
+	 * GZip NOT requested and GZip response -> Content-Length discarded
+	 */
+	@Test
+	public void runWithOriginContentLength_gzipNotRequested_gzipResponse() throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = createFilter(properties, "hello", "UTF-8", new MockHttpServletResponse(), true);
+		RequestContext.getCurrentContext().setOriginContentLength(6L); // for test
+		RequestContext.getCurrentContext().setResponseGZipped(true);
+		
+		filter.run();
+
+		assertThat(RequestContext.getCurrentContext().getResponse().getHeader("Content-Length")).isNull();
+	}
+	
 	@Test
 	public void closeResponseOutputStreamError() throws Exception {
 		HttpServletResponse response = mock(HttpServletResponse.class);
@@ -126,6 +167,7 @@ public class SendResponseFilterTests {
 		context.setRequest(new MockHttpServletRequest());
 		context.setResponse(response);
 		context.setResponseDataStream(mockStream);
+		context.setResponseGZipped(false);
 		Closeable zuulResponse = mock(Closeable.class);
 		context.set("zuulResponse", zuulResponse);
 		RequestContext.testSetCurrentContext(context);
@@ -156,6 +198,7 @@ public class SendResponseFilterTests {
 		context.setRequest(new MockHttpServletRequest());
 		context.setResponse(response);
 		context.setResponseDataStream(mockStream);
+		context.setResponseGZipped(false);
 		Closeable zuulResponse = mock(Closeable.class);
 		context.set("zuulResponse", zuulResponse);
 		RequestContext.testSetCurrentContext(context);
@@ -200,8 +243,7 @@ public class SendResponseFilterTests {
 			context.setResponseBody(content);
 		}
 
-		context.addZuulResponseHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(content.length()));
-
+		context.setResponseGZipped(false);
 		context.set("error.status_code", HttpStatus.NOT_FOUND.value());
 		RequestContext.testSetCurrentContext(context);
 		SendResponseFilter filter = new SendResponseFilter(properties);
