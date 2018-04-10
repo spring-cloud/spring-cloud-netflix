@@ -735,7 +735,7 @@ public class TestConfiguration {
 In this case, the client is composed from the components already in `RibbonClientConfiguration`, together with any in `CustomConfiguration` (where the latter generally overrides the former).
 // TODO "generally"? We should link to the rules that dictate this behavior.
 
-WARNING: The `CuostomConfiguration` clas must be a `@Configuration` class, but take care that it is not in a `@ComponentScan` for the main application context.
+WARNING: The `CustomConfiguration` clas must be a `@Configuration` class, but take care that it is not in a `@ComponentScan` for the main application context.
 Otherwise, it is shared by all the `@RibbonClients`. If you use `@ComponentScan` (or `@SpringBootApplication`), you need to take steps to avoid it being included (for instance, you can put it in a separate, non-overlapping package or specify the packages to scan explicitly in the `@ComponentScan`).
 
 The following table shows the beans that Spring Cloud Netflix provides by default for Ribbon:
