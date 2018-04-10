@@ -240,18 +240,14 @@ public class SendResponseFilter extends ZuulFilter {
 				servletResponse.addHeader(it.first(), it.second());
 			}
 		}
-		// Only inserts Content-Length if origin provides it and origin response is not
-		// gzipped
-		if (this.zuulProperties.isSetContentLength()) {
+		if (includeContentLengthHeader(context)) {
 			Long contentLength = context.getOriginContentLength();
-			if ( contentLength != null && !context.getResponseGZipped()) {
-				if(useServlet31) {
-					servletResponse.setContentLengthLong(contentLength);
-				} else {
-					//Try and set some kind of content length if we can safely convert the Long to an int
-					if (isLongSafe(contentLength)) {
-						servletResponse.setContentLength(contentLength.intValue());
-					}
+			if(useServlet31) {
+				servletResponse.setContentLengthLong(contentLength);
+			} else {
+				//Try and set some kind of content length if we can safely convert the Long to an int
+				if (isLongSafe(contentLength)) {
+					servletResponse.setContentLength(contentLength.intValue());
 				}
 			}
 		}
@@ -261,4 +257,23 @@ public class SendResponseFilter extends ZuulFilter {
 		return value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE;
 	}
 
+	protected boolean includeContentLengthHeader(RequestContext context) {
+		// Not configured to forward the header
+		if (!this.zuulProperties.isSetContentLength()) {
+			return false;
+		}
+		
+		// Only if Content-Length is provided
+		if (context.getOriginContentLength() == null) {
+			return false;
+		}
+		
+		// If response is compressed, include header only if we are not about to decompress it
+		if (context.getResponseGZipped()) {
+			return context.isGzipRequested();
+		}
+		
+		// Forward it in all other cases
+		return true;
+	}
 }
