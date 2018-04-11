@@ -31,10 +31,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
-import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
-import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
-import org.springframework.cloud.client.discovery.event.ParentHeartbeatEvent;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
@@ -51,9 +47,6 @@ import org.springframework.cloud.netflix.zuul.filters.pre.PreDecorationFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilter;
-import org.springframework.cloud.netflix.zuul.web.ZuulHandlerMapping;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -135,11 +128,6 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	public ApplicationListener<ApplicationEvent> zuulDiscoveryRefreshRoutesListener() {
-		return new ZuulDiscoveryRefreshListener();
-	}
-
-	@Bean
 	@ConditionalOnMissingBean(ServiceRouteMapper.class)
 	public ServiceRouteMapper serviceRouteMapper() {
 		return new SimpleServiceRouteMapper();
@@ -190,41 +178,4 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 			return helper;
 		}
 	}
-
-	private static class ZuulDiscoveryRefreshListener
-			implements ApplicationListener<ApplicationEvent> {
-
-		private HeartbeatMonitor monitor = new HeartbeatMonitor();
-
-		@Autowired
-		private ZuulHandlerMapping zuulHandlerMapping;
-
-		@Override
-		public void onApplicationEvent(ApplicationEvent event) {
-			if (event instanceof InstanceRegisteredEvent) {
-				reset();
-			}
-			else if (event instanceof ParentHeartbeatEvent) {
-				ParentHeartbeatEvent e = (ParentHeartbeatEvent) event;
-				resetIfNeeded(e.getValue());
-			}
-			else if (event instanceof HeartbeatEvent) {
-				HeartbeatEvent e = (HeartbeatEvent) event;
-				resetIfNeeded(e.getValue());
-			}
-
-		}
-
-		private void resetIfNeeded(Object value) {
-			if (this.monitor.update(value)) {
-				reset();
-			}
-		}
-
-		private void reset() {
-			this.zuulHandlerMapping.setDirty(true);
-		}
-
-	}
-
 }
