@@ -319,7 +319,7 @@ public class SendResponseFilter extends ZuulFilter {
 		
 		@Override
 		public int read(byte[] b, int off, int len) throws IOException {
-			int read = super.read(b, off, len);
+			int read = delegate.read(b, off, len);
 			
 			if (buffer!=null && read!=-1) {
 				buffer.write(b, off, read);
