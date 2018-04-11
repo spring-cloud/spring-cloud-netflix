@@ -63,8 +63,8 @@ public class SendResponseFilter extends ZuulFilter {
 
 	@Deprecated
 	public SendResponseFilter() {
-	   	this(new ZuulProperties());
-    }
+		this(new ZuulProperties());
+	}
 
 	public SendResponseFilter(ZuulProperties zuulProperties) {
 		this.zuulProperties = zuulProperties;
@@ -134,18 +134,18 @@ public class SendResponseFilter extends ZuulFilter {
 								body.getBytes(servletResponse.getCharacterEncoding()));
 			}
 			else {
-    			is = context.getResponseDataStream();
-    			if (is!=null && context.getResponseGZipped()) {
-    				// if origin response is gzipped, and client has not requested gzip,
-    				// decompress stream before sending to client
-    				// else, stream gzip directly to client
-    				if (isGzipRequested(context)) {
-    					servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
-    				}
-    				else {
-    					is = handleGzipStream(is);
-    				}
-    			}
+			is = context.getResponseDataStream();
+			if (is!=null && context.getResponseGZipped()) {
+				// if origin response is gzipped, and client has not requested gzip,
+				// decompress stream before sending to client
+				// else, stream gzip directly to client
+				if (isGzipRequested(context)) {
+					servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
+				}
+				else {
+					is = handleGzipStream(is);
+				}
+			}
 			}
 			
 			if (is!=null) {
@@ -155,9 +155,9 @@ public class SendResponseFilter extends ZuulFilter {
 		finally {
 			/**
 			* We must ensure that the InputStream provided by our upstream pooling mechanism is ALWAYS closed
-		 	* even in the case of wrapped streams, which are supplied by pooled sources such as Apache's
-		 	* PoolingHttpClientConnectionManager. In that particular case, the underlying HTTP connection will
-		 	* be returned back to the connection pool iif either close() is explicitly called, a read
+			* even in the case of wrapped streams, which are supplied by pooled sources such as Apache's
+			* PoolingHttpClientConnectionManager. In that particular case, the underlying HTTP connection will
+			* be returned back to the connection pool iif either close() is explicitly called, a read
 			* error occurs, or the end of the underlying stream is reached. If, however a write error occurs, we will
 			* end up leaking a connection from the pool without an explicit close()
 			*
@@ -202,14 +202,14 @@ public class SendResponseFilter extends ZuulFilter {
 			}
 			else {
 				// reset the stream and assume an unencoded response
-    			log.warn(
-    					"gzip response expected but failed to read gzip headers, assuming unencoded response for request "
-    							+ RequestContext.getCurrentContext()
-    							.getRequest().getRequestURL()
-    							.toString());
+				log.warn(
+						"gzip response expected but failed to read gzip headers, assuming unencoded response for request "
+							+ RequestContext.getCurrentContext()
+							.getRequest().getRequestURL()
+							.toString());
 
-    			stream.reset();
-    			return stream;
+			stream.reset();
+			return stream;
 			}
 		}
 		finally {
