@@ -207,6 +207,31 @@ public class SendResponseFilterTests {
 		assertThat("wrong content", response.getContentAsString(), equalTo("hello")); // response sent "asis"
 	}
 	
+	/*
+	 * Empty response from origin with Content-Encoding: gzip
+	 * Request does not support GZIP -> filter should not fail in decoding the *empty* response stream
+	 */
+	@Test
+	public void emptyGzipResponseFromOrigin() throws Exception {
+		ZuulProperties properties = new ZuulProperties();
+		properties.setSetContentLength(true);
+
+		SendResponseFilter filter = new SendResponseFilter(properties);
+		
+		byte[] gzipData = new byte[] {};
+		
+		RequestContext.getCurrentContext().setResponseGZipped(true);
+		RequestContext.getCurrentContext().setResponseDataStream( new ByteArrayInputStream(gzipData) );
+		
+		filter.run();
+
+		MockHttpServletResponse response = (MockHttpServletResponse) RequestContext.getCurrentContext().getResponse();
+		assertThat(response.getHeader("Content-Length")).isNull();
+		assertThat(response.getHeader("Content-Encoding")).isNull();
+		assertThat(response.getContentAsByteArray(), equalTo(gzipData));
+	}
+	
+	
 	@Test
 	public void closeResponseOutputStreamError() throws Exception {
 		HttpServletResponse response = mock(HttpServletResponse.class);

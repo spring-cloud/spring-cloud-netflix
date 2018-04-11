@@ -134,18 +134,18 @@ public class SendResponseFilter extends ZuulFilter {
 								body.getBytes(servletResponse.getCharacterEncoding()));
 			}
 			else {
-			is = context.getResponseDataStream();
-			if (is!=null && context.getResponseGZipped()) {
-				// if origin response is gzipped, and client has not requested gzip,
-				// decompress stream before sending to client
-				// else, stream gzip directly to client
-				if (isGzipRequested(context)) {
-					servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
+				is = context.getResponseDataStream();
+				if (is!=null && context.getResponseGZipped()) {
+					// if origin response is gzipped, and client has not requested gzip,
+					// decompress stream before sending to client
+					// else, stream gzip directly to client
+					if (isGzipRequested(context)) {
+						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
+					}
+					else {
+						is = handleGzipStream(is);
+					}
 				}
-				else {
-					is = handleGzipStream(is);
-				}
-			}
 			}
 			
 			if (is!=null) {
@@ -194,7 +194,7 @@ public class SendResponseFilter extends ZuulFilter {
 		try {
 			return new GZIPInputStream(stream);
 		}
-		catch (java.util.zip.ZipException ex) {
+		catch (java.util.zip.ZipException | java.io.EOFException ex) {
 			
 			if (stream.getBytesRead()==0) {
 				// stream was empty, return the original "empty" stream
@@ -208,8 +208,8 @@ public class SendResponseFilter extends ZuulFilter {
 							.getRequest().getRequestURL()
 							.toString());
 
-			stream.reset();
-			return stream;
+				stream.reset();
+				return stream;
 			}
 		}
 		finally {
