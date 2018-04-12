@@ -17,11 +17,14 @@
 package org.springframework.cloud.netflix.zuul.filters.post;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.SequenceInputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
 import javax.servlet.http.HttpServletResponse;
@@ -60,8 +63,8 @@ public class SendResponseFilter extends ZuulFilter {
 
 	@Deprecated
 	public SendResponseFilter() {
-	   	this(new ZuulProperties());
-    }
+		this(new ZuulProperties());
+	}
 
 	public SendResponseFilter(ZuulProperties zuulProperties) {
 		this.zuulProperties = zuulProperties;
@@ -121,68 +124,40 @@ public class SendResponseFilter extends ZuulFilter {
 		if (servletResponse.getCharacterEncoding() == null) { // only set if not set
 			servletResponse.setCharacterEncoding("UTF-8");
 		}
+		
 		OutputStream outStream = servletResponse.getOutputStream();
 		InputStream is = null;
 		try {
-			if (RequestContext.getCurrentContext().getResponseBody() != null) {
-				String body = RequestContext.getCurrentContext().getResponseBody();
-				writeResponse(
-						new ByteArrayInputStream(
-								body.getBytes(servletResponse.getCharacterEncoding())),
-						outStream);
-				return;
+			if (context.getResponseBody() != null) {
+				String body = context.getResponseBody();
+				is = new ByteArrayInputStream(
+								body.getBytes(servletResponse.getCharacterEncoding()));
 			}
-			boolean isGzipRequested = false;
-			final String requestEncoding = context.getRequest()
-					.getHeader(ZuulHeaders.ACCEPT_ENCODING);
-
-			if (requestEncoding != null
-					&& HTTPRequestUtils.getInstance().isGzipped(requestEncoding)) {
-				isGzipRequested = true;
-			}
-			is = context.getResponseDataStream();
-			InputStream inputStream = is;
-			if (is != null) {
-				if (context.sendZuulResponse()) {
+			else {
+				is = context.getResponseDataStream();
+				if (is!=null && context.getResponseGZipped()) {
 					// if origin response is gzipped, and client has not requested gzip,
-					// decompress stream
-					// before sending to client
+					// decompress stream before sending to client
 					// else, stream gzip directly to client
-					if (context.getResponseGZipped() && !isGzipRequested) {
-						// If origin tell it's GZipped but the content is ZERO bytes,
-						// don't try to uncompress
-						final Long len = context.getOriginContentLength();
-						if (len == null || len > 0) {
-							try {
-								inputStream = new GZIPInputStream(is);
-							}
-							catch (java.util.zip.ZipException ex) {
-								log.debug(
-										"gzip expected but not "
-												+ "received assuming unencoded response "
-												+ RequestContext.getCurrentContext()
-												.getRequest().getRequestURL()
-												.toString());
-								inputStream = is;
-							}
-						}
-						else {
-							// Already done : inputStream = is;
-						}
-					}
-					else if (context.getResponseGZipped() && isGzipRequested) {
+					if (isGzipRequested(context)) {
 						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
 					}
-					writeResponse(inputStream, outStream);
+					else {
+						is = handleGzipStream(is);
+					}
 				}
+			}
+			
+			if (is!=null) {
+				writeResponse(is, outStream);
 			}
 		}
 		finally {
 			/**
 			* We must ensure that the InputStream provided by our upstream pooling mechanism is ALWAYS closed
-		 	* even in the case of wrapped streams, which are supplied by pooled sources such as Apache's
-		 	* PoolingHttpClientConnectionManager. In that particular case, the underlying HTTP connection will
-		 	* be returned back to the connection pool iif either close() is explicitly called, a read
+			* even in the case of wrapped streams, which are supplied by pooled sources such as Apache's
+			* PoolingHttpClientConnectionManager. In that particular case, the underlying HTTP connection will
+			* be returned back to the connection pool iif either close() is explicitly called, a read
 			* error occurs, or the end of the underlying stream is reached. If, however a write error occurs, we will
 			* end up leaking a connection from the pool without an explicit close()
 			*
@@ -198,8 +173,7 @@ public class SendResponseFilter extends ZuulFilter {
 			}
 
 			try {
-				Object zuulResponse = RequestContext.getCurrentContext()
-						.get("zuulResponse");
+				Object zuulResponse = context.get("zuulResponse");
 				if (zuulResponse instanceof Closeable) {
 					((Closeable) zuulResponse).close();
 				}
@@ -212,6 +186,47 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 	}
 
+	
+	protected InputStream handleGzipStream(InputStream in) throws Exception {
+		// Record bytes read during GZip initialization to allow to rewind the stream if needed
+		//
+		RecordingInputStream stream = new RecordingInputStream(in);
+		try {
+			return new GZIPInputStream(stream);
+		}
+		catch (java.util.zip.ZipException | java.io.EOFException ex) {
+			
+			if (stream.getBytesRead()==0) {
+				// stream was empty, return the original "empty" stream
+				return in;
+			}
+			else {
+				// reset the stream and assume an unencoded response
+				log.warn(
+						"gzip response expected but failed to read gzip headers, assuming unencoded response for request "
+							+ RequestContext.getCurrentContext()
+							.getRequest().getRequestURL()
+							.toString());
+
+				stream.reset();
+				return stream;
+			}
+		}
+		finally {
+			stream.stopRecording();
+		}
+	}
+
+	
+	protected boolean isGzipRequested(RequestContext context) {
+		final String requestEncoding = context.getRequest()
+				.getHeader(ZuulHeaders.ACCEPT_ENCODING);
+
+		return requestEncoding != null
+				&& HTTPRequestUtils.getInstance().isGzipped(requestEncoding);
+	}
+	
+	
 	private void writeResponse(InputStream zin, OutputStream out) throws Exception {
 		byte[] bytes = buffers.get();
 		int bytesRead = -1;
@@ -275,5 +290,64 @@ public class SendResponseFilter extends ZuulFilter {
 		
 		// Forward it in all other cases
 		return true;
+	}
+	
+	
+	/**
+	 * InputStream recording bytes read to allow for a reset() until recording is stopped.
+	 */
+	private static class RecordingInputStream extends InputStream {
+
+		private InputStream delegate;
+		private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		
+		public RecordingInputStream(InputStream delegate) {
+			super();
+			this.delegate = Objects.requireNonNull(delegate);
+		}
+		
+		@Override
+		public int read() throws IOException {
+			int read = delegate.read();
+			
+			if (buffer!=null && read!=-1) {
+				buffer.write(read);
+			}
+			
+			return read;
+		}
+		
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			int read = delegate.read(b, off, len);
+			
+			if (buffer!=null && read!=-1) {
+				buffer.write(b, off, read);
+			}
+			
+			return read;
+		}
+		
+		public void reset() {
+			if (buffer==null) {
+				throw new IllegalStateException("Stream is not recording");
+			}
+
+			this.delegate = new SequenceInputStream(new ByteArrayInputStream(buffer.toByteArray()), delegate);
+			this.buffer = new ByteArrayOutputStream();
+		}
+
+		public int getBytesRead() {
+			return (buffer==null)?-1:buffer.size();
+		}
+		
+		public void stopRecording() {
+			this.buffer = null;
+		}
+		
+		@Override
+		public void close() throws IOException {
+			this.delegate.close();
+		}
 	}
 }
