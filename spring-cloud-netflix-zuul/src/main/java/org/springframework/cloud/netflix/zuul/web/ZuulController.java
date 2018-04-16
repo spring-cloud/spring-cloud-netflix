@@ -16,9 +16,13 @@
 
 package org.springframework.cloud.netflix.zuul.web;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.ServletWrappingController;
 
@@ -38,15 +42,38 @@ public class ZuulController extends ServletWrappingController {
 
 	@Override
 	public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<Runnable> callbacks = new LinkedList<>();
+		RequestContext.getCurrentContext().put(FilterConstants.COMPLETION_CALLBACKS_KEY, callbacks);
+		
 		try {
 			// We don't care about the other features of the base class, just want to
 			// handle the request
 			return super.handleRequestInternal(request, response);
 		}
 		finally {
+			/*
+			 * Don't try retrieve the callback list from the RequestContext since ZuulServlet may have unset the 
+			 * context before returning. Instead use the local reference. 
+			 */
+			invokeCallbacks(callbacks);
+			
 			// @see com.netflix.zuul.context.ContextLifecycleFilter.doFilter
 			RequestContext.getCurrentContext().unset();
 		}
 	}
 
+	protected void invokeCallbacks(List<Runnable> callbacks) {
+		for(Runnable callback: callbacks) {
+			safelyInvoke(callback);
+		}
+	}
+
+	protected void safelyInvoke(Runnable runnable) {
+		try {
+			runnable.run();
+		}
+		catch(Exception e) {
+			logger.error("Exception received from callback", e);
+		}
+	}
 }

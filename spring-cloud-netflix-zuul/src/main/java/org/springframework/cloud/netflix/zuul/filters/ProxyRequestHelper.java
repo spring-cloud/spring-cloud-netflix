@@ -16,6 +16,9 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
+
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -37,16 +40,13 @@ import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.util.HTTPRequestUtils;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
-import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
-import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 
 /**
  * @author Dave Syer
@@ -174,6 +174,14 @@ public class ProxyRequestHelper {
 			}
 		}
 		context.setResponseGZipped(isOriginResponseGzipped);
+		
+		// register callbacks to dispose resources
+		RequestUtils.closeAfterRequestCompletion(entity);
+		
+		Object resp = RequestContext.getCurrentContext().get("zuulResponse");
+		if (resp instanceof Closeable) {
+    		RequestUtils.closeAfterRequestCompletion((Closeable)resp);
+		}
 	}
 
 	public void addIgnoredHeaders(String... names) {

@@ -16,9 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul.util;
 
-import com.netflix.zuul.context.RequestContext;
-
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY;
+
+import java.io.Closeable;
+import java.util.List;
+
+import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
+import org.springframework.util.ReflectionUtils;
+
+import com.netflix.zuul.context.RequestContext;
 
 public class RequestUtils {
 
@@ -35,5 +41,47 @@ public class RequestUtils {
 	public static boolean isZuulServletRequest() {
 		//extra check for dispatcher since ZuulServlet can run from ZuulController
 		return !isDispatcherServletRequest() && RequestContext.getCurrentContext().getZuulEngineRan();
-	}	
+	}
+
+	
+	/**
+	 * Register a {@link Runnable} to be invoked after the request is fully completed.
+	 * Can be used to dispose resources allocated during processing.
+	 * <p>
+	 * Note that the RequestContext has already been cleared when the callback method is invoked.
+	 * The callback must therefore record all the information it needs for its processing at the 
+	 * time it is registered.
+	 * 
+	 * @param callback the @link Runnable} to invoke after request processing is fully completed.
+	 */
+	public static void registerAfterRequestCompletionCallback(Runnable callback) {
+		@SuppressWarnings("unchecked")
+		List<Runnable> callbacks = (List<Runnable>) RequestContext.getCurrentContext().get(FilterConstants.COMPLETION_CALLBACKS_KEY);
+		if (callbacks==null) {
+			throw new IllegalStateException(FilterConstants.COMPLETION_CALLBACKS_KEY + " attribute not found. It should have been set by ZuulController before request execution. Did a filter clear the RequestContext during processing?");
+		}
+		callbacks.add(callback);
+	}
+	
+	/**
+	 * Convenience method used to register a callback to close the given {@code closeable} at 
+	 * request completion.
+	 * 
+	 * @param closeable the closeable to close at request completion.
+	 */
+	public static void closeAfterRequestCompletion(final Closeable closeable) {
+		if (closeable!=null) {
+    		RequestUtils.registerAfterRequestCompletionCallback(new Runnable() {
+    			@Override
+    			public void run() {
+    				try {
+    					closeable.close();
+    				}
+    				catch(Exception ex) {
+    					ReflectionUtils.rethrowRuntimeException(ex);
+    				}
+    			}	
+    		});
+		}
+	}
 }

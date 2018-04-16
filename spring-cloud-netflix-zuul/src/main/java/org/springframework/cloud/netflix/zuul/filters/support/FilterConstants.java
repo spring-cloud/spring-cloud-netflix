@@ -75,6 +75,9 @@ public class FilterConstants {
 	 */
 	public static final String LOAD_BALANCER_KEY = "loadBalancerKey";
 
+	
+	public static final String COMPLETION_CALLBACKS_KEY = "callbacks";
+	
 	// ORDER constants -----------------------------------
 
 	/**
