@@ -16,7 +16,6 @@
 package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.net.URI;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -110,10 +109,12 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	public boolean isClientRetryable(ContextAwareRequest request) {
 		return request!= null && isRequestRetryable(request);
 	}
-	
+
 	private boolean isRequestRetryable(ContextAwareRequest request) {
-		return request.getContext() == null ? true :
-			BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
+		if (request.getContext() == null || request.getContext().getRetryable() == null) {
+			return true;
+		}
+		return request.getContext().getRetryable();
 	}
 
 	private RibbonApacheHttpResponse executeWithRetry(RibbonApacheHttpRequest request, LoadBalancedRetryPolicy retryPolicy,
