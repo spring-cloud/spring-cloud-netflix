@@ -92,7 +92,7 @@ import static org.springframework.util.StreamUtils.copyToString;
  * @author Gang Li
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = SampleApplication.class,
+@SpringBootTest(classes = SimpleHostRoutingFilterTests.SampleApplication.class,
 		webEnvironment = RANDOM_PORT,
 		properties = {"server.servlet.contextPath: /app"})
 @DirtiesContext
@@ -119,13 +119,14 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void timeoutPropertiesAreApplied() {
 		addEnvironment(this.context, "zuul.host.socket-timeout-millis=11000",
-				"zuul.host.connect-timeout-millis=2100");
+				"zuul.host.connect-timeout-millis=2100", "zuul.host.connection-request-timeout-millis=2500");
 		setupContext();
 		CloseableHttpClient httpClient = getFilter().newClient();
 		Assertions.assertThat(httpClient).isInstanceOf(Configurable.class);
 		RequestConfig config = ((Configurable) httpClient).getConfig();
 		assertEquals(11000, config.getSocketTimeout());
 		assertEquals(2100, config.getConnectTimeout());
+		assertEquals(2500, config.getConnectionRequestTimeout());
 	}
 
 	@Test
@@ -180,7 +181,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -192,7 +193,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/compressed/get/1", inputStreamEntity,
-				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
 		assertEquals(200, response.getStatusLine().getStatusCode());
@@ -205,7 +206,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/get/1", inputStreamEntity,
-				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
 		assertEquals(200, response.getStatusLine().getStatusCode());
@@ -215,11 +216,11 @@ public class SimpleHostRoutingFilterTests {
 
 
 	@Test
-	public void redirectTest() throws Exception {
+	public void redirectTest() throws IOException {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/redirect", inputStreamEntity,
-				new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
 		assertEquals(302, response.getStatusLine().getStatusCode());
@@ -252,11 +253,11 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
-	public void putRequestBuiltWithBody() throws Exception {
+	public void putRequestBuiltWithBody() {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -264,11 +265,11 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
-	public void postRequestBuiltWithBody() throws Exception {
+	public void postRequestBuiltWithBody() {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -276,18 +277,18 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
-	public void pathRequestBuiltWithBody() throws Exception {
+	public void pathRequestBuiltWithBody() {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<String, String>(), new LinkedMultiValueMap<String, String>(), new MockHttpServletRequest());
+			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
 		assertTrue(basicHttpRequest.getEntity() != null);
 	}
 
 	@Test
-	public void shouldFilterFalse() throws Exception {
+	public void shouldFilterFalse() {
 		setupContext();
 		assertEquals(false, getFilter().shouldFilter());
 	}
@@ -301,7 +302,7 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
-	public void filterOrder() throws Exception {
+	public void filterOrder() {
 		setupContext();
 		assertEquals(100, getFilter().filterOrder());
 	}
@@ -351,45 +352,41 @@ public class SimpleHostRoutingFilterTests {
 			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties, connectionManagerFactory, clientFactory);
 		}
 	}
-}
 
-@Configuration
-@EnableAutoConfiguration
-@RestController
-class SampleApplication {
+    @Configuration
+    @EnableAutoConfiguration
+    @RestController
+    static class SampleApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SampleApplication.class, args);
-	}
+        @RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
+        public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
+            response.setHeader("content-encoding", "gzip");
+            return GZIPCompression.compress("Get " + id);
+        }
 
-	@RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
-	public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
-		response.setHeader("content-encoding", "gzip");
-		return GZIPCompression.compress("Get " + id);
-	}
+        @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+        public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
+            return "Get " + id;
+        }
 
-	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-	public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
-		return "Get " + id;
-	}
+        @RequestMapping(value = "/redirect", method = RequestMethod.GET)
+        public String redirect(HttpServletResponse response) throws IOException {
+            response.sendRedirect("/app/get/5");
+            return null;
+        }
+    }
 
-	@RequestMapping(value = "/redirect", method = RequestMethod.GET)
-	public String redirect(HttpServletResponse response) throws IOException {
-		response.sendRedirect("/app/get/5");
-		return null;
-	}
-}
+    static class GZIPCompression {
 
-class GZIPCompression {
-
-	public static byte[] compress(final String str) throws IOException {
-		if ((str == null) || (str.length() == 0)) {
-			return null;
-		}
-		ByteArrayOutputStream obj = new ByteArrayOutputStream();
-		GZIPOutputStream gzip = new GZIPOutputStream(obj);
-		gzip.write(str.getBytes("UTF-8"));
-		gzip.close();
-		return obj.toByteArray();
-	}
+        public static byte[] compress(final String str) throws IOException {
+            if ((str == null) || (str.length() == 0)) {
+                return null;
+            }
+            ByteArrayOutputStream obj = new ByteArrayOutputStream();
+            GZIPOutputStream gzip = new GZIPOutputStream(obj);
+            gzip.write(str.getBytes("UTF-8"));
+            gzip.close();
+            return obj.toByteArray();
+        }
+    }
 }

@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 
 import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -439,6 +440,11 @@ public class ZuulProperties {
 		 */
 		private int connectTimeoutMillis = 2000;
 		/**
+		 * The timeout in milliseconds used when requesting a connection
+		 * from the connection manager. Defaults to -1, undefined use the system default.
+		 */
+		private int connectionRequestTimeoutMillis = -1;
+		/**
 		 * The lifetime for the connection pool.
 		 */
 		private long timeToLive = -1;
@@ -493,6 +499,14 @@ public class ZuulProperties {
 			this.connectTimeoutMillis = connectTimeoutMillis;
 		}
 
+		public int getConnectionRequestTimeoutMillis() {
+			return connectionRequestTimeoutMillis;
+		}
+
+		public void setConnectionRequestTimeoutMillis(int connectionRequestTimeoutMillis) {
+			this.connectionRequestTimeoutMillis = connectionRequestTimeoutMillis;
+		}
+
 		public long getTimeToLive() {
 			return timeToLive;
 		}
@@ -518,26 +532,28 @@ public class ZuulProperties {
 					maxPerRouteConnections == host.maxPerRouteConnections &&
 					socketTimeoutMillis == host.socketTimeoutMillis &&
 					connectTimeoutMillis == host.connectTimeoutMillis &&
+					connectionRequestTimeoutMillis == host.connectionRequestTimeoutMillis &&
 					timeToLive == host.timeToLive &&
 					timeUnit == host.timeUnit;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(maxTotalConnections, maxPerRouteConnections, socketTimeoutMillis, connectTimeoutMillis, timeToLive, timeUnit);
+			return Objects.hash(maxTotalConnections, maxPerRouteConnections, socketTimeoutMillis, connectTimeoutMillis,
+					connectionRequestTimeoutMillis, timeToLive, timeUnit);
 		}
 
 		@Override
 		public String toString() {
-			final StringBuilder sb = new StringBuilder("Host{");
-			sb.append("maxTotalConnections=").append(maxTotalConnections);
-			sb.append(", maxPerRouteConnections=").append(maxPerRouteConnections);
-			sb.append(", socketTimeoutMillis=").append(socketTimeoutMillis);
-			sb.append(", connectTimeoutMillis=").append(connectTimeoutMillis);
-			sb.append(", timeToLive=").append(timeToLive);
-			sb.append(", timeUnit=").append(timeUnit);
-			sb.append('}');
-			return sb.toString();
+			return new ToStringCreator(this)
+					.append("maxTotalConnections", maxTotalConnections)
+					.append("maxPerRouteConnections", maxPerRouteConnections)
+					.append("socketTimeoutMillis", socketTimeoutMillis)
+					.append("connectTimeoutMillis", connectTimeoutMillis)
+					.append("connectionRequestTimeoutMillis", connectionRequestTimeoutMillis)
+					.append("timeToLive", timeToLive)
+					.append("timeUnit", timeUnit)
+					.toString();
 		}
 	}
 	

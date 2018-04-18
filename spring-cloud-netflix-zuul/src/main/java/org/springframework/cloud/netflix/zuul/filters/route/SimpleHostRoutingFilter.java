@@ -217,6 +217,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	protected CloseableHttpClient newClient() {
 		final RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectionRequestTimeout(this.hostProperties.getConnectionRequestTimeoutMillis())
 				.setSocketTimeout(this.hostProperties.getSocketTimeoutMillis())
 				.setConnectTimeout(this.hostProperties.getConnectTimeoutMillis())
 				.setCookieSpec(CookieSpecs.IGNORE_COOKIES).build();
