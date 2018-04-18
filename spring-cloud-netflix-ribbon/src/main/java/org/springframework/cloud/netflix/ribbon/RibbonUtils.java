@@ -1,9 +1,9 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.config.ConfigurationManager;
@@ -11,8 +11,9 @@ import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.loadbalancer.Server;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.netflix.client.config.CommonClientConfigKey.DeploymentContextBasedVipAddresses;
 import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity;
@@ -93,6 +94,30 @@ public class RibbonUtils {
 	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config, ServerIntrospector serverIntrospector,
 			Server server) {
 		return updateToSecureConnectionIfNeeded(uri, config, serverIntrospector, server);
+	}
+
+	/**
+	 * Replace the scheme to the secure variant if needed. If the {@link #unsecureSchemeMapping} map contains the uri
+	 * scheme and {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the scheme.
+	 * This assumes the uri is already encoded to avoid double encoding.
+	 *
+	 * @param uri
+	 * @param ribbonServer
+	 * @return
+	 */
+	static URI updateToSecureConnectionIfNeeded(URI uri, ServiceInstance ribbonServer) {
+		String scheme = uri.getScheme();
+
+		if (StringUtils.isEmpty(scheme)) {
+			scheme = "http";
+		}
+
+		if (!StringUtils.isEmpty(uri.toString())
+				&& unsecureSchemeMapping.containsKey(scheme)
+				&& ribbonServer.isSecure()) {
+			return upgradeConnection(uri, unsecureSchemeMapping.get(scheme));
+		}
+		return uri;
 	}
 
 	/**

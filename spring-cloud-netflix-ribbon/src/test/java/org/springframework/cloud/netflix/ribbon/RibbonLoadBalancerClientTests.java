@@ -22,21 +22,21 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.BaseLoadBalancer;
 import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerStats;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -69,13 +69,23 @@ public class RibbonLoadBalancerClientTests {
 	@Mock
 	private ServerStats serverStats;
 
+	private Server server = null;
+
 	@Before
 	public void init() {
+		server = null;
 		MockitoAnnotations.initMocks(this);
 		given(this.clientFactory.getLoadBalancerContext(anyString())).willReturn(
 				new RibbonLoadBalancerContext(this.loadBalancer));
 		given(this.clientFactory.getInstance(anyString(), eq(ServerIntrospector.class)))
 				.willReturn(new DefaultServerIntrospector() {
+
+					@Override
+					public boolean isSecure(Server server) {
+						RibbonLoadBalancerClientTests.this.server = server;
+						return super.isSecure(server);
+					}
+
 					@Override
 					public Map<String, String> getMetadata(Server server) {
 						return Collections.singletonMap("mykey", "myvalue");
@@ -102,6 +112,8 @@ public class RibbonLoadBalancerClientTests {
 		assertThat(uri).hasScheme(scheme)
 				.hasHost(serviceInstance.getHost())
 				.hasPort(serviceInstance.getPort());
+		assertThat(this.server).isNotNull()
+				.isInstanceOf(MyServer.class);
 	}
 
 	@Test
@@ -256,13 +268,21 @@ public class RibbonLoadBalancerClientTests {
 	}
 
 	protected RibbonServer getRibbonServer() {
-		return new RibbonServer("testService", new Server("myhost", 9080), false,
+		return new RibbonServer("testService", new MyServer("myhost", 9080), false,
 				Collections.singletonMap("mykey", "myvalue"));
 	}
 
 	protected RibbonServer getSecureRibbonServer() {
-		return new RibbonServer("testService", new Server("myhost", 8443), false,
+		return new RibbonServer("testService", new MyServer("myhost", 8443), false,
 				Collections.singletonMap("mykey", "myvalue"));
+	}
+
+	protected static class MyServer extends Server {
+
+		public MyServer(String host, int port) {
+			super(host, port);
+		}
+
 	}
 
 	protected void verifyServerStats() {

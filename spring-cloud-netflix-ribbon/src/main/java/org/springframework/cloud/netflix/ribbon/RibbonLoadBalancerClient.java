@@ -20,15 +20,19 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
+
+import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
 /**
  * @author Spencer Gibb
@@ -50,11 +54,20 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		String serviceId = instance.getServiceId();
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
-		Server server = new Server(instance.getScheme(), instance.getHost(), instance.getPort());
-		IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
-		ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
-		URI uri = RibbonUtils.updateToSecureConnectionIfNeeded(original, clientConfig,
-				serverIntrospector, server);
+
+		URI uri;
+		Server server;
+		if (instance instanceof RibbonServer) {
+			RibbonServer ribbonServer = (RibbonServer) instance;
+			server = ribbonServer.getServer();
+			uri = updateToSecureConnectionIfNeeded(original, ribbonServer);
+		} else {
+			server = new Server(instance.getScheme(), instance.getHost(), instance.getPort());
+			IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
+			ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
+			uri = updateToSecureConnectionIfNeeded(original, clientConfig,
+					serverIntrospector, server);
+		}
 		return context.reconstructURIWithServer(server, uri);
 	}
 
