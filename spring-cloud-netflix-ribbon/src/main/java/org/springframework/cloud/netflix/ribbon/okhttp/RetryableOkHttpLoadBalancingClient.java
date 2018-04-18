@@ -21,7 +21,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import java.net.URI;
-import org.apache.commons.lang.BooleanUtils;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRecoveryCallback;
@@ -67,8 +66,10 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 	}
 	
 	private boolean isRequestRetryable(ContextAwareRequest request) {
-		return request.getContext() == null ? true :
-			BooleanUtils.toBooleanDefaultIfNull(request.getContext().getRetryable(), true);
+	    if (request.getContext() == null || request.getContext().getRetryable() == null) {
+	    	return true;
+		}
+		return request.getContext().getRetryable();
 	}
 	
 	private OkHttpRibbonResponse executeWithRetry(OkHttpRibbonRequest request, LoadBalancedRetryPolicy retryPolicy,
