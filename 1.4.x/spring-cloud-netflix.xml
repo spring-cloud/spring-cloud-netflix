@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2018-04-13</date>
+<date>2018-04-23</date>
 </info>
 <preface>
 <title></title>
@@ -182,9 +182,9 @@ implementing your own <literal>com.netflix.appinfo.HealthCheckHandler</literal>.
 <section xml:id="_eureka_metadata_for_instances_and_clients">
 <title>Eureka Metadata for Instances and Clients</title>
 <simpara>It&#8217;s worth spending a bit of time understanding how the Eureka metadata works, so you can use it in a way that makes sense in your platform. There is standard metadata for things like hostname, IP address, port numbers, status page and health check. These are published in the service registry and used by clients to contact the services in a straightforward way. Additional metadata can be added to the instance registration in the <literal>eureka.instance.metadataMap</literal>, and this will be accessible in the remote clients, but in general will not change the behaviour of the client, unless it is made aware of the meaning of the metadata. There are a couple of special cases described below where Spring Cloud already assigns meaning to the metadata map.</simpara>
-<section xml:id="_using_eureka_on_cloudfoundry">
-<title>Using Eureka on Cloudfoundry</title>
-<simpara>Cloudfoundry has a global router so that all instances of the same app have the same hostname (it&#8217;s the same in other PaaS solutions with a similar architecture). This isn&#8217;t necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). By default, the <literal>eureka.instance.instanceId</literal> is <literal>vcap.application.instance_id</literal>. For example:</simpara>
+<section xml:id="_using_eureka_on_cloud_foundry">
+<title>Using Eureka on Cloud Foundry</title>
+<simpara>Cloud Foundry has a global router so that all instances of the same app have the same hostname (it&#8217;s the same in other PaaS solutions with a similar architecture). This isn&#8217;t necessarily a barrier to using Eureka, but if you use the router (recommended, or even mandatory depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router. You might also want to use instance metadata so you can distinguish between the instances on the client (e.g. in a custom load balancer). By default, the <literal>eureka.instance.instanceId</literal> is <literal>vcap.application.instance_id</literal>. For example:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
@@ -194,7 +194,7 @@ implementing your own <literal>com.netflix.appinfo.HealthCheckHandler</literal>.
     nonSecurePort: 80</screen>
 </para>
 </formalpara>
-<simpara>Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (<link xl:href="https://run.pivotal.io">PWS</link>).</simpara>
+<simpara>Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls. This feature is not (yet) available on Pivotal Web Services (<link xl:href="https://run.pivotal.io">PWS</link>).</simpara>
 </section>
 <section xml:id="_using_eureka_on_aws">
 <title>Using Eureka on AWS</title>
@@ -222,7 +222,7 @@ public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
 </formalpara>
 <simpara>With this metadata, and multiple service instances deployed on
 localhost, the random value will kick in there to make the instance
-unique. In Cloudfoundry the <literal>vcap.application.instance_id</literal> will be
+unique. In Cloud Foundry the <literal>vcap.application.instance_id</literal> will be
 populated automatically in a Spring Boot application, so the
 random value will not be needed.</simpara>
 </section>
