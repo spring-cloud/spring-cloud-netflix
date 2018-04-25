@@ -134,7 +134,7 @@ public class EurekaClientAutoConfiguration {
 															 ManagementMetadataProvider managementMetadataProvider) {
 		String hostname = getProperty("eureka.instance.hostname");
 		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
-		String ipAddress = getProperty("eureka.instance.ipAddress");
+		String ipAddress = getProperty("eureka.instance.ip-address");
 		boolean isSecurePortEnabled = Boolean.parseBoolean(getProperty("eureka.instance.secure-port-enabled"));
 
 		String serverContextPath = env.getProperty("server.context-path", "/");
