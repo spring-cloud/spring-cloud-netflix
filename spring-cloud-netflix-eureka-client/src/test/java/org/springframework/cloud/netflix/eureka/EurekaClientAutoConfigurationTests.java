@@ -292,7 +292,7 @@ public class EurekaClientAutoConfigurationTests {
 	public void statusPageUrlAndPreferIpAddress() {
 		TestPropertyValues.of( "server.port=8989",
 				"management.server.port=9999", "eureka.instance.hostname=foo",
-				"eureka.instance.preferIpAddress:true").applyTo(this.context);
+				"eureka.instance.prefer-ip-address:true").applyTo(this.context);
 
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
@@ -308,8 +308,8 @@ public class EurekaClientAutoConfigurationTests {
 	public void statusPageAndHealthCheckUrlsShouldSetUserDefinedIpAddress() {
 		addEnvironment(this.context, "server.port=8989",
 				"management.server.port=9999", "eureka.instance.hostname=foo",
-				"eureka.instance.ipAddress:192.168.13.90",
-				"eureka.instance.preferIpAddress:true");
+				"eureka.instance.ip-address:192.168.13.90",
+				"eureka.instance.prefer-ip-address:true");
 
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
