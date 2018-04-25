@@ -60,26 +60,6 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	public boolean isClientRetryable(ContextAwareRequest request) {
 		return false;
 	}
-	
-	@Deprecated
-	public AbstractLoadBalancingClient() {
-		super(null);
-		this.config = new DefaultClientConfigImpl();
-		this.delegate = createDelegate(this.config);
-		this.serverIntrospector = new DefaultServerIntrospector();
-		this.setRetryHandler(RetryHandler.DEFAULT);
-		initWithNiwsConfig(config);
-	}
-
-	@Deprecated
-	public AbstractLoadBalancingClient(final ILoadBalancer lb) {
-		super(lb);
-		this.config = new DefaultClientConfigImpl();
-		this.delegate = createDelegate(config);
-		this.serverIntrospector = new DefaultServerIntrospector();
-		this.setRetryHandler(RetryHandler.DEFAULT);
-		initWithNiwsConfig(config);
-	}
 
 	protected AbstractLoadBalancingClient(IClientConfig config, ServerIntrospector serverIntrospector) {
 		super(null);
