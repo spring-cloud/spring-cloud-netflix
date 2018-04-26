@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2018-04-26</date>
+<date>2018-04-07</date>
 </info>
 <preface>
 <title></title>
@@ -641,7 +641,7 @@ public class TestConfiguration {
 }</programlisting>
 <simpara>In this case, the client is composed from the components already in <literal>RibbonClientConfiguration</literal>, together with any in <literal>CustomConfiguration</literal> (where the latter generally overrides the former).</simpara>
 <warning>
-<simpara>The <literal>CustomConfiguration</literal> clas must be a <literal>@Configuration</literal> class, but take care that it is not in a <literal>@ComponentScan</literal> for the main application context.
+<simpara>The <literal>CuostomConfiguration</literal> clas must be a <literal>@Configuration</literal> class, but take care that it is not in a <literal>@ComponentScan</literal> for the main application context.
 Otherwise, it is shared by all the <literal>@RibbonClients</literal>. If you use <literal>@ComponentScan</literal> (or <literal>@SpringBootApplication</literal>), you need to take steps to avoid it being included (for instance, you can put it in a separate, non-overlapping package or specify the packages to scan explicitly in the <literal>@ComponentScan</literal>).</simpara>
 </warning>
 <simpara>The following table shows the beans that Spring Cloud Netflix provides by default for Ribbon:</simpara>
