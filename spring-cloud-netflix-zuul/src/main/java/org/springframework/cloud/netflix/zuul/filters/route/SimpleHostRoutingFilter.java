@@ -31,10 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.Header;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
+import org.apache.http.*;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -93,6 +90,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private HttpClientConnectionManager connectionManager;
 	private CloseableHttpClient httpClient;
 	private boolean customHttpClient = false;
+	private boolean useServlet31 = true;
 
 	@EventListener
 	public void onPropertyChange(EnvironmentChangeEvent event) {
@@ -159,6 +157,14 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
 				}
 			}, 30000, 5000);
+
+			// To support Servlet API 3.1 we need to check if getContentLengthLong exists
+			// Spring 5 minimum support is 3.0, so this stays
+			try {
+				HttpServletRequest.class.getMethod("getContentLengthLong");
+			} catch(NoSuchMethodException e) {
+				useServlet31 = false;
+			}
 		}
 	}
 
@@ -193,7 +199,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
 		InputStream requestEntity = getRequestBody(request);
-		if (request.getContentLength() < 0) {
+		if (getContentLength(request) < 0) {
 			context.setChunkedRequestBody();
 		}
 
@@ -235,7 +241,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
 		uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
-		int contentLength = request.getContentLength();
+		long contentLength = getContentLength(request);
 
 		ContentType contentType = null;
 
@@ -381,5 +387,17 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	 */
 	boolean isSslHostnameValidationEnabled() {
 		return this.sslHostnameValidationEnabled;
+	}
+
+	// Get the header value as a long in order to more correctly proxy very large requests
+	protected long getContentLength(HttpServletRequest request) {
+		if(useServlet31){
+			return request.getContentLengthLong();
+		}
+		String contentLengthHeader = request.getHeader(HttpHeaders.CONTENT_LENGTH);
+		if (contentLengthHeader != null) {
+			return Long.parseLong(contentLengthHeader);
+		}
+		return request.getContentLength();
 	}
 }
