@@ -113,7 +113,7 @@ public class SimpleHostRoutingFilterTests {
 	public void setup() {
 		CounterFactory.initialize(new EmptyCounterFactory());
 
-        RequestContext.testSetCurrentContext(new RequestContext());
+		RequestContext.testSetCurrentContext(new RequestContext());
 	}
 
 	@After
@@ -123,7 +123,7 @@ public class SimpleHostRoutingFilterTests {
 		}
 		CounterFactory.initialize(null);
 
-        RequestContext.testSetCurrentContext(null);
+		RequestContext.testSetCurrentContext(null);
 		RequestContext.getCurrentContext().clear();
 	}
 
@@ -146,7 +146,7 @@ public class SimpleHostRoutingFilterTests {
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
 				"zuul.host.timeUnit=SECONDS");
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -160,7 +160,7 @@ public class SimpleHostRoutingFilterTests {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
-		return (T)value;
+		return (T) value;
 	}
 
 	@Test
@@ -181,7 +181,7 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -240,116 +240,116 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void contentLengthNegativeTest() throws IOException {
-        contentLengthTest(-1L);
-    }
+		contentLengthTest(-1L);
+	}
 
-    @Test
-    public void contentLengthZeroTest() throws IOException {
-        contentLengthTest(0L);
-    }
+	@Test
+	public void contentLengthZeroTest() throws IOException {
+		contentLengthTest(0L);
+	}
 
-    @Test
-    public void contentLengthOneTest() throws IOException {
-        contentLengthTest( 1L);
-    }
+	@Test
+	public void contentLengthOneTest() throws IOException {
+		contentLengthTest(1L);
+	}
 
-    @Test
-    public void contentLength1KbTest() throws IOException {
-        contentLengthTest( 1000L);
-    }
+	@Test
+	public void contentLength1KbTest() throws IOException {
+		contentLengthTest(1000L);
+	}
 
-    @Test
-    public void contentLength1MbTest() throws IOException {
-        contentLengthTest( 1000000L);
-    }
+	@Test
+	public void contentLength1MbTest() throws IOException {
+		contentLengthTest(1000000L);
+	}
 
-    @Test
-    public void contentLength1GbTest() throws IOException {
-        contentLengthTest(
-                1000000000L);
-    }
+	@Test
+	public void contentLength1GbTest() throws IOException {
+		contentLengthTest(
+				1000000000L);
+	}
 
-    @Test
-    public void contentLength2GbTest() throws IOException {
-        contentLengthTest( 2000000000L);
-    }
+	@Test
+	public void contentLength2GbTest() throws IOException {
+		contentLengthTest(2000000000L);
+	}
 
-    @Test
-    public void contentLength3GbTest() throws IOException {
-        contentLengthTest( 3000000000L);
-    }
+	@Test
+	public void contentLength3GbTest() throws IOException {
+		contentLengthTest(3000000000L);
+	}
 
-    @Test
-    public void contentLength4GbTest() throws IOException {
-        contentLengthTest( 4000000000L);
-    }
+	@Test
+	public void contentLength4GbTest() throws IOException {
+		contentLengthTest(4000000000L);
+	}
 
-    @Test
-    public void contentLength5GbTest() throws IOException {
-        contentLengthTest( 5000000000L);
-    }
+	@Test
+	public void contentLength5GbTest() throws IOException {
+		contentLengthTest(5000000000L);
+	}
 
-    @Test
-    public void contentLength6GbTest() throws IOException {
-        contentLengthTest( 6000000000L);
+	@Test
+	public void contentLength6GbTest() throws IOException {
+		contentLengthTest(6000000000L);
 	}
 
 	public void contentLengthTest(Long contentLength) throws IOException {
-        setupContext();
-        byte[] data = "poprqwueproqiwuerpoqweiurpo".getBytes();
-        MockMultipartFile file = new MockMultipartFile("test.zip", "test.zip",
-                "application/zip", data);
-        MockMultipartHttpServletRequest mockRequest = new MockMultipartHttpServletRequest(){
-            @Override
-            public int getContentLength() {
-                return Long.valueOf(getHeader(HttpHeaders.CONTENT_LENGTH)).intValue();
-            }
+		setupContext();
+		byte[] data = "poprqwueproqiwuerpoqweiurpo".getBytes();
+		MockMultipartFile file = new MockMultipartFile("test.zip", "test.zip",
+				"application/zip", data);
+		MockMultipartHttpServletRequest mockRequest = new MockMultipartHttpServletRequest() {
+			@Override
+			public int getContentLength() {
+				return Long.valueOf(getHeader(HttpHeaders.CONTENT_LENGTH)).intValue();
+			}
 
-            @Override
-            public long getContentLengthLong() {
-                return Long.valueOf(getHeader(HttpHeaders.CONTENT_LENGTH));
-            }
-        };
-        String boundary = "q1w2e3r4t5y6u7i8o9";
-        mockRequest.setContentType("multipart/form-data; boundary="+boundary);
-        mockRequest.setContent(createFileContent(data,boundary,"application/zip","test.zip"));
-        mockRequest.addFile(file);
-        mockRequest.setMethod("POST");
-        mockRequest.setParameter("variant", "php");
-        mockRequest.setParameter("os", "mac");
-        mockRequest.setParameter("version", "3.4");
-        mockRequest.addHeader(HttpHeaders.CONTENT_LENGTH, contentLength);
-        mockRequest.setRequestURI("/app/echo");
+			@Override
+			public long getContentLengthLong() {
+				return Long.valueOf(getHeader(HttpHeaders.CONTENT_LENGTH));
+			}
+		};
+		String boundary = "q1w2e3r4t5y6u7i8o9";
+		mockRequest.setContentType("multipart/form-data; boundary=" + boundary);
+		mockRequest.setContent(createFileContent(data, boundary, "application/zip", "test.zip"));
+		mockRequest.addFile(file);
+		mockRequest.setMethod("POST");
+		mockRequest.setParameter("variant", "php");
+		mockRequest.setParameter("os", "mac");
+		mockRequest.setParameter("version", "3.4");
+		mockRequest.addHeader(HttpHeaders.CONTENT_LENGTH, contentLength);
+		mockRequest.setRequestURI("/app/echo");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        RequestContext.getCurrentContext().setRequest(mockRequest);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContext.getCurrentContext().setRequest(mockRequest);
 //        RequestContext.getCurrentContext().setOriginContentLength(4000000000l);
-        RequestContext.getCurrentContext().setResponse(new MockHttpServletResponse());
-        URL url = new URL("http://localhost:" + this.port);
-        RequestContext.getCurrentContext().set("routeHost", url);
-        getFilter().run();
+		RequestContext.getCurrentContext().setResponse(new MockHttpServletResponse());
+		URL url = new URL("http://localhost:" + this.port);
+		RequestContext.getCurrentContext().set("routeHost", url);
+		getFilter().run();
 
-        String responseString = IOUtils.toString(
-                new GZIPInputStream(
-                        ((CloseableHttpResponse)RequestContext.getCurrentContext().get("zuulResponse"))
-                                .getEntity().getContent()));
-        assertTrue(!responseString.isEmpty());
-        if(contentLength < 0){
-            assertThat(responseString, containsString("\"" + HttpHeaders.TRANSFER_ENCODING.toLowerCase() + "\":\"chunked\""));
-            assertThat(responseString, not(containsString(HttpHeaders.CONTENT_LENGTH.toLowerCase())));
-        }
-        else {
-            assertThat(responseString, containsString("\"" + HttpHeaders.CONTENT_LENGTH.toLowerCase() + "\":\"" + contentLength + "\""));
-        }
-    }
+		String responseString = IOUtils.toString(
+				new GZIPInputStream(
+						((CloseableHttpResponse) RequestContext.getCurrentContext().get("zuulResponse"))
+								.getEntity().getContent()));
+		assertTrue(!responseString.isEmpty());
+		if (contentLength < 0) {
+			assertThat(responseString, containsString("\"" + HttpHeaders.TRANSFER_ENCODING.toLowerCase() + "\":\"chunked\""));
+			assertThat(responseString, not(containsString(HttpHeaders.CONTENT_LENGTH.toLowerCase())));
+		} else {
+			assertThat(responseString, containsString("\"" + HttpHeaders.CONTENT_LENGTH.toLowerCase() + "\":\"" + contentLength + "\""));
+		}
+	}
 
-    public byte[] createFileContent(byte[] data, String boundary, String contentType, String fileName){
-        String start = "--" + boundary + "\r\n Content-Disposition: form-data; name=\"file\"; filename=\""+fileName+"\"\r\n"
-                + "Content-type: "+contentType+"\r\n\r\n";;
+	public byte[] createFileContent(byte[] data, String boundary, String contentType, String fileName) {
+		String start = "--" + boundary + "\r\n Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"\r\n"
+				+ "Content-type: " + contentType + "\r\n\r\n";
+		;
 
-        String end = "\r\n--" + boundary + "--"; // correction suggested @butfly
-        return ArrayUtils.addAll(start.getBytes(), ArrayUtils.addAll(data,end.getBytes()));
-    }
+		String end = "\r\n--" + boundary + "--"; // correction suggested @butfly
+		return ArrayUtils.addAll(start.getBytes(), ArrayUtils.addAll(data, end.getBytes()));
+	}
 
 	@Test
 	public void zuulHostKeysUpdateHttpClient() {
@@ -380,7 +380,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -392,7 +392,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -404,7 +404,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
 		assertTrue(basicHttpRequest.getEntity() != null);
@@ -463,10 +463,14 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(HttpClientBuilder.create()); }
+		ApacheHttpClientFactory clientFactory() {
+			return new DefaultApacheHttpClientFactory(HttpClientBuilder.create());
+		}
 
 		@Bean
-		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() { return new DefaultApacheHttpClientConnectionManagerFactory(); }
+		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() {
+			return new DefaultApacheHttpClientConnectionManagerFactory();
+		}
 
 		@Bean
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
@@ -476,22 +480,22 @@ public class SimpleHostRoutingFilterTests {
 		}
 	}
 
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-    static class SampleApplication {
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	static class SampleApplication {
 
 
-        @RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
-        public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
-            response.setHeader("content-encoding", "gzip");
-            return GZIPCompression.compress("Get " + id);
-        }
+		@RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
+		public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
+			response.setHeader("content-encoding", "gzip");
+			return GZIPCompression.compress("Get " + id);
+		}
 
-        @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-        public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
-            return "Get " + id;
-        }
+		@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+		public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
+			return "Get " + id;
+		}
 
 		@RequestMapping(value = "/redirect", method = RequestMethod.GET)
 		public String redirect(HttpServletResponse response) throws IOException {
@@ -501,30 +505,30 @@ public class SimpleHostRoutingFilterTests {
 
 		@RequestMapping(value = "/echo")
 		public Map<String, Object> echoRequestAttributes(@RequestHeader HttpHeaders httpHeaders, HttpServletRequest request) throws IOException {
-        	Map<String, Object> result = new HashMap<>();
-        	result.put("headers", httpHeaders.toSingleValueMap());
+			Map<String, Object> result = new HashMap<>();
+			result.put("headers", httpHeaders.toSingleValueMap());
 
 			return result;
 		}
 
-        @Bean
-        MultipartConfigElement multipartConfigElement() {
-            long maxSize = 10l * 1024 * 1024 * 1024;
-            return new MultipartConfigElement("", maxSize, maxSize, 0);
-        }
-    }
+		@Bean
+		MultipartConfigElement multipartConfigElement() {
+			long maxSize = 10l * 1024 * 1024 * 1024;
+			return new MultipartConfigElement("", maxSize, maxSize, 0);
+		}
+	}
 
-    static class GZIPCompression {
+	static class GZIPCompression {
 
-        public static byte[] compress(final String str) throws IOException {
-            if ((str == null) || (str.length() == 0)) {
-                return null;
-            }
-            ByteArrayOutputStream obj = new ByteArrayOutputStream();
-            GZIPOutputStream gzip = new GZIPOutputStream(obj);
-            gzip.write(str.getBytes("UTF-8"));
-            gzip.close();
-            return obj.toByteArray();
-        }
-    }
+		public static byte[] compress(final String str) throws IOException {
+			if ((str == null) || (str.length() == 0)) {
+				return null;
+			}
+			ByteArrayOutputStream obj = new ByteArrayOutputStream();
+			GZIPOutputStream gzip = new GZIPOutputStream(obj);
+			gzip.write(str.getBytes("UTF-8"));
+			gzip.close();
+			return obj.toByteArray();
+		}
+	}
 }
