@@ -17,6 +17,25 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.monitoring.CounterFactory;
 import org.apache.commons.io.IOUtils;
@@ -37,11 +56,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientConnectionManagerFactory;
@@ -64,29 +84,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 import static org.springframework.util.StreamUtils.copyToByteArray;
@@ -146,7 +155,7 @@ public class SimpleHostRoutingFilterTests {
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
 				"zuul.host.timeUnit=SECONDS");
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -160,7 +169,7 @@ public class SimpleHostRoutingFilterTests {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
-		return (T) value;
+		return (T)value;
 	}
 
 	@Test
@@ -181,7 +190,7 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -240,6 +249,11 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void contentLengthNegativeTest() throws IOException {
+		contentLengthTest(-1000L);
+	}
+
+	@Test
+	public void contentLengthNegativeOneTest() throws IOException {
 		contentLengthTest(-1L);
 	}
 
@@ -265,8 +279,7 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void contentLength1GbTest() throws IOException {
-		contentLengthTest(
-				1000000000L);
+		contentLengthTest(1000000000L);
 	}
 
 	@Test
@@ -294,61 +307,213 @@ public class SimpleHostRoutingFilterTests {
 		contentLengthTest(6000000000L);
 	}
 
+	@Test
+	public void contentLengthServlet30WithHeaderNegativeTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(-1000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeaderNegativeOneTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(-1L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeaderZeroTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(0L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeaderOneTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(1L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader1KbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(1000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader1MbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(1000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader1GbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(1000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader2GbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(2000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader3GbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(3000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader4GbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(4000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader5GbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(5000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithHeader6GbTest() throws IOException {
+		contentLengthServlet30WithHeaderTest(6000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeaderNegativeTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(-1000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeaderNegativeOneTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(-1L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeaderZeroTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(0L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeaderOneTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(1L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader1KbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(1000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader1MbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(1000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader1GbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(1000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader2GbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(2000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader3GbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(3000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader4GbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(4000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader5GbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(5000000000L);
+	}
+
+	@Test
+	public void contentLengthServlet30WithoutHeader6GbTest() throws IOException {
+		contentLengthServlet30WithoutHeaderTest(6000000000L);
+	}
+
 	public void contentLengthTest(Long contentLength) throws IOException {
 		setupContext();
-		byte[] data = "poprqwueproqiwuerpoqweiurpo".getBytes();
-		MockMultipartFile file = new MockMultipartFile("test.zip", "test.zip",
-				"application/zip", data);
-		MockMultipartHttpServletRequest mockRequest = new MockMultipartHttpServletRequest() {
+		
+		contentLengthTest(contentLength, getFilter(), getMockedReqest(contentLength));
+	}
+
+	public void contentLengthServlet30WithHeaderTest(Long contentLength) throws IOException {
+		setupContext();
+		MockMultipartHttpServletRequest request = getMockedReqest(contentLength);
+		request.addHeader(HttpHeaders.CONTENT_LENGTH, contentLength);
+		contentLengthTest(contentLength, getServlet30Filter(), request);
+	}
+
+	public void contentLengthServlet30WithoutHeaderTest(Long contentLength) throws IOException {
+		setupContext();
+
+		//Although contentLength.intValue is not always equals to contentLength, that's the expected result when calling
+		// request.getContentLength() from servlet 3.0 implementation.
+		contentLengthTest(Long.parseLong("" + contentLength.intValue()), getServlet30Filter(), getMockedReqest(contentLength));
+	}
+
+	public MockMultipartHttpServletRequest getMockedReqest(Long contentLength) throws IOException {
+
+		MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest() {
 			@Override
 			public int getContentLength() {
-				return Long.valueOf(getHeader(HttpHeaders.CONTENT_LENGTH)).intValue();
+				return contentLength.intValue();
 			}
 
 			@Override
 			public long getContentLengthLong() {
-				return Long.valueOf(getHeader(HttpHeaders.CONTENT_LENGTH));
+				return contentLength;
 			}
 		};
+
+		return request;
+	}
+
+	public void contentLengthTest(Long expectedContentLength, SimpleHostRoutingFilter filter, MockMultipartHttpServletRequest request) throws IOException {
+		byte[] data = "poprqwueproqiwuerpoqweiurpo".getBytes();
+		MockMultipartFile file = new MockMultipartFile("test.zip", "test.zip",
+				"application/zip", data);
 		String boundary = "q1w2e3r4t5y6u7i8o9";
-		mockRequest.setContentType("multipart/form-data; boundary=" + boundary);
-		mockRequest.setContent(createFileContent(data, boundary, "application/zip", "test.zip"));
-		mockRequest.addFile(file);
-		mockRequest.setMethod("POST");
-		mockRequest.setParameter("variant", "php");
-		mockRequest.setParameter("os", "mac");
-		mockRequest.setParameter("version", "3.4");
-		mockRequest.addHeader(HttpHeaders.CONTENT_LENGTH, contentLength);
-		mockRequest.setRequestURI("/app/echo");
+		request.setContentType("multipart/form-data; boundary=" + boundary);
+		request.setContent(
+				createFileContent(data, boundary, "application/zip", "test.zip"));
+		request.addFile(file);
+		request.setMethod("POST");
+		request.setParameter("variant", "php");
+		request.setParameter("os", "mac");
+		request.setParameter("version", "3.4");
+		request.setRequestURI("/app/echo");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		RequestContext.getCurrentContext().setRequest(mockRequest);
-//        RequestContext.getCurrentContext().setOriginContentLength(4000000000l);
+		RequestContext.getCurrentContext().setRequest(request);
 		RequestContext.getCurrentContext().setResponse(new MockHttpServletResponse());
 		URL url = new URL("http://localhost:" + this.port);
 		RequestContext.getCurrentContext().set("routeHost", url);
-		getFilter().run();
+		filter.run();
 
-		String responseString = IOUtils.toString(
-				new GZIPInputStream(
-						((CloseableHttpResponse) RequestContext.getCurrentContext().get("zuulResponse"))
-								.getEntity().getContent()));
+		String responseString = IOUtils.toString(new GZIPInputStream(
+				((CloseableHttpResponse) RequestContext.getCurrentContext()
+						.get("zuulResponse")).getEntity().getContent()));
 		assertTrue(!responseString.isEmpty());
-		if (contentLength < 0) {
-			assertThat(responseString, containsString("\"" + HttpHeaders.TRANSFER_ENCODING.toLowerCase() + "\":\"chunked\""));
-			assertThat(responseString, not(containsString(HttpHeaders.CONTENT_LENGTH.toLowerCase())));
-		} else {
-			assertThat(responseString, containsString("\"" + HttpHeaders.CONTENT_LENGTH.toLowerCase() + "\":\"" + contentLength + "\""));
+		if (expectedContentLength < 0) {
+			assertThat(responseString, containsString("\""
+					+ HttpHeaders.TRANSFER_ENCODING.toLowerCase() + "\":\"chunked\""));
+			assertThat(responseString,
+					not(containsString(HttpHeaders.CONTENT_LENGTH.toLowerCase())));
+		}
+		else {
+			assertThat(responseString,
+					containsString("\"" + HttpHeaders.CONTENT_LENGTH.toLowerCase()
+							+ "\":\"" + expectedContentLength + "\""));
 		}
 	}
 
-	public byte[] createFileContent(byte[] data, String boundary, String contentType, String fileName) {
-		String start = "--" + boundary + "\r\n Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"\r\n"
-				+ "Content-type: " + contentType + "\r\n\r\n";
+	public byte[] createFileContent(byte[] data, String boundary, String contentType,
+			String fileName) {
+		String start = "--" + boundary
+				+ "\r\n Content-Disposition: form-data; name=\"file\"; filename=\""
+				+ fileName + "\"\r\n" + "Content-type: " + contentType + "\r\n\r\n";
 		;
 
 		String end = "\r\n--" + boundary + "--"; // correction suggested @butfly
-		return ArrayUtils.addAll(start.getBytes(), ArrayUtils.addAll(data, end.getBytes()));
+		return ArrayUtils.addAll(start.getBytes(),
+				ArrayUtils.addAll(data, end.getBytes()));
 	}
 
 	@Test
@@ -380,7 +545,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -392,7 +557,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -404,7 +569,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
 		assertTrue(basicHttpRequest.getEntity() != null);
@@ -454,6 +619,12 @@ public class SimpleHostRoutingFilterTests {
 		return this.context.getBean(SimpleHostRoutingFilter.class);
 	}
 
+	private SimpleHostRoutingFilter getServlet30Filter() {
+		SimpleHostRoutingFilter filter = getFilter();
+		filter.setUseServlet31(false);
+		return filter;
+	}
+
 	@Configuration
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
@@ -463,14 +634,10 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		ApacheHttpClientFactory clientFactory() {
-			return new DefaultApacheHttpClientFactory(HttpClientBuilder.create());
-		}
+		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(HttpClientBuilder.create()); }
 
 		@Bean
-		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() {
-			return new DefaultApacheHttpClientConnectionManagerFactory();
-		}
+		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() { return new DefaultApacheHttpClientConnectionManagerFactory(); }
 
 		@Bean
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
@@ -480,28 +647,27 @@ public class SimpleHostRoutingFilterTests {
 		}
 	}
 
-	@Configuration
-	@EnableAutoConfiguration
-	@RestController
-	static class SampleApplication {
+    @Configuration
+    @EnableAutoConfiguration
+    @RestController
+    static class SampleApplication {
 
+        @RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
+        public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
+            response.setHeader("content-encoding", "gzip");
+            return GZIPCompression.compress("Get " + id);
+        }
 
-		@RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
-		public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
-			response.setHeader("content-encoding", "gzip");
-			return GZIPCompression.compress("Get " + id);
-		}
+        @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+        public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
+            return "Get " + id;
+        }
 
-		@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-		public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
-			return "Get " + id;
-		}
-
-		@RequestMapping(value = "/redirect", method = RequestMethod.GET)
-		public String redirect(HttpServletResponse response) throws IOException {
-			response.sendRedirect("/app/get/5");
-			return null;
-		}
+        @RequestMapping(value = "/redirect", method = RequestMethod.GET)
+        public String redirect(HttpServletResponse response) throws IOException {
+            response.sendRedirect("/app/get/5");
+            return null;
+        }
 
 		@RequestMapping(value = "/echo")
 		public Map<String, Object> echoRequestAttributes(@RequestHeader HttpHeaders httpHeaders, HttpServletRequest request) throws IOException {
@@ -516,19 +682,19 @@ public class SimpleHostRoutingFilterTests {
 			long maxSize = 10l * 1024 * 1024 * 1024;
 			return new MultipartConfigElement("", maxSize, maxSize, 0);
 		}
-	}
+    }
 
-	static class GZIPCompression {
+    static class GZIPCompression {
 
-		public static byte[] compress(final String str) throws IOException {
-			if ((str == null) || (str.length() == 0)) {
-				return null;
-			}
-			ByteArrayOutputStream obj = new ByteArrayOutputStream();
-			GZIPOutputStream gzip = new GZIPOutputStream(obj);
-			gzip.write(str.getBytes("UTF-8"));
-			gzip.close();
-			return obj.toByteArray();
-		}
-	}
+        public static byte[] compress(final String str) throws IOException {
+            if ((str == null) || (str.length() == 0)) {
+                return null;
+            }
+            ByteArrayOutputStream obj = new ByteArrayOutputStream();
+            GZIPOutputStream gzip = new GZIPOutputStream(obj);
+            gzip.write(str.getBytes("UTF-8"));
+            gzip.close();
+            return obj.toByteArray();
+        }
+    }
 }

@@ -31,7 +31,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -53,6 +57,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
 import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -125,6 +130,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.isForceOriginalQueryStringEncoding();
 		this.connectionManagerFactory = connectionManagerFactory;
 		this.httpClientFactory = httpClientFactory;
+		checkServletVersion();
 	}
 
 	public SimpleHostRoutingFilter(ProxyRequestHelper helper, ZuulProperties properties,
@@ -136,6 +142,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				.isForceOriginalQueryStringEncoding();
 		this.httpClient = httpClient;
 		this.customHttpClient = true;
+		checkServletVersion();
 	}
 
 	@PostConstruct
@@ -157,14 +164,6 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 					SimpleHostRoutingFilter.this.connectionManager.closeExpiredConnections();
 				}
 			}, 30000, 5000);
-
-			// To support Servlet API 3.1 we need to check if getContentLengthLong exists
-			// Spring 5 minimum support is 3.0, so this stays
-			try {
-				HttpServletRequest.class.getMethod("getContentLengthLong");
-			} catch(NoSuchMethodException e) {
-				useServlet31 = false;
-			}
 		}
 	}
 
@@ -215,6 +214,21 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			throw new ZuulRuntimeException(ex);
 		}
 		return null;
+	}
+
+	protected void checkServletVersion() {
+		// To support Servlet API 3.1 we need to check if getContentLengthLong exists
+		// Spring 5 minimum support is 3.0, so this stays
+		try {
+			HttpServletRequest.class.getMethod("getContentLengthLong");
+			useServlet31 = true;
+		} catch(NoSuchMethodException e) {
+			useServlet31 = false;
+		}
+	}
+
+	protected void setUseServlet31(boolean useServlet31) {
+		this.useServlet31 = useServlet31;
 	}
 
 	protected HttpClientConnectionManager getConnectionManager() {
