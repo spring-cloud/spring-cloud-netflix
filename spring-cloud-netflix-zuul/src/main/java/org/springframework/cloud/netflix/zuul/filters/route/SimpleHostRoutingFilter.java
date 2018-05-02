@@ -410,7 +410,10 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 		}
 		String contentLengthHeader = request.getHeader(HttpHeaders.CONTENT_LENGTH);
 		if (contentLengthHeader != null) {
-			return Long.parseLong(contentLengthHeader);
+			try {
+				return Long.parseLong(contentLengthHeader);
+			}
+			catch (NumberFormatException e){}
 		}
 		return request.getContentLength();
 	}

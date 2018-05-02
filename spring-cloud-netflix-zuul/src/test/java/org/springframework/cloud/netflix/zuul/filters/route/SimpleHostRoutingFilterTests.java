@@ -368,6 +368,14 @@ public class SimpleHostRoutingFilterTests {
 	}
 
 	@Test
+	public void contentLengthServlet30WithInvalidLongHeaderTest() throws IOException {
+		setupContext();
+		MockMultipartHttpServletRequest request = getMockedReqest(-1L);
+		request.addHeader(HttpHeaders.CONTENT_LENGTH, "InvalidLong");
+		contentLengthTest(-1L, getServlet30Filter(), request);
+	}
+
+	@Test
 	public void contentLengthServlet30WithoutHeaderNegativeTest() throws IOException {
 		contentLengthServlet30WithoutHeaderTest(-1000L);
 	}
