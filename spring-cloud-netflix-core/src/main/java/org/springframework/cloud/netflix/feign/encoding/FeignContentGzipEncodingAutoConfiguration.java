@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.feign.encoding;
 
 import feign.Client;
 import feign.Feign;
-import okhttp3.OkHttpClient;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -42,7 +41,7 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnBean(Client.class)
 //The OK HTTP client uses "transparent" compression.
 //If the content-encoding header is present it disable transparent compression
-@ConditionalOnMissingBean(OkHttpClient.class)
+@ConditionalOnMissingBean(type = "okhttp3.OkHttpClient")
 @ConditionalOnProperty(value = "feign.compression.request.enabled", matchIfMissing = false)
 @AutoConfigureAfter(FeignAutoConfiguration.class)
 public class FeignContentGzipEncodingAutoConfiguration {
