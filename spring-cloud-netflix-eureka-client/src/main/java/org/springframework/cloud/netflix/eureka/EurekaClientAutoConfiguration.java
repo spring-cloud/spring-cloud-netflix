@@ -81,6 +81,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
  * @author Matt Jenkins
  * @author Ryan Baxter
  * @author Daniel Lavoie
+ * @author Yan Na
  */
 @Configuration
 @EnableConfigurationProperties
@@ -146,7 +147,7 @@ public class EurekaClientAutoConfiguration {
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
 		instance.setNonSecurePort(serverPort);
-		instance.setInstanceId(getDefaultInstanceId(env));
+		instance.setInstanceId(getDefaultInstanceId(env,String.valueOf(serverPort)));
 		instance.setPreferIpAddress(preferIpAddress);
 		instance.setSecurePortEnabled(isSecurePortEnabled);
 		if (StringUtils.hasText(ipAddress)) {
