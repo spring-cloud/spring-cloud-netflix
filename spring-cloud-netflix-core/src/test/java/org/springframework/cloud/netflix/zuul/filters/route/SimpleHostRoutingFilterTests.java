@@ -48,6 +48,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
@@ -109,11 +110,19 @@ public class SimpleHostRoutingFilterTests {
 	@LocalServerPort
 	private int port;
 
+	@Before
+	public void setup() {
+		RequestContext.testSetCurrentContext(new RequestContext());
+	}
+
 	@After
 	public void clear() {
 		if (this.context != null) {
 			this.context.close();
 		}
+
+		RequestContext.testSetCurrentContext(null);
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
