@@ -604,16 +604,15 @@ If you want the native Netflix behavior built into Turbine to <emphasis>not</emp
 <simpara>In some environments (such as in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands does not work.
 In that case, you might want to have your Hystrix commands push metrics to Turbine. Spring Cloud enables that with messaging.
 To do so on the client, add a dependency to <literal>spring-cloud-netflix-hystrix-stream</literal> and the <literal>spring-cloud-starter-stream-*</literal> of your choice.
-See the <link xl:href="https://docs.spring.io/spring-cloud-stream/docs/Ditmars.SR2/reference/htmlsingle/">Spring Cloud Stream documentation</link> for details on the brokers and how to configure the client credentials. It should work out of the box for a local broker.</simpara>
+See the <link xl:href="https://docs.spring.io/spring-cloud-stream/docs/current/reference/htmlsingle/">Spring Cloud Stream documentation</link> for details on the brokers and how to configure the client credentials. It should work out of the box for a local broker.</simpara>
 <simpara>On the server side, create a Spring Boot application and annotate it with <literal>@EnableTurbineStream</literal>. By default, it starts on port 8989 (point your Hystrix dashboard to that port on any path).
-You can customize the port by setting either <literal>server.port</literal> or <literal>turbine.stream.port</literal>.
-If you have <literal>spring-boot-starter-web</literal> and <literal>spring-boot-starter-actuator</literal> on the classpath as well, you can expose the Actuator endpoints on a separate port (with Tomcat by default) by providing a <literal>management.port</literal> that differs from the Hystrix port.</simpara>
+You can customize the port by setting <literal>server.port</literal>.
+The Turbine Stream server requires the use of Spring Webflux, therefor <literal>spring-boot-starter-webflux</literal> needs to be included in your project.</simpara>
 <simpara>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.
 If Turbine Stream is running on port 8989 on myhost, then put <literal><link xl:href="http://myhost:8989">http://myhost:8989</link></literal> in the stream input field in the Hystrix Dashboard.
 Circuits are prefixed by their respective <literal>serviceId</literal>, followed by a dot (<literal>.</literal>), and then the circuit name.</simpara>
 <simpara>Spring Cloud provides a <literal>spring-cloud-starter-netflix-turbine-stream</literal> that has all the dependencies you need to get a Turbine Stream server running.
-You can then add the Stream binder of your choice&#8201;&#8212;&#8201;such as <literal>spring-cloud-starter-stream-rabbit</literal>.
-Because it is Netty-based, you need Java 8 to run the application.</simpara>
+You can then add the Stream binder of your choice&#8201;&#8212;&#8201;such as <literal>spring-cloud-starter-stream-rabbit</literal>.</simpara>
 </section>
 </chapter>
 <chapter xml:id="spring-cloud-ribbon">
