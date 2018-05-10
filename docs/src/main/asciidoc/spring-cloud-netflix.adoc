@@ -685,11 +685,11 @@ If you want the native Netflix behavior built into Turbine to _not_ allow multip
 In some environments (such as in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands does not work.
 In that case, you might want to have your Hystrix commands push metrics to Turbine. Spring Cloud enables that with messaging.
 To do so on the client, add a dependency to `spring-cloud-netflix-hystrix-stream` and the `spring-cloud-starter-stream-*` of your choice.
-See the https://docs.spring.io/spring-cloud-stream/docs/Ditmars.SR2/reference/htmlsingle/[Spring Cloud Stream documentation] for details on the brokers and how to configure the client credentials. It should work out of the box for a local broker.
+See the https://docs.spring.io/spring-cloud-stream/docs/current/reference/htmlsingle/[Spring Cloud Stream documentation] for details on the brokers and how to configure the client credentials. It should work out of the box for a local broker.
 
 On the server side, create a Spring Boot application and annotate it with `@EnableTurbineStream`. By default, it starts on port 8989 (point your Hystrix dashboard to that port on any path).
-You can customize the port by setting either `server.port` or `turbine.stream.port`.
-If you have `spring-boot-starter-web` and `spring-boot-starter-actuator` on the classpath as well, you can expose the Actuator endpoints on a separate port (with Tomcat by default) by providing a `management.port` that differs from the Hystrix port.
+You can customize the port by setting `server.port`.
+The Turbine Stream server requires the use of Spring Webflux, therefor `spring-boot-starter-webflux` needs to be included in your project.
 
 You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.
 If Turbine Stream is running on port 8989 on myhost, then put `http://myhost:8989` in the stream input field in the Hystrix Dashboard.
@@ -697,7 +697,6 @@ Circuits are prefixed by their respective `serviceId`, followed by a dot (`.`), 
 
 Spring Cloud provides a `spring-cloud-starter-netflix-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running.
 You can then add the Stream binder of your choice -- such as `spring-cloud-starter-stream-rabbit`.
-Because it is Netty-based, you need Java 8 to run the application.
 
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
