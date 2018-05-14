@@ -90,8 +90,8 @@ You need to change these, even for an Actuator application if you use a non-defa
 ----
 eureka:
   instance:
-    statusPageUrlPath: ${management.context-path}/info
-    healthCheckUrlPath: ${management.context-path}/health
+    statusPageUrlPath: ${management.server.servlet.context-path}/info
+    healthCheckUrlPath: ${management.server.servlet.context-path}/health
 ----
 
 These links show up in the metadata that is consumed by clients and are used in some scenarios to decide whether to send requests to your application, so it is helpful if they are accurate.
