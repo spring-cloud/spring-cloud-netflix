@@ -954,7 +954,7 @@ class ArchaiusTest {
 Archaius has its own set of configuration files and loading priorities.
 Spring applications should generally not use Archaius directly, but the need to configure the Netflix tools natively remains.
 Spring Cloud has a Spring Environment Bridge so that Archaius can read properties from the Spring Environment.
-This brisge allows Spring Boot projects to use the normal configuration toolchain while letting them configure the Netflix tools as documented (for the most part).
+This bridge allows Spring Boot projects to use the normal configuration toolchain while letting them configure the Netflix tools as documented (for the most part).
 
 == Router and Filter: Zuul
 
