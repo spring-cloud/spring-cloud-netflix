@@ -1552,7 +1552,7 @@ hystrix:
 myusers-service:
   ribbon:
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
-    ListOfServers: http://example1.com,http://example2.com
+    listOfServers: http://example1.com,http://example2.com
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
