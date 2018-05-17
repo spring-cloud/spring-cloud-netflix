@@ -22,11 +22,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -34,6 +31,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.stubrunner.StubTrigger;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
+import org.springframework.cloud.contract.verifier.messaging.MessageVerifier;
+import org.springframework.cloud.contract.verifier.messaging.stream.StreamStubMessages;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
@@ -44,9 +45,11 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.integration.support.management.MessageChannelMetrics;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -61,7 +64,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs" })
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs"})
 @AutoConfigureStubRunner
 public class TurbineStreamTests {
 	@Autowired
@@ -85,6 +88,22 @@ public class TurbineStreamTests {
 	@EnableAutoConfiguration
 	@EnableTurbineStream
 	public static class Application {
+		@Bean
+		//TODO This can be removed after Finchley.RELEASE, once we can use Spring Cloud Contract Verifier 2.0.0
+		//This is a hack to allow compatibility between Stream 2.0.0, which is sending everything as a byte array,
+		//and contract which is assuming everything is a String.
+		public MessageVerifier<Message<?>> customMessageVerifier(ApplicationContext context) {
+			return new StreamStubMessages(context) {
+				@Override
+				public <T> void send(T payload, Map<String, Object> headers, String destination) {
+					if(String.class.isInstance(payload)){
+						super.send(((String)payload).getBytes(), headers, destination);
+						return;
+					}
+					super.send(payload, headers, destination);
+				}
+			};
+		}
 	}
 
 	@Test
