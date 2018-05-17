@@ -273,7 +273,7 @@ public class PreDecorationFilterTests {
 		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/prefix/api",
+		assertEquals("/prefix,/api",
 				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("1.2.3.4, 5.6.7.8",
 				ctx.getZuulRequestHeaders().get("x-forwarded-for"));
@@ -314,7 +314,7 @@ public class PreDecorationFilterTests {
 		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/context-path/api",
+		assertEquals("/context-path,/api",
 				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
@@ -354,7 +354,7 @@ public class PreDecorationFilterTests {
 		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
 		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
 		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/prefix/api",
+		assertEquals("/prefix,/api",
 				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
 		assertEquals("foo",
 				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
