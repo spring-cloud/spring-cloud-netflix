@@ -241,6 +241,7 @@ public class PreDecorationFilter extends ZuulFilter {
 				else {
 					newPrefixBuilder.append(prefix);
 				}
+				newPrefixBuilder.append(",");
 			}
 			newPrefixBuilder.append(route.getPrefix());
 			prefix = newPrefixBuilder.toString();
