@@ -138,6 +138,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public int getOrder() {
-		return discoveryClientConfig.getOrder();
+		return this.discoveryClientConfig.getOrder();
 	}
 }
