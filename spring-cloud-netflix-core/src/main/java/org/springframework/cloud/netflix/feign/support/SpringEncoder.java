@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
@@ -36,12 +37,14 @@ import org.springframework.http.converter.HttpMessageConverter;
 import feign.RequestTemplate;
 import feign.codec.EncodeException;
 import feign.codec.Encoder;
+import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
 
 import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHeaders;
 import static org.springframework.cloud.netflix.feign.support.FeignUtils.getHttpHeaders;
 
 /**
  * @author Spencer Gibb
+ * @author ScienJus
  */
 public class SpringEncoder implements Encoder {
 
@@ -98,12 +101,17 @@ public class SpringEncoder implements Encoder {
 					// with the modified headers
 					request.headers(getHeaders(outputMessage.getHeaders()));
 
-					// do not use charset for binary data
+					// do not use charset for binary data and protobuf
+					Charset charset;
 					if (messageConverter instanceof ByteArrayHttpMessageConverter) {
-						request.body(outputMessage.getOutputStream().toByteArray(), null);
+						charset = null;
+					} else if (messageConverter instanceof ProtobufHttpMessageConverter &&
+							ProtobufHttpMessageConverter.PROTOBUF.isCompatibleWith(outputMessage.getHeaders().getContentType())) {
+						charset = null;
 					} else {
-						request.body(outputMessage.getOutputStream().toByteArray(), Charset.forName("UTF-8"));
+						charset = StandardCharsets.UTF_8;
 					}
+					request.body(outputMessage.getOutputStream().toByteArray(), charset);
 					return;
 				}
 			}
