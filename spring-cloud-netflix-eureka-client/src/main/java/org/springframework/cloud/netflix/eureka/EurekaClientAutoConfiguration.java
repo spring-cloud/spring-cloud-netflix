@@ -203,8 +203,14 @@ public class EurekaClientAutoConfiguration {
 	}
 
 	@Bean
-	public DiscoveryClient discoveryClient(EurekaInstanceConfig config, EurekaClient client) {
-		return new EurekaDiscoveryClient(config, client);
+	public EurekaDiscoveryClientConfig discoveryClientConfig() {
+		return new EurekaDiscoveryClientConfig();
+	}
+
+	@Bean
+	public DiscoveryClient discoveryClient(EurekaInstanceConfig config, EurekaClient client,
+	                                       EurekaDiscoveryClientConfig discoveryClientConfig) {
+		return new EurekaDiscoveryClient(config, client, discoveryClientConfig);
 	}
 
 	@Bean
