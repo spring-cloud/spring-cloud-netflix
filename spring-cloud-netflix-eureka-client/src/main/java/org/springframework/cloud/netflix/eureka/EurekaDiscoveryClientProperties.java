@@ -9,7 +9,7 @@ import org.springframework.core.Ordered;
  * @author Olga Maciaszek-Sharma
  */
 @ConfigurationProperties(prefix = "spring.cloud.discovery.client.eureka")
-public class EurekaDiscoveryClientConfig {
+public class EurekaDiscoveryClientProperties {
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
