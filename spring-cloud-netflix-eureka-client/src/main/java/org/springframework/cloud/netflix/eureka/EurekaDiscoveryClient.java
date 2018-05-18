@@ -46,13 +46,13 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	private final EurekaClient eurekaClient;
 
-	private final EurekaDiscoveryClientConfig discoveryClientConfig;
+	private final EurekaDiscoveryClientProperties discoveryClientProperties;
 
 	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient,
-	                             EurekaDiscoveryClientConfig discoveryClientConfig) {
+	                             EurekaDiscoveryClientProperties discoveryClientProperties) {
 		this.config = config;
 		this.eurekaClient = eurekaClient;
-		this.discoveryClientConfig = discoveryClientConfig;
+		this.discoveryClientProperties = discoveryClientProperties;
 	}
 
 	@Override
@@ -138,6 +138,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public int getOrder() {
-		return this.discoveryClientConfig.getOrder();
+		return this.discoveryClientProperties.getOrder();
 	}
 }
