@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
+ * @author Daniel Lavoie
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
@@ -91,10 +91,11 @@ public class HystrixStreamTests {
 		assertThat(this.registration.getServiceId()).isEqualTo("mytestapp");
 		this.task.gatherMetrics();
 		Message<?> message = this.collector.forChannel(output).take();
-		assertThat(message.getPayload()).isInstanceOf(String.class);
-		JsonNode tree = mapper.readTree((String) message.getPayload());
-		assertThat(tree.hasNonNull("origin"));
-		assertThat(tree.hasNonNull("data"));
+		JsonNode tree = mapper.readTree((String)message.getPayload());
+		assertThat(tree.hasNonNull("origin")).isTrue();
+		assertThat(tree.hasNonNull("data")).isTrue();
+		assertThat(tree.hasNonNull("event")).isTrue();
+		assertThat(tree.findValue("event").asText()).isEqualTo("message");
 	}
 
 }

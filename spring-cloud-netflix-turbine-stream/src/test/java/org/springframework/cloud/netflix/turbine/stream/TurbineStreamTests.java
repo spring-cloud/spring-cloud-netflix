@@ -16,27 +16,25 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.stubrunner.StubTrigger;
 import org.springframework.cloud.contract.stubrunner.spring.AutoConfigureStubRunner;
+import org.springframework.cloud.contract.verifier.messaging.MessageVerifier;
+import org.springframework.cloud.contract.verifier.messaging.stream.StreamStubMessages;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
@@ -47,29 +45,28 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.integration.support.management.MessageChannelMetrics;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Spencer Gibb
+ * @author Daniel Lavoie
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TurbineStreamTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"turbine.stream.port=0",
+@SpringBootTest(classes = TurbineStreamTests.Application.class, webEnvironment = RANDOM_PORT, properties = {
 		// TODO: we don't need this if we harmonize the turbine and hystrix destinations
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:1.4.0.BUILD-SNAPSHOT}:stubs" })
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs"})
 @AutoConfigureStubRunner
 public class TurbineStreamTests {
-
-	private static Log log = LogFactory.getLog(TurbineStreamTests.class);
-
 	@Autowired
 	StubTrigger stubTrigger;
 
@@ -85,13 +82,27 @@ public class TurbineStreamTests {
 	@Autowired
 	TurbineStreamConfiguration turbine;
 
-	private CountDownLatch latch = new CountDownLatch(1);
+	@LocalServerPort
+	int port;
 
 	@EnableAutoConfiguration
 	@EnableTurbineStream
 	public static class Application {
-		public static void main(String[] args) {
-			new SpringApplicationBuilder().sources(Application.class).run(args);
+		@Bean
+		//TODO This can be removed after Finchley.RELEASE, once we can use Spring Cloud Contract Verifier 2.0.0
+		//This is a hack to allow compatibility between Stream 2.0.0, which is sending everything as a byte array,
+		//and contract which is assuming everything is a String.
+		public MessageVerifier<Message<?>> customMessageVerifier(ApplicationContext context) {
+			return new StreamStubMessages(context) {
+				@Override
+				public <T> void send(T payload, Map<String, Object> headers, String destination) {
+					if(String.class.isInstance(payload)){
+						super.send(((String)payload).getBytes(), headers, destination);
+						return;
+					}
+					super.send(payload, headers, destination);
+				}
+			};
 		}
 	}
 
@@ -100,25 +111,25 @@ public class TurbineStreamTests {
 		rest.getInterceptors().add(new NonClosingInterceptor());
 		int count = ((MessageChannelMetrics) input).getSendCount();
 		ResponseEntity<String> response = rest.execute(
-				new URI("http://localhost:" + turbine.getTurbinePort() + "/"),
+				new URI("http://localhost:" + port + "/"),
 				HttpMethod.GET, null, this::extract);
-		assertThat(response.getHeaders().getContentType())
-				.isEqualTo(MediaType.TEXT_EVENT_STREAM);
+		assertThat(response.getHeaders().getContentType().isCompatibleWith(MediaType.TEXT_EVENT_STREAM))
+				.isTrue();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, Object> metrics = extractMetrics(response.getBody());
 		assertThat(metrics).containsEntry("type", "HystrixCommand");
 		assertThat(((MessageChannelMetrics) input).getSendCount()).isEqualTo(count + 1);
 	}
+	
+	private boolean containsMetrics(String line) {
+		return line.startsWith("data:") && !line.contains("Ping");
+	}
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> extractMetrics(String body) throws Exception {
-		String[] split = body.split("data:");
-		for (String value : split) {
-			if (value.contains("Ping") || value.length() == 0) {
-				continue;
-			}
-			else {
-				return mapper.readValue(value, Map.class);
+		for (String value : body.split("\n")) {
+			if (containsMetrics(value)) {
+				return mapper.readValue(value.split("data:")[1], Map.class);
 			}
 		}
 		return null;
@@ -129,21 +140,23 @@ public class TurbineStreamTests {
 		// The message has to be sent after the endpoint is activated, so this is a
 		// convenient place to put it
 		stubTrigger.trigger("metrics");
-		byte[] bytes = new byte[1024];
-		StringBuilder builder = new StringBuilder();
-		int read = 0;
-		while (read >= 0
-				&& StringUtils.countOccurrencesOf(builder.toString(), "\n") < 2) {
-			read = response.getBody().read(bytes, 0, bytes.length);
-			if (read > 0) {
-				latch.countDown();
-				builder.append(new String(bytes, 0, read));
+
+		String responseBody = "";
+		boolean metricFound = false;
+		try (BufferedReader buffer = new BufferedReader(
+				new InputStreamReader(response.getBody()))) {
+			do {
+				String line = buffer.readLine();
+				responseBody += line + "\n";
+				if (containsMetrics(line)) {
+					metricFound = true;
+				}
 			}
-			log.debug("Building: " + builder);
+			while (!metricFound);
 		}
-		log.debug("Done: " + builder);
+
 		return ResponseEntity.status(response.getStatusCode())
-				.headers(response.getHeaders()).body(builder.toString());
+				.headers(response.getHeaders()).body(responseBody);
 	}
 
 	/**

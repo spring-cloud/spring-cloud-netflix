@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -92,8 +91,7 @@ public class SidecarConfiguration {
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
-			RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
-			String springAppName = springPropertyResolver.getProperty("name");
+			String springAppName = this.env.getProperty("spring.application.name", "");
 			int port = this.sidecarProperties.getPort();
 			config.setNonSecurePort(port);
 			config.setInstanceId(getDefaultInstanceId(this.env));

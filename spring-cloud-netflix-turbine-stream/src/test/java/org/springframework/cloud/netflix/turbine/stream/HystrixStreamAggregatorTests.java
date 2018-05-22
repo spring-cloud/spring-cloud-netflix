@@ -49,7 +49,7 @@ public class HystrixStreamAggregatorTests {
 		this.publisher.subscribe(map -> {
 			assertThat(map.get("type"), equalTo("HystrixCommand"));
 		});
-		this.aggregator.sendToSubject(PAYLOAD);
+		this.aggregator.sendToSubject(PAYLOAD.getBytes());
 		this.output.expect(not(containsString("ERROR")));
 	}
 
@@ -58,7 +58,7 @@ public class HystrixStreamAggregatorTests {
 		this.publisher.subscribe(map -> {
 			assertThat(map.get("type"), equalTo("HystrixCommand"));
 		});
-		this.aggregator.sendToSubject("[" + PAYLOAD + "]");
+		this.aggregator.sendToSubject(new StringBuilder().append("[").append(PAYLOAD).append("]").toString().getBytes());
 		this.output.expect(not(containsString("ERROR")));
 	}
 
@@ -69,7 +69,7 @@ public class HystrixStreamAggregatorTests {
 		});
 		// If The JSON is embedded in a JSON String this is what it looks like
 		String payload = "\"" + PAYLOAD.replace("\"", "\\\"") + "\"";
-		this.aggregator.sendToSubject(payload);
+		this.aggregator.sendToSubject(payload.getBytes());
 		this.output.expect(not(containsString("ERROR")));
 	}
 

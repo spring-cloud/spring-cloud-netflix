@@ -23,6 +23,7 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClient;
+import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryProperties;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -44,13 +45,13 @@ public class HystrixStreamAutoConfigurationNoRegistrationTests {
 	Registration registration;
 
 	@Autowired
-	SimpleDiscoveryClient simpleDiscoveryClient;
+	SimpleDiscoveryProperties simpleDiscoveryProperties;
 
 	@Test
 	public void withoutRegistrationWorks() throws Exception {
 		assertThat(this.registration).isNull();
-		assertThat(this.simpleDiscoveryClient).isNotNull();
-		assertThat(task.getRegistration()).isEqualTo(this.simpleDiscoveryClient.getLocalServiceInstance());
+		assertThat(this.simpleDiscoveryProperties).isNotNull();
+		assertThat(task.getRegistration()).isEqualTo(this.simpleDiscoveryProperties.getLocal());
 	}
 
 	@EnableAutoConfiguration

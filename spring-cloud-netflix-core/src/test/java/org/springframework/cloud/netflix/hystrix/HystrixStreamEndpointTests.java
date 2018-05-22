@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.hystrix;
@@ -26,11 +27,12 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,17 +58,11 @@ import static org.junit.Assert.fail;
 		"spring.application.name=hystrixstreamtest" })
 @DirtiesContext
 public class HystrixStreamEndpointTests {
-
+	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 	private static final Log log = LogFactory.getLog(HystrixStreamEndpointTests.class);
 
 	@LocalServerPort
 	private int port = 0;
-
-	@Test
-	public void pathStartsWithSlash() {
-		HystrixStreamEndpoint endpoint = new HystrixStreamEndpoint();
-		assertEquals("/hystrix.stream", endpoint.getPath());
-	}
 
 	@Test
 	public void hystrixStreamWorks() throws Exception {
@@ -76,7 +72,7 @@ public class HystrixStreamEndpointTests {
 				String.class);
 		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
 
-		URL hystrixUrl = new URL(url + "/admin/hystrix.stream");
+		URL hystrixUrl = new URL(url + BASE_PATH + "/hystrix.stream");
 
 		List<String> data = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {

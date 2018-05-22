@@ -56,6 +56,9 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 	public RestTemplateEurekaHttpClient(RestTemplate restTemplate, String serviceUrl) {
 		this.restTemplate = restTemplate;
 		this.serviceUrl = serviceUrl;
+		if (!serviceUrl.endsWith("/")) {
+			this.serviceUrl = this.serviceUrl+"/";
+		}
 	}
 
 	@Override
@@ -67,7 +70,7 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
 		ResponseEntity<Void> response = restTemplate.exchange(urlPath, HttpMethod.POST,
-				new HttpEntity<InstanceInfo>(info, headers), Void.class);
+				new HttpEntity<>(info, headers), Void.class);
 
 		return anEurekaHttpResponse(response.getStatusCodeValue())
 				.headers(headersOf(response)).build();
@@ -141,9 +144,10 @@ public class RestTemplateEurekaHttpClient implements EurekaHttpClient {
 			String[] regions) {
 		String url = serviceUrl + urlPath;
 
-		if (regions != null && regions.length > 0)
-			urlPath = (urlPath.contains("?") ? "&" : "?") + "regions="
+		if (regions != null && regions.length > 0) {
+			url = url + (urlPath.contains("?") ? "&" : "?") + "regions="
 					+ StringUtil.join(regions);
+		}
 
 		ResponseEntity<EurekaApplications> response = restTemplate.exchange(url,
 				HttpMethod.GET, null, EurekaApplications.class);

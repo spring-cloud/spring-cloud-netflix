@@ -21,9 +21,7 @@ import java.io.IOException;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.repository.InMemoryMetricRepository;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.ServiceRegistry;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -66,11 +64,6 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 	private EurekaRegistration registration;
 
 	@Bean
-	public InMemoryMetricRepository inMemoryMetricRepository() {
-		return new InMemoryMetricRepository();
-	}
-
-	@Bean
 	public HealthCheckHandler healthCheckHandler() {
 		return new HealthCheckHandler() {
 			@Override
@@ -89,10 +82,6 @@ public class EurekaSampleApplication implements ApplicationContextAware, Closeab
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.context = context;
-	}
-
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(EurekaSampleApplication.class).web(true).run(args);
 	}
 
 	@RequestMapping(path = "/register", method = POST)

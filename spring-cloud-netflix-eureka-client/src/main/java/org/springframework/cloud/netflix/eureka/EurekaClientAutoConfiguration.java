@@ -16,18 +16,19 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.net.MalformedURLException;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.Endpoint;
+import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
@@ -37,7 +38,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
 import org.springframework.cloud.client.CommonsClientAutoConfiguration;
@@ -62,7 +62,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -72,6 +71,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
+
+import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
 /**
  * @author Dave Syer
@@ -95,13 +96,9 @@ import com.netflix.discovery.EurekaClientConfig;
 public class EurekaClientAutoConfiguration {
 
 	private ConfigurableEnvironment env;
-	@Autowired(required = false)
-	private HealthCheckHandler healthCheckHandler;
-	private RelaxedPropertyResolver propertyResolver;
 
 	public EurekaClientAutoConfiguration(ConfigurableEnvironment env) {
 		this.env = env;
-		this.propertyResolver = new RelaxedPropertyResolver(env);
 	}
 
 	@Bean
@@ -111,9 +108,9 @@ public class EurekaClientAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class, search = SearchStrategy.CURRENT)
-	public EurekaClientConfigBean eurekaClientConfigBean() {
+	public EurekaClientConfigBean eurekaClientConfigBean(ConfigurableEnvironment env) {
 		EurekaClientConfigBean client = new EurekaClientConfigBean();
-		if ("bootstrap".equals(propertyResolver.getProperty("spring.config.name"))) {
+		if ("bootstrap".equals(this.env.getProperty("spring.config.name"))) {
 			// We don't register during bootstrap by default, but there will be another
 			// chance later.
 			client.setRegisterWithEureka(false);
@@ -127,26 +124,34 @@ public class EurekaClientAutoConfiguration {
 		return new DefaultManagementMetadataProvider();
 	}
 
+	private String getProperty(String property) {
+		return this.env.containsProperty(property) ? this.env.getProperty(property) : "";
+	}
+
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaInstanceConfig.class, search = SearchStrategy.CURRENT)
 	public EurekaInstanceConfigBean eurekaInstanceConfigBean(InetUtils inetUtils,
-															 ManagementMetadataProvider managementMetadataProvider) throws MalformedURLException {
-		PropertyResolver eurekaPropertyResolver = new RelaxedPropertyResolver(this.env, "eureka.instance.");
-		String hostname = eurekaPropertyResolver.getProperty("hostname");
+															 ManagementMetadataProvider managementMetadataProvider) {
+		String hostname = getProperty("eureka.instance.hostname");
+		boolean preferIpAddress = Boolean.parseBoolean(getProperty("eureka.instance.prefer-ip-address"));
+		String ipAddress = getProperty("eureka.instance.ip-address");
+		boolean isSecurePortEnabled = Boolean.parseBoolean(getProperty("eureka.instance.secure-port-enabled"));
 
-		boolean preferIpAddress = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("preferIpAddress"));
-		boolean isSecurePortEnabled = Boolean.parseBoolean(eurekaPropertyResolver.getProperty("securePortEnabled"));
-		String serverContextPath = propertyResolver.getProperty("server.contextPath", "/");
-		int serverPort = Integer.valueOf(propertyResolver.getProperty("server.port", propertyResolver.getProperty("port", "8080")));
+		String serverContextPath = env.getProperty("server.context-path", "/");
+		int serverPort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
 
-		Integer managementPort = propertyResolver.getProperty("management.port", Integer.class);// nullable. should be wrapped into optional
-		String managementContextPath = propertyResolver.getProperty("management.contextPath");// nullable. should be wrapped into optional
-		Integer jmxPort = propertyResolver.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
+		Integer managementPort = env.getProperty("management.server.port", Integer.class);// nullable. should be wrapped into optional
+		String managementContextPath = env.getProperty("management.server.context-path");// nullable. should be wrapped into optional
+		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
 		instance.setNonSecurePort(serverPort);
-		instance.setInstanceId(getDefaultInstanceId(propertyResolver));
+		instance.setInstanceId(getDefaultInstanceId(env));
 		instance.setPreferIpAddress(preferIpAddress);
+		instance.setSecurePortEnabled(isSecurePortEnabled);
+		if (StringUtils.hasText(ipAddress)) {
+			instance.setIpAddress(ipAddress);
+		}
 
 		if(isSecurePortEnabled) {
 			instance.setSecurePort(serverPort);
@@ -155,8 +160,8 @@ public class EurekaClientAutoConfiguration {
 		if (StringUtils.hasText(hostname)) {
 			instance.setHostname(hostname);
 		}
-		String statusPageUrlPath = eurekaPropertyResolver.getProperty("statusPageUrlPath");
-		String healthCheckUrlPath = eurekaPropertyResolver.getProperty("healthCheckUrlPath");
+		String statusPageUrlPath = getProperty("eureka.instance.status-page-url-path");
+		String healthCheckUrlPath = getProperty("eureka.instance.health-check-url-path");
 
 		if (StringUtils.hasText(statusPageUrlPath)) {
 			instance.setStatusPageUrlPath(statusPageUrlPath);
@@ -171,6 +176,9 @@ public class EurekaClientAutoConfiguration {
 		if(metadata != null) {
 			instance.setStatusPageUrl(metadata.getStatusPageUrl());
 			instance.setHealthCheckUrl(metadata.getHealthCheckUrl());
+			if(instance.isSecurePortEnabled()) {
+				instance.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
+			}
 			Map<String, String> metadataMap = instance.getMetadataMap();
 			if (metadataMap.get("management.port") == null) {
 				metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
@@ -201,7 +209,7 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
 	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
-	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
+	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager, ObjectProvider<HealthCheckHandler> healthCheckHandler) {
 		return EurekaRegistration.builder(instanceConfig)
 				.with(applicationInfoManager)
 				.with(eurekaClient)
@@ -307,10 +315,11 @@ public class EurekaClientAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnClass(Endpoint.class)
+	@ConditionalOnClass(Health.class)
 	protected static class EurekaHealthIndicatorConfiguration {
 		@Bean
 		@ConditionalOnMissingBean
+		@ConditionalOnEnabledHealthIndicator("eureka")
 		public EurekaHealthIndicator eurekaHealthIndicator(EurekaClient eurekaClient,
 														   EurekaInstanceConfig instanceConfig, EurekaClientConfig clientConfig) {
 			return new EurekaHealthIndicator(eurekaClient, instanceConfig, clientConfig);

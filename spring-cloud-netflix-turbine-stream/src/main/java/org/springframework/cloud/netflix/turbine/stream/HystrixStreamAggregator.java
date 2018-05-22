@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.turbine.stream;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +54,11 @@ public class HystrixStreamAggregator {
 	}
 
 	@ServiceActivator(inputChannel = TurbineStreamClient.INPUT)
-	public void sendToSubject(@Payload String payload) {
+	public void sendToSubject(@Payload byte[] bytePayload) {
+		String payload = new String(bytePayload, StandardCharsets.UTF_8);
+		if (log.isTraceEnabled()) {
+			log.trace("Received hystrix stream payload string: " + payload);
+		}
 		if (payload.startsWith("\"")) {
 			// Legacy payload from an Angel client
 			payload = payload.substring(1, payload.length() - 1);

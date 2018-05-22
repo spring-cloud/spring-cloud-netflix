@@ -15,6 +15,8 @@
  */
 package org.springframework.cloud.netflix.hystrix.contract;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -22,10 +24,9 @@ import java.util.Map;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.StreamUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Dave Syer
+ * @author Daniel Lavoie
  *
  */
 public class HystrixContractUtils {
@@ -41,12 +42,17 @@ public class HystrixContractUtils {
 		}
 	}
 
+	public static void checkEvent(String event) {
+		assertThat(event).isNotNull();
+		assertThat(event).isEqualTo("message");
+	}
+
 	public static void checkOrigin(Map<String, Object> origin) {
 		assertThat(origin.get("host")).isNotNull();
 		assertThat(origin.get("port")).isNotNull();
 		assertThat(origin.get("serviceId")).isEqualTo("application");
-		// TODO: should be server.port (but in a test it's a random port so -1)?
-		assertThat(origin.get("id")).isEqualTo("application:-1");
+		// TODO: boot 2 changed application context id generation
+		assertThat(origin.get("id")).asString().startsWith("application");
 	}
 
 	public static void checkData(Map<String, Object> data, String group, String name) {

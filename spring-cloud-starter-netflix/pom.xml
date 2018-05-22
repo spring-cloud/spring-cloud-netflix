@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
-		<version>1.4.0.BUILD-SNAPSHOT</version>
+		<version>2.0.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>spring-cloud-starter-netflix</artifactId>
@@ -20,10 +20,7 @@
 		<module>spring-cloud-starter-netflix-hystrix-dashboard</module>
 		<module>spring-cloud-starter-netflix-ribbon</module>
 		<module>spring-cloud-starter-netflix-turbine</module>
-		<module>spring-cloud-starter-netflix-spectator</module>
-		<module>spring-cloud-starter-netflix-turbine-amqp</module>
 		<module>spring-cloud-starter-netflix-turbine-stream</module>
 		<module>spring-cloud-starter-netflix-zuul</module>
-		<module>spring-cloud-starter-openfeign</module>
 	</modules>
 </project>

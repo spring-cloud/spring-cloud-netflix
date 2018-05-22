@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -84,8 +85,9 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			module.addSerializer(Applications.class, new ApplicationsSerializer(
 					this.getVersionDeltaKey(), this.getAppHashCodeKey()));
 
-			module.addDeserializer(DataCenterInfo.class,
-					new DataCenterInfoDeserializer());
+			// TODO: Watch if this causes problems
+			// module.addDeserializer(DataCenterInfo.class,
+			// 		new DataCenterInfoDeserializer());
 			module.addDeserializer(LeaseInfo.class, new LeaseInfoDeserializer());
 			module.addDeserializer(InstanceInfo.class,
 					new CloudInstanceInfoDeserializer(mapper));
@@ -96,12 +98,12 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 
 			mapper.registerModule(module);
 
-			HashMap<Class<?>, ObjectReader> readers = new HashMap<>();
-			readers.put(InstanceInfo.class, mapper.reader().withType(InstanceInfo.class)
+			HashMap<Class<?>, Supplier<ObjectReader>> readers = new HashMap<>();
+			readers.put(InstanceInfo.class, ()-> mapper.reader().withType(InstanceInfo.class)
 					.withRootName("instance"));
-			readers.put(Application.class, mapper.reader().withType(Application.class)
+			readers.put(Application.class, ()-> mapper.reader().withType(Application.class)
 					.withRootName("application"));
-			readers.put(Applications.class, mapper.reader().withType(Applications.class)
+			readers.put(Applications.class, ()-> mapper.reader().withType(Applications.class)
 					.withRootName("applications"));
 			setField("objectReaderByClass", readers);
 

@@ -31,12 +31,13 @@ import com.netflix.discovery.EurekaClient;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = RefreshEurekaSampleApplication.class)
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = RefreshEurekaSampleApplication.class)
 public class ConfigRefreshTests {
 
 	@Autowired

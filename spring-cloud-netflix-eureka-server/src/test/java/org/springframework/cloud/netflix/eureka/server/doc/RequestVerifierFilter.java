@@ -17,6 +17,8 @@ package org.springframework.cloud.netflix.eureka.server.doc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,16 +37,17 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.restassured.filter.Filter;
-import com.jayway.restassured.filter.FilterContext;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.FilterableRequestSpecification;
-import com.jayway.restassured.specification.FilterableResponseSpecification;
 
+import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
+import io.restassured.specification.FilterableRequestSpecification;
+import io.restassured.specification.FilterableResponseSpecification;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import wiremock.com.google.common.base.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,7 +90,7 @@ public class RequestVerifierFilter implements Filter {
 
 	@Override
 	public Response filter(FilterableRequestSpecification requestSpec,
-			FilterableResponseSpecification responseSpec, FilterContext context) {
+						   FilterableResponseSpecification responseSpec, FilterContext context) {
 		Map<String, Object> configuration = getConfiguration(requestSpec, context);
 		configuration.put("contract.jsonPaths", this.jsonPaths.keySet());
 		Response response = context.next(requestSpec, responseSpec);
@@ -202,6 +205,11 @@ class WireMockRestAssuredRequestAdapter implements Request {
 	}
 
 	@Override
+	public Optional<Request> getOriginalRequest() {
+		return Optional.of(this);
+	}
+
+	@Override
 	public String getUrl() {
 		return request.getDerivedPath();
 	}
@@ -213,7 +221,7 @@ class WireMockRestAssuredRequestAdapter implements Request {
 
 	@Override
 	public RequestMethod getMethod() {
-		return RequestMethod.fromString(request.getMethod().name());
+		return RequestMethod.fromString(request.getMethod());
 	}
 
 	@Override
@@ -282,7 +290,7 @@ class WireMockRestAssuredRequestAdapter implements Request {
 	@Override
 	public Map<String, Cookie> getCookies() {
 		Map<String, Cookie> map = new LinkedHashMap<>();
-		for (com.jayway.restassured.response.Cookie cookie : request.getCookies()) {
+		for (io.restassured.http.Cookie cookie : request.getCookies()) {
 			Cookie value = new Cookie(cookie.getValue());
 			map.put(cookie.getName(), value);
 		}
@@ -318,4 +326,18 @@ class WireMockRestAssuredRequestAdapter implements Request {
 		return false;
 	}
 
+	@Override
+	public boolean isMultipart() {
+		return false;
+	}
+
+	@Override
+	public Collection<Part> getParts() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Part getPart(String s) {
+		return null;
+	}
 }

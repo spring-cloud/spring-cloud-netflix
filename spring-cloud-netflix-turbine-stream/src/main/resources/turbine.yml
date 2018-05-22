@@ -7,7 +7,4 @@ spring:
     default_domain: cloud.turbine.stream
 
 server:
-  port: 8990
-turbine:
-  stream:
-    port: 8989
+  port: 8989

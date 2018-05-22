@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
@@ -33,6 +34,7 @@ import com.netflix.discovery.AbstractDiscoveryClientOptionalArgs;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaHttpClient;
+import com.netflix.discovery.shared.transport.EurekaHttpResponse;
 
 /**
  * Subclass of {@link DiscoveryClient} that sends a {@link HeartbeatEvent} when
@@ -73,6 +75,15 @@ public class CloudEurekaClient extends DiscoveryClient {
 		getEurekaHttpClient().deleteStatusOverride(info.getAppName(), info.getId(), info);
 	}
 
+	public InstanceInfo getInstanceInfo(String appname, String instanceId) {
+		EurekaHttpResponse<InstanceInfo> response = getEurekaHttpClient().getInstance(appname, instanceId);
+		HttpStatus httpStatus = HttpStatus.valueOf(response.getStatusCode());
+		if (httpStatus.is2xxSuccessful() && response.getEntity() != null) {
+			return response.getEntity();
+		}
+		return null;
+	}
+
 	EurekaHttpClient getEurekaHttpClient() {
 		if (this.eurekaHttpClient.get() == null) {
 			try {
@@ -93,6 +104,8 @@ public class CloudEurekaClient extends DiscoveryClient {
 
 	@Override
 	protected void onCacheRefreshed() {
+		super.onCacheRefreshed();
+
 		if (this.cacheRefreshedCount != null) { //might be called during construction and will be null
 			long newCount = this.cacheRefreshedCount.incrementAndGet();
 			log.trace("onCacheRefreshed called with count: " + newCount);

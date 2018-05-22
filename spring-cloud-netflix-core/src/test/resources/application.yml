@@ -23,42 +23,13 @@ foo:
   ribbon:
     ConnectTimeout: 7
     ReadTimeout: 17
-# for RibbonClientPreprocessorPropertiesOverridesIntegrationTests
-foo2:
-  ribbon:
-    NFLoadBalancerPingClassName: com.netflix.loadbalancer.NoOpPing
-    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
-    NIWSServerListClassName: org.springframework.cloud.netflix.ribbon.test.TestServerList
-    NIWSServerListFilterClassName: com.netflix.loadbalancer.ServerListSubsetFilter
-    NFLoadBalancerClassName: org.springframework.cloud.netflix.ribbon.test.TestLoadBalancer
 badClients:
   ribbon:
     MaxAutoRetriesNextServer: 10
     ReadTimeout: 200
-management:
-  context-path: /admin
 endpoints:
   health:
     sensitive: false
-zuul:
-  #prefix: /api
-  #strip-prefix: true
-  routes:
-    test: 
-      serviceId: testclient
-      path: /testing123/**
-    stores:
-      url: http://localhost:8081
-      path: /stores/**
 hystrix:
   shareSecurityContext: true
-feignClient:
-  localappName: localapp
-  methodLevelRequestMappingPath: /hello2
-  myPlaceholderHeader: myPlaceholderHeaderValue
-security:
-  basic:
-    path: /proxy-username
-  user:
-    username: user
-    password: password
+management.endpoints.web.exposure.include: '*'

@@ -55,7 +55,7 @@ public class CommonsInstanceDiscoveryTests {
 		assertEquals("securePort is wrong", String.valueOf(port), instance.getAttributes().get("securePort"));
 
 		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "https://"+hostName+":"+port+"/hystrix.stream", urlPath);
+		assertEquals("url is wrong", "https://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class CommonsInstanceDiscoveryTests {
 		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
 
 		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+port+"/hystrix.stream", urlPath);
+		assertEquals("url is wrong", "http://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
 
 		String clusterName = discovery.getClusterName(serviceInstance);
 		assertEquals("clusterName is wrong", appName, clusterName);
@@ -97,7 +97,7 @@ public class CommonsInstanceDiscoveryTests {
 		assertEquals("port is wrong", String.valueOf(port), instance.getAttributes().get("port"));
 
 		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+port+"/hystrix.stream", urlPath);
+		assertEquals("url is wrong", "http://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class CommonsInstanceDiscoveryTests {
 		assertEquals("port is wrong", String.valueOf(managementPort), instance.getAttributes().get("port"));
 
 		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "http://"+hostName+":"+managementPort+"/hystrix.stream", urlPath);
+		assertEquals("url is wrong", "http://"+hostName+":"+managementPort+"/actuator/hystrix.stream", urlPath);
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class CommonsInstanceDiscoveryTests {
 		assertEquals("securePort is wrong", String.valueOf(port), instance.getAttributes().get("securePort"));
 
 		String urlPath = SpringClusterMonitor.ClusterConfigBasedUrlClosure.getUrlPath(instance);
-		assertEquals("url is wrong", "https://"+hostName+":"+port+"/hystrix.stream", urlPath);
+		assertEquals("url is wrong", "https://"+hostName+":"+port+"/actuator/hystrix.stream", urlPath);
 	}
 
 	@Test

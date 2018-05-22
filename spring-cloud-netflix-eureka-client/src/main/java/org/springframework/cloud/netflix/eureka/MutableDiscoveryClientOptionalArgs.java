@@ -31,7 +31,7 @@ public class MutableDiscoveryClientOptionalArgs extends DiscoveryClientOptionalA
 
 	@Override
 	public void setAdditionalFilters(Collection<ClientFilter> additionalFilters) {
-		additionalFilters = new LinkedHashSet<ClientFilter>(additionalFilters);
+		additionalFilters = new LinkedHashSet<>(additionalFilters);
 		this.additionalFilters = additionalFilters;
 		super.setAdditionalFilters(additionalFilters);
 	}

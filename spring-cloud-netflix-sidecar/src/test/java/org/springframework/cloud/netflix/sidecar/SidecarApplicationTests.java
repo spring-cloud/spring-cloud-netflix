@@ -20,19 +20,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 public class SidecarApplicationTests {
 
-	@RunWith(SpringJUnit4ClassRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
 			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
-			"eureka.instance.hostname=mhhost", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
+			"eureka.instance.hostname=mhhost", "sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
 	public static class EurekaTestConfigBeanTest {
 		@Autowired
 		EurekaInstanceConfigBean config;
@@ -46,10 +46,10 @@ public class SidecarApplicationTests {
 		}
 	}
 
-	@RunWith(SpringJUnit4ClassRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
 			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
-			"sidecar.hostname=mhhost", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
+			"sidecar.hostname=mhhost", "sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
 	public static class NewPropertyEurekaTestConfigBeanTest {
 		@Autowired
 		EurekaInstanceConfigBean config;
@@ -63,10 +63,10 @@ public class SidecarApplicationTests {
 		}
 	}
 
-	@RunWith(SpringJUnit4ClassRunner.class)
-	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
 			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
-			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1" })
+			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ip-address=127.0.0.1" })
 	public static class BothPropertiesEurekaTestConfigBeanTest {
 		@Autowired
 		EurekaInstanceConfigBean config;
@@ -75,6 +75,24 @@ public class SidecarApplicationTests {
 		public void testEurekaConfigBeanEurekaInstanceHostnamePropertyShouldBeUsed() {
 			assertThat(this.config.getAppname(), equalTo("mytest"));
 			assertThat(this.config.getHostname(), equalTo("mhhost1"));
+			assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
+			assertThat(this.config.getNonSecurePort(), equalTo(7000));
+		}
+	}
+
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, properties = {
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ip-address=10.0.0.1",
+			"eureka.instance.prefer-ip-address=true"})
+	public static class PreferIpAddressTest {
+		@Autowired
+		EurekaInstanceConfigBean config;
+
+		@Test
+		public void testEurekaConfigBeanPreferIpAddress() {
+			assertThat(this.config.getAppname(), equalTo("mytest"));
+			assertThat(this.config.getHostname(), equalTo("10.0.0.1"));
 			assertThat(this.config.getInstanceId(), equalTo("mhhost:mytest:1"));
 			assertThat(this.config.getNonSecurePort(), equalTo(7000));
 		}

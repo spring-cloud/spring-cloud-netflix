@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,22 +12,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.hystrix;
 
-import org.springframework.cloud.netflix.endpoint.ServletWrappingEndpoint;
-
 import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import org.springframework.boot.actuate.endpoint.web.EndpointServlet;
+import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpoint;
+
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
- * @author Spencer Gibb
+ * {@link org.springframework.boot.actuate.endpoint.annotation.Endpoint} to expose a Jolokia {@link HystrixMetricsStreamServlet}.
+ *
+ * @author Phillip Webb
+ * @since 2.0.0
  */
-public class HystrixStreamEndpoint extends ServletWrappingEndpoint {
+@ServletEndpoint(id = "hystrix.stream")
+public class HystrixStreamEndpoint implements Supplier<EndpointServlet> {
 
-	public HystrixStreamEndpoint() {
-		super(HystrixMetricsStreamServlet.class, "hystrixStream", "/hystrix.stream",
-				false, true);
-	}
+    private final Map<String, String> initParameters;
 
+    public HystrixStreamEndpoint(Map<String, String> initParameters) {
+        this.initParameters = initParameters;
+    }
+
+    @Override
+    public EndpointServlet get() {
+        return new EndpointServlet(HystrixMetricsStreamServlet.class)
+                .withInitParameters(this.initParameters);
+    }
 }
