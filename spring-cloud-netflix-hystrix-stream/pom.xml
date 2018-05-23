@@ -12,9 +12,6 @@
 	<packaging>jar</packaging>
 	<name>Spring Cloud Netflix Hystrix Stream</name>
 	<description>Spring Cloud Netflix Hystrix Stream</description>
-	<properties>
-		<main.basedir>${basedir}/..</main.basedir>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

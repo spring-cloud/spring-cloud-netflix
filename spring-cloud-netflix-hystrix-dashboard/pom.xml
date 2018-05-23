@@ -11,9 +11,6 @@
 		<version>2.0.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath> <!-- lookup parent from repository -->
 	</parent>
-	<properties>
-		<main.basedir>${basedir}/..</main.basedir>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

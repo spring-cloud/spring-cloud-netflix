@@ -12,9 +12,6 @@
 	<packaging>jar</packaging>
 	<name>Spring Cloud Netflix Sidecar</name>
 	<url>https://projects.spring.io/spring-cloud/</url>
-	<properties>
-		<main.basedir>${basedir}/..</main.basedir>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
