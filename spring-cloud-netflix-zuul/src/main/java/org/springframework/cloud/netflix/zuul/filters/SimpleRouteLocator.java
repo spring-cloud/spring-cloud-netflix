@@ -69,7 +69,18 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
 			ZuulRoute route = entry.getValue();
 			String path = route.getPath();
-			values.add(getRoute(route, path));
+			try {
+				values.add(getRoute(route, path));
+			}
+			catch (Exception e) {
+				if (log.isWarnEnabled()) {
+					log.warn("Invalid route, routeId: " + route.getId() + ", routeServiceId: "
+							+ route.getServiceId() + ", msg: " + e.getMessage());
+				}
+				if (log.isDebugEnabled()) {
+					log.debug("", e);
+				}
+			}
 		}
 		return values;
 	}
@@ -139,7 +150,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		String targetPath = path;
 		String prefix = this.properties.getPrefix();
-		if(prefix.endsWith("/")) {
+		if (prefix.endsWith("/")) {
 			prefix = prefix.substring(0, prefix.length() - 1);
 		}
 		if (path.startsWith(prefix + "/") && this.properties.isStripPrefix()) {
@@ -159,7 +170,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
 				retryable,
-				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null, 
+				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null,
 				route.isStripPrefix());
 	}
 
@@ -223,7 +234,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	public int getOrder() {
 		return order;
 	}
-	
+
 	public void setOrder(int order) {
 		this.order = order;
 	}

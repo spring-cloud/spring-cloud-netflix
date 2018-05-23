@@ -16,43 +16,58 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
+import org.springframework.boot.test.rule.OutputCapture;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
+
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 
 /**
  * @author Tom Cawley
  */
 public class SimpleRouteLocatorTests {
-	private ZuulProperties zuul = new ZuulProperties();
+
+	@Rule
+	public OutputCapture output = new OutputCapture();
+
+	private ZuulProperties properties;
 
 	public SimpleRouteLocatorTests() {
 	}
 
+	@Before
+	public void init() {
+		properties = new ZuulProperties();
+	}
+
 	@Test
 	public void test_getRoutesDefaultRouteAcceptor() {
-		RouteLocator locator = new SimpleRouteLocator("/", this.zuul);
-		this.zuul.getRoutes().clear();
-		this.zuul.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
+		RouteLocator locator = new SimpleRouteLocator("/", this.properties);
+		this.properties.getRoutes().clear();
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
 
 		assertThat(locator.getRoutes(), hasItem(createRoute("foo", "/**", "/foo")));
 	}
 
 	@Test
 	public void test_getRoutesFilterRouteAcceptor() {
-		RouteLocator locator = new FilteringRouteLocator("/", this.zuul);
-		this.zuul.getRoutes().clear();
-		this.zuul.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
-		this.zuul.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
+		RouteLocator locator = new FilteringRouteLocator("/", this.properties);
+		this.properties.getRoutes().clear();
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
+		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
 		final List<Route> routes = locator.getRoutes();
 		assertThat(routes, hasItem(createRoute("bar", "/**", "/bar")));
@@ -61,7 +76,6 @@ public class SimpleRouteLocatorTests {
 
 	@Test
 	public void testStripPrefix() {
-		ZuulProperties properties = new ZuulProperties();
 		properties.setPrefix("/test");
 		properties.setStripPrefix(true);
 		RouteLocator locator = new FilteringRouteLocator("/", properties);
@@ -71,7 +85,6 @@ public class SimpleRouteLocatorTests {
 
 	@Test
 	public void testPrefix() {
-		ZuulProperties properties = new ZuulProperties();
 		properties.setPrefix("/test/");
 		RouteLocator locator = new FilteringRouteLocator("/", properties);
 		properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
@@ -80,13 +93,24 @@ public class SimpleRouteLocatorTests {
 
 	@Test
 	public void test_getMatchingRouteFilterRouteAcceptor() {
-		RouteLocator locator = new FilteringRouteLocator("/", this.zuul);
-		this.zuul.getRoutes().clear();
-		this.zuul.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
-		this.zuul.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
+		RouteLocator locator = new FilteringRouteLocator("/", this.properties);
+		this.properties.getRoutes().clear();
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo/**", "foo"));
+		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
 		assertThat(locator.getMatchingRoute("/foo/1"), nullValue());
 		assertThat(locator.getMatchingRoute("/bar/1"), is(createRoute("bar", "/1", "/bar")));
+	}
+
+	@Test
+	public void testBadRegex() {
+		this.properties.getRoutes().clear();
+		this.properties.getRoutes().put("foo", new ZuulRoute("/foo{}/**", "foo"));
+		RouteLocator locator = new FilteringRouteLocator("/", this.properties);
+		locator.getRoutes();
+
+		this.output.expect(containsString("Invalid route, "));
+
 	}
 
 	private Route createRoute(String id, String path, String prefix) {
@@ -100,16 +124,13 @@ public class SimpleRouteLocatorTests {
 
 		@Override
 		public List<Route> getRoutes() {
-			List<Route> values = new ArrayList<>();
+			return super.getRoutes().stream()
+					.filter(this::acceptRoute)
+					.collect(Collectors.toList());
+		}
 
-			for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
-				ZuulRoute route = entry.getValue();
-				if (acceptRoute(route)) {
-					String path = route.getPath();
-					values.add(getRoute(route, path));
-				}
-			}
-			return values;
+		private boolean acceptRoute(Route route) {
+			return route != null && !(route.getId().equals("foo"));
 		}
 
 		private boolean acceptRoute(ZuulRoute route) {
