@@ -13,7 +13,6 @@
 	<name>Spring Cloud Netflix Turbine</name>
 	<url>https://projects.spring.io/spring-cloud/</url>
 	<properties>
-		<main.basedir>${basedir}/..</main.basedir>
 		<turbine.version>1.0.0</turbine.version>
 	</properties>
 	<dependencyManagement>
