@@ -15,7 +15,6 @@
 		<url>https://www.spring.io</url>
 	</organization>
 	<properties>
-		<main.basedir>${basedir}/../../..</main.basedir>
 		<turbine.version>1.0.0</turbine.version>
 	</properties>
 	<dependencies>
