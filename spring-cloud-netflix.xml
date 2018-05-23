@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2018-05-22</date>
+<date>2018-05-23</date>
 </info>
 <preface>
 <title></title>
@@ -152,9 +152,9 @@ These are published in the service registry and used by clients to contact the s
 Additional metadata can be added to the instance registration in the <literal>eureka.instance.metadataMap</literal>, and this metadata is accessible in the remote clients.
 In general, additional metadata does not change the behavior of the client, unless the client is made aware of the meaning of the metadata.
 There are a couple of special cases, described later in this document, where Spring Cloud already assigns meaning to the metadata map.</simpara>
-<section xml:id="_using_eureka_on_cloudfoundry">
-<title>Using Eureka on Cloudfoundry</title>
-<simpara>Cloudfoundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
+<section xml:id="_using_eureka_on_cloud_foundry">
+<title>Using Eureka on Cloud Foundry</title>
+<simpara>Cloud Foundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
 This is not necessarily a barrier to using Eureka.
 However, if you use the router (recommended or even mandatory, depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router.
 You might also want to use instance metadata so that you can distinguish between the instances on the client (for example, in a custom load balancer).
@@ -168,7 +168,7 @@ By default, the <literal>eureka.instance.instanceId</literal> is <literal>vcap.a
     nonSecurePort: 80</screen>
 </para>
 </formalpara>
-<simpara>Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
+<simpara>Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
 This feature is not yet available on Pivotal Web Services (<link xl:href="https://run.pivotal.io">PWS</link>).</simpara>
 </section>
 <section xml:id="_using_eureka_on_aws">
@@ -199,7 +199,7 @@ Spring Cloud Eureka provides a sensible default, which is defined as follows:</s
 </para>
 </formalpara>
 <simpara>With the metadata shown in the preceding example and multiple service instances deployed on localhost, the random value is inserted there to make the instance unique.
-In Cloudfoundry, the <literal>vcap.application.instance_id</literal> is populated automatically in a Spring Boot application, so the random value is not needed.</simpara>
+In Cloud Foundry, the <literal>vcap.application.instance_id</literal> is populated automatically in a Spring Boot application, so the random value is not needed.</simpara>
 </section>
 </section>
 <section xml:id="_using_the_eurekaclient">
@@ -1073,7 +1073,7 @@ hystrix:
 myusers-service:
   ribbon:
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
-    ListOfServers: http://example1.com,http://example2.com
+    listOfServers: http://example1.com,http://example2.com
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
