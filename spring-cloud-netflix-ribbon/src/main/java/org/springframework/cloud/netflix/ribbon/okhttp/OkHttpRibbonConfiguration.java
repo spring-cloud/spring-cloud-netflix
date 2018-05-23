@@ -94,7 +94,7 @@ public class OkHttpRibbonConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
-	public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(
+	public RetryableOkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
 		IClientConfig config,
 		ServerIntrospector serverIntrospector,
 		ILoadBalancer loadBalancer,
@@ -112,7 +112,7 @@ public class OkHttpRibbonConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
-	public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
+	public OkHttpLoadBalancingClient okHttpLoadBalancingClient(
 		IClientConfig config,
 		ServerIntrospector serverIntrospector, ILoadBalancer loadBalancer,
 		RetryHandler retryHandler, OkHttpClient delegate) {

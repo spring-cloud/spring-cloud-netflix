@@ -157,9 +157,9 @@ In general, additional metadata does not change the behavior of the client, unle
 There are a couple of special cases, described later in this document, where Spring Cloud already assigns meaning to the metadata map.
 // TODO Add links from here to the relevant places in the document
 
-==== Using Eureka on Cloudfoundry
+==== Using Eureka on Cloud Foundry
 
-Cloudfoundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
+Cloud Foundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
 This is not necessarily a barrier to using Eureka.
 However, if you use the router (recommended or even mandatory, depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router.
 You might also want to use instance metadata so that you can distinguish between the instances on the client (for example, in a custom load balancer).
@@ -173,7 +173,7 @@ eureka:
     nonSecurePort: 80
 ----
 
-Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
+Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
 This feature is not yet available on Pivotal Web Services (https://run.pivotal.io[PWS]).
 
 ==== Using Eureka on AWS
@@ -211,7 +211,7 @@ eureka:
 ----
 
 With the metadata shown in the preceding example and multiple service instances deployed on localhost, the random value is inserted there to make the instance unique.
-In Cloudfoundry, the `vcap.application.instance_id` is populated automatically in a Spring Boot application, so the random value is not needed.
+In Cloud Foundry, the `vcap.application.instance_id` is populated automatically in a Spring Boot application, so the random value is not needed.
 
 === Using the EurekaClient
 
@@ -1079,7 +1079,7 @@ hystrix:
 myusers-service:
   ribbon:
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
-    ListOfServers: http://example1.com,http://example2.com
+    listOfServers: http://example1.com,http://example2.com
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
