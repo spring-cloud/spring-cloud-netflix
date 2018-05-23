@@ -68,7 +68,11 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
 			ZuulRoute route = entry.getValue();
 			String path = route.getPath();
-			values.add(getRoute(route, path));
+			try {
+				values.add(getRoute(route, path));
+			} catch (Exception e) {
+				log.warn("invalid route, routeId: " + route.getId() + ", routeServiceId: " + route.getServiceId());
+			}
 		}
 		return values;
 	}
