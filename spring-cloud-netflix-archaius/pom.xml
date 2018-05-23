@@ -15,9 +15,6 @@
     <packaging>jar</packaging>
     <name>Spring Cloud Netflix Archaius</name>
     <description>Spring Cloud Netflix Archaius</description>
-    <properties>
-        <main.basedir>${basedir}/..</main.basedir>
-    </properties>
 
     <dependencies>
         <dependency>

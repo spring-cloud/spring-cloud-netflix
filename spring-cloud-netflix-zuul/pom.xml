@@ -16,7 +16,6 @@
     <name>Spring Cloud Netflix Zuul</name>
     <description>Spring Cloud Netflix Zuul</description>
     <properties>
-        <main.basedir>${basedir}/..</main.basedir>
         <apachehttpclient.version>4.5.4</apachehttpclient.version>
     </properties>
 

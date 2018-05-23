@@ -12,9 +12,6 @@
 
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-netflix-ribbon</artifactId>
-    <properties>
-        <main.basedir>${basedir}/..</main.basedir>
-    </properties>
 
     <dependencies>
         <dependency>

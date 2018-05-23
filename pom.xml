@@ -21,7 +21,6 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<main.basedir>${basedir}</main.basedir>
 		<jackson.version>2.7.3</jackson.version>
 		<spring-cloud-commons.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>2.0.0.BUILD-SNAPSHOT</spring-cloud-config.version>
@@ -50,11 +49,11 @@
 					<additionalConfig>
 						<file>
 							<name>.settings/org.eclipse.jdt.ui.prefs</name>
-							<location>${main.basedir}/eclipse/org.eclipse.jdt.ui.prefs</location>
+							<location>${maven.multiModuleProjectDirectory}/eclipse/org.eclipse.jdt.ui.prefs</location>
 						</file>
 						<file>
 							<name>.settings/org.eclipse.jdt.core.prefs</name>
-							<location>${main.basedir}/eclipse/org.eclipse.jdt.core.prefs</location>
+							<location>${maven.multiModuleProjectDirectory}/eclipse/org.eclipse.jdt.core.prefs</location>
 						</file>
 					</additionalConfig>
 				</configuration>
