@@ -605,9 +605,9 @@ If you want the native Netflix behavior built into Turbine to <emphasis>not</emp
 In that case, you might want to have your Hystrix commands push metrics to Turbine. Spring Cloud enables that with messaging.
 To do so on the client, add a dependency to <literal>spring-cloud-netflix-hystrix-stream</literal> and the <literal>spring-cloud-starter-stream-*</literal> of your choice.
 See the <link xl:href="https://docs.spring.io/spring-cloud-stream/docs/current/reference/htmlsingle/">Spring Cloud Stream documentation</link> for details on the brokers and how to configure the client credentials. It should work out of the box for a local broker.</simpara>
-<simpara>On the server side, create a Spring Boot application and annotate it with <literal>@EnableTurbineStream</literal>. By default, it starts on port 8989 (point your Hystrix dashboard to that port on any path).
-You can customize the port by setting <literal>server.port</literal>.
-The Turbine Stream server requires the use of Spring Webflux, therefor <literal>spring-boot-starter-webflux</literal> needs to be included in your project.</simpara>
+<simpara>On the server side, create a Spring Boot application and annotate it with <literal>@EnableTurbineStream</literal>.
+The Turbine Stream server requires the use of Spring Webflux, therefore <literal>spring-boot-starter-webflux</literal> needs to be included in your project.
+By default <literal>spring-boot-starter-webflux</literal> is included when adding <literal>spring-cloud-starter-netflix-turbine-stream</literal> to your application.</simpara>
 <simpara>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.
 If Turbine Stream is running on port 8989 on myhost, then put <literal><link xl:href="http://myhost:8989">http://myhost:8989</link></literal> in the stream input field in the Hystrix Dashboard.
 Circuits are prefixed by their respective <literal>serviceId</literal>, followed by a dot (<literal>.</literal>), and then the circuit name.</simpara>
