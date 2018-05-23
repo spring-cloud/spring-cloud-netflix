@@ -68,10 +68,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
 			ZuulRoute route = entry.getValue();
 			String path = route.getPath();
-			try {
-				values.add(getRoute(route, path));
-			} catch (Exception e) {
-				log.warn("invalid route, routeId: " + route.getId() + ", routeServiceId: " + route.getServiceId());
+            values.add(getRoute(route, path));
 			}
 		}
 		return values;
@@ -152,7 +149,12 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 			int index = route.getPath().indexOf("*") - 1;
 			if (index > 0) {
 				String routePrefix = route.getPath().substring(0, index);
-				targetPath = targetPath.replaceFirst(routePrefix, "");
+                try {
+                    targetPath = targetPath.replaceFirst(routePrefix, "");
+                } catch (Exception e) {
+                    log.warn("invalid route, id: " + route.getId() + "serviceId: " + route.getServiceId());
+                    return null;
+                }
 				prefix = prefix + routePrefix;
 			}
 		}
