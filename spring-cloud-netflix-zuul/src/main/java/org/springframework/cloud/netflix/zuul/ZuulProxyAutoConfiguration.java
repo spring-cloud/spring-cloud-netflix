@@ -94,6 +94,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	// pre filters
 	@Bean
+	@ConditionalOnMissingBean(PreDecorationFilter.class)
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
 		return new PreDecorationFilter(routeLocator, this.server.getServlet().getServletPrefix(), this.zuulProperties,
 				proxyRequestHelper);
@@ -101,6 +102,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 	// route filters
 	@Bean
+	@ConditionalOnMissingBean(RibbonRoutingFilter.class)
 	public RibbonRoutingFilter ribbonRoutingFilter(ProxyRequestHelper helper,
 			RibbonCommandFactory<?> ribbonCommandFactory) {
 		RibbonRoutingFilter filter = new RibbonRoutingFilter(helper, ribbonCommandFactory,
