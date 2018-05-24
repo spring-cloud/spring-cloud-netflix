@@ -598,6 +598,28 @@ The following listing shows another example:</simpara>
 <simpara>By default, Spring Cloud lets Turbine use the host and port to allow multiple processes per host, per cluster.
 If you want the native Netflix behavior built into Turbine to <emphasis>not</emphasis> allow multiple processes per host, per cluster (the key to the instance ID is the hostname), set <literal>turbine.combineHostPort=false</literal>.</simpara>
 </note>
+<section xml:id="_clusters_endpoint">
+<title>Clusters Endpoint</title>
+<simpara>In some situations it might be useful for other applications to know what custers have been configured
+in Turbine.  To support this you can use the <literal>/clusters</literal> endpoint which will return a JSON array of
+all the configured clusters.</simpara>
+<formalpara>
+<title>GET /clusters</title>
+<para>
+<programlisting language="json" linenumbering="unnumbered">[
+  {
+    "name": "RACES",
+    "link": "http://localhost:8383/turbine.stream?cluster=RACES"
+  },
+  {
+    "name": "WEB",
+    "link": "http://localhost:8383/turbine.stream?cluster=WEB"
+  }
+]</programlisting>
+</para>
+</formalpara>
+<simpara>This endpoint can be disabled by setting <literal>turbine.endpoints.clusters.enabled</literal> to <literal>false</literal>.</simpara>
+</section>
 </section>
 <section xml:id="_turbine_stream">
 <title>Turbine Stream</title>
@@ -1521,6 +1543,12 @@ public class ZuulConfig {
 <caution>
 <simpara>Use this filter carefully. The filter acts on the <literal>Location</literal> header of ALL <literal>3XX</literal> response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.</simpara>
 </caution>
+</section>
+<section xml:id="_metrics">
+<title>Metrics</title>
+<simpara>Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
+These metrics can be viewed by hitting <literal>/actuator/metrics</literal>.  The metrics will have a name that has the format
+<literal>ZUUL::EXCEPTION:errorCause:statusCode</literal>.</simpara>
 </section>
 <section xml:id="zuul-developer-guide">
 <title>Zuul Developer Guide</title>
