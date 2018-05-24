@@ -1582,6 +1582,12 @@ public class ZuulConfig {
 
 CAUTION: Use this filter carefully. The filter acts on the `Location` header of ALL `3XX` response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.
 
+=== Metrics
+
+Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
+These metrics can be viewed by hitting `/actuator/metrics`.  The metrics will have a name that has the format
+`ZUUL::EXCEPTION:errorCause:statusCode`.
+
 [[zuul-developer-guide]]
 === Zuul Developer Guide
 
