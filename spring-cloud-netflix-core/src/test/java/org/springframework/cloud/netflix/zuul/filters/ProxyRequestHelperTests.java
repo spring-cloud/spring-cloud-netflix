@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters;
 import java.io.IOException;
 import java.util.List;
 
+import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
 
 import org.junit.After;
@@ -37,6 +38,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -225,6 +227,28 @@ public class ProxyRequestHelperTests {
 
 		helper.setResponse(200, request.getInputStream(), headers);
 		assertTrue(context.getResponseGZipped());
+	}
+
+	@Test
+	public void setResponseShouldSetOriginResponseHeaders() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setRequest(request);
+		context.setResponse(response);
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		MultiValueMap<String, String> headers = new HttpHeaders();
+		headers.add(HttpHeaders.CONTENT_TYPE, "text/plain");
+		headers.add("some-header", "some-value");
+
+		helper.setResponse(200, request.getInputStream(), headers);
+		assertThat(context.getOriginResponseHeaders(), containsInAnyOrder(
+				new Pair<>(HttpHeaders.CONTENT_TYPE, "text/plain"),
+				new Pair<>("some-header", "some-value")
+		));
 	}
 
 	@Test
