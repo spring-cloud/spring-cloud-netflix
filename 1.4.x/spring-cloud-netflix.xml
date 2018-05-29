@@ -595,7 +595,7 @@ be slightly more than three seconds.</simpara>
 <section xml:id="netflix-hystrix-dashboard-starter">
 <title>How to Include Hystrix Dashboard</title>
 <simpara>To include the Hystrix Dashboard in your project use the starter with group <literal>org.springframework.cloud</literal>
-and artifact id <literal>spring-cloud-starter-hystrix-netflix-dashboard</literal>. See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link>
+and artifact id <literal>spring-cloud-starter-netflix-hystrix-dashboard</literal>. See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link>
 for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
 <simpara>To run the Hystrix Dashboard annotate your Spring Boot main class with <literal>@EnableHystrixDashboard</literal>.  You then visit <literal>/hystrix</literal> and point the dashboard to an individual instances <literal>/hystrix.stream</literal> endpoint in a Hystrix client application.</simpara>
 <note>
