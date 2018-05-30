@@ -161,6 +161,8 @@ public class ProxyRequestHelper {
 		for (Entry<String, List<String>> header : headers.entrySet()) {
 			String name = header.getKey();
 			for (String value : header.getValue()) {
+				context.addOriginResponseHeader(name, value);
+
 				if (name.equalsIgnoreCase(HttpHeaders.CONTENT_ENCODING)
 						&& HTTPRequestUtils.getInstance().isGzipped(value)) {
 					isOriginResponseGzipped = true;
