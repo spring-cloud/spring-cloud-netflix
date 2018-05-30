@@ -680,6 +680,29 @@ Spring Cloud provides a `spring-cloud-starter-netflix-turbine` that has all the 
 NOTE: By default, Spring Cloud lets Turbine use the host and port to allow multiple processes per host, per cluster.
 If you want the native Netflix behavior built into Turbine to _not_ allow multiple processes per host, per cluster (the key to the instance ID is the hostname), set `turbine.combineHostPort=false`.
 
+==== Clusters Endpoint
+
+In some situations it might be useful for other applications to know what custers have been configured
+in Turbine.  To support this you can use the `/clusters` endpoint which will return a JSON array of
+all the configured clusters.
+
+.GET /clusters
+[source,json]
+----
+[
+  {
+    "name": "RACES",
+    "link": "http://localhost:8383/turbine.stream?cluster=RACES"
+  },
+  {
+    "name": "WEB",
+    "link": "http://localhost:8383/turbine.stream?cluster=WEB"
+  }
+]
+----
+
+This endpoint can be disabled by setting `turbine.endpoints.clusters.enabled` to `false`.
+
 === Turbine Stream
 
 In some environments (such as in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands does not work.
@@ -1558,6 +1581,12 @@ public class ZuulConfig {
 ----
 
 CAUTION: Use this filter carefully. The filter acts on the `Location` header of ALL `3XX` response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.
+
+=== Metrics
+
+Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
+These metrics can be viewed by hitting `/actuator/metrics`.  The metrics will have a name that has the format
+`ZUUL::EXCEPTION:errorCause:statusCode`.
 
 [[zuul-developer-guide]]
 === Zuul Developer Guide
