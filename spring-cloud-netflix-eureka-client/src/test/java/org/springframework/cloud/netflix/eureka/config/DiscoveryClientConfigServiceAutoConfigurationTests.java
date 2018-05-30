@@ -72,7 +72,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/", locator.getRawUri());
+		assertEquals("http://foo:7001/", locator.getUri()[0]);
 		ApplicationInfoManager infoManager = this.context
 				.getBean(ApplicationInfoManager.class);
 		assertEquals("bar", infoManager.getInfo().getMetadata().get("foo"));
