@@ -63,7 +63,7 @@ public class SendResponseFilter extends ZuulFilter {
 	   	this(new ZuulProperties());
     }
 
-	public SendResponseFilter(ZuulProperties zuulProperties) {
+	public SendResponseFilter(final ZuulProperties zuulProperties) {
 		this.zuulProperties = zuulProperties;
 		// To support Servlet API 3.1 we need to check if setContentLengthLong exists
 		try {
@@ -72,7 +72,12 @@ public class SendResponseFilter extends ZuulFilter {
 		} catch(NoSuchMethodException e) {
 			useServlet31 = false;
 		}
-		buffers = ThreadLocal.withInitial(() -> new byte[zuulProperties.getInitialStreamBufferSize()]);
+		buffers = new ThreadLocal<byte[]>(){
+			@Override
+			public byte[] get() {
+				return new byte[zuulProperties.getInitialStreamBufferSize()];
+			}
+		};
 	}
 
 	/* for testing */ boolean isUseServlet31() {
