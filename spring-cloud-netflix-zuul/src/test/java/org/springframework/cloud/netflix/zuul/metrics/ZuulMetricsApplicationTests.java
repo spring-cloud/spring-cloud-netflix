@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.EnableZuulServer;
+import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -68,10 +69,15 @@ public class ZuulMetricsApplicationTests {
 	@Test
 	@SuppressWarnings("all")
 	public void shouldIncrementCounters() throws Exception {
+		new ZuulRuntimeException(new Exception());
+
+		Double count = meterRegistry.counter("ZUUL::EXCEPTION:null:500").count();
+		assertEquals(count.longValue(), 0L);
+
 		new ZuulException("any", 500, "cause");
 		new ZuulException("any", 500, "cause");
 
-		Double count = meterRegistry.counter("ZUUL::EXCEPTION:cause:500").count();
+		count = meterRegistry.counter("ZUUL::EXCEPTION:cause:500").count();
 		assertEquals(count.longValue(), 2L);
 
 		new ZuulException("any", 404, "cause2");
