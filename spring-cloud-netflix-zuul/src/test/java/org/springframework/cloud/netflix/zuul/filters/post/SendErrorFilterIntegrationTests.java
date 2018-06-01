@@ -23,17 +23,21 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.MockClock;
+import io.micrometer.core.instrument.simple.SimpleConfig;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -58,6 +62,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 @SpringBootTest(classes = SendErrorFilterIntegrationTests.Config.class, properties = "zuul.routes.filtertest:/filtertest/**", webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class SendErrorFilterIntegrationTests {
+	@Autowired
+	private MeterRegistry meterRegistry;
 
 	@LocalServerPort
 	private int port;
@@ -79,6 +85,15 @@ public class SendErrorFilterIntegrationTests {
 		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
 				String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+
+		assertMetrics("pre");
+	}
+
+	private void assertMetrics(String filterType) {
+		Double count = meterRegistry.counter("ZUUL::EXCEPTION:"+ filterType +"::500").count();
+		assertThat(count.longValue()).isEqualTo(1L);
+		count = meterRegistry.counter("ZUUL::EXCEPTION:null:500").count();
+		assertThat(count.longValue()).isEqualTo(0L);
 	}
 
 	@Test
@@ -87,6 +102,8 @@ public class SendErrorFilterIntegrationTests {
 		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
 				String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+
+		assertMetrics("route");
 	}
 
 	@Test
@@ -95,6 +112,8 @@ public class SendErrorFilterIntegrationTests {
 		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
 				String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+
+		assertMetrics("post");
 	}
 
 	@SpringBootConfiguration
@@ -137,6 +156,11 @@ public class SendErrorFilterIntegrationTests {
 					return POST_TYPE;
 				}
 			};
+		}
+
+		@Bean
+		public MeterRegistry meterRegistry() {
+			return new SimpleMeterRegistry(SimpleConfig.DEFAULT, new MockClock());
 		}
 	}
 
