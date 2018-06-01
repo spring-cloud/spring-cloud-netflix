@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.eureka.http;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
@@ -136,7 +137,7 @@ public class EurekaServerMockApplication {
 			@RequestParam String lastDirtyTimestamp,
 			@RequestParam(required = false) String overriddenstatus) {
 		return new InstanceInfo(null, null, null, null, null, null, null, null, null,
-				null, null, null, null, 0, null, null, null, null, null, null, null, 0l,
+				null, null, null, null, 0, null, null, null, null, null, null, null, new HashMap<String, String>(), 0l,
 				0l, null, null);
 	}
 
