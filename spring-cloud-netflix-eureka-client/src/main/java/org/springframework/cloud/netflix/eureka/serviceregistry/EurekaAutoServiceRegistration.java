@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistration;
 import org.springframework.context.ApplicationContext;
@@ -116,8 +116,8 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 		return this.order;
 	}
 
-	@EventListener(ServletWebServerInitializedEvent.class)
-	public void onApplicationEvent(ServletWebServerInitializedEvent event) {
+	@EventListener(WebServerInitializedEvent.class)
+	public void onApplicationEvent(WebServerInitializedEvent event) {
 		// TODO: take SSL into account
 		int localPort = event.getWebServer().getPort();
 		if (this.port.get() == 0) {
