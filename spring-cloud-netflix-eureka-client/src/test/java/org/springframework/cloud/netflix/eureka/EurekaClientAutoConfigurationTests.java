@@ -16,27 +16,32 @@
 
 package org.springframework.cloud.netflix.eureka;
 
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import org.springframework.aop.framework.Advised;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
+import org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationProperties;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
+import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.cloud.context.scope.GenericScope;
-import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.jersey.EurekaJerseyClient;
@@ -45,8 +50,6 @@ import com.sun.jersey.client.apache4.ApacheHttpClient4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
@@ -367,6 +370,43 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Test
+	public void shouldReregisterHealthCheckHandlerAfterRefresh() throws Exception {
+		addEnvironment(this.context, "eureka.client.healthcheck.enabled=true");
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		EurekaClient oldEurekaClient = getLazyInitEurekaClient();
+
+		HealthCheckHandler healthCheckHandler = this.context.getBean("eurekaHealthCheckHandler", HealthCheckHandler.class);
+
+		assertThat(healthCheckHandler).isInstanceOf(EurekaHealthCheckHandler.class);
+		assertThat(oldEurekaClient.getHealthCheckHandler()).isSameAs(healthCheckHandler);
+
+		ContextRefresher refresher = this.context.getBean("contextRefresher", ContextRefresher.class);
+		refresher.refresh();
+
+		EurekaClient newEurekaClient = getLazyInitEurekaClient();
+		HealthCheckHandler newHealthCheckHandler = this.context.getBean("eurekaHealthCheckHandler", HealthCheckHandler.class);
+
+		assertThat(healthCheckHandler).isSameAs(newHealthCheckHandler);
+		assertThat(oldEurekaClient).isNotSameAs(newEurekaClient);
+		assertThat(newEurekaClient.getHealthCheckHandler()).isSameAs(healthCheckHandler);
+	}
+
+	@Test
+	public void shouldCloseDiscoveryClient() throws Exception {
+		addEnvironment(this.context, "eureka.client.healthcheck.enabled=true");
+		setupContext(RefreshAutoConfiguration.class, AutoServiceRegistrationConfiguration.class);
+
+		AtomicBoolean isShutdown = (AtomicBoolean) ReflectionTestUtils.getField(getLazyInitEurekaClient(), "isShutdown");
+
+		assertThat(isShutdown.get()).isFalse();
+
+		this.context.close();
+
+		assertThat(isShutdown.get()).isTrue();
+	}
+
+	@Test
 	public void basicAuth() {
 		addEnvironment(this.context, "server.port=8989",
 				"eureka.client.serviceUrl.defaultZone=http://user:foo@example.com:80/eureka");
@@ -425,16 +465,6 @@ public class EurekaClientAutoConfigurationTests {
 		}
 	}
 
-	@Test
-	public void eurekaRegistrationClosed() throws IOException {
-		setupContext(TestEurekaRegistrationConfiguration.class);
-		if (this.context != null) {
-			EurekaRegistration registration = this.context.getBean(EurekaRegistration.class);
-			this.context.close();
-			verify(registration).close();
-		}
-	}
-
 	private void testNonSecurePort(String propName) {
 		addEnvironment(this.context, propName + ":8888");
 		setupContext();
@@ -450,6 +480,10 @@ public class EurekaClientAutoConfigurationTests {
 
 	private EurekaInstanceConfigBean getInstanceConfig() {
 		return this.context.getBean(EurekaInstanceConfigBean.class);
+	}
+
+	private EurekaClient getLazyInitEurekaClient() throws Exception {
+		return (EurekaClient)((Advised) this.context.getBean("eurekaClient", EurekaClient.class)).getTargetSource().getTarget();
 	}
 
 	@Configuration
@@ -482,18 +516,6 @@ public class EurekaClientAutoConfigurationTests {
 	}
 
 	@Configuration
-	protected static class TestEurekaRegistrationConfiguration {
-
-		@Bean
-		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
-			return spy(EurekaRegistration.builder(instanceConfig)
-					.with(applicationInfoManager)
-					.with(eurekaClient)
-					.build());
-		}
-	}
-
-	@Configuration
 	protected static class MockClientConfiguration {
 
 		@Bean
@@ -514,5 +536,11 @@ public class EurekaClientAutoConfigurationTests {
 		public ApacheHttpClient4 apacheClient() {
 			return Mockito.mock(ApacheHttpClient4.class);
 		}
+	}
+
+	@Configuration
+	@EnableConfigurationProperties(AutoServiceRegistrationProperties.class)
+	public static class AutoServiceRegistrationConfiguration {
+
 	}
 }
