@@ -510,8 +510,9 @@ Spring Cloud looks for your implementation within the Spring context and wrap it
 </section>
 <section xml:id="_hystrix_metrics_stream">
 <title>Hystrix Metrics Stream</title>
-<simpara>To enable the Hystrix metrics stream, include a dependency on <literal>spring-boot-starter-actuator</literal>.
-Doing so exposes the <literal>/hystrix.stream</literal> as a management endpoint, as shown in the following example:</simpara>
+<simpara>To enable the Hystrix metrics stream, include a dependency on <literal>spring-boot-starter-actuator</literal> and set
+<literal>management.endpoints.web.exposure.include: hystrix.stream</literal>.
+Doing so exposes the <literal>/actuator/hystrix.stream</literal> as a management endpoint, as shown in the following example:</simpara>
 <programlisting language="xml" linenumbering="unnumbered">    &lt;dependency&gt;
         &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
         &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
