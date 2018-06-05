@@ -572,8 +572,9 @@ The state of the connected circuit breakers are also exposed in the `/health` en
 
 === Hystrix Metrics Stream
 
-To enable the Hystrix metrics stream, include a dependency on `spring-boot-starter-actuator`.
-Doing so exposes the `/hystrix.stream` as a management endpoint, as shown in the following example:
+To enable the Hystrix metrics stream, include a dependency on `spring-boot-starter-actuator` and set
+`management.endpoints.web.exposure.include: hystrix.stream`.
+Doing so exposes the `/actuator/hystrix.stream` as a management endpoint, as shown in the following example:
 
 [source,xml]
 ----
