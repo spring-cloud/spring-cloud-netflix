@@ -464,6 +464,31 @@ Only explict way of setting the hostname is by setting `eureka.instance.hostname
 You can set your hostname at the run-time by using an environment variable -- for example, `eureka.instance.hostname=${HOST_NAME}`.
 ====
 
+=== Securing The Eureka Server
+
+You can secure your Eureka server simply by adding Spring Security to your
+server's classpath via `spring-boot-starter-security`.  By default when Spring Security is on the classpath it will require that
+a valid CSRF token be sent with every request to the app.  Eureka clients will not generally possess a valid
+cross site request forgery (CSRF) token you will need to disable this requirement for the `/eureka/**` endpoints.
+For example: 
+
+[source,java,indent=0]
+----
+@EnableWebSecurity
+class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().ignoringAntMatchers("/eureka/**");
+        super.configure(http);
+    }
+}
+----
+
+For more information on CSRF see the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf[Spring Security documentation].
+
+A demo Eureka Server can be found in the Spring Cloud Samples https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security[repo].
+
 == Circuit Breaker: Hystrix Clients
 
 Netflix has created a library called https://github.com/Netflix/Hystrix[Hystrix] that implements the http://martinfowler.com/bliki/CircuitBreaker.html[circuit breaker pattern].
