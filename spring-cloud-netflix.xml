@@ -411,6 +411,25 @@ Only explict way of setting the hostname is by setting <literal>eureka.instance.
 You can set your hostname at the run-time by using an environment variable&#8201;&#8212;&#8201;for example, <literal>eureka.instance.hostname=${HOST_NAME}</literal>.</simpara>
 </tip>
 </section>
+<section xml:id="_securing_the_eureka_server">
+<title>Securing The Eureka Server</title>
+<simpara>You can secure your Eureka server simply by adding Spring Security to your
+server&#8217;s classpath via <literal>spring-boot-starter-security</literal>.  By default when Spring Security is on the classpath it will require that
+a valid CSRF token be sent with every request to the app.  Eureka clients will not generally possess a valid
+cross site request forgery (CSRF) token you will need to disable this requirement for the <literal>/eureka/**</literal> endpoints.
+For example:</simpara>
+<programlisting language="java" linenumbering="unnumbered">@EnableWebSecurity
+class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().ignoringAntMatchers("/eureka/**");
+        super.configure(http);
+    }
+}</programlisting>
+<simpara>For more information on CSRF see the <link xl:href="https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf">Spring Security documentation</link>.</simpara>
+<simpara>A demo Eureka Server can be found in the Spring Cloud Samples <link xl:href="https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security">repo</link>.</simpara>
+</section>
 </chapter>
 <chapter xml:id="_circuit_breaker_hystrix_clients">
 <title>Circuit Breaker: Hystrix Clients</title>
