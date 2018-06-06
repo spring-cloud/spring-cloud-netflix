@@ -468,9 +468,9 @@ You can set your hostname at the run-time by using an environment variable -- fo
 
 You can secure your Eureka server simply by adding Spring Security to your
 server's classpath via `spring-boot-starter-security`.  By default when Spring Security is on the classpath it will require that
-a valid CSRF token be sent with every request to the app.  Since Eureka clients will not
-generate a valid cross site request forgery (CSRF) token you will need to disable this requirement for the `/eureka/**` endpoints.
-You can do this by creating a `WebSecurityConfigurerAdapter`.
+a valid CSRF token be sent with every request to the app.  Eureka clients will not generally possess a valid
+cross site request forgery (CSRF) token you will need to disable this requirement for the `/eureka/**` endpoints.
+For example: 
 
 [source,java,indent=0]
 ----
