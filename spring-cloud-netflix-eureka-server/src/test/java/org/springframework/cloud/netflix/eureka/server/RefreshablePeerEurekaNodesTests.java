@@ -113,7 +113,6 @@ public class RefreshablePeerEurekaNodesTests {
 	
 	
 	@Test
-	@Ignore //FIXME 2.0.0
 	public void updatedWhenRegionChanged() {
 		changeProperty(
 				"eureka.client.use-dns-for-fetching-service-urls=false", 
@@ -133,7 +132,6 @@ public class RefreshablePeerEurekaNodesTests {
 	}
 	
 	@Test
-	@Ignore //FIXME 2.0.0
 	public void updatedWhenAvailabilityZoneChanged() {
 		changeProperty(
 				"eureka.client.use-dns-for-fetching-service-urls=false", 
