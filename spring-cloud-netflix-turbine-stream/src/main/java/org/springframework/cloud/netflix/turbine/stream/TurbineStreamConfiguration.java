@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.turbine.stream;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,6 +47,7 @@ import org.springframework.util.SocketUtils;
 import static io.reactivex.netty.pipeline.PipelineConfigurators.serveSseConfigurator;
 
 import rx.Observable;
+import rx.functions.Func1;
 import rx.subjects.PublishSubject;
 
 /**
@@ -57,6 +59,10 @@ import rx.subjects.PublishSubject;
 public class TurbineStreamConfiguration implements SmartLifecycle {
 
 	private static final Log log = LogFactory.getLog(TurbineStreamConfiguration.class);
+
+	private static final String CLUSTER_PARAM = "cluster";
+	private static final String DEFAULT_CLUSTER = "default";
+	private static final String INSTANCE_ID_KEY = "instanceId";
 
 	private AtomicBoolean running = new AtomicBoolean(false);
 
@@ -103,6 +109,7 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 					response.getHeaders().setHeader("Content-Type", "text/event-stream");
 					return output.doOnUnsubscribe(
 							() -> log.info("Unsubscribing RxNetty server connection"))
+							.filter(createClusterPredicate(request.getQueryParameters()))
 							.flatMap(data -> response.writeAndFlush(new ServerSentEvent(
 									null,
 									Unpooled.copiedBuffer("message",
@@ -111,6 +118,23 @@ public class TurbineStreamConfiguration implements SmartLifecycle {
 											StandardCharsets.UTF_8))));
 				}, serveSseConfigurator());
 		return httpServer;
+	}
+
+	Func1<Map<String, Object>, Boolean> createClusterPredicate(Map<String, List<String>> queryParameters) {
+		List<String> clusterNames = queryParameters.get(CLUSTER_PARAM);
+		if ((clusterNames == null) || (clusterNames.isEmpty()) || (clusterNames.contains(DEFAULT_CLUSTER))) {
+			return (data) -> true; // always true
+		}
+
+		return (data) -> {
+			String instanceId = (String) data.get(INSTANCE_ID_KEY);
+			if (instanceId == null) {
+				return true; // ping or unknown metric data. should be passed
+			}
+
+			return clusterNames.stream()
+				.anyMatch(clusterName -> instanceId.toLowerCase().startsWith(clusterName.toLowerCase() + ":"));
+		};
 	}
 
 	@Override
