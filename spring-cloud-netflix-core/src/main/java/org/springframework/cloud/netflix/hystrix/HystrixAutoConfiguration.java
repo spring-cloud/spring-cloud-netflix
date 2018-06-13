@@ -17,15 +17,24 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
+import com.netflix.hystrix.Hystrix;
+import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+import com.netflix.hystrix.metric.consumer.HystrixDashboardStream;
+import com.netflix.hystrix.serial.SerialHystrixDashboardData;
+import io.micrometer.core.instrument.binder.hystrix.HystrixMetricsBinder;
 import org.reactivestreams.Publisher;
+import rx.Observable;
+import rx.RxReactiveStreams;
+
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
 import org.springframework.boot.actuate.autoconfigure.health.HealthIndicatorAutoConfiguration;
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -33,17 +42,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.DispatcherHandler;
 
-import com.netflix.hystrix.Hystrix;
-import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
-import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
-import com.netflix.hystrix.metric.consumer.HystrixDashboardStream;
-import com.netflix.hystrix.serial.SerialHystrixDashboardData;
-
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.REACTIVE;
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
-
-import rx.Observable;
-import rx.RxReactiveStreams;
 
 /**
  * Auto configuration for Hystrix.
@@ -60,6 +60,12 @@ public class HystrixAutoConfiguration {
 	@ConditionalOnEnabledHealthIndicator("hystrix")
 	public HystrixHealthIndicator hystrixHealthIndicator() {
 		return new HystrixHealthIndicator();
+	}
+
+	@Bean
+	@ConditionalOnProperty(value = "management.metrics.hystrix.enabled", matchIfMissing = true)
+	public HystrixMetricsBinder hystrixMetricsBinder() {
+		return new HystrixMetricsBinder();
 	}
 
 	/**

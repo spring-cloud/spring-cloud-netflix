@@ -16,10 +16,15 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import org.junit.Test;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-
 import com.netflix.hystrix.contrib.javanica.aop.aspectj.HystrixCommandAspect;
+import io.micrometer.core.instrument.binder.MeterBinder;
+import io.micrometer.core.instrument.binder.hystrix.HystrixMetricsBinder;
+import org.junit.Test;
+
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,4 +43,17 @@ public class HystrixConfigurationTests {
 			});
 	}
 
+	@Test
+	public void hystrixMetricsConfigured() {
+		new WebApplicationContextRunner()
+				.withUserConfiguration(TestApp.class)
+				.run(c -> {
+					assertThat(c.getBeansOfType(MeterBinder.class).values())
+							.hasAtLeastOneElementOfType(HystrixMetricsBinder.class);
+				});
+	}
+
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	protected static class TestApp {}
 }
