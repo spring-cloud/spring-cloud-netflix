@@ -645,6 +645,18 @@ By default, metadata entry <literal>management.port</literal> is equal to the <l
 <simpara>On the server side Just create a Spring Boot application and annotate it with <literal>@EnableTurbineStream</literal> and by default it will come up on port 8989 (point your Hystrix dashboard to that port, any path). You can customize the port using either <literal>server.port</literal> or <literal>turbine.stream.port</literal>. If you have <literal>spring-boot-starter-web</literal> and <literal>spring-boot-starter-actuator</literal> on the classpath as well, then you can open up the Actuator endpoints on a separate port (with Tomcat by default) by providing a <literal>management.port</literal> which is different.</simpara>
 <simpara>You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.  If Turbine Stream is running on port 8989 on myhost, then put <literal><link xl:href="http://myhost:8989">http://myhost:8989</link></literal> in the stream input field in the Hystrix Dashboard. Circuits will be prefixed by their respective serviceId, followed by a dot, then the circuit name.</simpara>
 <simpara>Spring Cloud provides a <literal>spring-cloud-starter-netflix-turbine-stream</literal> that has all the dependencies you need to get a Turbine Stream server running - just add the Stream binder of your choice, e.g. <literal>spring-cloud-starter-stream-rabbit</literal>. You need Java 8 to run the app because it is Netty-based.</simpara>
+<simpara>Turbine Stream server also supports the <literal>cluster</literal> parameter.
+Unlike Turbine server, Turbine Stream uses eureka serviceIds as cluster names and these are not configurable.</simpara>
+<simpara>If Turbine Stream server is running on port 8989 on <literal>my.turbine.server</literal> and you have two eureka serviceIds <literal>customers</literal> and <literal>products</literal>  in your environment, the following URLs will be available on your Turbine Stream server. <literal>default</literal> and empty cluster name will provide all metrics that Turbine Stream server receives.</simpara>
+<screen>http://my.turbine.sever:8989/turbine.stream?cluster=customers
+http://my.turbine.sever:8989/turbine.stream?cluster=products
+http://my.turbine.sever:8989/turbine.stream?cluster=default
+http://my.turbine.sever:8989/turbine.stream</screen>
+<simpara>So, you can use eureka serviceIds as cluster names for your Turbine dashboard (or any compatible dashboard).
+You don’t need to configure any properties like <literal>turbine.appConfig</literal>, <literal>turbine.clusterNameExpression</literal> and <literal>turbine.aggregator.clusterConfig</literal> for your Turbine Stream server.</simpara>
+<note>
+<simpara>Turbine Stream server gathers all metrics from the configured input channel with Spring Cloud Stream. It means that it doesn’t gather Hystrix metrics actively from each instance. It just can provide metrics that were already gathered into the input channel by each instance.</simpara>
+</note>
 </section>
 </chapter>
 <chapter xml:id="spring-cloud-ribbon">
