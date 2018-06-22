@@ -19,8 +19,10 @@ package org.springframework.cloud.netflix.eureka.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -74,6 +76,7 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 		}
 
 		restTemplate.getMessageConverters().add(0, mappingJacksonHttpMessageConverter());
+		restTemplate.setErrorHandler(new ErrorHanlder());
 
 		return restTemplate;
 	}
@@ -132,6 +135,22 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 
 	@Override
 	public void shutdown() {
+	}
+
+	class ErrorHanlder extends DefaultResponseErrorHandler {
+		@Override
+		protected boolean hasError(HttpStatus statusCode) {
+			/**
+			 * When the Eureka server restarts and a client tries to sent a heartbeat the server
+			 * will respond with a 404.  By default RestTemplate will throw an exception in this case.
+			 * What we want is to return the 404 to the upstream code so it will send another registration
+			 * request to the server.
+			 */
+			if(statusCode.is4xxClientError()) {
+				return false;
+			}
+			return super.hasError(statusCode);
+		}
 	}
 
 }
