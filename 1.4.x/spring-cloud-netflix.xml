@@ -100,20 +100,23 @@ found will be used.</simpara>
 useful endpoints in a Spring Boot Actuator application. You need to
 change these, even for an Actuator application if you use a
 non-default context path or servlet path
-(e.g. <literal>server.servletPath=/foo</literal>) or management endpoint path
-(e.g. <literal>management.contextPath=/admin</literal>). Example:</simpara>
+(e.g. <literal>server.servletPath=/foo</literal>) Example:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
 <screen>eureka:
   instance:
-    statusPageUrlPath: ${management.context-path}/info
-    healthCheckUrlPath: ${management.context-path}/health</screen>
+    statusPageUrlPath: ${server.servletPath}/info
+    healthCheckUrlPath: ${server.servletPath}/health</screen>
 </para>
 </formalpara>
 <simpara>These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
 application, so it&#8217;s helpful if they are accurate.</simpara>
+<note>
+<simpara>In Dalston it was also required to set the status and health check URLs when changing
+that management context path.  This requirement was removed beinging in Edgware.</simpara>
+</note>
 </section>
 <section xml:id="_registering_a_secure_application">
 <title>Registering a Secure Application</title>

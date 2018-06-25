@@ -52,15 +52,15 @@ found will be used.</p></td></tr></table></div></div><div class="section"><div c
 useful endpoints in a Spring Boot Actuator application. You need to
 change these, even for an Actuator application if you use a
 non-default context path or servlet path
-(e.g. <code class="literal">server.servletPath=/foo</code>) or management endpoint path
-(e.g. <code class="literal">management.contextPath=/admin</code>). Example:</p><p><b>application.yml.&nbsp;</b>
+(e.g. <code class="literal">server.servletPath=/foo</code>) Example:</p><p><b>application.yml.&nbsp;</b>
 </p><pre class="screen">eureka:
   instance:
-    statusPageUrlPath: ${management.context-path}/info
-    healthCheckUrlPath: ${management.context-path}/health</pre><p>
+    statusPageUrlPath: ${server.servletPath}/info
+    healthCheckUrlPath: ${server.servletPath}/health</pre><p>
 </p><p>These links show up in the metadata that is consumed by clients, and
 used in some scenarios to decide whether to send requests to your
-application, so it&#8217;s helpful if they are accurate.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_registering_a_secure_application" href="#_registering_a_secure_application"></a>1.5&nbsp;Registering a Secure Application</h2></div></div></div><p>If your app wants to be contacted over HTTPS you can set two flags in
+application, so it&#8217;s helpful if they are accurate.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="images/note.png"></td><th align="left">Note</th></tr><tr><td align="left" valign="top"><p>In Dalston it was also required to set the status and health check URLs when changing
+that management context path.  This requirement was removed beinging in Edgware.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_registering_a_secure_application" href="#_registering_a_secure_application"></a>1.5&nbsp;Registering a Secure Application</h2></div></div></div><p>If your app wants to be contacted over HTTPS you can set two flags in
 the <code class="literal">EurekaInstanceConfig</code>, <span class="emphasis"><em>viz</em></span>
 <code class="literal">eureka.instance.[nonSecurePortEnabled,securePortEnabled]=[false,true]</code>
 respectively. This will make Eureka publish instance information
