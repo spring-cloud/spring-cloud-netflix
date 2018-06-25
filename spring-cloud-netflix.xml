@@ -1036,7 +1036,7 @@ See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Pro
 </section>
 <section xml:id="netflix-zuul-reverse-proxy">
 <title>Embedded Zuul Reverse Proxy</title>
-<simpara>Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more back end services.
+<simpara>Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more backend services.
 This feature is useful for a user interface to proxy to the backend services it requires, avoiding the need to manage CORS and authentication concerns independently for all the backends.</simpara>
 <simpara>To enable it, annotate a Spring Boot main class with <literal>@EnableZuulProxy</literal>. Doing so causes local calls to be forwarded to the appropriate service.
 By convention, a service with an ID of <literal>users</literal> receives requests from the proxy located at <literal>/users</literal> (with the prefix stripped).
@@ -1252,7 +1252,7 @@ This is new in Spring Cloud Netflix 1.1 (in 1.0, the user had no control over he
 </note>
 <simpara>The <literal>sensitiveHeaders</literal> are a blacklist, and the default is not empty.
 Consequently, to make Zuul send all headers (except the <literal>ignored</literal> ones), you must explicitly set it to the empty list.
-Doing so is necessary if you want to pass cookie or authorization headers to your back end. The following example shows how to use <literal>sensitiveHeaders</literal>:</simpara>
+Doing so is necessary if you want to pass cookie or authorization headers to your backend. The following example shows how to use <literal>sensitiveHeaders</literal>:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
