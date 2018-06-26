@@ -42,7 +42,7 @@
 	<br>
 	<i>Cluster via Turbine (custom cluster):</i> http://turbine-hostname:port/turbine.stream?cluster=[clusterName]
 	<br>
-	<i>Single Hystrix App:</i> http://hystrix-app:port/hystrix.stream
+	<i>Single Hystrix App:</i> http://hystrix-app:port/actuator/hystrix.stream
 	<br><br>
 	Delay: <input id="delay" type="textfield" size="10" placeholder="2000"></input>ms 
 	&nbsp;&nbsp;&nbsp;&nbsp; 
