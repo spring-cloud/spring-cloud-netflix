@@ -20,14 +20,17 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.eureka.metadata.DefaultManagementMetadataProvider;
+import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadata;
+import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -36,8 +39,7 @@ import org.springframework.util.StringUtils;
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClientConfig;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * Sidecar Configuration that setting up {@link com.netflix.appinfo.EurekaInstanceConfig}.
@@ -80,8 +82,17 @@ public class SidecarConfiguration {
 		@Autowired
 		private InetUtils inetUtils;
 
-		@Value("${management.port:${MANAGEMENT_PORT:${server.port:${SERVER_PORT:${PORT:8080}}}}}")
-		private int managementPort = 8080;
+		@Value(value = "${management.port:${MANAGEMENT_PORT:#{null}}}")
+		private Integer managementPort;
+
+		@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
+		private int serverPort = 8080;
+
+		@Value("${management.context-path:${MANAGEMENT_CONTEXT_PATH:#{null}}}")
+		private String managementContextPath;
+
+		@Value("${server.context-path:${SERVER_CONTEXT_PATH:/}}")
+		private String serverContextPath = "/";
 
 		@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
 		private String hostname;
@@ -90,7 +101,13 @@ public class SidecarConfiguration {
 		private ConfigurableEnvironment env;
 
 		@Bean
-		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
+		@ConditionalOnMissingBean
+		public ManagementMetadataProvider serviceManagementMetadataProvider() {
+			return new DefaultManagementMetadataProvider();
+		}
+
+		@Bean
+		public EurekaInstanceConfigBean eurekaInstanceConfigBean(ManagementMetadataProvider managementMetadataProvider) {
 			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
 			RelaxedPropertyResolver springPropertyResolver = new RelaxedPropertyResolver(env, "spring.application.");
 			String springAppName = springPropertyResolver.getProperty("name");
@@ -114,10 +131,20 @@ public class SidecarConfiguration {
 				config.setIpAddress(ipAddress);
 			}
 			String scheme = config.getSecurePortEnabled() ? "https" : "http";
-			config.setStatusPageUrl(scheme + "://" + config.getHostname() + ":"
-					+ this.managementPort + config.getStatusPageUrlPath());
-			config.setHealthCheckUrl(scheme + "://" + config.getHostname() + ":"
-					+ this.managementPort + config.getHealthCheckUrlPath());
+			ManagementMetadata metadata = managementMetadataProvider.get(config, serverPort,
+					serverContextPath, managementContextPath, managementPort);
+
+			if(metadata != null) {
+				config.setStatusPageUrl(metadata.getStatusPageUrl());
+				config.setHealthCheckUrl(metadata.getHealthCheckUrl());
+				if(config.isSecurePortEnabled()) {
+					config.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
+				}
+				Map<String, String> metadataMap = config.getMetadataMap();
+				if (metadataMap.get("management.port") == null) {
+					metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
+				}
+			}
 			config.setHomePageUrl(scheme + "://" + config.getHostname() + ":" + port
 					+ config.getHomePageUrlPath());
 			return config;
