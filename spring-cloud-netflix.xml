@@ -337,7 +337,7 @@ dependencyManagement {
 </section>
 <section xml:id="spring-cloud-eureka-server-zones-and-regions">
 <title>High Availability, Zones and Regions</title>
-<simpara>The Eureka server does not have a backend store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
+<simpara>The Eureka server does not have a back end store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
 Clients also have an in-memory cache of Eureka registrations (so they do not have to go to the registry for every request to a service).</simpara>
 <simpara>By default, every Eureka server is also a Eureka client and requires (at least one) service URL to locate a peer.
 If you do not provide it, the service runs and works, but it fills your logs with a lot of noise about not being able to register with the peer.</simpara>
@@ -1036,8 +1036,8 @@ See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Pro
 </section>
 <section xml:id="netflix-zuul-reverse-proxy">
 <title>Embedded Zuul Reverse Proxy</title>
-<simpara>Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more backend services.
-This feature is useful for a user interface to proxy to the backend services it requires, avoiding the need to manage CORS and authentication concerns independently for all the backends.</simpara>
+<simpara>Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more back end services.
+This feature is useful for a user interface to proxy to the back end services it requires, avoiding the need to manage CORS and authentication concerns independently for all the back ends.</simpara>
 <simpara>To enable it, annotate a Spring Boot main class with <literal>@EnableZuulProxy</literal>. Doing so causes local calls to be forwarded to the appropriate service.
 By convention, a service with an ID of <literal>users</literal> receives requests from the proxy located at <literal>/users</literal> (with the prefix stripped).
 The proxy uses Ribbon to locate an instance to which to forward through discovery.
@@ -1081,7 +1081,7 @@ If a service matches a pattern that is ignored but is also included in the expli
 </formalpara>
 <simpara>The preceding example means that HTTP calls to <literal>/myusers</literal> get forwarded to the <literal>users_service</literal> service.
 The route must have a <literal>path</literal> that can be specified as an ant-style pattern, so <literal>/myusers/*</literal> only matches one level, but <literal>/myusers/**</literal> matches hierarchically.</simpara>
-<simpara>The location of the backend can be specified as either a <literal>serviceId</literal> (for a service from discovery) or a <literal>url</literal> (for a physical location), as shown in the following example:</simpara>
+<simpara>The location of the back end can be specified as either a <literal>serviceId</literal> (for a service from discovery) or a <literal>url</literal> (for a physical location), as shown in the following example:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
@@ -1183,7 +1183,7 @@ Set that flag to <literal>true</literal> to have the Ribbon client automatically
 You can also set that flag to <literal>true</literal> when you need to modify the parameters of the retry operations that use the Ribbon client configuration.</simpara>
 <simpara>By default, the <literal>X-Forwarded-Host</literal> header is added to the forwarded requests.
 To turn it off, set <literal>zuul.addProxyHeaders = false</literal>.
-By default, the prefix path is stripped, and the request to the backend picks up a <literal>X-Forwarded-Prefix</literal> header (<literal>/myusers</literal> in the examples shown earlier).</simpara>
+By default, the prefix path is stripped, and the request to the back end picks up a <literal>X-Forwarded-Prefix</literal> header (<literal>/myusers</literal> in the examples shown earlier).</simpara>
 <simpara>If you set a default route (<literal>/</literal>), an application with <literal>@EnableZuulProxy</literal> could act as a standalone server. For example, <literal>zuul.route.home: /</literal> would route all traffic ("/**") to the "home" service.</simpara>
 <simpara>If more fine-grained ignoring is needed, you can specify specific patterns to ignore.
 These patterns are evaluated at the start of the route location process, which means prefixes should be included in the pattern to warrant a match.
@@ -1230,7 +1230,7 @@ If you would like to customize the Apache HTTP client or the OK HTTP client, pro
 You can specify a list of ignored headers as part of the route configuration.
 Cookies play a special role, because they have well defined semantics in browsers, and they are always to be treated as sensitive.
 If the consumer of your proxy is a browser, then cookies for downstream services also cause problems for the user, because they all get jumbled up together (all downstream services look like they come from the same place).</simpara>
-<simpara>If you are careful with the design of your services, (for example, if only one of the downstream services sets cookies), you might be able to let them flow from the backend all the way up to the caller.
+<simpara>If you are careful with the design of your services, (for example, if only one of the downstream services sets cookies), you might be able to let them flow from the back end all the way up to the caller.
 Also, if your proxy sets cookies and all your back-end services are part of the same system, it can be natural to simply share them (and, for instance, use Spring Session to link them up to some shared state).
 Other than that, any cookies that get set by downstream services are likely to be not useful to the caller, so it is recommended that you make (at least) <literal>Set-Cookie</literal> and <literal>Cookie</literal> into sensitive headers for routes that are not part of your domain.
 Even for routes that are part of your domain, try to think carefully about what it means before letting cookies flow between them and the proxy.</simpara>
@@ -1252,7 +1252,7 @@ This is new in Spring Cloud Netflix 1.1 (in 1.0, the user had no control over he
 </note>
 <simpara>The <literal>sensitiveHeaders</literal> are a blacklist, and the default is not empty.
 Consequently, to make Zuul send all headers (except the <literal>ignored</literal> ones), you must explicitly set it to the empty list.
-Doing so is necessary if you want to pass cookie or authorization headers to your backend. The following example shows how to use <literal>sensitiveHeaders</literal>:</simpara>
+Doing so is necessary if you want to pass cookie or authorization headers to your back end. The following example shows how to use <literal>sensitiveHeaders</literal>:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
@@ -1385,7 +1385,7 @@ ribbon:
 <section xml:id="_query_string_encoding">
 <title>Query String Encoding</title>
 <simpara>When processing the incoming request, query params are decoded so that they can be available for possible modifications in Zuul filters.
-They are then re-encoded the backend request is rebuilt in the route filters.
+They are then re-encoded the back end request is rebuilt in the route filters.
 The result can be different than the original input if (for example) it was encoded with Javascript&#8217;s <literal>encodeURIComponent()</literal> method.
 While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.</simpara>
 <simpara>To force the original encoding of the query string, it is possible to pass a special flag to <literal>ZuulProperties</literal> so that the query string is taken as is with the <literal>HttpServletRequest::getQueryString</literal> method, as shown in the following example:</simpara>
