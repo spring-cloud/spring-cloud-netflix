@@ -381,7 +381,7 @@ dependencyManagement {
 [[spring-cloud-eureka-server-zones-and-regions]]
 === High Availability, Zones and Regions
 
-The Eureka server does not have a backend store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
+The Eureka server does not have a back end store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
 Clients also have an in-memory cache of Eureka registrations (so they do not have to go to the registry for every request to a service).
 
 By default, every Eureka server is also a Eureka client and requires (at least one) service URL to locate a peer.
@@ -1040,8 +1040,8 @@ See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page] for d
 [[netflix-zuul-reverse-proxy]]
 === Embedded Zuul Reverse Proxy
 
-Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more backend services.
-This feature is useful for a user interface to proxy to the backend services it requires, avoiding the need to manage CORS and authentication concerns independently for all the backends.
+Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more back end services.
+This feature is useful for a user interface to proxy to the back end services it requires, avoiding the need to manage CORS and authentication concerns independently for all the back ends.
 
 To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`. Doing so causes local calls to be forwarded to the appropriate service.
 By convention, a service with an ID of `users` receives requests from the proxy located at `/users` (with the prefix stripped).
@@ -1092,7 +1092,7 @@ To get more fine-grained control over a route, you can specify the path and the 
 The preceding example means that HTTP calls to `/myusers` get forwarded to the `users_service` service.
 The route must have a `path` that can be specified as an ant-style pattern, so `/myusers/{asterisk}` only matches one level, but `/myusers/{all}` matches hierarchically.
 
-The location of the backend can be specified as either a `serviceId` (for a service from discovery) or a `url` (for a physical location), as shown in the following example:
+The location of the back end can be specified as either a `serviceId` (for a service from discovery) or a `url` (for a physical location), as shown in the following example:
 
 .application.yml
 [source,yaml]
@@ -1201,7 +1201,7 @@ You can also set that flag to `true` when you need to modify the parameters of t
 
 By default, the `X-Forwarded-Host` header is added to the forwarded requests.
 To turn it off, set `zuul.addProxyHeaders = false`.
-By default, the prefix path is stripped, and the request to the backend picks up a `X-Forwarded-Prefix` header (`/myusers` in the examples shown earlier).
+By default, the prefix path is stripped, and the request to the back end picks up a `X-Forwarded-Prefix` header (`/myusers` in the examples shown earlier).
 
 If you set a default route (`/`), an application with `@EnableZuulProxy` could act as a standalone server. For example, `zuul.route.home: /` would route all traffic ("/{all}") to the "home" service.
 
@@ -1252,7 +1252,7 @@ You can specify a list of ignored headers as part of the route configuration.
 Cookies play a special role, because they have well defined semantics in browsers, and they are always to be treated as sensitive.
 If the consumer of your proxy is a browser, then cookies for downstream services also cause problems for the user, because they all get jumbled up together (all downstream services look like they come from the same place).
 
-If you are careful with the design of your services, (for example, if only one of the downstream services sets cookies), you might be able to let them flow from the backend all the way up to the caller.
+If you are careful with the design of your services, (for example, if only one of the downstream services sets cookies), you might be able to let them flow from the back end all the way up to the caller.
 Also, if your proxy sets cookies and all your back-end services are part of the same system, it can be natural to simply share them (and, for instance, use Spring Session to link them up to some shared state).
 Other than that, any cookies that get set by downstream services are likely to be not useful to the caller, so it is recommended that you make (at least) `Set-Cookie` and `Cookie` into sensitive headers for routes that are not part of your domain.
 Even for routes that are part of your domain, try to think carefully about what it means before letting cookies flow between them and the proxy.
@@ -1275,7 +1275,7 @@ This is new in Spring Cloud Netflix 1.1 (in 1.0, the user had no control over he
 
 The `sensitiveHeaders` are a blacklist, and the default is not empty.
 Consequently, to make Zuul send all headers (except the `ignored` ones), you must explicitly set it to the empty list.
-Doing so is necessary if you want to pass cookie or authorization headers to your backend. The following example shows how to use `sensitiveHeaders`:
+Doing so is necessary if you want to pass cookie or authorization headers to your back end. The following example shows how to use `sensitiveHeaders`:
 
 .application.yml
 [source,yaml]
@@ -1411,7 +1411,7 @@ $ curl -v -H "Transfer-Encoding: chunked" \
 
 === Query String Encoding
 When processing the incoming request, query params are decoded so that they can be available for possible modifications in Zuul filters.
-They are then re-encoded the backend request is rebuilt in the route filters.
+They are then re-encoded the back end request is rebuilt in the route filters.
 The result can be different than the original input if (for example) it was encoded with Javascript's `encodeURIComponent()` method.
 While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.
 
