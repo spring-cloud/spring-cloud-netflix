@@ -1040,7 +1040,7 @@ See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page] for d
 [[netflix-zuul-reverse-proxy]]
 === Embedded Zuul Reverse Proxy
 
-Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more backend services.
+Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more back end services.
 This feature is useful for a user interface to proxy to the backend services it requires, avoiding the need to manage CORS and authentication concerns independently for all the backends.
 
 To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`. Doing so causes local calls to be forwarded to the appropriate service.
@@ -1275,7 +1275,7 @@ This is new in Spring Cloud Netflix 1.1 (in 1.0, the user had no control over he
 
 The `sensitiveHeaders` are a blacklist, and the default is not empty.
 Consequently, to make Zuul send all headers (except the `ignored` ones), you must explicitly set it to the empty list.
-Doing so is necessary if you want to pass cookie or authorization headers to your backend. The following example shows how to use `sensitiveHeaders`:
+Doing so is necessary if you want to pass cookie or authorization headers to your back end. The following example shows how to use `sensitiveHeaders`:
 
 .application.yml
 [source,yaml]
