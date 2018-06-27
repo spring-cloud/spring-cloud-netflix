@@ -76,17 +76,21 @@ For more complex needs, you can create a <literal>@Bean</literal> of type <liter
 <section xml:id="_status_page_and_health_indicator">
 <title>Status Page and Health Indicator</title>
 <simpara>The status page and health indicators for a Eureka instance default to <literal>/info</literal> and <literal>/health</literal> respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
-You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as <literal>server.servletPath=/custom</literal>) or management endpoint path (such as <literal>management.contextPath=/admin</literal>). The following example shows the default values for the two settings:</simpara>
+You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as <literal>server.servletPath=/custom</literal>). The following example shows the default values for the two settings:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
 <screen>eureka:
   instance:
-    statusPageUrlPath: ${management.server.servlet.context-path}/info
-    healthCheckUrlPath: ${management.server.servlet.context-path}/health</screen>
+    statusPageUrlPath: ${server.servletPath}/info
+    healthCheckUrlPath: ${server.servletPath}/health</screen>
 </para>
 </formalpara>
 <simpara>These links show up in the metadata that is consumed by clients and are used in some scenarios to decide whether to send requests to your application, so it is helpful if they are accurate.</simpara>
+<note>
+<simpara>In Dalston it was also required to set the status and health check URLs when changing
+that management context path.  This requirement was removed beginning in Edgware.</simpara>
+</note>
 </section>
 <section xml:id="_registering_a_secure_application">
 <title>Registering a Secure Application</title>
@@ -655,6 +659,18 @@ If Turbine Stream is running on port 8989 on myhost, then put <literal><link xl:
 Circuits are prefixed by their respective <literal>serviceId</literal>, followed by a dot (<literal>.</literal>), and then the circuit name.</simpara>
 <simpara>Spring Cloud provides a <literal>spring-cloud-starter-netflix-turbine-stream</literal> that has all the dependencies you need to get a Turbine Stream server running.
 You can then add the Stream binder of your choice&#8201;&#8212;&#8201;such as <literal>spring-cloud-starter-stream-rabbit</literal>.</simpara>
+<simpara>Turbine Stream server also supports the <literal>cluster</literal> parameter.
+Unlike Turbine server, Turbine Stream uses eureka serviceIds as cluster names and these are not configurable.</simpara>
+<simpara>If Turbine Stream server is running on port 8989 on <literal>my.turbine.server</literal> and you have two eureka serviceIds <literal>customers</literal> and <literal>products</literal>  in your environment, the following URLs will be available on your Turbine Stream server. <literal>default</literal> and empty cluster name will provide all metrics that Turbine Stream server receives.</simpara>
+<screen>http://my.turbine.sever:8989/turbine.stream?cluster=customers
+http://my.turbine.sever:8989/turbine.stream?cluster=products
+http://my.turbine.sever:8989/turbine.stream?cluster=default
+http://my.turbine.sever:8989/turbine.stream</screen>
+<simpara>So, you can use eureka serviceIds as cluster names for your Turbine dashboard (or any compatible dashboard).
+You don’t need to configure any properties like <literal>turbine.appConfig</literal>, <literal>turbine.clusterNameExpression</literal> and <literal>turbine.aggregator.clusterConfig</literal> for your Turbine Stream server.</simpara>
+<note>
+<simpara>Turbine Stream server gathers all metrics from the configured input channel with Spring Cloud Stream. It means that it doesn’t gather Hystrix metrics actively from each instance. It just can provide metrics that were already gathered into the input channel by each instance.</simpara>
+</note>
 </section>
 </chapter>
 <chapter xml:id="spring-cloud-ribbon">
