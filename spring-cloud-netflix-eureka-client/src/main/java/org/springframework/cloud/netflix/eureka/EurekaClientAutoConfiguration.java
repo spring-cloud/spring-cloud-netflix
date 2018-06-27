@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -94,9 +95,6 @@ import com.netflix.discovery.EurekaClientConfig;
 		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration"})
 public class EurekaClientAutoConfiguration {
 
-	@Autowired(required = false)
-	private HealthCheckHandler healthCheckHandler;
-	
 	@Bean
 	public HasFeatures eurekaFeature() {
 		return HasFeatures.namedFeature("Eureka Client", EurekaClient.class);
@@ -203,18 +201,8 @@ public class EurekaClientAutoConfiguration {
 	@Bean
 	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
 	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
-	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager) {
-		return EurekaRegistration.builder(instanceConfig)
-				.with(applicationInfoManager)
-				.with(eurekaClient)
-				.with(healthCheckHandler)
-				.build();
-	}
-
-	@Bean
-	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
-	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
-	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry registry, EurekaRegistration registration) {
+	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry registry,
+																	   EurekaRegistration registration) {
 		return new EurekaAutoServiceRegistration(context, registry, registration);
 	}
 
@@ -241,6 +229,20 @@ public class EurekaClientAutoConfiguration {
 				EurekaInstanceConfig config) {
 			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
 			return new ApplicationInfoManager(config, instanceInfo);
+		}
+
+		@Bean
+		@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+		@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
+													 CloudEurekaInstanceConfig instanceConfig,
+													 ApplicationInfoManager applicationInfoManager,
+													 @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
+			return EurekaRegistration.builder(instanceConfig)
+					.with(applicationInfoManager)
+					.with(eurekaClient)
+					.with(healthCheckHandler)
+					.build();
 		}
 	}
 
@@ -271,6 +273,21 @@ public class EurekaClientAutoConfiguration {
 		public ApplicationInfoManager eurekaApplicationInfoManager(EurekaInstanceConfig config) {
 			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
 			return new ApplicationInfoManager(config, instanceInfo);
+		}
+
+		@Bean
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+		@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
+													 CloudEurekaInstanceConfig instanceConfig,
+													 ApplicationInfoManager applicationInfoManager,
+													 @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
+			return EurekaRegistration.builder(instanceConfig)
+					.with(applicationInfoManager)
+					.with(eurekaClient)
+					.with(healthCheckHandler)
+					.build();
 		}
 
 	}
