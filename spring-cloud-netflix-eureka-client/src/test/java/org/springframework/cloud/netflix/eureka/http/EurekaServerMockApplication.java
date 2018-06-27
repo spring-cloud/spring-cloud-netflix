@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -132,13 +133,16 @@ public class EurekaServerMockApplication {
 	@ResponseStatus(HttpStatus.OK)
 	@PutMapping(value = "/apps/{appName}/{id}", params = { "status",
 			"lastDirtyTimestamp" })
-	public InstanceInfo sendHeartBeat(@PathVariable String appName,
-			@PathVariable String id, @RequestParam String status,
-			@RequestParam String lastDirtyTimestamp,
-			@RequestParam(required = false) String overriddenstatus) {
-		return new InstanceInfo(null, null, null, null, null, null, null, null, null,
+	public ResponseEntity sendHeartBeat(@PathVariable String appName,
+										@PathVariable String id, @RequestParam String status,
+										@RequestParam String lastDirtyTimestamp,
+										@RequestParam(required = false) String overriddenstatus) {
+		if("fourOFour".equals(appName)) {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<InstanceInfo>(new InstanceInfo(null, null, null, null, null, null, null, null, null,
 				null, null, null, null, 0, null, null, null, null, null, null, null, new HashMap<String, String>(), 0l,
-				0l, null, null);
+				0l, null, null), HttpStatus.OK);
 	}
 
 	@ResponseStatus(HttpStatus.OK)

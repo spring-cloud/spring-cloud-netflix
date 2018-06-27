@@ -98,4 +98,34 @@ public class SidecarApplicationTests {
 		}
 	}
 
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1",
+			"management.context-path=/foo"})
+	public static class ManagementContextPathStatusAndHealthCheckUrls {
+		@Autowired
+		EurekaInstanceConfigBean config;
+
+		public void testStatusAndHealthCheckUrls() {
+			assertThat(this.config.getStatusPageUrl(), equalTo("http://mhhost2:0/foo/info"));
+			assertThat(this.config.getHealthCheckUrl(), equalTo("http://mhhost2:0/foo/health"));
+		}
+	}
+
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
+			"spring.application.name=mytest", "spring.cloud.client.hostname=mhhost", "spring.application.instance_id=1",
+			"eureka.instance.hostname=mhhost1", "sidecar.hostname=mhhost2", "sidecar.port=7000", "sidecar.ipAddress=127.0.0.1",
+			"server.context-path=/foo"})
+	public static class ServerContextPathStatusAndHealthCheckUrls {
+		@Autowired
+		EurekaInstanceConfigBean config;
+
+		@Test
+		public void testStatusAndHealthCheckUrls() {
+			assertThat(this.config.getStatusPageUrl(), equalTo("http://mhhost2:0/foo/info"));
+			assertThat(this.config.getHealthCheckUrl(), equalTo("http://mhhost2:0/foo/health"));
+		}
+	}
 }

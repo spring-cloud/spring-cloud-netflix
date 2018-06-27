@@ -145,7 +145,9 @@ public class ProxyRequestHelper {
 		for (String header : zuulRequestHeaders.keySet()) {
 			headers.set(header, zuulRequestHeaders.get(header));
 		}
-		headers.set(HttpHeaders.ACCEPT_ENCODING, "gzip");
+		if(!headers.containsKey(HttpHeaders.ACCEPT_ENCODING)) {
+			headers.set(HttpHeaders.ACCEPT_ENCODING, "gzip");
+		}
 		return headers;
 	}
 
