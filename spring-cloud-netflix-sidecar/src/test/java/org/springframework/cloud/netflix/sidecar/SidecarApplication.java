@@ -18,6 +18,11 @@ package org.springframework.cloud.netflix.sidecar;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.cloud.netflix.eureka.metadata.DefaultManagementMetadataProvider;
+import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadata;
+import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvider;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
@@ -27,6 +32,27 @@ public class SidecarApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SidecarApplication.class, args);
+	}
+
+	@Bean
+	public ManagementMetadataProvider managementMetadataProvider() {
+		//The default management metadata provider checks for random ports, we dont care about this in tests
+		return new DefaultManagementMetadataProvider() {
+			@Override
+			public ManagementMetadata get(EurekaInstanceConfigBean instance, int serverPort, String serverContextPath, String managementContextPath, Integer managementPort) {
+				String healthCheckUrl = getHealthCheckUrl(instance, serverPort, serverContextPath,
+						managementContextPath, managementPort, false);
+				String statusPageUrl = getStatusPageUrl(instance, serverPort, serverContextPath,
+						managementContextPath, managementPort);
+
+				ManagementMetadata metadata = new ManagementMetadata(healthCheckUrl, statusPageUrl, managementPort == null ? serverPort : managementPort);
+				if(instance.isSecurePortEnabled()) {
+					metadata.setSecureHealthCheckUrl(getHealthCheckUrl(instance, serverPort, serverContextPath,
+							managementContextPath, managementPort, true));
+				}
+				return metadata;
+			}
+		};
 	}
 
 }

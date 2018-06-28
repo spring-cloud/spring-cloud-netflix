@@ -84,17 +84,20 @@ NOTE: Because of a limitation in Eureka, it is not possible to support per-serve
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
-You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as `server.servletPath=/custom`) or management endpoint path (such as `management.contextPath=/admin`). The following example shows the default values for the two settings:
+You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as `server.servletPath=/custom`). The following example shows the default values for the two settings:
 
 .application.yml
 ----
 eureka:
   instance:
-    statusPageUrlPath: ${management.server.servlet.context-path}/info
-    healthCheckUrlPath: ${management.server.servlet.context-path}/health
+    statusPageUrlPath: ${server.servletPath}/info
+    healthCheckUrlPath: ${server.servletPath}/health
 ----
 
 These links show up in the metadata that is consumed by clients and are used in some scenarios to decide whether to send requests to your application, so it is helpful if they are accurate.
+
+NOTE: In Dalston it was also required to set the status and health check URLs when changing
+that management context path.  This requirement was removed beginning in Edgware.
 
 === Registering a Secure Application
 
@@ -746,6 +749,24 @@ Circuits are prefixed by their respective `serviceId`, followed by a dot (`.`), 
 
 Spring Cloud provides a `spring-cloud-starter-netflix-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running.
 You can then add the Stream binder of your choice -- such as `spring-cloud-starter-stream-rabbit`.
+
+Turbine Stream server also supports the `cluster` parameter.
+Unlike Turbine server, Turbine Stream uses eureka serviceIds as cluster names and these are not configurable.
+
+If Turbine Stream server is running on port 8989 on `my.turbine.server` and you have two eureka serviceIds `customers` and `products`  in your environment, the following URLs will be available on your Turbine Stream server. `default` and empty cluster name will provide all metrics that Turbine Stream server receives.
+
+----
+http://my.turbine.sever:8989/turbine.stream?cluster=customers
+http://my.turbine.sever:8989/turbine.stream?cluster=products
+http://my.turbine.sever:8989/turbine.stream?cluster=default
+http://my.turbine.sever:8989/turbine.stream
+----
+
+So, you can use eureka serviceIds as cluster names for your Turbine dashboard (or any compatible dashboard).
+You don’t need to configure any properties like `turbine.appConfig`, `turbine.clusterNameExpression` and `turbine.aggregator.clusterConfig` for your Turbine Stream server.
+
+NOTE: Turbine Stream server gathers all metrics from the configured input channel with Spring Cloud Stream. It means that it doesn’t gather Hystrix metrics actively from each instance. It just can provide metrics that were already gathered into the input channel by each instance.
+
 
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon

@@ -45,7 +45,7 @@ import com.netflix.discovery.EurekaClientConfig;
 /**
  * @author Spencer Gibb
  */
-public class EurekaRegistration implements Registration, Closeable {
+public class EurekaRegistration implements Registration {
 	private static final Log log = LogFactory.getLog(EurekaRegistration.class);
 
 	private final EurekaClient eurekaClient;
@@ -202,8 +202,4 @@ public class EurekaRegistration implements Registration, Closeable {
 		return this.instanceConfig.getSecurePort();
 	}
 
-	@Override
-	public void close() throws IOException {
-		this.eurekaClient.shutdown();
-	}
 }
