@@ -103,6 +103,8 @@ public class RibbonProperties {
         Object property = this.config.getProperty(PoolKeepAliveTime);
         if (property instanceof Long) {
             return (Long) property;
+        } else if (property instanceof String) {
+            return Long.valueOf((String) property);
         }
         return null;
     }
