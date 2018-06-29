@@ -2505,6 +2505,7 @@ public SseEmitter event() {
 <simpara>When used together, Spectator/Servo and Atlas provide a near real-time operational insight platform.</simpara>
 <simpara>Spectator and Servo are Netflix&#8217;s metrics collection libraries. Atlas is a Netflix metrics backend to manage dimensional time series data.</simpara>
 <simpara>Servo served Netflix for several years and is still usable, but is gradually being phased out in favor of Spectator, which is only designed to work with Java 8.  Spring Cloud Netflix provides support for both, but Java 8 based applications are encouraged to use Spectator.</simpara>
+<simpara>To enable Servo you must set <literal>spring.metrics.servo.enabled</literal> to <literal>true</literal>.</simpara>
 <section xml:id="_dimensional_vs_hierarchical_metrics">
 <title>Dimensional vs. Hierarchical Metrics</title>
 <simpara>Spring Boot Actuator metrics are hierarchical and metrics are separated only by name. These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name separated by periods. Consider the following metrics for two endpoints, root and star-star:</simpara>
