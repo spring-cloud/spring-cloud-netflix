@@ -89,6 +89,8 @@ public class HttpClientRibbonConfiguration {
 			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
 			if (timeToLiveObj instanceof Long) {
 				timeToLive = (Long) timeToLiveObj;
+			} else if (timeToLiveObj instanceof String) {
+				timeToLive = Long.valueOf((String)timeToLiveObj);
 			}
 			if (ttlUnitObj instanceof TimeUnit) {
 				ttlUnit = (TimeUnit) ttlUnitObj;
