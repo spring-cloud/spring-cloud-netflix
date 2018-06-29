@@ -59,7 +59,7 @@ import com.netflix.servo.monitor.MonitorConfig;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MetricsTestConfig.class)
 @WebAppConfiguration
-@TestPropertySource(properties = "netflix.metrics.rest.metricName=metricName")
+@TestPropertySource(properties = {"netflix.metrics.rest.metricName=metricName", "spring.metrics.servo.enabled:true"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class MetricsHandlerInterceptorIntegrationTests {
 	@Autowired

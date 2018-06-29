@@ -19,6 +19,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.metrics.export.Exporter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.netflix.metrics.servo.ServoMetricsAutoConfiguration;
@@ -69,6 +70,7 @@ public class AtlasConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
+	@ConditionalOnBean(MonitorRegistry.class)
 	public Exporter exporter(AtlasMetricObserver observer, MonitorRegistry monitorRegistry) {
 		return new AtlasExporter(observer, new MonitorRegistryMetricPoller(monitorRegistry));
 	}

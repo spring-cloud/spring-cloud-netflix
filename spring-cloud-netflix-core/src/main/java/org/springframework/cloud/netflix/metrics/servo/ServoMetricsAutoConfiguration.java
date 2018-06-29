@@ -47,7 +47,7 @@ import com.netflix.servo.monitor.Monitors;
 @ConditionalOnMissingClass("com.netflix.spectator.api.Registry")
 @AutoConfigureBefore(MetricRepositoryAutoConfiguration.class)
 @Import(MetricsInterceptorConfiguration.class)
-@ConditionalOnProperty(name = "spring.metrics.servo.enabled", matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.metrics.servo.enabled", havingValue = "true")
 public class ServoMetricsAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean

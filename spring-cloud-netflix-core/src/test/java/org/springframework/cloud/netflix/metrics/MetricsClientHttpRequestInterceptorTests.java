@@ -51,7 +51,7 @@ import com.netflix.servo.monitor.MonitorConfig;
 @ContextConfiguration(classes = { MetricsRestTemplateRestTemplateConfig.class,
 		MetricsRestTemplateTestConfig.class })
 @TestPropertySource(properties = { "netflix.metrics.restClient.metricName=metricName",
-		"spring.aop.proxy-target-class=true" })
+		"spring.aop.proxy-target-class=true", "spring.metrics.servo.enabled:true" })
 public class MetricsClientHttpRequestInterceptorTests {
 	@Autowired
 	MonitorRegistry registry;
