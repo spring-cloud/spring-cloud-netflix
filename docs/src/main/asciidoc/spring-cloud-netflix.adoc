@@ -2582,6 +2582,8 @@ Spectator and Servo are Netflix's metrics collection libraries. Atlas is a Netfl
 
 Servo served Netflix for several years and is still usable, but is gradually being phased out in favor of Spectator, which is only designed to work with Java 8.  Spring Cloud Netflix provides support for both, but Java 8 based applications are encouraged to use Spectator.
 
+To enable Servo you must set `spring.metrics.servo.enabled` to `true`.
+
 === Dimensional vs. Hierarchical Metrics
 
 Spring Boot Actuator metrics are hierarchical and metrics are separated only by name. These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name separated by periods. Consider the following metrics for two endpoints, root and star-star:

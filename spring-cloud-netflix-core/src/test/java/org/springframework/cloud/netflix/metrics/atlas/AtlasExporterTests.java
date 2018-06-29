@@ -37,7 +37,7 @@ import com.netflix.servo.monitor.DynamicCounter;
 /**
  * @author Jon Schneider
  */
-@SpringBootTest(classes = AtlasExporterConfiguration.class)
+@SpringBootTest(classes = AtlasExporterConfiguration.class, properties = {"spring.metrics.servo.enabled:true"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AtlasExporterTests {
 	@Autowired
