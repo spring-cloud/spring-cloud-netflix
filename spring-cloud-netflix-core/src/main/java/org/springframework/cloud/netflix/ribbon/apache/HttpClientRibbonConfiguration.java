@@ -81,22 +81,23 @@ public class HttpClientRibbonConfiguration {
 			Integer timerRepeat = config.getPropertyAsInteger(
 					CommonClientConfigKey.ConnectionCleanerRepeatInterval,
 					DefaultClientConfigImpl.DEFAULT_CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS);
-			// Since we cannot change the type of CommonClientConfigKey.PoolKeepAliveTime from Integer to Long,
-			// we are working with integers.
-			// Unfortunately, the default is defined as long in the same package whereas the config key is using
-			// Integer.
-			Integer timeToLive = config.get(
-					CommonClientConfigKey.PoolKeepAliveTime,
-					(int)DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME);
+			Object timeToLiveObj = config
+					.getProperty(CommonClientConfigKey.PoolKeepAliveTime);
+			Long timeToLive = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME;
 			Object ttlUnitObj = config
 					.getProperty(CommonClientConfigKey.PoolKeepAliveTimeUnits);
 			TimeUnit ttlUnit = DefaultClientConfigImpl.DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
+			if (timeToLiveObj instanceof Long) {
+				timeToLive = (Long) timeToLiveObj;
+			} else if (timeToLiveObj instanceof String) {
+				timeToLive = Long.valueOf((String)timeToLiveObj);
+			}
 			if (ttlUnitObj instanceof TimeUnit) {
 				ttlUnit = (TimeUnit) ttlUnitObj;
 			}
 			final HttpClientConnectionManager connectionManager = connectionManagerFactory
 					.newConnectionManager(false, maxTotalConnections,
-							maxConnectionsPerHost, (long)timeToLive, ttlUnit, registryBuilder);
+							maxConnectionsPerHost, timeToLive, ttlUnit, registryBuilder);
 			this.connectionManagerTimer.schedule(new TimerTask() {
 				@Override
 				public void run() {
