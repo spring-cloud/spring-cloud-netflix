@@ -143,7 +143,9 @@ public class ProxyRequestHelper {
 		}
 		Map<String, String> zuulRequestHeaders = context.getZuulRequestHeaders();
 		for (String header : zuulRequestHeaders.keySet()) {
-			headers.set(header, zuulRequestHeaders.get(header));
+			if (isIncludedHeader(header)){
+				headers.set(header, zuulRequestHeaders.get(header));
+			}
 		}
 		if(!headers.containsKey(HttpHeaders.ACCEPT_ENCODING)) {
 			headers.set(HttpHeaders.ACCEPT_ENCODING, "gzip");
