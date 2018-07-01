@@ -16,6 +16,15 @@
 
 package org.springframework.cloud.netflix.zuul.util;
 
+import static java.util.Arrays.stream;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,13 +34,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class RequestContentDataExtractor {
 	public static MultiValueMap<String, Object> extract(HttpServletRequest request) throws IOException {
@@ -60,21 +62,24 @@ public class RequestContentDataExtractor {
 	private static MultiValueMap<String, Object> extractFromMultipartRequest(MultipartHttpServletRequest request)
 			throws IOException {
 		MultiValueMap<String, Object> builder = new LinkedMultiValueMap<>();
+		Map<String, List<String>> queryParamsGroupedByName = findQueryParamsGroupedByName(request);
 		Set<String>	queryParams = findQueryParams(request);
 
 		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
 			String key = entry.getKey();
+			List<String> listOfAllParams = stream(request.getParameterMap().get(key)).collect(Collectors.toList());
+			List<String> listOfOnlyQueryParams = queryParamsGroupedByName.get(key);
+
+			if (listOfOnlyQueryParams != null && !listOfOnlyQueryParams.containsAll(listOfAllParams)) {
+				listOfAllParams.removeAll(listOfOnlyQueryParams);
+				for (String value : listOfAllParams) {
+					builder.add(key, new HttpEntity<>(value, newHttpHeaders(request,key)));
+				}
+			}
 
 			if (!queryParams.contains(key)) {
 				for (String value : entry.getValue()) {
-					HttpHeaders headers = new HttpHeaders();
-					String	  type	= request.getMultipartContentType(key);
-
-					if (type != null) {
-						headers.setContentType(MediaType.valueOf(type));
-					}
-
-					builder.add(key, new HttpEntity<>(value, headers));
+					builder.add(key, new HttpEntity<>(value, newHttpHeaders(request,key)));
 				}
 			}
 		}
@@ -95,6 +100,16 @@ public class RequestContentDataExtractor {
 		return builder;
 	}
 
+	private static HttpHeaders newHttpHeaders(MultipartHttpServletRequest request, String key){
+		HttpHeaders headers = new HttpHeaders();
+		String type = request.getMultipartContentType(key);
+
+		if (type != null) {
+			headers.setContentType(MediaType.valueOf(type));
+		}
+		return headers;
+	}
+
 	private static Set<String> findQueryParams(HttpServletRequest request) {
 		Set<String> result = new HashSet<>();
 		String query  = request.getQueryString();
@@ -105,6 +120,31 @@ public class RequestContentDataExtractor {
 					value = value.substring(0, value.indexOf("="));
 				}
 				result.add(value);
+			}
+		}
+
+		return result;
+	}
+
+	static Map<String, List<String>> findQueryParamsGroupedByName(HttpServletRequest request) {
+		Map<String, List<String>> result = new HashMap<>();
+		String query  = request.getQueryString();
+
+		if (StringUtils.isEmpty(query)) {
+			return result;
+		}
+		for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
+			if (value.contains("=")) {
+				String key = value.substring(0, value.indexOf("="));
+				value = value.substring(value.indexOf("=") + 1, value.length());
+				if (!result.containsKey(key)) {
+					ArrayList<String> listOfQueryValues = new ArrayList<>();
+					listOfQueryValues.add(value);
+					result.put(key, listOfQueryValues);
+				} else {
+					result.get(key).add(value);
+				}
+
 			}
 		}
 
