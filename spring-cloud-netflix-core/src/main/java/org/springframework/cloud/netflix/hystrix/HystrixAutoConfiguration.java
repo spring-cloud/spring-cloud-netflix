@@ -62,10 +62,14 @@ public class HystrixAutoConfiguration {
 		return new HystrixHealthIndicator();
 	}
 
-	@Bean
+	@Configuration
 	@ConditionalOnProperty(value = "management.metrics.hystrix.enabled", matchIfMissing = true)
-	public HystrixMetricsBinder hystrixMetricsBinder() {
-		return new HystrixMetricsBinder();
+	@ConditionalOnClass({ HystrixMetricsBinder.class })
+	protected static class HystrixMetricsConfiguration {
+		@Bean
+		public HystrixMetricsBinder hystrixMetricsBinder() {
+			return new HystrixMetricsBinder();
+		}
 	}
 
 	/**
