@@ -23,6 +23,7 @@ import com.netflix.zuul.monitoring.MonitoringHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.cloud.netflix.zuul.filters.error.SendErrorFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;

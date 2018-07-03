@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.netflix.zuul.filters.post;
+package org.springframework.cloud.netflix.zuul.filters.error;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +39,6 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  *
  * @author Spencer Gibb
  */
-//TODO: move to error package in Edgware
 public class SendErrorFilter extends ZuulFilter {
 
 	private static final Log log = LogFactory.getLog(SendErrorFilter.class);
@@ -82,8 +81,7 @@ public class SendErrorFilter extends ZuulFilter {
 				request.setAttribute("javax.servlet.error.message", exception.getErrorCause());
 			}
 
-			RequestDispatcher dispatcher = request.getRequestDispatcher(
-					this.errorPath);
+			RequestDispatcher dispatcher = request.getRequestDispatcher(this.errorPath);
 			if (dispatcher != null) {
 				ctx.set(SEND_ERROR_FILTER_RAN, true);
 				if (!ctx.getResponse().isCommitted()) {

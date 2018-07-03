@@ -17,6 +17,7 @@
 
 package org.springframework.cloud.netflix.zuul.filters.support;
 
+import org.springframework.cloud.netflix.zuul.filters.error.SendErrorFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.DebugFilter;
 import org.springframework.cloud.netflix.zuul.filters.pre.Servlet30WrapperFilter;
 import org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilter;
@@ -98,7 +99,7 @@ public class FilterConstants {
 	public static final int RIBBON_ROUTING_FILTER_ORDER = 10;
 
 	/**
-	 * Filter Order for {@link org.springframework.cloud.netflix.zuul.filters.post.SendErrorFilter#filterOrder()}
+	 * Filter Order for {@link SendErrorFilter#filterOrder()}
 	 */
 	public static final int SEND_ERROR_FILTER_ORDER = 0;
 
