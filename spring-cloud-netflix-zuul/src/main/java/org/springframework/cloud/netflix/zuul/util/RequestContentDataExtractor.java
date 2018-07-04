@@ -17,10 +17,15 @@
 package org.springframework.cloud.netflix.zuul.util;
 
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyMap;
+import static org.springframework.util.StringUtils.isEmpty;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +39,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public class RequestContentDataExtractor {
 	public static MultiValueMap<String, Object> extract(HttpServletRequest request) throws IOException {
@@ -126,28 +132,12 @@ public class RequestContentDataExtractor {
 		return result;
 	}
 
-	static Map<String, List<String>> findQueryParamsGroupedByName(HttpServletRequest request) {
-		Map<String, List<String>> result = new HashMap<>();
+	static Map<String, List<String>> findQueryParamsGroupedByName(
+			HttpServletRequest request) {
 		String query  = request.getQueryString();
-
-		if (StringUtils.isEmpty(query)) {
-			return result;
-		}
-		for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
-			if (value.contains("=")) {
-				String key = value.substring(0, value.indexOf("="));
-				value = value.substring(value.indexOf("=") + 1, value.length());
-				if (!result.containsKey(key)) {
-					ArrayList<String> listOfQueryValues = new ArrayList<>();
-					listOfQueryValues.add(value);
-					result.put(key, listOfQueryValues);
-				} else {
-					result.get(key).add(value);
-				}
-
-			}
-		}
-
-		return result;
+    if(isEmpty(query)){
+      return emptyMap();
+    }
+		return UriComponentsBuilder.fromUriString("?" + query).build().getQueryParams();
 	}
 }
