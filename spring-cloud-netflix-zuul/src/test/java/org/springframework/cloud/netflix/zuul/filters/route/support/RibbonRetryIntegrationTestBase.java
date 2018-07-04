@@ -124,7 +124,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		LOG.info("Response Body: " + result.getBody());
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertEquals(HttpStatus.GATEWAY_TIMEOUT, result.getStatusCode());
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		LOG.info("Response Body: " + result.getBody());
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertEquals(HttpStatus.GATEWAY_TIMEOUT, result.getStatusCode());
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
