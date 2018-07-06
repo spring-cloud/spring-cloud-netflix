@@ -211,6 +211,20 @@ public class ProxyRequestHelperTests {
 	}
 
 	@Test
+	public void buildZuulRequestHeadersRequestsContentEncoding() {
+		MockHttpServletRequest request = new MockHttpServletRequest("", "/");
+		request.addHeader("content-encoding", "identity");
+
+		ProxyRequestHelper helper = new ProxyRequestHelper();
+
+		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
+
+		List<String> contentEncodings = headers.get("content-encoding");
+		assertThat(contentEncodings, hasSize(1));
+		assertThat(contentEncodings, contains("identity"));
+	}
+
+	@Test
 	public void buildZuulRequestHeadersRequestsAcceptEncoding() {
 		MockHttpServletRequest request = new MockHttpServletRequest("", "/");
 		request.addHeader("accept-encoding", "identity");
