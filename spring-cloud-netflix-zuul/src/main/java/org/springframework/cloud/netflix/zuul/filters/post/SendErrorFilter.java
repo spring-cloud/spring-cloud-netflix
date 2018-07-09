@@ -101,7 +101,9 @@ public class SendErrorFilter extends ZuulFilter {
 	protected ExceptionHolder findZuulException(Throwable throwable) {
 		if (throwable.getCause() instanceof ZuulRuntimeException) {
 			// this was a failure initiated by one of the local filters
-			return new ZuulExceptionHolder((ZuulException) throwable.getCause().getCause());
+			if(throwable.getCause().getCause() instanceof ZuulException) {
+				return new ZuulExceptionHolder((ZuulException) throwable.getCause().getCause());
+			}
 		}
 
 		if (throwable.getCause() instanceof ZuulException) {
