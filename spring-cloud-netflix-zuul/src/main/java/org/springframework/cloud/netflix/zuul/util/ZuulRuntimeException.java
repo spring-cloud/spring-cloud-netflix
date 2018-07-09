@@ -28,6 +28,7 @@ public class ZuulRuntimeException extends RuntimeException {
 		super(cause);
 	}
 
+	@Deprecated
 	public ZuulRuntimeException(Exception ex) {
 		super(ex);
 	}

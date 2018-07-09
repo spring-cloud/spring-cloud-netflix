@@ -58,12 +58,15 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
 import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+import com.netflix.client.ClientException;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_ENTITY_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
@@ -211,10 +214,39 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 			setResponse(response);
 		}
 		catch (Exception ex) {
-			throw new ZuulRuntimeException(ex);
+			throw new ZuulRuntimeException(handleException(ex));
 		}
 		return null;
 	}
+
+	protected ZuulException handleException(Exception ex) {
+		int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+		Throwable cause = ex;
+		String message = ex.getMessage();
+
+		ClientException clientException = findClientException(ex);
+
+		if (clientException != null) {
+			if (clientException
+					.getErrorType() == ClientException.ErrorType.SERVER_THROTTLED) {
+				statusCode = HttpStatus.SERVICE_UNAVAILABLE.value();
+			}
+			cause = clientException;
+			message = clientException.getErrorType().toString();
+		}
+		return new ZuulException(cause, "Forwarding error", statusCode, message);
+	}
+
+	protected ClientException findClientException(Throwable t) {
+		if (t == null) {
+			return null;
+		}
+		if (t instanceof ClientException) {
+			return (ClientException) t;
+		}
+		return findClientException(t.getCause());
+	}
+
 
 	protected void checkServletVersion() {
 		// To support Servlet API 3.1 we need to check if getContentLengthLong exists
