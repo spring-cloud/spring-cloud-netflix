@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.client.ClientException;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -30,6 +31,8 @@ import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.net.SocketTimeoutException;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ERROR_TYPE;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.SEND_ERROR_FILTER_ORDER;
@@ -100,12 +103,23 @@ public class SendErrorFilter extends ZuulFilter {
 
 	protected ExceptionHolder findZuulException(Throwable throwable) {
 		if (throwable.getCause() instanceof ZuulRuntimeException) {
+			Throwable cause = null;
+			if (throwable.getCause().getCause() != null) {
+				cause = throwable.getCause().getCause().getCause();
+			}
+			if (cause instanceof ClientException && cause.getCause() != null
+					&& cause.getCause().getCause() instanceof SocketTimeoutException) {
+
+				ZuulException zuulException = new ZuulException("", 504,
+						ZuulException.class.getName() + ": Hystrix Readed time out");
+				return new ZuulExceptionHolder(zuulException);
+			}
 			// this was a failure initiated by one of the local filters
 			if(throwable.getCause().getCause() instanceof ZuulException) {
 				return new ZuulExceptionHolder((ZuulException) throwable.getCause().getCause());
 			}
 		}
-
+		
 		if (throwable.getCause() instanceof ZuulException) {
 			// wrapped zuul exception
 			return  new ZuulExceptionHolder((ZuulException) throwable.getCause());
