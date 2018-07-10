@@ -97,7 +97,9 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 		}
 		Map<String, Object> result = new HashMap<>();
 		for (Application application : applications.getRegisteredApplications()) {
-			result.put(application.getName(), application.getInstances().size());
+			if (!application.getInstances().isEmpty()) {
+				result.put(application.getName(), application.getInstances().size());
+			}
 		}
 		return result;
 	}
