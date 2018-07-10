@@ -103,7 +103,10 @@ public class SendErrorFilter extends ZuulFilter {
 
 	protected ExceptionHolder findZuulException(Throwable throwable) {
 		if (throwable.getCause() instanceof ZuulRuntimeException) {
-			Throwable cause = throwable.getCause().getCause().getCause();
+			Throwable cause = null;
+			if (throwable.getCause().getCause() != null) {
+				cause = throwable.getCause().getCause().getCause();
+			}
 			if (cause instanceof ClientException && cause.getCause() != null
 					&& cause.getCause().getCause() instanceof SocketTimeoutException) {
 
