@@ -68,24 +68,29 @@ public class RequestContentDataExtractor {
 	private static MultiValueMap<String, Object> extractFromMultipartRequest(MultipartHttpServletRequest request)
 			throws IOException {
 		MultiValueMap<String, Object> builder = new LinkedMultiValueMap<>();
-		Map<String, List<String>> queryParamsGroupedByName = findQueryParamsGroupedByName(request);
+		Map<String, List<String>> queryParamsGroupedByName = findQueryParamsGroupedByName(
+				request);
 		Set<String>	queryParams = findQueryParams(request);
 
 		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
 			String key = entry.getKey();
-			List<String> listOfAllParams = stream(request.getParameterMap().get(key)).collect(Collectors.toList());
+			List<String> listOfAllParams = stream(request.getParameterMap().get(key))
+					.collect(Collectors.toList());
 			List<String> listOfOnlyQueryParams = queryParamsGroupedByName.get(key);
 
-			if (listOfOnlyQueryParams != null && !listOfOnlyQueryParams.containsAll(listOfAllParams)) {
+			if (listOfOnlyQueryParams != null
+					&& !listOfOnlyQueryParams.containsAll(listOfAllParams)) {
 				listOfAllParams.removeAll(listOfOnlyQueryParams);
 				for (String value : listOfAllParams) {
-					builder.add(key, new HttpEntity<>(value, newHttpHeaders(request,key)));
+					builder.add(key,
+							new HttpEntity<>(value, newHttpHeaders(request, key)));
 				}
 			}
 
 			if (!queryParams.contains(key)) {
 				for (String value : entry.getValue()) {
-					builder.add(key, new HttpEntity<>(value, newHttpHeaders(request,key)));
+					builder.add(key,
+							new HttpEntity<>(value, newHttpHeaders(request, key)));
 				}
 			}
 		}
@@ -106,7 +111,8 @@ public class RequestContentDataExtractor {
 		return builder;
 	}
 
-	private static HttpHeaders newHttpHeaders(MultipartHttpServletRequest request, String key){
+	private static HttpHeaders newHttpHeaders(MultipartHttpServletRequest request,
+			String key) {
 		HttpHeaders headers = new HttpHeaders();
 		String type = request.getMultipartContentType(key);
 
@@ -134,10 +140,10 @@ public class RequestContentDataExtractor {
 
 	static Map<String, List<String>> findQueryParamsGroupedByName(
 			HttpServletRequest request) {
-		String query  = request.getQueryString();
-    if(isEmpty(query)){
-      return emptyMap();
-    }
+		String query = request.getQueryString();
+		if (isEmpty(query)) {
+			return emptyMap();
+		}
 		return UriComponentsBuilder.fromUriString("?" + query).build().getQueryParams();
 	}
 }
