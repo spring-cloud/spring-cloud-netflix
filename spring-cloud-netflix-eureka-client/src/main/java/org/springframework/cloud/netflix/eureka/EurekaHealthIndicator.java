@@ -20,10 +20,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.cloud.client.discovery.health.DiscoveryHealthIndicator;
+import org.springframework.cloud.util.ProxyUtils;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.discovery.DiscoveryClient;
@@ -68,9 +70,8 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 		Status status = new Status(
 				this.eurekaClient.getInstanceRemoteStatus().toString(),
 				"Remote status from Eureka server");
-
-		if (eurekaClient instanceof DiscoveryClient && clientConfig.shouldFetchRegistry()) {
-			DiscoveryClient discoveryClient = (DiscoveryClient) eurekaClient;
+		DiscoveryClient discoveryClient = getDiscoveryClient();
+		if (discoveryClient != null && clientConfig.shouldFetchRegistry()) {
 			long lastFetch = discoveryClient.getLastSuccessfulRegistryFetchTimePeriod();
 
 			if (lastFetch < 0) {
@@ -88,6 +89,16 @@ public class EurekaHealthIndicator implements DiscoveryHealthIndicator {
 		}
 
 		return status;
+	}
+
+	private DiscoveryClient getDiscoveryClient() {
+		DiscoveryClient discoveryClient = null;
+		if(AopUtils.isAopProxy(eurekaClient)) {
+			discoveryClient = ProxyUtils.getTargetObject(eurekaClient);
+		} else if(DiscoveryClient.class.isInstance(eurekaClient)) {
+			discoveryClient = (DiscoveryClient)eurekaClient;
+		}
+		return discoveryClient;
 	}
 
 	private Map<String, Object> getApplications() {
