@@ -42,19 +42,35 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 			});
 	}
 
-	@Test
-	public void onWhenRequested() {
-		new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(
-				EurekaClientConfigServerAutoConfiguration.class,
-				ConfigServerProperties.class, EurekaInstanceConfigBean.class))
-			.withPropertyValues("spring.cloud.config.server.prefix=/config")
-			.run(c -> {
-				assertEquals(1,
-					c.getBeanNamesForType(EurekaInstanceConfig.class).length);
-				EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
-				assertEquals("/config", instance.getMetadataMap().get("configPath"));
-			});
-	}
+    @Test
+    public void onWhenRequested() {
+        new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                EurekaClientConfigServerAutoConfiguration.class,
+                ConfigServerProperties.class, EurekaInstanceConfigBean.class))
+            .withPropertyValues("spring.cloud.config.server.prefix=/config")
+            .run(c -> {
+                assertEquals(1,
+                    c.getBeanNamesForType(EurekaInstanceConfig.class).length);
+                EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
+                assertEquals("/config", instance.getMetadataMap().get("configPath"));
+            });
+    }
+
+    @Test
+    public void notOverridingMetamapSettings() {
+        new ApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(
+                EurekaClientConfigServerAutoConfiguration.class,
+                ConfigServerProperties.class, EurekaInstanceConfigBean.class))
+            .withPropertyValues("spring.cloud.config.server.prefix=/config")
+            .withPropertyValues("eureka.instance.metadataMap.configPath=/differentpath")
+            .run(c -> {
+                assertEquals(1,
+                    c.getBeanNamesForType(EurekaInstanceConfig.class).length);
+                EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
+                assertEquals("/differentpath", instance.getMetadataMap().get("configPath"));
+            });
+    }
 
 }
