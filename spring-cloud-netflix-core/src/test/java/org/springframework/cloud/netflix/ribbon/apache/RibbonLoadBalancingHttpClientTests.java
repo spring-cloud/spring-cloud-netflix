@@ -72,7 +72,9 @@ import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.AbstractLoadBalancer;
 import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.LoadBalancerStats;
 import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerStats;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -98,14 +100,22 @@ import static org.mockito.Mockito.verify;
 public class RibbonLoadBalancingHttpClientTests {
 
 	private ILoadBalancer loadBalancer;
+	private LoadBalancerStats loadBalancerStats;
+	private Server serviceServer;
+	private ServerStats serviceServerStats;
 	private LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory = new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory = new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 
 	@Before
 	public void setup() {
 		loadBalancer = mock(AbstractLoadBalancer.class);
+		loadBalancerStats = mock(LoadBalancerStats.class);
+		serviceServer = new Server("foo.com", 8000);
+		serviceServerStats = mock(ServerStats.class);
 		doReturn(new Server("foo.com", 8000)).when(loadBalancer).chooseServer(eq("default"));
-		doReturn(new Server("foo.com", 8000)).when(loadBalancer).chooseServer(eq("service"));
+		doReturn(serviceServer).when(loadBalancer).chooseServer(eq("service"));
+		doReturn(loadBalancerStats).when((AbstractLoadBalancer)loadBalancer).getLoadBalancerStats();
+		doReturn(serviceServerStats).when(loadBalancerStats).getSingleServerStat(serviceServer);
 	}
 
 	@After
@@ -118,6 +128,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
 
 		assertThat(result.isRedirectsEnabled(), is(false));
+		verify(serviceServerStats, times(1)).clearSuccessiveConnectionFailureCount();
 	}
 
 	@Test
