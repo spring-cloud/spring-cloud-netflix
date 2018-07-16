@@ -210,7 +210,6 @@ public class ProxyRequestHelper {
 		case "host":
 		case "connection":
 		case "content-length":
-		case "content-encoding":
 		case "server":
 		case "transfer-encoding":
 		case "x-application-context":
