@@ -14,7 +14,7 @@
 	<name>spring-cloud-netflix-hystrix-contract</name>
 	<description>Spring Cloud Netflix Hystrix Contract</description>
 	<properties>
-		<donotreplacespring-cloud-contract.version>1.2.4.RELEASE</donotreplacespring-cloud-contract.version>
+		<donotreplacespring-cloud-contract.version>2.0.0.RELEASE</donotreplacespring-cloud-contract.version>
 	</properties>
 	<dependencies>
 		<dependency>
