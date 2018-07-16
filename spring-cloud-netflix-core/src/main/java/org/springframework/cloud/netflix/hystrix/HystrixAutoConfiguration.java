@@ -63,7 +63,7 @@ public class HystrixAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnProperty(value = "management.metrics.hystrix.enabled", matchIfMissing = true)
+	@ConditionalOnProperty(value = "management.metrics.binders.hystrix.enabled", matchIfMissing = true)
 	@ConditionalOnClass({ HystrixMetricsBinder.class })
 	protected static class HystrixMetricsConfiguration {
 		@Bean
