@@ -461,7 +461,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				if (!endsWithSlash(eurekaServiceUrl)) {
 					eurekaServiceUrl += "/";
 				}
-				eurekaServiceUrls.add(eurekaServiceUrl);
+				eurekaServiceUrls.add(eurekaServiceUrl.trim());
 			}
 			return eurekaServiceUrls;
 		}
