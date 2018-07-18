@@ -66,6 +66,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
 		new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
+	private RibbonLoadBalancerContext ribbonLoadBalancerContext;
 
 	@Deprecated
 	//TODO remove in 2.0.x
@@ -143,8 +144,7 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 							newRequest.getURI().getFragment()));
 					
 					if (service instanceof RibbonServer) {
-						RibbonLoadBalancerContext rctx = new RibbonLoadBalancerContext(getLoadBalancer());
-						statsRecorder = new RibbonStatsRecorder(rctx, ((RibbonServer)service).getServer());
+						statsRecorder = new RibbonStatsRecorder(ribbonLoadBalancerContext, ((RibbonServer)service).getServer());
 					}
 				}
 				if (isSecure(configOverride)) {
@@ -177,11 +177,13 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		});
 	}
 
-	
-
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(OkHttpRibbonRequest request, IClientConfig requestConfig) {
 		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
+	}
+	
+	public void setRibbonLoadBalancerContext(RibbonLoadBalancerContext ribbonLoadBalancerContext) {
+		this.ribbonLoadBalancerContext = ribbonLoadBalancerContext;
 	}
 
 	static class RetryPolicy extends InterceptorRetryPolicy {
