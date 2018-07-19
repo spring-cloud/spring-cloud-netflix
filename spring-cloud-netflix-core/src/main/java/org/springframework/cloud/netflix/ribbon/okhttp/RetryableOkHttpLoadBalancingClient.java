@@ -22,6 +22,8 @@ import okhttp3.ResponseBody;
 
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
@@ -67,6 +69,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
 		new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 	private RibbonLoadBalancerContext ribbonLoadBalancerContext;
+	
+	private static final Log LOGGER = LogFactory.getLog(RetryableOkHttpLoadBalancingClient.class);
 
 	@Deprecated
 	//TODO remove in 2.0.x
@@ -143,7 +147,9 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 							newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
 							newRequest.getURI().getFragment()));
 					
-					if (service instanceof RibbonServer) {
+					if (ribbonLoadBalancerContext == null) {
+						LOGGER.error("RibbonLoadBalancerContext is null. Unable to update load balancer stats");
+					} else if (service instanceof RibbonServer) {
 						statsRecorder = new RibbonStatsRecorder(ribbonLoadBalancerContext, ((RibbonServer)service).getServer());
 					}
 				}

@@ -17,6 +17,8 @@ package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -63,6 +65,8 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
 		new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
 	private RibbonLoadBalancerContext ribbonLoadBalancerContext;
+	
+	private static final Log LOGGER = LogFactory.getLog(RetryableRibbonLoadBalancingHttpClient.class);
 
 	@Deprecated
 	//TODO remove in 2.0.x
@@ -134,7 +138,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 							.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
 							.build().encode().toUri());
 					
-					if (service instanceof RibbonServer) {
+					if (ribbonLoadBalancerContext == null) {
+						LOGGER.error("RibbonLoadBalancerContext is null. Unable to update load balancer stats");
+					} else if (service instanceof RibbonServer) {
 						statsRecorder = new RibbonStatsRecorder(ribbonLoadBalancerContext, ((RibbonServer)service).getServer());
 					}
 				}
