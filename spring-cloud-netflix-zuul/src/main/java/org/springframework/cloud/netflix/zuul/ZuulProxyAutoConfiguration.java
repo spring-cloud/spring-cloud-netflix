@@ -136,7 +136,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	}
 
 	@Configuration
-	@ConditionalOnMissingClass("org.springframework.boot.actuate.endpoint.Endpoint")
+	@ConditionalOnMissingClass("org.springframework.boot.actuate.health.Health")
 	protected static class NoActuatorConfiguration {
 
 		@Bean
