@@ -39,6 +39,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryListenerFa
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicyFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFactory;
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -117,11 +118,13 @@ public class OkHttpRibbonConfiguration {
 		LoadBalancedRetryPolicyFactory loadBalancedRetryPolicyFactory,
 		OkHttpClient delegate,
 		LoadBalancedBackOffPolicyFactory loadBalancedBackOffPolicyFactory,
-		LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory) {
+		LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory,
+		RibbonLoadBalancerContext ribbonLoadBalancerContext) {
 		RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(delegate, config,
 				serverIntrospector, loadBalancedRetryPolicyFactory, loadBalancedBackOffPolicyFactory, loadBalancedRetryListenerFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
+		client.setRibbonLoadBalancerContext(ribbonLoadBalancerContext);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
 	}

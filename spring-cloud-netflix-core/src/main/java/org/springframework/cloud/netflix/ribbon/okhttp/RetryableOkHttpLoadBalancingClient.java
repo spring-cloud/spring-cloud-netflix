@@ -22,6 +22,8 @@ import okhttp3.ResponseBody;
 
 import java.net.URI;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedBackOffPolicyFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryContext;
@@ -32,7 +34,10 @@ import org.springframework.cloud.client.loadbalancer.RibbonRecoveryCallback;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
+import org.springframework.cloud.netflix.ribbon.RibbonStatsRecorder;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RecoveryCallback;
@@ -63,6 +68,9 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		new LoadBalancedBackOffPolicyFactory.NoBackOffPolicyFactory();
 	private LoadBalancedRetryListenerFactory loadBalancedRetryListenerFactory =
 		new LoadBalancedRetryListenerFactory.DefaultRetryListenerFactory();
+	private RibbonLoadBalancerContext ribbonLoadBalancerContext;
+	
+	private static final Log LOGGER = LogFactory.getLog(RetryableOkHttpLoadBalancingClient.class);
 
 	@Deprecated
 	//TODO remove in 2.0.x
@@ -128,6 +136,8 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 				//on retries the policy will choose the server and set it in the context
 				//extract the server and update the request being made
 				OkHttpRibbonRequest newRequest = ribbonRequest;
+				RibbonStatsRecorder statsRecorder = null;
+				
 				if(context instanceof LoadBalancedRetryContext) {
 					ServiceInstance service = ((LoadBalancedRetryContext)context).getServiceInstance();
 					validateServiceInstance(service);
@@ -136,6 +146,12 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 							newRequest.getURI().getUserInfo(), service.getHost(), service.getPort(),
 							newRequest.getURI().getPath(), newRequest.getURI().getQuery(),
 							newRequest.getURI().getFragment()));
+					
+					if (ribbonLoadBalancerContext == null) {
+						LOGGER.error("RibbonLoadBalancerContext is null. Unable to update load balancer stats");
+					} else if (service instanceof RibbonServer) {
+						statsRecorder = new RibbonStatsRecorder(ribbonLoadBalancerContext, ((RibbonServer)service).getServer());
+					}
 				}
 				if (isSecure(configOverride)) {
 					final URI secureUri = UriComponentsBuilder.fromUri(newRequest.getUri())
@@ -152,6 +168,9 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 					throw new OkHttpStatusCodeException(RetryableOkHttpLoadBalancingClient.this.clientName,
 							response, responseBody, newRequest.getURI());
 				}
+				if (statsRecorder != null) {
+					statsRecorder.recordStats(response);
+				}
 				return new OkHttpRibbonResponse(response, newRequest.getUri());
 			}
 		};
@@ -164,11 +183,13 @@ public class RetryableOkHttpLoadBalancingClient extends OkHttpLoadBalancingClien
 		});
 	}
 
-	
-
 	@Override
 	public RequestSpecificRetryHandler getRequestSpecificRetryHandler(OkHttpRibbonRequest request, IClientConfig requestConfig) {
 		return new RequestSpecificRetryHandler(false, false, RetryHandler.DEFAULT, null);
+	}
+	
+	public void setRibbonLoadBalancerContext(RibbonLoadBalancerContext ribbonLoadBalancerContext) {
+		this.ribbonLoadBalancerContext = ribbonLoadBalancerContext;
 	}
 
 	static class RetryPolicy extends InterceptorRetryPolicy {
