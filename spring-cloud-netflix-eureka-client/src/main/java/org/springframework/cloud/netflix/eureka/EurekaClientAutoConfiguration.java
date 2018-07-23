@@ -175,6 +175,14 @@ public class EurekaClientAutoConfiguration {
 			if (metadataMap.get("management.port") == null) {
 				metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
 			}
+		} else {
+			//without the metadata the status and health check URLs will not be set
+			//and the status page and health check url paths will not include the
+			//context path so set them here
+			if(StringUtils.hasText(managementContextPath)) {
+				instance.setHealthCheckUrlPath(managementContextPath + instance.getHealthCheckUrlPath());
+				instance.setStatusPageUrlPath(managementContextPath + instance.getStatusPageUrlPath());
+			}
 		}
 
 		setupJmxPort(instance, jmxPort);
