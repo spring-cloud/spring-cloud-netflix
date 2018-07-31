@@ -36,6 +36,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientName;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
@@ -133,11 +134,13 @@ public class HttpClientRibbonConfiguration {
 	public RetryableRibbonLoadBalancingHttpClient retryableRibbonLoadBalancingHttpClient(
 			IClientConfig config, ServerIntrospector serverIntrospector,
 			ILoadBalancer loadBalancer, RetryHandler retryHandler,
-			LoadBalancedRetryFactory loadBalancedRetryFactory, CloseableHttpClient httpClient) {
+			LoadBalancedRetryFactory loadBalancedRetryFactory, CloseableHttpClient httpClient,
+			RibbonLoadBalancerContext ribbonLoadBalancerContext) {
 		RetryableRibbonLoadBalancingHttpClient client = new RetryableRibbonLoadBalancingHttpClient(
 			httpClient, config, serverIntrospector, loadBalancedRetryFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
+		client.setRibbonLoadBalancerContext(ribbonLoadBalancerContext);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
 	}

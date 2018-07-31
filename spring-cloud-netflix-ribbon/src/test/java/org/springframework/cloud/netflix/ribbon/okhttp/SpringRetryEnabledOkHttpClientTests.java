@@ -20,6 +20,8 @@ import okhttp3.Request;
 
 import java.net.URI;
 import java.util.Map;
+
+import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
@@ -40,6 +42,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import com.netflix.client.ClientException;
 import com.netflix.client.DefaultLoadBalancerRetryHandler;
 import com.netflix.client.RetryHandler;
@@ -83,6 +86,12 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		assertThat(clients.values(), hasSize(1));
 		assertThat(clients.values().toArray()[0],
 				instanceOf(RetryableOkHttpLoadBalancingClient.class));
+		
+		RibbonLoadBalancerContext ribbonLoadBalancerContext = (RibbonLoadBalancerContext) ReflectionTestUtils
+				.getField(clients.values().toArray()[0], RetryableOkHttpLoadBalancingClient.class, "ribbonLoadBalancerContext"); 
+		assertThat("RetryableOkHttpLoadBalancingClient.ribbonLoadBalancerContext should not be null",
+				ribbonLoadBalancerContext, IsNull.notNullValue());
+			
 	}
 
 	@Override

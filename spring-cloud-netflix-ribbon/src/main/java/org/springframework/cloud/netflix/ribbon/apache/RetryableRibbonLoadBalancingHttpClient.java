@@ -16,6 +16,9 @@
 package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.net.URI;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -28,7 +31,10 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.client.loadbalancer.InterceptorRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
+import org.springframework.cloud.netflix.ribbon.RibbonStatsRecorder;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonServer;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.support.ContextAwareRequest;
 import org.springframework.http.HttpRequest;
 import org.springframework.retry.RecoveryCallback;
@@ -50,7 +56,10 @@ import com.netflix.client.config.IClientConfig;
  * @author Gang Li
  */
 public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingHttpClient {
+	private static final Log LOGGER = LogFactory.getLog(RetryableRibbonLoadBalancingHttpClient.class);
+
 	private LoadBalancedRetryFactory loadBalancedRetryFactory;
+	private RibbonLoadBalancerContext ribbonLoadBalancerContext;
 
 	public RetryableRibbonLoadBalancingHttpClient(CloseableHttpClient delegate,
 												  IClientConfig config, ServerIntrospector serverIntrospector,
@@ -75,6 +84,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			//on retries the policy will choose the server and set it in the context
 			//extract the server and update the request being made
 			RibbonApacheHttpRequest newRequest = request;
+			RibbonStatsRecorder statsRecorder = null;
 			if (context instanceof LoadBalancedRetryContext) {
 				ServiceInstance service = ((LoadBalancedRetryContext) context).getServiceInstance();
 				validateServiceInstance(service);
@@ -85,6 +95,12 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 							.port(service.getPort()).path(newRequest.getURI().getPath())
 							.query(newRequest.getURI().getQuery()).fragment(newRequest.getURI().getFragment())
 							.build().encode().toUri());
+					
+					if (ribbonLoadBalancerContext == null) {
+						LOGGER.error("RibbonLoadBalancerContext is null. Unable to update load balancer stats");
+					} else if (service instanceof RibbonServer) {
+						statsRecorder = new RibbonStatsRecorder(ribbonLoadBalancerContext, ((RibbonServer)service).getServer());
+					}
 				}
 			}
 			newRequest = getSecureRequest(newRequest, configOverride);
@@ -94,6 +110,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 				throw new HttpClientStatusCodeException(RetryableRibbonLoadBalancingHttpClient.this.clientName,
 						httpResponse, HttpClientUtils.createEntity(httpResponse), httpUriRequest.getURI());
 			}
+			if (statsRecorder != null) {
+				statsRecorder.recordStats(httpResponse);
+			}
 			return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 		};
 		LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
@@ -101,7 +120,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			protected RibbonApacheHttpResponse createResponse(HttpResponse response, URI uri) {
 				return new RibbonApacheHttpResponse(response, uri);
 			}
- 		};
+		};
 		return this.executeWithRetry(request, retryPolicy, retryCallback, recoveryCallback);
 	}
 	
@@ -144,4 +163,9 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 			super(request, policy, serviceInstanceChooser, serviceName);
 		}
 	}
+
+	public void setRibbonLoadBalancerContext(RibbonLoadBalancerContext ribbonLoadBalancerContext) {
+		this.ribbonLoadBalancerContext = ribbonLoadBalancerContext;
+	}
+	
 }
