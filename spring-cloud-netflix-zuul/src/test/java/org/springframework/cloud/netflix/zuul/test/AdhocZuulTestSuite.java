@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilterIntegrationTests;
 
 /**
  * A test suite for probing weird ordering problems in the tests.
@@ -58,7 +59,7 @@ org.springframework.cloud.netflix.zuul.ContextPathZuulProxyApplicationTests.clas
 		org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandTests.class,
 		org.springframework.cloud.netflix.zuul.filters.route.RibbonRoutingFilterTests.class,
 		org.springframework.cloud.netflix.zuul.filters.route.SendForwardFilterTests.class,
-		org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilterTests.class,
+		SimpleHostRoutingFilterIntegrationTests.class,
 		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandCauseFallbackPropagationTest.class,
 		org.springframework.cloud.netflix.zuul.filters.route.support.RibbonCommandHystrixThreadPoolKeyTests.class,
 		org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocatorTests.class,

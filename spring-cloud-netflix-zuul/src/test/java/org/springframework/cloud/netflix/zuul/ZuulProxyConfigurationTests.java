@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,20 @@
 
 package org.springframework.cloud.netflix.zuul;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Test;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
+
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
-import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.okhttp.OkHttpRibbonCommandFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Spencer Gibb
@@ -57,24 +55,19 @@ public class ZuulProxyConfigurationTests {
 	}
 
 	void testClient(Class<?> clientType, String property) {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(TestConfig.class, ZuulProxyMarkerConfiguration.class, 
-			ZuulProxyAutoConfiguration.class);
-		if (property != null) {
-			EnvironmentTestUtils.addEnvironment(context, property);
+		if (property == null) {
+			property = "aaa=bbb";
 		}
-		context.refresh();
-		RibbonCommandFactory factory = context.getBean(RibbonCommandFactory.class);
-		assertThat("RibbonCommandFactory is wrong type for property: " + property, factory, is(instanceOf(clientType)));
-		context.close();
+		new WebApplicationContextRunner()
+			.withUserConfiguration(TestConfig.class)
+			.withPropertyValues(property)
+			.run(c -> assertThat(c).hasSingleBean(clientType));
 	}
 
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	@EnableZuulProxy
 	static class TestConfig {
-		@Bean
-		ServerProperties serverProperties() {
-			return new ServerProperties();
-		}
-
 		@Bean
 		SpringClientFactory springClientFactory() {
 			return mock(SpringClientFactory.class);

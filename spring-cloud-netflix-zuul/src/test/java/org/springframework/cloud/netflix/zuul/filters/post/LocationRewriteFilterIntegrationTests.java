@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,10 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.annotation.DirtiesContext;
@@ -67,6 +70,7 @@ public class LocationRewriteFilterIntegrationTests {
 		String url = "http://localhost:" + port + "/service/redirectingUri";
 		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
 				String.class);
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		List<String> locationHeaders = response.getHeaders().get("Location");
 
 		assertThat(locationHeaders).hasSize(1);
@@ -82,6 +86,7 @@ public class LocationRewriteFilterIntegrationTests {
 	@EnableZuulProxy
 	@Controller
 	@RibbonClient(name = "aservice", configuration = RibbonConfig.class)
+	@Import(NoSecurityConfiguration.class)
 	protected static class Config {
 
 		@RequestMapping("/redirectingUri")
