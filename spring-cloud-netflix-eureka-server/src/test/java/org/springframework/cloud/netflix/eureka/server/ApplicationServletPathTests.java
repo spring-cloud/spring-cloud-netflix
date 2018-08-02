@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.eureka.server;
@@ -42,7 +43,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
-		"spring.application.name=eureka", "server.servlet.path=/servlet",
+		"spring.application.name=eureka", "server.servlet.context-path=/servlet",
 		"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
 public class ApplicationServletPathTests {
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
@@ -60,7 +61,7 @@ public class ApplicationServletPathTests {
 	public void catalogLoads() {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/eureka/apps", Map.class);
+				"http://localhost:" + this.port + "/servlet/eureka/apps", Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

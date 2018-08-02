@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,10 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -110,6 +112,7 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	@RibbonClients({
 			@RibbonClient(name = "simple", configuration = SimpleRibbonClientConfiguration.class),
 			@RibbonClient(name = "another", configuration = AnotherRibbonClientConfiguration.class) })
+	@Import(NoSecurityConfiguration.class)
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@Autowired(required = false)

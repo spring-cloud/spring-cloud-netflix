@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,17 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -50,7 +53,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = SimpleZuulServerApplication.class, webEnvironment = RANDOM_PORT,
+@SpringBootTest(webEnvironment = RANDOM_PORT,
 		properties = "zuul.routes[testclient]:/testing123/**")
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
@@ -99,52 +102,49 @@ public class SimpleZuulServerApplicationTests {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
-}
 
-// Don't use @SpringBootApplication because we don't want to component scan
-@Configuration
-@EnableAutoConfiguration
-@RestController
-@EnableZuulServer
-class SimpleZuulServerApplication {
+	// Don't use @SpringBootApplication because we don't want to component scan
+	@SpringBootConfiguration
+	@EnableAutoConfiguration
+	@RestController
+	@EnableZuulServer
+	@Import(NoSecurityConfiguration.class)
+	static class SimpleZuulServerApplication {
 
-	@RequestMapping("/local")
-	public String local() {
-		return "Hello local";
+		@RequestMapping("/local")
+		public String local() {
+			return "Hello local";
+		}
+
+		@RequestMapping("/")
+		public String home() {
+			return "Hello world";
+		}
+
+		@Bean
+		public ZuulFilter sampleFilter() {
+			return new ZuulFilter() {
+				@Override
+				public String filterType() {
+					return PRE_TYPE;
+				}
+
+				@Override
+				public boolean shouldFilter() {
+					return true;
+				}
+
+				@Override
+				public Object run() {
+					return null;
+				}
+
+				@Override
+				public int filterOrder() {
+					return 0;
+				}
+			};
+		}
+
 	}
-
-	@RequestMapping("/")
-	public String home() {
-		return "Hello world";
-	}
-
-	@Bean
-	public ZuulFilter sampleFilter() {
-		return new ZuulFilter() {
-			@Override
-			public String filterType() {
-				return PRE_TYPE;
-			}
-
-			@Override
-			public boolean shouldFilter() {
-				return true;
-			}
-
-			@Override
-			public Object run() {
-				return null;
-			}
-
-			@Override
-			public int filterOrder() {
-				return 0;
-			}
-		};
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(SimpleZuulServerApplication.class, args);
-	}
-
 }

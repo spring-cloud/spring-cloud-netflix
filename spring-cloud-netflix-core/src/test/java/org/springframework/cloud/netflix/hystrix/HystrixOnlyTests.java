@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.hystrix;
@@ -19,8 +20,11 @@ package org.springframework.cloud.netflix.hystrix;
 import java.util.Base64;
 import java.util.Map;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -28,19 +32,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.netflix.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -97,10 +102,12 @@ public class HystrixOnlyTests {
 	}
 
 	private Map getHealth() {
-		return new TestRestTemplate().exchange(
+		ResponseEntity<Map> response = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + BASE_PATH + "/health", HttpMethod.GET,
 				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)),
-				Map.class).getBody();
+				Map.class);
+		Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		return response.getBody();
 	}
 
 	public static HttpHeaders createBasicAuthHeader(final String username,
@@ -139,6 +146,7 @@ class Service {
 @EnableAutoConfiguration
 @EnableCircuitBreaker
 @RestController
+@Import(NoSecurityConfiguration.class)
 class HystrixOnlyApplication {
 
 	@Bean

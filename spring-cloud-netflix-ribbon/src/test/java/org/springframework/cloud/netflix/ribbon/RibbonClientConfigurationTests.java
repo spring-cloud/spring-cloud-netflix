@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -26,7 +27,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.OverrideRestClient;
 import org.springframework.cloud.netflix.ribbon.apache.RibbonLoadBalancingHttpClient;
@@ -173,7 +174,7 @@ public class RibbonClientConfigurationTests {
 		context.register(HttpClientConfiguration.class, RibbonAutoConfiguration.class,
 				RibbonClientConfiguration.class);
 		if (properties != null) {
-			EnvironmentTestUtils.addEnvironment(context, properties);
+			TestPropertyValues.of(properties).applyTo(context);
 		}
 		context.refresh();
 		context.getBean(clientType);
