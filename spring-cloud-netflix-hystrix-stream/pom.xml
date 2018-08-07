@@ -95,7 +95,7 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<!--FIXME: 2.1.0 <plugin>
+			<plugin>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-contract-maven-plugin</artifactId>
 				<version>${donotreplacespring-cloud-contract.version}</version>
@@ -115,7 +115,7 @@
 						<version>${project.version}</version>
 					</dependency>
 				</dependencies>
-			</plugin>-->
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>

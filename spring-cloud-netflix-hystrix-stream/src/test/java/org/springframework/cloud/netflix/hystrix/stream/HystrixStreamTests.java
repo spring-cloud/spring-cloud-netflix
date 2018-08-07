@@ -17,9 +17,12 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
-import org.junit.Ignore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringBootConfiguration;
@@ -36,10 +39,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -50,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"debug=true", "spring.jmx.enabled=true", "spring.application.name=mytestapp",
 		"spring.main.allow-bean-definition-overriding=true" })
+//FIXME: 2.1.0 remove allow-bean-...
 @DirtiesContext
 public class HystrixStreamTests {
 
@@ -86,7 +86,6 @@ public class HystrixStreamTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
 	public void contextLoads() throws Exception {
 		this.application.hello();
 		// It is important that local service instance resolves for metrics

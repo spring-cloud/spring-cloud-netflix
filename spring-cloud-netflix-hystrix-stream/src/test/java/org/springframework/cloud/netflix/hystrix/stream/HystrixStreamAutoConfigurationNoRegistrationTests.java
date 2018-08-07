@@ -17,9 +17,9 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -35,7 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest("eureka.client.enabled=false")
+//FIXME: 2.1.0 remove allow-bean-...
+@SpringBootTest({"eureka.client.enabled=false", "spring.main.allow-bean-definition-overriding=true"})
 @DirtiesContext
 public class HystrixStreamAutoConfigurationNoRegistrationTests {
 
@@ -49,7 +50,6 @@ public class HystrixStreamAutoConfigurationNoRegistrationTests {
 	SimpleDiscoveryProperties simpleDiscoveryProperties;
 
 	@Test
-	@Ignore //FIXME: 2.1.0
 	public void withoutRegistrationWorks() throws Exception {
 		assertThat(this.registration).isNull();
 		assertThat(this.simpleDiscoveryProperties).isNotNull();
