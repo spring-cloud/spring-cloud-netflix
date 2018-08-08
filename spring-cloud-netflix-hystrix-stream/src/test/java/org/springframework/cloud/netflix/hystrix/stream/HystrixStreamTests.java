@@ -47,9 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"debug=true", "spring.jmx.enabled=true", "spring.application.name=mytestapp",
-		"spring.main.allow-bean-definition-overriding=true" })
-//FIXME: 2.1.0 remove allow-bean-...
+		"debug=true", "spring.jmx.enabled=true", "spring.application.name=mytestapp" })
 @DirtiesContext
 public class HystrixStreamTests {
 

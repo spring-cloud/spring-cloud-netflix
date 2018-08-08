@@ -35,8 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-//FIXME: 2.1.0 remove allow-bean-...
-@SpringBootTest({"eureka.client.enabled=false", "spring.main.allow-bean-definition-overriding=true"})
+@SpringBootTest({"eureka.client.enabled=false"})
 @DirtiesContext
 public class HystrixStreamAutoConfigurationNoRegistrationTests {
 

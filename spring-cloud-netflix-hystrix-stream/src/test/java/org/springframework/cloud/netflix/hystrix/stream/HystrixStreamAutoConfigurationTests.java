@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -34,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-//FIXME: 2.1.0 remove allow-bean-...
-@SpringBootTest("spring.main.allow-bean-definition-overriding=true")
 @DirtiesContext
 public class HystrixStreamAutoConfigurationTests {
 

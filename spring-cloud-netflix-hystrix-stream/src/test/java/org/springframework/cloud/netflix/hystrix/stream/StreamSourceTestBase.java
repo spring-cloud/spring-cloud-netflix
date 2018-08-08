@@ -62,8 +62,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Marius Bogoevici
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestApplication.class, properties = {"spring.application.name=application",
-		"spring.main.allow-bean-definition-overriding=true"}) //FIXME: 2.1.0 remove when stream updates
+@SpringBootTest(classes = TestApplication.class, properties = {"spring.application.name=application"})
 @AutoConfigureMessageVerifier
 public abstract class StreamSourceTestBase {
 
