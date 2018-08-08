@@ -68,7 +68,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
 		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs",
-		"spring.main.allow-bean-definition-overriding=true"}) //FIXME: 2.1.0 remove allow-bean-...
+		})
 @AutoConfigureStubRunner
 public class TurbineStreamTests {
 	@Autowired
