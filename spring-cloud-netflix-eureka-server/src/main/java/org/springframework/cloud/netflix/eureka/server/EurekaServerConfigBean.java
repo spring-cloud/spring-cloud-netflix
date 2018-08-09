@@ -96,7 +96,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private long responseCacheUpdateIntervalMs = 30 * 1000;
 
-	private boolean useReadOnlyResponseCache = true;
+	private boolean useReadOnlyResponseCache = false;
 
 	private boolean disableDelta;
 
