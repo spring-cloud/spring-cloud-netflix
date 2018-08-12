@@ -68,6 +68,7 @@ public class RibbonClientConfiguration {
 
 	public static final int DEFAULT_CONNECT_TIMEOUT = 1000;
 	public static final int DEFAULT_READ_TIMEOUT = 1000;
+	public static final boolean DEFAULT_GZIP_PAYLOAD = true;
 
 	@RibbonClientName
 	private String name = "client";
@@ -85,6 +86,7 @@ public class RibbonClientConfiguration {
 		config.loadProperties(this.name);
 		config.set(CommonClientConfigKey.ConnectTimeout, DEFAULT_CONNECT_TIMEOUT);
 		config.set(CommonClientConfigKey.ReadTimeout, DEFAULT_READ_TIMEOUT);
+		config.set(CommonClientConfigKey.GZipPayload, DEFAULT_GZIP_PAYLOAD);
 		return config;
 	}
 
