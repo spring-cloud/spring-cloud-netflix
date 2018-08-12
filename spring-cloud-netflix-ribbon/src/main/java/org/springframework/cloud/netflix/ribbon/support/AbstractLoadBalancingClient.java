@@ -51,6 +51,8 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 
 	protected boolean followRedirects;
 
+	protected boolean gzipPayload;
+
 	protected boolean okToRetryOnAllOperations;
 
 	protected final D delegate;
