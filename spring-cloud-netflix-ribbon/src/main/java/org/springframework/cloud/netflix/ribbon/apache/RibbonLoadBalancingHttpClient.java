@@ -74,6 +74,7 @@ public class RibbonLoadBalancingHttpClient extends
 				.setConnectTimeout(ribbon.connectTimeout(this.connectTimeout))
 				.setSocketTimeout(ribbon.readTimeout(this.readTimeout))
 				.setRedirectsEnabled(ribbon.isFollowRedirects(this.followRedirects))
+				.setContentCompressionEnabled(ribbon.isGZipPayload(this.gzipPayload))
 				.build();
 
 		request = getSecureRequest(request, configOverride);

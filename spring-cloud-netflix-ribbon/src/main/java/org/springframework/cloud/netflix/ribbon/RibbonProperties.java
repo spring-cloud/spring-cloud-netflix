@@ -1,10 +1,10 @@
 package org.springframework.cloud.netflix.ribbon;
 
+import java.util.concurrent.TimeUnit;
+
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.config.IClientConfigKey;
-
-import java.util.concurrent.TimeUnit;
 
 import static com.netflix.client.config.CommonClientConfigKey.PoolKeepAliveTime;
 import static com.netflix.client.config.CommonClientConfigKey.PoolKeepAliveTimeUnits;
@@ -22,166 +22,174 @@ import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_PORT;
 import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT;
 
 public class RibbonProperties {
-    private final IClientConfig config;
+	private final IClientConfig config;
 
-    public static RibbonProperties from(IClientConfig config) {
-        return new RibbonProperties(config);
-    }
+	public static RibbonProperties from(IClientConfig config) {
+		return new RibbonProperties(config);
+	}
 
-    RibbonProperties(IClientConfig config) {
-        this.config = config;
-    }
+	RibbonProperties(IClientConfig config) {
+		this.config = config;
+	}
 
-    public Integer getConnectionCleanerRepeatInterval() {
-        return get(CommonClientConfigKey.ConnectionCleanerRepeatInterval);
-    }
+	public Integer getConnectionCleanerRepeatInterval() {
+		return get(CommonClientConfigKey.ConnectionCleanerRepeatInterval);
+	}
 
-    public int connectionCleanerRepeatInterval() {
-        return get(CommonClientConfigKey.ConnectionCleanerRepeatInterval,
-                DEFAULT_CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS);
-    }
+	public int connectionCleanerRepeatInterval() {
+		return get(CommonClientConfigKey.ConnectionCleanerRepeatInterval,
+				DEFAULT_CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS);
+	}
 
-    public Integer getConnectTimeout() {
-        return get(CommonClientConfigKey.ConnectTimeout);
-    }
+	public Integer getConnectTimeout() {
+		return get(CommonClientConfigKey.ConnectTimeout);
+	}
 
-    public int connectTimeout() {
-        return connectTimeout(DEFAULT_CONNECT_TIMEOUT);
-    }
+	public int connectTimeout() {
+		return connectTimeout(DEFAULT_CONNECT_TIMEOUT);
+	}
 
-    public int connectTimeout(int defaultValue) {
-        return get(CommonClientConfigKey.ConnectTimeout, defaultValue);
-    }
+	public int connectTimeout(int defaultValue) {
+		return get(CommonClientConfigKey.ConnectTimeout, defaultValue);
+	}
 
-    public Boolean getFollowRedirects() {
-        return get(CommonClientConfigKey.FollowRedirects);
-    }
+	public Boolean getFollowRedirects() {
+		return get(CommonClientConfigKey.FollowRedirects);
+	}
 
-    public boolean isFollowRedirects() {
-        return isFollowRedirects(DEFAULT_FOLLOW_REDIRECTS);
-    }
+	public boolean isFollowRedirects() {
+		return isFollowRedirects(DEFAULT_FOLLOW_REDIRECTS);
+	}
 
-    public boolean isFollowRedirects(boolean defaultValue) {
-        return get(CommonClientConfigKey.FollowRedirects, defaultValue);
-    }
+	public boolean isFollowRedirects(boolean defaultValue) {
+		return get(CommonClientConfigKey.FollowRedirects, defaultValue);
+	}
 
-    public Integer getMaxConnectionsPerHost() {
-        return get(CommonClientConfigKey.MaxConnectionsPerHost);
-    }
+	public boolean isGZipPayload() {
+		return isGZipPayload(RibbonClientConfiguration.DEFAULT_GZIP_PAYLOAD);
+	}
 
-    public int maxConnectionsPerHost() {
-        return maxConnectionsPerHost(DEFAULT_MAX_CONNECTIONS_PER_HOST);
-    }
+	public boolean isGZipPayload(boolean defaultValue) {
+		return get(CommonClientConfigKey.GZipPayload, defaultValue);
+	}
 
-    public int maxConnectionsPerHost(int defaultValue) {
-        return get(CommonClientConfigKey.MaxConnectionsPerHost, defaultValue);
-    }
+	public Integer getMaxConnectionsPerHost() {
+		return get(CommonClientConfigKey.MaxConnectionsPerHost);
+	}
 
-    public Integer getMaxTotalConnections() {
-        return get(CommonClientConfigKey.MaxTotalConnections);
-    }
+	public int maxConnectionsPerHost() {
+		return maxConnectionsPerHost(DEFAULT_MAX_CONNECTIONS_PER_HOST);
+	}
 
-    public int maxTotalConnections() {
-        return maxTotalConnections(DEFAULT_MAX_TOTAL_CONNECTIONS);
-    }
+	public int maxConnectionsPerHost(int defaultValue) {
+		return get(CommonClientConfigKey.MaxConnectionsPerHost, defaultValue);
+	}
 
-    public int maxTotalConnections(int defaultValue) {
-        return get(CommonClientConfigKey.MaxTotalConnections, defaultValue);
-    }
+	public Integer getMaxTotalConnections() {
+		return get(CommonClientConfigKey.MaxTotalConnections);
+	}
 
-    public Boolean getOkToRetryOnAllOperations() {
-        return get(CommonClientConfigKey.OkToRetryOnAllOperations);
-    }
+	public int maxTotalConnections() {
+		return maxTotalConnections(DEFAULT_MAX_TOTAL_CONNECTIONS);
+	}
 
-    public boolean isOkToRetryOnAllOperations() {
-        return get(CommonClientConfigKey.OkToRetryOnAllOperations,
-                DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
-    }
+	public int maxTotalConnections(int defaultValue) {
+		return get(CommonClientConfigKey.MaxTotalConnections, defaultValue);
+	}
 
-    @SuppressWarnings("deprecation")
-    public Long getPoolKeepAliveTime() {
-        Object property = this.config.getProperty(PoolKeepAliveTime);
-        if (property instanceof Long) {
-            return (Long) property;
-        }
-        return null;
-    }
+	public Boolean getOkToRetryOnAllOperations() {
+		return get(CommonClientConfigKey.OkToRetryOnAllOperations);
+	}
 
-    @SuppressWarnings("deprecation")
-    public long poolKeepAliveTime() {
-        Object property = this.config.getProperty(PoolKeepAliveTime);
-        if (property instanceof Long) {
-            return (Long) property;
-        }
-        return DEFAULT_POOL_KEEP_ALIVE_TIME;
-    }
+	public boolean isOkToRetryOnAllOperations() {
+		return get(CommonClientConfigKey.OkToRetryOnAllOperations,
+				DEFAULT_OK_TO_RETRY_ON_ALL_OPERATIONS);
+	}
 
-    @SuppressWarnings("deprecation")
-    public TimeUnit getPoolKeepAliveTimeUnits() {
-        Object property = this.config.getProperty(PoolKeepAliveTimeUnits);
-        if (property instanceof TimeUnit) {
-            return (TimeUnit) property;
-        }
-        return DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
-    }
+	@SuppressWarnings("deprecation")
+	public Long getPoolKeepAliveTime() {
+		Object property = this.config.getProperty(PoolKeepAliveTime);
+		if (property instanceof Long) {
+			return (Long) property;
+		}
+		return null;
+	}
 
-    public Integer getPort() {
-        return get(Port);
-    }
+	@SuppressWarnings("deprecation")
+	public long poolKeepAliveTime() {
+		Object property = this.config.getProperty(PoolKeepAliveTime);
+		if (property instanceof Long) {
+			return (Long) property;
+		}
+		return DEFAULT_POOL_KEEP_ALIVE_TIME;
+	}
 
-    public int port() {
-        return get(Port, DEFAULT_PORT);
-    }
+	@SuppressWarnings("deprecation")
+	public TimeUnit getPoolKeepAliveTimeUnits() {
+		Object property = this.config.getProperty(PoolKeepAliveTimeUnits);
+		if (property instanceof TimeUnit) {
+			return (TimeUnit) property;
+		}
+		return DEFAULT_POOL_KEEP_ALIVE_TIME_UNITS;
+	}
 
-    public Integer getReadTimeout() {
-        return get(CommonClientConfigKey.ReadTimeout);
-    }
+	public Integer getPort() {
+		return get(Port);
+	}
 
-    public int readTimeout() {
-        return readTimeout(DEFAULT_READ_TIMEOUT);
-    }
+	public int port() {
+		return get(Port, DEFAULT_PORT);
+	}
 
-    public int readTimeout(int defaultValue) {
-        return get(CommonClientConfigKey.ReadTimeout, defaultValue);
-    }
+	public Integer getReadTimeout() {
+		return get(CommonClientConfigKey.ReadTimeout);
+	}
 
-    public Boolean getSecure() {
-        return get(CommonClientConfigKey.IsSecure);
-    }
+	public int readTimeout() {
+		return readTimeout(DEFAULT_READ_TIMEOUT);
+	}
 
-    public boolean isSecure() {
-        return isSecure(false);
-    }
+	public int readTimeout(int defaultValue) {
+		return get(CommonClientConfigKey.ReadTimeout, defaultValue);
+	}
 
-    public boolean isSecure(boolean defaultValue) {
-        return get(CommonClientConfigKey.IsSecure, defaultValue);
-    }
+	public Boolean getSecure() {
+		return get(CommonClientConfigKey.IsSecure);
+	}
 
-    public Integer getSecurePort() {
-        return this.config.get(SecurePort);
-    }
+	public boolean isSecure() {
+		return isSecure(false);
+	}
 
-    public Boolean getUseIPAddrForServer() {
-        return get(CommonClientConfigKey.UseIPAddrForServer);
-    }
+	public boolean isSecure(boolean defaultValue) {
+		return get(CommonClientConfigKey.IsSecure, defaultValue);
+	}
 
-    public boolean isUseIPAddrForServer() {
-        return isUseIPAddrForServer(false);
-    }
+	public Integer getSecurePort() {
+		return this.config.get(SecurePort);
+	}
 
-    public boolean isUseIPAddrForServer(boolean defaultValue) {
-        return get(CommonClientConfigKey.UseIPAddrForServer, defaultValue);
-    }
+	public Boolean getUseIPAddrForServer() {
+		return get(CommonClientConfigKey.UseIPAddrForServer);
+	}
 
-    public <T> boolean has(IClientConfigKey<T> key) {
-        return this.config.containsProperty(key);
-    }
+	public boolean isUseIPAddrForServer() {
+		return isUseIPAddrForServer(false);
+	}
 
-    public <T> T get(IClientConfigKey<T> key) {
-        return this.config.get(key);
-    }
+	public boolean isUseIPAddrForServer(boolean defaultValue) {
+		return get(CommonClientConfigKey.UseIPAddrForServer, defaultValue);
+	}
 
-    public <T> T get(IClientConfigKey<T> key, T defaultValue) {
-        return this.config.get(key, defaultValue);
-    }
+	public <T> boolean has(IClientConfigKey<T> key) {
+		return this.config.containsProperty(key);
+	}
+
+	public <T> T get(IClientConfigKey<T> key) {
+		return this.config.get(key);
+	}
+
+	public <T> T get(IClientConfigKey<T> key, T defaultValue) {
+		return this.config.get(key, defaultValue);
+	}
 }
