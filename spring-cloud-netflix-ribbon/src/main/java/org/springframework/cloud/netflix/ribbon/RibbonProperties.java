@@ -22,12 +22,12 @@ import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_PORT;
 import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_READ_TIMEOUT;
 
 public class RibbonProperties {
-	private final IClientConfig config;
-
-	// move to DefaultClientConfigImpl in ribbon-core 
-	// affects only Apache HttpClient
-	private static final boolean DEFAULT_GZIP_PAYLOAD = true;
-
+    private final IClientConfig config;
+    
+    // move to DefaultClientConfigImpl in ribbon-core 
+    // affects only Apache HttpClient
+    private static final boolean DEFAULT_GZIP_PAYLOAD = true;
+        
     public static RibbonProperties from(IClientConfig config) {
         return new RibbonProperties(config);
     }
