@@ -97,7 +97,13 @@ public class LoadBalancerFeignClient implements Client {
 	}
 
 	static URI cleanUrl(String originalUrl, String host) {
-		return URI.create(originalUrl.replaceFirst(host, ""));
+		String newUrl = originalUrl.replaceFirst(host, "");
+		StringBuffer buffer = new StringBuffer(newUrl);
+		if((newUrl.startsWith("https://") && newUrl.length() == 8) ||
+				(newUrl.startsWith("http://") && newUrl.length() == 7)) {
+			buffer.append("/");
+		}
+		return URI.create(buffer.toString());
 	}
 
 	private FeignLoadBalancer lbClient(String clientName) {
