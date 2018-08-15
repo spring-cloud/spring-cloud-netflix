@@ -24,10 +24,6 @@ import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_READ_TIM
 public class RibbonProperties {
     private final IClientConfig config;
     
-    // move to DefaultClientConfigImpl in ribbon-core 
-    // affects only Apache HttpClient
-    private static final boolean DEFAULT_GZIP_PAYLOAD = true;
-        
     public static RibbonProperties from(IClientConfig config) {
         return new RibbonProperties(config);
     }
@@ -70,7 +66,7 @@ public class RibbonProperties {
     }
     
     public boolean isGZipPayload() {
-    	return isGZipPayload(DEFAULT_GZIP_PAYLOAD);
+    	return isGZipPayload(RibbonClientConfiguration.DEFAULT_GZIP_PAYLOAD);
     }
     
     public boolean isGZipPayload(boolean defaultValue) {
