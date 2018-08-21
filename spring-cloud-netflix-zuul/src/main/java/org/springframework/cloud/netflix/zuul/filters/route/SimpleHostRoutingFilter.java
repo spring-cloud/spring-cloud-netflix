@@ -29,6 +29,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.client.ClientException;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.exception.ZuulException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -49,6 +53,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
@@ -56,17 +61,12 @@ import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.Host;
 import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.ApplicationListener;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-
-import com.netflix.client.ClientException;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.exception.ZuulException;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_ENTITY_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.ROUTE_TYPE;
@@ -81,7 +81,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Bilal Alp
  * @author Gang Li
  */
-public class SimpleHostRoutingFilter extends ZuulFilter {
+public class SimpleHostRoutingFilter extends ZuulFilter implements ApplicationListener<EnvironmentChangeEvent> {
 
 	private static final Log log = LogFactory.getLog(SimpleHostRoutingFilter.class);
 
@@ -100,7 +100,13 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 	private boolean customHttpClient = false;
 	private boolean useServlet31 = true;
 
-	@EventListener
+	@Override
+	@SuppressWarnings("Deprecation")
+	public void onApplicationEvent(EnvironmentChangeEvent event) {
+		onPropertyChange(event);
+	}
+
+	@Deprecated
 	public void onPropertyChange(EnvironmentChangeEvent event) {
 		if(!customHttpClient) {
 			boolean createNewClient = false;
