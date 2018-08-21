@@ -14,7 +14,7 @@
 	<name>spring-cloud-netflix-hystrix-contract</name>
 	<description>Spring Cloud Netflix Hystrix Contract</description>
 	<properties>
-		<donotreplacespring-cloud-contract.version>2.0.0.RELEASE</donotreplacespring-cloud-contract.version>
+		<donotreplacespring-cloud-contract.version>2.0.1.RELEASE</donotreplacespring-cloud-contract.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -23,13 +23,30 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.11.0</version> <!-- Spring boot 2.1 has a binary incompatible version with boot 2.0 -->
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.assertj</groupId>
+					<artifactId>assertj-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-contract-verifier</artifactId>
 			<version>${donotreplacespring-cloud-contract.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.assertj</groupId>
+					<artifactId>assertj-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<profiles>
