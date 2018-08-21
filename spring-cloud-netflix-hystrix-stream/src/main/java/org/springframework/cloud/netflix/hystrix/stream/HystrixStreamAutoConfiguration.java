@@ -19,18 +19,18 @@ package org.springframework.cloud.netflix.hystrix.stream;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.actuator.HasFeatures;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryClient;
 import org.springframework.cloud.client.discovery.simple.SimpleDiscoveryProperties;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.config.BindingProperties;
+import org.springframework.cloud.stream.config.BindingServiceConfiguration;
 import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,6 +56,7 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 @EnableConfigurationProperties
 @EnableScheduling
 @EnableBinding(HystrixStreamClient.class)
+@AutoConfigureBefore(BindingServiceConfiguration.class) // FIXME: 2.1.0 remove after this is fixed https://github.com/spring-cloud/spring-cloud-stream/issues/1450
 public class HystrixStreamAutoConfiguration {
 
 	@Autowired
