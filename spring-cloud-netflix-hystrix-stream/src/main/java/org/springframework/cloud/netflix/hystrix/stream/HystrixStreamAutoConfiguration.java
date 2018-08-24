@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.hystrix.stream;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,6 +30,7 @@ import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.config.BindingProperties;
+import org.springframework.cloud.stream.config.BindingServiceConfiguration;
 import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,6 +56,7 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 @EnableConfigurationProperties
 @EnableScheduling
 @EnableBinding(HystrixStreamClient.class)
+@AutoConfigureBefore(BindingServiceConfiguration.class) // Needed for bindings done in auto config
 public class HystrixStreamAutoConfiguration {
 
 	@Autowired
