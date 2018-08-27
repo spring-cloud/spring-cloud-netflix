@@ -23,7 +23,7 @@ import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_READ_TIM
 
 public class RibbonProperties {
     private final IClientConfig config;
-
+    
     public static RibbonProperties from(IClientConfig config) {
         return new RibbonProperties(config);
     }
@@ -63,6 +63,14 @@ public class RibbonProperties {
 
     public boolean isFollowRedirects(boolean defaultValue) {
         return get(CommonClientConfigKey.FollowRedirects, defaultValue);
+    }
+    
+    public boolean isGZipPayload() {
+    	return isGZipPayload(RibbonClientConfiguration.DEFAULT_GZIP_PAYLOAD);
+    }
+    
+    public boolean isGZipPayload(boolean defaultValue) {
+    	return get(CommonClientConfigKey.GZipPayload, defaultValue);
     }
 
     public Integer getMaxConnectionsPerHost() {

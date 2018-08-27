@@ -76,6 +76,7 @@ public class RetryableRibbonLoadBalancingHttpClient extends RibbonLoadBalancingH
 		builder.setConnectTimeout(ribbon.connectTimeout(this.connectTimeout));
 		builder.setSocketTimeout(ribbon.readTimeout(this.readTimeout));
 		builder.setRedirectsEnabled(ribbon.isFollowRedirects(this.followRedirects));
+		builder.setContentCompressionEnabled(ribbon.isGZipPayload(this.gzipPayload));
 
 		final RequestConfig requestConfig = builder.build();
 		final LoadBalancedRetryPolicy retryPolicy = loadBalancedRetryFactory.createRetryPolicy(this.getClientName(), this);
