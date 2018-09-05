@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.ribbon.support;
 
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
@@ -28,14 +27,13 @@ import com.netflix.client.ClientException;
 import com.netflix.client.IResponse;
 import com.netflix.client.RequestSpecificRetryHandler;
 import com.netflix.client.RetryHandler;
-import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.reactive.LoadBalancerCommand;
 
 import static org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.DEFAULT_CONNECT_TIMEOUT;
 import static org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.DEFAULT_READ_TIMEOUT;
+import static org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration.DEFAULT_GZIP_PAYLOAD;;
 
 /**
  * @author Spencer Gibb
@@ -50,6 +48,8 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 	protected boolean secure;
 
 	protected boolean followRedirects;
+
+	protected boolean gzipPayload;
 
 	protected boolean okToRetryOnAllOperations;
 
@@ -88,6 +88,7 @@ public abstract class AbstractLoadBalancingClient<S extends ContextAwareRequest,
 		this.secure = ribbon.isSecure();
 		this.followRedirects = ribbon.isFollowRedirects();
 		this.okToRetryOnAllOperations = ribbon.isOkToRetryOnAllOperations();
+		this.gzipPayload = ribbon.isGZipPayload(DEFAULT_GZIP_PAYLOAD);
 	}
 
 	protected abstract D createDelegate(IClientConfig config);
