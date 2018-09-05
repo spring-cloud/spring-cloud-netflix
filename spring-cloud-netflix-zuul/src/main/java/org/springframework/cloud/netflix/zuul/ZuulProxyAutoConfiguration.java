@@ -141,9 +141,7 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 		@Bean
 		public ProxyRequestHelper proxyRequestHelper(ZuulProperties zuulProperties) {
-			ProxyRequestHelper helper = new ProxyRequestHelper();
-			helper.setIgnoredHeaders(zuulProperties.getIgnoredHeaders());
-			helper.setTraceRequestBody(zuulProperties.isTraceRequestBody());
+			ProxyRequestHelper helper = new ProxyRequestHelper(zuulProperties);
 			return helper;
 		}
 
@@ -171,12 +169,10 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 
 		@Bean
 		public ProxyRequestHelper proxyRequestHelper(ZuulProperties zuulProperties) {
-			TraceProxyRequestHelper helper = new TraceProxyRequestHelper();
+			TraceProxyRequestHelper helper = new TraceProxyRequestHelper(zuulProperties);
 			if (this.traces != null) {
 				helper.setTraces(this.traces);
 			}
-			helper.setIgnoredHeaders(zuulProperties.getIgnoredHeaders());
-			helper.setTraceRequestBody(zuulProperties.isTraceRequestBody());
 			return helper;
 		}
 	}

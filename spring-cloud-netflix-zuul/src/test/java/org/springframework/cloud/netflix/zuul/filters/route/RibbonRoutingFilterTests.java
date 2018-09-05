@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -114,7 +115,7 @@ public class RibbonRoutingFilterTests {
 
 	private void setupRibbonRoutingFilter() {
 		RibbonCommandFactory factory = mock(RibbonCommandFactory.class);
-		filter = new RibbonRoutingFilter(new ProxyRequestHelper(), factory, Collections.<RibbonRequestCustomizer>emptyList());
+		filter = new RibbonRoutingFilter(new ProxyRequestHelper(new ZuulProperties()), factory, Collections.<RibbonRequestCustomizer>emptyList());
 	}
 
 	private ClientHttpResponse createClientHttpResponseWithNonStatus() {
