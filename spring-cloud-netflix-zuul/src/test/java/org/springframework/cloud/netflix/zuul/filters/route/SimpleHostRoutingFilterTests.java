@@ -652,7 +652,7 @@ public class SimpleHostRoutingFilterTests {
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
 														ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
 														ApacheHttpClientFactory clientFactory) {
-			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties, connectionManagerFactory, clientFactory);
+			return new SimpleHostRoutingFilter(new ProxyRequestHelper(zuulProperties), zuulProperties, connectionManagerFactory, clientFactory);
 		}
 	}
 

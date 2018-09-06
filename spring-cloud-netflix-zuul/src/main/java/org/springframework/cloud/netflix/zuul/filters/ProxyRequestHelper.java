@@ -71,6 +71,18 @@ public class ProxyRequestHelper {
 
 	private boolean traceRequestBody = true;
 
+	private boolean addHostHeader = false;
+
+	@Deprecated
+	//TODO Remove in 2.1.x
+	public ProxyRequestHelper() {}
+
+	public ProxyRequestHelper(ZuulProperties zuulProperties) {
+		this.ignoredHeaders.addAll(zuulProperties.getIgnoredHeaders());
+		this.traceRequestBody = zuulProperties.isTraceRequestBody();
+		this.addHostHeader = zuulProperties.isAddHostHeader();
+	}
+
 	public void setWhitelistHosts(Set<String> whitelistHosts) {
 		this.whitelistHosts.addAll(whitelistHosts);
 	}
@@ -79,10 +91,14 @@ public class ProxyRequestHelper {
 		this.sensitiveHeaders.addAll(sensitiveHeaders);
 	}
 
+	@Deprecated
+	//TODO Remove in 2.1.x
 	public void setIgnoredHeaders(Set<String> ignoredHeaders) {
 		this.ignoredHeaders.addAll(ignoredHeaders);
 	}
 
+	@Deprecated
+	//TODO Remove in 2.1.x
 	public void setTraceRequestBody(boolean traceRequestBody) {
 		this.traceRequestBody = traceRequestBody;
 	}
@@ -208,6 +224,9 @@ public class ProxyRequestHelper {
 		}
 		switch (name) {
 		case "host":
+			if(addHostHeader) {
+				return true;
+			}
 		case "connection":
 		case "content-length":
 		case "server":

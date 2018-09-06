@@ -48,6 +48,15 @@ import org.springframework.util.StringUtils;
 public class TraceProxyRequestHelper extends ProxyRequestHelper {
 
 	private HttpTraceRepository traces;
+
+	@Deprecated
+	//TODO Remove in 2.1.x
+	public TraceProxyRequestHelper(){}
+
+	public TraceProxyRequestHelper(ZuulProperties zuulProperties) {
+		super(zuulProperties);
+	}
+
 	private final HttpExchangeTracer tracer = new HttpExchangeTracer(
 			Include.defaultIncludes());
 
