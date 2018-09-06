@@ -22,6 +22,7 @@ import java.util.Map;
 
 import com.netflix.turbine.aggregator.InstanceKey;
 import com.netflix.turbine.aggregator.StreamAggregator;
+import com.netflix.turbine.internal.JsonUtility;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.MediaType;
@@ -37,7 +38,7 @@ import rx.subjects.PublishSubject;
 public class TurbineController {
     private static final Log log = LogFactory.getLog(TurbineController.class);
 
-    private final Flux<Map<String, Object>> flux;
+    private final Flux<String> flux;
 
     public TurbineController(PublishSubject<Map<String, Object>> hystrixSubject) {
         Observable<Map<String, Object>> stream = StreamAggregator.aggregateGroupedStreams(hystrixSubject.groupBy(
@@ -47,13 +48,12 @@ public class TurbineController {
         Flux<Map<String, Object>> ping = Flux.interval(Duration.ofSeconds(5), Duration.ofSeconds(10))
                 .map(l -> Collections.singletonMap("type", (Object) "ping"))
                 .share();
-
         flux = Flux.merge(RxReactiveStreams.toPublisher(stream), ping)
-                .share();
+                .share().map(map -> JsonUtility.mapToJson(map));
     }
 
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Map<String, Object>> stream() {
+    public Flux<String> stream() {
         return this.flux;
     }
 }

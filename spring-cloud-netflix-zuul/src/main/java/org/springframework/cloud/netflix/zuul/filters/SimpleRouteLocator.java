@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.zuul.filters;
@@ -68,7 +69,18 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		for (Entry<String, ZuulRoute> entry : getRoutesMap().entrySet()) {
 			ZuulRoute route = entry.getValue();
 			String path = route.getPath();
-			values.add(getRoute(route, path));
+			try {
+				values.add(getRoute(route, path));
+			}
+			catch (Exception e) {
+				if (log.isWarnEnabled()) {
+					log.warn("Invalid route, routeId: " + route.getId() + ", routeServiceId: "
+							+ route.getServiceId() + ", msg: " + e.getMessage());
+				}
+				if (log.isDebugEnabled()) {
+					log.debug("", e);
+				}
+			}
 		}
 		return values;
 	}
@@ -138,7 +150,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		String targetPath = path;
 		String prefix = this.properties.getPrefix();
-		if(prefix.endsWith("/")) {
+		if (prefix.endsWith("/")) {
 			prefix = prefix.substring(0, prefix.length() - 1);
 		}
 		if (path.startsWith(prefix + "/") && this.properties.isStripPrefix()) {
@@ -158,7 +170,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 		}
 		return new Route(route.getId(), targetPath, route.getLocation(), prefix,
 				retryable,
-				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null, 
+				route.isCustomSensitiveHeaders() ? route.getSensitiveHeaders() : null,
 				route.isStripPrefix());
 	}
 
@@ -198,7 +210,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 
 		if (RequestUtils.isDispatcherServletRequest()
 				&& StringUtils.hasText(this.dispatcherServletPath)) {
-			if (!this.dispatcherServletPath.equals("/")) {
+			if (!this.dispatcherServletPath.equals("/") && path.startsWith(this.dispatcherServletPath)) {
 				adjustedPath = path.substring(this.dispatcherServletPath.length());
 				log.debug("Stripped dispatcherServletPath");
 			}
@@ -222,7 +234,7 @@ public class SimpleRouteLocator implements RouteLocator, Ordered {
 	public int getOrder() {
 		return order;
 	}
-	
+
 	public void setOrder(int order) {
 		this.order = order;
 	}

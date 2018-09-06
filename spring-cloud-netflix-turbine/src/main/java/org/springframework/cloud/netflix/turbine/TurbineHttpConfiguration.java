@@ -20,6 +20,7 @@ import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.client.actuator.HasFeatures;
@@ -53,6 +54,18 @@ public class TurbineHttpConfiguration {
 	@ConditionalOnMissingBean
 	public TurbineProperties turbineProperties() {
 		return new TurbineProperties();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public TurbineInformationService turbineInformationService() {
+		return new TurbineInformationService();
+	}
+
+	@Bean
+	@ConditionalOnProperty(value = "turbine.endpoints.clusters.enabled", matchIfMissing = true)
+	public TurbineController turbineController(TurbineInformationService service) {
+		return new TurbineController(service);
 	}
 
 	@Bean

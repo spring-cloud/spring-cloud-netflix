@@ -30,6 +30,7 @@ import org.springframework.cloud.commons.httpclient.OkHttpClientConnectionPoolFa
 import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
 import org.springframework.cloud.netflix.ribbon.RibbonClientName;
 import org.springframework.cloud.netflix.ribbon.RibbonProperties;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.ServerIntrospector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -94,17 +95,18 @@ public class OkHttpRibbonConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
-	public RetryableOkHttpLoadBalancingClient okHttpLoadBalancingClient(
+	public RetryableOkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
 		IClientConfig config,
 		ServerIntrospector serverIntrospector,
 		ILoadBalancer loadBalancer,
 		RetryHandler retryHandler,
 		LoadBalancedRetryFactory loadBalancedRetryFactory,
-		OkHttpClient delegate) {
+		OkHttpClient delegate, RibbonLoadBalancerContext ribbonLoadBalancerContext) {
 		RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(delegate, config,
 				serverIntrospector, loadBalancedRetryFactory);
 		client.setLoadBalancer(loadBalancer);
 		client.setRetryHandler(retryHandler);
+		client.setRibbonLoadBalancerContext(ribbonLoadBalancerContext);
 		Monitors.registerObject("Client_" + this.name, client);
 		return client;
 	}
@@ -112,7 +114,7 @@ public class OkHttpRibbonConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnMissingClass(value = "org.springframework.retry.support.RetryTemplate")
-	public OkHttpLoadBalancingClient retryableOkHttpLoadBalancingClient(
+	public OkHttpLoadBalancingClient okHttpLoadBalancingClient(
 		IClientConfig config,
 		ServerIntrospector serverIntrospector, ILoadBalancer loadBalancer,
 		RetryHandler retryHandler, OkHttpClient delegate) {

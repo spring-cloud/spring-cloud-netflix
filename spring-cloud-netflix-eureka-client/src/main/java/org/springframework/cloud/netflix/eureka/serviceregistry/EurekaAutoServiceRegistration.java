@@ -22,13 +22,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
+
+import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.cloud.client.discovery.event.InstanceRegisteredEvent;
 import org.springframework.cloud.client.serviceregistry.AutoServiceRegistration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.Ordered;
 
 /**
@@ -38,7 +40,7 @@ import org.springframework.core.Ordered;
  * @author Jakub Narloch
  * @author raiyan
  */
-public class EurekaAutoServiceRegistration implements AutoServiceRegistration, SmartLifecycle, Ordered {
+public class EurekaAutoServiceRegistration implements AutoServiceRegistration, SmartLifecycle, Ordered, SmartApplicationListener {
 
 	private static final Log log = LogFactory.getLog(EurekaAutoServiceRegistration.class);
 
@@ -116,8 +118,23 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 		return this.order;
 	}
 
-	@EventListener(ServletWebServerInitializedEvent.class)
-	public void onApplicationEvent(ServletWebServerInitializedEvent event) {
+
+	@Override
+	public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+		return WebServerInitializedEvent.class.isAssignableFrom(eventType)
+				|| ContextClosedEvent.class.isAssignableFrom(eventType);
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof WebServerInitializedEvent) {
+			onApplicationEvent((WebServerInitializedEvent) event);
+		} else if (event instanceof ContextClosedEvent) {
+			onApplicationEvent((ContextClosedEvent) event);
+		}
+	}
+
+	public void onApplicationEvent(WebServerInitializedEvent event) {
 		// TODO: take SSL into account
 		int localPort = event.getWebServer().getPort();
 		if (this.port.get() == 0) {
@@ -127,7 +144,6 @@ public class EurekaAutoServiceRegistration implements AutoServiceRegistration, S
 		}
 	}
 
-	@EventListener(ContextClosedEvent.class)
 	public void onApplicationEvent(ContextClosedEvent event) {
 		if( event.getApplicationContext() == context ) {
 			stop();

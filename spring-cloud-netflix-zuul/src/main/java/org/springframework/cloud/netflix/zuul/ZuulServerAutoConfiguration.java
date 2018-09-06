@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -105,7 +106,7 @@ public class ZuulServerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
 	public SimpleRouteLocator simpleRouteLocator() {
-		return new SimpleRouteLocator(this.server.getServlet().getServletPrefix(),
+		return new SimpleRouteLocator(this.server.getServlet().getContextPath(),
 				this.zuulProperties);
 	}
 
@@ -206,6 +207,7 @@ public class ZuulServerAutoConfiguration {
 
 		@Bean
 		@ConditionalOnBean(MeterRegistry.class)
+		@ConditionalOnMissingBean(CounterFactory.class)
 		public CounterFactory counterFactory(MeterRegistry meterRegistry) {
 			return new DefaultCounterFactory(meterRegistry);
 		}
@@ -215,6 +217,7 @@ public class ZuulServerAutoConfiguration {
 	protected static class ZuulMetricsConfiguration {
 
 		@Bean
+		@ConditionalOnMissingClass("io.micrometer.core.instrument.MeterRegistry")
 		@ConditionalOnMissingBean(CounterFactory.class)
 		public CounterFactory counterFactory() {
 			return new EmptyCounterFactory();

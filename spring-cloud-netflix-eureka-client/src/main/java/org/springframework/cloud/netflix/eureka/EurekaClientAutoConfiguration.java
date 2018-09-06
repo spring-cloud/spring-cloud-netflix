@@ -23,8 +23,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
@@ -141,7 +139,7 @@ public class EurekaClientAutoConfiguration {
 		int serverPort = Integer.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
 
 		Integer managementPort = env.getProperty("management.server.port", Integer.class);// nullable. should be wrapped into optional
-		String managementContextPath = env.getProperty("management.server.context-path");// nullable. should be wrapped into optional
+		String managementContextPath = env.getProperty("management.server.servlet.context-path");// nullable. should be wrapped into optional
 		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port", Integer.class);//nullable
 		EurekaInstanceConfigBean instance = new EurekaInstanceConfigBean(inetUtils);
 
@@ -183,6 +181,14 @@ public class EurekaClientAutoConfiguration {
 			if (metadataMap.get("management.port") == null) {
 				metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
 			}
+		} else {
+			//without the metadata the status and health check URLs will not be set
+			//and the status page and health check url paths will not include the
+			//context path so set them here
+			if(StringUtils.hasText(managementContextPath)) {
+				instance.setHealthCheckUrlPath(managementContextPath + instance.getHealthCheckUrlPath());
+				instance.setStatusPageUrlPath(managementContextPath + instance.getStatusPageUrlPath());
+			}
 		}
 
 		setupJmxPort(instance, jmxPort);
@@ -212,21 +218,22 @@ public class EurekaClientAutoConfiguration {
 		return new EurekaServiceRegistry();
 	}
 
-	@Bean
-	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
-	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
-	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager, ObjectProvider<HealthCheckHandler> healthCheckHandler) {
-		return EurekaRegistration.builder(instanceConfig)
-				.with(applicationInfoManager)
-				.with(eurekaClient)
-				.with(healthCheckHandler)
-				.build();
-	}
+//	@Bean
+//	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+//	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+//	public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient, CloudEurekaInstanceConfig instanceConfig, ApplicationInfoManager applicationInfoManager, ObjectProvider<HealthCheckHandler> healthCheckHandler) {
+//		return EurekaRegistration.builder(instanceConfig)
+//				.with(applicationInfoManager)
+//				.with(eurekaClient)
+//				.with(healthCheckHandler)
+//				.build();
+//	}
 
 	@Bean
 	@ConditionalOnBean(AutoServiceRegistrationProperties.class)
 	@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
-	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry registry, EurekaRegistration registration) {
+	public EurekaAutoServiceRegistration eurekaAutoServiceRegistration(ApplicationContext context, EurekaServiceRegistry registry,
+																	   EurekaRegistration registration) {
 		return new EurekaAutoServiceRegistration(context, registry, registration);
 	}
 
@@ -253,6 +260,20 @@ public class EurekaClientAutoConfiguration {
 				EurekaInstanceConfig config) {
 			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
 			return new ApplicationInfoManager(config, instanceInfo);
+		}
+
+		@Bean
+		@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+		@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
+													 CloudEurekaInstanceConfig instanceConfig,
+													 ApplicationInfoManager applicationInfoManager,
+													 @Autowired(required = false) ObjectProvider<HealthCheckHandler> healthCheckHandler) {
+			return EurekaRegistration.builder(instanceConfig)
+					.with(applicationInfoManager)
+					.with(eurekaClient)
+					.with(healthCheckHandler)
+					.build();
 		}
 	}
 
@@ -283,6 +304,21 @@ public class EurekaClientAutoConfiguration {
 		public ApplicationInfoManager eurekaApplicationInfoManager(EurekaInstanceConfig config) {
 			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
 			return new ApplicationInfoManager(config, instanceInfo);
+		}
+
+		@Bean
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@ConditionalOnBean(AutoServiceRegistrationProperties.class)
+		@ConditionalOnProperty(value = "spring.cloud.service-registry.auto-registration.enabled", matchIfMissing = true)
+		public EurekaRegistration eurekaRegistration(EurekaClient eurekaClient,
+													 CloudEurekaInstanceConfig instanceConfig,
+													 ApplicationInfoManager applicationInfoManager,
+													 @Autowired(required = false) ObjectProvider<HealthCheckHandler> healthCheckHandler) {
+			return EurekaRegistration.builder(instanceConfig)
+					.with(applicationInfoManager)
+					.with(eurekaClient)
+					.with(healthCheckHandler)
+					.build();
 		}
 
 	}

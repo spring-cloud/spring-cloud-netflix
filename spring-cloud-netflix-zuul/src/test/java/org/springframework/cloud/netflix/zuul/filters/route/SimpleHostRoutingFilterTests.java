@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,18 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPOutputStream;
-
-import javax.servlet.http.HttpServletResponse;
 
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.monitoring.CounterFactory;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.Configurable;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.entity.InputStreamEntity;
@@ -48,13 +40,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientConnectionManagerFactory;
 import org.springframework.cloud.commons.httpclient.ApacheHttpClientFactory;
 import org.springframework.cloud.commons.httpclient.DefaultApacheHttpClientConnectionManagerFactory;
@@ -63,49 +52,32 @@ import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.metrics.EmptyCounterFactory;
-import org.springframework.cloud.netflix.zuul.util.ZuulRuntimeException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 import static org.springframework.util.StreamUtils.copyToByteArray;
-import static org.springframework.util.StreamUtils.copyToString;
 
 /**
  * @author Andreas Kluth
  * @author Spencer Gibb
  * @author Gang Li
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = SimpleHostRoutingFilterTests.SampleApplication.class,
-		webEnvironment = RANDOM_PORT,
-		properties = {"server.servlet.contextPath: /app"})
-@DirtiesContext
 public class SimpleHostRoutingFilterTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-	@LocalServerPort
-	private int port;
-
 	@Before
 	public void setup() {
 		CounterFactory.initialize(new EmptyCounterFactory());
+		RequestContext.testSetCurrentContext(new RequestContext());
 	}
 
 	@After
@@ -114,12 +86,16 @@ public class SimpleHostRoutingFilterTests {
 			this.context.close();
 		}
 		CounterFactory.initialize(null);
+
+		RequestContext.testSetCurrentContext(null);
+		RequestContext.getCurrentContext().clear();
 	}
 
 	@Test
 	public void timeoutPropertiesAreApplied() {
-		addEnvironment(this.context, "zuul.host.socket-timeout-millis=11000",
-				"zuul.host.connect-timeout-millis=2100", "zuul.host.connection-request-timeout-millis=2500");
+		TestPropertyValues.of("zuul.host.socket-timeout-millis=11000",
+				"zuul.host.connect-timeout-millis=2100", "zuul.host.connection-request-timeout-millis=2500")
+				.applyTo(this.context);
 		setupContext();
 		CloseableHttpClient httpClient = getFilter().newClient();
 		Assertions.assertThat(httpClient).isInstanceOf(Configurable.class);
@@ -131,11 +107,11 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void connectionPropertiesAreApplied() {
-		addEnvironment(this.context, "zuul.host.maxTotalConnections=100",
+		TestPropertyValues.of("zuul.host.maxTotalConnections=100",
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
-				"zuul.host.timeUnit=SECONDS");
+				"zuul.host.timeUnit=SECONDS").applyTo(this.context);
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -149,7 +125,7 @@ public class SimpleHostRoutingFilterTests {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
-		return (T)value;
+		return (T) value;
 	}
 
 	@Test
@@ -161,7 +137,7 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void validationOfSslHostnamesCanBeDisabledViaProperty() {
-		addEnvironment(this.context, "zuul.sslHostnameValidationEnabled=false");
+		TestPropertyValues.of("zuul.sslHostnameValidationEnabled=false").applyTo(this.context);
 		setupContext();
 		assertFalse("Hostname verification should be disabled via property",
 				getFilter().isSslHostnameValidationEnabled());
@@ -170,7 +146,7 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager)getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -188,45 +164,6 @@ public class SimpleHostRoutingFilterTests {
 		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
 	}
 
-	@Test
-	public void httpClientDoesNotDecompressEncodedData() throws Exception {
-		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/compressed/get/1", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
-
-		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
-		assertEquals(200, response.getStatusLine().getStatusCode());
-		byte[] responseBytes = copyToByteArray(response.getEntity().getContent());
-		assertTrue(Arrays.equals(GZIPCompression.compress("Get 1"), responseBytes));
-	}
-
-	@Test
-	public void httpClientPreservesUnencodedData() throws Exception {
-		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/get/1", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
-
-		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
-		assertEquals(200, response.getStatusLine().getStatusCode());
-		String responseString = copyToString(response.getEntity().getContent(), Charset.forName("UTF-8"));
-		assertTrue("Get 1".equals(responseString));
-	}
-
-
-	@Test
-	public void redirectTest() throws IOException {
-		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("GET", "/app/redirect", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
-
-		CloseableHttpResponse response = getFilter().newClient().execute(new HttpHost("localhost", this.port), httpRequest);
-		assertEquals(302, response.getStatusLine().getStatusCode());
-		String responseString = copyToString(response.getEntity().getContent(), Charset.forName("UTF-8"));
-		assertTrue(response.getLastHeader("Location").getValue().contains("/app/get/5"));
-	}
 
 	@Test
 	public void zuulHostKeysUpdateHttpClient() {
@@ -257,7 +194,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -269,7 +206,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -281,7 +218,7 @@ public class SimpleHostRoutingFilterTests {
 		setupContext();
 		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
 		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
-			new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
 		assertTrue(basicHttpRequest.getEntity() != null);
@@ -307,20 +244,6 @@ public class SimpleHostRoutingFilterTests {
 		assertEquals(100, getFilter().filterOrder());
 	}
 
-	@Test(expected = ZuulRuntimeException.class)
-	public void run() throws Exception {
-		setupContext();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-		request.setContent("{1}".getBytes());
-		request.addHeader("singleName", "singleValue");
-		request.addHeader("multiName", "multiValue1");
-		request.addHeader("multiName", "multiValue2");
-		RequestContext.getCurrentContext().setRequest(request);
-		URL url = new URL("http://localhost:8080");
-		RequestContext.getCurrentContext().set("routeHost", url);
-		getFilter().run();
-	}
-
 	private void setupContext() {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
@@ -340,10 +263,14 @@ public class SimpleHostRoutingFilterTests {
 		}
 
 		@Bean
-		ApacheHttpClientFactory clientFactory() {return new DefaultApacheHttpClientFactory(HttpClientBuilder.create()); }
+		ApacheHttpClientFactory clientFactory() {
+			return new DefaultApacheHttpClientFactory(HttpClientBuilder.create());
+		}
 
 		@Bean
-		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() { return new DefaultApacheHttpClientConnectionManagerFactory(); }
+		ApacheHttpClientConnectionManagerFactory connectionManagerFactory() {
+			return new DefaultApacheHttpClientConnectionManagerFactory();
+		}
 
 		@Bean
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
@@ -352,41 +279,4 @@ public class SimpleHostRoutingFilterTests {
 			return new SimpleHostRoutingFilter(new ProxyRequestHelper(), zuulProperties, connectionManagerFactory, clientFactory);
 		}
 	}
-
-    @Configuration
-    @EnableAutoConfiguration
-    @RestController
-    static class SampleApplication {
-
-        @RequestMapping(value = "/compressed/get/{id}", method = RequestMethod.GET)
-        public byte[] getCompressed(@PathVariable String id, HttpServletResponse response) throws IOException {
-            response.setHeader("content-encoding", "gzip");
-            return GZIPCompression.compress("Get " + id);
-        }
-
-        @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-        public String getString(@PathVariable String id, HttpServletResponse response) throws IOException {
-            return "Get " + id;
-        }
-
-        @RequestMapping(value = "/redirect", method = RequestMethod.GET)
-        public String redirect(HttpServletResponse response) throws IOException {
-            response.sendRedirect("/app/get/5");
-            return null;
-        }
-    }
-
-    static class GZIPCompression {
-
-        public static byte[] compress(final String str) throws IOException {
-            if ((str == null) || (str.length() == 0)) {
-                return null;
-            }
-            ByteArrayOutputStream obj = new ByteArrayOutputStream();
-            GZIPOutputStream gzip = new GZIPOutputStream(obj);
-            gzip.write(str.getBytes("UTF-8"));
-            gzip.close();
-            return obj.toByteArray();
-        }
-    }
 }

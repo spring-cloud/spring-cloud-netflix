@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-netflix</artifactId>
-		<version>2.0.0.BUILD-SNAPSHOT</version>
+		<version>2.1.0.BUILD-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>spring-cloud-starter-netflix</artifactId>
@@ -13,7 +13,6 @@
 	<description>Spring Cloud Netflix Starters</description>
 	<modules>
 		<module>spring-cloud-starter-netflix-archaius</module>
-		<module>spring-cloud-starter-netflix-atlas</module>
 		<module>spring-cloud-starter-netflix-eureka-client</module>
 		<module>spring-cloud-starter-netflix-eureka-server</module>
 		<module>spring-cloud-starter-netflix-hystrix</module>

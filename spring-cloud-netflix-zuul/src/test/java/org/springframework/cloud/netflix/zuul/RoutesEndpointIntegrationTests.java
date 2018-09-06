@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,10 @@ import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointPr
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -63,14 +66,18 @@ public class RoutesEndpointIntegrationTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void getRoutesTest() {
-		Map<String, String> routes = restTemplate.getForObject(BASE_PATH + "/routes", Map.class);
+		ResponseEntity<Map> entity = restTemplate.getForEntity(BASE_PATH + "/routes", Map.class);
+		Assertions.assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		Map<String, String> routes = entity.getBody();
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void postRoutesTest() {
-		Map<String, String> routes = restTemplate.postForObject(BASE_PATH + "/routes", null, Map.class);
+		ResponseEntity<Map> entity = restTemplate.postForEntity(BASE_PATH + "/routes", null, Map.class);
+		Assertions.assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		Map<String, String> routes = entity.getBody();
 		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
 		assertTrue(refreshListener.wasCalled());
 	}
@@ -95,6 +102,7 @@ public class RoutesEndpointIntegrationTests {
 	@EnableAutoConfiguration
 	@RestController
 	@EnableZuulProxy
+	@Import(NoSecurityConfiguration.class)
 	static class SimpleZuulProxyApplication {
 		@Component
 		static class RoutesRefreshListener implements ApplicationListener<RoutesRefreshedEvent> {

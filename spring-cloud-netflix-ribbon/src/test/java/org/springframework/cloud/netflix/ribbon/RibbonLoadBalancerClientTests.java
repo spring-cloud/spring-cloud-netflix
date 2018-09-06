@@ -43,6 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyObject;
@@ -205,6 +206,17 @@ public class RibbonLoadBalancerClientTests {
 		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
 		ServiceInstance serviceInstance = client.choose(server.getServiceId());
 		assertServiceInstance(server, serviceInstance);
+		verify(this.loadBalancer).chooseServer(eq("default"));
+	}
+
+	@Test
+	public void testChooseWithHint() {
+		Object hint = new Object();
+		RibbonServer server = getRibbonServer();
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+		ServiceInstance serviceInstance = client.choose(server.getServiceId(), hint);
+		assertServiceInstance(server, serviceInstance);
+		verify(this.loadBalancer).chooseServer(same(hint));
 	}
 
 	@Test
@@ -228,6 +240,23 @@ public class RibbonLoadBalancerClientTests {
                     return returnVal;
                 });
 		verifyServerStats();
+		verify(this.loadBalancer).chooseServer(eq("default"));
+		assertEquals("retVal was wrong", returnVal, actualReturn);
+	}
+
+	@Test
+	public void testExecuteWithHint() throws IOException {
+		Object hint = new Object();
+		final RibbonServer server = getRibbonServer();
+		RibbonLoadBalancerClient client = getRibbonLoadBalancerClient(server);
+		final String returnVal = "myval";
+		Object actualReturn = client.execute(server.getServiceId(),
+				(LoadBalancerRequest<Object>) instance -> {
+					assertServiceInstance(server, instance);
+					return returnVal;
+				}, hint);
+		verifyServerStats();
+		verify(this.loadBalancer).chooseServer(same(hint));
 		assertEquals("retVal was wrong", returnVal, actualReturn);
 	}
 

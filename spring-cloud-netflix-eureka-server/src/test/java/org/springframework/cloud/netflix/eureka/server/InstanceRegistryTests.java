@@ -5,9 +5,14 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.LeaseInfo;
+import com.netflix.discovery.shared.Application;
+import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,13 +24,8 @@ import org.springframework.cloud.netflix.eureka.server.event.EurekaInstanceRenew
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.LeaseInfo;
-import com.netflix.discovery.shared.Application;
-import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -148,21 +148,18 @@ public class InstanceRegistryTests {
 		}
 	}
 
-	protected static class TestEvents {
+	protected static class TestEvents implements SmartApplicationListener {
 		public final List<ApplicationEvent> applicationEvents = new LinkedList<>();
 
-		@EventListener(EurekaInstanceRegisteredEvent.class)
-		public void onEvent(EurekaInstanceRegisteredEvent event) {
-			this.applicationEvents.add(event);
+		@Override
+		public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+			return EurekaInstanceRegisteredEvent.class.isAssignableFrom(eventType)
+					|| EurekaInstanceCanceledEvent.class.isAssignableFrom(eventType)
+					|| EurekaInstanceRenewedEvent.class.isAssignableFrom(eventType);
 		}
 
-		@EventListener(EurekaInstanceCanceledEvent.class)
-		public void onEvent(EurekaInstanceCanceledEvent event) {
-			this.applicationEvents.add(event);
-		}
-
-		@EventListener(EurekaInstanceRenewedEvent.class)
-		public void onEvent(EurekaInstanceRenewedEvent event) {
+		@Override
+		public void onApplicationEvent(ApplicationEvent event) {
 			this.applicationEvents.add(event);
 		}
 

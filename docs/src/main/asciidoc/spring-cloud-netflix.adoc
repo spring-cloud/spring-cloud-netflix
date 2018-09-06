@@ -84,17 +84,20 @@ NOTE: Because of a limitation in Eureka, it is not possible to support per-serve
 === Status Page and Health Indicator
 
 The status page and health indicators for a Eureka instance default to `/info` and `/health` respectively, which are the default locations of useful endpoints in a Spring Boot Actuator application.
-You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as `server.servletPath=/custom`) or management endpoint path (such as `management.contextPath=/admin`). The following example shows the default values for the two settings:
+You need to change these, even for an Actuator application if you use a non-default context path or servlet path (such as `server.servletPath=/custom`). The following example shows the default values for the two settings:
 
 .application.yml
 ----
 eureka:
   instance:
-    statusPageUrlPath: ${management.server.servlet.context-path}/info
-    healthCheckUrlPath: ${management.server.servlet.context-path}/health
+    statusPageUrlPath: ${server.servletPath}/info
+    healthCheckUrlPath: ${server.servletPath}/health
 ----
 
 These links show up in the metadata that is consumed by clients and are used in some scenarios to decide whether to send requests to your application, so it is helpful if they are accurate.
+
+NOTE: In Dalston it was also required to set the status and health check URLs when changing
+that management context path.  This requirement was removed beginning in Edgware.
 
 === Registering a Secure Application
 
@@ -157,9 +160,9 @@ In general, additional metadata does not change the behavior of the client, unle
 There are a couple of special cases, described later in this document, where Spring Cloud already assigns meaning to the metadata map.
 // TODO Add links from here to the relevant places in the document
 
-==== Using Eureka on Cloudfoundry
+==== Using Eureka on Cloud Foundry
 
-Cloudfoundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
+Cloud Foundry has a global router so that all instances of the same app have the same hostname (other PaaS solutions with a similar architecture have the same arrangement).
 This is not necessarily a barrier to using Eureka.
 However, if you use the router (recommended or even mandatory, depending on the way your platform was set up), you need to explicitly set the hostname and port numbers (secure or non-secure) so that they use the router.
 You might also want to use instance metadata so that you can distinguish between the instances on the client (for example, in a custom load balancer).
@@ -173,7 +176,7 @@ eureka:
     nonSecurePort: 80
 ----
 
-Depending on the way the security rules are set up in your Cloudfoundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
+Depending on the way the security rules are set up in your Cloud Foundry instance, you might be able to register and use the IP address of the host VM for direct service-to-service calls.
 This feature is not yet available on Pivotal Web Services (https://run.pivotal.io[PWS]).
 
 ==== Using Eureka on AWS
@@ -211,7 +214,7 @@ eureka:
 ----
 
 With the metadata shown in the preceding example and multiple service instances deployed on localhost, the random value is inserted there to make the instance unique.
-In Cloudfoundry, the `vcap.application.instance_id` is populated automatically in a Spring Boot application, so the random value is not needed.
+In Cloud Foundry, the `vcap.application.instance_id` is populated automatically in a Spring Boot application, so the random value is not needed.
 
 === Using the EurekaClient
 
@@ -381,7 +384,7 @@ dependencyManagement {
 [[spring-cloud-eureka-server-zones-and-regions]]
 === High Availability, Zones and Regions
 
-The Eureka server does not have a backend store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
+The Eureka server does not have a back end store, but the service instances in the registry all have to send heartbeats to keep their registrations up to date (so this can be done in memory).
 Clients also have an in-memory cache of Eureka registrations (so they do not have to go to the registry for every request to a service).
 
 By default, every Eureka server is also a Eureka client and requires (at least one) service URL to locate a peer.
@@ -463,6 +466,31 @@ If the hostname cannot be determined by Java, then the IP address is sent to Eur
 Only explict way of setting the hostname is by setting `eureka.instance.hostname` property.
 You can set your hostname at the run-time by using an environment variable -- for example, `eureka.instance.hostname=${HOST_NAME}`.
 ====
+
+=== Securing The Eureka Server
+
+You can secure your Eureka server simply by adding Spring Security to your
+server's classpath via `spring-boot-starter-security`.  By default when Spring Security is on the classpath it will require that
+a valid CSRF token be sent with every request to the app.  Eureka clients will not generally possess a valid
+cross site request forgery (CSRF) token you will need to disable this requirement for the `/eureka/**` endpoints.
+For example: 
+
+[source,java,indent=0]
+----
+@EnableWebSecurity
+class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().ignoringAntMatchers("/eureka/**");
+        super.configure(http);
+    }
+}
+----
+
+For more information on CSRF see the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf[Spring Security documentation].
+
+A demo Eureka Server can be found in the Spring Cloud Samples https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security[repo].
 
 == Circuit Breaker: Hystrix Clients
 
@@ -572,8 +600,9 @@ The state of the connected circuit breakers are also exposed in the `/health` en
 
 === Hystrix Metrics Stream
 
-To enable the Hystrix metrics stream, include a dependency on `spring-boot-starter-actuator`.
-Doing so exposes the `/hystrix.stream` as a management endpoint, as shown in the following example:
+To enable the Hystrix metrics stream, include a dependency on `spring-boot-starter-actuator` and set
+`management.endpoints.web.exposure.include: hystrix.stream`.
+Doing so exposes the `/actuator/hystrix.stream` as a management endpoint, as shown in the following example:
 
 [source,xml]
 ----
@@ -680,6 +709,29 @@ Spring Cloud provides a `spring-cloud-starter-netflix-turbine` that has all the 
 NOTE: By default, Spring Cloud lets Turbine use the host and port to allow multiple processes per host, per cluster.
 If you want the native Netflix behavior built into Turbine to _not_ allow multiple processes per host, per cluster (the key to the instance ID is the hostname), set `turbine.combineHostPort=false`.
 
+==== Clusters Endpoint
+
+In some situations it might be useful for other applications to know what custers have been configured
+in Turbine.  To support this you can use the `/clusters` endpoint which will return a JSON array of
+all the configured clusters.
+
+.GET /clusters
+[source,json]
+----
+[
+  {
+    "name": "RACES",
+    "link": "http://localhost:8383/turbine.stream?cluster=RACES"
+  },
+  {
+    "name": "WEB",
+    "link": "http://localhost:8383/turbine.stream?cluster=WEB"
+  }
+]
+----
+
+This endpoint can be disabled by setting `turbine.endpoints.clusters.enabled` to `false`.
+
 === Turbine Stream
 
 In some environments (such as in a PaaS setting), the classic Turbine model of pulling metrics from all the distributed Hystrix commands does not work.
@@ -687,9 +739,9 @@ In that case, you might want to have your Hystrix commands push metrics to Turbi
 To do so on the client, add a dependency to `spring-cloud-netflix-hystrix-stream` and the `spring-cloud-starter-stream-*` of your choice.
 See the https://docs.spring.io/spring-cloud-stream/docs/current/reference/htmlsingle/[Spring Cloud Stream documentation] for details on the brokers and how to configure the client credentials. It should work out of the box for a local broker.
 
-On the server side, create a Spring Boot application and annotate it with `@EnableTurbineStream`. By default, it starts on port 8989 (point your Hystrix dashboard to that port on any path).
-You can customize the port by setting `server.port`.
-The Turbine Stream server requires the use of Spring Webflux, therefor `spring-boot-starter-webflux` needs to be included in your project.
+On the server side, create a Spring Boot application and annotate it with `@EnableTurbineStream`.
+The Turbine Stream server requires the use of Spring Webflux, therefore `spring-boot-starter-webflux` needs to be included in your project.
+By default `spring-boot-starter-webflux` is included when adding `spring-cloud-starter-netflix-turbine-stream` to your application.
 
 You can then point the Hystrix Dashboard to the Turbine Stream Server instead of individual Hystrix streams.
 If Turbine Stream is running on port 8989 on myhost, then put `http://myhost:8989` in the stream input field in the Hystrix Dashboard.
@@ -697,6 +749,24 @@ Circuits are prefixed by their respective `serviceId`, followed by a dot (`.`), 
 
 Spring Cloud provides a `spring-cloud-starter-netflix-turbine-stream` that has all the dependencies you need to get a Turbine Stream server running.
 You can then add the Stream binder of your choice -- such as `spring-cloud-starter-stream-rabbit`.
+
+Turbine Stream server also supports the `cluster` parameter.
+Unlike Turbine server, Turbine Stream uses eureka serviceIds as cluster names and these are not configurable.
+
+If Turbine Stream server is running on port 8989 on `my.turbine.server` and you have two eureka serviceIds `customers` and `products`  in your environment, the following URLs will be available on your Turbine Stream server. `default` and empty cluster name will provide all metrics that Turbine Stream server receives.
+
+----
+http://my.turbine.sever:8989/turbine.stream?cluster=customers
+http://my.turbine.sever:8989/turbine.stream?cluster=products
+http://my.turbine.sever:8989/turbine.stream?cluster=default
+http://my.turbine.sever:8989/turbine.stream
+----
+
+So, you can use eureka serviceIds as cluster names for your Turbine dashboard (or any compatible dashboard).
+You don’t need to configure any properties like `turbine.appConfig`, `turbine.clusterNameExpression` and `turbine.aggregator.clusterConfig` for your Turbine Stream server.
+
+NOTE: Turbine Stream server gathers all metrics from the configured input channel with Spring Cloud Stream. It means that it doesn’t gather Hystrix metrics actively from each instance. It just can provide metrics that were already gathered into the input channel by each instance.
+
 
 [[spring-cloud-ribbon]]
 == Client Side Load Balancer: Ribbon
@@ -992,7 +1062,7 @@ See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page] for d
 === Embedded Zuul Reverse Proxy
 
 Spring Cloud has created an embedded Zuul proxy to ease the development of a common use case where a UI application wants to make proxy calls to one or more back end services.
-This feature is useful for a user interface to proxy to the backend services it requires, avoiding the need to manage CORS and authentication concerns independently for all the backends.
+This feature is useful for a user interface to proxy to the back end services it requires, avoiding the need to manage CORS and authentication concerns independently for all the back ends.
 
 To enable it, annotate a Spring Boot main class with `@EnableZuulProxy`. Doing so causes local calls to be forwarded to the appropriate service.
 By convention, a service with an ID of `users` receives requests from the proxy located at `/users` (with the prefix stripped).
@@ -1043,7 +1113,7 @@ To get more fine-grained control over a route, you can specify the path and the 
 The preceding example means that HTTP calls to `/myusers` get forwarded to the `users_service` service.
 The route must have a `path` that can be specified as an ant-style pattern, so `/myusers/{asterisk}` only matches one level, but `/myusers/{all}` matches hierarchically.
 
-The location of the backend can be specified as either a `serviceId` (for a service from discovery) or a `url` (for a physical location), as shown in the following example:
+The location of the back end can be specified as either a `serviceId` (for a service from discovery) or a `url` (for a physical location), as shown in the following example:
 
 .application.yml
 [source,yaml]
@@ -1079,7 +1149,7 @@ hystrix:
 myusers-service:
   ribbon:
     NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
-    ListOfServers: http://example1.com,http://example2.com
+    listOfServers: http://example1.com,http://example2.com
     ConnectTimeout: 1000
     ReadTimeout: 3000
     MaxTotalHttpConnections: 500
@@ -1152,7 +1222,7 @@ You can also set that flag to `true` when you need to modify the parameters of t
 
 By default, the `X-Forwarded-Host` header is added to the forwarded requests.
 To turn it off, set `zuul.addProxyHeaders = false`.
-By default, the prefix path is stripped, and the request to the backend picks up a `X-Forwarded-Prefix` header (`/myusers` in the examples shown earlier).
+By default, the prefix path is stripped, and the request to the back end picks up a `X-Forwarded-Prefix` header (`/myusers` in the examples shown earlier).
 
 If you set a default route (`/`), an application with `@EnableZuulProxy` could act as a standalone server. For example, `zuul.route.home: /` would route all traffic ("/{all}") to the "home" service.
 
@@ -1203,7 +1273,7 @@ You can specify a list of ignored headers as part of the route configuration.
 Cookies play a special role, because they have well defined semantics in browsers, and they are always to be treated as sensitive.
 If the consumer of your proxy is a browser, then cookies for downstream services also cause problems for the user, because they all get jumbled up together (all downstream services look like they come from the same place).
 
-If you are careful with the design of your services, (for example, if only one of the downstream services sets cookies), you might be able to let them flow from the backend all the way up to the caller.
+If you are careful with the design of your services, (for example, if only one of the downstream services sets cookies), you might be able to let them flow from the back end all the way up to the caller.
 Also, if your proxy sets cookies and all your back-end services are part of the same system, it can be natural to simply share them (and, for instance, use Spring Session to link them up to some shared state).
 Other than that, any cookies that get set by downstream services are likely to be not useful to the caller, so it is recommended that you make (at least) `Set-Cookie` and `Cookie` into sensitive headers for routes that are not part of your domain.
 Even for routes that are part of your domain, try to think carefully about what it means before letting cookies flow between them and the proxy.
@@ -1362,7 +1432,7 @@ $ curl -v -H "Transfer-Encoding: chunked" \
 
 === Query String Encoding
 When processing the incoming request, query params are decoded so that they can be available for possible modifications in Zuul filters.
-They are then re-encoded the backend request is rebuilt in the route filters.
+They are then re-encoded the back end request is rebuilt in the route filters.
 The result can be different than the original input if (for example) it was encoded with Javascript's `encodeURIComponent()` method.
 While this causes no issues in most cases, some web servers can be picky with the encoding of complex query string.
 
@@ -1558,6 +1628,12 @@ public class ZuulConfig {
 ----
 
 CAUTION: Use this filter carefully. The filter acts on the `Location` header of ALL `3XX` response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.
+
+=== Metrics
+
+Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
+These metrics can be viewed by hitting `/actuator/metrics`.  The metrics will have a name that has the format
+`ZUUL::EXCEPTION:errorCause:statusCode`.
 
 [[zuul-developer-guide]]
 === Zuul Developer Guide
@@ -1912,285 +1988,6 @@ info:
   description: Spring Cloud Samples
   url: https://github.com/spring-cloud-samples
 ----
-
-[[netflix-metrics]]
-== Metrics: Spectator, Servo, and Atlas
-
-When used together, Spectator (or Servo) and Atlas provide a near real-time operational insight platform.
-Spectator and Servo are Netflix's metrics collection libraries.
-Atlas is a Netflix metrics backend that manages dimensional time-series data.
-
-Servo served Netflix for several years and is still usable but is gradually being phased out in favor of Spectator, which is designed to work only with Java 8.
-Spring Cloud Netflix provides support for both, but Java 8-based applications are encouraged to use Spectator.
-
-=== Dimensional Versus Hierarchical Metrics
-
-Spring Boot Actuator metrics are hierarchical, and the metrics are separated only by name.
-These names often follow a naming convention that embeds key/value attribute pairs (dimensions) into the name (separated by periods).
-Consider the following metrics for two endpoints, `root` and `star-star`:
-
-[source,json]
-----
-{
-    "counter.status.200.root": 20,
-    "counter.status.400.root": 3,
-    "counter.status.200.star-star": 5,
-}
-----
-
-The first metric gives us a normalized count of successful requests against the root endpoint per unit of time.
-But what if the system has 20 endpoints and you want to get a count of successful requests against all the endpoints?
-Some hierarchical metrics backends would let you specify a wildcard, such as `counter.status.200.\*`, that would read all 20 metrics and aggregate the results.
-Alternatively, you could provide a `HandlerInterceptorAdapter` that intercepts and records a metric such as `counter.status.200.all` for all successful requests irrespective of the endpoint, but now you must write 20+1 different metrics.
-Similarly, if you want to know the total number of successful requests for all endpoints in the service, you could specify a wildcard such as `counter.status.2*.*`.
-
-Even in the presence of wildcarding support on a hierarchical metrics backend, naming consistency can be difficult.
-Specifically, the position of these tags in the name string can slip with time, breaking queries.
-For example, suppose we add an additional dimension to the earlier hierarchical metrics for an HTTP method.
-Then `counter.status.200.root` becomes `counter.status.200.method.get.root` (or `post` and so on).
-Suddenly, Our `counter.status.200.*` no longer has the same semantic meaning.
-Furthermore, if the new dimension is not applied uniformly across the codebase, certain queries may become impossible.
-This can quickly get out of hand.
-
-Netflix metrics are tagged (in other words, they are dimensional).
-Each metric has a name, but this single named metric can contain multiple statistics and 'tag' key/value pairs, which allows more querying flexibility.
-In fact, the statistics themselves are recorded in a special tag.
-
-When recorded with Netflix Servo or Spectator, a timer for the root endpoint described earlier contains four statistics for each status code, where the count statistic is identical to Spring Boot Actuator's counter.
-When we have encountered an HTTP 200 and 400 with the preceding examples, there are eight available data points, as shown in the following example:
-
-[source,json]
-----
-{
-    "root(status=200,stastic=count)": 20,
-    "root(status=200,stastic=max)": 0.7265630630000001,
-    "root(status=200,stastic=totalOfSquares)": 0.04759702862580789,
-    "root(status=200,stastic=totalTime)": 0.2093076914666667,
-    "root(status=400,stastic=count)": 1,
-    "root(status=400,stastic=max)": 0,
-    "root(status=400,stastic=totalOfSquares)": 0,
-    "root(status=400,stastic=totalTime)": 0,
-}
-----
-
-=== Default Metrics Collection
-
-Without any additional dependencies or configuration, a Spring Cloud based service autoconfigures a Servo `MonitorRegistry` and begins collecting metrics on every Spring MVC request.
-By default, a Servo timer with a name of `rest` is recorded for each MVC request, which is tagged with the following information:
-
-* HTTP method (`GET`, `POST`, and so on).
-* HTTP status (`200`, `400`, `500`, and so on).
-* URI (or `root` if the URI is empty), sanitized for Atlas.
-* The exception class name, if the request handler threw an exception.
-* The caller, if a request header with a key matching `netflix.metrics.rest.callerHeader` is set on the request.
-There is no default key for `netflix.metrics.rest.callerHeader`.
-You must add it to your application properties if you wish to collect caller information.
-
-Set the `netflix.metrics.rest.metricName` property to change the name of the metric from `rest` to the name you provide.
-
-If Spring AOP is enabled and `org.aspectj:aspectjweaver` is present on your runtime classpath, Spring Cloud also collects metrics on every client call made with `RestTemplate`.
-A Servo timer with a name of `restclient` is recorded for each MVC request, which is tagged with the following information:
-
-* HTTP method ('GET', 'POST', and so on).
-* HTTP status (`200`, `400`, `500`, and so on) and possibly `CLIENT_ERROR` if the response returned null or `IO_ERROR` if an `IOException` occurred during the execution of the `RestTemplate` method.
-* URI, sanitized for Atlas.
-* Client name.
-
-WARNING: Avoid using hard-coded URL parameters within `RestTemplate`.
-When targeting dynamic endpoints, use URL variables.
-Doing so avoids potential "`GC Overhead Limit Reached`" issues where `ServoMonitorCache` treats each URL as a unique key.
-The following example shows both the recommended and the problematic ways to set URL parameters:
-
-[source,java,indent=0]
-----
-// recommended
-String orderid = "1";
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/{orderid}", String.class, orderid)
-
-// avoid
-restTemplate.getForObject("http://testeurekabrixtonclient/orders/1", String.class)
-----
-
-[[netflix-metrics-spectator]]
-=== Metrics Collection: Spectator
-
-To enable Spectator metrics, include a dependency on `spring-boot-starter-spectator`, as follows:
-
-[source,xml]
-----
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-spectator</artifactId>
-    </dependency>
-----
-
-In Spectator parlance, a meter is a named, typed, and tagged configuration, while a metric represents the value of a given meter at a point in time.
-Spectator meters are created and controlled by a registry, which currently has several different implementations.
-Spectator provides four meter types: counter, timer, gauge, and distribution summary.
-
-Spring Cloud Spectator integration configures an injectable `com.netflix.spectator.api.Registry` instance for you.
-Specifically, it configures a `ServoRegistry` instance in order to unify the collection of REST metrics and the exporting of metrics to the Atlas backend under a single Servo API.
-Practically, this means that your code may use a mixture of Servo monitors and Spectator meters.
-Spring Boot scoops up both Actuator `MetricReader` instances and ships them to the Atlas backend.
-
-==== Spectator Counter
-
-A counter measures the rate at which some event is occurring, as shown in the following example:
-
-[source,java]
-----
-// create a counter with a name and a set of tags
-Counter counter = registry.counter("counterName", "tagKey1", "tagValue1", ...);
-counter.increment(); // increment when an event occurs
-counter.increment(10); // increment by a discrete amount
-----
-
-The counter records a single time-normalized statistic.
-
-==== Spectator Timer
-
-A timer measures how long some event takes.
-Spring Cloud automatically records timers for Spring MVC requests and, conditionally, `RestTemplate` requests, which can later be used to create dashboards for request related metrics like latency, as shown in the following example:
-
-.Request Latency
-image::https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/{branch}/docs/src/main/asciidoc/images/RequestLatency.png[]
-
-[source,java]
-----
-// create a timer with a name and a set of tags
-Timer timer = registry.timer("timerName", "tagKey1", "tagValue1", ...);
-
-// execute an operation and time it at the same time
-T result = timer.record(() -> fooReturnsT());
-
-// alternatively, if you must manually record the time
-Long start = System.nanoTime();
-T result = fooReturnsT();
-timer.record(System.nanoTime() - start, TimeUnit.NANOSECONDS);
-----
-
-The timer simultaneously records four statistics: `count`, `max`, `totalOfSquares`, and `totalTime`.
-The count statistic always matches the single normalized value provided by a counter as though you had called `increment()` once on the counter for each time you recorded a timing, so it is rarely necessary to count and time separately for a single operation.
-
-For link:https://github.com/Netflix/spectator/wiki/Timer-Usage#longtasktimer[long-running operations], Spectator provides a special `LongTaskTimer`.
-
-==== Spectator Gauge
-
-Gauges show some current value, such as the size of a queue or number of threads in a running state.
-Since gauges are sampled, they provide no information about how these values fluctuate between samples.
-
-The normal use of a gauge involves registering the gauge once on initialization with an ID, a reference to the object to be sampled, and a function to get or compute a numeric value based on the object.
-The reference to the object is passed in separately, and the Spectator registry keeps a weak reference to the object.
-If the object is garbage collected, Spectator automatically drops the registration.
-See link:https://github.com/Netflix/spectator/wiki/Gauge-Usage#using-lambda[the note] in Spectator's documentation about potential memory leaks if this API is misused.
-The following listing shows how to automatically and manually sample a gauge:
-
-[source,java]
-----
-// the registry automatically samples this gauge periodically
-registry.gauge("gaugeName", pool, Pool::numberOfRunningThreads);
-
-// manually sample a value in code at periodic intervals -- last resort!
-registry.gauge("gaugeName", Arrays.asList("tagKey1", "tagValue1", ...), 1000);
-----
-
-// TODO Why is the manual way a last resort?
-
-==== Spectator Distribution Summaries
-
-A distribution summary tracks the distribution of events.
-It is similar to a timer but more general in that the size does not have to be a period of time.
-For example, a distribution summary could be used to measure the payload sizes of requests hitting a server.
-The following example defines a distribution summary:
-
-[source,java]
-----
-// the registry automatically samples this gauge periodically
-DistributionSummary ds = registry.distributionSummary("dsName", "tagKey1", "tagValue1", ...);
-ds.record(request.sizeInBytes());
-----
-
-[[netflix-metrics-servo]]
-=== Metrics Collection: Servo
-
-NOTE: If your code is compiled on Java 8, use Spectator instead of Servo, as Spectator is destined to replace Servo entirely.
-
-In Servo parlance, a monitor is a named, typed, and tagged configuration, and a metric represents the value of a given monitor at a point in time.
-Servo monitors are logically equivalent to Spectator meters.
-Servo monitors are created and controlled by a `MonitorRegistry`.
-While it is still available, Servo has a link:https://github.com/Netflix/servo/wiki/Getting-Started[wider array] of monitor options than Spectator has meters.
-
-Spring Cloud integration configures an injectable `com.netflix.servo.MonitorRegistry` instance for you.
-Once you have created the appropriate `Monitor` type in Servo, the process of recording data is similar to that of Spectator.
-
-==== Creating Servo Monitors
-
-If you use the Servo `MonitorRegistry` instance provided by Spring Cloud (specifically, an instance of `DefaultMonitorRegistry`), Servo provides convenience classes for retrieving link:https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamiccounter[counters] and link:https://github.com/Netflix/spectator/wiki/Servo-Comparison#dynamictimer[timers].
-These convenience classes ensure that only one `Monitor` is registered for each unique combination of name and tags.
-
-To manually create a Monitor type in Servo, especially for the more exotic monitor types for which convenience methods are not provided, instantiate the appropriate type by providing a `MonitorConfig` instance, as shown in the following example:
-
-[source,java]
-----
-MonitorConfig config = MonitorConfig.builder("timerName").withTag("tagKey1", "tagValue1").build();
-
-// somewhere we should cache this Monitor by MonitorConfig
-Timer timer = new BasicTimer(config);
-monitorRegistry.register(timer);
-----
-
-[[netflix-metrics-atlas]]
-== Metrics Backend: Atlas
-
-Atlas was developed by Netflix to manage dimensional time-series data for near real-time operational insight.
-Atlas features in-memory data storage, letting it gather and report large numbers of metrics quickly.
-
-Atlas captures operational intelligence.
-Whereas business intelligence is data gathered for analyzing trends over time, operational intelligence provides a picture of what is currently happening within a system.
-
-Spring Cloud provides a `spring-cloud-starter-netflix-atlas` that has all the dependencies you need.
-Then you can annotate your Spring Boot application with `@EnableAtlas` and provide a location for your running Atlas server by setting the `netflix.atlas.uri` property.
-
-=== Global Tags
-
-Spring Cloud lets you add tags to every metric sent to the Atlas backend.
-Global tags can be used to separate metrics by application name, environment, region, and so on.
-
-Each bean implementing `AtlasTagProvider` contributes to the global tag list, as shown in the following example:
-
-[source,java]
-----
-@Bean
-AtlasTagProvider atlasCommonTags(
-    @Value("${spring.application.name}") String appName) {
-  return () -> Collections.singletonMap("app", appName);
-}
-----
-
-==== Using Atlas
-
-To bootstrap an in-memory standalone Atlas instance, use the following commands:
-
-[source,bash]
-----
-$ curl -LO https://github.com/Netflix/atlas/releases/download/v1.4.2/atlas-1.4.2-standalone.jar
-$ java -jar atlas-1.4.2-standalone.jar
-----
-
-TIP: An Atlas standalone node running on an r3.2xlarge (61GB RAM) can handle roughly 2 million metrics per minute for a given six-hour window.
-
-Once the application is running and you have collected a handful of metrics, you can verify that your setup is correct by listing tags on the Atlas server, as shown in the following example:
-
-[source,bash]
-----
-$ curl http://ATLAS/api/v1/tags
-----
-
-TIP: After running several requests against your service, you can gather some basic information on the request latency of every request by pasting the following URL in your browser: `http://ATLAS/api/v1/graph?q=name,rest,:eq,:avg`
-
-The Atlas wiki contains a link:https://github.com/Netflix/atlas/wiki/Single-Line[compilation of sample queries] for various scenarios.
-
-See the link:https://github.com/Netflix/atlas/wiki/Alerting-Philosophy[alerting philosophy] and docs on using link:https://github.com/Netflix/atlas/wiki/DES[double exponential smoothing] to generate dynamic alert thresholds.
 
 [[retrying-failed-requests]]
 == Retrying Failed Requests

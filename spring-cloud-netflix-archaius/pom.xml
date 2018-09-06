@@ -6,7 +6,7 @@
     <parent>
         <artifactId>spring-cloud-netflix</artifactId>
         <groupId>org.springframework.cloud</groupId>
-        <version>2.0.0.BUILD-SNAPSHOT</version>
+        <version>2.1.0.BUILD-SNAPSHOT</version>
         <relativePath>..</relativePath> <!-- lookup parent from repository -->
     </parent>
 
@@ -15,9 +15,6 @@
     <packaging>jar</packaging>
     <name>Spring Cloud Netflix Archaius</name>
     <description>Spring Cloud Netflix Archaius</description>
-    <properties>
-        <main.basedir>${basedir}/..</main.basedir>
-    </properties>
 
     <dependencies>
         <dependency>

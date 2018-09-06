@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.restclient;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,9 +26,13 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Ignore;
+import com.netflix.client.ClientException;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.niws.client.http.RestClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -44,23 +40,27 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.springframework.boot.web.servlet.filter.ApplicationContextHeaderFilter;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
+import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RestClientRibbonCommandFactory;
-import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.support.NoEncodingFormHttpMessageConverter;
 import org.springframework.cloud.netflix.zuul.filters.route.support.ZuulProxyTestBase;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -83,10 +83,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.client.ClientException;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.niws.client.http.RestClient;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RestClientRibbonCommandIntegrationTests.TestConfig.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
@@ -148,7 +151,6 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 	}
 
 	@Test
-	@Ignore //FIXME: does spring 5.0 no longer send the X-Application-Context header?
 	public void simpleHostRouteDefaultIgnoredHeader() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
@@ -158,7 +160,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		List<String> headers = result.getHeaders().get("X-Application-Context");
 		assertNotNull("header was null", headers);
-		assertEquals("[testclient:0]", headers.toString());
+		assertEquals("[application-1]", headers.toString());
 	}
 
 	@Test
@@ -291,6 +293,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			@RibbonClient(name = "badhost", configuration = TestConfig.BadHostRibbonClientConfiguration.class),
 			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
 			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class) })
+	@Import(NoSecurityConfiguration.class)
 	static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@Autowired(required = false)
@@ -351,6 +354,12 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public MyErrorController myErrorController(ErrorAttributes errorAttributes) {
 			return new MyErrorController(errorAttributes);
+		}
+
+		@Bean
+		public ApplicationContextHeaderFilter applicationContextIdFilter(
+				ApplicationContext context) {
+			return new ApplicationContextHeaderFilter(context);
 		}
 
 		public static void main(String[] args) {

@@ -93,6 +93,12 @@ public class RestTemplateEurekaHttpClientTest {
 	}
 
 	@Test
+	public void testSendHeartBeatFourOFour() {
+		Assert.assertEquals(HttpStatus.NOT_FOUND.value(), eurekaHttpClient
+				.sendHeartBeat("fourOFour", "test", info, null).getStatusCode());
+	}
+
+	@Test
 	public void testStatusUpdate() {
 		Assert.assertEquals(HttpStatus.OK.value(), eurekaHttpClient
 				.statusUpdate("test", "test", InstanceStatus.UP, info).getStatusCode());

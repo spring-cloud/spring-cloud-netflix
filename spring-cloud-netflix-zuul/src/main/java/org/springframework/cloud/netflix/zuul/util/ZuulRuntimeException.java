@@ -18,7 +18,6 @@
 package org.springframework.cloud.netflix.zuul.util;
 
 import com.netflix.zuul.exception.ZuulException;
-import org.springframework.http.HttpStatus;
 
 /**
  * @author Spencer Gibb
@@ -29,7 +28,8 @@ public class ZuulRuntimeException extends RuntimeException {
 		super(cause);
 	}
 
+	@Deprecated
 	public ZuulRuntimeException(Exception ex) {
-		this(new ZuulException(ex, HttpStatus.INTERNAL_SERVER_ERROR.value(), null));
+		super(ex);
 	}
 }

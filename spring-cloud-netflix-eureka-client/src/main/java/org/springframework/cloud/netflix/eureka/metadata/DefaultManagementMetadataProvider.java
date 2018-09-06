@@ -40,7 +40,7 @@ public class DefaultManagementMetadataProvider implements ManagementMetadataProv
 		return port != null && port == RANDOM_PORT;
 	}
 
-	private String getHealthCheckUrl(EurekaInstanceConfigBean instance, int serverPort, String serverContextPath,
+	protected String getHealthCheckUrl(EurekaInstanceConfigBean instance, int serverPort, String serverContextPath,
                                      String managementContextPath, Integer managementPort, boolean isSecure) {
         String healthCheckUrlPath = instance.getHealthCheckUrlPath();
         String healthCheckUrl = getUrl(instance, serverPort, serverContextPath, managementContextPath,

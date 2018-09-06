@@ -52,7 +52,7 @@ public class EurekaClientConfigServerAutoConfiguration {
 			return;
 		}
 		String prefix = this.server.getPrefix();
-		if (StringUtils.hasText(prefix)) {
+		if (StringUtils.hasText(prefix) && !StringUtils.hasText(this.instance.getMetadataMap().get("configPath"))) {
 			this.instance.getMetadataMap().put("configPath", prefix);
 		}
 	}

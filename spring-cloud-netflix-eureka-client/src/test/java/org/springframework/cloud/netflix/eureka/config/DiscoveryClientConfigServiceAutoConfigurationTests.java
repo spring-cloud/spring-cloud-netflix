@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.eureka.config;
@@ -22,7 +23,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
 import org.springframework.cloud.config.client.ConfigClientProperties;
 import org.springframework.cloud.config.client.DiscoveryClientConfigServiceBootstrapConfiguration;
@@ -72,7 +73,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);
-		assertEquals("http://foo:7001/", locator.getRawUri());
+		assertEquals("http://foo:7001/", locator.getUri()[0]);
 		ApplicationInfoManager infoManager = this.context
 				.getBean(ApplicationInfoManager.class);
 		assertEquals("bar", infoManager.getInfo().getMetadata().get("foo"));
@@ -80,7 +81,7 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 
 	private void setup(String... env) {
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
-		EnvironmentTestUtils.addEnvironment(parent, env);
+		TestPropertyValues.of(env).applyTo(parent);
 		parent.register(UtilAutoConfiguration.class,
 				EurekaDiscoveryClientConfiguration.class,
 				PropertyPlaceholderAutoConfiguration.class, EnvironmentKnobbler.class,
