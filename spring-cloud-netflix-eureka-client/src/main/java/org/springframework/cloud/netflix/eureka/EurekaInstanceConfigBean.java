@@ -274,6 +274,8 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	 */
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
+	private int order = 0;
+
 	private String[] defaultAddressResolutionOrder = new String[0];
 	private Environment environment;
 
@@ -555,6 +557,14 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 
 	public String[] getDefaultAddressResolutionOrder() {
 		return defaultAddressResolutionOrder;
+	}
+
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	public void setDefaultAddressResolutionOrder(String[] defaultAddressResolutionOrder) {
