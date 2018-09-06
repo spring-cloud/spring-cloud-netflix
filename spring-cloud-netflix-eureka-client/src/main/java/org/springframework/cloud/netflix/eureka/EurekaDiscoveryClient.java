@@ -22,16 +22,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.cloud.client.DefaultServiceInstance;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.util.Assert;
-
-import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
+
+import org.springframework.cloud.client.DefaultServiceInstance;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.util.Assert;
 
 import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
@@ -42,17 +41,13 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
 
-	private final EurekaInstanceConfig config;
+	private final EurekaInstanceConfigBean config;
 
 	private final EurekaClient eurekaClient;
 
-	private final EurekaDiscoveryClientProperties discoveryClientProperties;
-
-	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient,
-	                             EurekaDiscoveryClientProperties discoveryClientProperties) {
+	public EurekaDiscoveryClient(EurekaInstanceConfigBean config, EurekaClient eurekaClient) {
 		this.config = config;
 		this.eurekaClient = eurekaClient;
-		this.discoveryClientProperties = discoveryClientProperties;
 	}
 
 	@Override
@@ -72,6 +67,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 	}
 
 	public static class EurekaServiceInstance implements ServiceInstance {
+
 		private InstanceInfo instance;
 
 		public EurekaServiceInstance(InstanceInfo instance) {
@@ -138,6 +134,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public int getOrder() {
-		return this.discoveryClientProperties.getOrder();
+		return this.config.getOrder();
 	}
 }
