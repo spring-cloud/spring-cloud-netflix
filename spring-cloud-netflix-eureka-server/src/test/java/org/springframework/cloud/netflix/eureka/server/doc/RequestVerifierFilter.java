@@ -47,6 +47,7 @@ import io.restassured.specification.FilterableResponseSpecification;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import wiremock.com.google.common.base.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,6 +208,21 @@ class WireMockRestAssuredRequestAdapter implements Request {
 	@Override
 	public Optional<Request> getOriginalRequest() {
 		return Optional.of(this);
+	}
+
+	@Override
+	public String getScheme() {
+		return UriComponentsBuilder.fromUriString(request.getURI()).build().getScheme();
+	}
+
+	@Override
+	public String getHost() {
+		return UriComponentsBuilder.fromUriString(request.getURI()).build().getHost();
+	}
+
+	@Override
+	public int getPort() {
+		return request.getPort();
 	}
 
 	@Override
