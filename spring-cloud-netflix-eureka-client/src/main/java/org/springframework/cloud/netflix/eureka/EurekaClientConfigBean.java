@@ -978,7 +978,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				Objects.equals(escapeCharReplacement, that.escapeCharReplacement) &&
 				Objects.equals(encoderName, that.encoderName) &&
 				Objects.equals(decoderName, that.decoderName) &&
-				Objects.equals(clientDataAccept, that.clientDataAccept);
+				Objects.equals(clientDataAccept, that.clientDataAccept) &&
+				Objects.equals(order, that.order);
 	}
 
 	@Override
@@ -1000,7 +1001,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				filterOnlyUpInstances, fetchRegistry, dollarReplacement,
 				escapeCharReplacement, allowRedirects, onDemandUpdateStatusChange,
 				encoderName, decoderName, clientDataAccept, shouldUnregisterOnShutdown,
-				shouldEnforceRegistrationAtInit);
+				shouldEnforceRegistrationAtInit, order);
 	}
 
 	@Override
@@ -1049,9 +1050,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				.append("onDemandUpdateStatusChange=").append(onDemandUpdateStatusChange).append(", ")
 				.append("encoderName='").append(encoderName).append("', ")
 				.append("decoderName='").append(decoderName).append("', ")
-				.append("clientDataAccept='").append(clientDataAccept).append("'").append("}")
-				.append("=shouldUnregisterOnShutdown'").append(shouldUnregisterOnShutdown).append("'").append("}")
-				.append("shouldEnforceRegistrationAtInit='").append(shouldEnforceRegistrationAtInit).append("'").append("}")
+				.append("clientDataAccept='").append(clientDataAccept).append("', ")
+				.append("=shouldUnregisterOnShutdown'").append(shouldUnregisterOnShutdown).append("', ")
+				.append("shouldEnforceRegistrationAtInit='").append(shouldEnforceRegistrationAtInit).append("', ")
+				.append("order='").append(order).append("'}")
 				.toString();
 	}
 }
