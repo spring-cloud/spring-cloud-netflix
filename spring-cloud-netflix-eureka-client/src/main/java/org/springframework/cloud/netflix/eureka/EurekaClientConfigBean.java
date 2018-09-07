@@ -25,6 +25,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.core.Ordered;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.util.StringUtils;
 
@@ -39,7 +40,7 @@ import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_P
  * @author Gregor Zurowski
  */
 @ConfigurationProperties(EurekaClientConfigBean.PREFIX)
-public class EurekaClientConfigBean implements EurekaClientConfig {
+public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 
 	public static final String PREFIX = "eureka.client";
 
@@ -393,6 +394,11 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	 * Indicates whether the client should enforce registration during initialization. Defaults to false.
 	 */
 	private boolean shouldEnforceRegistrationAtInit = false;
+
+	/**
+	 * Order of the discovery client used by `CompositeDiscoveryClient` for sorting available clients.
+	 */
+	private int order = 0;
 
 	@Override
 	public boolean shouldGZipContent() {
@@ -914,6 +920,15 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	}
 
 	@Override
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -1039,5 +1054,4 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				.append("shouldEnforceRegistrationAtInit='").append(shouldEnforceRegistrationAtInit).append("'").append("}")
 				.toString();
 	}
-
 }

@@ -25,11 +25,13 @@ import java.util.Map;
 import org.springframework.cloud.client.DefaultServiceInstance;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.core.Ordered;
 import org.springframework.util.Assert;
 
 import com.netflix.appinfo.EurekaInstanceConfig;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 
@@ -46,13 +48,9 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	private final EurekaClient eurekaClient;
 
-	private final EurekaDiscoveryClientProperties discoveryClientProperties;
-
-	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient,
-	                             EurekaDiscoveryClientProperties discoveryClientProperties) {
+	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient) {
 		this.config = config;
 		this.eurekaClient = eurekaClient;
-		this.discoveryClientProperties = discoveryClientProperties;
 	}
 
 	@Override
@@ -138,6 +136,7 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public int getOrder() {
-		return this.discoveryClientProperties.getOrder();
+		EurekaClientConfig clientConfig = eurekaClient.getEurekaClientConfig();
+		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder() : DiscoveryClient.DEFAULT_ORDER;
 	}
 }
