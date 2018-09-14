@@ -148,6 +148,7 @@
 		<!-- Not part of the reactor build: build and deploy separately -->
 		<!--module>spring-cloud-netflix-hystrix-contract</module-->
 		<module>spring-cloud-netflix-core</module>
+		<module>spring-cloud-netflix-concurrency-limits</module>
 		<module>spring-cloud-netflix-hystrix-dashboard</module>
 		<module>spring-cloud-netflix-hystrix-stream</module>
 		<module>spring-cloud-netflix-eureka-client</module>
