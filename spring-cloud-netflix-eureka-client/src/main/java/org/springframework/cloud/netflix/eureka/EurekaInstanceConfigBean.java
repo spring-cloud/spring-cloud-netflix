@@ -39,7 +39,7 @@ import com.netflix.appinfo.MyDataCenterInfo;
  * @author Gregor Zurowski
  */
 @ConfigurationProperties("eureka.instance")
-public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware{
+public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, EnvironmentAware {
 
 	private static final String UNKNOWN = "unknown";
 
