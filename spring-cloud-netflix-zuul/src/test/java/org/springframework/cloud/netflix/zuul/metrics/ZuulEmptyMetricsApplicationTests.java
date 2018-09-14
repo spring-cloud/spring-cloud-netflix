@@ -26,7 +26,9 @@ import org.junit.runner.RunWith;
 
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.zuul.EnableZuulServer;
 import org.springframework.cloud.netflix.zuul.test.TestAutoConfiguration;
 import org.springframework.cloud.test.ClassPathExclusions;
@@ -77,6 +79,7 @@ public class ZuulEmptyMetricsApplicationTests {
 	@Configuration
 	// @Import(NoSecurityConfiguration.class)
 	@EnableZuulServer
+	@EnableConfigurationProperties(ServerProperties.class)
 	static class ZuulEmptyMetricsApplicationTestsConfiguration {
 
 	}
