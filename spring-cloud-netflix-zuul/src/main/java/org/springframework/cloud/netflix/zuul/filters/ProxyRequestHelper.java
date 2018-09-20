@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +63,10 @@ public class ProxyRequestHelper {
 	 * Pre-filters can set this up as a set of lowercase strings.
 	 */
 	public static final String IGNORED_HEADERS = "ignoredHeaders";
+
+	public static final Pattern FORM_FEED_PATTERN = Pattern.compile("\f");
+
+	public static final Pattern COLON_PATTERN = Pattern.compile(":");
 
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
@@ -283,11 +288,11 @@ public class ProxyRequestHelper {
 					// if form feed is already part of param name double
 					// since form feed is used as the colon replacement below
 					if (key.contains("\f")) {
-						key = (key.replaceAll("\f", "\f\f"));
+						key = (FORM_FEED_PATTERN.matcher(key).replaceAll("\f\f"));
 					}
 					// colon is special to UriTemplate
 					if (key.contains(":")) {
-						key = key.replaceAll(":", "\f");
+						key = COLON_PATTERN.matcher(key).replaceAll("\f");
 					}
 					key = key + i;
 					singles.put(key, value);

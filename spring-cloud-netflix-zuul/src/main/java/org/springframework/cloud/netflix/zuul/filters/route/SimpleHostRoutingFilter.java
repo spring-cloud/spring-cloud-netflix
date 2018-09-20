@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,6 +85,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 public class SimpleHostRoutingFilter extends ZuulFilter {
 
 	private static final Log log = LogFactory.getLog(SimpleHostRoutingFilter.class);
+
+	private static final Pattern MULTIPLE_SLASH_PATTERN = Pattern.compile("/{2,}");
 
 	private final Timer connectionManagerTimer = new Timer(
 			"SimpleHostRoutingFilter.connectionManagerTimer", true);
@@ -286,7 +289,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter {
 				requestEntity);
 		URL host = RequestContext.getCurrentContext().getRouteHost();
 		HttpHost httpHost = getHttpHost(host);
-		uri = StringUtils.cleanPath((host.getPath() + uri).replaceAll("/{2,}", "/"));
+		uri = StringUtils.cleanPath(MULTIPLE_SLASH_PATTERN.matcher(host.getPath() + uri).replaceAll("/"));
 		long contentLength = getContentLength(request);
 
 		ContentType contentType = null;
