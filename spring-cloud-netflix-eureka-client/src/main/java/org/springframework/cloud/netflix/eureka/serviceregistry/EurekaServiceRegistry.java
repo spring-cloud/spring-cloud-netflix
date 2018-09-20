@@ -91,8 +91,8 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 	@Override
 	public Object getStatus(EurekaRegistration registration) {
-		String appname = registration.getInstanceConfig().getAppname();
-		String instanceId = registration.getInstanceConfig().getInstanceId();
+		String appname = registration.getApplicationInfoManager().getInfo().getAppName();
+		String instanceId = registration.getApplicationInfoManager().getInfo().getId();
 		InstanceInfo info = registration.getEurekaClient().getInstanceInfo(appname, instanceId);
 
 		HashMap<String, Object> status = new HashMap<>();
