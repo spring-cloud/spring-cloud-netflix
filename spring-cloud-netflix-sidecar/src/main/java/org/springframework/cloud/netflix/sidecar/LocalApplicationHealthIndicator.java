@@ -19,13 +19,18 @@ package org.springframework.cloud.netflix.sidecar;
 import java.net.URI;
 import java.util.Map;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Spencer Gibb
+ * @author Fabrizio Di Napoli
  */
 public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 
@@ -40,12 +45,25 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 			builder.up();
 			return;
 		}
-		Map<String, Object> map = new RestTemplate().getForObject(uri, Map.class);
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		if (this.properties.acceptAllCertificates()) {
+			CloseableHttpClient httpClient = HttpClients.custom()
+					.setSSLHostnameVerifier(new NoopHostnameVerifier())
+					.build();
+			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+			requestFactory.setHttpClient(httpClient);
+
+			restTemplate.setRequestFactory(requestFactory);
+		}
+
+		Map<String, Object> map = restTemplate.getForObject(uri, Map.class);
 		Object status = map.get("status");
-		if (status != null && status instanceof String) {
+		if (status instanceof String) {
 			builder.status(status.toString());
 		}
-		else if (status != null && status instanceof Map) {
+		else if (status instanceof Map) {
 			Map<String, Object> statusMap = (Map<String, Object>) status;
 			Object code = statusMap.get("code");
 			if (code != null) {
