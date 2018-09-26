@@ -119,7 +119,7 @@ public class SidecarProperties {
 				.append("port=").append(port).append(", ")
 				.append("hostname='").append(hostname).append("', ")
 				.append("ipAddress='").append(ipAddress).append("', ")
-				.append("acceptAllCertificated='").append(acceptAllCertificates).append("'}")
+				.append("acceptAllCertificates='").append(acceptAllCertificates).append("'}")
 				.toString();
 	}
 
