@@ -82,10 +82,34 @@ production) by manipulating <code class="literal">/etc/hosts</code> to resolve t
 fact, the <code class="literal">eureka.instance.hostname</code> is not needed if you are running
 on a machine that knows its own hostname (it is looked up using
 <code class="literal">java.net.InetAddress</code> by default).</p><p>You can add multiple peers to a system, and as long as they are all
-connected to each other by at least one edge, they will synchronize
-the registrations amongst themselves. If the peers are physically
-separated (inside a data centre or between multiple data centres) then
-the system can in principle survive split-brain type failures.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_prefer_ip_address" href="#_prefer_ip_address"></a>2.6&nbsp;Prefer IP Address</h2></div></div></div><p>In some cases, it is preferable for Eureka to advertise the IP Adresses
+directly connected to each other, they will synchronize
+the registrations amongst themselves.</p><p><b>application.yml (Three Peer Aware Eureka Servers).&nbsp;</b>
+</p><pre class="screen">eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/,http://peer2/eureka/,http://peer3/eureka/
+
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+
+---
+spring:
+  profiles: peer3
+eureka:
+  instance:
+    hostname: peer3</pre><p>
+</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_prefer_ip_address" href="#_prefer_ip_address"></a>2.6&nbsp;Prefer IP Address</h2></div></div></div><p>In some cases, it is preferable for Eureka to advertise the IP Adresses
 of services rather than the hostname.  Set <code class="literal">eureka.instance.preferIpAddress</code>
 to <code class="literal">true</code> and when the application registers with eureka, it will use its
 IP Address rather than its hostname.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>If hostname can&#8217;t be determined by Java, then IP address is sent to Eureka.
