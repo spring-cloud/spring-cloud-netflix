@@ -4,7 +4,7 @@
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink" version="5.0" xml:lang="en">
 <info>
 <title>Spring Cloud Netflix</title>
-<date>2018-09-28</date>
+<date>2018-09-29</date>
 </info>
 <preface>
 <title></title>
@@ -60,7 +60,7 @@ By having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the c
 </formalpara>
 <simpara>In the preceding example, "defaultZone" is a magic string fallback value that provides the service URL for any client that does not express a preference (in other words, it is a useful default).</simpara>
 <simpara>The default application name (that is, the service ID), virtual host, and non-secure port (taken from the <literal>Environment</literal>) are <literal>${spring.application.name}</literal>, <literal>${spring.application.name}</literal> and <literal>${server.port}</literal>, respectively.</simpara>
-<simpara>Having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the classpath makes the app into both a Eureka &#8220;instance&#8221; (that is, it registers itself) and a &#8220;client&#8221; (it can query the registry to locate other services).
+<simpara>Having <literal>spring-cloud-starter-netflix-eureka-client</literal> on the classpath makes the app into both a Eureka <quote>instance</quote> (that is, it registers itself) and a <quote>client</quote> (it can query the registry to locate other services).
 The instance behaviour is driven by <literal>eureka.instance.*</literal> configuration keys, but the defaults are fine if you ensure that your application has a value for <literal>spring.application.name</literal> (this is the default for the Eureka service ID or VIP).</simpara>
 <simpara>See <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaInstanceConfigBean.java">EurekaInstanceConfigBean</link> and <link xl:href="http://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-netflix-eureka-client/src/main/java/org/springframework/cloud/netflix/eureka/EurekaClientConfigBean.java">EurekaClientConfigBean</link> for more details on the configurable options.</simpara>
 <simpara>To disable the Eureka Discovery Client, you can set <literal>eureka.client.enabled</literal> to <literal>false</literal>.</simpara>
@@ -122,12 +122,12 @@ You can use placeholders to configure the eureka instance URLs, as shown in the 
 in later versions of Eureka. You could achieve the same thing with
 Spring placeholders as well&#8201;&#8212;&#8201;for example, by using <literal>${eureka.instance.hostName}</literal>.)</simpara>
 <note>
-<simpara>If your application runs behind a proxy, and the SSL termination is in the proxy (for example, if you run in Cloud Foundry or other platforms as a service), then you need to ensure that the proxy &#8220;forwarded&#8221; headers are intercepted and handled by the application.
+<simpara>If your application runs behind a proxy, and the SSL termination is in the proxy (for example, if you run in Cloud Foundry or other platforms as a service), then you need to ensure that the proxy <quote>forwarded</quote> headers are intercepted and handled by the application.
 If the Tomcat container embedded in a Spring Boot application has explicit configuration for the 'X-Forwarded-\*` headers, this happens automatically.
 The links rendered by your app to itself being wrong (the wrong host, port, or protocol) is a sign that you got this configuration wrong.</simpara>
 </note>
 </section>
-<section xml:id="_eureka_s_health_checks">
+<section xml:id="_eurekas_health_checks">
 <title>Eureka&#8217;s Health Checks</title>
 <simpara>By default, Eureka uses the client heartbeat to determine if a client is up.
 Unless specified otherwise, the Discovery Client does not propagate the current health check status of the application, per the Spring Boot Actuator.
@@ -403,7 +403,7 @@ You could use this configuration to test the peer awareness on a single host (th
 In fact, the <literal>eureka.instance.hostname</literal> is not needed if you are running on a machine that knows its own hostname (by default, it is looked up by using <literal>java.net.InetAddress</literal>).</simpara>
 <simpara>You can add multiple peers to a system, and, as long as they are all connected to each other by at least one edge, they synchronize
 the registrations amongst themselves.
-If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive &#8220;split-brain&#8221; type failures.</simpara>
+If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive <quote>split-brain</quote> type failures.</simpara>
 </section>
 <section xml:id="spring-cloud-eureka-server-prefer-ip-address">
 <title>When to Prefer IP Address</title>
@@ -491,7 +491,7 @@ public class StoreIntegration {
         return /* something useful */;
     }
 }</screen>
-<simpara>The <literal>@HystrixCommand</literal> is provided by a Netflix contrib library called <link xl:href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica">&#8220;javanica&#8221;</link>.
+<simpara>The <literal>@HystrixCommand</literal> is provided by a Netflix contrib library called <link xl:href="https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica"><quote>javanica</quote></link>.
 Spring Cloud automatically wraps Spring beans with that annotation in a proxy that is connected to the Hystrix circuit breaker.
 The circuit breaker calculates when to open and close the circuit and what to do in case of a failure.</simpara>
 <simpara>To configure the <literal>@HystrixCommand</literal> you can use the <literal>commandProperties</literal>
@@ -503,7 +503,7 @@ for details on the properties available.</simpara>
 <section xml:id="netflix-hystrix-starter">
 <title>Propagating the Security Context or Using Spring Scopes</title>
 <simpara>If you want some thread local context to propagate into a <literal>@HystrixCommand</literal>, the default declaration does not work, because it executes the command in a thread pool (in case of timeouts).
-You can switch Hystrix to use the same thread as the caller through configuration or directly in the annotation, by asking it to use a different &#8220;Isolation Strategy&#8221;.
+You can switch Hystrix to use the same thread as the caller through configuration or directly in the annotation, by asking it to use a different <quote>Isolation Strategy</quote>.
 The following example demonstrates setting the thread in the annotation:</simpara>
 <programlisting language="java" linenumbering="unnumbered">@HystrixCommand(fallbackMethod = "stubMyService",
     commandProperties = {
@@ -613,7 +613,7 @@ The following listing shows another example:</simpara>
   appConfig: customers,stores,ui,admin
   clusterNameExpression: metadata['cluster']</screen>
 <simpara>In the preceding example, the cluster name from four services is pulled from their metadata map and is expected to have values that include <literal>SYSTEM</literal> and <literal>USER</literal>.</simpara>
-<simpara>To use the &#8220;default&#8221; cluster for all apps, you need a string literal expression (with single quotes and escaped with double quotes if it is in YAML as well):</simpara>
+<simpara>To use the <quote>default</quote> cluster for all apps, you need a string literal expression (with single quotes and escaped with double quotes if it is in YAML as well):</simpara>
 <screen>turbine:
   appConfig: customers,stores
   clusterNameExpression: "'default'"</screen>
@@ -810,7 +810,8 @@ class DefaultRibbonConfig {
 		return filter;
 	}
 
-}</programlisting>
+}
+// end::sample_default_ribbon_config[]</programlisting>
 </section>
 <section xml:id="_customizing_the_ribbon_client_by_setting_properties">
 <title>Customizing the Ribbon Client by Setting Properties</title>
@@ -854,13 +855,13 @@ class DefaultRibbonConfig {
 <simpara>When Eureka is used in conjunction with Ribbon (that is, both are on the classpath), the <literal>ribbonServerList</literal> is overridden with an extension of <literal>DiscoveryEnabledNIWSServerList</literal>, which populates the list of servers from Eureka.
 It also replaces the <literal>IPing</literal> interface with <literal>NIWSDiscoveryPing</literal>, which delegates to Eureka to determine if a server is up.
 The <literal>ServerList</literal> that is installed by default is a <literal>DomainExtractingServerList</literal>. Its purpose is to make metadata available to the load balancer without using AWS AMI metadata (which is what Netflix relies on).
-By default, the server list is constructed with &#8220;zone&#8221; information, as provided in the instance metadata (so, on the remote clients, set <literal>eureka.instance.metadataMap.zone</literal>).
+By default, the server list is constructed with <quote>zone</quote> information, as provided in the instance metadata (so, on the remote clients, set <literal>eureka.instance.metadataMap.zone</literal>).
 If that is missing and if the <literal>approximateZoneFromHostname</literal> flag is set, it can use the domain name from the server hostname as a proxy for the zone.
 Once the zone information is available, it can be used in a <literal>ServerListFilter</literal>.
 By default, it is used to locate a server in the same zone as the client, because the default is a <literal>ZonePreferenceServerListFilter</literal>.
 By default, the zone of the client is determined in the same way as the remote instances (that is, through <literal>eureka.instance.metadataMap.zone</literal>).</simpara>
 <note>
-<simpara>The orthodox &#8220;archaius&#8221; way to set the client zone is through a configuration property called "@zone".
+<simpara>The orthodox <quote>archaius</quote> way to set the client zone is through a configuration property called "@zone".
 If it is available, Spring Cloud uses that in preference to all other settings (note that the key must be quoted in YAML configuration).</simpara>
 </note>
 <note>
@@ -954,7 +955,7 @@ To add a prefix to <literal>HystrixThreadPoolKey</literal>, set <literal>zuul.th
 </section>
 <section xml:id="how-to-provdie-a-key-to-ribbon">
 <title>How to Provide a Key to Ribbon&#8217;s <literal>IRule</literal></title>
-<simpara>If you need to provide your own <literal>IRule</literal> implementation to handle a special routing requirement like a &#8220;canary&#8221; test, pass some information to the <literal>choose</literal> method of <literal>IRule</literal>.</simpara>
+<simpara>If you need to provide your own <literal>IRule</literal> implementation to handle a special routing requirement like a <quote>canary</quote> test, pass some information to the <literal>choose</literal> method of <literal>IRule</literal>.</simpara>
 <formalpara>
 <title>com.netflix.loadbalancer.IRule.java</title>
 <para>
@@ -1287,7 +1288,7 @@ If <literal>sensitiveHeaders</literal> is set on a route, it overrides the globa
 <title>Ignored Headers</title>
 <simpara>In addition to the route-sensitive headers, you can set a global value called <literal>zuul.ignoredHeaders</literal> for values (both request and response) that should be discarded during interactions with downstream services.
 By default, if Spring Security is not on the classpath, these are empty.
-Otherwise, they are initialized to a set of well known &#8220;security&#8221; headers (for example, involving caching) as specified by Spring Security.
+Otherwise, they are initialized to a set of well known <quote>security</quote> headers (for example, involving caching) as specified by Spring Security.
 The assumption in this case is that the downstream services might add these headers, too, but we want the values from the proxy.
 To not discard these well known security headers when Spring Security is on the classpath, you can set <literal>zuul.ignoreSecurityHeaders</literal> to <literal>false</literal>.
 Doing so can be useful if you disabled the HTTP Security response headers in Spring Security and want the values provided by downstream services.</simpara>
@@ -1348,9 +1349,9 @@ For each filter type in the map, you get a list of all the filters of that type,
 </section>
 <section xml:id="_strangulation_patterns_and_local_forwards">
 <title>Strangulation Patterns and Local Forwards</title>
-<simpara>A common pattern when migrating an existing application or API is to &#8220;strangle&#8221; old endpoints, slowly replacing them with different implementations.
+<simpara>A common pattern when migrating an existing application or API is to <quote>strangle</quote> old endpoints, slowly replacing them with different implementations.
 The Zuul proxy is a useful tool for this because you can use it to handle all traffic from the clients of the old endpoints but redirect some of the requests to new ones.</simpara>
-<simpara>The following example shows the configuration details for a &#8220;strangle&#8221; scenario:</simpara>
+<simpara>The following example shows the configuration details for a <quote>strangle</quote> scenario:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
@@ -1370,7 +1371,7 @@ The Zuul proxy is a useful tool for this because you can use it to handle all tr
       url: http://legacy.example.com</programlisting>
 </para>
 </formalpara>
-<simpara>In the preceding example, we are strangle the &#8220;legacy&#8221; application, which is mapped to all requests that do not match one of the other patterns.
+<simpara>In the preceding example, we are strangle the <quote>legacy</quote> application, which is mapped to all requests that do not match one of the other patterns.
 Paths in <literal>/first/**</literal> have been extracted into a new service with an external URL.
 Paths in <literal>/second/**</literal> are forwarded so that they can be handled locally (for example, with a normal Spring <literal>@RequestMapping</literal>).
 Paths in <literal>/third/**</literal> are also forwarded but with a different prefix (<literal>/third/foo</literal> is forwarded to <literal>/3rd/foo</literal>).</simpara>
@@ -1604,9 +1605,9 @@ Its data is held in a <literal>ThreadLocal</literal> specific to each request.
 Information about where to route requests, errors, and the actual <literal>HttpServletRequest</literal> and <literal>HttpServletResponse</literal> are stored there.
 The <literal>RequestContext</literal> extends <literal>ConcurrentHashMap</literal>, so anything can be stored in the context. <link xl:href="https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java"><literal>FilterConstants</literal></link> contains the keys used by the filters installed by Spring Cloud Netflix (more on these <link linkend="zuul-developer-guide-enable-filters">later</link>).</simpara>
 </section>
-<section xml:id="__literal_enablezuulproxy_literal_vs_literal_enablezuulserver_literal">
+<section xml:id="_enablezuulproxy_vs_enablezuulserver">
 <title><literal>@EnableZuulProxy</literal> vs. <literal>@EnableZuulServer</literal></title>
-<simpara>Spring Cloud Netflix installs a number of filters, depending on which annotation was used to enable Zuul. <literal>@EnableZuulProxy</literal> is a superset of <literal>@EnableZuulServer</literal>. In other words, <literal>@EnableZuulProxy</literal> contains all the filters installed by <literal>@EnableZuulServer</literal>. The additional filters in the &#8220;proxy&#8221; enable routing functionality. If you want a &#8220;blank&#8221; Zuul, you should use <literal>@EnableZuulServer</literal>.</simpara>
+<simpara>Spring Cloud Netflix installs a number of filters, depending on which annotation was used to enable Zuul. <literal>@EnableZuulProxy</literal> is a superset of <literal>@EnableZuulServer</literal>. In other words, <literal>@EnableZuulProxy</literal> contains all the filters installed by <literal>@EnableZuulServer</literal>. The additional filters in the <quote>proxy</quote> enable routing functionality. If you want a <quote>blank</quote> Zuul, you should use <literal>@EnableZuulServer</literal>.</simpara>
 </section>
 <section xml:id="zuul-developer-guide-enable-filters">
 <title><literal>@EnableZuulServer</literal> Filters</title>
@@ -1649,7 +1650,7 @@ The <literal>RequestContext</literal> extends <literal>ConcurrentHashMap</litera
 </listitem>
 </itemizedlist>
 </section>
-<section xml:id="__literal_enablezuulproxy_literal_filters">
+<section xml:id="_enablezuulproxy_filters">
 <title><literal>@EnableZuulProxy</literal> Filters</title>
 <simpara>Creates a <literal>DiscoveryClientRouteLocator</literal> that loads route definitions from a <literal>DiscoveryClient</literal> (such as Eureka) as well as from properties. A route is created for each <literal>serviceId</literal> from the <literal>DiscoveryClient</literal>. As new services are added, the routes are refreshed.</simpara>
 <simpara>In addition to the filters described earlier, the following filters are installed (as normal Spring Beans):</simpara>
