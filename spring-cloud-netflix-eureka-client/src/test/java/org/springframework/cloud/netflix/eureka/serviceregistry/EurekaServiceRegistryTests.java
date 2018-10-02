@@ -39,6 +39,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
+ * @author Tim Ysewyn
  */
 public class EurekaServiceRegistryTests {
 
@@ -89,6 +90,8 @@ public class EurekaServiceRegistryTests {
 
 		Object status = registry.getStatus(registration);
 
+		assertThat(registration.getInstanceId()).isEqualTo("1234");
+
 		assertThat(status).isInstanceOf(Map.class);
 
 		Map<Object, Object> map = (Map<Object, Object>) status;
@@ -119,6 +122,8 @@ public class EurekaServiceRegistryTests {
 				.build();
 
 		Object status = registry.getStatus(registration);
+
+		assertThat(registration.getInstanceId()).isEqualTo("1234");
 
 		assertThat(status).isInstanceOf(Map.class);
 

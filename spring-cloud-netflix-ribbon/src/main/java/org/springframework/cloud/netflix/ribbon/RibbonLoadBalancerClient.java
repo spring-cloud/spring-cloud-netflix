@@ -198,6 +198,11 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		}
 
 		@Override
+		public String getInstanceId() {
+			return this.server.getId();
+		}
+
+		@Override
 		public String getServiceId() {
 			return this.serviceId;
 		}

@@ -42,6 +42,7 @@ import static org.junit.Assert.assertTrue;
  * @author Dave Syer
  * @author Spencer Gibb
  * @author Ryan Baxter
+ * @author Tim Ysewyn
  */
 public class EurekaInstanceConfigBeanTests {
 
@@ -205,6 +206,26 @@ public class EurekaInstanceConfigBeanTests {
 		assertEquals("default app name is wrong", "unknown", getInstanceConfig().getAppname());
 		assertEquals("default virtual hostname is wrong", "unknown", getInstanceConfig().getVirtualHostName());
 		assertEquals("default secure virtual hostname is wrong", "unknown", getInstanceConfig().getSecureVirtualHostName());
+	}
+
+	@Test
+	public void testCustomInstanceId() throws Exception {
+		TestPropertyValues.of("eureka.instance.instanceId=myinstance").applyTo(this.context);
+		setupContext();
+		assertEquals("instance id is wrong", "myinstance", getInstanceConfig().getInstanceId());
+	}
+
+	@Test
+	public void testCustomInstanceIdWithMetadata() throws Exception {
+		TestPropertyValues.of("eureka.instance.metadataMap.instanceId=myinstance").applyTo(this.context);
+		setupContext();
+		assertEquals("instance id is wrong", "myinstance", getInstanceConfig().getInstanceId());
+	}
+
+	@Test
+	public void testDefaultInstanceId() throws Exception {
+		setupContext();
+		assertEquals("default instance id is wrong", null, getInstanceConfig().getInstanceId());
 	}
 
 	private void setupContext() {
