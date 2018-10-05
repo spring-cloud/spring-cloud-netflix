@@ -279,6 +279,26 @@ fi
 
 WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
 
+echo "Running version check"
+VERSION=$( sed '\!<parent!,\!</parent!d' `dirname $0`/pom.xml | grep '<version' | head -1 | sed -e 's/.*<version>//' -e 's!</version>.*$!!' )
+echo "The found version is [${VERSION}]"
+
+if echo $VERSION | egrep -q 'M|RC'; then
+    echo Activating \"milestone\" profile for version=\"$VERSION\"
+    echo $MAVEN_CONFIG | grep -q milestone || MAVEN_CONFIG="$MAVEN_CONFIG -Pmilestone"
+else
+    echo Deactivating \"milestone\" profile for version=\"$VERSION\"
+    echo $MAVEN_CONFIG | grep -q milestone && MAVEN_CONFIG=$(echo $MAVEN_CONFIG | sed -e 's/-Pmilestone//')
+fi
+
+if echo $VERSION | egrep -q 'RELEASE'; then
+    echo Activating \"central\" profile for version=\"$VERSION\"
+    echo $MAVEN_CONFIG | grep -q milestone || MAVEN_CONFIG="$MAVEN_CONFIG -Pcentral"
+else
+    echo Deactivating \"central\" profile for version=\"$VERSION\"
+    echo $MAVEN_CONFIG | grep -q central && MAVEN_CONFIG=$(echo $MAVEN_CONFIG | sed -e 's/-Pcentral//')
+fi
+
 exec "$JAVACMD" \
   $MAVEN_OPTS \
   -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" \
