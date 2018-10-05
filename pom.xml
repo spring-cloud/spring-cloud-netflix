@@ -21,7 +21,6 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<jackson.version>2.7.3</jackson.version>
 		<spring-cloud-commons.version>2.1.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>2.1.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>Fishtown.BUILD-SNAPSHOT</spring-cloud-stream.version>
@@ -112,11 +111,6 @@
 				<version>${donotreplacespring-cloud-contract.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.dataformat</groupId>
-				<artifactId>jackson-dataformat-smile</artifactId>
-				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.inject</groupId>
