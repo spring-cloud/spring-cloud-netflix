@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
@@ -38,14 +39,25 @@ import static org.mockito.Mockito.mock;
 
 public class ZuulFilterInitializerTests {
 
-	private Map<String, ZuulFilter> filters = getFilters();
-	private CounterFactory counterFactory = mock(CounterFactory.class);
-	private TracerFactory tracerFactory = mock(TracerFactory.class);
-	private FilterLoader filterLoader = new FilterLoader();
-	private FilterRegistry filterRegistry = getFilterRegistry();
+	private Map<String, ZuulFilter> filters;
+	private CounterFactory counterFactory;
+	private TracerFactory tracerFactory;
+	private FilterLoader filterLoader;
+	private FilterRegistry filterRegistry;
 
-	private final ZuulFilterInitializer initializer = new ZuulFilterInitializer(filters,
-			counterFactory, tracerFactory, filterLoader, filterRegistry);
+	private ZuulFilterInitializer initializer;
+
+	@Before
+	public void init() {
+		filters = getFilters();
+		counterFactory = mock(CounterFactory.class);
+		tracerFactory = mock(TracerFactory.class);
+		filterLoader = new FilterLoader();
+		filterRegistry = getFilterRegistry();
+		initializer = new ZuulFilterInitializer(filters,
+				counterFactory, tracerFactory, filterLoader, filterRegistry);
+
+	}
 
 	@Test
 	public void shouldSetupOnContextInitializedEvent() throws Exception {
