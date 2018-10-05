@@ -36,11 +36,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class RibbonDisabledTests {
 	@Test
 	public void testRibbonDisabled() {
-		assertThatThrownBy(() -> new ApplicationContextRunner()
+		new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class))
 			.run(context -> {
 				assertThat(context.getBeanNamesForType(SpringClientFactory.class))
 					.hasSize(0);
-			})).hasCauseExactlyInstanceOf(ArrayStoreException.class);
+			});
 	}
 }

@@ -28,11 +28,7 @@
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
 		<donotreplacespring-cloud-contract.version>2.0.1.RELEASE</donotreplacespring-cloud-contract.version>
 
-		<!-- Plugin versions -->
-		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-		<maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
 		<!-- Sonar -->
-		<surefire.plugin.version>2.19.1</surefire.plugin.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
