@@ -34,6 +34,7 @@ import com.netflix.zuul.monitoring.TracerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -71,12 +72,14 @@ public class ZuulFilterInitializerTests {
 
 	@Test
 	public void shouldCleanupOnContextDestroyed() throws Exception {
+
+		int originalSize = FilterRegistry.instance().getAllFilters().size();
+
 		initializer.contextDestroyed();
 
-		assertEquals(null, ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
-		assertEquals(null,
-				ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"));
-		assertTrue(FilterRegistry.instance().getAllFilters().isEmpty());
+		assertNull(ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
+		assertNull(ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"));
+		assertThat(FilterRegistry.instance().getAllFilters().size()).isEqualTo(originalSize - 2);
 		assertTrue(getHashFiltersByType().isEmpty());
 	}
 
