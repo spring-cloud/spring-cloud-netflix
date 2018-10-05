@@ -67,6 +67,21 @@ public class HystrixCommandsTests {
 	}
 
 	@Test
+	public void monoFallbackWithExceptionWorks() {
+		StepVerifier.create(HystrixCommands.from(Mono.<String>error(new IllegalStateException()))
+				.commandName("failcmd")
+				.fallback(throwable -> {
+					if (throwable instanceof IllegalStateException) {
+						return Mono.just("specificfallback");
+					}
+					return Mono.just("genericfallback");
+				})
+				.toMono())
+				.expectNext("specificfallback")
+				.verifyComplete();
+	}
+
+	@Test
 	public void fluxWorks() {
 		StepVerifier.create(HystrixCommands.from( Flux.just("1", "2"))
 				.commandName("multiflux")

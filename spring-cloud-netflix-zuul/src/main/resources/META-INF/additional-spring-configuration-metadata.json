@@ -1,0 +1,22 @@
+{
+  "properties": [
+    {
+      "defaultValue": false,
+      "name": "ribbon.restclient.enabled",
+      "description": "Enables the use of the deprecated Ribbon RestClient.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": false,
+      "name": "ribbon.okhttp.enabled",
+      "description": "Enables the use of the OK HTTP Client with Ribbon.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": false,
+      "name": "zuul.ribbon.eager-load.enabled",
+      "description": "Enables eager loading of Ribbon clients on startup.",
+      "type": "java.lang.Boolean"
+    }
+  ]
+}

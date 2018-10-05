@@ -1,0 +1,28 @@
+{
+  "properties": [
+    {
+      "defaultValue": true,
+      "name": "eureka.client.healthcheck.enabled",
+      "description": "Enables the Eureka health check handler.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": false,
+      "name": "ribbon.restclient.enabled",
+      "description": "Enables the use of the deprecated Ribbon RestClient.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": false,
+      "name": "ribbon.http.client.enabled",
+      "description": "Deprecated property to enable Ribbon RestClient.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": false,
+      "name": "ribbon.okhttp.enabled",
+      "description": "Enables the use of the OK HTTP Client with Ribbon.",
+      "type": "java.lang.Boolean"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "defaultValue": true,
+      "name": "eureka.client.healthcheck.enabled",
+      "description": "Enables the Eureka health check handler.",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "defaultValue": true,
+      "name": "ribbon.eureka.enabled",
+      "description": "Enables the use of Eureka with Ribbon.",
+      "type": "java.lang.Boolean"
+    }
+  ]
+}
