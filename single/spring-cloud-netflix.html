@@ -208,7 +208,36 @@ eureka:
 You could use this configuration to test the peer awareness on a single host (there is not much value in doing that in production) by manipulating <code class="literal">/etc/hosts</code> to resolve the host names.
 In fact, the <code class="literal">eureka.instance.hostname</code> is not needed if you are running on a machine that knows its own hostname (by default, it is looked up by using <code class="literal">java.net.InetAddress</code>).</p><p>You can add multiple peers to a system, and, as long as they are all connected to each other by at least one edge, they synchronize
 the registrations amongst themselves.
-If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive <span class="quote">&#8220;<span class="quote">split-brain</span>&#8221;</span> type failures.</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-eureka-server-prefer-ip-address" href="#spring-cloud-eureka-server-prefer-ip-address"></a>2.6&nbsp;When to Prefer IP Address</h2></div></div></div><p>In some cases, it is preferable for Eureka to advertise the IP addresses of services rather than the hostname.
+If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive <span class="quote">&#8220;<span class="quote">split-brain</span>&#8221;</span> type failures.
+You can add multiple peers to a system, and as long as they are all
+directly connected to each other, they will synchronize
+the registrations amongst themselves.</p><p><b>application.yml (Three Peer Aware Eureka Servers).&nbsp;</b>
+</p><pre class="screen">eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/,http://peer2/eureka/,http://peer3/eureka/
+
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+
+---
+spring:
+  profiles: peer3
+eureka:
+  instance:
+    hostname: peer3</pre><p>
+</p></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="spring-cloud-eureka-server-prefer-ip-address" href="#spring-cloud-eureka-server-prefer-ip-address"></a>2.6&nbsp;When to Prefer IP Address</h2></div></div></div><p>In some cases, it is preferable for Eureka to advertise the IP addresses of services rather than the hostname.
 Set <code class="literal">eureka.instance.preferIpAddress</code> to <code class="literal">true</code> and, when the application registers with eureka, it uses its IP address rather than its hostname.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="images/tip.png"></td><th align="left">Tip</th></tr><tr><td align="left" valign="top"><p>If the hostname cannot be determined by Java, then the IP address is sent to Eureka.
 Only explict way of setting the hostname is by setting <code class="literal">eureka.instance.hostname</code> property.
 You can set your hostname at the run-time by using an environment variable&#8201;&#8212;&#8201;for example, <code class="literal">eureka.instance.hostname=${HOST_NAME}</code>.</p></td></tr></table></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_securing_the_eureka_server" href="#_securing_the_eureka_server"></a>2.7&nbsp;Securing The Eureka Server</h2></div></div></div><p>You can secure your Eureka server simply by adding Spring Security to your
@@ -224,9 +253,9 @@ For example:</p><pre class="programlisting"><em><span class="hl-annotation" styl
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">super</span>.configure(http);
     }
 }</pre><p>For more information on CSRF see the <a class="link" href="https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf" target="_top">Spring Security documentation</a>.</p><p>A demo Eureka Server can be found in the Spring Cloud Samples <a class="link" href="https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security" target="_top">repo</a>.</p></div></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_circuit_breaker_hystrix_clients" href="#_circuit_breaker_hystrix_clients"></a>3.&nbsp;Circuit Breaker: Hystrix Clients</h1></div></div></div><p>Netflix has created a library called <a class="link" href="https://github.com/Netflix/Hystrix" target="_top">Hystrix</a> that implements the <a class="link" href="http://martinfowler.com/bliki/CircuitBreaker.html" target="_top">circuit breaker pattern</a>.
-In a microservice architecture, it is common to have multiple layers of service calls, as shown in the following example:</p><div class="figure"><a name="d0e616" href="#d0e616"></a><p class="title"><b>Figure&nbsp;3.1.&nbsp;Microservice Graph</b></p><div class="figure-contents"><div class="mediaobject"><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/Hystrix.png" alt="Hystrix"></div></div></div><br class="figure-break"><p>A service failure in the lower level of services can cause cascading failure all the way up to the user.
+In a microservice architecture, it is common to have multiple layers of service calls, as shown in the following example:</p><div class="figure"><a name="d0e624" href="#d0e624"></a><p class="title"><b>Figure&nbsp;3.1.&nbsp;Microservice Graph</b></p><div class="figure-contents"><div class="mediaobject"><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/Hystrix.png" alt="Hystrix"></div></div></div><br class="figure-break"><p>A service failure in the lower level of services can cause cascading failure all the way up to the user.
 When calls to a particular service exceed <code class="literal">circuitBreaker.requestVolumeThreshold</code> (default: 20 requests) and the failure percentage is greater than <code class="literal">circuitBreaker.errorThresholdPercentage</code> (default: &gt;50%) in a rolling window defined by <code class="literal">metrics.rollingStats.timeInMilliseconds</code> (default: 10 seconds), the circuit opens and the call is not made.
-In cases of error and an open circuit, a fallback can be provided by the developer.</p><div class="figure"><a name="d0e636" href="#d0e636"></a><p class="title"><b>Figure&nbsp;3.2.&nbsp;Hystrix fallback prevents cascading failures</b></p><div class="figure-contents"><div class="mediaobject"><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/HystrixFallback.png" alt="HystrixFallback"></div></div></div><br class="figure-break"><p>Having an open circuit stops cascading failures and allows overwhelmed or failing services time to recover.
+In cases of error and an open circuit, a fallback can be provided by the developer.</p><div class="figure"><a name="d0e644" href="#d0e644"></a><p class="title"><b>Figure&nbsp;3.2.&nbsp;Hystrix fallback prevents cascading failures</b></p><div class="figure-contents"><div class="mediaobject"><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/HystrixFallback.png" alt="HystrixFallback"></div></div></div><br class="figure-break"><p>Having an open circuit stops cascading failures and allows overwhelmed or failing services time to recover.
 The fallback can be another Hystrix protected call, static data, or a sensible empty value.
 Fallbacks may be chained so that the first fallback makes some other business call, which in turn falls back to static data.</p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_how_to_include_hystrix" href="#_how_to_include_hystrix"></a>3.1&nbsp;How to Include Hystrix</h2></div></div></div><p>To include Hystrix in your project, use the starter with a group ID of <code class="literal">org.springframework.cloud</code>
 and a artifact ID of <code class="literal">spring-cloud-starter-netflix-hystrix</code>.
@@ -282,7 +311,7 @@ Doing so exposes the <code class="literal">/actuator/hystrix.stream</code> as a 
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;groupId&gt;</span>org.springframework.boot<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/groupId&gt;</span>
         <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;artifactId&gt;</span>spring-boot-starter-actuator<span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/artifactId&gt;</span>
     <span xmlns:d="http://docbook.org/ns/docbook" class="hl-tag">&lt;/dependency&gt;</span></pre></div></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_circuit_breaker_hystrix_dashboard" href="#_circuit_breaker_hystrix_dashboard"></a>4.&nbsp;Circuit Breaker: Hystrix Dashboard</h1></div></div></div><p>One of the main benefits of Hystrix is the set of metrics it gathers about each HystrixCommand.
-The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.</p><div class="figure"><a name="d0e757" href="#d0e757"></a><p class="title"><b>Figure&nbsp;4.1.&nbsp;Hystrix Dashboard</b></p><div class="figure-contents"><div class="mediaobject"><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/Hystrix.png" alt="Hystrix"></div></div></div><br class="figure-break"></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_hystrix_timeouts_and_ribbon_clients" href="#_hystrix_timeouts_and_ribbon_clients"></a>5.&nbsp;Hystrix Timeouts And Ribbon Clients</h1></div></div></div><p>When using Hystrix commands that wrap Ribbon clients you want to make sure your Hystrix timeout
+The Hystrix Dashboard displays the health of each circuit breaker in an efficient manner.</p><div class="figure"><a name="d0e765" href="#d0e765"></a><p class="title"><b>Figure&nbsp;4.1.&nbsp;Hystrix Dashboard</b></p><div class="figure-contents"><div class="mediaobject"><img src="https://raw.githubusercontent.com/spring-cloud/spring-cloud-netflix/master/docs/src/main/asciidoc/images/Hystrix.png" alt="Hystrix"></div></div></div><br class="figure-break"></div><div class="chapter"><div class="titlepage"><div><div><h1 class="title"><a name="_hystrix_timeouts_and_ribbon_clients" href="#_hystrix_timeouts_and_ribbon_clients"></a>5.&nbsp;Hystrix Timeouts And Ribbon Clients</h1></div></div></div><p>When using Hystrix commands that wrap Ribbon clients you want to make sure your Hystrix timeout
 is configured to be longer than the configured Ribbon timeout, including any potential
 retries that might be made.  For example, if your Ribbon connection timeout is one second and
 the Ribbon client might retry the request three times, than your Hystrix timeout should
@@ -973,7 +1002,7 @@ It should return a JSON document that resembles the following:</p><p><b>health-u
 </p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
   <span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"status"</span>:<span xmlns:d="http://docbook.org/ns/docbook" class="hl-string">"UP"</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">}</span></pre><p>
-</p><p>HThe following application.yml example shows sample configuration for a Sidecar application:</p><p><b>application.yml.&nbsp;</b>
+</p><p>The following application.yml example shows sample configuration for a Sidecar application:</p><p><b>application.yml.&nbsp;</b>
 </p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">server</span>:
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">  port</span>: <span class="hl-number">5678</span>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-attribute">spring</span>:

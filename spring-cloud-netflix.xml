@@ -403,7 +403,40 @@ You could use this configuration to test the peer awareness on a single host (th
 In fact, the <literal>eureka.instance.hostname</literal> is not needed if you are running on a machine that knows its own hostname (by default, it is looked up by using <literal>java.net.InetAddress</literal>).</simpara>
 <simpara>You can add multiple peers to a system, and, as long as they are all connected to each other by at least one edge, they synchronize
 the registrations amongst themselves.
-If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive <quote>split-brain</quote> type failures.</simpara>
+If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive <quote>split-brain</quote> type failures.
+You can add multiple peers to a system, and as long as they are all
+directly connected to each other, they will synchronize
+the registrations amongst themselves.</simpara>
+<formalpara>
+<title>application.yml (Three Peer Aware Eureka Servers)</title>
+<para>
+<screen>eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/,http://peer2/eureka/,http://peer3/eureka/
+
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+
+---
+spring:
+  profiles: peer3
+eureka:
+  instance:
+    hostname: peer3</screen>
+</para>
+</formalpara>
 </section>
 <section xml:id="spring-cloud-eureka-server-prefer-ip-address">
 <title>When to Prefer IP Address</title>
@@ -1907,7 +1940,7 @@ It should return a JSON document that resembles the following:</simpara>
 }</programlisting>
 </para>
 </formalpara>
-<simpara>HThe following application.yml example shows sample configuration for a Sidecar application:</simpara>
+<simpara>The following application.yml example shows sample configuration for a Sidecar application:</simpara>
 <formalpara>
 <title>application.yml</title>
 <para>
