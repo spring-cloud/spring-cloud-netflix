@@ -52,7 +52,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
  * @author Dave Syer
  */
 @Configuration
-@ConditionalOnClass({ Hystrix.class, HealthIndicator.class })
+@ConditionalOnClass({ Hystrix.class, HealthIndicator.class, HealthIndicatorAutoConfiguration.class })
 @AutoConfigureAfter({ HealthIndicatorAutoConfiguration.class })
 public class HystrixAutoConfiguration {
 
