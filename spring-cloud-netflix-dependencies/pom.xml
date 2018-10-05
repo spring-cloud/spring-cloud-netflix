@@ -15,7 +15,7 @@
 	<description>Spring Cloud Netflix Dependencies</description>
 	<properties>
 		<archaius.version>0.7.6</archaius.version>
-		<concurrency-limits.version>0.1.4</concurrency-limits.version>
+		<concurrency-limits.version>0.1.6</concurrency-limits.version>
 		<eureka.version>1.9.3</eureka.version>
 		<hystrix.version>1.5.12</hystrix.version>
 		<ribbon.version>2.2.5</ribbon.version>
