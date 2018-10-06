@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -58,28 +59,28 @@ public class ZuulFilterInitializerTests {
 		initializer = new ZuulFilterInitializer(filters,
 				counterFactory, tracerFactory, filterLoader, filterRegistry);
 
+		initializer.contextInitialized();
 	}
 
 	@Test
-	public void shouldSetupOnContextInitializedEvent() throws Exception {
-		initializer.contextInitialized();
+	public void shouldSetupOnContextInitializedEvent() {
 
 		assertEquals(tracerFactory, TracerFactory.instance());
 		assertEquals(counterFactory, CounterFactory.instance());
 		assertThat(filterRegistry.getAllFilters())
 				.containsAll(filters.values());
+
+		initializer.contextDestroyed();
 	}
 
 	@Test
-	public void shouldCleanupOnContextDestroyed() throws Exception {
-
-		int originalSize = FilterRegistry.instance().getAllFilters().size();
+	public void shouldCleanupOnContextDestroyed() {
 
 		initializer.contextDestroyed();
 
 		assertNull(ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
 		assertNull(ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"));
-		assertThat(FilterRegistry.instance().getAllFilters().size()).isEqualTo(originalSize - 2);
+		assertThat(filterRegistry.getAllFilters()).isEmpty();
 		assertTrue(getHashFiltersByType().isEmpty());
 	}
 
