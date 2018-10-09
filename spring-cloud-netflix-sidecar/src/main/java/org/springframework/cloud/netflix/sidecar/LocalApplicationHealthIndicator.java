@@ -16,17 +16,13 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
-import java.net.URI;
-import java.util.Map;
-
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
  * @author Spencer Gibb
@@ -37,6 +33,9 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 	@Autowired
 	private SidecarProperties properties;
 
+	@Autowired
+	private RestTemplate restTemplate;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doHealthCheck(Health.Builder builder) throws Exception {
@@ -44,18 +43,6 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 		if (uri == null) {
 			builder.up();
 			return;
-		}
-
-		RestTemplate restTemplate = new RestTemplate();
-
-		if (this.properties.acceptAllCertificates()) {
-			CloseableHttpClient httpClient = HttpClients.custom()
-					.setSSLHostnameVerifier(new NoopHostnameVerifier())
-					.build();
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setHttpClient(httpClient);
-
-			restTemplate.setRequestFactory(requestFactory);
 		}
 
 		Map<String, Object> map = restTemplate.getForObject(uri, Map.class);
@@ -81,5 +68,4 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 	private Health.Builder getWarning(Health.Builder builder) {
 		return builder.unknown().withDetail("warning", "no status field in response");
 	}
-
 }
