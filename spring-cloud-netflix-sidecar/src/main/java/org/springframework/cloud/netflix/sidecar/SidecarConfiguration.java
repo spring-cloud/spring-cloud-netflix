@@ -16,6 +16,10 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +37,12 @@ import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvi
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.StringUtils;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClientConfig;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
@@ -54,6 +60,7 @@ import java.util.Map;
  *
  * @author Spencer Gibb
  * @author Ryan Baxter
+ * @author Fabrizio Di Napoli
  *
  * @see EurekaInstanceConfigBeanConfiguration
  */
@@ -153,7 +160,24 @@ public class SidecarConfiguration {
 				final LocalApplicationHealthIndicator healthIndicator) {
 			return new LocalApplicationHealthCheckHandler(healthIndicator);
 		}
+	}
 
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	@ConditionalOnClass(HttpClient.class)
+	@ConditionalOnProperty(value = "sidecar.accept-all-certificates")
+	public RestTemplate sslRestTemplate() {
+		CloseableHttpClient httpClient = HttpClients.custom()
+				.setSSLHostnameVerifier(new NoopHostnameVerifier())
+				.build();
+		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+		requestFactory.setHttpClient(httpClient);
+
+		return new RestTemplate(requestFactory);
 	}
 
 	@Bean
