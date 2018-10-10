@@ -20,6 +20,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,6 +164,7 @@ public class SidecarConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingClass("org.apache.http.client.HttpClient")
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
