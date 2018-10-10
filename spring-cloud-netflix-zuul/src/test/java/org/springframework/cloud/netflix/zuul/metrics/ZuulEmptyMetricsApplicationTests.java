@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,35 +17,39 @@
 
 package org.springframework.cloud.netflix.zuul.metrics;
 
+import com.netflix.zuul.monitoring.CounterFactory;
+import com.netflix.zuul.monitoring.TracerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
-import org.springframework.cloud.netflix.zuul.ZuulServerAutoConfiguration;
-import org.springframework.cloud.netflix.zuul.ZuulServerMarkerConfiguration;
-import org.springframework.cloud.test.ClassPathExclusions;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.junit.runner.RunWith;
 
-import com.netflix.zuul.monitoring.CounterFactory;
-import com.netflix.zuul.monitoring.TracerFactory;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.netflix.zuul.EnableZuulServer;
+import org.springframework.cloud.netflix.zuul.test.TestAutoConfiguration;
+import org.springframework.cloud.test.ClassPathExclusions;
+import org.springframework.cloud.test.ModifiedClassPathRunner;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "spring-boot-starter-actuator-*.jar",
-		"spring-boot-actuator-*.jar" })
+		"spring-boot-actuator-*.jar", "micrometer-core-*.jar" })
 public class ZuulEmptyMetricsApplicationTests {
 
-	private AnnotationConfigApplicationContext context;
+	private ConfigurableApplicationContext context;
 
 	@Before
 	public void setUp() throws Exception {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(ZuulEmptyMetricsApplicationTestsConfiguration.class,
-			ZuulServerMarkerConfiguration.class, ZuulServerAutoConfiguration.class);
-		context.refresh();
-
+		ConfigurableApplicationContext context = new SpringApplicationBuilder(ZuulEmptyMetricsApplicationTestsConfiguration.class)
+				.web(WebApplicationType.NONE)
+				.run("--debug");
 		this.context = context;
 	}
 
@@ -71,13 +75,12 @@ public class ZuulEmptyMetricsApplicationTests {
 		assertEquals(EmptyTracerFactory.class, factory.getClass());
 	}
 
+	@EnableAutoConfiguration(exclude = TestAutoConfiguration.class)
 	@Configuration
+	// @Import(NoSecurityConfiguration.class)
+	@EnableZuulServer
+	@EnableConfigurationProperties(ServerProperties.class)
 	static class ZuulEmptyMetricsApplicationTestsConfiguration {
-
-		@Bean
-		ServerProperties serverProperties() {
-			return new ServerProperties();
-		}
 
 	}
 }

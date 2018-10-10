@@ -81,7 +81,9 @@ import com.netflix.servo.monitor.Monitors;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -150,6 +152,20 @@ public class RibbonLoadBalancingHttpClientTests {
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
 		assertThat(result.getConnectTimeout(), is(1000));
 		assertThat(result.getSocketTimeout(), is (1000));
+	}
+	
+	@Test
+	public void testCompressionDefault() throws Exception {
+		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
+		assertTrue(result.isContentCompressionEnabled());
+	}
+	
+	@Test
+	public void testCompressionDisabled() throws Exception {
+		IClientConfig configOverride = DefaultClientConfigImpl.getClientConfigWithDefaultValues();
+		configOverride.set(CommonClientConfigKey.GZipPayload, false);
+		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, configOverride);
+		assertFalse(result.isContentCompressionEnabled());
 	}
 
 	@Test

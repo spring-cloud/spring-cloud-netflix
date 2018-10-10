@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -19,6 +20,7 @@ package org.springframework.cloud.netflix.ribbon;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.junit.Test;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -31,7 +33,6 @@ import com.sun.jersey.client.apache4.ApacheHttpClient4;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.springframework.boot.test.util.EnvironmentTestUtils.addEnvironment;
 
 /**
  * @author Dave Syer
@@ -70,7 +71,7 @@ public class SpringClientFactoryTests {
 		SpringClientFactory factory = new SpringClientFactory();
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(
 				RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class, HttpClientConfiguration.class);
-		addEnvironment(parent, "foo.ribbon.MaxAutoRetries:2");
+		TestPropertyValues.of("foo.ribbon.MaxAutoRetries:2").applyTo(parent);
 		factory.setApplicationContext(parent);
 		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory
 				.getLoadBalancerContext("foo").getRetryHandler();
@@ -84,7 +85,7 @@ public class SpringClientFactoryTests {
 	public void testCookiePolicy() {
 		SpringClientFactory factory = new SpringClientFactory();
 		AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
-		addEnvironment(parent, "ribbon.restclient.enabled=true");
+		TestPropertyValues.of("ribbon.restclient.enabled=true").applyTo(parent);
 		parent.register(RibbonAutoConfiguration.class, ArchaiusAutoConfiguration.class);
 		parent.refresh();
 		factory.setApplicationContext(parent);

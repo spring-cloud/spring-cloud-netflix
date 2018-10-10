@@ -270,7 +270,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 	private boolean preferIpAddress = false;
 
 	/**
-	 * Initial status to register with rmeote Eureka server.
+	 * Initial status to register with remote Eureka server.
 	 */
 	private InstanceStatus initialStatus = InstanceStatus.UP;
 
@@ -329,7 +329,7 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 		this.environment = environment;
 		// set some defaults from the environment, but allow the defaults to use relaxed binding
 		String springAppName = this.environment.getProperty("spring.application.name", "");
-		if(StringUtils.hasText(springAppName)) {
+		if (StringUtils.hasText(springAppName)) {
 			setAppname(springAppName);
 			setVirtualHostName(springAppName);
 			setSecureVirtualHostName(springAppName);
@@ -651,5 +651,4 @@ public class EurekaInstanceConfigBean implements CloudEurekaInstanceConfig, Envi
 				.append("environment=").append(environment).append(", ").append("}")
 				.toString();
 	}
-
 }

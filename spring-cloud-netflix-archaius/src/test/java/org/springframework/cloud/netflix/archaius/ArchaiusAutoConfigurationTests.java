@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.springframework.cloud.netflix.archaius;
@@ -19,11 +20,9 @@ package org.springframework.cloud.netflix.archaius;
 import java.util.Collections;
 
 import org.apache.commons.configuration.AbstractConfiguration;
-import org.apache.commons.configuration.event.ConfigurationEvent;
-import org.apache.commons.configuration.event.ConfigurationListener;
 import org.junit.After;
 import org.junit.Test;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -64,16 +63,13 @@ public class ArchaiusAutoConfigurationTests {
 		this.context = new AnnotationConfigApplicationContext(
 				ArchaiusAutoConfiguration.class);
 		ConfigurationManager.getConfigInstance().addConfigurationListener(
-				new ConfigurationListener() {
-					@Override
-					public void configurationChanged(ConfigurationEvent event) {
-						if (event.getPropertyName().equals("my.prop")) {
-							ArchaiusAutoConfigurationTests.this.propertyValue = event
-									.getPropertyValue();
-						}
+				event -> {
+					if (event.getPropertyName().equals("my.prop")) {
+						ArchaiusAutoConfigurationTests.this.propertyValue = event
+								.getPropertyValue();
 					}
 				});
-		EnvironmentTestUtils.addEnvironment(this.context, "my.prop=my.newval");
+		TestPropertyValues.of("my.prop=my.newval").applyTo(this.context);
 		this.context.publishEvent(new EnvironmentChangeEvent(Collections
 				.singleton("my.prop")));
 		assertEquals("my.newval", this.propertyValue);
