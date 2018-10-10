@@ -27,6 +27,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * @author Spencer Gibb
  * @author Gregor Zurowski
+ * @author Fabrizio Di Napoli
  */
 @ConfigurationProperties("sidecar")
 public class SidecarProperties {
@@ -43,7 +44,7 @@ public class SidecarProperties {
 
 	private String ipAddress;
 
-	private boolean acceptAllCertificates;
+	private boolean acceptAllSslCertificates;
 
 	public URI getHealthUri() {
 		return healthUri;
@@ -85,12 +86,12 @@ public class SidecarProperties {
 		this.ipAddress = ipAddress;
 	}
 
-	public boolean acceptAllCertificates() {
-		return acceptAllCertificates;
+	public boolean acceptAllSslCertificates() {
+		return acceptAllSslCertificates;
 	}
 
-	public void setAcceptAllCertificates(boolean acceptAllCertificates) {
-		this.acceptAllCertificates = acceptAllCertificates;
+	public void setAcceptAllSslCertificates(boolean acceptAllSslCertificates) {
+		this.acceptAllSslCertificates = acceptAllSslCertificates;
 	}
 
 	@Override
@@ -103,12 +104,12 @@ public class SidecarProperties {
 				port == that.port &&
 				Objects.equals(hostname, that.hostname) &&
 				Objects.equals(ipAddress, that.ipAddress) &&
-				Objects.equals(acceptAllCertificates, that.acceptAllCertificates);
+				Objects.equals(acceptAllSslCertificates, that.acceptAllSslCertificates);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(healthUri, homePageUri, port, hostname, ipAddress, acceptAllCertificates);
+		return Objects.hash(healthUri, homePageUri, port, hostname, ipAddress, acceptAllSslCertificates);
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class SidecarProperties {
 				.append("port=").append(port).append(", ")
 				.append("hostname='").append(hostname).append("', ")
 				.append("ipAddress='").append(ipAddress).append("', ")
-				.append("acceptAllCertificates='").append(acceptAllCertificates).append("'}")
+				.append("acceptAllSslCertificates='").append(acceptAllSslCertificates).append("'}")
 				.toString();
 	}
 

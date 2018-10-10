@@ -171,7 +171,7 @@ public class SidecarConfiguration {
 
 	@Bean
 	@ConditionalOnClass(HttpClient.class)
-	@ConditionalOnProperty(value = "sidecar.accept-all-certificates")
+	@ConditionalOnProperty(value = "sidecar.accept-all-ssl-certificates")
 	public RestTemplate sslRestTemplate() {
 		CloseableHttpClient httpClient = HttpClients.custom()
 				.setSSLHostnameVerifier(new NoopHostnameVerifier())
