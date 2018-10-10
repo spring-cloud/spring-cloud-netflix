@@ -7,6 +7,7 @@ spring:
 sidecar:
   port: 8000
   health-uri: http://localhost:8000/src/test/resources/health.json
+  accept-all-ssl-certificates: true
 
 eureka:
   instance:
