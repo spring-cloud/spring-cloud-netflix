@@ -31,6 +31,7 @@ import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.InstanceInfo;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.DOWN;
+import static com.netflix.appinfo.InstanceInfo.InstanceStatus.OUT_OF_SERVICE;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,20 +71,29 @@ public class EurekaServiceRegistryTests {
 		config.setAppname("myapp");
 		config.setInstanceId("1234");
 
-		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
-
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
+		InstanceInfo local = InstanceInfo.Builder.newBuilder()
 				.setAppName("myapp")
 				.setInstanceId("1234")
 				.setStatus(DOWN)
-				.setOverriddenStatus(UNKNOWN)
 				.build();
-		when(eurekaClient.getInstanceInfo("myapp", "1234"))
-				.thenReturn(instanceInfo);
+
+		InstanceInfo remote = InstanceInfo.Builder.newBuilder()
+				.setAppName("myapp")
+				.setInstanceId("1234")
+				.setStatus(DOWN)
+				.setOverriddenStatus(OUT_OF_SERVICE)
+				.build();
+
+		CloudEurekaClient eurekaClient = mock(CloudEurekaClient.class);
+		when(eurekaClient.getInstanceInfo(local.getAppName(), local.getId()))
+				.thenReturn(remote);
+
+		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+		when(applicationInfoManager.getInfo()).thenReturn(local);
 
 		EurekaRegistration registration = EurekaRegistration.builder(config)
 				.with(eurekaClient)
-				.with(mock(ApplicationInfoManager.class))
+				.with(applicationInfoManager)
 				.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
 				.build();
 
@@ -95,7 +105,7 @@ public class EurekaServiceRegistryTests {
 
 		assertThat(map).hasSize(2)
 				.containsEntry("status", DOWN.toString())
-				.containsEntry("overriddenStatus", UNKNOWN.toString());
+				.containsEntry("overriddenStatus", OUT_OF_SERVICE.toString());
 	}
 
 
@@ -112,9 +122,12 @@ public class EurekaServiceRegistryTests {
 		when(eurekaClient.getInstanceInfo("myapp", "1234"))
 				.thenReturn(null);
 
+		ApplicationInfoManager applicationInfoManager = mock(ApplicationInfoManager.class);
+		when(applicationInfoManager.getInfo()).thenReturn(mock(InstanceInfo.class));
+
 		EurekaRegistration registration = EurekaRegistration.builder(config)
 				.with(eurekaClient)
-				.with(mock(ApplicationInfoManager.class))
+				.with(applicationInfoManager)
 				.with(new EurekaClientConfigBean(), mock(ApplicationEventPublisher.class))
 				.build();
 
