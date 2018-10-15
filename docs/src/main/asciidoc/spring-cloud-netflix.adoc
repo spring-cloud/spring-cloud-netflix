@@ -2021,16 +2021,7 @@ info:
   url: https://github.com/spring-cloud-samples
 ----
 
-Using https health check with self-signed certificates:
-
-.application.yml
-[source,yaml]
-----
-sidecar:
-  port: 8000
-  health-uri: https://localhost:8000/health.json
-  accept-all-ssl-certificates: true
-----
+To enable the health check request to accept all certificates when using HTTPs set `sidecar.accept-all-ssl-certificates` to `true.
 
 [[retrying-failed-requests]]
 == Retrying Failed Requests
