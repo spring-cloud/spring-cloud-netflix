@@ -282,7 +282,6 @@ public class EurekaClientAutoConfiguration {
 			} else {
 				appManager = manager;
 			}
-			appManager.getInfo(); // force initialization
 			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, config, this.optionalArgs,
 					this.context);
 			cloudEurekaClient.registerHealthCheck(healthCheckHandler);
