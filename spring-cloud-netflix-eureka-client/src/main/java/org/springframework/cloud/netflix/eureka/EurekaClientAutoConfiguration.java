@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
@@ -56,6 +57,7 @@ import org.springframework.cloud.netflix.eureka.metadata.ManagementMetadataProvi
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaAutoServiceRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaRegistration;
 import org.springframework.cloud.netflix.eureka.serviceregistry.EurekaServiceRegistry;
+import org.springframework.cloud.util.ProxyUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -268,10 +270,19 @@ public class EurekaClientAutoConfiguration {
 		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
 		@org.springframework.cloud.context.config.annotation.RefreshScope
 		@Lazy
-		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config, EurekaInstanceConfig instance) {
-			manager.getInfo(); // force initialization
-			return new CloudEurekaClient(manager, config, this.optionalArgs,
+		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config, EurekaInstanceConfig instance,
+										 @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
+			ApplicationInfoManager appManager;
+			if(AopUtils.isAopProxy(manager)) {
+				appManager = ProxyUtils.getTargetObject(manager);
+			} else {
+				appManager = manager;
+			}
+			appManager.getInfo(); // force initialization
+			CloudEurekaClient cloudEurekaClient = new CloudEurekaClient(appManager, config, this.optionalArgs,
 					this.context);
+			cloudEurekaClient.registerHealthCheck(healthCheckHandler);
+			return cloudEurekaClient;
 		}
 
 		@Bean
