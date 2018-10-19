@@ -272,6 +272,10 @@ public class EurekaClientAutoConfiguration {
 		@Lazy
 		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config, EurekaInstanceConfig instance,
 										 @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
+			//If we use the proxy of the ApplicationInfoManager we could run into a problem
+			//when shutdown is called on the CloudEurekaClient where the ApplicationInfoManager bean is
+			//requested but wont be allowed because we are shutting down.  To avoid this we use the
+			//object directly.
 			ApplicationInfoManager appManager;
 			if(AopUtils.isAopProxy(manager)) {
 				appManager = ProxyUtils.getTargetObject(manager);
