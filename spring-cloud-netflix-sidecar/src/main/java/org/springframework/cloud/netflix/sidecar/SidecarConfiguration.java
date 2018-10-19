@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.actuator.HasFeatures;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
@@ -166,20 +167,22 @@ public class SidecarConfiguration {
 	@Bean
 	@ConditionalOnMissingClass("org.apache.http.client.HttpClient")
 	public RestTemplate restTemplate() {
-		return new RestTemplate();
+		return new RestTemplateBuilder().build();
 	}
 
 	@Bean
 	@ConditionalOnClass(HttpClient.class)
-	@ConditionalOnProperty(value = "sidecar.accept-all-ssl-certificates")
-	public RestTemplate sslRestTemplate() {
-		CloseableHttpClient httpClient = HttpClients.custom()
-				.setSSLHostnameVerifier(new NoopHostnameVerifier())
-				.build();
-		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-		requestFactory.setHttpClient(httpClient);
-
-		return new RestTemplate(requestFactory);
+	public RestTemplate sslRestTemplate(SidecarProperties properties) {
+		RestTemplateBuilder builder = new RestTemplateBuilder();
+		if(properties.acceptAllSslCertificates()) {
+			CloseableHttpClient httpClient = HttpClients.custom()
+					.setSSLHostnameVerifier(new NoopHostnameVerifier())
+					.build();
+			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+			requestFactory.setHttpClient(httpClient);
+			builder = builder.requestFactory(() -> requestFactory);
+		}
+		return builder.build();
 	}
 
 	@Bean
