@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-netflix-core</artifactId>
+            <artifactId>spring-cloud-netflix-hystrix</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

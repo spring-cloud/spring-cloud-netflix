@@ -1685,7 +1685,7 @@ This path can be changed with the `zuul.servlet-path` property.
 To pass information between filters, Zuul uses a https://github.com/Netflix/zuul/blob/1.x/zuul-core/src/main/java/com/netflix/zuul/context/RequestContext.java[`RequestContext`].
 Its data is held in a `ThreadLocal` specific to each request.
 Information about where to route requests, errors, and the actual `HttpServletRequest` and `HttpServletResponse` are stored there.
-The `RequestContext` extends `ConcurrentHashMap`, so anything can be stored in the context. https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java[`FilterConstants`] contains the keys used by the filters installed by Spring Cloud Netflix (more on these <<zuul-developer-guide-enable-filters,later>>).
+The `RequestContext` extends `ConcurrentHashMap`, so anything can be stored in the context. https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-zuul/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java[`FilterConstants`] contains the keys used by the filters installed by Spring Cloud Netflix (more on these <<zuul-developer-guide-enable-filters,later>>).
 
 ==== `@EnableZuulProxy` vs. `@EnableZuulServer`
 
