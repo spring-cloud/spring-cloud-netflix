@@ -67,9 +67,9 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 	private ApplicationContext applicationContext;
 
 	/**
-	 * {@code true} when the context stop sequence has been initiated.
+	 * {@code true} until the context is stopped
 	 */
-	private boolean stopping = false;
+	private boolean contextStarted = true;
 	
 	public EurekaHealthCheckHandler(HealthAggregator healthAggregator) {
 		Assert.notNull(healthAggregator, "HealthAggregator must not be null");
@@ -96,7 +96,6 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 						healthIndicator.addHealthIndicator(holder.getDelegate().getName(), holder);
 					}
 				}
-
 			}
 			else {
 				healthIndicator.addHealthIndicator(entry.getKey(), entry.getValue());
@@ -106,13 +105,13 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public InstanceStatus getStatus(InstanceStatus instanceStatus) {
-		// Return nothing if the context is being stopped so the status held by the InstanceInfo remains unchanged.
-		// See GH1571
-		if( this.stopping ) {
-			return null;
+		if( this.contextStarted ) {
+			return getHealthStatus();
 		}
 		else {
-			return getHealthStatus();
+			// Return nothing if the context is stopped so the status held by the InstanceInfo remains unchanged.
+			// See gh-1571
+			return null;
 		}
 	}
 
@@ -142,12 +141,12 @@ public class EurekaHealthCheckHandler implements HealthCheckHandler, Application
 
 	@Override
 	public void start() {
-		this.stopping = false;
+		this.contextStarted = true;
 	}
 
 	@Override
 	public void stop() {
-		this.stopping = true;
+		this.contextStarted = false;
 	}
 
 	@Override
