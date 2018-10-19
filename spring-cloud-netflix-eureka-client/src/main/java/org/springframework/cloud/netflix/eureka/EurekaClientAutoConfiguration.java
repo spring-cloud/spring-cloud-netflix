@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 import java.net.MalformedURLException;
 import java.util.Map;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.Endpoint;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -264,25 +264,6 @@ public class EurekaClientAutoConfiguration {
 		@Autowired
 		private AbstractDiscoveryClientOptionalArgs<?> optionalArgs;
 
-		@Bean(destroyMethod = "shutdown")
-		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
-		@org.springframework.cloud.context.config.annotation.RefreshScope
-		@Lazy
-		public EurekaClient eurekaClient(ApplicationInfoManager manager, EurekaClientConfig config, EurekaInstanceConfig instance) {
-			manager.getInfo(); // force initialization
-			return new CloudEurekaClient(manager, config, this.optionalArgs,
-					this.context);
-		}
-
-		@Bean
-		@ConditionalOnMissingBean(value = ApplicationInfoManager.class, search = SearchStrategy.CURRENT)
-		@org.springframework.cloud.context.config.annotation.RefreshScope
-		@Lazy
-		public ApplicationInfoManager eurekaApplicationInfoManager(EurekaInstanceConfig config) {
-			InstanceInfo instanceInfo = new InstanceInfoFactory().create(config);
-			return new ApplicationInfoManager(config, instanceInfo);
-		}
-
 		@Bean
 		@org.springframework.cloud.context.config.annotation.RefreshScope
 		@ConditionalOnBean(AutoServiceRegistrationProperties.class)
@@ -296,6 +277,60 @@ public class EurekaClientAutoConfiguration {
 					.with(eurekaClient)
 					.with(healthCheckHandler)
 					.build();
+		}
+
+		@Bean
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@Lazy
+		public EurekaClientFactory eurekaClientFactory(EurekaClientConfig clientConfig, CloudEurekaInstanceConfig instanceConfig, @Autowired(required = false) HealthCheckHandler healthCheckHandler) {
+			return new EurekaClientFactory(clientConfig, instanceConfig, optionalArgs, context, healthCheckHandler);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(value = EurekaClient.class, search = SearchStrategy.CURRENT)
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@Lazy
+		public EurekaClient eurekaClient(EurekaClientFactory eurekaClientFactory) {
+			return eurekaClientFactory.getEurekaClient();
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(value = ApplicationInfoManager.class, search = SearchStrategy.CURRENT)
+		@org.springframework.cloud.context.config.annotation.RefreshScope
+		@Lazy
+		public ApplicationInfoManager eurekaApplicationInfoManager(EurekaClientFactory eurekaClientFactory) {
+			return eurekaClientFactory.getApplicationInfoManager();
+		}
+
+		//Use this class as a way of controlling the destruction order of the CloudEurekaClient and ApplicationInfoManager beans
+		//If the ApplicationInfoManager bean gets destroyed before the CloudEurekaClient bean we will get a BeanCreationNotAllowedException
+		//because the CloudEurekaClient.shutdown method uses the ApplicationInfoManager
+		//By making this factory bean disposable we can make sure that the CloudEurekaClient is destroyed before the ApplicationInfoManager
+		//See gh-3174
+		static class EurekaClientFactory implements DisposableBean {
+			private ApplicationInfoManager applicationInfoManager;
+			private EurekaClient eurekaClient;
+
+			public EurekaClientFactory(EurekaClientConfig eurekaClientConfig, CloudEurekaInstanceConfig instanceConfig,
+									   AbstractDiscoveryClientOptionalArgs<?> optionalArgs, ApplicationContext context, HealthCheckHandler healthCheckHandler) {
+				applicationInfoManager = new ApplicationInfoManager(instanceConfig, new InstanceInfoFactory().create(instanceConfig));
+				eurekaClient  = new CloudEurekaClient(applicationInfoManager, eurekaClientConfig, optionalArgs, context);
+				eurekaClient.registerHealthCheck(healthCheckHandler);
+			}
+
+			public ApplicationInfoManager getApplicationInfoManager() {
+				return applicationInfoManager;
+			}
+
+			public EurekaClient getEurekaClient() {
+				getApplicationInfoManager().getInfo();  //force initialization
+				return eurekaClient;
+			}
+
+			@Override
+			public void destroy() throws Exception {
+				eurekaClient.shutdown();
+			}
 		}
 
 	}
