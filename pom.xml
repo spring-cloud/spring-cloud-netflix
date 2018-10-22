@@ -149,6 +149,7 @@
 		<module>spring-cloud-netflix-zuul</module>
 		<module>spring-cloud-netflix-ribbon</module>
 		<module>spring-cloud-starter-netflix</module>
+		<module>spring-cloud-netflix-hystrix</module>
 		<module>docs</module>
     </modules>
 	<profiles>
