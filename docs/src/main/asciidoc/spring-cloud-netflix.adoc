@@ -2035,15 +2035,15 @@ When Spring Retry is present, load-balanced `RestTemplates`, Feign, and Zuul aut
 
 === BackOff Policies
 By default, no backoff policy is used when retrying requests.
-If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedBackOffPolicyFactory`, which is used to create a `BackOffPolicy` for a given service, as shown in the following example:
+If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedRetryFactory` and override the `createBackOffPolicy` method for a given service, as shown in the following example:
 
 [source,java,indent=0]
 ----
 @Configuration
 public class MyConfiguration {
     @Bean
-    LoadBalancedBackOffPolicyFactory backOffPolicyFactory() {
-        return new LoadBalancedBackOffPolicyFactory() {
+    LoadBalancedRetryFactory retryFactory() {
+        return new LoadBalancedRetryFactory() {
             @Override
             public BackOffPolicy createBackOffPolicy(String service) {
                 return new ExponentialBackOffPolicy();
