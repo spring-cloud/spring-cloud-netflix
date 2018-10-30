@@ -140,6 +140,12 @@ public class RibbonCommandContext {
 		if (requestEntity == null) {
 			return null;
 		}
+		//If the route is not retryable there is no point in copying the RequestEntity.  This
+		//has memory implications in all cases but especially when uploading large files through
+		//Zuul
+		if(!retryable) {
+			return requestEntity;
+		}
 
 		try {
 			if (!(requestEntity instanceof ResettableServletInputStreamWrapper)) {
