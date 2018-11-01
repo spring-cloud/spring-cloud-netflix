@@ -52,11 +52,11 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 
 	public InstanceRegistry(EurekaServerConfig serverConfig,
 			EurekaClientConfig clientConfig, ServerCodecs serverCodecs,
-			EurekaClient eurekaClient, int expectedNumberOfRenewsPerMin,
+			EurekaClient eurekaClient, int expectedNumberOfClientsSendingRenews,
 			int defaultOpenForTrafficCount) {
 		super(serverConfig, clientConfig, serverCodecs, eurekaClient);
 
-		this.expectedNumberOfRenewsPerMin = expectedNumberOfRenewsPerMin;
+		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
 		this.defaultOpenForTrafficCount = defaultOpenForTrafficCount;
 	}
 

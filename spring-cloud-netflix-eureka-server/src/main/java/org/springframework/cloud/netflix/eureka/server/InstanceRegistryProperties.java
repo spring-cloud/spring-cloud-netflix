@@ -30,28 +30,28 @@ public class InstanceRegistryProperties {
 
 	public static final String PREFIX = "eureka.instance.registry";
 
-
-	/* Default number of expected renews per minute, defaults to 1.
-	 * Setting expectedNumberOfRenewsPerMin to non-zero to ensure that even an isolated
+	/* Default number of expected client, defaults to 1.
+	 * Setting expectedNumberOfClientsSendingRenews to non-zero to ensure that even an isolated
 	 * server can adjust its eviction policy to the number of registrations (when it's
 	 * zero, even a successful registration won't reset the rate threshold in
 	 * InstanceRegistry.register()).
 	 */
-	@Value("${eureka.server.expectedNumberOfRenewsPerMin:1}") // for backwards compatibility
-	private int expectedNumberOfRenewsPerMin = 1;
+	@Value("${eureka.server.expectedNumberOfClientsSendingRenews:1}") // for backwards compatibility
+	private int expectedNumberOfClientsSendingRenews = 1;
+
+	public int getExpectedNumberOfClientsSendingRenews() {
+		return expectedNumberOfClientsSendingRenews;
+	}
+
+	public void setExpectedNumberOfClientsSendingRenews(int expectedNumberOfClientsSendingRenews) {
+		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
+	}
 
 	/** Value used in determining when leases are cancelled, default to 1 for standalone.
 	 * Should be set to 0 for peer replicated eurekas */
 	@Value("${eureka.server.defaultOpenForTrafficCount:1}") // for backwards compatibility
 	private int defaultOpenForTrafficCount = 1;
 
-	public int getExpectedNumberOfRenewsPerMin() {
-		return expectedNumberOfRenewsPerMin;
-	}
-
-	public void setExpectedNumberOfRenewsPerMin(int expectedNumberOfRenewsPerMin) {
-		this.expectedNumberOfRenewsPerMin = expectedNumberOfRenewsPerMin;
-	}
 
 	public int getDefaultOpenForTrafficCount() {
 		return defaultOpenForTrafficCount;
