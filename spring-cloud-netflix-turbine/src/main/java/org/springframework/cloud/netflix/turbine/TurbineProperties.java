@@ -16,31 +16,35 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import com.netflix.config.DynamicPropertyFactory;
+import com.netflix.config.DynamicStringProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.StringUtils;
-
 /**
  * @author Spencer Gibb
  * @author Gregor Zurowski
+ * @author Huan Wei
  */
 @ConfigurationProperties("turbine")
 public class TurbineProperties {
 
 	private String clusterNameExpression;
 
-	private String appConfig;
+	private DynamicStringProperty appConfig;
 
 	private boolean combineHostPort = true;
 
 	public List<String> getAppConfigList() {
-		if (!StringUtils.hasText(this.appConfig)) {
+		this.appConfig = DynamicPropertyFactory.getInstance().getStringProperty("turbine.appConfig", "");
+		if (!StringUtils.hasText(this.appConfig.get())) {
 			return null;
 		}
-		String[] parts = StringUtils.commaDelimitedListToStringArray(this.appConfig);
+		String[] parts = StringUtils.commaDelimitedListToStringArray(this.appConfig.get());
 		if (parts != null && parts.length > 0) {
 			parts = StringUtils.trimArrayElements(parts);
 			return Arrays.asList(parts);
@@ -57,11 +61,11 @@ public class TurbineProperties {
 	}
 
 	public String getAppConfig() {
-		return appConfig;
+		return appConfig.get();
 	}
 
 	public void setAppConfig(String appConfig) {
-		this.appConfig = appConfig;
+		this.appConfig = DynamicPropertyFactory.getInstance().getStringProperty("turbine.appConfig", "");
 	}
 
 	public boolean isCombineHostPort() {
@@ -78,7 +82,7 @@ public class TurbineProperties {
 		if (o == null || getClass() != o.getClass()) return false;
 		TurbineProperties that = (TurbineProperties) o;
 		return Objects.equals(clusterNameExpression, that.clusterNameExpression) &&
-				Objects.equals(appConfig, that.appConfig) &&
+				Objects.equals(appConfig.get(), that.appConfig.get()) &&
 				Objects.equals(combineHostPort, that.combineHostPort);
 	}
 
