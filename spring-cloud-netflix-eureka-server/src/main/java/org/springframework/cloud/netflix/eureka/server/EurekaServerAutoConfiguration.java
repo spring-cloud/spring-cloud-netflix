@@ -164,7 +164,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 		this.eurekaClient.getApplications(); // force initialization
 		return new InstanceRegistry(this.eurekaServerConfig, this.eurekaClientConfig,
 				serverCodecs, this.eurekaClient,
-				this.instanceRegistryProperties.getExpectedNumberOfRenewsPerMin(),
+				this.instanceRegistryProperties.getExpectedNumberOfClientsSendingRenews(),
 				this.instanceRegistryProperties.getDefaultOpenForTrafficCount());
 	}
 

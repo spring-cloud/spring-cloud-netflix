@@ -190,6 +190,14 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 
 	private int minAvailableInstancesForPeerReplication = -1;
 
+	private int initialCapacityOfResponseCache = 1000;
+
+	private int expectedClientRenewalIntervalSeconds = 30;
+
+	private boolean useAwsAsgApi = true;
+
+	private String myUrl;
+
 	@Override
 	public boolean shouldEnableSelfPreservation() {
 		return this.enableSelfPreservation;
@@ -237,6 +245,15 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	}
 
 	@Override
+	public String getMyUrl() {
+		return this.myUrl;
+	}
+
+	public void setMyUrl(String myUrl) {
+		this.myUrl = myUrl;
+	}
+
+	@Override
 	public boolean shouldLogIdentityHeaders() {
 		return this.logIdentityHeaders;
 	}
@@ -269,6 +286,16 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 		}
 		return null;
 	}
+
+	@Override
+	public int getInitialCapacityOfResponseCache() {
+		return this.initialCapacityOfResponseCache;
+	}
+
+	public void setInitialCapacityOfResponseCache(int initialCapacityOfResponseCache) {
+		this.initialCapacityOfResponseCache = initialCapacityOfResponseCache;
+	}
+
 
 	@Override
 	public int getHealthStatusMinNumberOfAvailablePeers() {
@@ -344,6 +371,15 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	@Override
 	public int getRenewalThresholdUpdateIntervalMs() {
 		return renewalThresholdUpdateIntervalMs;
+	}
+
+	@Override
+	public int getExpectedClientRenewalIntervalSeconds() {
+		return this.expectedClientRenewalIntervalSeconds;
+	}
+
+	public void setExpectedClientRenewalIntervalSeconds(int expectedClientRenewalIntervalSeconds) {
+		this.expectedClientRenewalIntervalSeconds = expectedClientRenewalIntervalSeconds;
 	}
 
 	public void setRenewalThresholdUpdateIntervalMs(
@@ -455,6 +491,15 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 	@Override
 	public long getEvictionIntervalTimerInMs() {
 		return evictionIntervalTimerInMs;
+	}
+
+	@Override
+	public boolean shouldUseAwsAsgApi() {
+		return this.useAwsAsgApi;
+	}
+
+	public void setUseAwsAsgApi(boolean useAwsAsgApi) {
+		this.useAwsAsgApi = useAwsAsgApi;
 	}
 
 	public void setEvictionIntervalTimerInMs(long evictionIntervalTimerInMs) {
@@ -996,7 +1041,11 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 				syncWhenTimestampDiffers == that.syncWhenTimestampDiffers &&
 				useReadOnlyResponseCache == that.useReadOnlyResponseCache &&
 				waitTimeInMsWhenSyncEmpty == that.waitTimeInMsWhenSyncEmpty &&
-				Objects.equals(xmlCodecName, that.xmlCodecName);
+				Objects.equals(xmlCodecName, that.xmlCodecName) &&
+				initialCapacityOfResponseCache == that.initialCapacityOfResponseCache &&
+				expectedClientRenewalIntervalSeconds == that.expectedClientRenewalIntervalSeconds &&
+		        useAwsAsgApi == that.useAwsAsgApi &&
+				Objects.equals(myUrl, that.myUrl);
 	}
 
 	@Override
@@ -1037,7 +1086,9 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 						responseCacheUpdateIntervalMs, retentionTimeInMSInDeltaQueue,
 						route53BindRebindRetries, route53BindingRetryIntervalMs,
 						route53DomainTTL, syncWhenTimestampDiffers,
-						useReadOnlyResponseCache, waitTimeInMsWhenSyncEmpty, xmlCodecName);
+						useReadOnlyResponseCache, waitTimeInMsWhenSyncEmpty, xmlCodecName,
+				        initialCapacityOfResponseCache, expectedClientRenewalIntervalSeconds,
+				        useAwsAsgApi, myUrl);
 	}
 
 	@Override
@@ -1116,6 +1167,10 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 				.append("useReadOnlyResponseCache", this.useReadOnlyResponseCache)
 				.append("waitTimeInMsWhenSyncEmpty", this.waitTimeInMsWhenSyncEmpty)
 				.append("xmlCodecName", this.xmlCodecName)
+				.append("initialCapacityOfResponseCache", this.initialCapacityOfResponseCache)
+				.append("expectedClientRenewalIntervalSeconds", this.expectedClientRenewalIntervalSeconds)
+				.append("useAwsAsgApi", this.useAwsAsgApi)
+				.append("myUrl", this.myUrl)
 				.toString();
 	}
 
