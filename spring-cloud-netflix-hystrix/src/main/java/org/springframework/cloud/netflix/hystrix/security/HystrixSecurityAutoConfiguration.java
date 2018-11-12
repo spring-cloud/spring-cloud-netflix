@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.hystrix.security;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategyDefault;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -56,16 +57,31 @@ public class HystrixSecurityAutoConfiguration {
 				.getPropertiesStrategy();
 		HystrixCommandExecutionHook commandExecutionHook = HystrixPlugins.getInstance()
 				.getCommandExecutionHook();
+		HystrixConcurrencyStrategy concurrencyStrategy = getConcurrencyStrategy();
 
 		HystrixPlugins.reset();
 
 		// Registers existing plugins excepts the Concurrent Strategy plugin.
 		HystrixPlugins.getInstance().registerConcurrencyStrategy(
-				new SecurityContextConcurrencyStrategy(existingConcurrencyStrategy));
+				new SecurityContextConcurrencyStrategy(concurrencyStrategy));
 		HystrixPlugins.getInstance().registerEventNotifier(eventNotifier);
 		HystrixPlugins.getInstance().registerMetricsPublisher(metricsPublisher);
 		HystrixPlugins.getInstance().registerPropertiesStrategy(propertiesStrategy);
 		HystrixPlugins.getInstance().registerCommandExecutionHook(commandExecutionHook);
+	}
+
+	private HystrixConcurrencyStrategy getConcurrencyStrategy() {
+		HystrixConcurrencyStrategy registeredStrategy = HystrixPlugins.getInstance()
+				.getConcurrencyStrategy();
+		//Hystrix Registered a default Strategy.
+		//if registeredStrategy not the default and not some with existingConcurrencyStrategy throw a exception.
+		if (registeredStrategy != null
+				&& !registeredStrategy.equals(HystrixConcurrencyStrategyDefault.getInstance())
+				&& !registeredStrategy.equals(existingConcurrencyStrategy)) {
+			throw new IllegalStateException("Multiple HystrixConcurrencyStrategy detected.");
+		}
+		return existingConcurrencyStrategy != null
+				? existingConcurrencyStrategy : registeredStrategy;
 	}
 
 	static class HystrixSecurityCondition extends AllNestedConditions {
