@@ -73,15 +73,18 @@ public class HystrixSecurityAutoConfiguration {
 	private HystrixConcurrencyStrategy getConcurrencyStrategy() {
 		HystrixConcurrencyStrategy registeredStrategy = HystrixPlugins.getInstance()
 				.getConcurrencyStrategy();
-		//Hystrix Registered a default Strategy.
-		//if registeredStrategy not the default and not some with existingConcurrencyStrategy throw a exception.
-		if (registeredStrategy != null
-				&& !registeredStrategy.equals(HystrixConcurrencyStrategyDefault.getInstance())
-				&& !registeredStrategy.equals(existingConcurrencyStrategy)) {
+		if (existingConcurrencyStrategy == null) {
+			return registeredStrategy;
+		}
+		//Hystrix registered a default Strategy.
+		if (registeredStrategy instanceof HystrixConcurrencyStrategyDefault){
+			return existingConcurrencyStrategy;
+		}
+		//If registeredStrategy not the default and not some with existingConcurrencyStrategy throw a exception.
+		if (!existingConcurrencyStrategy.equals(registeredStrategy)){
 			throw new IllegalStateException("Multiple HystrixConcurrencyStrategy detected.");
 		}
-		return existingConcurrencyStrategy != null
-				? existingConcurrencyStrategy : registeredStrategy;
+		return existingConcurrencyStrategy;
 	}
 
 	static class HystrixSecurityCondition extends AllNestedConditions {
