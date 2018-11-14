@@ -20,12 +20,11 @@ package org.springframework.cloud.netflix.zuul;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -36,26 +35,40 @@ import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ZuulProxyApplicationTests.ZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"zuul.routes.simplezpat:/simplezpat/**", "logging.level.org.apache.http: DEBUG" })
+@SpringBootTest(
+		classes = ZuulProxyApplicationTests.ZuulProxyApplication.class,
+		webEnvironment = WebEnvironment.RANDOM_PORT,
+		properties = {
+				"zuul.routes.simplezpat:/simplezpat/**",
+				"logging.level.org.apache.http: DEBUG"
+		})
 @DirtiesContext
 public class ZuulProxyApplicationTests {
 
 	@LocalServerPort
 	private int port;
+
+	@Autowired
+	private TestRestTemplate testRestTemplate;
 
 	@Before
 	public void setTestRequestcontext() {
@@ -70,20 +83,56 @@ public class ZuulProxyApplicationTests {
 
 	@Test
 	public void getHasCorrectTransferEncoding() {
-		ResponseEntity<String> result = new TestRestTemplate().getForEntity(
-				"http://localhost:" + this.port + "/simplezpat/transferencoding",
-				String.class);
+		ResponseEntity<String> result = testRestTemplate.getForEntity(url(), String.class);
+
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
 	}
 
 	@Test
 	public void postHasCorrectTransferEncoding() {
-		ResponseEntity<String> result = new TestRestTemplate().postForEntity(
-				"http://localhost:" + this.port + "/simplezpat/transferencoding",
-				new HttpEntity<>("hello"), String.class);
+		ResponseEntity<String> result = testRestTemplate.postForEntity(url(), new HttpEntity<>("hello"), String.class);
+
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
+	}
+
+	@Test
+	public void preflightRequestSucceedsForGetRequest() {
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		headers.put("Origin", singletonList("http://hello.com"));
+		headers.put("Access-Control-Request-Method", singletonList("GET"));
+		ResponseEntity<Void> result = testRestTemplate.exchange(url(), HttpMethod.OPTIONS,
+				new HttpEntity<>(headers), Void.class);
+
+		assertEquals(HttpStatus.OK, result.getStatusCode());
+	}
+
+	@Test
+	public void preflightRequestIsForbiddenForUnsupportedMethod() {
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		headers.put("Origin", singletonList("http://hello.com"));
+		headers.put("Access-Control-Request-Method", singletonList("PUT"));
+		ResponseEntity<Void> result = testRestTemplate.exchange(url(), HttpMethod.OPTIONS,
+				new HttpEntity<>(headers), Void.class);
+
+		assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+	}
+
+	@Test
+	public void preflightRequestIsForbiddenForUnsupportedorigin() {
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		headers.put("Origin", singletonList("http://unknown-origin.com"));
+		headers.put("Access-Control-Request-Method", singletonList("GET"));
+		ResponseEntity<Void> result = testRestTemplate.exchange(url(), HttpMethod.OPTIONS,
+				new HttpEntity<>(headers), Void.class);
+
+		assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
+	}
+
+
+	private String url() {
+		return "http://localhost:" + this.port + "/simplezpat/transferencoding";
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -111,6 +160,18 @@ public class ZuulProxyApplicationTests {
 				return "missing";
 			}
 			return transferEncoding;
+		}
+
+		@Bean
+		public WebMvcConfigurer corsConfigurer() {
+			return new WebMvcConfigurer() {
+				public void addCorsMappings(CorsRegistry registry) {
+					registry.addMapping("/simplezpat/**")
+							.allowedOrigins("http://hello.com")
+							.allowedMethods("GET", "POST")
+							.allowedHeaders("Authorization");
+				}
+			};
 		}
 
 	}
