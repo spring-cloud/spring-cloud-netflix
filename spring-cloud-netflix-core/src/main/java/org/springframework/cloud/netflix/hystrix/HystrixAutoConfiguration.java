@@ -118,18 +118,4 @@ public class HystrixAutoConfiguration {
 			return HasFeatures.namedFeature("Hystrix Stream Webflux", HystrixWebfluxEndpoint.class);
 		}
 	}
-
-	@Configuration
-	protected static class HystrixCircuitBreakerConfiguration {
-		@Bean
-		@ConditionalOnMissingBean(HystrixCircuitBreakerConfigFactory.class)
-		public HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory() {
-			return new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
-		}
-
-		@Bean
-		public CircuitBreakerBuilder hystrixCircuitBreakerBuilder(HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory) {
-			return new HystrixCircuitBreakerBuilder(hystrixCircuitBreakerConfigFactory);
-		}
-	}
 }
