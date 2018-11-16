@@ -30,15 +30,10 @@ import com.netflix.hystrix.Hystrix;
 @Configuration
 @ConditionalOnClass({ Hystrix.class })
 public class HystrixCircuitBreakerAutoConfiguration {
-	@Bean
-	@ConditionalOnMissingBean(HystrixCircuitBreakerConfigFactory.class)
-	public HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory() {
-		return new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
-	}
 
 	@Bean
 	@ConditionalOnMissingBean(CircuitBreakerBuilder.class)
-	public CircuitBreakerBuilder hystrixCircuitBreakerBuilder(HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory) {
-		return new HystrixCircuitBreakerBuilder(hystrixCircuitBreakerConfigFactory);
+	public CircuitBreakerBuilder hystrixCircuitBreakerBuilder() {
+		return new HystrixCircuitBreakerBuilder();
 	}
 }

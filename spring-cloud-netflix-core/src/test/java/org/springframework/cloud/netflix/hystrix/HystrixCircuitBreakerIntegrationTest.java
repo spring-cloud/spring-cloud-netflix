@@ -59,20 +59,10 @@ public class HystrixCircuitBreakerIntegrationTest {
 			return "normal";
 		}
 
-		@Bean
-		public HystrixCircuitBreakerConfigFactory configFactory() {
-			return new HystrixCircuitBreakerConfigFactory() {
-				@Override
-				public HystrixCommandProperties.Setter get(String id) {
-					return HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(1000);
-				}
-			};
-		}
-
 		@Service
 		public static class DemoControllerService {
 			private TestRestTemplate rest;
-			private CircuitBreakerBuilder cbBuilder;
+			private CircuitBreakerBuilder<HystrixCircuitBreakerConfigFactory> cbBuilder;
 
 			public DemoControllerService(TestRestTemplate rest, CircuitBreakerBuilder cbBuilder) {
 				this.rest = rest;
@@ -80,7 +70,12 @@ public class HystrixCircuitBreakerIntegrationTest {
 			}
 
 			public String slow() {
-				return cbBuilder.id("slow").build().run(() -> rest.getForObject("/slow", String.class), t -> "fallback");
+				return cbBuilder.id("slow").configFactory( new HystrixCircuitBreakerConfigFactory() {
+					@Override
+					public HystrixCommandProperties.Setter get(String id) {
+						return HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(1000);
+					}
+				}).build().run(() -> rest.getForObject("/slow", String.class), t -> "fallback");
 			}
 
 			public String normal() {

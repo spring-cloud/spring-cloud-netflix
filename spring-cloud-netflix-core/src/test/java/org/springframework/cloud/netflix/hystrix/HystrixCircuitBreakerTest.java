@@ -30,7 +30,7 @@ public class HystrixCircuitBreakerTest {
 	@Test
 	public void run() {
 		HystrixCircuitBreakerConfigFactory configFactory = new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
-		CircuitBreaker cb = new HystrixCircuitBreakerBuilder(configFactory).id("foo").build();
+		CircuitBreaker cb = new HystrixCircuitBreakerBuilder().configFactory(configFactory).id("foo").build();
 		String s = cb.run(() -> "foobar", t -> "fallback");
 		assertEquals("foobar", cb.run(() -> "foobar", t -> "fallback"));
 	}
@@ -38,7 +38,7 @@ public class HystrixCircuitBreakerTest {
 	@Test
 	public void fallback() {
 		HystrixCircuitBreakerConfigFactory configFactory = new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
-		CircuitBreaker cb = new HystrixCircuitBreakerBuilder(configFactory).id("foo").build();
+		CircuitBreaker cb = new HystrixCircuitBreakerBuilder().configFactory(configFactory).id("foo").build();
 		assertEquals("fallback", cb.run(() -> {
 			throw new RuntimeException("Boom");
 		}, t -> "fallback"));
