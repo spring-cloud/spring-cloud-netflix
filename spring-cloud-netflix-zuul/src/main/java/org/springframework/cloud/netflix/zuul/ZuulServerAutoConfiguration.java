@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -58,6 +59,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
@@ -67,6 +71,8 @@ import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
 
 import io.micrometer.core.instrument.MeterRegistry;
+
+import static java.util.Collections.emptyList;
 
 /**
  * @author Spencer Gibb
@@ -89,6 +95,11 @@ public class ZuulServerAutoConfiguration {
 
 	@Autowired(required = false)
 	private ErrorController errorController;
+
+	private Map<String, CorsConfiguration> corsConfigurations;
+
+	@Autowired(required = false)
+	private List<WebMvcConfigurer> configurers = emptyList();
 
 	@Bean
 	public HasFeatures zuulFeature() {
@@ -118,7 +129,18 @@ public class ZuulServerAutoConfiguration {
 	public ZuulHandlerMapping zuulHandlerMapping(RouteLocator routes) {
 		ZuulHandlerMapping mapping = new ZuulHandlerMapping(routes, zuulController());
 		mapping.setErrorController(this.errorController);
+		mapping.setCorsConfigurations(getCorsConfigurations());
 		return mapping;
+	}
+
+	protected final Map<String, CorsConfiguration> getCorsConfigurations() {
+		if (this.corsConfigurations == null) {
+			ZuulCorsRegistry registry = new ZuulCorsRegistry();
+			this.configurers
+					.forEach(configurer -> configurer.addCorsMappings(registry));
+			this.corsConfigurations = registry.getCorsConfigurations();
+		}
+		return this.corsConfigurations;
 	}
 
 	@Bean
@@ -262,6 +284,14 @@ public class ZuulServerAutoConfiguration {
 
 		private void reset() {
 			this.zuulHandlerMapping.setDirty(true);
+		}
+	}
+
+	private static class ZuulCorsRegistry extends CorsRegistry {
+
+		@Override
+		protected Map<String, CorsConfiguration> getCorsConfigurations() {
+			return super.getCorsConfigurations();
 		}
 	}
 }
