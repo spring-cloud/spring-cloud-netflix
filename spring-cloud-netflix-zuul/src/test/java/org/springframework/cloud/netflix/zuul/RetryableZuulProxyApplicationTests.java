@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,10 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -106,6 +108,7 @@ public class RetryableZuulProxyApplicationTests {
 @RestController
 @EnableZuulProxy
 @RibbonClient(name = "simplerzpat", configuration = RetryableRibbonClientConfiguration.class)
+@Import(NoSecurityConfiguration.class)
 class RetryableZuulProxyApplication {
 
 	@RequestMapping(value = "/poster", method = RequestMethod.POST)

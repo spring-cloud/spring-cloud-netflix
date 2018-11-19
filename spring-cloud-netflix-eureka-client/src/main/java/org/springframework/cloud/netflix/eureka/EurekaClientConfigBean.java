@@ -22,15 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.util.StringUtils;
-
 import com.netflix.appinfo.EurekaAccept;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.discovery.shared.transport.EurekaTransportConfig;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.core.Ordered;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.util.StringUtils;
 
 import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_PREFIX;
 
@@ -39,7 +40,7 @@ import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_P
  * @author Gregor Zurowski
  */
 @ConfigurationProperties(EurekaClientConfigBean.PREFIX)
-public class EurekaClientConfigBean implements EurekaClientConfig {
+public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 
 	public static final String PREFIX = "eureka.client";
 
@@ -393,6 +394,11 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	 * Indicates whether the client should enforce registration during initialization. Defaults to false.
 	 */
 	private boolean shouldEnforceRegistrationAtInit = false;
+
+	/**
+	 * Order of the discovery client used by `CompositeDiscoveryClient` for sorting available clients.
+	 */
+	private int order = 0;
 
 	@Override
 	public boolean shouldGZipContent() {
@@ -914,6 +920,15 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 	}
 
 	@Override
+	public int getOrder() {
+		return order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
@@ -963,7 +978,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				Objects.equals(escapeCharReplacement, that.escapeCharReplacement) &&
 				Objects.equals(encoderName, that.encoderName) &&
 				Objects.equals(decoderName, that.decoderName) &&
-				Objects.equals(clientDataAccept, that.clientDataAccept);
+				Objects.equals(clientDataAccept, that.clientDataAccept) &&
+				Objects.equals(order, that.order);
 	}
 
 	@Override
@@ -985,7 +1001,7 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				filterOnlyUpInstances, fetchRegistry, dollarReplacement,
 				escapeCharReplacement, allowRedirects, onDemandUpdateStatusChange,
 				encoderName, decoderName, clientDataAccept, shouldUnregisterOnShutdown,
-				shouldEnforceRegistrationAtInit);
+				shouldEnforceRegistrationAtInit, order);
 	}
 
 	@Override
@@ -1034,10 +1050,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig {
 				.append("onDemandUpdateStatusChange=").append(onDemandUpdateStatusChange).append(", ")
 				.append("encoderName='").append(encoderName).append("', ")
 				.append("decoderName='").append(decoderName).append("', ")
-				.append("clientDataAccept='").append(clientDataAccept).append("'").append("}")
-				.append("=shouldUnregisterOnShutdown'").append(shouldUnregisterOnShutdown).append("'").append("}")
-				.append("shouldEnforceRegistrationAtInit='").append(shouldEnforceRegistrationAtInit).append("'").append("}")
+				.append("clientDataAccept='").append(clientDataAccept).append("', ")
+				.append("shouldUnregisterOnShutdown='").append(shouldUnregisterOnShutdown).append("', ")
+				.append("shouldEnforceRegistrationAtInit='").append(shouldEnforceRegistrationAtInit).append("', ")
+				.append("order='").append(order).append("'}")
 				.toString();
 	}
-
 }

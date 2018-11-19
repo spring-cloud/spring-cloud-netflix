@@ -87,7 +87,8 @@ public class HystrixWebfluxEndpointTests {
 	@EnableCircuitBreaker
 	@EnableAutoConfiguration(exclude = TestAutoConfiguration.class,
 			excludeName = {"org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration",
-			"org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration"})
+			"org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration",
+			"org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration"})
 	@SpringBootConfiguration
 	protected static class Config {
 		@HystrixCommand

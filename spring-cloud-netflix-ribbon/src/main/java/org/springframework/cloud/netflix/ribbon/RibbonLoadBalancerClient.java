@@ -73,7 +73,14 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-		Server server = getServer(serviceId);
+	    return choose(serviceId, null);
+	}
+
+	/**
+	 * New: Select a server using a 'key'.
+	 */
+	public ServiceInstance choose(String serviceId, Object hint) {
+		Server server = getServer(getLoadBalancer(serviceId), hint);
 		if (server == null) {
 			return null;
 		}
@@ -83,8 +90,17 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException {
+	    return execute(serviceId, request, null);
+	}
+
+	/**
+	 * New: Execute a request by selecting server using a 'key'.
+	 * The hint will have to be the last parameter to not mess with the `execute(serviceId, ServiceInstance, request)`
+	 * method. This somewhat breaks the fluent coding style when using a lambda to define the LoadBalancerRequest.
+	 */
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint) throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
-		Server server = getServer(loadBalancer);
+		Server server = getServer(loadBalancer, hint);
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
 		}
@@ -140,15 +156,23 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		return RibbonUtils.isSecure(config, serverIntrospector, server);
 	}
 
+	/**
+	 * Note: This method could be removed?
+	 */
 	protected Server getServer(String serviceId) {
-		return getServer(getLoadBalancer(serviceId));
+		return getServer(getLoadBalancer(serviceId), null);
 	}
 
 	protected Server getServer(ILoadBalancer loadBalancer) {
+	    return getServer(loadBalancer, null);
+	}
+
+	protected Server getServer(ILoadBalancer loadBalancer, Object hint) {
 		if (loadBalancer == null) {
 			return null;
 		}
-		return loadBalancer.chooseServer("default"); // TODO: better handling of key
+		// Use 'default' on a null hint, or just pass it on?
+		return loadBalancer.chooseServer(hint != null ? hint : "default");
 	}
 
 	protected ILoadBalancer getLoadBalancer(String serviceId) {
@@ -162,7 +186,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		private Map<String, String> metadata;
 
 		public RibbonServer(String serviceId, Server server) {
-			this(serviceId, server, false, Collections.<String, String> emptyMap());
+			this(serviceId, server, false, Collections.emptyMap());
 		}
 
 		public RibbonServer(String serviceId, Server server, boolean secure,

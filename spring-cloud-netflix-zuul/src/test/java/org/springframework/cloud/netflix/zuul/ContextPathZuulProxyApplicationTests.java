@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
+import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -46,7 +48,7 @@ import com.netflix.zuul.context.RequestContext;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ContextPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = ContextPathZuulProxyApplicationTests.ContextPathZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"server.servlet.contextPath: /app" })
 @DirtiesContext
 public class ContextPathZuulProxyApplicationTests {
@@ -98,18 +100,19 @@ public class ContextPathZuulProxyApplicationTests {
 		assertEquals("Gotten strip!", result.getBody());
 	}
 
-}
 
-// Don't use @SpringBootApplication because we don't want to component scan
-@Configuration
-@EnableAutoConfiguration
-@RestController
-@EnableZuulProxy
-class ContextPathZuulProxyApplication {
+	// Don't use @SpringBootApplication because we don't want to component scan
+	@Configuration
+	@EnableAutoConfiguration
+	@RestController
+	@EnableZuulProxy
+	@Import(NoSecurityConfiguration.class)
+	static class ContextPathZuulProxyApplication {
 
-	@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
-	public String get(@PathVariable String id) {
-		return "Gotten " + id + "!";
+		@RequestMapping(value = "/local/{id}", method = RequestMethod.GET)
+		public String get(@PathVariable String id) {
+			return "Gotten " + id + "!";
+		}
+
 	}
-
 }
