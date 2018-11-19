@@ -19,7 +19,7 @@ package org.springframework.cloud.netflix.hystrix;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerBuilder;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.netflix.hystrix.Hystrix;
@@ -32,8 +32,14 @@ import com.netflix.hystrix.Hystrix;
 public class HystrixCircuitBreakerAutoConfiguration {
 
 	@Bean
-	@ConditionalOnMissingBean(CircuitBreakerBuilder.class)
-	public CircuitBreakerBuilder hystrixCircuitBreakerBuilder() {
-		return new HystrixCircuitBreakerBuilder();
+	@ConditionalOnMissingBean(CircuitBreakerFactory.class)
+	public CircuitBreakerFactory hystrixCircuitBreakerFactory(HystrixCircuitBreakerConfigFactory configFactory) {
+		return new HystrixCircuitBreakerFactory(configFactory);
+	}
+
+	@Bean
+	@ConditionalOnMissingBean(HystrixCircuitBreakerConfigFactory.class)
+	public HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory() {
+		return new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
 	}
 }

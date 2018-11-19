@@ -22,13 +22,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerBuilder;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.cloud.netflix.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.HystrixCommandProperties;
@@ -47,8 +50,9 @@ public class HystrixCircuitBreakerIntegrationTest {
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
+	@Import(NoSecurityConfiguration.class)
 	protected static class Application {
-		@GetMapping("/slow")
+		@RequestMapping("/slow")
 		public String slow() throws InterruptedException {
 			Thread.sleep(3000);
 			return "slow";
@@ -59,27 +63,27 @@ public class HystrixCircuitBreakerIntegrationTest {
 			return "normal";
 		}
 
+		@Bean
+		public HystrixCircuitBreakerConfigFactory configFactory() {
+			return id -> HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(1000);
+		}
+
 		@Service
 		public static class DemoControllerService {
 			private TestRestTemplate rest;
-			private CircuitBreakerBuilder<HystrixCircuitBreakerConfigFactory> cbBuilder;
+			private CircuitBreakerFactory cbFactory;
 
-			public DemoControllerService(TestRestTemplate rest, CircuitBreakerBuilder cbBuilder) {
+			public DemoControllerService(TestRestTemplate rest, CircuitBreakerFactory cbBuilder) {
 				this.rest = rest;
-				this.cbBuilder = cbBuilder;
+				this.cbFactory = cbBuilder;
 			}
 
 			public String slow() {
-				return cbBuilder.id("slow").configFactory( new HystrixCircuitBreakerConfigFactory() {
-					@Override
-					public HystrixCommandProperties.Setter get(String id) {
-						return HystrixCommandProperties.Setter().withExecutionTimeoutInMilliseconds(1000);
-					}
-				}).build().run(() -> rest.getForObject("/slow", String.class), t -> "fallback");
+				return cbFactory.create("slow").run(() -> rest.getForObject("/slow", String.class), t -> "fallback");
 			}
 
 			public String normal() {
-				return cbBuilder.id("normal").build().run(() -> rest.getForObject("/normal", String.class), t -> "fallback");
+				return cbFactory.create("normal").run(() -> rest.getForObject("/normal", String.class), t -> "fallback");
 			}
 		}
 	}

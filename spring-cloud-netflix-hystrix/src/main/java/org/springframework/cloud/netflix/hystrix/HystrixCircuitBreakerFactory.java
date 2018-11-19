@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.netflix.hystrix;
 
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerBuilder;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -24,29 +24,16 @@ import org.springframework.util.Assert;
  *
  * @author Ryan Baxter
  */
-public class HystrixCircuitBreakerBuilder implements CircuitBreakerBuilder<HystrixCircuitBreakerConfigFactory> {
+public class HystrixCircuitBreakerFactory implements CircuitBreakerFactory {
 
-	private String id;
 	private HystrixCircuitBreakerConfigFactory configFactory;
 
-	public HystrixCircuitBreakerBuilder() {
-		this.configFactory = new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
+	public HystrixCircuitBreakerFactory(HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory) {
+		this.configFactory = hystrixCircuitBreakerConfigFactory;
 	}
 
 	@Override
-	public HystrixCircuitBreakerBuilder id(String id) {
-		this.id = id;
-		return this;
-	}
-
-	@Override
-	public CircuitBreakerBuilder configFactory(HystrixCircuitBreakerConfigFactory configFactory) {
-		this.configFactory = configFactory;
-		return this;
-	}
-
-	@Override
-	public HystrixCircuitBreaker build() {
+	public HystrixCircuitBreaker create(String id) {
 		Assert.hasText(id, "A CircuitBreaker must have an id.");
 		return new HystrixCircuitBreaker(id, configFactory.get(id));
 	}
