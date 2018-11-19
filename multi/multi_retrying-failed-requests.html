@@ -6,11 +6,11 @@ No matter how you choose to create your HTTP requests, there is always a chance 
 When a request fails, you may want to have the request be retried automatically.
 To do so when using Sping Cloud Netflix, you need to include <a class="link" href="https://github.com/spring-projects/spring-retry" target="_top">Spring Retry</a> on your application&#8217;s classpath.
 When Spring Retry is present, load-balanced <code class="literal">RestTemplates</code>, Feign, and Zuul automatically retry any failed requests (assuming your configuration allows doing so).</p><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="_backoff_policies" href="#_backoff_policies"></a>10.1&nbsp;BackOff Policies</h2></div></div></div><p>By default, no backoff policy is used when retrying requests.
-If you would like to configure a backoff policy, you need to create a bean of type <code class="literal">LoadBalancedBackOffPolicyFactory</code>, which is used to create a <code class="literal">BackOffPolicy</code> for a given service, as shown in the following example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
+If you would like to configure a backoff policy, you need to create a bean of type <code class="literal">LoadBalancedRetryFactory</code> and override the <code class="literal">createBackOffPolicy</code> method for a given service, as shown in the following example:</p><pre class="programlisting"><em><span class="hl-annotation" style="color: gray">@Configuration</span></em>
 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">class</span> MyConfiguration {
     <em><span class="hl-annotation" style="color: gray">@Bean</span></em>
-    LoadBalancedBackOffPolicyFactory backOffPolicyFactory() {
-        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> LoadBalancedBackOffPolicyFactory() {
+    LoadBalancedRetryFactory retryFactory() {
+        <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> LoadBalancedRetryFactory() {
             <em><span class="hl-annotation" style="color: gray">@Override</span></em>
             <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">public</span> BackOffPolicy createBackOffPolicy(String service) {
                 <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">return</span> <span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">new</span> ExponentialBackOffPolicy();

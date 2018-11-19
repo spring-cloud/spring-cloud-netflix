@@ -1614,6 +1614,23 @@ public class ZuulConfig {
 <simpara>Use this filter carefully. The filter acts on the <literal>Location</literal> header of ALL <literal>3XX</literal> response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.</simpara>
 </caution>
 </section>
+<section xml:id="_enabling_cross_origin_requests">
+<title>Enabling Cross Origin Requests</title>
+<simpara>By default Zuul routes all Cross Origin requests (CORS) to the services. If you want instead Zuul to handle these requests it can be done by providing custom <literal>WebMvcConfigurer</literal> bean:</simpara>
+<programlisting language="java" linenumbering="unnumbered">@Bean
+public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/path-1/**")
+                    .allowedOrigins("http://allowed-origin.com")
+                    .allowedMethods("GET", "POST");
+        }
+    };
+}</programlisting>
+<simpara>In the example above, we allow <literal>GET</literal> and <literal>POST</literal> methods from <literal><link xl:href="http://allowed-origin.com">http://allowed-origin.com</link></literal> to send cross-origin requests to the endpoints starting with <literal>path-1</literal>.
+You can apply CORS configuration to a specific path pattern or globally for the whole application, using <literal>/**</literal> mapping.
+You can customize properties: <literal>allowedOrigins</literal>,<literal>allowedMethods</literal>,<literal>allowedHeaders</literal>,<literal>exposedHeaders</literal>,<literal>allowCredentials</literal> and <literal>maxAge</literal> via this configuration.</simpara>
+</section>
 <section xml:id="_metrics">
 <title>Metrics</title>
 <simpara>Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
@@ -1994,6 +2011,7 @@ might result in a YAML document resembling the following:</simpara>
 info:
   description: Spring Cloud Samples
   url: https://github.com/spring-cloud-samples</programlisting>
+<simpara>To enable the health check request to accept all certificates when using HTTPs set <literal>sidecar.accept-all-ssl-certificates</literal> to `true.</simpara>
 </chapter>
 <chapter xml:id="retrying-failed-requests">
 <title>Retrying Failed Requests</title>
@@ -2006,12 +2024,12 @@ When Spring Retry is present, load-balanced <literal>RestTemplates</literal>, Fe
 <section xml:id="_backoff_policies">
 <title>BackOff Policies</title>
 <simpara>By default, no backoff policy is used when retrying requests.
-If you would like to configure a backoff policy, you need to create a bean of type <literal>LoadBalancedBackOffPolicyFactory</literal>, which is used to create a <literal>BackOffPolicy</literal> for a given service, as shown in the following example:</simpara>
+If you would like to configure a backoff policy, you need to create a bean of type <literal>LoadBalancedRetryFactory</literal> and override the <literal>createBackOffPolicy</literal> method for a given service, as shown in the following example:</simpara>
 <programlisting language="java" linenumbering="unnumbered">@Configuration
 public class MyConfiguration {
     @Bean
-    LoadBalancedBackOffPolicyFactory backOffPolicyFactory() {
-        return new LoadBalancedBackOffPolicyFactory() {
+    LoadBalancedRetryFactory retryFactory() {
+        return new LoadBalancedRetryFactory() {
             @Override
             public BackOffPolicy createBackOffPolicy(String service) {
                 return new ExponentialBackOffPolicy();
