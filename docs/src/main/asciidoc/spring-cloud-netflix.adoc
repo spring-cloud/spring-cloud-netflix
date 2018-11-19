@@ -1661,6 +1661,26 @@ public class ZuulConfig {
 
 CAUTION: Use this filter carefully. The filter acts on the `Location` header of ALL `3XX` response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.
 
+=== Enabling Cross Origin Requests
+
+By default Zuul routes all Cross Origin requests (CORS) to the services. If you want instead Zuul to handle these requests it can be done by providing custom `WebMvcConfigurer` bean:
+[source,java]
+----
+@Bean
+public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/path-1/**")
+                    .allowedOrigins("http://allowed-origin.com")
+                    .allowedMethods("GET", "POST");
+        }
+    };
+}
+----
+In the example above, we allow `GET` and `POST` methods from `http://allowed-origin.com` to send cross-origin requests to the endpoints starting with `path-1`.
+You can apply CORS configuration to a specific path pattern or globally for the whole application, using `/**` mapping.
+You can customize properties: `allowedOrigins`,`allowedMethods`,`allowedHeaders`,`exposedHeaders`,`allowCredentials` and `maxAge` via this configuration.
+
 === Metrics
 
 Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
@@ -2021,6 +2041,8 @@ info:
   url: https://github.com/spring-cloud-samples
 ----
 
+To enable the health check request to accept all certificates when using HTTPs set `sidecar.accept-all-ssl-certificates` to `true.
+
 [[retrying-failed-requests]]
 == Retrying Failed Requests
 
@@ -2033,15 +2055,15 @@ When Spring Retry is present, load-balanced `RestTemplates`, Feign, and Zuul aut
 
 === BackOff Policies
 By default, no backoff policy is used when retrying requests.
-If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedBackOffPolicyFactory`, which is used to create a `BackOffPolicy` for a given service, as shown in the following example:
+If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedRetryFactory` and override the `createBackOffPolicy` method for a given service, as shown in the following example:
 
 [source,java,indent=0]
 ----
 @Configuration
 public class MyConfiguration {
     @Bean
-    LoadBalancedBackOffPolicyFactory backOffPolicyFactory() {
-        return new LoadBalancedBackOffPolicyFactory() {
+    LoadBalancedRetryFactory retryFactory() {
+        return new LoadBalancedRetryFactory() {
             @Override
             public BackOffPolicy createBackOffPolicy(String service) {
                 return new ExponentialBackOffPolicy();

@@ -39,7 +39,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		maybeInitializeClient(reg);
 
 		if (log.isInfoEnabled()) {
-			log.info("Registering application " + reg.getInstanceConfig().getAppname()
+			log.info("Registering application " + reg.getApplicationInfoManager().getInfo().getAppName()
 					+ " with eureka with status "
 					+ reg.getInstanceConfig().getInitialStatus());
 		}
@@ -62,7 +62,7 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 		if (reg.getApplicationInfoManager().getInfo() != null) {
 
 			if (log.isInfoEnabled()) {
-				log.info("Unregistering application " + reg.getInstanceConfig().getAppname()
+				log.info("Unregistering application " + reg.getApplicationInfoManager().getInfo().getAppName()
 						+ " with eureka with status DOWN");
 			}
 
@@ -91,8 +91,8 @@ public class EurekaServiceRegistry implements ServiceRegistry<EurekaRegistration
 
 	@Override
 	public Object getStatus(EurekaRegistration registration) {
-		String appname = registration.getInstanceConfig().getAppname();
-		String instanceId = registration.getInstanceConfig().getInstanceId();
+		String appname = registration.getApplicationInfoManager().getInfo().getAppName();
+		String instanceId = registration.getApplicationInfoManager().getInfo().getId();
 		InstanceInfo info = registration.getEurekaClient().getInstanceInfo(appname, instanceId);
 
 		HashMap<String, Object> status = new HashMap<>();

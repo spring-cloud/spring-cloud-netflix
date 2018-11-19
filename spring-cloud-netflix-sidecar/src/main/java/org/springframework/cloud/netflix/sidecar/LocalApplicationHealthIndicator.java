@@ -16,21 +16,25 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
-import java.net.URI;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.util.Map;
+
 /**
  * @author Spencer Gibb
+ * @author Fabrizio Di Napoli
  */
 public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 
 	@Autowired
 	private SidecarProperties properties;
+
+	@Autowired
+	private RestTemplate restTemplate;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -40,12 +44,13 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 			builder.up();
 			return;
 		}
-		Map<String, Object> map = new RestTemplate().getForObject(uri, Map.class);
+
+		Map<String, Object> map = restTemplate.getForObject(uri, Map.class);
 		Object status = map.get("status");
-		if (status != null && status instanceof String) {
+		if (status instanceof String) {
 			builder.status(status.toString());
 		}
-		else if (status != null && status instanceof Map) {
+		else if (status instanceof Map) {
 			Map<String, Object> statusMap = (Map<String, Object>) status;
 			Object code = statusMap.get("code");
 			if (code != null) {
@@ -63,5 +68,4 @@ public class LocalApplicationHealthIndicator extends AbstractHealthIndicator {
 	private Health.Builder getWarning(Health.Builder builder) {
 		return builder.unknown().withDetail("warning", "no status field in response");
 	}
-
 }
