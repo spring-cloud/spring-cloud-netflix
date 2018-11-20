@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.server;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 
 import static org.springframework.cloud.netflix.eureka.server.InstanceRegistryProperties.PREFIX;
 
@@ -36,8 +37,13 @@ public class InstanceRegistryProperties {
 	 * zero, even a successful registration won't reset the rate threshold in
 	 * InstanceRegistry.register()).
 	 */
-	@Value("${eureka.server.expectedNumberOfClientsSendingRenews:1}") // for backwards compatibility
+	@Value("${eureka.server.expectedNumberOfRenewsPerMin:1}") // for backwards compatibility
 	private int expectedNumberOfClientsSendingRenews = 1;
+
+	/** Value used in determining when leases are cancelled, default to 1 for standalone.
+	 * Should be set to 0 for peer replicated eurekas */
+	@Value("${eureka.server.defaultOpenForTrafficCount:1}") // for backwards compatibility
+	private int defaultOpenForTrafficCount = 1;
 
 	public int getExpectedNumberOfClientsSendingRenews() {
 		return expectedNumberOfClientsSendingRenews;
@@ -47,11 +53,16 @@ public class InstanceRegistryProperties {
 		this.expectedNumberOfClientsSendingRenews = expectedNumberOfClientsSendingRenews;
 	}
 
-	/** Value used in determining when leases are cancelled, default to 1 for standalone.
-	 * Should be set to 0 for peer replicated eurekas */
-	@Value("${eureka.server.defaultOpenForTrafficCount:1}") // for backwards compatibility
-	private int defaultOpenForTrafficCount = 1;
+	@DeprecatedConfigurationProperty(replacement = PREFIX+".expected-number-of-clients-sending-renews")
+	@Deprecated
+	public int getExpectedNumberOfRenewsPerMin() {
+		return getExpectedNumberOfClientsSendingRenews();
+	}
 
+	@Deprecated
+	public void setExpectedNumberOfRenewsPerMin(int expectedNumberOfRenewsPerMin) {
+		setExpectedNumberOfClientsSendingRenews(expectedNumberOfRenewsPerMin);
+	}
 
 	public int getDefaultOpenForTrafficCount() {
 		return defaultOpenForTrafficCount;
