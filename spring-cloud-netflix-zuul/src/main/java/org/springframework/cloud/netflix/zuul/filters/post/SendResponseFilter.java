@@ -136,15 +136,7 @@ public class SendResponseFilter extends ZuulFilter {
 			else {
 				is = context.getResponseDataStream();
 				if (is!=null && context.getResponseGZipped()) {
-					// if origin response is gzipped, and client has not requested gzip,
-					// decompress stream before sending to client
-					// else, stream gzip directly to client
-					if (isGzipRequested(context)) {
-						servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
-					}
-					else {
-						is = handleGzipStream(is);
-					}
+					servletResponse.setHeader(ZuulHeaders.CONTENT_ENCODING, "gzip");
 				}
 			}
 			
@@ -186,46 +178,6 @@ public class SendResponseFilter extends ZuulFilter {
 		}
 	}
 
-	
-	protected InputStream handleGzipStream(InputStream in) throws Exception {
-		// Record bytes read during GZip initialization to allow to rewind the stream if needed
-		//
-		RecordingInputStream stream = new RecordingInputStream(in);
-		try {
-			return new GZIPInputStream(stream);
-		}
-		catch (java.util.zip.ZipException | java.io.EOFException ex) {
-			
-			if (stream.getBytesRead()==0) {
-				// stream was empty, return the original "empty" stream
-				return in;
-			}
-			else {
-				// reset the stream and assume an unencoded response
-				log.warn(
-						"gzip response expected but failed to read gzip headers, assuming unencoded response for request "
-							+ RequestContext.getCurrentContext()
-							.getRequest().getRequestURL()
-							.toString());
-
-				stream.reset();
-				return stream;
-			}
-		}
-		finally {
-			stream.stopRecording();
-		}
-	}
-
-	
-	protected boolean isGzipRequested(RequestContext context) {
-		final String requestEncoding = context.getRequest()
-				.getHeader(ZuulHeaders.ACCEPT_ENCODING);
-
-		return requestEncoding != null
-				&& HTTPRequestUtils.getInstance().isGzipped(requestEncoding);
-	}
-	
 	
 	private void writeResponse(InputStream zin, OutputStream out) throws Exception {
 		byte[] bytes = buffers.get();
