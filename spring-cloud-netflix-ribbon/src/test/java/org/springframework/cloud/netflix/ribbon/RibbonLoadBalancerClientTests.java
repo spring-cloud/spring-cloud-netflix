@@ -326,7 +326,7 @@ public class RibbonLoadBalancerClientTests {
 			ServiceInstance instance) {
 		assertNotNull("instance was null", instance);
 		assertEquals("instanceId was wrong", ribbonServer.getInstanceId(),
-				instance.getServiceId());
+				instance.getInstanceId());
 		assertEquals("serviceId was wrong", ribbonServer.getServiceId(),
 				instance.getServiceId());
 		assertEquals("host was wrong", ribbonServer.getHost(), instance.getHost());
