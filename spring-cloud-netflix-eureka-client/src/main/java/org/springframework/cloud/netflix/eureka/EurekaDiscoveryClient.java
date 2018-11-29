@@ -39,6 +39,7 @@ import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
 /**
  * @author Spencer Gibb
+ * @author Tim Ysewyn
  */
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
@@ -83,6 +84,11 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 		public InstanceInfo getInstanceInfo() {
 			return instance;
+		}
+
+		@Override
+		public String getInstanceId() {
+			return this.instance.getId();
 		}
 
 		@Override

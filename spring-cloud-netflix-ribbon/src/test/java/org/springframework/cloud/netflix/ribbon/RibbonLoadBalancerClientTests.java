@@ -55,6 +55,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Spencer Gibb
+ * @author Tim Ysewyn
  */
 public class RibbonLoadBalancerClientTests {
 
@@ -324,6 +325,8 @@ public class RibbonLoadBalancerClientTests {
 	protected void assertServiceInstance(RibbonServer ribbonServer,
 			ServiceInstance instance) {
 		assertNotNull("instance was null", instance);
+		assertEquals("instanceId was wrong", ribbonServer.getInstanceId(),
+				instance.getInstanceId());
 		assertEquals("serviceId was wrong", ribbonServer.getServiceId(),
 				instance.getServiceId());
 		assertEquals("host was wrong", ribbonServer.getHost(), instance.getHost());
