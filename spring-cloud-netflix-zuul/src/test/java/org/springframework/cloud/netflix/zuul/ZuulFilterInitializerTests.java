@@ -21,6 +21,8 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
@@ -33,38 +35,52 @@ import com.netflix.zuul.monitoring.TracerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ZuulFilterInitializerTests {
 
-	private Map<String, ZuulFilter> filters = getFilters();
-	private CounterFactory counterFactory = mock(CounterFactory.class);
-	private TracerFactory tracerFactory = mock(TracerFactory.class);
-	private FilterLoader filterLoader = new FilterLoader();
-	private FilterRegistry filterRegistry = getFilterRegistry();
+	private Map<String, ZuulFilter> filters;
+	private CounterFactory counterFactory;
+	private TracerFactory tracerFactory;
+	private FilterLoader filterLoader;
+	private FilterRegistry filterRegistry;
 
-	private final ZuulFilterInitializer initializer = new ZuulFilterInitializer(filters,
-			counterFactory, tracerFactory, filterLoader, filterRegistry);
+	private ZuulFilterInitializer initializer;
+
+	@Before
+	public void init() {
+		filters = getFilters();
+		counterFactory = mock(CounterFactory.class);
+		tracerFactory = mock(TracerFactory.class);
+		filterLoader = new FilterLoader();
+		filterRegistry = getFilterRegistry();
+		initializer = new ZuulFilterInitializer(filters,
+				counterFactory, tracerFactory, filterLoader, filterRegistry);
+
+		initializer.contextInitialized();
+	}
 
 	@Test
-	public void shouldSetupOnContextInitializedEvent() throws Exception {
-		initializer.contextInitialized();
+	public void shouldSetupOnContextInitializedEvent() {
 
 		assertEquals(tracerFactory, TracerFactory.instance());
 		assertEquals(counterFactory, CounterFactory.instance());
 		assertThat(filterRegistry.getAllFilters())
 				.containsAll(filters.values());
+
+		initializer.contextDestroyed();
 	}
 
 	@Test
-	public void shouldCleanupOnContextDestroyed() throws Exception {
+	public void shouldCleanupOnContextDestroyed() {
+
 		initializer.contextDestroyed();
 
-		assertEquals(null, ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
-		assertEquals(null,
-				ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"));
-		assertTrue(FilterRegistry.instance().getAllFilters().isEmpty());
+		assertNull(ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
+		assertNull(ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"));
+		assertThat(filterRegistry.getAllFilters()).isEmpty();
 		assertTrue(getHashFiltersByType().isEmpty());
 	}
 

@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.zuul.filters.pre;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -69,6 +70,8 @@ public class PreDecorationFilter extends ZuulFilter {
 	 */
 	@Deprecated
 	public static final int FILTER_ORDER = PRE_DECORATION_FILTER_ORDER;
+
+	public static final Pattern DOUBLE_SLASH = Pattern.compile("//");
 
 	private RouteLocator routeLocator;
 
@@ -185,7 +188,7 @@ public class PreDecorationFilter extends ZuulFilter {
 				fallBackUri = "/" + fallBackUri;
 			}
 			String forwardURI = fallbackPrefix + fallBackUri;
-			forwardURI = forwardURI.replaceAll("//", "/");
+			forwardURI = DOUBLE_SLASH.matcher(forwardURI).replaceAll("/");
 			ctx.set(FORWARD_TO_KEY, forwardURI);
 		}
 		return null;

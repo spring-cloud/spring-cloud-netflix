@@ -48,7 +48,7 @@ public class HystrixCommands {
 		private final Publisher<T> publisher;
 		private String commandName;
 		private String groupName;
-		private Publisher<T> fallback;
+		private Function<Throwable, Publisher<T>> fallback;
 		private Setter setter;
 		private HystrixCommandProperties.Setter commandProperties;
 		private boolean eager = false;
@@ -69,6 +69,11 @@ public class HystrixCommands {
 		}
 
 		public PublisherBuilder<T> fallback(Publisher<T> fallback) {
+			this.fallback = throwable -> fallback;
+			return this;
+		}
+
+		public PublisherBuilder<T> fallback(Function<Throwable, Publisher<T>> fallback) {
 			this.fallback = fallback;
 			return this;
 		}
@@ -166,10 +171,10 @@ public class HystrixCommands {
 	private static class PublisherHystrixCommand<T> extends HystrixObservableCommand<T> {
 
 		private Publisher<T> publisher;
-		private Publisher<T> fallback;
+		private Function<Throwable, Publisher<T>> fallback;
 
 		protected PublisherHystrixCommand(Setter setter, Publisher<T> publisher,
-				Publisher<T> fallback) {
+				Function<Throwable, Publisher<T>> fallback) {
 			super(setter);
 			this.publisher = publisher;
 			this.fallback = fallback;
@@ -183,7 +188,8 @@ public class HystrixCommands {
 		@Override
 		protected Observable<T> resumeWithFallback() {
 			if (this.fallback != null) {
-				return RxReactiveStreams.toObservable(this.fallback);
+				Publisher<T> fallbackPublisher = fallback.apply(getExecutionException());
+				return RxReactiveStreams.toObservable(fallbackPublisher);
 			}
 			return super.resumeWithFallback();
 		}

@@ -45,12 +45,16 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
 
-	private final EurekaInstanceConfig config;
-
 	private final EurekaClient eurekaClient;
+	private final EurekaClientConfig clientConfig;
 
+	@Deprecated
 	public EurekaDiscoveryClient(EurekaInstanceConfig config, EurekaClient eurekaClient) {
-		this.config = config;
+		this(eurekaClient, eurekaClient.getEurekaClientConfig());
+	}
+
+	public EurekaDiscoveryClient(EurekaClient eurekaClient, EurekaClientConfig clientConfig) {
+		this.clientConfig = clientConfig;
 		this.eurekaClient = eurekaClient;
 	}
 
@@ -142,7 +146,6 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 
 	@Override
 	public int getOrder() {
-		EurekaClientConfig clientConfig = eurekaClient.getEurekaClientConfig();
 		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder() : DiscoveryClient.DEFAULT_ORDER;
 	}
 }

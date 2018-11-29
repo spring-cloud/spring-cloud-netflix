@@ -21,18 +21,13 @@
 	</scm>
 	<properties>
 		<bintray.package>netflix</bintray.package>
-		<jackson.version>2.7.3</jackson.version>
 		<spring-cloud-commons.version>2.1.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-config.version>2.1.0.BUILD-SNAPSHOT</spring-cloud-config.version>
 		<spring-cloud-stream.version>Fishtown.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<!-- Has to be a stable version (not one that depends on this version of netflix): -->
 		<donotreplacespring-cloud-contract.version>2.0.1.RELEASE</donotreplacespring-cloud-contract.version>
 
-		<!-- Plugin versions -->
-		<maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-		<maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
 		<!-- Sonar -->
-		<surefire.plugin.version>2.19.1</surefire.plugin.version>
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
@@ -118,11 +113,6 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.fasterxml.jackson.dataformat</groupId>
-				<artifactId>jackson-dataformat-smile</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>javax.inject</groupId>
 				<artifactId>javax.inject</artifactId>
 				<version>1</version>
@@ -159,6 +149,7 @@
 		<module>spring-cloud-netflix-zuul</module>
 		<module>spring-cloud-netflix-ribbon</module>
 		<module>spring-cloud-starter-netflix</module>
+		<module>spring-cloud-netflix-hystrix</module>
 		<module>docs</module>
     </modules>
 	<profiles>

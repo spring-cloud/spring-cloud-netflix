@@ -67,7 +67,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netflix-core</artifactId>
+			<artifactId>spring-cloud-netflix-hystrix</artifactId>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

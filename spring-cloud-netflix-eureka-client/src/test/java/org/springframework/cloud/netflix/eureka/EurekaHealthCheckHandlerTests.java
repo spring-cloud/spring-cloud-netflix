@@ -142,7 +142,7 @@ public class EurekaHealthCheckHandlerTests {
 	public static class EurekaDownHealthConfiguration {
 		@Bean
 		public DiscoveryHealthIndicator discoveryHealthIndicator() {
-			return new DiscoveryClientHealthIndicator(null) {
+			return new DiscoveryClientHealthIndicator(null, null) {
 				@Override
 				public Health health() {
 					return Health.up().build();

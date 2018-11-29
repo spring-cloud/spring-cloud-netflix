@@ -78,6 +78,8 @@ public class RibbonRoutingFilter extends ZuulFilter {
 		}
 	}
 
+	@Deprecated
+	//TODO Remove in 2.1.x
 	public RibbonRoutingFilter(RibbonCommandFactory<?> ribbonCommandFactory) {
 		this(new ProxyRequestHelper(), ribbonCommandFactory, null);
 	}

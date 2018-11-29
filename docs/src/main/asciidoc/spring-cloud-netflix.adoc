@@ -453,6 +453,38 @@ In fact, the `eureka.instance.hostname` is not needed if you are running on a ma
 You can add multiple peers to a system, and, as long as they are all connected to each other by at least one edge, they synchronize
 the registrations amongst themselves.
 If the peers are physically separated (inside a data center or between multiple data centers), then the system can, in principle, survive "`split-brain`" type failures.
+You can add multiple peers to a system, and as long as they are all
+directly connected to each other, they will synchronize
+the registrations amongst themselves. 
+
+.application.yml (Three Peer Aware Eureka Servers)
+----
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer1/eureka/,http://peer2/eureka/,http://peer3/eureka/
+      
+---
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+
+---
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+
+---
+spring:
+  profiles: peer3
+eureka:
+  instance:
+    hostname: peer3
+----
 
 [[spring-cloud-eureka-server-prefer-ip-address]]
 === When to Prefer IP Address
@@ -1629,6 +1661,26 @@ public class ZuulConfig {
 
 CAUTION: Use this filter carefully. The filter acts on the `Location` header of ALL `3XX` response codes, which may not be appropriate in all scenarios, such as when redirecting the user to an external URL.
 
+=== Enabling Cross Origin Requests
+
+By default Zuul routes all Cross Origin requests (CORS) to the services. If you want instead Zuul to handle these requests it can be done by providing custom `WebMvcConfigurer` bean:
+[source,java]
+----
+@Bean
+public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/path-1/**")
+                    .allowedOrigins("http://allowed-origin.com")
+                    .allowedMethods("GET", "POST");
+        }
+    };
+}
+----
+In the example above, we allow `GET` and `POST` methods from `http://allowed-origin.com` to send cross-origin requests to the endpoints starting with `path-1`.
+You can apply CORS configuration to a specific path pattern or globally for the whole application, using `/**` mapping.
+You can customize properties: `allowedOrigins`,`allowedMethods`,`allowedHeaders`,`exposedHeaders`,`allowCredentials` and `maxAge` via this configuration.
+
 === Metrics
 
 Zuul will provide metrics under the Actuator metrics endpoint for any failures that might occur when routing requests.
@@ -1653,7 +1705,7 @@ This path can be changed with the `zuul.servlet-path` property.
 To pass information between filters, Zuul uses a https://github.com/Netflix/zuul/blob/1.x/zuul-core/src/main/java/com/netflix/zuul/context/RequestContext.java[`RequestContext`].
 Its data is held in a `ThreadLocal` specific to each request.
 Information about where to route requests, errors, and the actual `HttpServletRequest` and `HttpServletResponse` are stored there.
-The `RequestContext` extends `ConcurrentHashMap`, so anything can be stored in the context. https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-core/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java[`FilterConstants`] contains the keys used by the filters installed by Spring Cloud Netflix (more on these <<zuul-developer-guide-enable-filters,later>>).
+The `RequestContext` extends `ConcurrentHashMap`, so anything can be stored in the context. https://github.com/spring-cloud/spring-cloud-netflix/blob/master/spring-cloud-netflix-zuul/src/main/java/org/springframework/cloud/netflix/zuul/filters/support/FilterConstants.java[`FilterConstants`] contains the keys used by the filters installed by Spring Cloud Netflix (more on these <<zuul-developer-guide-enable-filters,later>>).
 
 ==== `@EnableZuulProxy` vs. `@EnableZuulServer`
 
@@ -1925,7 +1977,7 @@ It should return a JSON document that resembles the following:
 }
 ----
 
-HThe following application.yml example shows sample configuration for a Sidecar application:
+The following application.yml example shows sample configuration for a Sidecar application:
 
 .application.yml
 [source,yaml]
@@ -1989,6 +2041,8 @@ info:
   url: https://github.com/spring-cloud-samples
 ----
 
+To enable the health check request to accept all certificates when using HTTPs set `sidecar.accept-all-ssl-certificates` to `true.
+
 [[retrying-failed-requests]]
 == Retrying Failed Requests
 
@@ -2001,15 +2055,15 @@ When Spring Retry is present, load-balanced `RestTemplates`, Feign, and Zuul aut
 
 === BackOff Policies
 By default, no backoff policy is used when retrying requests.
-If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedBackOffPolicyFactory`, which is used to create a `BackOffPolicy` for a given service, as shown in the following example:
+If you would like to configure a backoff policy, you need to create a bean of type `LoadBalancedRetryFactory` and override the `createBackOffPolicy` method for a given service, as shown in the following example:
 
 [source,java,indent=0]
 ----
 @Configuration
 public class MyConfiguration {
     @Bean
-    LoadBalancedBackOffPolicyFactory backOffPolicyFactory() {
-        return new LoadBalancedBackOffPolicyFactory() {
+    LoadBalancedRetryFactory retryFactory() {
+        return new LoadBalancedRetryFactory() {
             @Override
             public BackOffPolicy createBackOffPolicy(String service) {
                 return new ExponentialBackOffPolicy();

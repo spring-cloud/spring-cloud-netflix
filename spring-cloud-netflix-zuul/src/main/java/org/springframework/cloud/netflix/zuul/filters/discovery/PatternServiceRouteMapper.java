@@ -21,6 +21,8 @@ import org.springframework.util.StringUtils;
  */
 public class PatternServiceRouteMapper implements ServiceRouteMapper {
 
+	private static final Pattern MULTIPLE_SLASH_PATTERN = Pattern.compile("/{2,}");
+
 	/**
 	 * A RegExp Pattern that extract needed information from a service ID. Ex :
 	 * "(?<name>.*)-(?<version>v.*$)"
@@ -60,7 +62,7 @@ public class PatternServiceRouteMapper implements ServiceRouteMapper {
 	 * @return
 	 */
 	private String cleanRoute(final String route) {
-		String routeToClean = route.replaceAll("/{2,}", "/");
+		String routeToClean = MULTIPLE_SLASH_PATTERN.matcher(route).replaceAll("/");
 		if (routeToClean.startsWith("/")) {
 			routeToClean = routeToClean.substring(1);
 		}

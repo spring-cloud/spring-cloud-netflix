@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,6 +64,10 @@ public class ProxyRequestHelper {
 	 */
 	public static final String IGNORED_HEADERS = "ignoredHeaders";
 
+	public static final Pattern FORM_FEED_PATTERN = Pattern.compile("\f");
+
+	public static final Pattern COLON_PATTERN = Pattern.compile(":");
+
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
 	private Set<String> sensitiveHeaders = new LinkedHashSet<>();
@@ -70,6 +75,18 @@ public class ProxyRequestHelper {
 	private Set<String> whitelistHosts = new LinkedHashSet<>();
 
 	private boolean traceRequestBody = true;
+
+	private boolean addHostHeader = false;
+
+	@Deprecated
+	//TODO Remove in 2.1.x
+	public ProxyRequestHelper() {}
+
+	public ProxyRequestHelper(ZuulProperties zuulProperties) {
+		this.ignoredHeaders.addAll(zuulProperties.getIgnoredHeaders());
+		this.traceRequestBody = zuulProperties.isTraceRequestBody();
+		this.addHostHeader = zuulProperties.isAddHostHeader();
+	}
 
 	public void setWhitelistHosts(Set<String> whitelistHosts) {
 		this.whitelistHosts.addAll(whitelistHosts);
@@ -79,10 +96,14 @@ public class ProxyRequestHelper {
 		this.sensitiveHeaders.addAll(sensitiveHeaders);
 	}
 
+	@Deprecated
+	//TODO Remove in 2.1.x
 	public void setIgnoredHeaders(Set<String> ignoredHeaders) {
 		this.ignoredHeaders.addAll(ignoredHeaders);
 	}
 
+	@Deprecated
+	//TODO Remove in 2.1.x
 	public void setTraceRequestBody(boolean traceRequestBody) {
 		this.traceRequestBody = traceRequestBody;
 	}
@@ -208,6 +229,9 @@ public class ProxyRequestHelper {
 		}
 		switch (name) {
 		case "host":
+			if(addHostHeader) {
+				return true;
+			}
 		case "connection":
 		case "content-length":
 		case "server":
@@ -264,11 +288,11 @@ public class ProxyRequestHelper {
 					// if form feed is already part of param name double
 					// since form feed is used as the colon replacement below
 					if (key.contains("\f")) {
-						key = (key.replaceAll("\f", "\f\f"));
+						key = (FORM_FEED_PATTERN.matcher(key).replaceAll("\f\f"));
 					}
 					// colon is special to UriTemplate
 					if (key.contains(":")) {
-						key = key.replaceAll(":", "\f");
+						key = COLON_PATTERN.matcher(key).replaceAll("\f");
 					}
 					key = key + i;
 					singles.put(key, value);
