@@ -696,7 +696,7 @@ public class ZuulProperties {
 	}
 
 	public void setIgnoredServices(Set<String> ignoredServices) {
-		this.ignoredServices = ignoredServices;
+		this.ignoredServices = ignoredServices.toLowerCase();
 	}
 
 	public Set<String> getIgnoredPatterns() {
