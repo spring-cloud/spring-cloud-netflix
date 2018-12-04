@@ -95,12 +95,8 @@ public class HystrixSecurityAutoConfigurationTest {
         HystrixPlugins.reset();
         HystrixPlugins.getInstance().registerConcurrencyStrategy(customized);
         FieldSetter.setField(securityStrategy, securityStrategy.getClass().getDeclaredField("existingConcurrencyStrategy"), existingConcurrencyStrategy);
-        try {
-            securityStrategy.init();
-        } catch (IllegalStateException e) {
-            // this is the correct case
-            assertEquals("Multiple HystrixConcurrencyStrategy detected.", e.getMessage());
-        }
+        securityStrategy.init();
+        assertEquals(existingConcurrencyStrategy, getOriginalInSecurityConcurrencyStrategy());
     }
 
     private HystrixConcurrencyStrategy getOriginalInSecurityConcurrencyStrategy() throws IllegalAccessException, NoSuchFieldException {

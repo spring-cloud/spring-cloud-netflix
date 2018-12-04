@@ -19,6 +19,8 @@ package org.springframework.cloud.netflix.hystrix.security;
 import javax.annotation.PostConstruct;
 
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategyDefault;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -43,6 +45,7 @@ import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
 @Conditional(HystrixSecurityCondition.class)
 @ConditionalOnClass({ Hystrix.class, SecurityContext.class })
 public class HystrixSecurityAutoConfiguration {
+	private static final Log LOGGER = LogFactory.getLog(HystrixSecurityAutoConfiguration.class);
 	@Autowired(required = false)
 	private HystrixConcurrencyStrategy existingConcurrencyStrategy;
 
@@ -80,9 +83,9 @@ public class HystrixSecurityAutoConfiguration {
 		if (registeredStrategy instanceof HystrixConcurrencyStrategyDefault){
 			return existingConcurrencyStrategy;
 		}
-		//If registeredStrategy not the default and not some with existingConcurrencyStrategy throw a exception.
+		//If registeredStrategy not the default and not some use bean of existingConcurrencyStrategy.
 		if (!existingConcurrencyStrategy.equals(registeredStrategy)){
-			throw new IllegalStateException("Multiple HystrixConcurrencyStrategy detected.");
+			LOGGER.warn("Multiple HystrixConcurrencyStrategy detected. Bean of HystrixConcurrencyStrategy was used.");
 		}
 		return existingConcurrencyStrategy;
 	}
