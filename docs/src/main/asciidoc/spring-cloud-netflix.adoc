@@ -1481,6 +1481,22 @@ NOTE: This special flag works only with `SimpleHostRoutingFilter`. Also, you loo
 query parameters with `RequestContext.getCurrentContext().setRequestQueryParams(someOverriddenParameters)`, because
 the query string is now fetched directly on the original `HttpServletRequest`.
 
+=== Request URI Encoding
+When processing the incoming request, request URI is decoded before matching them to routes.
+The request URI is then re-encoded when the back end request is rebuilt in the route filters.
+This can cause some unexpected behavior if your URI includes the encoded "/" character.
+
+To use the original request URI, it is possible to pass a special flag to 'ZuulProperties' so that the URI will be taken as is with the `HttpServletRequest::getRequestURI` method, as shown in the following example:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  decodeUrl: false
+----
+
+NOTE: If you are overriding request URI using `requestURI` RequestContext attribute and this flag is set to false, then the URL set in the request context will not be encoded. It will be your responsibility to make sure the URL is already encoded. 
+
 === Plain Embedded Zuul
 
 If you use `@EnableZuulServer` (instead of `@EnableZuulProxy`), you can also run a Zuul server without proxying or selectively switch on parts of the proxying platform.

@@ -78,6 +78,8 @@ public class ProxyRequestHelper {
 
 	private boolean addHostHeader = false;
 
+	private boolean urlDecoded = true;
+
 	@Deprecated
 	//TODO Remove in 2.1.x
 	public ProxyRequestHelper() {}
@@ -86,6 +88,7 @@ public class ProxyRequestHelper {
 		this.ignoredHeaders.addAll(zuulProperties.getIgnoredHeaders());
 		this.traceRequestBody = zuulProperties.isTraceRequestBody();
 		this.addHostHeader = zuulProperties.isAddHostHeader();
+		this.urlDecoded = zuulProperties.isDecodeUrl();
 	}
 
 	public void setWhitelistHosts(Set<String> whitelistHosts) {
@@ -114,7 +117,10 @@ public class ProxyRequestHelper {
 		String contextURI = (String) context.get(REQUEST_URI_KEY);
 		if (contextURI != null) {
 			try {
-				uri = UriUtils.encodePath(contextURI, characterEncoding(request));
+				uri = contextURI;
+				if (this.urlDecoded) {
+					uri = UriUtils.encodePath(contextURI, characterEncoding(request));
+				}
 			}
 			catch (Exception e) {
 				log.debug(

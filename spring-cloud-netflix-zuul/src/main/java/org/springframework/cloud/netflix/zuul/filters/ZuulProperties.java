@@ -141,6 +141,11 @@ public class ZuulProperties {
 	private boolean removeSemicolonContent = true;
 
 	/**
+	 * Flag to indicate whether to decode the matched URL or use it as is.
+	 */
+	private boolean decodeUrl = true;
+
+	/**
 	 * List of sensitive headers that are not passed to downstream requests. Defaults to a
 	 * "safe" set of headers that commonly contain user credentials. It's OK to remove
 	 * those from the list if the downstream service is part of the same system as the
@@ -762,6 +767,14 @@ public class ZuulProperties {
 
 	public void setRemoveSemicolonContent(boolean removeSemicolonContent) {
 		this.removeSemicolonContent = removeSemicolonContent;
+	}
+
+	public boolean isDecodeUrl() {
+		return decodeUrl;
+	}
+
+	public void setDecodeUrl(boolean decodeUrl) {
+		this.decodeUrl = decodeUrl;
 	}
 
 	public Set<String> getSensitiveHeaders() {
