@@ -15,7 +15,6 @@ eureka:
     fetchRegistry: false
 #error:
 #  path: /myerror
-hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
 ribbon:
   ConnectTimeout: 3001
   ReadTimeout: 60001

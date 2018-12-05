@@ -38,6 +38,13 @@ public class HystrixCircuitBreakerAutoConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean(ReactiveHystrixCircuitBreakerFactory.class)
+	@ConditionalOnClass(name = {"reactor.core.publisher.Mono", "reactor.core.publisher.Flux"})
+	public ReactiveHystrixCircuitBreakerFactory reactiveHystrixCircuitBreakerFactory(HystrixCircuitBreakerConfigFactory configFactory) {
+		return new ReactiveHystrixCircuitBreakerFactory(configFactory);
+	}
+
+	@Bean
 	@ConditionalOnMissingBean(HystrixCircuitBreakerConfigFactory.class)
 	public HystrixCircuitBreakerConfigFactory hystrixCircuitBreakerConfigFactory() {
 		return new HystrixCircuitBreakerConfigFactory.DefaultHystrixCircuitBreakerConfigFactory();
