@@ -736,7 +736,7 @@ turbine:
   clusterNameExpression: "'default'"
 ----
 
-Spring Cloud provides a `spring-cloud-starter-netflix-turbine` that has all the dependencies you need to get a Turbine server running. To ad Turnbine, create a Spring Boot application and annotate it with `@EnableTurbine`.
+Spring Cloud provides a `spring-cloud-starter-netflix-turbine` that has all the dependencies you need to get a Turbine server running. To add Turbine, create a Spring Boot application and annotate it with `@EnableTurbine`.
 
 NOTE: By default, Spring Cloud lets Turbine use the host and port to allow multiple processes per host, per cluster.
 If you want the native Netflix behavior built into Turbine to _not_ allow multiple processes per host, per cluster (the key to the instance ID is the hostname), set `turbine.combineHostPort=false`.
