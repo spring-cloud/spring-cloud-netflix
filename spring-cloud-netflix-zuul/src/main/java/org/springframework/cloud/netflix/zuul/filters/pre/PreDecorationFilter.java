@@ -166,32 +166,37 @@ public class PreDecorationFilter extends ZuulFilter {
 		}
 		else {
 			log.warn("No route found for uri: " + requestURI);
+			String forwardURI = getForwardUri(requestURI);
 
-			String fallBackUri = requestURI;
-			String fallbackPrefix = this.dispatcherServletPath; // default fallback
-																// servlet is
-																// DispatcherServlet
-
-			if (RequestUtils.isZuulServletRequest()) {
-				// remove the Zuul servletPath from the requestUri
-				log.debug("zuulServletPath=" + this.properties.getServletPath());
-				fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(), "");
-				log.debug("Replaced Zuul servlet path:" + fallBackUri);
-			}
-			else {
-				// remove the DispatcherServlet servletPath from the requestUri
-				log.debug("dispatcherServletPath=" + this.dispatcherServletPath);
-				fallBackUri = fallBackUri.replaceFirst(this.dispatcherServletPath, "");
-				log.debug("Replaced DispatcherServlet servlet path:" + fallBackUri);
-			}
-			if (!fallBackUri.startsWith("/")) {
-				fallBackUri = "/" + fallBackUri;
-			}
-			String forwardURI = fallbackPrefix + fallBackUri;
-			forwardURI = DOUBLE_SLASH.matcher(forwardURI).replaceAll("/");
 			ctx.set(FORWARD_TO_KEY, forwardURI);
 		}
 		return null;
+	}
+
+	/* for testing */ String getForwardUri(String requestURI) {
+		// default fallback servlet is DispatcherServlet
+		String fallbackPrefix = this.dispatcherServletPath;
+
+		String fallBackUri = requestURI;
+		if (RequestUtils.isZuulServletRequest()) {
+			// remove the Zuul servletPath from the requestUri
+			log.debug("zuulServletPath=" + this.properties.getServletPath());
+			fallBackUri = fallBackUri.replaceFirst(this.properties.getServletPath(), "");
+			log.debug("Replaced Zuul servlet path:" + fallBackUri);
+		}
+		else if (this.dispatcherServletPath != null) {
+			// remove the DispatcherServlet servletPath from the requestUri
+			log.debug("dispatcherServletPath=" + this.dispatcherServletPath);
+			fallBackUri = fallBackUri.replaceFirst(this.dispatcherServletPath, "");
+			log.debug("Replaced DispatcherServlet servlet path:" + fallBackUri);
+		}
+		if (!fallBackUri.startsWith("/")) {
+			fallBackUri = "/" + fallBackUri;
+		}
+
+		String forwardURI = (fallbackPrefix == null) ? fallBackUri : fallbackPrefix + fallBackUri;
+		forwardURI = DOUBLE_SLASH.matcher(forwardURI).replaceAll("/");
+		return forwardURI;
 	}
 
 	private void addProxyHeaders(RequestContext ctx, Route route) {

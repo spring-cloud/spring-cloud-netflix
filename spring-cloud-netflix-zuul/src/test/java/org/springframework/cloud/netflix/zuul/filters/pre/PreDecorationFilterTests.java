@@ -41,6 +41,7 @@ import org.springframework.cloud.test.ModifiedClassPathRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.MultiValueMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -637,6 +638,15 @@ public class PreDecorationFilterTests {
 		assertTrue(result.containsKey("x-forwarded-proto"));
 		assertFalse(result.containsKey("x-forwarded-host"));
 		assertFalse(result.containsKey("x-forwarded-port"));
+	}
+
+	@Test
+	public void nullDispatcherServletPath() {
+		this.filter = new PreDecorationFilter(this.routeLocator, null, this.properties,
+				this.proxyRequestHelper);
+
+		String forwardUri = this.filter.getForwardUri("/mypath");
+		assertThat(forwardUri).isEqualTo("/mypath");
 	}
 
 	private Object getHeader(List<Pair<String, String>> headers, String key) {
