@@ -624,22 +624,22 @@ public class PreDecorationFilterTests {
 		assertTrue(decodedRequestURI.equals("/oléדרעק"));
 	}
 
-  @Test
-  public void headersAreProperlyIgnored() throws Exception {
-    proxyRequestHelper.addIgnoredHeaders("x-forwarded-host", "x-forwarded-port");
-    request.addHeader("x-forwarded-host", "B,127.0.0.1:8080");
-    request.addHeader("x-forwarded-port", "A,8080");
-    request.addHeader("x-forwarded-proto", "C,http");
+	@Test
+	public void headersAreProperlyIgnored() throws Exception {
+		proxyRequestHelper.addIgnoredHeaders("x-forwarded-host", "x-forwarded-port");
+		request.addHeader("x-forwarded-host", "B,127.0.0.1:8080");
+		request.addHeader("x-forwarded-port", "A,8080");
+		request.addHeader("x-forwarded-proto", "C,http");
 
-    MultiValueMap<String, String> result = proxyRequestHelper
-            .buildZuulRequestHeaders(request);
+		MultiValueMap<String, String> result = proxyRequestHelper
+				.buildZuulRequestHeaders(request);
 
-    assertTrue(result.containsKey("x-forwarded-proto"));
-    assertFalse(result.containsKey("x-forwarded-host"));
-    assertFalse(result.containsKey("x-forwarded-port"));
-  }
+		assertTrue(result.containsKey("x-forwarded-proto"));
+		assertFalse(result.containsKey("x-forwarded-host"));
+		assertFalse(result.containsKey("x-forwarded-port"));
+	}
 
-  private Object getHeader(List<Pair<String, String>> headers, String key) {
+	private Object getHeader(List<Pair<String, String>> headers, String key) {
 		String value = null;
 		for (Pair<String, String> pair : headers) {
 			if (pair.first().toLowerCase().equals(key.toLowerCase())) {
