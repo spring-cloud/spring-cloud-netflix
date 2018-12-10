@@ -335,6 +335,16 @@ This section describes how to set up a Eureka server.
 To include Eureka Server in your project, use the starter with a group ID of `org.springframework.cloud` and an artifact ID of `spring-cloud-starter-netflix-eureka-server`.
 See the http://projects.spring.io/spring-cloud/[Spring Cloud Project page] for details on setting up your build system with the current Spring Cloud Release Train.
 
+NOTE: If your project already uses Thymeleaf as its template engine, the Freemarker templates of the Eureka server may not be loaded correctly. In this case it is necessary to configure the template loader manually:
+
+.application.yml
+----
+spring:
+  freemarker:
+    template-loader-path: classpath:/templates/
+    prefer-file-system-access: false
+----
+
 [[spring-cloud-running-eureka-server]]
 === How to Run a Eureka Server
 
@@ -1504,6 +1514,22 @@ To force the original encoding of the query string, it is possible to pass a spe
 NOTE: This special flag works only with `SimpleHostRoutingFilter`. Also, you loose the ability to easily override
 query parameters with `RequestContext.getCurrentContext().setRequestQueryParams(someOverriddenParameters)`, because
 the query string is now fetched directly on the original `HttpServletRequest`.
+
+=== Request URI Encoding
+When processing the incoming request, request URI is decoded before matching them to routes.
+The request URI is then re-encoded when the back end request is rebuilt in the route filters.
+This can cause some unexpected behavior if your URI includes the encoded "/" character.
+
+To use the original request URI, it is possible to pass a special flag to 'ZuulProperties' so that the URI will be taken as is with the `HttpServletRequest::getRequestURI` method, as shown in the following example:
+
+.application.yml
+[source,yaml]
+----
+ zuul:
+  decodeUrl: false
+----
+
+NOTE: If you are overriding request URI using `requestURI` RequestContext attribute and this flag is set to false, then the URL set in the request context will not be encoded. It will be your responsibility to make sure the URL is already encoded. 
 
 === Plain Embedded Zuul
 

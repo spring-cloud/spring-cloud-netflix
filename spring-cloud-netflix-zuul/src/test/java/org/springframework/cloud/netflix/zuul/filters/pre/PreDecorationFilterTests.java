@@ -331,6 +331,22 @@ public class PreDecorationFilterTests {
 	}
 
 	@Test
+	public void dontDecodeUrl() {
+		this.properties.setPrefix("/api");
+		this.properties.setStripPrefix(true);
+		this.properties.setDecodeUrl(false);
+		this.request.setRequestURI("/api/foo/encoded%2Fpath");
+		this.request.setContextPath("/context-path");
+		this.routeLocator.addRoute(
+				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
+		this.filter = new PreDecorationFilter(this.routeLocator, "/", this.properties,
+				this.proxyRequestHelper);
+		this.filter.run();
+		RequestContext ctx = RequestContext.getCurrentContext();
+		assertEquals("/foo/encoded%2Fpath", ctx.get(REQUEST_URI_KEY));
+	}
+
+	@Test
 	public void routeIgnoreContextPathIfPrefixHeader() {
 		this.properties.setStripPrefix(false);
 		this.request.setRequestURI("/api/foo/1");

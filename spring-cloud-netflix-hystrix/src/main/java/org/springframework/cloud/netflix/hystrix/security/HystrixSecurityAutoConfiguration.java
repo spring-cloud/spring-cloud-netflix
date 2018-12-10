@@ -18,6 +18,9 @@ package org.springframework.cloud.netflix.hystrix.security;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategyDefault;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -42,6 +45,7 @@ import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
 @Conditional(HystrixSecurityCondition.class)
 @ConditionalOnClass({ Hystrix.class, SecurityContext.class })
 public class HystrixSecurityAutoConfiguration {
+	private static final Log LOGGER = LogFactory.getLog(HystrixSecurityAutoConfiguration.class);
 	@Autowired(required = false)
 	private HystrixConcurrencyStrategy existingConcurrencyStrategy;
 
@@ -56,16 +60,34 @@ public class HystrixSecurityAutoConfiguration {
 				.getPropertiesStrategy();
 		HystrixCommandExecutionHook commandExecutionHook = HystrixPlugins.getInstance()
 				.getCommandExecutionHook();
+		HystrixConcurrencyStrategy concurrencyStrategy = detectRegisteredConcurrencyStrategy();
 
 		HystrixPlugins.reset();
 
 		// Registers existing plugins excepts the Concurrent Strategy plugin.
 		HystrixPlugins.getInstance().registerConcurrencyStrategy(
-				new SecurityContextConcurrencyStrategy(existingConcurrencyStrategy));
+				new SecurityContextConcurrencyStrategy(concurrencyStrategy));
 		HystrixPlugins.getInstance().registerEventNotifier(eventNotifier);
 		HystrixPlugins.getInstance().registerMetricsPublisher(metricsPublisher);
 		HystrixPlugins.getInstance().registerPropertiesStrategy(propertiesStrategy);
 		HystrixPlugins.getInstance().registerCommandExecutionHook(commandExecutionHook);
+	}
+
+	private HystrixConcurrencyStrategy detectRegisteredConcurrencyStrategy() {
+		HystrixConcurrencyStrategy registeredStrategy = HystrixPlugins.getInstance()
+				.getConcurrencyStrategy();
+		if (existingConcurrencyStrategy == null) {
+			return registeredStrategy;
+		}
+		//Hystrix registered a default Strategy.
+		if (registeredStrategy instanceof HystrixConcurrencyStrategyDefault){
+			return existingConcurrencyStrategy;
+		}
+		//If registeredStrategy not the default and not some use bean of existingConcurrencyStrategy.
+		if (!existingConcurrencyStrategy.equals(registeredStrategy)){
+			LOGGER.warn("Multiple HystrixConcurrencyStrategy detected. Bean of HystrixConcurrencyStrategy was used.");
+		}
+		return existingConcurrencyStrategy;
 	}
 
 	static class HystrixSecurityCondition extends AllNestedConditions {

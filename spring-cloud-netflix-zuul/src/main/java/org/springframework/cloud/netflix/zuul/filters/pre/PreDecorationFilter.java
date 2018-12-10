@@ -88,6 +88,7 @@ public class PreDecorationFilter extends ZuulFilter {
 		this.routeLocator = routeLocator;
 		this.properties = properties;
 		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
+		this.urlPathHelper.setUrlDecode(properties.isDecodeUrl());
 		this.dispatcherServletPath = dispatcherServletPath;
 		this.proxyRequestHelper = proxyRequestHelper;
 	}
