@@ -467,6 +467,26 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 <simpara>For more information on CSRF see the <link xl:href="https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf">Spring Security documentation</link>.</simpara>
 <simpara>A demo Eureka Server can be found in the Spring Cloud Samples <link xl:href="https://github.com/spring-cloud-samples/eureka/tree/Eureka-With-Security">repo</link>.</simpara>
 </section>
+<section xml:id="_jdk_11_support">
+<title>JDK 11 Support</title>
+<simpara>The JAXB modules which the Eureka server depends upon were removed in JDK 11.  If you intend to use JDK 11
+when running a Eureka server you must include these dependencies in your POM or Gradle file.</simpara>
+<programlisting language="xml" linenumbering="unnumbered">&lt;dependency&gt;
+    &lt;groupId&gt;javax.xml.bind&lt;/groupId&gt;
+    &lt;artifactId&gt;jaxb-api&lt;/artifactId&gt;
+    &lt;version&gt;2.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.sun.xml.bind&lt;/groupId&gt;
+    &lt;artifactId&gt;jaxb-core&lt;/artifactId&gt;
+    &lt;version&gt;2.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.sun.xml.bind&lt;/groupId&gt;
+    &lt;artifactId&gt;jaxb-impl&lt;/artifactId&gt;
+    &lt;version&gt;2.3.0&lt;/version&gt;
+&lt;/dependency&gt;</programlisting>
+</section>
 </chapter>
 <chapter xml:id="_circuit_breaker_hystrix_clients">
 <title>Circuit Breaker: Hystrix Clients</title>
