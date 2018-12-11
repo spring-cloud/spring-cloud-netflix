@@ -301,6 +301,18 @@ eureka.client.preferSameZoneEureka = true</screen>
 <title>How to Include Eureka Server</title>
 <simpara>To include Eureka Server in your project, use the starter with a group ID of <literal>org.springframework.cloud</literal> and an artifact ID of <literal>spring-cloud-starter-netflix-eureka-server</literal>.
 See the <link xl:href="http://projects.spring.io/spring-cloud/">Spring Cloud Project page</link> for details on setting up your build system with the current Spring Cloud Release Train.</simpara>
+<note>
+<simpara>If your project already uses Thymeleaf as its template engine, the Freemarker templates of the Eureka server may not be loaded correctly. In this case it is necessary to configure the template loader manually:</simpara>
+</note>
+<formalpara>
+<title>application.yml</title>
+<para>
+<screen>spring:
+  freemarker:
+    template-loader-path: classpath:/templates/
+    prefer-file-system-access: false</screen>
+</para>
+</formalpara>
 </section>
 <section xml:id="spring-cloud-running-eureka-server">
 <title>How to Run a Eureka Server</title>
@@ -1470,6 +1482,23 @@ While this causes no issues in most cases, some web servers can be picky with th
 <simpara>This special flag works only with <literal>SimpleHostRoutingFilter</literal>. Also, you loose the ability to easily override
 query parameters with <literal>RequestContext.getCurrentContext().setRequestQueryParams(someOverriddenParameters)</literal>, because
 the query string is now fetched directly on the original <literal>HttpServletRequest</literal>.</simpara>
+</note>
+</section>
+<section xml:id="_request_uri_encoding">
+<title>Request URI Encoding</title>
+<simpara>When processing the incoming request, request URI is decoded before matching them to routes.
+The request URI is then re-encoded when the back end request is rebuilt in the route filters.
+This can cause some unexpected behavior if your URI includes the encoded "/" character.</simpara>
+<simpara>To use the original request URI, it is possible to pass a special flag to 'ZuulProperties' so that the URI will be taken as is with the <literal>HttpServletRequest::getRequestURI</literal> method, as shown in the following example:</simpara>
+<formalpara>
+<title>application.yml</title>
+<para>
+<programlisting language="yaml" linenumbering="unnumbered"> zuul:
+  decodeUrl: false</programlisting>
+</para>
+</formalpara>
+<note>
+<simpara>If you are overriding request URI using <literal>requestURI</literal> RequestContext attribute and this flag is set to false, then the URL set in the request context will not be encoded. It will be your responsibility to make sure the URL is already encoded.</simpara>
 </note>
 </section>
 <section xml:id="_plain_embedded_zuul">
