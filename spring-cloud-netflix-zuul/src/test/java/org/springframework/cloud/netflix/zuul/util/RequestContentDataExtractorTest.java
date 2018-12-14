@@ -75,6 +75,29 @@ public class RequestContentDataExtractorTest {
 	}
 
 	@Test
+	public void methodExtractShouldReturnNotDuplicatedValuesFromRequestWhenEncoded()
+			throws Exception {
+		// when
+		when(request.getMultiFileMap()).thenReturn(new LinkedMultiValueMap<>());
+		when(request.getQueryString()).thenReturn("uid=hello%20world");
+
+		Map<String, String[]> expectedParameterMap = new HashMap<String, String[]>() {
+			{
+				put("uid", new String[] { "hello world" });
+			}
+		};
+		when(request.getParameterMap()).thenReturn(expectedParameterMap);
+
+		// action
+		MultiValueMap<String, Object> result = RequestContentDataExtractor
+				.extract(request);
+
+		// then
+		assertThat(result, notNullValue());
+		assertThat(result.size(), equalTo(0));
+	}
+
+	@Test
 	public void findQueryParamsGroupedByNameShouldReturnCorrectResult() {
 		// when
 		when(request.getQueryString()).thenReturn("uid=12&uid=34");
