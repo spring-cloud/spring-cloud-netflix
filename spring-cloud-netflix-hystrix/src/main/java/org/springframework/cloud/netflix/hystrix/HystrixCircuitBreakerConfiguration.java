@@ -121,7 +121,7 @@ public class HystrixCircuitBreakerConfiguration {
 					else if (value instanceof Map) {
 						@SuppressWarnings("unchecked")
 						Map<String, Object> sub = (Map<String, Object>) value;
-						addMetrics(sub, prefix);
+						addMetrics(sub, prefix + "." + key);
 					}
 				}
 			}
