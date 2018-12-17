@@ -38,12 +38,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 
 /**
  * @author Spencer Gibb
@@ -55,7 +58,7 @@ public class HystrixOnlyTests {
 
 	@Value("${local.server.port}")
 	private int port;
-	
+
 	@Value("${security.user.username}")
 	private String username;
 
@@ -92,17 +95,45 @@ public class HystrixOnlyTests {
 				map.containsKey("discovery"));
 	}
 
+	@Test
+	public void testHystrixInnerMapMetrics() {
+		// We have to hit any Hystrix command before Hystrix metrics to be populated
+		String url = "http://localhost:" + this.port + "/";
+		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
+				String.class);
+		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
 
+		// Poller takes some time to realize for new metrics
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {}
+
+		Map<?, ?> map = getMetrics();
+
+		assertTrue("There is no latencyTotal group key specified",
+				map.containsKey("gauge.servo.hystrix.hystrixcommand.service.hello.latencytotal.75"));
+		assertTrue("There is no latencyExecute group key specified",
+				map.containsKey("gauge.servo.hystrix.hystrixcommand.service.hello.latencyexecute.75"));
+	}
+
+
+	private Map<?, ?> getMetrics() {
+		return getAuthenticatedEndpoint("/admin/metrics");
+	}
 
 	private Map<?, ?> getHealth() {
+		return getAuthenticatedEndpoint("/admin/health");
+	}
+
+	private Map<?, ?> getAuthenticatedEndpoint(String endpoint) {
 		return new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/admin/health", HttpMethod.GET,
+				"http://localhost:" + this.port + endpoint, HttpMethod.GET,
 				new HttpEntity<Void>(createBasicAuthHeader(username, password)),
 				Map.class).getBody();
 	}
 
 	public static HttpHeaders createBasicAuthHeader(final String username,
-			final String password) {
+													final String password) {
 		return new HttpHeaders() {
 			private static final long serialVersionUID = 1766341693637204893L;
 
