@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.hystrix;
 
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -45,6 +47,7 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.cloud.netflix.test.TestAutoConfiguration.PASSWORD;
 import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
@@ -54,7 +57,7 @@ import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = RANDOM_PORT,
-		properties = "management.endpoint.health.show-details=ALWAYS")
+		properties = {"management.endpoint.health.show-details=ALWAYS"})
 @DirtiesContext
 @ActiveProfiles("proxysecurity")
 public class HystrixOnlyTests {
@@ -96,15 +99,45 @@ public class HystrixOnlyTests {
 				map.containsKey("discovery"));
 	}
 
-	private Map getHealth() {
+	@Test
+	public void testHystrixInnerMapMetrics() {
+		// We have to hit any Hystrix command before Hystrix metrics to be populated
+		String url = "http://localhost:" + this.port;
+		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
+				String.class);
+		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
+
+		// Poller takes some time to realize for new metrics
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {}
+
+		Map<String, List<String>> map = (Map<String, List<String>>) getMetrics();
+
+		assertTrue("There is no latencyTotal group key specified",
+				map.get("names").contains("hystrix.latency.total"));
+		assertTrue("There is no latencyExecute group key specified",
+				map.get("names").contains("hystrix.latency.execution"));
+	}
+
+
+	private Map<?, ?> getMetrics() {
+		return getAuthenticatedEndpoint("/metrics");
+	}
+
+	private Map<?, ?> getHealth() {
+		return getAuthenticatedEndpoint("/health");
+	}
+
+	private Map<?, ?> getAuthenticatedEndpoint(String endpoint) {
 		return new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + BASE_PATH + "/health", HttpMethod.GET,
+				"http://localhost:" + this.port + BASE_PATH + endpoint, HttpMethod.GET,
 				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)),
 				Map.class).getBody();
 	}
 
 	public static HttpHeaders createBasicAuthHeader(final String username,
-			final String password) {
+													final String password) {
 		return new HttpHeaders() {
 			private static final long serialVersionUID = 1766341693637204893L;
 
