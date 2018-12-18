@@ -111,9 +111,9 @@ public class HystrixOnlyTests {
 		Map<?, ?> map = getMetrics();
 
 		assertTrue("There is no latencyTotal group key specified",
-				map.containsKey("gauge.servo.hystrix.hystrixcommand.service.hello.latencytotal.75"));
+				map.containsKey("gauge.hystrix.HystrixCommand.Service.hello.latencyTotal.75"));
 		assertTrue("There is no latencyExecute group key specified",
-				map.containsKey("gauge.servo.hystrix.hystrixcommand.service.hello.latencyexecute.75"));
+				map.containsKey("gauge.hystrix.HystrixCommand.Service.hello.latencyExecute.75"));
 	}
 
 
