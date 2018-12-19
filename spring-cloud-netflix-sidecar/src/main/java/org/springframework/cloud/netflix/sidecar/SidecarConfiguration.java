@@ -90,16 +90,16 @@ public class SidecarConfiguration {
 		@Autowired
 		private InetUtils inetUtils;
 
-		@Value(value = "${management.port:${MANAGEMENT_PORT:#{null}}}")
+		@Value(value = "${management.server.port:${MANAGEMENT_PORT:#{null}}}")
 		private Integer managementPort;
 
 		@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
 		private int serverPort = 8080;
 
-		@Value("${management.context-path:${MANAGEMENT_CONTEXT_PATH:#{null}}}")
+		@Value("${management.server.servlet.context-path:${MANAGEMENT_CONTEXT_PATH:#{null}}}")
 		private String managementContextPath;
 
-		@Value("${server.context-path:${SERVER_CONTEXT_PATH:/}}")
+		@Value("${server.servlet.context-path:${SERVER_CONTEXT_PATH:/}}")
 		private String serverContextPath = "/";
 
 		@Value("${eureka.instance.hostname:${EUREKA_INSTANCE_HOSTNAME:}}")
