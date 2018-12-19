@@ -2120,4 +2120,44 @@ are using the Apache Http Cient or <literal>OkHttpClient</literal> if you are us
 Doing so improperly can result in resource management issues.</simpara>
 </note>
 </chapter>
+<chapter xml:id="_modules_in_maintenance_mode">
+<title>Modules In Maintenance Mode</title>
+<simpara>Placing a module in maintenance mode means that the Spring Cloud team will no longer be adding new features to the module.
+We will fix blocker bugs and security issues, and we will also consider and review small pull requests from the community.</simpara>
+<simpara>We intend to continue to support these modules for a period of at least a year from the general availability
+of the Greenwich release train.</simpara>
+<simpara>The following Spring Cloud Netflix modules and corresponding starters will be placed into maintenance mode:</simpara>
+<itemizedlist>
+<listitem>
+<simpara>spring-cloud-netflix-archaius</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-hystrix-contract</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-hystrix-dashboard</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-hystrix-stream</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-hystrix</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-ribbon</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-turbine-stream</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-turbine</simpara>
+</listitem>
+<listitem>
+<simpara>spring-cloud-netflix-zuul</simpara>
+</listitem>
+</itemizedlist>
+<note>
+<simpara>This does not include the Eureka or concurrency-limits modules.</simpara>
+</note>
+</chapter>
 </book>
