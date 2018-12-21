@@ -18,8 +18,9 @@ package org.springframework.cloud.netflix.zuul.util;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
-import static org.springframework.util.StringUtils.*;
 import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.tokenizeToStringArray;
+import static org.springframework.util.StringUtils.uriDecode;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
