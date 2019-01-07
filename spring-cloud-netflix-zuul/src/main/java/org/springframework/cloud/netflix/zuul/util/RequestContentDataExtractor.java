@@ -19,8 +19,11 @@ package org.springframework.cloud.netflix.zuul.util;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptyMap;
 import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.tokenizeToStringArray;
+import static org.springframework.util.StringUtils.uriDecode;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +39,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -78,12 +80,16 @@ public class RequestContentDataExtractor {
 					.collect(Collectors.toList());
 			List<String> listOfOnlyQueryParams = queryParamsGroupedByName.get(key);
 
-			if (listOfOnlyQueryParams != null
-					&& !listOfOnlyQueryParams.containsAll(listOfAllParams)) {
-				listOfAllParams.removeAll(listOfOnlyQueryParams);
-				for (String value : listOfAllParams) {
-					builder.add(key,
-							new HttpEntity<>(value, newHttpHeaders(request, key)));
+			if(listOfOnlyQueryParams != null) {
+				listOfOnlyQueryParams = listOfOnlyQueryParams.stream()
+						.map(param -> uriDecode(param, Charset.defaultCharset()))
+						.collect(Collectors.toList());
+				if (!listOfOnlyQueryParams.containsAll(listOfAllParams)) {
+					listOfAllParams.removeAll(listOfOnlyQueryParams);
+					for (String value : listOfAllParams) {
+						builder.add(key,
+								new HttpEntity<>(value, newHttpHeaders(request, key)));
+					}
 				}
 			}
 
@@ -127,7 +133,7 @@ public class RequestContentDataExtractor {
 		String query  = request.getQueryString();
 
 		if (query != null) {
-			for (String value : StringUtils.tokenizeToStringArray(query, "&")) {
+			for (String value : tokenizeToStringArray(query, "&")) {
 				if (value.contains("=")) {
 					value = value.substring(0, value.indexOf("="));
 				}
