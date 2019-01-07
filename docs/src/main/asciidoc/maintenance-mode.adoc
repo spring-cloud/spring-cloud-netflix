@@ -1,0 +1,23 @@
+
+== Modules In Maintenance Mode
+
+Placing a module in maintenance mode means that the Spring Cloud team will no longer be adding new features to the module.
+We will fix blocker bugs and security issues, and we will also consider and review small pull requests from the community.
+
+We intend to continue to support these modules for a period of at least a year from the general availability
+of the Greenwich release train.
+
+The following Spring Cloud Netflix modules and corresponding starters will be placed into maintenance mode:
+
+* spring-cloud-netflix-archaius
+* spring-cloud-netflix-hystrix-contract
+* spring-cloud-netflix-hystrix-dashboard
+* spring-cloud-netflix-hystrix-stream
+* spring-cloud-netflix-hystrix
+* spring-cloud-netflix-ribbon
+* spring-cloud-netflix-turbine-stream
+* spring-cloud-netflix-turbine
+* spring-cloud-netflix-zuul
+
+NOTE: This does not include the Eureka or concurrency-limits modules.
+

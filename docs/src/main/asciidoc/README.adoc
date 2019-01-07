@@ -15,6 +15,8 @@ include::intro.adoc[]
 * External Configuration: a bridge from the Spring Environment to Archaius (enables native configuration of Netflix components using Spring Boot conventions)
 * Router and Filter: automatic registration of Zuul filters, and a simple convention over configuration approach to reverse proxy creation
 
+include::maintenance-mode.adoc[]
+
 == Building
 
 include::https://raw.githubusercontent.com/spring-cloud/spring-cloud-build/master/docs/src/main/asciidoc/building-jdk8.adoc[]
