@@ -111,16 +111,18 @@ public class RibbonProperties {
 		Object property = this.config.getProperty(PoolKeepAliveTime);
 		if (property instanceof Long) {
 			return (Long) property;
+        } else if (property instanceof String) {
+            return Long.valueOf((String) property);
 		}
 		return null;
 	}
 
-	@SuppressWarnings("deprecation")
 	public long poolKeepAliveTime() {
-		Object property = this.config.getProperty(PoolKeepAliveTime);
-		if (property instanceof Long) {
-			return (Long) property;
+        Long poolKeepAliveTime = getPoolKeepAliveTime();
+        if (poolKeepAliveTime != null) {
+            return poolKeepAliveTime;
 		}
+
 		return DEFAULT_POOL_KEEP_ALIVE_TIME;
 	}
 
