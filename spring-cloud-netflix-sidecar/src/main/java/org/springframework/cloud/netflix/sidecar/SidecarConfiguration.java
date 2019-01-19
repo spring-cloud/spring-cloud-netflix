@@ -16,17 +16,19 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
+import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
+
+import java.util.Map;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
-import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceId;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -41,24 +43,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.netflix.appinfo.HealthCheckHandler;
 import com.netflix.discovery.EurekaClientConfig;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
 
 /**
  * Sidecar Configuration that setting up {@link com.netflix.appinfo.EurekaInstanceConfig}.
  * <p>
- * Depends on {@link SidecarProperties} and {@code eureka.instance.hostname} property. Since there is two way to
- * configure hostname:
+ * Depends on {@link SidecarProperties} and {@code eureka.instance.hostname} property.
+ * Since there is two way to configure hostname:
  * <ol>
- *   <li>{@code eureka.instance.hostname} property</li>
- *   <li>{@link SidecarProperties#hostname}</li>
+ * <li>{@code eureka.instance.hostname} property</li>
+ * <li>{@link SidecarProperties#hostname}</li>
  * </ol>
- * {@code eureka.instance.hostname} will always win against {@link SidecarProperties#hostname} due to
- * {@code @ConfigurationProperties("eureka.instance")} on {@link EurekaInstanceConfigBeanConfiguration}.
+ * {@code eureka.instance.hostname} will always win against
+ * {@link SidecarProperties#hostname} due to
+ * {@code @ConfigurationProperties("eureka.instance")} on
+ * {@link EurekaInstanceConfigBeanConfiguration}.
  *
  * @author Spencer Gibb
  * @author Ryan Baxter
@@ -115,11 +117,13 @@ public class SidecarConfiguration {
 		}
 
 		@Bean
-		public EurekaInstanceConfigBean eurekaInstanceConfigBean(ManagementMetadataProvider managementMetadataProvider) {
+		public EurekaInstanceConfigBean eurekaInstanceConfigBean(
+				ManagementMetadataProvider managementMetadataProvider) {
 			EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);
 			String springAppName = this.env.getProperty("spring.application.name", "");
 			int port = this.sidecarProperties.getPort();
 			config.setNonSecurePort(port);
+			config.setSecurePortEnabled(this.sidecarProperties.isSecurePortEnabled());
 			config.setInstanceId(getDefaultInstanceId(this.env));
 			if (StringUtils.hasText(springAppName)) {
 				config.setAppname(springAppName);
@@ -138,18 +142,19 @@ public class SidecarConfiguration {
 				config.setIpAddress(ipAddress);
 			}
 			String scheme = config.getSecurePortEnabled() ? "https" : "http";
-			ManagementMetadata metadata = managementMetadataProvider.get(config, serverPort,
-					serverContextPath, managementContextPath, managementPort);
+			ManagementMetadata metadata = managementMetadataProvider.get(config,
+					serverPort, serverContextPath, managementContextPath, managementPort);
 
-			if(metadata != null) {
+			if (metadata != null) {
 				config.setStatusPageUrl(metadata.getStatusPageUrl());
 				config.setHealthCheckUrl(metadata.getHealthCheckUrl());
-				if(config.isSecurePortEnabled()) {
+				if (config.isSecurePortEnabled()) {
 					config.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
 				}
 				Map<String, String> metadataMap = config.getMetadataMap();
 				if (metadataMap.get("management.port") == null) {
-					metadataMap.put("management.port", String.valueOf(metadata.getManagementPort()));
+					metadataMap.put("management.port",
+							String.valueOf(metadata.getManagementPort()));
 				}
 			}
 			config.setHomePageUrl(scheme + "://" + config.getHostname() + ":" + port
@@ -174,10 +179,9 @@ public class SidecarConfiguration {
 	@ConditionalOnClass(HttpClient.class)
 	public RestTemplate sslRestTemplate(SidecarProperties properties) {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
-		if(properties.acceptAllSslCertificates()) {
+		if (properties.acceptAllSslCertificates()) {
 			CloseableHttpClient httpClient = HttpClients.custom()
-					.setSSLHostnameVerifier(new NoopHostnameVerifier())
-					.build();
+					.setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
 			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 			requestFactory.setHttpClient(httpClient);
 			builder = builder.requestFactory(() -> requestFactory);
