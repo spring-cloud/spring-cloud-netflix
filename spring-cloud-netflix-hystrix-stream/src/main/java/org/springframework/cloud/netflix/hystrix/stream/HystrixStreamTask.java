@@ -89,7 +89,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 	}
 
 	// TODO: use integration to split this up?
-	@Scheduled(fixedRateString = "${hystrix.stream.queue.sendRate:500}")
+	@Scheduled(fixedRateString = "${hystrix.stream.queue.send-rate:500}")
 	public void sendMetrics() {
 		ArrayList<String> metrics = new ArrayList<>();
 		this.jsonMetrics.drainTo(metrics);
@@ -117,7 +117,7 @@ public class HystrixStreamTask implements ApplicationContextAware {
 		}
 	}
 
-	@Scheduled(fixedRateString = "${hystrix.stream.queue.gatherRate:500}")
+	@Scheduled(fixedRateString = "${hystrix.stream.queue.gather-rate:500}")
 	public void gatherMetrics() {
 		try {
 			// command metrics
