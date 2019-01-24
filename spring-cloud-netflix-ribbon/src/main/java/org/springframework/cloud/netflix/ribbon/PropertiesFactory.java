@@ -39,7 +39,7 @@ public class PropertiesFactory {
 		if (this.classToProperty.containsKey(clazz)) {
 			String classNameProperty = this.classToProperty.get(clazz);
 			String className = environment.getProperty(name + "." + NAMESPACE + "." + classNameProperty);
-			if(StringUtils.hasText(className)){
+			if(!StringUtils.hasText(className)){
 			    className = environment.getProperty(NAMESPACE + "." + classNameProperty);
 			}
 			return className;
