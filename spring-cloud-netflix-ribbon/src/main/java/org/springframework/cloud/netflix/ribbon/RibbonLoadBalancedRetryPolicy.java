@@ -117,8 +117,6 @@ public class RibbonLoadBalancedRetryPolicy implements LoadBalancedRetryPolicy {
 		//until we actually equal the same server count limit.  This will allow us to make the initial
 		//request plus the right number of retries.
 		if(sameServerCount >= lbContext.getRetryHandler().getMaxRetriesOnSameServer() && canRetry(context)) {
-			//reset same server since we are moving to a new server
-			sameServerCount = 0;
 			nextServerCount++;
 			if(!canRetryNextServer(context)) {
 				context.setExhaustedOnly();
