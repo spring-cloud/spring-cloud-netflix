@@ -16,12 +16,15 @@
 
 package org.springframework.cloud.netflix.hystrix.stream;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
@@ -67,6 +70,8 @@ public class HystrixStreamTask implements ApplicationContextAware {
 
 	private final JsonFactory jsonFactory = new JsonFactory();
 
+	private final ObjectMapper mapper = new ObjectMapper();
+
 	public HystrixStreamTask(MessageChannel outboundChannel,
 							 ServiceInstance registration, HystrixStreamProperties properties) {
 		Assert.notNull(outboundChannel, "outboundChannel may not be null");
@@ -98,22 +103,20 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			if (log.isTraceEnabled()) {
 				log.trace("sending stream metrics size: " + metrics.size());
 			}
-			for (String json : metrics) {
-				// TODO: batch all metrics to one message
-				try {
-					// TODO: remove the explicit content type when s-c-stream can handle
-					// that for us
-					this.outboundChannel.send(MessageBuilder.withPayload(json)
-							.setHeader(MessageHeaders.CONTENT_TYPE,
-									this.properties.getContentType())
-							.build());
-				}
-				catch (Exception ex) {
-					if (log.isTraceEnabled()) {
-						log.trace("failed sending stream metrics: " + ex.getMessage());
-					}
+			try {
+				String payload = writeMetricsToJsonArray(metrics);
+				// TODO: remove the explicit content type when s-c-stream can handle
+				// that for us
+				this.outboundChannel.send(MessageBuilder.withPayload(payload)
+						.setHeader(MessageHeaders.CONTENT_TYPE,
+								this.properties.getContentType())
+						.build());
+			} catch (Exception ex) {
+				if (log.isTraceEnabled()) {
+					log.trace("failed sending stream metrics: " + ex.getMessage());
 				}
 			}
+
 		}
 	}
 
@@ -388,6 +391,13 @@ public class HystrixStreamTask implements ApplicationContextAware {
 			json.writeStringField("id", this.context.getId());
 		}
 		json.writeEndObject();
+	}
+
+	private String writeMetricsToJsonArray(List<String> metrics) throws IOException {
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		this.mapper.writeValue(out,metrics);
+		final byte [] data = out.toByteArray();
+		return new String(data);
 	}
 
 }
