@@ -59,7 +59,7 @@ public class SidecarController {
 	public String home() {
 		return "<head><title>Sidecar</title></head><body>\n"
 				+ "<a href='/ping'>ping</a><br/>\n"
-				+ "<a href='/health'>health</a><br/>\n" + "<a href='/hosts/"
+				+ "<a href='/actuator/health'>health</a><br/>\n" + "<a href='/hosts/"
 				+ this.appName + "'>hosts/" + this.appName + "</a><br/>\n" + "</body>";
 	}
 
