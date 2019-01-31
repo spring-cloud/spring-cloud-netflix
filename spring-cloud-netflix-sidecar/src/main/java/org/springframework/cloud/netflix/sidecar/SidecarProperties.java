@@ -106,34 +106,36 @@ public class SidecarProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 		SidecarProperties that = (SidecarProperties) o;
-		return Objects.equals(healthUri, that.healthUri)
-				&& Objects.equals(homePageUri, that.homePageUri) && port == that.port
-				&& Objects.equals(hostname, that.hostname)
-				&& Objects.equals(securePortEnabled, that.securePortEnabled)
-				&& Objects.equals(ipAddress, that.ipAddress) && Objects
-						.equals(acceptAllSslCertificates, that.acceptAllSslCertificates);
+		return Objects.equals(healthUri, that.healthUri) &&
+				Objects.equals(homePageUri, that.homePageUri) &&
+				port == that.port &&
+				Objects.equals(securePortEnabled, that.securePortEnabled) &&
+				Objects.equals(hostname, that.hostname) &&
+				Objects.equals(ipAddress, that.ipAddress) &&
+				Objects.equals(acceptAllSslCertificates, that.acceptAllSslCertificates);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(healthUri, homePageUri, port, hostname, ipAddress,
-				acceptAllSslCertificates, securePortEnabled);
+		return Objects.hash(
+				healthUri, homePageUri, port, hostname, ipAddress,acceptAllSslCertificates, securePortEnabled
+		);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder("SidecarProperties{").append("healthUri=")
-				.append(healthUri).append(", ").append("homePageUri=").append(homePageUri)
-				.append(", ").append("port=").append(port).append(", ")
-				.append("hostname='").append(hostname).append("', ").append("ipAddress='")
+		return new StringBuilder("SidecarProperties{")
+				.append("healthUri=").append(healthUri).append(", ")
+				.append("homePageUri=").append(homePageUri).append(", ")
+				.append("port=").append(port).append(", ")
+				.append("hostname='").append(hostname).append("', ")
+				.append("ipAddress='").append(ipAddress).append("', ")
 				.append("securePortEnabled='").append(securePortEnabled).append("', ")
-				.append(ipAddress).append("', ").append("acceptAllSslCertificates='")
-				.append(acceptAllSslCertificates).append("'}").toString();
+				.append("acceptAllSslCertificates='").append(acceptAllSslCertificates).append("'}")
+				.toString();
 	}
 
 }
