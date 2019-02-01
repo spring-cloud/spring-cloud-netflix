@@ -1996,6 +1996,7 @@ Run the resulting application on the same host as the non-JVM application.</simp
 <simpara>To configure the side car, add <literal>sidecar.port</literal> and <literal>sidecar.health-uri</literal> to <literal>application.yml</literal>.
 The <literal>sidecar.port</literal> property is the port on which the non-JVM application listens.
 This is so the Sidecar can properly register the application with Eureka.
+The <literal>sidecar.secure-port-enabled</literal> options provides a way to enable secure port for traffic.
 The <literal>sidecar.health-uri</literal> is a URI accessible on the non-JVM application that mimics a Spring Boot health indicator.
 It should return a JSON document that resembles the following:</simpara>
 <formalpara>

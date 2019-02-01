@@ -1033,6 +1033,7 @@ This annotation includes <code class="literal">@EnableCircuitBreaker</code>, <co
 Run the resulting application on the same host as the non-JVM application.</p><p>To configure the side car, add <code class="literal">sidecar.port</code> and <code class="literal">sidecar.health-uri</code> to <code class="literal">application.yml</code>.
 The <code class="literal">sidecar.port</code> property is the port on which the non-JVM application listens.
 This is so the Sidecar can properly register the application with Eureka.
+The <code class="literal">sidecar.secure-port-enabled</code> options provides a way to enable secure port for traffic.
 The <code class="literal">sidecar.health-uri</code> is a URI accessible on the non-JVM application that mimics a Spring Boot health indicator.
 It should return a JSON document that resembles the following:</p><p><b>health-uri-document.&nbsp;</b>
 </p><pre class="programlisting"><span xmlns:d="http://docbook.org/ns/docbook" class="hl-keyword">{</span>
