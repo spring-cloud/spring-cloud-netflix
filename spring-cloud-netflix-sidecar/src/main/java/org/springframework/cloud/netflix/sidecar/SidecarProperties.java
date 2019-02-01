@@ -46,6 +46,16 @@ public class SidecarProperties {
 
 	private boolean acceptAllSslCertificates;
 
+	private boolean securePortEnabled;
+
+	public boolean isSecurePortEnabled() {
+		return securePortEnabled;
+	}
+
+	public void setSecurePortEnabled(boolean securePortEnabled) {
+		this.securePortEnabled = securePortEnabled;
+	}
+
 	public URI getHealthUri() {
 		return healthUri;
 	}
@@ -102,6 +112,7 @@ public class SidecarProperties {
 		return Objects.equals(healthUri, that.healthUri) &&
 				Objects.equals(homePageUri, that.homePageUri) &&
 				port == that.port &&
+				Objects.equals(securePortEnabled, that.securePortEnabled) &&
 				Objects.equals(hostname, that.hostname) &&
 				Objects.equals(ipAddress, that.ipAddress) &&
 				Objects.equals(acceptAllSslCertificates, that.acceptAllSslCertificates);
@@ -109,7 +120,9 @@ public class SidecarProperties {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(healthUri, homePageUri, port, hostname, ipAddress, acceptAllSslCertificates);
+		return Objects.hash(
+				healthUri, homePageUri, port, hostname, ipAddress,acceptAllSslCertificates, securePortEnabled
+		);
 	}
 
 	@Override
@@ -120,6 +133,7 @@ public class SidecarProperties {
 				.append("port=").append(port).append(", ")
 				.append("hostname='").append(hostname).append("', ")
 				.append("ipAddress='").append(ipAddress).append("', ")
+				.append("securePortEnabled='").append(securePortEnabled).append("', ")
 				.append("acceptAllSslCertificates='").append(acceptAllSslCertificates).append("'}")
 				.toString();
 	}

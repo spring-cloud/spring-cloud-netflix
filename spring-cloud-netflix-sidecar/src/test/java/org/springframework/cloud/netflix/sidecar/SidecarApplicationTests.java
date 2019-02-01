@@ -142,4 +142,18 @@ public class SidecarApplicationTests {
 			assertNull(restTemplate.getRequestFactory());
 		}
 	}
+
+	@RunWith(SpringRunner.class)
+	@SpringBootTest(classes = SidecarApplication.class, webEnvironment = RANDOM_PORT, value = {
+			"sidecar.port=7000", "sidecar.ip-address=127.0.0.1",
+			"sidecar.secure-port-enabled=true" })
+	public static class SecurePortEnabled {
+		@Autowired
+		EurekaInstanceConfigBean config;
+
+		@Test
+		public void testThatSecureEnabledOptionIsSetFromPropertyFile() {
+			assertThat(this.config.isSecurePortEnabled(), equalTo(true));
+		}
+	}
 }

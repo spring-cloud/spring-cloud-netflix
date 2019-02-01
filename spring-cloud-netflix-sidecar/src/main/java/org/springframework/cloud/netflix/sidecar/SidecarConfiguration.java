@@ -120,6 +120,7 @@ public class SidecarConfiguration {
 			String springAppName = this.env.getProperty("spring.application.name", "");
 			int port = this.sidecarProperties.getPort();
 			config.setNonSecurePort(port);
+			config.setSecurePortEnabled(this.sidecarProperties.isSecurePortEnabled());
 			config.setInstanceId(getDefaultInstanceId(this.env));
 			if (StringUtils.hasText(springAppName)) {
 				config.setAppname(springAppName);
