@@ -69,8 +69,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = CustomHostRoutingFilterTests.SampleCustomZuulProxyApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+@SpringBootTest(classes = CustomHostRoutingFilterTests.SampleCustomZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
 		"server.servlet.context-path: /app" })
 @DirtiesContext
 public class CustomHostRoutingFilterTests {
@@ -169,7 +168,6 @@ public class CustomHostRoutingFilterTests {
 		assertEquals("GetCookie 1", result2.getBody());
 	}
 
-
 	@Configuration
 	@EnableAutoConfiguration
 	@RestController
@@ -204,7 +202,8 @@ public class CustomHostRoutingFilterTests {
 		}
 
 		@RequestMapping(value = "/patch/{id}", method = RequestMethod.PATCH)
-		public String patch(@PathVariable String id, @RequestParam("patch") String patch) {
+		public String patch(@PathVariable String id,
+				@RequestParam("patch") String patch) {
 			return "Patch " + id + patch;
 		}
 
@@ -217,28 +216,30 @@ public class CustomHostRoutingFilterTests {
 		protected static class CustomZuulProxyConfig {
 
 			@Bean
-			public ApacheHttpClientFactory customHttpClientFactory(HttpClientBuilder builder) {
+			public ApacheHttpClientFactory customHttpClientFactory(
+					HttpClientBuilder builder) {
 				return new CustomApacheHttpClientFactory(builder);
 			}
 
 			@Bean
 			public CloseableHttpClient closeableClient() {
-				return HttpClients.custom()
-						.setDefaultCookieStore(new BasicCookieStore())
+				return HttpClients.custom().setDefaultCookieStore(new BasicCookieStore())
 						.setDefaultRequestConfig(RequestConfig.custom()
 								.setCookieSpec(CookieSpecs.DEFAULT).build())
 						.build();
 			}
 
 			@Bean
-			public SimpleHostRoutingFilter simpleHostRoutingFilter(ProxyRequestHelper helper,
-																   ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+			public SimpleHostRoutingFilter simpleHostRoutingFilter(
+					ProxyRequestHelper helper, ZuulProperties zuulProperties,
+					CloseableHttpClient httpClient) {
 				return new CustomHostRoutingFilter(helper, zuulProperties, httpClient);
 			}
 
 			private class CustomHostRoutingFilter extends SimpleHostRoutingFilter {
+
 				public CustomHostRoutingFilter(ProxyRequestHelper helper,
-											   ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
+						ZuulProperties zuulProperties, CloseableHttpClient httpClient) {
 					super(helper, zuulProperties, httpClient);
 				}
 
@@ -247,15 +248,20 @@ public class CustomHostRoutingFilterTests {
 					super.addIgnoredHeaders("X-Ignored");
 					return super.run();
 				}
+
 			}
 
+			private class CustomApacheHttpClientFactory
+					extends DefaultApacheHttpClientFactory {
 
-			private class CustomApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
 				public CustomApacheHttpClientFactory(HttpClientBuilder builder) {
 					super(builder);
 				}
+
 			}
+
 		}
 
 	}
+
 }

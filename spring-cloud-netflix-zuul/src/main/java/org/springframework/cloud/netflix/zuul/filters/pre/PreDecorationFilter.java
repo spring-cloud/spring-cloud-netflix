@@ -22,8 +22,11 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -33,9 +36,6 @@ import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UrlPathHelper;
-
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_LOCATION_PREFIX;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
@@ -58,8 +58,15 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.X_FORWARDED_PROTO_HEADER;
 
 /**
- * Pre {@link ZuulFilter} that determines where and how to route based on the supplied {@link RouteLocator}.
- * Also sets various proxy related headers for downstream requests.
+ * Pre {@link ZuulFilter} that determines where and how to route based on the supplied
+ * {@link RouteLocator}. Also sets various proxy related headers for downstream requests.
+ * @author Spencer Gibb
+ * @author Dave Syer
+ * @author Philip Webb
+ * @author Stefan Fussenegger
+ * @author Adrian Ivan
+ * @author Jacques-Etienne Beaudet
+ * @author Durigon Durigon
  */
 public class PreDecorationFilter extends ZuulFilter {
 
@@ -71,6 +78,9 @@ public class PreDecorationFilter extends ZuulFilter {
 	@Deprecated
 	public static final int FILTER_ORDER = PRE_DECORATION_FILTER_ORDER;
 
+	/**
+	 * A double slash pattern.
+	 */
 	public static final Pattern DOUBLE_SLASH = Pattern.compile("//");
 
 	private RouteLocator routeLocator;
@@ -83,11 +93,12 @@ public class PreDecorationFilter extends ZuulFilter {
 
 	private ProxyRequestHelper proxyRequestHelper;
 
-	public PreDecorationFilter(RouteLocator routeLocator, String dispatcherServletPath, ZuulProperties properties,
-			ProxyRequestHelper proxyRequestHelper) {
+	public PreDecorationFilter(RouteLocator routeLocator, String dispatcherServletPath,
+			ZuulProperties properties, ProxyRequestHelper proxyRequestHelper) {
 		this.routeLocator = routeLocator;
 		this.properties = properties;
-		this.urlPathHelper.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
+		this.urlPathHelper
+				.setRemoveSemicolonContent(properties.isRemoveSemicolonContent());
 		this.urlPathHelper.setUrlDecode(properties.isDecodeUrl());
 		this.dispatcherServletPath = dispatcherServletPath;
 		this.proxyRequestHelper = proxyRequestHelper;
@@ -107,13 +118,15 @@ public class PreDecorationFilter extends ZuulFilter {
 	public boolean shouldFilter() {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		return !ctx.containsKey(FORWARD_TO_KEY) // a filter has already forwarded
-				&& !ctx.containsKey(SERVICE_ID_KEY); // a filter has already determined serviceId
+				&& !ctx.containsKey(SERVICE_ID_KEY); // a filter has already determined
+		// serviceId
 	}
 
 	@Override
 	public Object run() {
 		RequestContext ctx = RequestContext.getCurrentContext();
-		final String requestURI = this.urlPathHelper.getPathWithinApplication(ctx.getRequest());
+		final String requestURI = this.urlPathHelper
+				.getPathWithinApplication(ctx.getRequest());
 		Route route = this.routeLocator.getMatchingRoute(requestURI);
 		if (route != null) {
 			String location = route.getLocation();
@@ -121,24 +134,28 @@ public class PreDecorationFilter extends ZuulFilter {
 				ctx.put(REQUEST_URI_KEY, route.getPath());
 				ctx.put(PROXY_KEY, route.getId());
 				if (!route.isCustomSensitiveHeaders()) {
-					this.proxyRequestHelper
-							.addIgnoredHeaders(this.properties.getSensitiveHeaders().toArray(new String[0]));
+					this.proxyRequestHelper.addIgnoredHeaders(
+							this.properties.getSensitiveHeaders().toArray(new String[0]));
 				}
 				else {
-					this.proxyRequestHelper.addIgnoredHeaders(route.getSensitiveHeaders().toArray(new String[0]));
+					this.proxyRequestHelper.addIgnoredHeaders(
+							route.getSensitiveHeaders().toArray(new String[0]));
 				}
 
 				if (route.getRetryable() != null) {
 					ctx.put(RETRYABLE_KEY, route.getRetryable());
 				}
 
-				if (location.startsWith(HTTP_SCHEME+":") || location.startsWith(HTTPS_SCHEME+":")) {
+				if (location.startsWith(HTTP_SCHEME + ":")
+						|| location.startsWith(HTTPS_SCHEME + ":")) {
 					ctx.setRouteHost(getUrl(location));
 					ctx.addOriginResponseHeader(SERVICE_HEADER, location);
 				}
 				else if (location.startsWith(FORWARD_LOCATION_PREFIX)) {
 					ctx.set(FORWARD_TO_KEY,
-							StringUtils.cleanPath(location.substring(FORWARD_LOCATION_PREFIX.length()) + route.getPath()));
+							StringUtils.cleanPath(
+									location.substring(FORWARD_LOCATION_PREFIX.length())
+											+ route.getPath()));
 					ctx.setRouteHost(null);
 					return null;
 				}
@@ -150,7 +167,8 @@ public class PreDecorationFilter extends ZuulFilter {
 				}
 				if (this.properties.isAddProxyHeaders()) {
 					addProxyHeaders(ctx, route);
-					String xforwardedfor = ctx.getRequest().getHeader(X_FORWARDED_FOR_HEADER);
+					String xforwardedfor = ctx.getRequest()
+							.getHeader(X_FORWARDED_FOR_HEADER);
 					String remoteAddr = ctx.getRequest().getRemoteAddr();
 					if (xforwardedfor == null) {
 						xforwardedfor = remoteAddr;
@@ -161,7 +179,8 @@ public class PreDecorationFilter extends ZuulFilter {
 					ctx.addZuulRequestHeader(X_FORWARDED_FOR_HEADER, xforwardedfor);
 				}
 				if (this.properties.isAddHostHeader()) {
-					ctx.addZuulRequestHeader(HttpHeaders.HOST, toHostHeader(ctx.getRequest()));
+					ctx.addZuulRequestHeader(HttpHeaders.HOST,
+							toHostHeader(ctx.getRequest()));
 				}
 			}
 		}
@@ -195,7 +214,8 @@ public class PreDecorationFilter extends ZuulFilter {
 			fallBackUri = "/" + fallBackUri;
 		}
 
-		String forwardURI = (fallbackPrefix == null) ? fallBackUri : fallbackPrefix + fallBackUri;
+		String forwardURI = (fallbackPrefix == null) ? fallBackUri
+				: fallbackPrefix + fallBackUri;
 		forwardURI = DOUBLE_SLASH.matcher(forwardURI).replaceAll("/");
 		return forwardURI;
 	}
@@ -211,16 +231,19 @@ public class PreDecorationFilter extends ZuulFilter {
 		if (!hasHeader(request, X_FORWARDED_PORT_HEADER)) {
 			if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
 				StringBuilder builder = new StringBuilder();
-				for (String previous : StringUtils.commaDelimitedListToStringArray(request.getHeader(X_FORWARDED_PROTO_HEADER))) {
-					if (builder.length()>0) {
+				for (String previous : StringUtils.commaDelimitedListToStringArray(
+						request.getHeader(X_FORWARDED_PROTO_HEADER))) {
+					if (builder.length() > 0) {
 						builder.append(",");
 					}
-					builder.append(HTTPS_SCHEME.equals(previous) ? HTTPS_PORT : HTTP_PORT);
+					builder.append(
+							HTTPS_SCHEME.equals(previous) ? HTTPS_PORT : HTTP_PORT);
 				}
 				builder.append(",").append(port);
 				port = builder.toString();
 			}
-		} else {
+		}
+		else {
 			port = request.getHeader(X_FORWARDED_PORT_HEADER) + "," + port;
 		}
 		if (hasHeader(request, X_FORWARDED_PROTO_HEADER)) {
@@ -278,4 +301,5 @@ public class PreDecorationFilter extends ZuulFilter {
 			throw new IllegalStateException("Target URL is malformed", ex);
 		}
 	}
+
 }

@@ -18,14 +18,14 @@
 
 package org.springframework.cloud.netflix.eureka.sample;
 
+import com.netflix.discovery.EurekaClient;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.netflix.discovery.EurekaClient;
 
 import static org.mockito.Mockito.mock;
 
@@ -42,4 +42,5 @@ public class RefreshEurekaSampleApplication {
 	public EurekaClient getClient() {
 		return mock(CloudEurekaClient.class);
 	}
+
 }

@@ -16,9 +16,14 @@
 
 package org.springframework.cloud.netflix.ribbon.eureka;
 
+import com.netflix.discovery.EurekaClient;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -36,11 +41,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.netflix.discovery.EurekaClient;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ZoneAvoidanceRule;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -76,9 +76,8 @@ public class RibbonClientPreprocessorIntegrationTests {
 		@SuppressWarnings("unchecked")
 		ZoneAwareLoadBalancer<Server> loadBalancer = (ZoneAwareLoadBalancer<Server>) this.factory
 				.getLoadBalancer("foo");
-		assertEquals("myTestZone",
-				ZonePreferenceServerListFilter.class.cast(loadBalancer.getFilter())
-						.getZone());
+		assertEquals("myTestZone", ZonePreferenceServerListFilter.class
+				.cast(loadBalancer.getFilter()).getZone());
 	}
 
 	@Configuration
@@ -86,6 +85,7 @@ public class RibbonClientPreprocessorIntegrationTests {
 	@ImportAutoConfiguration({ PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class })
 	protected static class PlainConfiguration {
+
 	}
 
 	@Configuration
@@ -94,14 +94,17 @@ public class RibbonClientPreprocessorIntegrationTests {
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class,
 			RibbonEurekaAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 		@Bean
 		EurekaClient eurekaClient() {
 			return Mockito.mock(EurekaClient.class);
 		}
+
 	}
 
 	@Configuration
 	protected static class FooConfiguration {
+
 		@Bean
 		public ZonePreferenceServerListFilter serverListFilter() {
 			ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
@@ -111,10 +114,11 @@ public class RibbonClientPreprocessorIntegrationTests {
 
 		@Bean
 		public EurekaInstanceConfigBean getEurekaInstanceConfigBean() {
-			EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(new InetUtils(
-					new InetUtilsProperties()));
+			EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(
+					new InetUtils(new InetUtilsProperties()));
 			return bean;
 		}
+
 	}
 
 }

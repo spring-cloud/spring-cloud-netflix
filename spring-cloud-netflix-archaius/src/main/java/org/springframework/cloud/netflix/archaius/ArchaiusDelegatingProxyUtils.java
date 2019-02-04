@@ -16,24 +16,30 @@
 
 package org.springframework.cloud.netflix.archaius;
 
+import com.netflix.config.ConfigurationManager;
 import org.apache.commons.configuration.AbstractConfiguration;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import com.netflix.config.ConfigurationManager;
 
 /**
  * @author Dave Syer
  */
-public class ArchaiusDelegatingProxyUtils {
+public final class ArchaiusDelegatingProxyUtils {
 
+	private ArchaiusDelegatingProxyUtils() {
+	}
+
+	/**
+	 * {@code ApplicationContext} class name.
+	 */
 	public static String APPLICATION_CONTEXT = ApplicationContext.class.getName();
 
 	public static <T> T getNamedInstance(Class<T> type, String name) {
 		ApplicationContext context = (ApplicationContext) ConfigurationManager
 				.getConfigInstance().getProperty(APPLICATION_CONTEXT);
-		return context != null && context.containsBean(name) ? context
-				.getBean(name, type) : null;
+		return context != null && context.containsBean(name) ? context.getBean(name, type)
+				: null;
 	}
 
 	public static <T> T getInstanceWithPrefix(Class<T> type, String prefix) {

@@ -18,6 +18,8 @@ package org.springframework.cloud.netflix.hystrix.stream;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.hystrix.HystrixCircuitBreaker;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -37,8 +39,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.netflix.hystrix.HystrixCircuitBreaker;
-
 /**
  * Autoconfiguration for a Spring Cloud Hystrix on Spring Cloud Stream. Enabled by default
  * if spring-cloud-stream is on the classpath, and can be switched off with
@@ -56,7 +56,8 @@ import com.netflix.hystrix.HystrixCircuitBreaker;
 @EnableConfigurationProperties
 @EnableScheduling
 @EnableBinding(HystrixStreamClient.class)
-@AutoConfigureBefore(BindingServiceConfiguration.class) // Needed for bindings done in auto config
+@AutoConfigureBefore(BindingServiceConfiguration.class) // Needed for bindings done in
+// auto config
 public class HystrixStreamAutoConfiguration {
 
 	@Autowired
@@ -102,7 +103,8 @@ public class HystrixStreamAutoConfiguration {
 	}
 
 	@Bean
-	public HystrixStreamTask hystrixStreamTask(SimpleDiscoveryProperties simpleDiscoveryProperties) {
+	public HystrixStreamTask hystrixStreamTask(
+			SimpleDiscoveryProperties simpleDiscoveryProperties) {
 		ServiceInstance serviceInstance = this.registration;
 		if (serviceInstance == null) {
 			serviceInstance = simpleDiscoveryProperties.getLocal();

@@ -46,8 +46,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Daniel Lavoie
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
-		"debug=true", "spring.jmx.enabled=true", "spring.application.name=mytestapp" })
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = {"debug=true",
+		"spring.jmx.enabled=true", "spring.application.name=mytestapp"})
 @DirtiesContext
 public class HystrixStreamTests {
 
@@ -81,6 +81,7 @@ public class HystrixStreamTests {
 		public String hello() {
 			return "Hello World";
 		}
+
 	}
 
 	@Test
@@ -92,7 +93,7 @@ public class HystrixStreamTests {
 		assertThat(this.registration.getServiceId()).isEqualTo("mytestapp");
 		this.task.gatherMetrics();
 		Message<?> message = this.collector.forChannel(output).take();
-		JsonNode tree = mapper.readTree((String)message.getPayload());
+		JsonNode tree = mapper.readTree((String) message.getPayload());
 		assertThat(tree.hasNonNull("origin")).isTrue();
 		assertThat(tree.hasNonNull("data")).isTrue();
 		assertThat(tree.hasNonNull("event")).isTrue();

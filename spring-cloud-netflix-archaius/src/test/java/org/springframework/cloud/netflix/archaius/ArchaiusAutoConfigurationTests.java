@@ -19,16 +19,16 @@ package org.springframework.cloud.netflix.archaius;
 
 import java.util.Collections;
 
-import org.apache.commons.configuration.AbstractConfiguration;
-import org.junit.After;
-import org.junit.Test;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
 import com.netflix.config.ConfigurationManager;
 import com.netflix.config.DynamicPropertyFactory;
 import com.netflix.config.DynamicStringProperty;
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.junit.After;
+import org.junit.Test;
+
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,6 +40,7 @@ import static org.junit.Assert.assertNull;
 public class ArchaiusAutoConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
+
 	private Object propertyValue;
 
 	@After
@@ -62,16 +63,15 @@ public class ArchaiusAutoConfigurationTests {
 	public void environmentChangeEventPropagated() {
 		this.context = new AnnotationConfigApplicationContext(
 				ArchaiusAutoConfiguration.class);
-		ConfigurationManager.getConfigInstance().addConfigurationListener(
-				event -> {
-					if (event.getPropertyName().equals("my.prop")) {
-						ArchaiusAutoConfigurationTests.this.propertyValue = event
-								.getPropertyValue();
-					}
-				});
+		ConfigurationManager.getConfigInstance().addConfigurationListener(event -> {
+			if (event.getPropertyName().equals("my.prop")) {
+				ArchaiusAutoConfigurationTests.this.propertyValue = event
+						.getPropertyValue();
+			}
+		});
 		TestPropertyValues.of("my.prop=my.newval").applyTo(this.context);
-		this.context.publishEvent(new EnvironmentChangeEvent(Collections
-				.singleton("my.prop")));
+		this.context.publishEvent(
+				new EnvironmentChangeEvent(Collections.singleton("my.prop")));
 		assertEquals("my.newval", this.propertyValue);
 	}
 

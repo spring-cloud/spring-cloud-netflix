@@ -1,7 +1,6 @@
 package org.springframework.cloud.netflix.zuul.filters.discovery;
 
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +17,7 @@ public class PatternServiceRouteMapperTests {
 	 * optional
 	 */
 	public static final String SERVICE_PATTERN = "(?<domain>^\\w+)(-(?<name>\\w+)-|-)(?<version>v\\d+$)";
+
 	public static final String ROUTE_PATTERN = "${version}/${domain}/${name}";
 
 	@Before
@@ -61,4 +61,5 @@ public class PatternServiceRouteMapperTests {
 		assertEquals("No matches for this service id", "v1/domain",
 				toTest.apply("domain-v1"));
 	}
+
 }

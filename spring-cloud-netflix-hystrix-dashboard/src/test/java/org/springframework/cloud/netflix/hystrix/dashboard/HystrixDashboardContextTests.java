@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -38,12 +39,13 @@ import static org.junit.Assert.assertTrue;
  *
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT,
-		properties = { "spring.application.name=hystrix-dashboard",
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+		"spring.application.name=hystrix-dashboard",
 		"server.servlet.context-path=/context" })
 public class HystrixDashboardContextTests {
 
 	public static final String JQUERY_PATH = "/context/webjars/jquery/2.1.1/jquery.min.js";
+
 	@LocalServerPort
 	private int port = 0;
 
@@ -64,7 +66,7 @@ public class HystrixDashboardContextTests {
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		String body = entity.getBody();
 		assertTrue("wrong jquery path rendered in template",
-				body.contains("src=\""+JQUERY_PATH+"\""));
+				body.contains("src=\"" + JQUERY_PATH + "\""));
 	}
 
 	@Test
@@ -97,6 +99,7 @@ public class HystrixDashboardContextTests {
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {
+
 	}
 
 }

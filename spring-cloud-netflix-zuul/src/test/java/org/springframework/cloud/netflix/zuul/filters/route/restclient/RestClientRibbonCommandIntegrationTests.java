@@ -201,8 +201,10 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/");
 		this.endpoint.reset();
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/self/colonquery?foo:bar={foobar0}&foobar={foobar1}", HttpMethod.GET,
-				new HttpEntity<>((Void) null), String.class, "baz", "bam");
+				"http://localhost:" + this.port
+						+ "/self/colonquery?foo:bar={foobar0}&foobar={foobar1}",
+				HttpMethod.GET, new HttpEntity<>((Void) null), String.class, "baz",
+				"bam");
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("/colonquery?foo:bar=baz&foobar=bam", result.getBody());
 	}
@@ -314,8 +316,8 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		public ResponseEntity<String> addHeader(HttpServletRequest request) {
 			HttpHeaders headers = new HttpHeaders();
 			headers.set("X-Header", "FOO");
-			ResponseEntity<String> result = new ResponseEntity<>(
-					request.getRequestURI(), headers, HttpStatus.OK);
+			ResponseEntity<String> result = new ResponseEntity<>(request.getRequestURI(),
+					headers, HttpStatus.OK);
 			return result;
 		}
 
@@ -325,7 +327,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		}
 
 		@RequestMapping("/colonquery")
-		public String colonQuery(HttpServletRequest request, @RequestParam(name = "foo:bar") String foobar0, @RequestParam(name = "foobar") String foobar1) {
+		public String colonQuery(HttpServletRequest request,
+				@RequestParam(name = "foo:bar") String foobar0,
+				@RequestParam(name = "foobar") String foobar1) {
 			return request.getRequestURI() + "?foo:bar=" + foobar0 + "&foobar=" + foobar1;
 		}
 
@@ -346,8 +350,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 		@Bean
 		public DiscoveryClientRouteLocator discoveryRouteLocator(
-				DiscoveryClient discoveryClient,
-				ZuulProperties zuulProperties) {
+				DiscoveryClient discoveryClient, ZuulProperties zuulProperties) {
 			return new MyRouteLocator("/", discoveryClient, zuulProperties);
 		}
 
@@ -372,7 +375,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			private SpringClientFactory clientFactory;
 
 			public MyRibbonCommandFactory(SpringClientFactory clientFactory,
-										  Set<FallbackProvider> fallbackProviders) {
+					Set<FallbackProvider> fallbackProviders) {
 				super(clientFactory, new ZuulProperties(), fallbackProviders);
 				this.clientFactory = clientFactory;
 			}
@@ -390,6 +393,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				}
 				return super.create(context);
 			}
+
 		}
 
 		static class MyCommand extends RestClientRibbonCommand {
@@ -410,11 +414,13 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				return new MockClientHttpResponse(new byte[0],
 						HttpStatus.valueOf(this.errorCode));
 			}
+
 		}
 
 		// Load balancer with fixed server list for "simple" pointing to bad host
 		@Configuration
 		static class BadHostRibbonClientConfiguration {
+
 			@Bean
 			public ServerList<Server> ribbonServerList() {
 				return new StaticServerList<>(
@@ -423,11 +429,14 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 
 		}
 
-		//This is needed to allow semicolon separators used in matrix variables
+		// This is needed to allow semicolon separators used in matrix variables
 		@Configuration
-		static class CustomHttpFirewallConfig implements WebSecurityConfigurer<WebSecurity> {
+		static class CustomHttpFirewallConfig
+				implements WebSecurityConfigurer<WebSecurity> {
+
 			@Override
-			public void init(WebSecurity webSecurity) throws Exception {}
+			public void init(WebSecurity webSecurity) throws Exception {
+			}
 
 			@Override
 			public void configure(WebSecurity builder) throws Exception {
@@ -435,6 +444,7 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				firewall.setAllowSemicolon(true);
 				builder.httpFirewall(firewall);
 			}
+
 		}
 
 		static class MyRouteLocator extends DiscoveryClientRouteLocator {
@@ -443,6 +453,9 @@ public class RestClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 					ZuulProperties properties) {
 				super(servletPath, discovery, properties);
 			}
+
 		}
+
 	}
+
 }

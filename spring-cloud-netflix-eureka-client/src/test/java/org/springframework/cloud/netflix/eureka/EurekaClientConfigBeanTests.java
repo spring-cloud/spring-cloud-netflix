@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -52,8 +53,8 @@ public class EurekaClientConfigBeanTests {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("example.com", this.context.getBean(EurekaClientConfigBean.class)
-				.getProxyHost());
+		assertEquals("example.com",
+				this.context.getBean(EurekaClientConfigBean.class).getProxyHost());
 	}
 
 	@Test
@@ -63,9 +64,8 @@ public class EurekaClientConfigBeanTests {
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("{defaultZone=http://example.com}",
-				this.context.getBean(EurekaClientConfigBean.class).getServiceUrl()
-						.toString());
+		assertEquals("{defaultZone=http://example.com}", this.context
+				.getBean(EurekaClientConfigBean.class).getServiceUrl().toString());
 		assertEquals("[http://example.com/]", getEurekaServiceUrlsForDefaultZone());
 	}
 
@@ -73,13 +73,15 @@ public class EurekaClientConfigBeanTests {
 	public void serviceUrlWithCompositePropertySource() {
 		CompositePropertySource source = new CompositePropertySource("composite");
 		this.context.getEnvironment().getPropertySources().addFirst(source);
-		source.addPropertySource(new MapPropertySource("config", Collections
-				.<String, Object> singletonMap("eureka.client.serviceUrl.defaultZone",
+		source.addPropertySource(new MapPropertySource("config",
+				Collections.<String, Object>singletonMap(
+						"eureka.client.serviceUrl.defaultZone",
 						"http://example.com,http://example2.com, http://example3.com")));
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);
 		this.context.refresh();
-		assertEquals("{defaultZone=http://example.com,http://example2.com, http://example3.com}",
+		assertEquals(
+				"{defaultZone=http://example.com,http://example2.com, http://example3.com}",
 				this.context.getBean(EurekaClientConfigBean.class).getServiceUrl()
 						.toString());
 		assertEquals("[http://example.com/, http://example2.com/, http://example3.com/]",
@@ -98,7 +100,8 @@ public class EurekaClientConfigBeanTests {
 
 	@Test
 	public void serviceUrlWithCustomZone() {
-		TestPropertyValues.of("eureka.client.serviceUrl.customZone:http://custom-example.com")
+		TestPropertyValues
+				.of("eureka.client.serviceUrl.customZone:http://custom-example.com")
 				.applyTo(this.context);
 		this.context.register(PropertyPlaceholderAutoConfiguration.class,
 				TestConfiguration.class);

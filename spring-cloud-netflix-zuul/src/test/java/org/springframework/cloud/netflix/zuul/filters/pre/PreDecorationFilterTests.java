@@ -24,7 +24,6 @@ import java.util.Set;
 
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,8 +54,9 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Dave Syer
  */
 @RunWith(ModifiedClassPathRunner.class)
-//This is needed for sensitiveHeadersOverrideEmpty, if Spring Security is on the classpath
-//then sensitive headers will always be present.
+// This is needed for sensitiveHeadersOverrideEmpty, if Spring Security is on the
+// classpath
+// then sensitive headers will always be present.
 @ClassPathExclusions({"spring-security-*.jar"})
 public class PreDecorationFilterTests {
 

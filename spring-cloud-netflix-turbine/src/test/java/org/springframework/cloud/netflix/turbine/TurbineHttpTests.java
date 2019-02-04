@@ -45,8 +45,11 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest(classes = TurbineHttpTests.TurbineHttpSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class TurbineHttpTests {
 
-	private static final ClusterInformation foo = new ClusterInformation("foo", "http://foo");
-	private static final ClusterInformation bar = new ClusterInformation("bar", "http://bar");
+	private static final ClusterInformation foo = new ClusterInformation("foo",
+			"http://foo");
+
+	private static final ClusterInformation bar = new ClusterInformation("bar",
+			"http://bar");
 
 	@Autowired
 	TestRestTemplate rest;
@@ -55,27 +58,32 @@ public class TurbineHttpTests {
 	@EnableAutoConfiguration
 	@EnableTurbine
 	protected static class TurbineHttpSampleApplication {
+
 		@Bean
 		@Primary
 		TurbineInformationService myInfoService() {
 			return new TurbineInformationService() {
-			   @Override
-			   public Collection<ClusterInformation> getClusterInformations(HttpServletRequest request) {
+				@Override
+				public Collection<ClusterInformation> getClusterInformations(
+						HttpServletRequest request) {
 					List<ClusterInformation> clusterInformationList = new ArrayList<ClusterInformation>();
 					clusterInformationList.add(foo);
 					clusterInformationList.add(bar);
 					return clusterInformationList;
-			}
-		};
+				}
+			};
 		}
+
 	}
 
 	@Test
 	public void contextLoads() {
-		ClusterInformation[] clusters = rest.getForObject("/clusters", ClusterInformation[].class);
+		ClusterInformation[] clusters = rest.getForObject("/clusters",
+				ClusterInformation[].class);
 		System.err.println(Arrays.asList(clusters));
 		assertEquals(2, clusters.length);
 		assertEquals(foo, clusters[0]);
 		assertEquals(bar, clusters[1]);
 	}
+
 }

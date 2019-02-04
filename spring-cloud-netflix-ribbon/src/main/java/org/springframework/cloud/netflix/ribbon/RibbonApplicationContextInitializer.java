@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.List;
+
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -30,8 +31,8 @@ public class RibbonApplicationContextInitializer
 		implements ApplicationListener<ApplicationReadyEvent> {
 
 	private final SpringClientFactory springClientFactory;
-	
-	//List of Ribbon client names
+
+	// List of Ribbon client names
 	private final List<String> clientNames;
 
 	public RibbonApplicationContextInitializer(SpringClientFactory springClientFactory,
@@ -52,4 +53,5 @@ public class RibbonApplicationContextInitializer
 	public void onApplicationEvent(ApplicationReadyEvent event) {
 		initialize();
 	}
+
 }

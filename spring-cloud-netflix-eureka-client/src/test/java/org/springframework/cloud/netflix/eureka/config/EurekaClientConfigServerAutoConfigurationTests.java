@@ -16,13 +16,13 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import com.netflix.appinfo.EurekaInstanceConfig;
 import org.junit.Test;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
-
-import com.netflix.appinfo.EurekaInstanceConfig;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,42 +35,44 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 	@Test
 	public void offByDefault() {
 		new ApplicationContextRunner().withConfiguration(
-			AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class))
-			.run(c -> {
-				assertEquals(0,
-					c.getBeanNamesForType(EurekaInstanceConfigBean.class).length);
-			});
+				AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class))
+				.run(c -> {
+					assertEquals(0,
+							c.getBeanNamesForType(EurekaInstanceConfigBean.class).length);
+				});
 	}
 
-    @Test
-    public void onWhenRequested() {
-        new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(
-                EurekaClientConfigServerAutoConfiguration.class,
-                ConfigServerProperties.class, EurekaInstanceConfigBean.class))
-            .withPropertyValues("spring.cloud.config.server.prefix=/config")
-            .run(c -> {
-                assertEquals(1,
-                    c.getBeanNamesForType(EurekaInstanceConfig.class).length);
-                EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
-                assertEquals("/config", instance.getMetadataMap().get("configPath"));
-            });
-    }
+	@Test
+	public void onWhenRequested() {
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(
+						EurekaClientConfigServerAutoConfiguration.class,
+						ConfigServerProperties.class, EurekaInstanceConfigBean.class))
+				.withPropertyValues("spring.cloud.config.server.prefix=/config")
+				.run(c -> {
+					assertEquals(1,
+							c.getBeanNamesForType(EurekaInstanceConfig.class).length);
+					EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
+					assertEquals("/config", instance.getMetadataMap().get("configPath"));
+				});
+	}
 
-    @Test
-    public void notOverridingMetamapSettings() {
-        new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(
-                EurekaClientConfigServerAutoConfiguration.class,
-                ConfigServerProperties.class, EurekaInstanceConfigBean.class))
-            .withPropertyValues("spring.cloud.config.server.prefix=/config")
-            .withPropertyValues("eureka.instance.metadataMap.configPath=/differentpath")
-            .run(c -> {
-                assertEquals(1,
-                    c.getBeanNamesForType(EurekaInstanceConfig.class).length);
-                EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
-                assertEquals("/differentpath", instance.getMetadataMap().get("configPath"));
-            });
-    }
+	@Test
+	public void notOverridingMetamapSettings() {
+		new ApplicationContextRunner()
+				.withConfiguration(AutoConfigurations.of(
+						EurekaClientConfigServerAutoConfiguration.class,
+						ConfigServerProperties.class, EurekaInstanceConfigBean.class))
+				.withPropertyValues("spring.cloud.config.server.prefix=/config")
+				.withPropertyValues(
+						"eureka.instance.metadataMap.configPath=/differentpath")
+				.run(c -> {
+					assertEquals(1,
+							c.getBeanNamesForType(EurekaInstanceConfig.class).length);
+					EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
+					assertEquals("/differentpath",
+							instance.getMetadataMap().get("configPath"));
+				});
+	}
 
 }

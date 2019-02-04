@@ -38,14 +38,19 @@ import org.springframework.util.Assert;
 import static com.netflix.appinfo.InstanceInfo.PortType.SECURE;
 
 /**
+ * A {@link DiscoveryClient} implementation for Eureka.
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
 public class EurekaDiscoveryClient implements DiscoveryClient {
 
+	/**
+	 * Client description {@link String}.
+	 */
 	public static final String DESCRIPTION = "Spring Cloud Eureka Discovery Client";
 
 	private final EurekaClient eurekaClient;
+
 	private final EurekaClientConfig clientConfig;
 
 	@Deprecated
@@ -53,7 +58,8 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		this(eurekaClient, eurekaClient.getEurekaClientConfig());
 	}
 
-	public EurekaDiscoveryClient(EurekaClient eurekaClient, EurekaClientConfig clientConfig) {
+	public EurekaDiscoveryClient(EurekaClient eurekaClient,
+			EurekaClientConfig clientConfig) {
 		this.clientConfig = clientConfig;
 		this.eurekaClient = eurekaClient;
 	}
@@ -74,7 +80,35 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		return instances;
 	}
 
+	@Override
+	public List<String> getServices() {
+		Applications applications = this.eurekaClient.getApplications();
+		if (applications == null) {
+			return Collections.emptyList();
+		}
+		List<Application> registered = applications.getRegisteredApplications();
+		List<String> names = new ArrayList<>();
+		for (Application app : registered) {
+			if (app.getInstances().isEmpty()) {
+				continue;
+			}
+			names.add(app.getName().toLowerCase());
+
+		}
+		return names;
+	}
+
+	@Override
+	public int getOrder() {
+		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder()
+				: DiscoveryClient.DEFAULT_ORDER;
+	}
+
+	/**
+	 * An Eureka-specific {@link ServiceInstance} implementation.
+	 */
 	public static class EurekaServiceInstance implements ServiceInstance {
+
 		private InstanceInfo instance;
 
 		public EurekaServiceInstance(InstanceInfo instance) {
@@ -124,28 +158,5 @@ public class EurekaDiscoveryClient implements DiscoveryClient {
 		public Map<String, String> getMetadata() {
 			return this.instance.getMetadata();
 		}
-	}
-
-	@Override
-	public List<String> getServices() {
-		Applications applications = this.eurekaClient.getApplications();
-		if (applications == null) {
-			return Collections.emptyList();
-		}
-		List<Application> registered = applications.getRegisteredApplications();
-		List<String> names = new ArrayList<>();
-		for (Application app : registered) {
-			if (app.getInstances().isEmpty()) {
-				continue;
-			}
-			names.add(app.getName().toLowerCase());
-
-		}
-		return names;
-	}
-
-	@Override
-	public int getOrder() {
-		return clientConfig instanceof Ordered ? ((Ordered) clientConfig).getOrder() : DiscoveryClient.DEFAULT_ORDER;
 	}
 }

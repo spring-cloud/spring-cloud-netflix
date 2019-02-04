@@ -29,4 +29,5 @@ public interface TurbineStreamClient {
 
 	@Input(INPUT)
 	SubscribableChannel turbineStreamInput();
+
 }

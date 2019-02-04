@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
+
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -45,7 +46,7 @@ public class HystrixDashboardConfigurationTests {
 		headers[0] = new BasicHeader("Content-Type", "text/proxy.stream");
 		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
-			"copyHeadersToServletResponse", headers, response);
+				"copyHeadersToServletResponse", headers, response);
 		assertThat(response.getHeaderNames().size(), is(1));
 		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
 	}
@@ -58,7 +59,7 @@ public class HystrixDashboardConfigurationTests {
 		headers[1] = new BasicHeader("Connection", "close");
 		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
-			"copyHeadersToServletResponse", headers, response);
+				"copyHeadersToServletResponse", headers, response);
 		assertThat(response.getHeaderNames().size(), is(2));
 		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
 		assertThat(response.getHeader("Connection"), is("close"));
@@ -73,7 +74,7 @@ public class HystrixDashboardConfigurationTests {
 		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(true);
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
-			"copyHeadersToServletResponse", headers, response);
+				"copyHeadersToServletResponse", headers, response);
 		assertThat(response.getHeaderNames().size(), is(1));
 		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
 		assertNull(response.getHeader("Connection"));
@@ -88,7 +89,7 @@ public class HystrixDashboardConfigurationTests {
 		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(false);
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
-			"copyHeadersToServletResponse", headers, response);
+				"copyHeadersToServletResponse", headers, response);
 		assertThat(response.getHeaderNames().size(), is(2));
 		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
 		assertThat(response.getHeader("Connection"), is("close"));
@@ -97,19 +98,20 @@ public class HystrixDashboardConfigurationTests {
 	@Test
 	public void initParameters() {
 		new ApplicationContextRunner()
-			.withUserConfiguration(HystrixDashboardConfiguration.class)
-			.withPropertyValues(
-				"hystrix.dashboard.init-parameters.wl-dispatch-polixy=work-manager-hystrix")
-			.run(context -> {
-				final ServletRegistrationBean registration = context
-					.getBean(ServletRegistrationBean.class);
-				assertNotNull(registration);
+				.withUserConfiguration(HystrixDashboardConfiguration.class)
+				.withPropertyValues(
+						"hystrix.dashboard.init-parameters.wl-dispatch-polixy=work-manager-hystrix")
+				.run(context -> {
+					final ServletRegistrationBean registration = context
+							.getBean(ServletRegistrationBean.class);
+					assertNotNull(registration);
 
-				final Map<String, String> initParameters = registration
-					.getInitParameters();
-				assertNotNull(initParameters);
-				assertThat(initParameters.get("wl-dispatch-polixy"),
-					is("work-manager-hystrix"));
-			});
+					final Map<String, String> initParameters = registration
+							.getInitParameters();
+					assertNotNull(initParameters);
+					assertThat(initParameters.get("wl-dispatch-polixy"),
+							is("work-manager-hystrix"));
+				});
 	}
+
 }

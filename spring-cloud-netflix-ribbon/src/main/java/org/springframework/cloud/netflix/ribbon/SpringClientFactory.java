@@ -17,13 +17,15 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.lang.reflect.Constructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.cloud.context.named.NamedContextFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
 import com.netflix.client.IClient;
 import com.netflix.client.IClientConfigAware;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ILoadBalancer;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.cloud.context.named.NamedContextFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * A factory that creates client, load balancer and client configuration instances. It
@@ -78,28 +80,29 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	}
 
 	static <C> C instantiateWithConfig(AnnotationConfigApplicationContext context,
-										Class<C> clazz, IClientConfig config) {
+			Class<C> clazz, IClientConfig config) {
 		C result = null;
-		
+
 		try {
 			Constructor<C> constructor = clazz.getConstructor(IClientConfig.class);
 			result = constructor.newInstance(config);
-		} catch (Throwable e) {
+		}
+		catch (Throwable e) {
 			// Ignored
 		}
-		
+
 		if (result == null) {
 			result = BeanUtils.instantiate(clazz);
-			
+
 			if (result instanceof IClientConfigAware) {
 				((IClientConfigAware) result).initWithNiwsConfig(config);
 			}
-			
+
 			if (context != null) {
 				context.getAutowireCapableBeanFactory().autowireBean(result);
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -119,4 +122,3 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	}
 
 }
-

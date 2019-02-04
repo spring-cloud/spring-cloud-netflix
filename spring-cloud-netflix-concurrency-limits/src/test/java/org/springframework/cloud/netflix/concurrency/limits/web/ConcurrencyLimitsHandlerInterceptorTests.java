@@ -39,14 +39,15 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = "logging.level.reactor.netty=DEBUG", webEnvironment = RANDOM_PORT)
-public class ConcurrencyLimitsHandlerInterceptorTests extends AbstractConcurrencyLimitsTests {
+public class ConcurrencyLimitsHandlerInterceptorTests
+		extends AbstractConcurrencyLimitsTests {
 
 	@LocalServerPort
 	public int port;
 
 	@Before
 	public void init() {
-		client = WebClient.create("http://localhost:"+port);
+		client = WebClient.create("http://localhost:" + port);
 	}
 
 	@Test
@@ -61,9 +62,9 @@ public class ConcurrencyLimitsHandlerInterceptorTests extends AbstractConcurrenc
 
 		@Bean
 		public Consumer<ServletLimiterBuilder> limiterBuilderConfigurer() {
-			return servletLimiterBuilder -> servletLimiterBuilder
-					.limit(FixedLimit.of(1));
+			return servletLimiterBuilder -> servletLimiterBuilder.limit(FixedLimit.of(1));
 		}
+
 	}
 
 }

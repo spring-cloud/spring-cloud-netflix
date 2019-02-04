@@ -23,12 +23,14 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.util.LinkedMultiValueMap;
@@ -55,35 +57,44 @@ public class RibbonApacheHttpRequestTests {
 		headers.add("content-length", "5192");
 		LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("myparam", "myparamval");
-		RibbonApacheHttpRequest httpRequest = 
-				new RibbonApacheHttpRequest(
-						new RibbonCommandContext("example", "GET", uri, false, headers, params, null, new ArrayList<RibbonRequestCustomizer>()));
+		RibbonApacheHttpRequest httpRequest = new RibbonApacheHttpRequest(
+				new RibbonCommandContext("example", "GET", uri, false, headers, params,
+						null, new ArrayList<RibbonRequestCustomizer>()));
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
-		assertThat("request is wrong type", request, is(not(instanceOf(HttpEntityEnclosingRequest.class))));
+		assertThat("request is wrong type", request,
+				is(not(instanceOf(HttpEntityEnclosingRequest.class))));
 		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri));
-		assertThat("my-header is missing", request.getFirstHeader("my-header"), is(notNullValue()));
-		assertThat("my-header is wrong", request.getFirstHeader("my-header").getValue(), is(equalTo("my-value")));
-		assertThat("Content-Length is wrong", request.getFirstHeader("content-length").getValue(), is(equalTo("5192")));
-		assertThat("myparam is missing", request.getURI().getQuery(), is(equalTo("myparam=myparamval")));
-		
+		assertThat("my-header is missing", request.getFirstHeader("my-header"),
+				is(notNullValue()));
+		assertThat("my-header is wrong", request.getFirstHeader("my-header").getValue(),
+				is(equalTo("my-value")));
+		assertThat("Content-Length is wrong",
+				request.getFirstHeader("content-length").getValue(), is(equalTo("5192")));
+		assertThat("myparam is missing", request.getURI().getQuery(),
+				is(equalTo("myparam=myparamval")));
+
 	}
 
 	@Test
-	// this situation happens, see https://github.com/spring-cloud/spring-cloud-netflix/issues/1042#issuecomment-227723877
+	// this situation happens, see
+	// https://github.com/spring-cloud/spring-cloud-netflix/issues/1042#issuecomment-227723877
 	public void testEmptyEntityGet() throws Exception {
 		String entityValue = "";
-		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false, "GET");
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), false,
+				"GET");
 	}
 
 	@Test
 	public void testNonEmptyEntityPost() throws Exception {
 		String entityValue = "abcd";
-		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true, "POST");
+		testEntity(entityValue, new ByteArrayInputStream(entityValue.getBytes()), true,
+				"POST");
 	}
 
-	void testEntity(String entityValue, ByteArrayInputStream requestEntity, boolean addContentLengthHeader, String method) throws IOException {
+	void testEntity(String entityValue, ByteArrayInputStream requestEntity,
+			boolean addContentLengthHeader, String method) throws IOException {
 		String lengthString = String.valueOf(entityValue.length());
 		Long length = null;
 		URI uri = URI.create("http://example.com");
@@ -112,24 +123,31 @@ public class RibbonApacheHttpRequestTests {
 
 		HttpUriRequest request = httpRequest.toRequest(RequestConfig.custom().build());
 
-		assertThat("request is wrong type", request, is(instanceOf(HttpEntityEnclosingRequest.class)));
-		assertThat("uri is wrong", request.getURI().toString(), startsWith(uri.toString()));
+		assertThat("request is wrong type", request,
+				is(instanceOf(HttpEntityEnclosingRequest.class)));
+		assertThat("uri is wrong", request.getURI().toString(),
+				startsWith(uri.toString()));
 		if (addContentLengthHeader) {
-			assertThat("Content-Length is missing", request.getFirstHeader("Content-Length"), is(notNullValue()));
-			assertThat("Content-Length is wrong", request.getFirstHeader("Content-Length").getValue(),
+			assertThat("Content-Length is missing",
+					request.getFirstHeader("Content-Length"), is(notNullValue()));
+			assertThat("Content-Length is wrong",
+					request.getFirstHeader("Content-Length").getValue(),
 					is(equalTo(lengthString)));
 		}
-		assertThat("from-customizer is missing", request.getFirstHeader("from-customizer"), is(notNullValue()));
-		assertThat("from-customizer is wrong", request.getFirstHeader("from-customizer").getValue(),
-				is(equalTo("foo")));
+		assertThat("from-customizer is missing",
+				request.getFirstHeader("from-customizer"), is(notNullValue()));
+		assertThat("from-customizer is wrong",
+				request.getFirstHeader("from-customizer").getValue(), is(equalTo("foo")));
 
 		HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
 		assertThat("entity is missing", entityRequest.getEntity(), is(notNullValue()));
 		HttpEntity entity = entityRequest.getEntity();
-		assertThat("contentLength is wrong", entity.getContentLength(), is(equalTo((long)entityValue.length())));
+		assertThat("contentLength is wrong", entity.getContentLength(),
+				is(equalTo((long) entityValue.length())));
 		assertThat("content is missing", entity.getContent(), is(notNullValue()));
-		String string = StreamUtils.copyToString(entity.getContent(), Charset.forName("UTF-8"));
+		String string = StreamUtils.copyToString(entity.getContent(),
+				Charset.forName("UTF-8"));
 		assertThat("content is wrong", string, is(equalTo(entityValue)));
 	}
-}
 
+}

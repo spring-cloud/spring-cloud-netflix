@@ -25,7 +25,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * See com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider
+ * See com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider.
+ *
  * @author Spencer Gibb
  */
 public class InstanceInfoFactory {
@@ -95,4 +96,5 @@ public class InstanceInfoFactory {
 		instanceInfo.setLeaseInfo(leaseInfoBuilder.build());
 		return instanceInfo;
 	}
+
 }

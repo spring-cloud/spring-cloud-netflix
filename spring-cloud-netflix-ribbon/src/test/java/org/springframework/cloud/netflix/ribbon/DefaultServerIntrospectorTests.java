@@ -16,9 +16,11 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import com.netflix.loadbalancer.Server;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +28,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.netflix.loadbalancer.Server;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,7 +44,7 @@ public class DefaultServerIntrospectorTests {
 	private ServerIntrospector serverIntrospector;
 
 	@Test
-	public void testSecurePortConfiguration(){
+	public void testSecurePortConfiguration() {
 		Server serverMock = mock(Server.class);
 		when(serverMock.getPort()).thenReturn(12345);
 		Assert.assertTrue(serverIntrospector.isSecure(serverMock));
@@ -56,9 +57,12 @@ public class DefaultServerIntrospectorTests {
 	@Configuration
 	@EnableConfigurationProperties(ServerIntrospectorProperties.class)
 	protected static class TestConfiguration {
+
 		@Bean
-		public DefaultServerIntrospector defaultServerIntrospector(){
+		public DefaultServerIntrospector defaultServerIntrospector() {
 			return new DefaultServerIntrospector();
 		}
+
 	}
+
 }

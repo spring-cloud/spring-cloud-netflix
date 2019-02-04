@@ -17,6 +17,8 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.netflix.loadbalancer.AvailabilityFilteringRule;
 import com.netflix.loadbalancer.IRule;
 import com.netflix.loadbalancer.Server;
@@ -27,6 +29,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,14 +42,16 @@ import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.LOAD_BALANCER_KEY;
@@ -56,9 +61,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * @author Yongsung Yoon
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = CanaryTestZuulProxyApplication.class,
-				webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-				value = { "zuul.routes.simple.path: /simple/**" })
+@SpringBootTest(classes = CanaryTestZuulProxyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
+		"zuul.routes.simple.path: /simple/**"})
 @DirtiesContext
 public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 
@@ -81,8 +85,8 @@ public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("X-Canary-Test", "true");
 
-		ResponseEntity<String> result = testRestTemplate.exchange("/simple/hello", HttpMethod.GET,
-				new HttpEntity<>(headers), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange("/simple/hello",
+				HttpMethod.GET, new HttpEntity<>(headers), String.class);
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("canary", result.getBody());
 	}
@@ -90,10 +94,11 @@ public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 	@Test
 	public void invokeWithoutUserDefinedCanaryHeader() {
 		HttpHeaders headers = new HttpHeaders();
-		ResponseEntity<String> result = testRestTemplate.exchange("/simple/hello", HttpMethod.GET,
-				new HttpEntity<>(headers), String.class);
+		ResponseEntity<String> result = testRestTemplate.exchange("/simple/hello",
+				HttpMethod.GET, new HttpEntity<>(headers), String.class);
 		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 	}
+
 }
 
 @Configuration
@@ -116,14 +121,16 @@ class CanaryTestZuulProxyApplication {
 			public Object run() {
 				RequestContext context = RequestContext.getCurrentContext();
 				if (checkIfCanaryRequest(context)) {
-					context.set(LOAD_BALANCER_KEY, "canary"); // set loadBalancerKey for IRule
+					context.set(LOAD_BALANCER_KEY, "canary"); // set loadBalancerKey for
+					// IRule
 				}
 				return null;
 			}
 
 			private boolean checkIfCanaryRequest(RequestContext context) {
 				HttpServletRequest request = context.getRequest();
-				String canaryHeader = request.getHeader("X-Canary-Test"); // user defined header
+				String canaryHeader = request.getHeader("X-Canary-Test"); // user defined
+				// header
 
 				if ((canaryHeader != null) && (canaryHeader.equalsIgnoreCase("true"))) {
 					return true;
@@ -147,36 +154,43 @@ class CanaryTestZuulProxyApplication {
 			}
 		};
 	}
+
 }
 
 @Configuration
 class CanaryTestRibbonClientConfiguration {
 
 	@LocalServerPort
-	private  int port;
+	private int port;
 
 	private static Server testCanaryInstance;
 
 	@Bean
 	public ServerList<Server> ribbonServerList() {
-		return new StaticServerList<>(new Server("normal-routing-notexist-localhost", this.port));
+		return new StaticServerList<>(
+				new Server("normal-routing-notexist-localhost", this.port));
 	}
 
 	@Bean
 	public IRule canaryTestRule() {
 		if (testCanaryInstance == null) {
-			testCanaryInstance = new Server("localhost", port); // use test server as a canary instance
+			testCanaryInstance = new Server("localhost", port); // use test server as a
+			// canary instance
 		}
 		return new TestCanaryRule();
 	}
 
 	public static class TestCanaryRule extends AvailabilityFilteringRule {
+
 		@Override
 		public Server choose(Object key) {
 			if ((key != null) && (key.equals("canary"))) {
-				return testCanaryInstance;  // choose test canary server instead of normal servers.
+				return testCanaryInstance; // choose test canary server instead of normal
+				// servers.
 			}
 			return super.choose(key); // normal routing
 		}
+
 	}
+
 }

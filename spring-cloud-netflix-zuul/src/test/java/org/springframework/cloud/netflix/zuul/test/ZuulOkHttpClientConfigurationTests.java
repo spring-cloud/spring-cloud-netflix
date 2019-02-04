@@ -19,9 +19,11 @@ package org.springframework.cloud.netflix.zuul.test;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import okhttp3.OkHttpClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockingDetails;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -43,14 +45,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockingDetails;
 
-import okhttp3.OkHttpClient;
-
 /**
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {
-		"spring.cloud.httpclientfactories.ok.enabled: true",
+@SpringBootTest(properties = {"spring.cloud.httpclientfactories.ok.enabled: true",
 		"ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true",
 		"ribbon.httpclient.enabled: false" })
 @DirtiesContext
@@ -69,8 +68,7 @@ public class ZuulOkHttpClientConfigurationTests {
 	public void testOkHttpLoadBalancingHttpClient() {
 		RibbonCommandContext context = new RibbonCommandContext("foo", " GET",
 				"http://localhost", false, new LinkedMultiValueMap<>(),
-				new LinkedMultiValueMap<>(), null,
-				new ArrayList<>(), 0l);
+				new LinkedMultiValueMap<>(), null, new ArrayList<>(), 0l);
 		OkHttpRibbonCommand command = okHttpRibbonCommandFactory.create(context);
 		OkHttpLoadBalancingClient ribbonClient = command.getClient();
 		OkHttpClient httpClient = getField(ribbonClient, "delegate");
@@ -89,10 +87,12 @@ public class ZuulOkHttpClientConfigurationTests {
 	@EnableAutoConfiguration
 	@EnableZuulProxy
 	static class TestConfig {
+
 		@Bean
 		public OkHttpClient client() {
 			return mock(OkHttpClient.class);
 		}
 
 	}
+
 }

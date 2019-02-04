@@ -29,8 +29,8 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 /**
- * Pre {@link ZuulFilter} that sets {@link RequestContext} debug attributes to true if
- * the "debug" request parameter is set.
+ * Pre {@link ZuulFilter} that sets {@link RequestContext} debug attributes to true if the
+ * "debug" request parameter is set.
  *
  * @author Spencer Gibb
  */

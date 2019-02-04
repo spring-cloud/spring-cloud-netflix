@@ -18,11 +18,11 @@ package org.springframework.cloud.netflix.archaius;
 
 import java.util.Map;
 
-import org.junit.Test;
-import org.springframework.core.env.StandardEnvironment;
-
 import com.netflix.config.ConcurrentCompositeConfiguration;
 import com.netflix.config.ConfigurationManager;
+import org.junit.Test;
+
+import org.springframework.core.env.StandardEnvironment;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

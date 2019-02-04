@@ -18,13 +18,14 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.mock;
 public class ContextAwareRequestTests {
 
 	private RibbonCommandContext context;
+
 	private ContextAwareRequest request;
 
 	@Before
@@ -114,6 +116,7 @@ public class ContextAwareRequestTests {
 		public TestContextAwareRequest(RibbonCommandContext context) {
 			super(context);
 		}
+
 	}
 
 }

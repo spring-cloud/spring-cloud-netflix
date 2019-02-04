@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -46,37 +45,10 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(value = "eureka.client.enabled", matchIfMissing = true)
 public class EurekaDiscoveryClientConfiguration {
 
-	class Marker {}
-
 	@Bean
 	public Marker eurekaDiscoverClientMarker() {
 		return new Marker();
 	}
-
-	@Configuration
-	@ConditionalOnClass(RefreshScopeRefreshedEvent.class)
-	protected static class EurekaClientConfigurationRefresher implements ApplicationListener<RefreshScopeRefreshedEvent> {
-
-		@Autowired(required = false)
-		private EurekaClient eurekaClient;
-
-		@Autowired(required = false)
-		private EurekaAutoServiceRegistration autoRegistration;
-
-		public void onApplicationEvent(RefreshScopeRefreshedEvent event) {
-			//This will force the creation of the EurkaClient bean if not already created
-			//to make sure the client will be reregistered after a refresh event
-			if(eurekaClient != null) {
-				eurekaClient.getApplications();
-			}
-			if (autoRegistration != null) {
-				// register in case meta data changed
-				this.autoRegistration.stop();
-				this.autoRegistration.start();
-			}
-		}
-	}
-
 
 	@Configuration
 	@ConditionalOnProperty(value = "eureka.client.healthcheck.enabled", matchIfMissing = false)
@@ -89,6 +61,35 @@ public class EurekaDiscoveryClientConfiguration {
 		@ConditionalOnMissingBean(HealthCheckHandler.class)
 		public EurekaHealthCheckHandler eurekaHealthCheckHandler() {
 			return new EurekaHealthCheckHandler(this.healthAggregator);
+		}
+	}
+
+	class Marker {
+
+	}
+
+	@Configuration
+	@ConditionalOnClass(RefreshScopeRefreshedEvent.class)
+	protected static class EurekaClientConfigurationRefresher
+			implements ApplicationListener<RefreshScopeRefreshedEvent> {
+
+		@Autowired(required = false)
+		private EurekaClient eurekaClient;
+
+		@Autowired(required = false)
+		private EurekaAutoServiceRegistration autoRegistration;
+
+		public void onApplicationEvent(RefreshScopeRefreshedEvent event) {
+			// This will force the creation of the EurkaClient bean if not already created
+			// to make sure the client will be reregistered after a refresh event
+			if (eurekaClient != null) {
+				eurekaClient.getApplications();
+			}
+			if (autoRegistration != null) {
+				// register in case meta data changed
+				this.autoRegistration.stop();
+				this.autoRegistration.start();
+			}
 		}
 	}
 }

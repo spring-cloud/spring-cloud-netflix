@@ -16,12 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.util;
 
-import static java.util.Arrays.stream;
-import static java.util.Collections.emptyMap;
-import static org.springframework.util.StringUtils.isEmpty;
-import static org.springframework.util.StringUtils.tokenizeToStringArray;
-import static org.springframework.util.StringUtils.uriDecode;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashSet;
@@ -43,16 +37,38 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class RequestContentDataExtractor {
-	public static MultiValueMap<String, Object> extract(HttpServletRequest request) throws IOException {
-		return (request instanceof MultipartHttpServletRequest) ?
-				extractFromMultipartRequest((MultipartHttpServletRequest) request) :
-				extractFromRequest(request);
+import static java.util.Arrays.stream;
+import static java.util.Collections.emptyMap;
+import static org.springframework.util.StringUtils.isEmpty;
+import static org.springframework.util.StringUtils.tokenizeToStringArray;
+import static org.springframework.util.StringUtils.uriDecode;
+
+/**
+ * Utility class providing methods for extracting {@link HttpServletRequest} content
+ * as a {@link MultiValueMap}.
+ * @author Eloi Poch
+ * @author Spencer Gibb
+ * @author Dmitrii Priporov
+ * @author Ryan Baxter
+ */
+public final class RequestContentDataExtractor {
+
+	private RequestContentDataExtractor() {
+		throw new AssertionError("Must not instantiate utility class.");
 	}
 
-	private static MultiValueMap<String, Object> extractFromRequest(HttpServletRequest request) throws IOException {
+
+	public static MultiValueMap<String, Object> extract(HttpServletRequest request)
+			throws IOException {
+		return (request instanceof MultipartHttpServletRequest)
+				? extractFromMultipartRequest((MultipartHttpServletRequest) request)
+				: extractFromRequest(request);
+	}
+
+	private static MultiValueMap<String, Object> extractFromRequest(
+			HttpServletRequest request) throws IOException {
 		MultiValueMap<String, Object> builder = new LinkedMultiValueMap<>();
-		Set<String>	queryParams = findQueryParams(request);
+		Set<String> queryParams = findQueryParams(request);
 
 		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
 			String key = entry.getKey();
@@ -67,12 +83,12 @@ public class RequestContentDataExtractor {
 		return builder;
 	}
 
-	private static MultiValueMap<String, Object> extractFromMultipartRequest(MultipartHttpServletRequest request)
-			throws IOException {
+	private static MultiValueMap<String, Object> extractFromMultipartRequest(
+			MultipartHttpServletRequest request) throws IOException {
 		MultiValueMap<String, Object> builder = new LinkedMultiValueMap<>();
 		Map<String, List<String>> queryParamsGroupedByName = findQueryParamsGroupedByName(
 				request);
-		Set<String>	queryParams = findQueryParams(request);
+		Set<String> queryParams = findQueryParams(request);
 
 		for (Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
 			String key = entry.getKey();
@@ -80,7 +96,7 @@ public class RequestContentDataExtractor {
 					.collect(Collectors.toList());
 			List<String> listOfOnlyQueryParams = queryParamsGroupedByName.get(key);
 
-			if(listOfOnlyQueryParams != null) {
+			if (listOfOnlyQueryParams != null) {
 				listOfOnlyQueryParams = listOfOnlyQueryParams.stream()
 						.map(param -> uriDecode(param, Charset.defaultCharset()))
 						.collect(Collectors.toList());
@@ -101,15 +117,18 @@ public class RequestContentDataExtractor {
 			}
 		}
 
-		for (Entry<String, List<MultipartFile>> parts : request.getMultiFileMap().entrySet()) {
+		for (Entry<String, List<MultipartFile>> parts : request.getMultiFileMap()
+				.entrySet()) {
 			for (MultipartFile file : parts.getValue()) {
 				HttpHeaders headers = new HttpHeaders();
-				headers.setContentDispositionFormData(file.getName(), file.getOriginalFilename());
+				headers.setContentDispositionFormData(file.getName(),
+						file.getOriginalFilename());
 				if (file.getContentType() != null) {
 					headers.setContentType(MediaType.valueOf(file.getContentType()));
 				}
 
-				HttpEntity entity = new HttpEntity<>(new InputStreamResource(file.getInputStream()), headers);
+				HttpEntity entity = new HttpEntity<>(
+						new InputStreamResource(file.getInputStream()), headers);
 				builder.add(parts.getKey(), entity);
 			}
 		}
@@ -130,7 +149,7 @@ public class RequestContentDataExtractor {
 
 	private static Set<String> findQueryParams(HttpServletRequest request) {
 		Set<String> result = new HashSet<>();
-		String query  = request.getQueryString();
+		String query = request.getQueryString();
 
 		if (query != null) {
 			for (String value : tokenizeToStringArray(query, "&")) {
@@ -152,4 +171,5 @@ public class RequestContentDataExtractor {
 		}
 		return UriComponentsBuilder.fromUriString("?" + query).build().getQueryParams();
 	}
+
 }

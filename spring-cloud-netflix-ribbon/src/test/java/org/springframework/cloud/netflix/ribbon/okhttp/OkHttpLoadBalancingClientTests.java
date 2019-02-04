@@ -16,9 +16,12 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 import okhttp3.OkHttpClient;
-
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
@@ -26,9 +29,6 @@ import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -124,15 +124,16 @@ public class OkHttpLoadBalancingClientTests {
 	}
 
 	private OkHttpClient getHttpClient(Class<?> defaultConfigurationClass,
-											   IClientConfig configOverride) throws Exception {
-		return getHttpClient(defaultConfigurationClass, configOverride, new SpringClientFactory());
+			IClientConfig configOverride) throws Exception {
+		return getHttpClient(defaultConfigurationClass, configOverride,
+				new SpringClientFactory());
 	}
 
 	private OkHttpClient getHttpClient(Class<?> defaultConfigurationClass,
-									   IClientConfig configOverride,
-									   SpringClientFactory factory) throws Exception {
-		factory.setApplicationContext(new AnnotationConfigApplicationContext(
-				RibbonAutoConfiguration.class, OkHttpClientConfiguration.class, defaultConfigurationClass));
+			IClientConfig configOverride, SpringClientFactory factory) throws Exception {
+		factory.setApplicationContext(
+				new AnnotationConfigApplicationContext(RibbonAutoConfiguration.class,
+						OkHttpClientConfiguration.class, defaultConfigurationClass));
 
 		OkHttpLoadBalancingClient client = factory.getClient("service",
 				OkHttpLoadBalancingClient.class);
@@ -142,15 +143,19 @@ public class OkHttpLoadBalancingClientTests {
 
 	@Configuration
 	protected static class OkHttpClientConfiguration {
+
 		@Autowired(required = false)
 		IClientConfig clientConfig;
+
 		@Bean
 		public OkHttpLoadBalancingClient okHttpLoadBalancingClient() {
-			if(clientConfig == null) {
+			if (clientConfig == null) {
 				clientConfig = new DefaultClientConfigImpl();
 			}
-			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig, new DefaultServerIntrospector());
+			return new OkHttpLoadBalancingClient(new OkHttpClient(), clientConfig,
+					new DefaultServerIntrospector());
 		}
+
 	}
 
 	@Configuration
@@ -160,26 +165,31 @@ public class OkHttpLoadBalancingClientTests {
 
 	@Configuration
 	protected static class FollowRedirects {
+
 		@Bean
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.FollowRedirects, true);
 			return config;
 		}
+
 	}
 
 	@Configuration
 	protected static class DoNotFollowRedirects {
+
 		@Bean
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
 			config.set(CommonClientConfigKey.FollowRedirects, false);
 			return config;
 		}
+
 	}
 
 	@Configuration
 	protected static class Timeouts {
+
 		@Bean
 		public IClientConfig clientConfig() {
 			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
@@ -187,6 +197,7 @@ public class OkHttpLoadBalancingClientTests {
 			config.set(CommonClientConfigKey.ReadTimeout, 50000);
 			return config;
 		}
+
 	}
 
 }

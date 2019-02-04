@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
@@ -44,19 +45,22 @@ public class SpringRetryDisableOkHttpClientTests {
 
 	@Test
 	public void testLoadBalancedRetryFactoryBean() {
-		new ApplicationContextRunner()
-			.withPropertyValues("ribbon.okhttp.enabled=true")
-			.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class,
-				LoadBalancerAutoConfiguration.class,
-				HttpClientConfiguration.class, RibbonClientConfiguration.class))
-			.withUserConfiguration(
-				OkHttpLoadBalancingClientTests.OkHttpClientConfiguration.class)
-			.run(context -> {
-				Map<String, LoadBalancedRetryFactory> factories = context.getBeansOfType(LoadBalancedRetryFactory.class);
-				assertThat(factories.values(), hasSize(0));
-				Map<String, OkHttpLoadBalancingClient> clients = context.getBeansOfType(OkHttpLoadBalancingClient.class);
-				assertThat(clients.values(), hasSize(1));
-				assertThat(clients.values().toArray()[0], instanceOf(OkHttpLoadBalancingClient.class));
-			});
+		new ApplicationContextRunner().withPropertyValues("ribbon.okhttp.enabled=true")
+				.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class,
+						LoadBalancerAutoConfiguration.class,
+						HttpClientConfiguration.class, RibbonClientConfiguration.class))
+				.withUserConfiguration(
+						OkHttpLoadBalancingClientTests.OkHttpClientConfiguration.class)
+				.run(context -> {
+					Map<String, LoadBalancedRetryFactory> factories = context
+							.getBeansOfType(LoadBalancedRetryFactory.class);
+					assertThat(factories.values(), hasSize(0));
+					Map<String, OkHttpLoadBalancingClient> clients = context
+							.getBeansOfType(OkHttpLoadBalancingClient.class);
+					assertThat(clients.values(), hasSize(1));
+					assertThat(clients.values().toArray()[0],
+							instanceOf(OkHttpLoadBalancingClient.class));
+				});
 	}
+
 }

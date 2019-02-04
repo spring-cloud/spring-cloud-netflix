@@ -52,12 +52,14 @@ public class HystrixStreamAutoConfigurationNoRegistrationTests {
 	public void withoutRegistrationWorks() throws Exception {
 		assertThat(this.registration).isNull();
 		assertThat(this.simpleDiscoveryProperties).isNotNull();
-		assertThat(task.getRegistration()).isEqualTo(this.simpleDiscoveryProperties.getLocal());
+		assertThat(task.getRegistration())
+				.isEqualTo(this.simpleDiscoveryProperties.getLocal());
 	}
 
 	@EnableAutoConfiguration
 	@SpringBootConfiguration
 	protected static class Config {
+
 	}
 
 }

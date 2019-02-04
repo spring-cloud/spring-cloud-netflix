@@ -16,13 +16,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters;
 
-import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.core.style.ToStringCreator;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
-
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,6 +26,15 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
+import com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.core.style.ToStringCreator;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 import static com.netflix.hystrix.HystrixCommandProperties.ExecutionIsolationStrategy.SEMAPHORE;
 
@@ -49,7 +51,8 @@ public class ZuulProperties {
 	/**
 	 * Headers that are generally expected to be added by Spring Security, and hence often
 	 * duplicated if the proxy and the backend are secured with Spring. By default they
-	 * are added to the ignored headers if Spring Security is present and ignoreSecurityHeaders = true.
+	 * are added to the ignored headers if Spring Security is present and
+	 * ignoreSecurityHeaders = true.
 	 */
 	public static final List<String> SECURITY_HEADERS = Arrays.asList("Pragma",
 			"Cache-Control", "X-Frame-Options", "X-Content-Type-Options",
@@ -101,13 +104,14 @@ public class ZuulProperties {
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
 
 	/**
-	 * Flag to say that SECURITY_HEADERS are added to ignored headers if spring security is on the classpath.
-	 * By setting ignoreSecurityHeaders to false we can switch off this default behaviour. This should be used together with
-	 * disabling the default spring security headers
-	 * see https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers
+	 * Flag to say that SECURITY_HEADERS are added to ignored headers if spring security
+	 * is on the classpath. By setting ignoreSecurityHeaders to false we can switch off
+	 * this default behaviour. This should be used together with disabling the default
+	 * spring security headers see
+	 * https://docs.spring.io/spring-security/site/docs/current/reference/html/headers.html#default-security-headers
 	 */
 	private boolean ignoreSecurityHeaders = true;
-	
+
 	/**
 	 * Flag to force the original query string encoding when building the backend URI in
 	 * SimpleHostRoutingFilter. When activated, query string will be built using
@@ -156,13 +160,13 @@ public class ZuulProperties {
 			Arrays.asList("Cookie", "Set-Cookie", "Authorization"));
 
 	/**
-	 * Flag to say whether the hostname for ssl connections should be verified or not. Default is true.
-	 * This should only be used in test setups!
+	 * Flag to say whether the hostname for ssl connections should be verified or not.
+	 * Default is true. This should only be used in test setups!
 	 */
-	private boolean sslHostnameValidationEnabled =true;
+	private boolean sslHostnameValidationEnabled = true;
 
 	private ExecutionIsolationStrategy ribbonIsolationStrategy = SEMAPHORE;
-	
+
 	private HystrixSemaphore semaphore = new HystrixSemaphore();
 
 	private HystrixThreadPool threadPool = new HystrixThreadPool();
@@ -177,16 +181,17 @@ public class ZuulProperties {
 	 */
 	private boolean includeDebugHeader = false;
 
-    /**
-     * Setting for SendResponseFilter for the initial stream buffer size.
-     */
-    private int initialStreamBufferSize = 8192;
+	/**
+	 * Setting for SendResponseFilter for the initial stream buffer size.
+	 */
+	private int initialStreamBufferSize = 8192;
 
 	public Set<String> getIgnoredHeaders() {
 		Set<String> ignoredHeaders = new LinkedHashSet<>(this.ignoredHeaders);
 		if (ClassUtils.isPresent(
 				"org.springframework.security.config.annotation.web.WebSecurityConfigurer",
-				null) && Collections.disjoint(ignoredHeaders, SECURITY_HEADERS) && ignoreSecurityHeaders) {
+				null) && Collections.disjoint(ignoredHeaders, SECURITY_HEADERS)
+				&& ignoreSecurityHeaders) {
 			// Allow Spring Security in the gateway to control these headers
 			ignoredHeaders.addAll(SECURITY_HEADERS);
 		}
@@ -261,7 +266,8 @@ public class ZuulProperties {
 
 		private boolean customSensitiveHeaders = false;
 
-		public ZuulRoute() {}
+		public ZuulRoute() {
+		}
 
 		public ZuulRoute(String id, String path, String serviceId, String url,
 				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
@@ -394,17 +400,17 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
 			ZuulRoute that = (ZuulRoute) o;
-			return customSensitiveHeaders == that.customSensitiveHeaders &&
-					Objects.equals(id, that.id) &&
-					Objects.equals(path, that.path) &&
-					Objects.equals(retryable, that.retryable) &&
-					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
-					Objects.equals(serviceId, that.serviceId) &&
-					stripPrefix == that.stripPrefix &&
-					Objects.equals(url, that.url);
+			return customSensitiveHeaders == that.customSensitiveHeaders
+					&& Objects.equals(id, that.id) && Objects.equals(path, that.path)
+					&& Objects.equals(retryable, that.retryable)
+					&& Objects.equals(sensitiveHeaders, that.sensitiveHeaders)
+					&& Objects.equals(serviceId, that.serviceId)
+					&& stripPrefix == that.stripPrefix && Objects.equals(url, that.url);
 		}
 
 		@Override
@@ -413,46 +419,53 @@ public class ZuulProperties {
 					sensitiveHeaders, serviceId, stripPrefix, url);
 		}
 
-		@Override public String toString() {
+		@Override
+		public String toString() {
 			return new StringBuilder("ZuulRoute{").append("id='").append(id).append("', ")
-					.append("path='").append(path).append("', ")
-					.append("serviceId='").append(serviceId).append("', ")
-					.append("url='").append(url).append("', ")
-					.append("stripPrefix=").append(stripPrefix).append(", ")
+					.append("path='").append(path).append("', ").append("serviceId='")
+					.append(serviceId).append("', ").append("url='").append(url)
+					.append("', ").append("stripPrefix=").append(stripPrefix).append(", ")
 					.append("retryable=").append(retryable).append(", ")
 					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
-					.append("customSensitiveHeaders=").append(customSensitiveHeaders).append(", ")
-					.append("}").toString();
+					.append("customSensitiveHeaders=").append(customSensitiveHeaders)
+					.append(", ").append("}").toString();
 		}
 
 	}
 
 	public static class Host {
+
 		/**
 		 * The maximum number of total connections the proxy can hold open to backends.
 		 */
 		private int maxTotalConnections = 200;
+
 		/**
 		 * The maximum number of connections that can be used by a single route.
 		 */
 		private int maxPerRouteConnections = 20;
+
 		/**
 		 * The socket timeout in millis. Defaults to 10000.
 		 */
 		private int socketTimeoutMillis = 10000;
+
 		/**
 		 * The connection timeout in millis. Defaults to 2000.
 		 */
 		private int connectTimeoutMillis = 2000;
+
 		/**
-		 * The timeout in milliseconds used when requesting a connection
-		 * from the connection manager. Defaults to -1, undefined use the system default.
+		 * The timeout in milliseconds used when requesting a connection from the
+		 * connection manager. Defaults to -1, undefined use the system default.
 		 */
 		private int connectionRequestTimeoutMillis = -1;
+
 		/**
 		 * The lifetime for the connection pool.
 		 */
 		private long timeToLive = -1;
+
 		/**
 		 * The time unit for timeToLive.
 		 */
@@ -508,7 +521,8 @@ public class ZuulProperties {
 			return connectionRequestTimeoutMillis;
 		}
 
-		public void setConnectionRequestTimeoutMillis(int connectionRequestTimeoutMillis) {
+		public void setConnectionRequestTimeoutMillis(
+				int connectionRequestTimeoutMillis) {
 			this.connectionRequestTimeoutMillis = connectionRequestTimeoutMillis;
 		}
 
@@ -530,21 +544,23 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
 			Host host = (Host) o;
-			return maxTotalConnections == host.maxTotalConnections &&
-					maxPerRouteConnections == host.maxPerRouteConnections &&
-					socketTimeoutMillis == host.socketTimeoutMillis &&
-					connectTimeoutMillis == host.connectTimeoutMillis &&
-					connectionRequestTimeoutMillis == host.connectionRequestTimeoutMillis &&
-					timeToLive == host.timeToLive &&
-					timeUnit == host.timeUnit;
+			return maxTotalConnections == host.maxTotalConnections
+					&& maxPerRouteConnections == host.maxPerRouteConnections
+					&& socketTimeoutMillis == host.socketTimeoutMillis
+					&& connectTimeoutMillis == host.connectTimeoutMillis
+					&& connectionRequestTimeoutMillis == host.connectionRequestTimeoutMillis
+					&& timeToLive == host.timeToLive && timeUnit == host.timeUnit;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(maxTotalConnections, maxPerRouteConnections, socketTimeoutMillis, connectTimeoutMillis,
+			return Objects.hash(maxTotalConnections, maxPerRouteConnections,
+					socketTimeoutMillis, connectTimeoutMillis,
 					connectionRequestTimeoutMillis, timeToLive, timeUnit);
 		}
 
@@ -555,20 +571,23 @@ public class ZuulProperties {
 					.append("maxPerRouteConnections", maxPerRouteConnections)
 					.append("socketTimeoutMillis", socketTimeoutMillis)
 					.append("connectTimeoutMillis", connectTimeoutMillis)
-					.append("connectionRequestTimeoutMillis", connectionRequestTimeoutMillis)
-					.append("timeToLive", timeToLive)
-					.append("timeUnit", timeUnit)
+					.append("connectionRequestTimeoutMillis",
+							connectionRequestTimeoutMillis)
+					.append("timeToLive", timeToLive).append("timeUnit", timeUnit)
 					.toString();
 		}
+
 	}
-	
+
 	public static class HystrixSemaphore {
+
 		/**
 		 * The maximum number of total semaphores for Hystrix.
 		 */
 		private int maxSemaphores = 100;
 
-		public HystrixSemaphore() {}
+		public HystrixSemaphore() {
+		}
 
 		public HystrixSemaphore(int maxSemaphores) {
 			this.maxSemaphores = maxSemaphores;
@@ -584,8 +603,10 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
 			HystrixSemaphore that = (HystrixSemaphore) o;
 			return maxSemaphores == that.maxSemaphores;
 		}
@@ -602,21 +623,26 @@ public class ZuulProperties {
 			sb.append('}');
 			return sb.toString();
 		}
+
 	}
 
 	public static class HystrixThreadPool {
+
 		/**
-		 * Flag to determine whether RibbonCommands should use separate thread pools for hystrix.
-		 * By setting to true, RibbonCommands will be executed in a hystrix's thread pool that it is associated with.
-		 * Each RibbonCommand will be associated with a thread pool according to its commandKey (serviceId).
-		 * As default, all commands will be executed in a single thread pool whose threadPoolKey is "RibbonCommand".
-		 * This property is only applicable when using THREAD as ribbonIsolationStrategy
+		 * Flag to determine whether RibbonCommands should use separate thread pools for
+		 * hystrix. By setting to true, RibbonCommands will be executed in a hystrix's
+		 * thread pool that it is associated with. Each RibbonCommand will be associated
+		 * with a thread pool according to its commandKey (serviceId). As default, all
+		 * commands will be executed in a single thread pool whose threadPoolKey is
+		 * "RibbonCommand". This property is only applicable when using THREAD as
+		 * ribbonIsolationStrategy
 		 */
 		private boolean useSeparateThreadPools = false;
 
 		/**
-		 * A prefix for HystrixThreadPoolKey of hystrix's thread pool that is allocated to each service Id.
-		 * This property is only applicable when using THREAD as ribbonIsolationStrategy and useSeparateThreadPools = true
+		 * A prefix for HystrixThreadPoolKey of hystrix's thread pool that is allocated to
+		 * each service Id. This property is only applicable when using THREAD as
+		 * ribbonIsolationStrategy and useSeparateThreadPools = true
 		 */
 		private String threadPoolKeyPrefix = "";
 
@@ -635,6 +661,7 @@ public class ZuulProperties {
 		public void setThreadPoolKeyPrefix(String threadPoolKeyPrefix) {
 			this.threadPoolKeyPrefix = threadPoolKeyPrefix;
 		}
+
 	}
 
 	public String getServletPattern() {
@@ -844,73 +871,77 @@ public class ZuulProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		ZuulProperties that = (ZuulProperties) o;
-		return addHostHeader == that.addHostHeader &&
-				addProxyHeaders == that.addProxyHeaders &&
-				forceOriginalQueryStringEncoding == that.forceOriginalQueryStringEncoding &&
-				Objects.equals(host, that.host) &&
-				Objects.equals(ignoredHeaders, that.ignoredHeaders) &&
-				Objects.equals(ignoredPatterns, that.ignoredPatterns) &&
-				Objects.equals(ignoredServices, that.ignoredServices) &&
-				ignoreLocalService == that.ignoreLocalService &&
-				ignoreSecurityHeaders == that.ignoreSecurityHeaders &&
-				Objects.equals(prefix, that.prefix) &&
-				removeSemicolonContent == that.removeSemicolonContent &&
-				Objects.equals(retryable, that.retryable) &&
-				Objects.equals(ribbonIsolationStrategy, that.ribbonIsolationStrategy) &&
-				Objects.equals(routes, that.routes) &&
-				Objects.equals(semaphore, that.semaphore) &&
-				Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
-				Objects.equals(servletPath, that.servletPath) &&
-				sslHostnameValidationEnabled == that.sslHostnameValidationEnabled &&
-				stripPrefix == that.stripPrefix &&
-				setContentLength == that.setContentLength &&
-				includeDebugHeader == that.includeDebugHeader &&
-				initialStreamBufferSize == that.initialStreamBufferSize &&
-				Objects.equals(threadPool, that.threadPool) &&
-				traceRequestBody == that.traceRequestBody;
+		return addHostHeader == that.addHostHeader
+				&& addProxyHeaders == that.addProxyHeaders
+				&& forceOriginalQueryStringEncoding == that.forceOriginalQueryStringEncoding
+				&& Objects.equals(host, that.host)
+				&& Objects.equals(ignoredHeaders, that.ignoredHeaders)
+				&& Objects.equals(ignoredPatterns, that.ignoredPatterns)
+				&& Objects.equals(ignoredServices, that.ignoredServices)
+				&& ignoreLocalService == that.ignoreLocalService
+				&& ignoreSecurityHeaders == that.ignoreSecurityHeaders
+				&& Objects.equals(prefix, that.prefix)
+				&& removeSemicolonContent == that.removeSemicolonContent
+				&& Objects.equals(retryable, that.retryable)
+				&& Objects.equals(ribbonIsolationStrategy, that.ribbonIsolationStrategy)
+				&& Objects.equals(routes, that.routes)
+				&& Objects.equals(semaphore, that.semaphore)
+				&& Objects.equals(sensitiveHeaders, that.sensitiveHeaders)
+				&& Objects.equals(servletPath, that.servletPath)
+				&& sslHostnameValidationEnabled == that.sslHostnameValidationEnabled
+				&& stripPrefix == that.stripPrefix
+				&& setContentLength == that.setContentLength
+				&& includeDebugHeader == that.includeDebugHeader
+				&& initialStreamBufferSize == that.initialStreamBufferSize
+				&& Objects.equals(threadPool, that.threadPool)
+				&& traceRequestBody == that.traceRequestBody;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(addHostHeader, addProxyHeaders, forceOriginalQueryStringEncoding,
-				host, ignoredHeaders, ignoredPatterns, ignoredServices, ignoreLocalService,
-				ignoreSecurityHeaders, prefix, removeSemicolonContent, retryable,
-				ribbonIsolationStrategy, routes, semaphore, sensitiveHeaders, servletPath,
-				sslHostnameValidationEnabled, stripPrefix, threadPool, traceRequestBody,
-				setContentLength, includeDebugHeader, initialStreamBufferSize);
+		return Objects.hash(addHostHeader, addProxyHeaders,
+				forceOriginalQueryStringEncoding, host, ignoredHeaders, ignoredPatterns,
+				ignoredServices, ignoreLocalService, ignoreSecurityHeaders, prefix,
+				removeSemicolonContent, retryable, ribbonIsolationStrategy, routes,
+				semaphore, sensitiveHeaders, servletPath, sslHostnameValidationEnabled,
+				stripPrefix, threadPool, traceRequestBody, setContentLength,
+				includeDebugHeader, initialStreamBufferSize);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder("ZuulProperties{")
-				.append("prefix='").append(prefix).append("', ")
-				.append("stripPrefix=").append(stripPrefix).append(", ")
-				.append("retryable=").append(retryable).append(", ")
-				.append("routes=").append(routes).append(", ")
-				.append("addProxyHeaders=").append(addProxyHeaders).append(", ")
-				.append("addHostHeader=").append(addHostHeader).append(", ")
-				.append("ignoredServices=").append(ignoredServices).append(", ")
-				.append("ignoredPatterns=").append(ignoredPatterns).append(", ")
-				.append("ignoredHeaders=").append(ignoredHeaders).append(", ")
-				.append("ignoreSecurityHeaders=").append(ignoreSecurityHeaders).append(", ")
-				.append("forceOriginalQueryStringEncoding=").append(forceOriginalQueryStringEncoding).append(", ")
+		return new StringBuilder("ZuulProperties{").append("prefix='").append(prefix)
+				.append("', ").append("stripPrefix=").append(stripPrefix).append(", ")
+				.append("retryable=").append(retryable).append(", ").append("routes=")
+				.append(routes).append(", ").append("addProxyHeaders=")
+				.append(addProxyHeaders).append(", ").append("addHostHeader=")
+				.append(addHostHeader).append(", ").append("ignoredServices=")
+				.append(ignoredServices).append(", ").append("ignoredPatterns=")
+				.append(ignoredPatterns).append(", ").append("ignoredHeaders=")
+				.append(ignoredHeaders).append(", ").append("ignoreSecurityHeaders=")
+				.append(ignoreSecurityHeaders).append(", ")
+				.append("forceOriginalQueryStringEncoding=")
+				.append(forceOriginalQueryStringEncoding).append(", ")
 				.append("servletPath='").append(servletPath).append("', ")
 				.append("ignoreLocalService=").append(ignoreLocalService).append(", ")
-				.append("host=").append(host).append(", ")
-				.append("traceRequestBody=").append(traceRequestBody).append(", ")
-				.append("removeSemicolonContent=").append(removeSemicolonContent).append(", ")
-				.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
-				.append("sslHostnameValidationEnabled=").append(sslHostnameValidationEnabled).append(", ")
-				.append("ribbonIsolationStrategy=").append(ribbonIsolationStrategy).append(", ")
-				.append("semaphore=").append(semaphore).append(", ")
+				.append("host=").append(host).append(", ").append("traceRequestBody=")
+				.append(traceRequestBody).append(", ").append("removeSemicolonContent=")
+				.append(removeSemicolonContent).append(", ").append("sensitiveHeaders=")
+				.append(sensitiveHeaders).append(", ")
+				.append("sslHostnameValidationEnabled=")
+				.append(sslHostnameValidationEnabled).append(", ")
+				.append("ribbonIsolationStrategy=").append(ribbonIsolationStrategy)
+				.append(", ").append("semaphore=").append(semaphore).append(", ")
 				.append("threadPool=").append(threadPool).append(", ")
 				.append("setContentLength=").append(setContentLength).append(", ")
 				.append("includeDebugHeader=").append(includeDebugHeader).append(", ")
-				.append("initialStreamBufferSize=").append(initialStreamBufferSize).append(", ")
-				.append("}").toString();
+				.append("initialStreamBufferSize=").append(initialStreamBufferSize)
+				.append(", ").append("}").toString();
 	}
 
 }

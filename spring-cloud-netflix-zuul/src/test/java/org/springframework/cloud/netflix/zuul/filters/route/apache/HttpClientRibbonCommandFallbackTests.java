@@ -19,7 +19,6 @@
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.Before;
 import org.junit.runner.RunWith;
 

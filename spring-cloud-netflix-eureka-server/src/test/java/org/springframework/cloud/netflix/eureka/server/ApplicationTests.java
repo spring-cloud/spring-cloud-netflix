@@ -19,8 +19,12 @@ package org.springframework.cloud.netflix.eureka.server;
 import java.util.Collections;
 import java.util.Map;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.converters.wrappers.CodecWrapper;
+import com.netflix.eureka.resources.ServerCodecs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -37,10 +41,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.converters.wrappers.CodecWrapper;
-import com.netflix.eureka.resources.ServerCodecs;
-
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -52,8 +52,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
-		"spring.jmx.enabled=true", "management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
+		"spring.jmx.enabled=true", "management.security.enabled=false",
+		"management.endpoints.web.exposure.include=*"})
 public class ApplicationTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
@@ -122,6 +124,7 @@ public class ApplicationTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
+
 	}
 
 }

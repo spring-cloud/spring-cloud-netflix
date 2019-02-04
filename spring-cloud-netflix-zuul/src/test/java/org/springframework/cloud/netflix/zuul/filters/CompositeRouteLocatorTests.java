@@ -1,5 +1,12 @@
 package org.springframework.cloud.netflix.zuul.filters;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Test;
+
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
@@ -9,26 +16,19 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
-
 /**
  * @author Johannes Edmeier
  */
 public class CompositeRouteLocatorTests {
+
 	private CompositeRouteLocator locator;
 
 	public CompositeRouteLocatorTests() {
 		List<RouteLocator> locators = new ArrayList<>();
-		locators.add(new TestRouteLocator(asList("ign1"),
-				asList(createRoute("1", "/pathA"))));
 		locators.add(
-				new TestRouteLocator(asList("ign1", "ign2"),
-						asList(createRoute("2", "/pathA"), createRoute("2", "/pathB"))));
+				new TestRouteLocator(asList("ign1"), asList(createRoute("1", "/pathA"))));
+		locators.add(new TestRouteLocator(asList("ign1", "ign2"),
+				asList(createRoute("2", "/pathA"), createRoute("2", "/pathB"))));
 		this.locator = new CompositeRouteLocator(locators);
 	}
 
@@ -48,8 +48,8 @@ public class CompositeRouteLocatorTests {
 	public void test_getMatchingRoute() {
 		assertThat(locator.getMatchingRoute("/pathA"), notNullValue());
 		assertThat(locator.getMatchingRoute("/pathA").getId(), is("1"));
-		assertThat("Locator 1 should take precedence", locator.getMatchingRoute("/pathB").getId(),
-				is("2"));
+		assertThat("Locator 1 should take precedence",
+				locator.getMatchingRoute("/pathB").getId(), is("2"));
 		assertThat(locator.getMatchingRoute("/pathNot"), nullValue());
 	}
 
@@ -65,7 +65,9 @@ public class CompositeRouteLocatorTests {
 	}
 
 	private static class TestRouteLocator implements RouteLocator {
+
 		private Collection<String> ignoredPaths;
+
 		private List<Route> routes;
 
 		public TestRouteLocator(Collection<String> ignoredPaths, List<Route> routes) {
@@ -94,4 +96,5 @@ public class CompositeRouteLocatorTests {
 		}
 
 	}
+
 }

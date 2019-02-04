@@ -49,12 +49,14 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest( webEnvironment = RANDOM_PORT, properties = {
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
 		"spring.main.web-application-type=reactive",
-		"spring.application.name=hystrixstreamwebfluxtest", /*"debug=true"*/ })
+		"spring.application.name=hystrixstreamwebfluxtest", /* "debug=true" */})
 @DirtiesContext
 public class HystrixWebfluxEndpointTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
+
 	private static final Log log = LogFactory.getLog(HystrixWebfluxEndpointTests.class);
 
 	@LocalServerPort
@@ -70,31 +72,29 @@ public class HystrixWebfluxEndpointTests {
 		WebClient client = WebClient.create(url);
 
 		Flux<String> result = client.get().uri(BASE_PATH + "/hystrix.stream")
-				.accept(MediaType.TEXT_EVENT_STREAM)
-				.exchange()
-				.flatMapMany(res -> res.bodyToFlux(Map.class))
-				.take(5)
+				.accept(MediaType.TEXT_EVENT_STREAM).exchange()
+				.flatMapMany(res -> res.bodyToFlux(Map.class)).take(5)
 				.filter(map -> "HystrixCommand".equals(map.get("type")))
-				.map(map -> (String)map.get("type"));
+				.map(map -> (String) map.get("type"));
 
-		StepVerifier.create(result)
-				.expectNext("HystrixCommand")
-				.thenCancel()
-				.verify();
+		StepVerifier.create(result).expectNext("HystrixCommand").thenCancel().verify();
 	}
 
 	@RestController
 	@EnableCircuitBreaker
-	@EnableAutoConfiguration(exclude = TestAutoConfiguration.class,
-			excludeName = {"org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration",
+	@EnableAutoConfiguration(exclude = TestAutoConfiguration.class, excludeName = {
+			"org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration",
 			"org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration",
 			"org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration"})
 	@SpringBootConfiguration
 	protected static class Config {
+
 		@HystrixCommand
 		@RequestMapping("/")
 		public String hi() {
 			return "hi";
 		}
+
 	}
+
 }

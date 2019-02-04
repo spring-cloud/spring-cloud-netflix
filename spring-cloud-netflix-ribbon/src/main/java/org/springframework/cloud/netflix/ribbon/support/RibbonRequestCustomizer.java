@@ -23,18 +23,23 @@ import java.util.List;
  * @author Spencer Gibb
  */
 public interface RibbonRequestCustomizer<B> {
+
 	boolean accepts(Class builderClass);
+
 	void customize(B builder);
 
 	class Runner {
 
 		@SuppressWarnings("unchecked")
-		public static void customize(List<RibbonRequestCustomizer> customizers, Object builder) {
+		public static void customize(List<RibbonRequestCustomizer> customizers,
+				Object builder) {
 			for (RibbonRequestCustomizer customizer : customizers) {
 				if (customizer.accepts(builder.getClass())) {
 					customizer.customize(builder);
 				}
 			}
 		}
+
 	}
+
 }

@@ -26,7 +26,6 @@ import com.netflix.turbine.monitor.TurbineDataMonitor;
 import com.netflix.turbine.monitor.cluster.AggregateClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -35,7 +34,8 @@ import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.Aggreg
 /**
  * @author Spencer Gibb
  */
-public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFromCluster> {
+public class SpringAggregatorFactory
+		implements ClusterMonitorFactory<AggDataFromCluster> {
 
 	private static final Log log = LogFactory.getLog(SpringAggregatorFactory.class);
 
@@ -73,7 +73,8 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 	@Override
 	public void initClusterMonitors() {
 		for (String clusterName : clustersProvider.getClusterNames()) {
-			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) findOrRegisterAggregateMonitor(clusterName);
+			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) findOrRegisterAggregateMonitor(
+					clusterName);
 			clusterMonitor.registerListenertoClusterMonitor(this.StaticListener);
 			try {
 				clusterMonitor.startMonitor();
@@ -139,4 +140,5 @@ public class SpringAggregatorFactory implements ClusterMonitorFactory<AggDataFro
 		}
 
 	};
+
 }

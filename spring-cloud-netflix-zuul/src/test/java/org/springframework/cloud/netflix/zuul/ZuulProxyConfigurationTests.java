@@ -41,12 +41,14 @@ public class ZuulProxyConfigurationTests {
 	@Test
 	public void testDefaultsToApacheHttpClient() {
 		testClient(HttpClientRibbonCommandFactory.class, null);
-		testClient(HttpClientRibbonCommandFactory.class, "ribbon.httpclient.enabled=true");
+		testClient(HttpClientRibbonCommandFactory.class,
+				"ribbon.httpclient.enabled=true");
 	}
 
 	@Test
 	public void testEnableRestClient() {
-		testClient(RestClientRibbonCommandFactory.class, "ribbon.restclient.enabled=true");
+		testClient(RestClientRibbonCommandFactory.class,
+				"ribbon.restclient.enabled=true");
 	}
 
 	@Test
@@ -58,16 +60,16 @@ public class ZuulProxyConfigurationTests {
 		if (property == null) {
 			property = "aaa=bbb";
 		}
-		new WebApplicationContextRunner()
-			.withUserConfiguration(TestConfig.class)
-			.withPropertyValues(property)
-			.run(c -> assertThat(c).hasSingleBean(clientType));
+		new WebApplicationContextRunner().withUserConfiguration(TestConfig.class)
+				.withPropertyValues(property)
+				.run(c -> assertThat(c).hasSingleBean(clientType));
 	}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@EnableZuulProxy
 	static class TestConfig {
+
 		@Bean
 		SpringClientFactory springClientFactory() {
 			return mock(SpringClientFactory.class);
@@ -77,6 +79,7 @@ public class ZuulProxyConfigurationTests {
 		DiscoveryClient discoveryClient() {
 			return mock(DiscoveryClient.class);
 		}
+
 	}
 
 }

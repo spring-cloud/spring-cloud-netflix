@@ -18,7 +18,6 @@
 package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
@@ -39,8 +38,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @DirtiesContext
 @Import(NoSecurityConfiguration.class)
 public class OkHttpRibbonCommandFallbackTests extends RibbonCommandFallbackTests {
+
 	@Before
 	public void init() {
 		RequestContext.getCurrentContext().clear();
 	}
+
 }

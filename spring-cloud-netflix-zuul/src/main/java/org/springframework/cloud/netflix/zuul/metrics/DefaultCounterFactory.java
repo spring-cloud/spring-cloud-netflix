@@ -17,11 +17,11 @@
 package org.springframework.cloud.netflix.zuul.metrics;
 
 import com.netflix.zuul.monitoring.CounterFactory;
-
 import io.micrometer.core.instrument.MeterRegistry;
 
 /**
- * A counter based monitoring factory that uses {@link MeterRegistry} to increment counters.
+ * A counter based monitoring factory that uses {@link MeterRegistry} to increment
+ * counters.
  *
  * @author Anastasiia Smirnova
  */
@@ -37,4 +37,5 @@ public class DefaultCounterFactory extends CounterFactory {
 	public void increment(String name) {
 		this.meterRegistry.counter(name).increment();
 	}
+
 }

@@ -60,6 +60,36 @@ public class RibbonCommandFactoryConfiguration {
 			return new RestClientRibbonCommandFactory(clientFactory, zuulProperties,
 					zuulFallbackProviders);
 		}
+
+	}
+
+	@Target({ElementType.TYPE, ElementType.METHOD})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRibbonHttpClientCondition.class)
+	@interface ConditionalOnRibbonHttpClient {
+
+	}
+
+	private static class OnRibbonHttpClientCondition extends AnyNestedCondition {
+
+		public OnRibbonHttpClientCondition() {
+			super(ConfigurationPhase.PARSE_CONFIGURATION);
+		}
+
+		@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
+		static class RibbonProperty {
+
+		}
+
+	}
+
+	@Target({ElementType.TYPE, ElementType.METHOD})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Conditional(OnRibbonOkHttpClientCondition.class)
+	@interface ConditionalOnRibbonOkHttpClient {
+
 	}
 
 	@Configuration
@@ -77,6 +107,7 @@ public class RibbonCommandFactoryConfiguration {
 			return new OkHttpRibbonCommandFactory(clientFactory, zuulProperties,
 					zuulFallbackProviders);
 		}
+
 	}
 
 	@Configuration
@@ -90,53 +121,44 @@ public class RibbonCommandFactoryConfiguration {
 		@ConditionalOnMissingBean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
 				SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-			return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties, zuulFallbackProviders);
-		}
-	}
-
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	@Documented
-	@Conditional(OnRibbonHttpClientCondition.class)
-	@interface ConditionalOnRibbonHttpClient { }
-
-	private static class OnRibbonHttpClientCondition extends AnyNestedCondition {
-		public OnRibbonHttpClientCondition() {
-			super(ConfigurationPhase.PARSE_CONFIGURATION);
+			return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties,
+					zuulFallbackProviders);
 		}
 
-		@ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
-		static class RibbonProperty {}
 	}
-
-	@Target({ ElementType.TYPE, ElementType.METHOD })
-	@Retention(RetentionPolicy.RUNTIME)
-	@Documented
-	@Conditional(OnRibbonOkHttpClientCondition.class)
-	@interface ConditionalOnRibbonOkHttpClient { }
 
 	private static class OnRibbonOkHttpClientCondition extends AnyNestedCondition {
+
 		public OnRibbonOkHttpClientCondition() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
 		@ConditionalOnProperty("ribbon.okhttp.enabled")
-		static class RibbonProperty {}
+		static class RibbonProperty {
+
+		}
+
 	}
 
 	@Target({ ElementType.TYPE, ElementType.METHOD })
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
 	@Conditional(OnRibbonRestClientCondition.class)
-	@interface ConditionalOnRibbonRestClient { }
+	@interface ConditionalOnRibbonRestClient {
+
+	}
 
 	private static class OnRibbonRestClientCondition extends AnyNestedCondition {
+
 		public OnRibbonRestClientCondition() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
 		@ConditionalOnProperty("ribbon.restclient.enabled")
-		static class RibbonProperty {}
+		static class RibbonProperty {
+
+		}
+
 	}
-	
+
 }

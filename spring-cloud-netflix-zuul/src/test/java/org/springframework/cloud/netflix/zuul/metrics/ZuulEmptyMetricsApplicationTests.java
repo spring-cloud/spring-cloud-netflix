@@ -39,17 +39,17 @@ import org.springframework.context.annotation.Configuration;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(ModifiedClassPathRunner.class)
-@ClassPathExclusions({ "spring-boot-starter-actuator-*.jar",
-		"spring-boot-actuator-*.jar", "micrometer-core-*.jar" })
+@ClassPathExclusions({"spring-boot-starter-actuator-*.jar", "spring-boot-actuator-*.jar",
+		"micrometer-core-*.jar"})
 public class ZuulEmptyMetricsApplicationTests {
 
 	private ConfigurableApplicationContext context;
 
 	@Before
 	public void setUp() throws Exception {
-		ConfigurableApplicationContext context = new SpringApplicationBuilder(ZuulEmptyMetricsApplicationTestsConfiguration.class)
-				.web(WebApplicationType.NONE)
-				.run("--debug");
+		ConfigurableApplicationContext context = new SpringApplicationBuilder(
+				ZuulEmptyMetricsApplicationTestsConfiguration.class)
+				.web(WebApplicationType.NONE).run("--debug");
 		this.context = context;
 	}
 
@@ -83,4 +83,5 @@ public class ZuulEmptyMetricsApplicationTests {
 	static class ZuulEmptyMetricsApplicationTestsConfiguration {
 
 	}
+
 }

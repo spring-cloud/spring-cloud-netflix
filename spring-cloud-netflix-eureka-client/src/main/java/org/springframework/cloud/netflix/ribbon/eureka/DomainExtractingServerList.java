@@ -19,13 +19,13 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.cloud.netflix.ribbon.RibbonProperties;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+
+import org.springframework.cloud.netflix.ribbon.RibbonProperties;
 
 /**
  * @author Dave Syer
@@ -33,6 +33,7 @@ import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 public class DomainExtractingServerList implements ServerList<DiscoveryEnabledServer> {
 
 	private ServerList<DiscoveryEnabledServer> list;
+
 	private final RibbonProperties ribbon;
 
 	private boolean approximateZoneFromHostname;
@@ -46,15 +47,15 @@ public class DomainExtractingServerList implements ServerList<DiscoveryEnabledSe
 
 	@Override
 	public List<DiscoveryEnabledServer> getInitialListOfServers() {
-		List<DiscoveryEnabledServer> servers = setZones(this.list
-				.getInitialListOfServers());
+		List<DiscoveryEnabledServer> servers = setZones(
+				this.list.getInitialListOfServers());
 		return servers;
 	}
 
 	@Override
 	public List<DiscoveryEnabledServer> getUpdatedListOfServers() {
-		List<DiscoveryEnabledServer> servers = setZones(this.list
-				.getUpdatedListOfServers());
+		List<DiscoveryEnabledServer> servers = setZones(
+				this.list.getUpdatedListOfServers());
 		return servers;
 	}
 
@@ -85,7 +86,7 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 		this.id = id;
 	}
 
-	public DomainExtractingServer(DiscoveryEnabledServer server, boolean useSecurePort,
+	DomainExtractingServer(DiscoveryEnabledServer server, boolean useSecurePort,
 			boolean useIpAddr, boolean approximateZoneFromHostname) {
 		// host and port are set in super()
 		super(server.getInstanceInfo(), useSecurePort, useIpAddr);
@@ -108,9 +109,11 @@ class DomainExtractingServer extends DiscoveryEnabledServer {
 			DiscoveryEnabledServer enabled = (DiscoveryEnabledServer) server;
 			InstanceInfo instance = enabled.getInstanceInfo();
 			if (instance.getMetadata().containsKey("instanceId")) {
-				return instance.getHostName()+":"+instance.getMetadata().get("instanceId");
+				return instance.getHostName() + ":"
+						+ instance.getMetadata().get("instanceId");
 			}
 		}
 		return super.getId();
 	}
+
 }

@@ -30,19 +30,24 @@ import com.netflix.zuul.context.RequestContext;
  * @author Craig Andrews
  */
 public class ZuulServletFilter extends com.netflix.zuul.filters.ZuulServletFilter {
+
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
 			FilterChain filterChain) throws IOException, ServletException {
 
 		// Workaround https://github.com/Netflix/zuul/pull/430
-		// This class can be removed, and com.netflix.zuul.filters.ZuulServletFilter used in its place,
+		// This class can be removed, and com.netflix.zuul.filters.ZuulServletFilter used
+		// in its place,
 		// when using a Zuul release with that change in it.
 
-        // Marks this request as having passed through the "Zuul engine", as opposed to servlets
-        // explicitly bound in web.xml, for which requests will not have the same data attached
-        RequestContext context = RequestContext.getCurrentContext();
-        context.setZuulEngineRan();
+		// Marks this request as having passed through the "Zuul engine", as opposed to
+		// servlets
+		// explicitly bound in web.xml, for which requests will not have the same data
+		// attached
+		RequestContext context = RequestContext.getCurrentContext();
+		context.setZuulEngineRan();
 
 		super.doFilter(servletRequest, servletResponse, filterChain);
 	}
+
 }

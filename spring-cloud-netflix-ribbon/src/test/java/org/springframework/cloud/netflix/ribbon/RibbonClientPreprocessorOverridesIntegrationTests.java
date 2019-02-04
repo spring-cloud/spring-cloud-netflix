@@ -17,18 +17,6 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.commons.util.UtilAutoConfiguration;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
 import com.netflix.loadbalancer.DummyPing;
@@ -41,6 +29,19 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListFilter;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.commons.util.UtilAutoConfiguration;
+import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
 
@@ -82,22 +83,21 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 	public void serverListFilterOverride() throws Exception {
 		ServerListFilter<Server> filter = getLoadBalancer("foo").getFilter();
 		assertEquals("FooTestZone",
-				ZonePreferenceServerListFilter.class.cast(filter)
-						.getZone());
+				ZonePreferenceServerListFilter.class.cast(filter).getZone());
 	}
 
 	@Configuration
-	@RibbonClients({
-		@RibbonClient(name = "foo", configuration = FooConfiguration.class),
-		@RibbonClient(name = "bar", configuration = BarConfiguration.class)
-	})
+	@RibbonClients({@RibbonClient(name = "foo", configuration = FooConfiguration.class),
+			@RibbonClient(name = "bar", configuration = BarConfiguration.class)})
 	@Import({ UtilAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class,
 			ArchaiusAutoConfiguration.class, RibbonAutoConfiguration.class})
 	protected static class TestConfiguration {
+
 	}
 
 	@Configuration
 	public static class FooConfiguration {
+
 		@Bean
 		public IRule ribbonRule() {
 			return new RandomRule();
@@ -119,12 +119,15 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 			filter.setZone("FooTestZone");
 			return filter;
 		}
+
 	}
 
 	public static class FooServiceList extends ConfigurationBasedServerList {
+
 		public FooServiceList(IClientConfig config) {
 			super.initWithNiwsConfig(config);
 		}
+
 	}
 
 	@Configuration
@@ -151,11 +154,15 @@ public class RibbonClientPreprocessorOverridesIntegrationTests {
 			filter.setZone("BarTestZone");
 			return filter;
 		}
+
 	}
 
 	public static class BarServiceList extends ConfigurationBasedServerList {
+
 		public BarServiceList(IClientConfig config) {
 			super.initWithNiwsConfig(config);
 		}
+
 	}
+
 }

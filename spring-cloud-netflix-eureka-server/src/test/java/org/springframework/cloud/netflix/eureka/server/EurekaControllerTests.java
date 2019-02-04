@@ -24,12 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.appinfo.DataCenterInfo;
 import com.netflix.appinfo.InstanceInfo;
@@ -40,6 +34,12 @@ import com.netflix.eureka.EurekaServerContextHolder;
 import com.netflix.eureka.cluster.PeerEurekaNode;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.util.ReflectionUtils;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -52,15 +52,16 @@ import static org.mockito.Mockito.when;
 public class EurekaControllerTests {
 
 	private ApplicationInfoManager infoManager;
+
 	private ApplicationInfoManager original;
 
 	@Before
 	public void setup() throws Exception {
 		PeerEurekaNodes peerEurekaNodes = mock(PeerEurekaNodes.class);
-		when(peerEurekaNodes.getPeerNodesView()).thenReturn(Collections.<PeerEurekaNode>emptyList());
+		when(peerEurekaNodes.getPeerNodesView())
+				.thenReturn(Collections.<PeerEurekaNode>emptyList());
 
-		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder()
-				.setAppName("test")
+		InstanceInfo instanceInfo = InstanceInfo.Builder.newBuilder().setAppName("test")
 				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
 				.build();
 
@@ -70,11 +71,9 @@ public class EurekaControllerTests {
 		when(this.infoManager.getInfo()).thenReturn(instanceInfo);
 
 		Application myapp = new Application("myapp");
-		myapp.addInstance(InstanceInfo.Builder.newBuilder()
-				.setAppName("myapp")
+		myapp.addInstance(InstanceInfo.Builder.newBuilder().setAppName("myapp")
 				.setDataCenterInfo(new MyDataCenterInfo(DataCenterInfo.Name.MyOwn))
-				.setInstanceId("myapp:1")
-				.build());
+				.setInstanceId("myapp:1").build());
 
 		ArrayList<Application> applications = new ArrayList<>();
 		applications.add(myapp);
@@ -95,8 +94,10 @@ public class EurekaControllerTests {
 		setInstance(this.original);
 	}
 
-	static void setInstance(ApplicationInfoManager infoManager) throws IllegalAccessException {
-		Field instance = ReflectionUtils.findField(ApplicationInfoManager.class, "instance");
+	static void setInstance(ApplicationInfoManager infoManager)
+			throws IllegalAccessException {
+		Field instance = ReflectionUtils.findField(ApplicationInfoManager.class,
+				"instance");
 		ReflectionUtils.makeAccessible(instance);
 		instance.set(null, infoManager);
 	}
@@ -113,15 +114,15 @@ public class EurekaControllerTests {
 		Map<String, Object> instanceInfo = getFirst(app, "instanceInfos");
 		Map<String, Object> instance = getFirst(instanceInfo, "instances");
 
-		assertThat("id was wrong", (String)instance.get("id"), is(equalTo("myapp:1")));
+		assertThat("id was wrong", (String) instance.get("id"), is(equalTo("myapp:1")));
 		assertThat("url was not null", instance.get("url"), is(nullValue()));
-		assertThat("isHref was wrong", (Boolean)instance.get("isHref"), is(false));
+		assertThat("isHref was wrong", (Boolean) instance.get("isHref"), is(false));
 	}
 
 	@SuppressWarnings("unchecked")
 	Map<String, Object> getFirst(Map<String, Object> model, String key) {
 		List<Map<String, Object>> apps = (List<Map<String, Object>>) model.get(key);
-		assertThat(key +" was wrong size", apps, is(hasSize(1)));
+		assertThat(key + " was wrong size", apps, is(hasSize(1)));
 		return apps.get(0);
 	}
 

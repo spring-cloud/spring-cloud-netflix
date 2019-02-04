@@ -50,8 +50,9 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 	private HttpTraceRepository traces;
 
 	@Deprecated
-	//TODO Remove in 2.1.x
-	public TraceProxyRequestHelper(){}
+	// TODO Remove in 2.1.x
+	public TraceProxyRequestHelper() {
+	}
 
 	public TraceProxyRequestHelper(ZuulProperties zuulProperties) {
 		super(zuulProperties);
@@ -97,6 +98,7 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 	}
 
 	private class ServletTraceableRequest implements TraceableRequest {
+
 		private HttpServletRequest request;
 
 		public ServletTraceableRequest(HttpServletRequest request) {
@@ -146,6 +148,7 @@ public class TraceProxyRequestHelper extends ProxyRequestHelper {
 			}
 			return list;
 		}
+
 	}
 
 	void debugHeaders(MultiValueMap<String, String> headers, Map<String, Object> map) {

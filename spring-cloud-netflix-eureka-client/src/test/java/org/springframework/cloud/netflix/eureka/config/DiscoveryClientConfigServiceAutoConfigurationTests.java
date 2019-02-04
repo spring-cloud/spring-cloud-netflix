@@ -19,9 +19,13 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import java.util.Arrays;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
 import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.cloud.commons.util.UtilAutoConfiguration;
@@ -33,10 +37,6 @@ import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfigurati
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.discovery.EurekaClient;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -68,8 +68,8 @@ public class DiscoveryClientConfigServiceAutoConfigurationTests {
 		assertEquals(1, this.context.getBeanNamesForType(
 				EurekaDiscoveryClientConfigServiceAutoConfiguration.class).length);
 		EurekaClient eurekaClient = this.context.getParent().getBean(EurekaClient.class);
-		Mockito.verify(eurekaClient, times(2)).getInstancesByVipAddress(DEFAULT_CONFIG_SERVER,
-				false);
+		Mockito.verify(eurekaClient, times(2))
+				.getInstancesByVipAddress(DEFAULT_CONFIG_SERVER, false);
 		Mockito.verify(eurekaClient, times(1)).shutdown();
 		ConfigClientProperties locator = this.context
 				.getBean(ConfigClientProperties.class);

@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.eureka;
 
 import org.junit.Test;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.autoconfigure.RefreshAutoConfiguration;
@@ -35,10 +36,10 @@ public class ConditionalOnRefreshScopeTests {
 	@Test
 	public void refreshScopeIncluded() {
 		new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
-			.withUserConfiguration(Beans.class).run(c -> {
+				.withConfiguration(AutoConfigurations.of(RefreshAutoConfiguration.class))
+				.withUserConfiguration(Beans.class).run(c -> {
 			assertThat(c).hasSingleBean(
-				org.springframework.cloud.context.scope.refresh.RefreshScope.class);
+					org.springframework.cloud.context.scope.refresh.RefreshScope.class);
 			assertThat(c.getBean("foo")).isEqualTo("foo");
 		});
 	}
@@ -52,11 +53,13 @@ public class ConditionalOnRefreshScopeTests {
 
 	@Configuration
 	protected static class Beans {
+
 		@Bean
 		@ConditionalOnRefreshScope
 		public String foo() {
 			return "foo";
 		}
+
 	}
 
 }

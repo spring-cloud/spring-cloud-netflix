@@ -17,15 +17,6 @@
 
 package org.springframework.cloud.netflix.ribbon.test;
 
-import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
-import org.springframework.cloud.commons.util.UtilAutoConfiguration;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
-import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.BestAvailableRule;
 import com.netflix.loadbalancer.ConfigurationBasedServerList;
@@ -36,21 +27,35 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.loadbalancer.ServerListSubsetFilter;
 
+import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
+import org.springframework.cloud.commons.util.UtilAutoConfiguration;
+import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
+import org.springframework.cloud.netflix.ribbon.RibbonClients;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
 /**
  * @author Spencer Gibb
  */
 @Configuration
 @Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
-		UtilAutoConfiguration.class, RibbonAutoConfiguration.class, HttpClientConfiguration.class })
+		UtilAutoConfiguration.class, RibbonAutoConfiguration.class,
+		HttpClientConfiguration.class})
 // tag::sample_default_ribbon_config[]
 @RibbonClients(defaultConfiguration = DefaultRibbonConfig.class)
 public class RibbonClientDefaultConfigurationTestsConfig {
 
 	public static class BazServiceList extends ConfigurationBasedServerList {
+
 		public BazServiceList(IClientConfig config) {
 			super.initWithNiwsConfig(config);
 		}
+
 	}
+
 }
 
 @Configuration

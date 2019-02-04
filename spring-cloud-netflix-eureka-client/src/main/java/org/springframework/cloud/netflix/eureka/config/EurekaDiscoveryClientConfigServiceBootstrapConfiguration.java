@@ -33,7 +33,11 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnClass(ConfigServicePropertySourceLocator.class)
 @ConditionalOnProperty(value = "spring.cloud.config.discovery.enabled", matchIfMissing = false)
 @Configuration
-@Import({ EurekaDiscoveryClientConfiguration.class, // this emulates @EnableDiscoveryClient, the import selector doesn't run before the bootstrap phase
+@Import({EurekaDiscoveryClientConfiguration.class, // this emulates
+		// @EnableDiscoveryClient, the import
+		// selector doesn't run before the
+		// bootstrap phase
 		EurekaClientAutoConfiguration.class })
 public class EurekaDiscoveryClientConfigServiceBootstrapConfiguration {
+
 }

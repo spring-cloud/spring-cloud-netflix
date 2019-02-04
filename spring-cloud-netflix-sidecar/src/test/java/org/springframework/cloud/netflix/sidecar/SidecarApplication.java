@@ -39,19 +39,25 @@ public class SidecarApplication {
 
 	@Bean
 	public ManagementMetadataProvider managementMetadataProvider() {
-		//The default management metadata provider checks for random ports, we dont care about this in tests
+		// The default management metadata provider checks for random ports, we dont care
+		// about this in tests
 		return new DefaultManagementMetadataProvider() {
 			@Override
-			public ManagementMetadata get(EurekaInstanceConfigBean instance, int serverPort, String serverContextPath, String managementContextPath, Integer managementPort) {
-				String healthCheckUrl = getHealthCheckUrl(instance, serverPort, serverContextPath,
-						managementContextPath, managementPort, false);
-				String statusPageUrl = getStatusPageUrl(instance, serverPort, serverContextPath,
-						managementContextPath, managementPort);
+			public ManagementMetadata get(EurekaInstanceConfigBean instance,
+					int serverPort, String serverContextPath,
+					String managementContextPath, Integer managementPort) {
+				String healthCheckUrl = getHealthCheckUrl(instance, serverPort,
+						serverContextPath, managementContextPath, managementPort, false);
+				String statusPageUrl = getStatusPageUrl(instance, serverPort,
+						serverContextPath, managementContextPath, managementPort);
 
-				ManagementMetadata metadata = new ManagementMetadata(healthCheckUrl, statusPageUrl, managementPort == null ? serverPort : managementPort);
-				if(instance.isSecurePortEnabled()) {
-					metadata.setSecureHealthCheckUrl(getHealthCheckUrl(instance, serverPort, serverContextPath,
-							managementContextPath, managementPort, true));
+				ManagementMetadata metadata = new ManagementMetadata(healthCheckUrl,
+						statusPageUrl,
+						managementPort == null ? serverPort : managementPort);
+				if (instance.isSecurePortEnabled()) {
+					metadata.setSecureHealthCheckUrl(
+							getHealthCheckUrl(instance, serverPort, serverContextPath,
+									managementContextPath, managementPort, true));
 				}
 				return metadata;
 			}

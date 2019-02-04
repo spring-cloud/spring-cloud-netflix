@@ -34,14 +34,17 @@ public class NoEncodingFormHttpMessageConverter extends FormHttpMessageConverter
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void write(MultiValueMap<String, ?> map, MediaType contentType, HttpOutputMessage outputMessage)
+	public void write(MultiValueMap<String, ?> map, MediaType contentType,
+			HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {
 
 		MultiValueMap<String, String> form = (MultiValueMap<String, String>) map;
 		StringBuilder builder = new StringBuilder();
-		for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {
+		for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator
+				.hasNext(); ) {
 			String name = nameIterator.next();
-			for (Iterator<String> valueIterator = form.get(name).iterator(); valueIterator.hasNext();) {
+			for (Iterator<String> valueIterator = form.get(name).iterator(); valueIterator
+					.hasNext(); ) {
 				String value = valueIterator.next();
 				builder.append(name);
 				if (value != null) {
@@ -56,10 +59,12 @@ public class NoEncodingFormHttpMessageConverter extends FormHttpMessageConverter
 				builder.append('&');
 			}
 		}
-		final byte[] bytes = builder.toString().getBytes(FormHttpMessageConverter.DEFAULT_CHARSET);
+		final byte[] bytes = builder.toString()
+				.getBytes(FormHttpMessageConverter.DEFAULT_CHARSET);
 		outputMessage.getHeaders().setContentLength(bytes.length);
 		outputMessage.getHeaders().setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		StreamUtils.copy(bytes, outputMessage.getBody());
 	}
+
 }

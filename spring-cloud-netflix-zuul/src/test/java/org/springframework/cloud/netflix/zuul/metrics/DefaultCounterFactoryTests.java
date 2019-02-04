@@ -16,9 +16,7 @@
 
 package org.springframework.cloud.netflix.zuul.metrics;
 
-
 import com.netflix.zuul.monitoring.CounterFactory;
-
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Test;
@@ -43,4 +41,5 @@ public class DefaultCounterFactoryTests {
 
 		verify(counter).increment();
 	}
+
 }

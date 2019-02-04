@@ -18,8 +18,10 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
@@ -37,7 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {RibbonAutoConfiguration.class,
-		ArchaiusAutoConfiguration.class, RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class})
+		ArchaiusAutoConfiguration.class,
+		RibbonApplicationContextInitializerTests.RibbonInitializerConfig.class})
 @DirtiesContext
 public class RibbonApplicationContextInitializerTests {
 
@@ -66,7 +69,7 @@ public class RibbonApplicationContextInitializerTests {
 	}
 
 	@Configuration
-	@RibbonClient(name="testspec", configuration = FooConfig.class)
+	@RibbonClient(name = "testspec", configuration = FooConfig.class)
 	static class RibbonInitializerConfig {
 
 		@Bean
@@ -79,6 +82,7 @@ public class RibbonApplicationContextInitializerTests {
 	}
 
 	static class Foo {
+
 		private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger();
 
 		public Foo() {
@@ -88,5 +92,7 @@ public class RibbonApplicationContextInitializerTests {
 		public static int getInstanceCount() {
 			return INSTANCE_COUNT.get();
 		}
+
 	}
+
 }

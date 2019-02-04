@@ -16,26 +16,28 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
+import com.netflix.appinfo.HealthCheckHandler;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.Status;
+
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.DOWN;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.OUT_OF_SERVICE;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UNKNOWN;
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UP;
 
-import com.netflix.appinfo.HealthCheckHandler;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.actuate.health.Status;
-
 /**
- * Eureka HealthCheckHandler that translates boot health status to
- * InstanceStatus so the proper status of the non-JVM app is sent to Eureka.
-* @author Spencer Gibb
-*/
+ * Eureka HealthCheckHandler that translates boot health status to InstanceStatus so the
+ * proper status of the non-JVM app is sent to Eureka.
+ *
+ * @author Spencer Gibb
+ */
 class LocalApplicationHealthCheckHandler implements HealthCheckHandler {
 
 	private final HealthIndicator healthIndicator;
 
-	public LocalApplicationHealthCheckHandler(HealthIndicator healthIndicator) {
+	LocalApplicationHealthCheckHandler(HealthIndicator healthIndicator) {
 		this.healthIndicator = healthIndicator;
 	}
 
@@ -44,11 +46,14 @@ class LocalApplicationHealthCheckHandler implements HealthCheckHandler {
 		Status status = healthIndicator.health().getStatus();
 		if (status.equals(Status.UP)) {
 			return UP;
-		} else if (status.equals(Status.OUT_OF_SERVICE)) {
+		}
+		else if (status.equals(Status.OUT_OF_SERVICE)) {
 			return OUT_OF_SERVICE;
-		} else if (status.equals(Status.DOWN)) {
+		}
+		else if (status.equals(Status.DOWN)) {
 			return DOWN;
 		}
 		return UNKNOWN;
 	}
+
 }

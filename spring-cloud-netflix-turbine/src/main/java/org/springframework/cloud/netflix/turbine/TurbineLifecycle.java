@@ -16,13 +16,13 @@
 
 package org.springframework.cloud.netflix.turbine;
 
-import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
-import org.springframework.context.SmartLifecycle;
-import org.springframework.core.Ordered;
-
 import com.netflix.turbine.discovery.InstanceDiscovery;
 import com.netflix.turbine.init.TurbineInit;
+import com.netflix.turbine.monitor.cluster.ClusterMonitorFactory;
 import com.netflix.turbine.plugins.PluginsFactory;
+
+import org.springframework.context.SmartLifecycle;
+import org.springframework.core.Ordered;
 
 /**
  * @author Spencer Gibb
@@ -30,11 +30,13 @@ import com.netflix.turbine.plugins.PluginsFactory;
 public class TurbineLifecycle implements SmartLifecycle, Ordered {
 
 	private final InstanceDiscovery instanceDiscovery;
+
 	private final ClusterMonitorFactory<?> factory;
 
 	private volatile boolean running;
 
-	public TurbineLifecycle(InstanceDiscovery instanceDiscovery, ClusterMonitorFactory<?> factory) {
+	public TurbineLifecycle(InstanceDiscovery instanceDiscovery,
+			ClusterMonitorFactory<?> factory) {
 		this.instanceDiscovery = instanceDiscovery;
 		this.factory = factory;
 	}

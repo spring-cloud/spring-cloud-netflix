@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class TurbineApplication {
 
 	public static void main(String[] args) {
-		new SpringApplicationBuilder(TurbineApplication.class).properties(
-				"spring.config.name=turbine").run(args);
+		new SpringApplicationBuilder(TurbineApplication.class)
+				.properties("spring.config.name=turbine").run(args);
 	}
 
 }

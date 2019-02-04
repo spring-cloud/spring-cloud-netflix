@@ -22,10 +22,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -45,8 +47,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -55,12 +55,13 @@ import static org.junit.Assert.fail;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT, value = {
+@SpringBootTest(classes = HystrixStreamEndpointTests.Application.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
 		"spring.application.name=hystrixstreamtest" })
 @DirtiesContext
 public class HystrixStreamEndpointTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
+
 	private static final Log log = LogFactory.getLog(HystrixStreamEndpointTests.class);
 
 	@LocalServerPort
@@ -82,7 +83,8 @@ public class HystrixStreamEndpointTests {
 				byte[] buffer = new byte[1024];
 				in.read(buffer);
 				data.add(new String(buffer));
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				log.error("Error getting hystrix stream, try " + i, e);
 			}
 		}
@@ -101,6 +103,7 @@ public class HystrixStreamEndpointTests {
 	@EnableCircuitBreaker
 	@Import(NoSecurityConfiguration.class)
 	protected static class Application {
+
 		@Autowired
 		Service service;
 
@@ -113,12 +116,16 @@ public class HystrixStreamEndpointTests {
 		public String hello() {
 			return service.hello();
 		}
+
 	}
 
 	protected static class Service {
+
 		@HystrixCommand
 		public String hello() {
 			return "Hello World";
 		}
+
 	}
+
 }

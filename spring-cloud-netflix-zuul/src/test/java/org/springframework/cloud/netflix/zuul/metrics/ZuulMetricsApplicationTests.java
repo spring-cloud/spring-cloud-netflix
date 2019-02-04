@@ -17,8 +17,16 @@
 
 package org.springframework.cloud.netflix.zuul.metrics;
 
+import com.netflix.zuul.exception.ZuulException;
+import com.netflix.zuul.monitoring.CounterFactory;
+import com.netflix.zuul.monitoring.TracerFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.MockClock;
+import io.micrometer.core.instrument.simple.SimpleConfig;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,17 +37,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.netflix.zuul.exception.ZuulException;
-import com.netflix.zuul.monitoring.CounterFactory;
-import com.netflix.zuul.monitoring.TracerFactory;
-
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.MockClock;
-import io.micrometer.core.instrument.simple.SimpleConfig;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
@@ -50,8 +49,10 @@ public class ZuulMetricsApplicationTests {
 
 	@Autowired
 	private CounterFactory counterFactory;
+
 	@Autowired
 	private TracerFactory tracerFactory;
+
 	@Autowired
 	private MeterRegistry meterRegistry;
 
@@ -103,5 +104,7 @@ public class ZuulMetricsApplicationTests {
 		public MeterRegistry meterRegistry() {
 			return new SimpleMeterRegistry(SimpleConfig.DEFAULT, new MockClock());
 		}
+
 	}
+
 }

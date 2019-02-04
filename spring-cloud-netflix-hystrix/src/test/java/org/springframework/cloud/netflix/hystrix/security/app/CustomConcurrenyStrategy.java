@@ -2,12 +2,13 @@ package org.springframework.cloud.netflix.hystrix.security.app;
 
 import java.util.concurrent.Callable;
 
-import org.springframework.stereotype.Component;
-
 import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class CustomConcurrenyStrategy extends HystrixConcurrencyStrategy {
+
 	private boolean hookCalled;
 
 	@Override
@@ -20,4 +21,5 @@ public class CustomConcurrenyStrategy extends HystrixConcurrencyStrategy {
 	public boolean isHookCalled() {
 		return hookCalled;
 	}
+
 }

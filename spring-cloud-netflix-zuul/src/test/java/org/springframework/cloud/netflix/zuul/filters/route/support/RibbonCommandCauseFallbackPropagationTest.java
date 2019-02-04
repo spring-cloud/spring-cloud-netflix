@@ -32,7 +32,6 @@ import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.exception.HystrixTimeoutException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,8 +61,8 @@ public class RibbonCommandCauseFallbackPropagationTest {
 
 	@Test
 	public void providerIsCalledInCaseOfException() throws Exception {
-		FallbackProvider provider = new TestFallbackProvider(getClientHttpResponse(
-				HttpStatus.INTERNAL_SERVER_ERROR));
+		FallbackProvider provider = new TestFallbackProvider(
+				getClientHttpResponse(HttpStatus.INTERNAL_SERVER_ERROR));
 		RuntimeException exception = new RuntimeException("Failed!");
 		TestRibbonCommand testCommand = new TestRibbonCommand(new TestClient(exception),
 				provider, context);
@@ -150,18 +149,21 @@ public class RibbonCommandCauseFallbackPropagationTest {
 
 		public TestRibbonCommand(
 				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulProperties zuulProperties, FallbackProvider fallbackProvider, RibbonCommandContext context) {
+				ZuulProperties zuulProperties, FallbackProvider fallbackProvider,
+				RibbonCommandContext context) {
 			super("testCommand" + UUID.randomUUID(), client, context, zuulProperties,
 					fallbackProvider);
 		}
 
 		public TestRibbonCommand(
 				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				FallbackProvider fallbackProvider, int timeout, RibbonCommandContext context) {
+				FallbackProvider fallbackProvider, int timeout,
+				RibbonCommandContext context) {
 			// different name is used because of properties caching
-			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(), new DefaultClientConfigImpl())
-					.andCommandPropertiesDefaults(defauts(timeout)), client, context,
-					fallbackProvider, null);
+			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(),
+					new DefaultClientConfigImpl()).andCommandPropertiesDefaults(
+					defauts(timeout)),
+					client, context, fallbackProvider, null);
 		}
 
 		private static HystrixCommandProperties.Setter defauts(final int timeout) {
@@ -175,6 +177,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 		protected ClientRequest createRequest() throws Exception {
 			return null;
 		}
+
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -204,11 +207,13 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				final IClientConfig iClientConfig) throws Exception {
 			return null;
 		}
+
 	}
 
 	public static class TestFallbackProvider implements FallbackProvider {
 
 		private final ClientHttpResponse response;
+
 		private Throwable cause;
 
 		public TestFallbackProvider(final ClientHttpResponse response) {
@@ -233,6 +238,7 @@ public class RibbonCommandCauseFallbackPropagationTest {
 		public static TestFallbackProvider withResponse(final HttpStatus status) {
 			return new TestFallbackProvider(getClientHttpResponse(status));
 		}
+
 	}
 
 	private static ClientHttpResponse getClientHttpResponse(final HttpStatus status) {
@@ -267,4 +273,5 @@ public class RibbonCommandCauseFallbackPropagationTest {
 			}
 		};
 	}
+
 }

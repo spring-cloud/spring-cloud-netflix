@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 
@@ -51,8 +52,10 @@ public class RoutesEndpointTests {
 			@Override
 			public List<Route> getRoutes() {
 				List<Route> routes = new ArrayList<>();
-				routes.add(new Route("foo", "foopath", "foolocation", null, true, Collections.EMPTY_SET));
-				routes.add(new Route("bar", "barpath", "barlocation", "/bar-prefix", true, Collections.EMPTY_SET));
+				routes.add(new Route("foo", "foopath", "foolocation", null, true,
+						Collections.EMPTY_SET));
+				routes.add(new Route("bar", "barpath", "barlocation", "/bar-prefix", true,
+						Collections.EMPTY_SET));
 				return routes;
 			}
 
@@ -67,10 +70,10 @@ public class RoutesEndpointTests {
 	public void testInvoke() {
 		RoutesEndpoint endpoint = new RoutesEndpoint(locator);
 		Map<String, String> result = new HashMap<String, String>();
-		for(Route r : locator.getRoutes()) {
+		for (Route r : locator.getRoutes()) {
 			result.put(r.getFullPath(), r.getLocation());
 		}
-		assertEquals(result , endpoint.invoke());
+		assertEquals(result, endpoint.invoke());
 	}
 
 	@Test

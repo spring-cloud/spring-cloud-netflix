@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.concurrency.limits.reactive;
@@ -25,6 +24,11 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+/**
+ * A {@link WebFilter} implementation providing the possibility to use
+ * Netflix {@link Limiter} to handle requests.
+ * @author Spencer Gibb
+ */
 public class ConcurrencyLimitsWebFilter implements WebFilter {
 
 	private final Limiter<ServerWebExchange> limiter;
@@ -41,8 +45,9 @@ public class ConcurrencyLimitsWebFilter implements WebFilter {
 						.doOnError(throwable -> listener.onIgnore()))
 				.orElseGet(() -> {
 					exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
-					//TODO: set body
+					// TODO: set body
 					return exchange.getResponse().setComplete();
 				});
 	}
+
 }

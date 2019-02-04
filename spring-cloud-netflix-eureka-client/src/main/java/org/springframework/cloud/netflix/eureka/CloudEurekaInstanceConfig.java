@@ -23,7 +23,11 @@ import com.netflix.appinfo.InstanceInfo;
  * @author Spencer Gibb
  */
 public interface CloudEurekaInstanceConfig extends EurekaInstanceConfig {
+
 	void setNonSecurePort(int port);
+
 	void setSecurePort(int securePort);
+
 	InstanceInfo.InstanceStatus getInitialStatus();
+
 }

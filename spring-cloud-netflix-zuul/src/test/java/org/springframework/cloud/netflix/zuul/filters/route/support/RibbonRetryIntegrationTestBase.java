@@ -20,7 +20,6 @@ package org.springframework.cloud.netflix.zuul.filters.route.support;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.context.RequestContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -34,8 +33,8 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.ServiceInstanceChooser;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClients;
-import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryFactory;
+import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancedRetryPolicy;
 import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerContext;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
@@ -205,6 +204,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		public ServerList<Server> ribbonServerList() {
 			return new StaticServerList<>(new Server("localhost", this.port));
 		}
+
 	}
 
 	@Configuration
@@ -217,8 +217,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 			return new MyRibbonRetryFactory(factory);
 		}
 
-		public static class MyRibbonRetryFactory
-				extends RibbonLoadBalancedRetryFactory {
+		public static class MyRibbonRetryFactory extends RibbonLoadBalancedRetryFactory {
 
 			private SpringClientFactory factory;
 
@@ -251,7 +250,11 @@ public abstract class RibbonRetryIntegrationTestBase {
 					}
 					return super.retryableStatusCode(statusCode);
 				}
+
 			}
+
 		}
+
 	}
+
 }

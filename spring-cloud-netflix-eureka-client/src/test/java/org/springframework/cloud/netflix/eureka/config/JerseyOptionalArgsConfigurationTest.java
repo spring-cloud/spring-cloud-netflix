@@ -16,17 +16,17 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 
 /**
  * @author Daniel Lavoie
@@ -35,6 +35,7 @@ import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class JerseyOptionalArgsConfigurationTest {
+
 	@Autowired
 	private DiscoveryClientOptionalArgs optionalArgs;
 
@@ -42,4 +43,5 @@ public class JerseyOptionalArgsConfigurationTest {
 	public void contextLoads() {
 		Assert.assertNotNull(optionalArgs);
 	}
+
 }

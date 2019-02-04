@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.cloud.netflix.hystrix.contract;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.cloud.netflix.hystrix.contract;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,12 +23,19 @@ import java.util.Map;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.StreamUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Dave Syer
  * @author Daniel Lavoie
  *
  */
-public class HystrixContractUtils {
+public final class HystrixContractUtils {
+
+	private HystrixContractUtils() {
+		throw new AssertionError("Must not instantiate utility class.");
+	}
+
 
 	public static String simpleBody() {
 		try {

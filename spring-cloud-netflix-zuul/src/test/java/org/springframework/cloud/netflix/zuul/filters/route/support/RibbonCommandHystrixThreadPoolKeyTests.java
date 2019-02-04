@@ -21,7 +21,6 @@ import com.netflix.client.ClientRequest;
 import com.netflix.client.http.HttpResponse;
 import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.strategy.HystrixPlugins;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,6 +121,7 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 
 	public static class TestRibbonCommand extends
 			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
+
 		public TestRibbonCommand(String commandKey, ZuulProperties zuulProperties) {
 			super(commandKey, null, null, zuulProperties);
 		}
@@ -130,5 +130,7 @@ public class RibbonCommandHystrixThreadPoolKeyTests {
 		protected ClientRequest createRequest() throws Exception {
 			return null;
 		}
+
 	}
+
 }

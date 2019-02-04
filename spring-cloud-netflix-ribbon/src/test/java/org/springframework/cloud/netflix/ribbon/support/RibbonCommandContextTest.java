@@ -16,22 +16,22 @@
 
 package org.springframework.cloud.netflix.ribbon.support;
 
-import okhttp3.Request;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+
+import com.google.common.collect.Lists;
+import okhttp3.Request;
 import org.junit.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
-import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 
 /**
  * @author Andre Dörnbrack
@@ -100,10 +100,11 @@ public class RibbonCommandContextTest {
 
 		RibbonCommandContext testContext = new RibbonCommandContext("serviceId",
 				HttpMethod.POST.toString(), "/my/route", true, headers, params,
-				new ByteArrayInputStream(TEST_CONTENT), Collections.<RibbonRequestCustomizer>emptyList(),
-				null, null);
+				new ByteArrayInputStream(TEST_CONTENT),
+				Collections.<RibbonRequestCustomizer>emptyList(), null, null);
 
 		assertNotEquals(0, testContext.hashCode());
 		assertNotNull(testContext.toString());
 	}
+
 }

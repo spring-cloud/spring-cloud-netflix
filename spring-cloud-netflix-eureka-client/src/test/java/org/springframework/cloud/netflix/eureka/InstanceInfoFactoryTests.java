@@ -19,7 +19,9 @@ package org.springframework.cloud.netflix.eureka;
 
 import java.io.IOException;
 
+import com.netflix.appinfo.InstanceInfo;
 import org.junit.Test;
+
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -29,12 +31,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.netflix.appinfo.InstanceInfo;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class InstanceInfoFactoryTests {
+
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@Test
@@ -76,9 +77,12 @@ public class InstanceInfoFactoryTests {
 	@Configuration
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
 			return new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
 		}
+
 	}
+
 }

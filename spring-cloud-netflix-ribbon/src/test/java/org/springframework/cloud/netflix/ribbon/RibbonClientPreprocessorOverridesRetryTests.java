@@ -23,8 +23,13 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,9 +40,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.Assert;
-import com.netflix.client.DefaultLoadBalancerRetryHandler;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
 
 /**
  * @author Tyler Van Gorder
@@ -70,12 +72,14 @@ public class RibbonClientPreprocessorOverridesRetryTests {
 	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 			RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 	}
 
 }
 
 @Configuration
 class RetryRibbonConfiguration {
+
 	@Bean
 	public RetryHandler retryHandler(IClientConfig config) {
 		return new CustomRetryHandler(config);
@@ -116,4 +120,5 @@ class RetryRibbonConfiguration {
 		}
 
 	}
+
 }

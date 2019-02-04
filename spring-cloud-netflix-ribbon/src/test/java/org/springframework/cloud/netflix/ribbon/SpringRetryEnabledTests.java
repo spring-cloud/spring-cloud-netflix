@@ -19,11 +19,12 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.BeansException;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
-import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryPolicy;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerAutoConfiguration;
 import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
 import org.springframework.cloud.netflix.ribbon.apache.RetryableRibbonLoadBalancingHttpClient;
@@ -41,24 +42,30 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {RibbonAutoConfiguration.class, RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class,
-		 HttpClientConfiguration.class})
+@ContextConfiguration(classes = {RibbonAutoConfiguration.class,
+		RibbonClientConfiguration.class, LoadBalancerAutoConfiguration.class,
+		HttpClientConfiguration.class})
 public class SpringRetryEnabledTests implements ApplicationContextAware {
 
 	private ApplicationContext context;
 
 	@Test
 	public void testLoadBalancedRetryFactoryBean() throws Exception {
-		Map<String, LoadBalancedRetryFactory> factories =  context.getBeansOfType(LoadBalancedRetryFactory.class);
+		Map<String, LoadBalancedRetryFactory> factories = context
+				.getBeansOfType(LoadBalancedRetryFactory.class);
 		assertThat(factories.values(), hasSize(1));
-		assertThat(factories.values().toArray()[0], instanceOf(RibbonLoadBalancedRetryFactory.class));
-		Map<String, RibbonLoadBalancingHttpClient> clients =  context.getBeansOfType(RibbonLoadBalancingHttpClient.class);
+		assertThat(factories.values().toArray()[0],
+				instanceOf(RibbonLoadBalancedRetryFactory.class));
+		Map<String, RibbonLoadBalancingHttpClient> clients = context
+				.getBeansOfType(RibbonLoadBalancingHttpClient.class);
 		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0], instanceOf(RetryableRibbonLoadBalancingHttpClient.class));
+		assertThat(clients.values().toArray()[0],
+				instanceOf(RetryableRibbonLoadBalancingHttpClient.class));
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.context = context;
 	}
+
 }

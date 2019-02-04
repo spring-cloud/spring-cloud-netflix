@@ -16,15 +16,16 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
+import java.net.URI;
+
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-
-import java.net.URI;
 import org.junit.Test;
+
 import org.springframework.http.HttpStatus;
 
 import static org.hamcrest.Matchers.is;
@@ -54,8 +55,7 @@ public class OkHttpRibbonResponseTests {
 	public void testNotNullEntity() throws Exception {
 		URI uri = URI.create("http://example.com");
 		Response response = response(uri)
-				.body(ResponseBody.create(MediaType.parse("text/plain"), "abcd"))
-				.build();
+				.body(ResponseBody.create(MediaType.parse("text/plain"), "abcd")).build();
 
 		OkHttpRibbonResponse httpResponse = new OkHttpRibbonResponse(response, uri);
 
@@ -68,8 +68,8 @@ public class OkHttpRibbonResponseTests {
 	Response.Builder response(URI uri) {
 		return new Response.Builder()
 				.request(new Request.Builder().url(HttpUrl.get(uri)).build())
-				.protocol(Protocol.HTTP_1_1)
-				.code(HttpStatus.OK.value())
+				.protocol(Protocol.HTTP_1_1).code(HttpStatus.OK.value())
 				.message(HttpStatus.OK.getReasonPhrase());
 	}
+
 }

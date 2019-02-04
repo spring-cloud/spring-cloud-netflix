@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.ribbon;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -28,7 +29,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("ribbon")
 public class ServerIntrospectorProperties {
 
-	private List<Integer> securePorts = Arrays.asList(443,8443);
+	private List<Integer> securePorts = Arrays.asList(443, 8443);
 
 	public List<Integer> getSecurePorts() {
 		return securePorts;
@@ -40,8 +41,10 @@ public class ServerIntrospectorProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		ServerIntrospectorProperties that = (ServerIntrospectorProperties) o;
 		return Objects.equals(securePorts, that.securePorts);
 	}
@@ -53,9 +56,8 @@ public class ServerIntrospectorProperties {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("ServerIntrospectorProperties{")
-				.append("securePorts=").append(securePorts)
-				.append("}").toString();
+		return new StringBuilder("ServerIntrospectorProperties{").append("securePorts=")
+				.append(securePorts).append("}").toString();
 	}
 
 }

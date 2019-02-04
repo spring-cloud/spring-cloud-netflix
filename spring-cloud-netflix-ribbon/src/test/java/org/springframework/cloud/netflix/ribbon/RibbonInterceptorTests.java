@@ -19,11 +19,14 @@ package org.springframework.cloud.netflix.ribbon;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+
+import com.netflix.loadbalancer.Server;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
@@ -35,7 +38,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.netflix.loadbalancer.Server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -65,7 +67,8 @@ public class RibbonInterceptorTests {
 	@Test
 	public void testIntercept() throws Exception {
 		RibbonServer server = new RibbonServer("myservice", new Server("myhost", 8080));
-		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(new MyClient(server));
+		LoadBalancerInterceptor interceptor = new LoadBalancerInterceptor(
+				new MyClient(server));
 		given(this.request.getURI()).willReturn(new URL("http://myservice").toURI());
 		given(this.execution.execute(isA(HttpRequest.class), isA(byte[].class)))
 				.willReturn(this.response);
@@ -105,7 +108,8 @@ public class RibbonInterceptorTests {
 		}
 
 		@Override
-		public <T> T execute(String s, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
+		public <T> T execute(String s, ServiceInstance serviceInstance,
+				LoadBalancerRequest<T> request) throws IOException {
 			try {
 				return request.apply(this.instance);
 			}

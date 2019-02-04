@@ -32,4 +32,5 @@ public class ZuulRuntimeException extends RuntimeException {
 	public ZuulRuntimeException(Exception ex) {
 		super(ex);
 	}
+
 }

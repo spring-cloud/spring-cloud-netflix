@@ -79,7 +79,8 @@ public class SimpleRouteLocatorTests {
 		properties.setPrefix("/test");
 		properties.setStripPrefix(true);
 		RouteLocator locator = new FilteringRouteLocator("/", properties);
-		properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+		properties.getRoutes().put("testservicea",
+				new ZuulRoute("/testservicea/**", "testservicea"));
 		assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
 	}
 
@@ -87,7 +88,8 @@ public class SimpleRouteLocatorTests {
 	public void testPrefix() {
 		properties.setPrefix("/test/");
 		RouteLocator locator = new FilteringRouteLocator("/", properties);
-		properties.getRoutes().put("testservicea", new ZuulRoute("/testservicea/**", "testservicea"));
+		properties.getRoutes().put("testservicea",
+				new ZuulRoute("/testservicea/**", "testservicea"));
 		assertEquals("/test/testservicea/**", locator.getRoutes().get(0).getFullPath());
 	}
 
@@ -99,7 +101,8 @@ public class SimpleRouteLocatorTests {
 		this.properties.getRoutes().put("bar", new ZuulRoute("/bar/**", "bar"));
 
 		assertThat(locator.getMatchingRoute("/foo/1"), nullValue());
-		assertThat(locator.getMatchingRoute("/bar/1"), is(createRoute("bar", "/1", "/bar")));
+		assertThat(locator.getMatchingRoute("/bar/1"),
+				is(createRoute("bar", "/1", "/bar")));
 	}
 
 	@Test
@@ -118,14 +121,14 @@ public class SimpleRouteLocatorTests {
 	}
 
 	private static class FilteringRouteLocator extends SimpleRouteLocator {
+
 		public FilteringRouteLocator(String servletPath, ZuulProperties properties) {
 			super(servletPath, properties);
 		}
 
 		@Override
 		public List<Route> getRoutes() {
-			return super.getRoutes().stream()
-					.filter(this::acceptRoute)
+			return super.getRoutes().stream().filter(this::acceptRoute)
 					.collect(Collectors.toList());
 		}
 
@@ -149,5 +152,7 @@ public class SimpleRouteLocatorTests {
 		public Map<String, ZuulRoute> getRoutesMap() {
 			return super.getRoutesMap();
 		}
+
 	}
+
 }

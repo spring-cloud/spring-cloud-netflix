@@ -93,8 +93,10 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void timeoutPropertiesAreApplied() {
-		TestPropertyValues.of("zuul.host.socket-timeout-millis=11000",
-				"zuul.host.connect-timeout-millis=2100", "zuul.host.connection-request-timeout-millis=2500")
+		TestPropertyValues
+				.of("zuul.host.socket-timeout-millis=11000",
+						"zuul.host.connect-timeout-millis=2100",
+						"zuul.host.connection-request-timeout-millis=2500")
 				.applyTo(this.context);
 		setupContext();
 		CloseableHttpClient httpClient = getFilter().newClient();
@@ -111,7 +113,8 @@ public class SimpleHostRoutingFilterTests {
 				"zuul.host.maxPerRouteConnections=10", "zuul.host.timeToLive=5",
 				"zuul.host.timeUnit=SECONDS").applyTo(this.context);
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter()
+				.getConnectionManager();
 		assertEquals(100, connMgr.getMaxTotal());
 		assertEquals(10, connMgr.getDefaultMaxPerRoute());
 		Object pool = getField(connMgr, "pool");
@@ -137,7 +140,8 @@ public class SimpleHostRoutingFilterTests {
 
 	@Test
 	public void validationOfSslHostnamesCanBeDisabledViaProperty() {
-		TestPropertyValues.of("zuul.sslHostnameValidationEnabled=false").applyTo(this.context);
+		TestPropertyValues.of("zuul.sslHostnameValidationEnabled=false")
+				.applyTo(this.context);
 		setupContext();
 		assertFalse("Hostname verification should be disabled via property",
 				getFilter().isSslHostnameValidationEnabled());
@@ -146,7 +150,8 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void defaultPropertiesAreApplied() {
 		setupContext();
-		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter().getConnectionManager();
+		PoolingHttpClientConnectionManager connMgr = (PoolingHttpClientConnectionManager) getFilter()
+				.getConnectionManager();
 
 		assertEquals(200, connMgr.getMaxTotal());
 		assertEquals(20, connMgr.getDefaultMaxPerRoute());
@@ -155,24 +160,28 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void deleteRequestBuiltWithBody() {
 		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(
+				new ByteArrayInputStream(new byte[] {1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("DELETE", "uri",
+				inputStreamEntity, new LinkedMultiValueMap<>(),
+				new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
 		assertTrue(httpEntityEnclosingRequest.getEntity() != null);
 	}
 
-
 	@Test
 	public void zuulHostKeysUpdateHttpClient() {
 		setupContext();
 		SimpleHostRoutingFilter filter = getFilter();
-		CloseableHttpClient httpClient = (CloseableHttpClient) ReflectionTestUtils.getField(filter, "httpClient");
-		EnvironmentChangeEvent event = new EnvironmentChangeEvent(Collections.singleton("zuul.host.mykey"));
+		CloseableHttpClient httpClient = (CloseableHttpClient) ReflectionTestUtils
+				.getField(filter, "httpClient");
+		EnvironmentChangeEvent event = new EnvironmentChangeEvent(
+				Collections.singleton("zuul.host.mykey"));
 		filter.onPropertyChange(event);
-		CloseableHttpClient newhttpClient = (CloseableHttpClient) ReflectionTestUtils.getField(filter, "httpClient");
+		CloseableHttpClient newhttpClient = (CloseableHttpClient) ReflectionTestUtils
+				.getField(filter, "httpClient");
 		Assertions.assertThat(httpClient).isNotEqualTo(newhttpClient);
 	}
 
@@ -192,9 +201,11 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void putRequestBuiltWithBody() {
 		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(
+				new ByteArrayInputStream(new byte[] {1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("PUT", "uri",
+				inputStreamEntity, new LinkedMultiValueMap<>(),
+				new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -204,9 +215,11 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void postRequestBuiltWithBody() {
 		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(
+				new ByteArrayInputStream(new byte[] {1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("POST", "uri",
+				inputStreamEntity, new LinkedMultiValueMap<>(),
+				new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		assertTrue(httpRequest instanceof HttpEntityEnclosingRequest);
 		HttpEntityEnclosingRequest httpEntityEnclosingRequest = (HttpEntityEnclosingRequest) httpRequest;
@@ -216,9 +229,11 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void pathRequestBuiltWithBody() {
 		setupContext();
-		InputStreamEntity inputStreamEntity = new InputStreamEntity(new ByteArrayInputStream(new byte[]{1}));
-		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri", inputStreamEntity,
-				new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(), new MockHttpServletRequest());
+		InputStreamEntity inputStreamEntity = new InputStreamEntity(
+				new ByteArrayInputStream(new byte[] {1}));
+		HttpRequest httpRequest = getFilter().buildHttpRequest("PATCH", "uri",
+				inputStreamEntity, new LinkedMultiValueMap<>(),
+				new LinkedMultiValueMap<>(), new MockHttpServletRequest());
 
 		HttpPatch basicHttpRequest = (HttpPatch) httpRequest;
 		assertTrue(basicHttpRequest.getEntity() != null);
@@ -233,7 +248,8 @@ public class SimpleHostRoutingFilterTests {
 	@Test
 	public void shouldFilterTrue() throws Exception {
 		setupContext();
-		RequestContext.getCurrentContext().set("routeHost", new URL("http://localhost:8080"));
+		RequestContext.getCurrentContext().set("routeHost",
+				new URL("http://localhost:8080"));
 		RequestContext.getCurrentContext().set("sendZuulResponse", true);
 		assertEquals(true, getFilter().shouldFilter());
 	}
@@ -257,6 +273,7 @@ public class SimpleHostRoutingFilterTests {
 	@Configuration
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+
 		@Bean
 		ZuulProperties zuulProperties() {
 			return new ZuulProperties();
@@ -274,9 +291,12 @@ public class SimpleHostRoutingFilterTests {
 
 		@Bean
 		SimpleHostRoutingFilter simpleHostRoutingFilter(ZuulProperties zuulProperties,
-														ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
-														ApacheHttpClientFactory clientFactory) {
-			return new SimpleHostRoutingFilter(new ProxyRequestHelper(zuulProperties), zuulProperties, connectionManagerFactory, clientFactory);
+				ApacheHttpClientConnectionManagerFactory connectionManagerFactory,
+				ApacheHttpClientFactory clientFactory) {
+			return new SimpleHostRoutingFilter(new ProxyRequestHelper(zuulProperties),
+					zuulProperties, connectionManagerFactory, clientFactory);
 		}
+
 	}
+
 }

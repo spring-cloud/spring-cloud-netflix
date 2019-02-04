@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.ribbon.apache;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
@@ -42,14 +43,14 @@ public class RibbonApacheHttpResponseTests {
 		HttpResponse response = mock(HttpResponse.class);
 		given(response.getStatusLine()).willReturn(statusLine);
 
-		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response, URI.create("http://example.com"));
+		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response,
+				URI.create("http://example.com"));
 
 		assertThat(httpResponse.isSuccess(), is(true));
 		assertThat(httpResponse.hasPayload(), is(false));
 		assertThat(httpResponse.getPayload(), is(nullValue()));
 		assertThat(httpResponse.getInputStream(), is(nullValue()));
 	}
-
 
 	@Test
 	public void testNotNullEntity() throws Exception {
@@ -61,11 +62,13 @@ public class RibbonApacheHttpResponseTests {
 		entity.setContent(new ByteArrayInputStream(new byte[0]));
 		given(response.getEntity()).willReturn(entity);
 
-		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response, URI.create("http://example.com"));
+		RibbonApacheHttpResponse httpResponse = new RibbonApacheHttpResponse(response,
+				URI.create("http://example.com"));
 
 		assertThat(httpResponse.isSuccess(), is(true));
 		assertThat(httpResponse.hasPayload(), is(true));
 		assertThat(httpResponse.getPayload(), is(notNullValue()));
 		assertThat(httpResponse.getInputStream(), is(notNullValue()));
 	}
+
 }

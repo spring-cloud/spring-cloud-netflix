@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -89,11 +90,11 @@ public abstract class RibbonCommandFallbackTests {
 			@RibbonClient(name = "simple", configuration = ZuulProxyTestBase.SimpleRibbonClientConfiguration.class),
 			@RibbonClient(name = "another", configuration = ZuulProxyTestBase.AnotherRibbonClientConfiguration.class)})
 	@Import(NoSecurityConfiguration.class)
-	public static class TestConfig extends ZuulProxyTestBase.AbstractZuulProxyApplication {
+	public static class TestConfig
+			extends ZuulProxyTestBase.AbstractZuulProxyApplication {
 
 		@Autowired(required = false)
 		private Set<FallbackProvider> zuulFallbackProviders = Collections.emptySet();
-
 
 		@Bean
 		public RibbonCommandFactory<?> ribbonCommandFactory(
@@ -112,6 +113,7 @@ public abstract class RibbonCommandFallbackTests {
 		public FallbackProvider defaultFallbackProvider() {
 			return new DefaultFallbackProvider();
 		}
+
 	}
 
 	public static class DefaultFallbackProvider implements FallbackProvider {
@@ -131,7 +133,7 @@ public abstract class RibbonCommandFallbackTests {
 
 				@Override
 				public int getRawStatusCode() throws IOException {
-					if(route.equals("another")) {
+					if (route.equals("another")) {
 						return 200;
 					}
 					return 500;
@@ -160,5 +162,7 @@ public abstract class RibbonCommandFallbackTests {
 				}
 			};
 		}
+
 	}
+
 }

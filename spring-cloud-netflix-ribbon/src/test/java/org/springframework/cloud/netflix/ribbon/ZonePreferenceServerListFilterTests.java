@@ -18,10 +18,12 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.netflix.loadbalancer.Server;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.test.util.ReflectionTestUtils;
-import com.netflix.loadbalancer.Server;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 public class ZonePreferenceServerListFilterTests {
 
 	private Server dsyer = new Server("dsyer", 8080);
+
 	private Server localhost = new Server("localhost", 8080);
 
 	@Before
@@ -42,8 +45,8 @@ public class ZonePreferenceServerListFilterTests {
 	@Test
 	public void noZoneSet() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
-		List<Server> result = filter.getFilteredListOfServers(Arrays
-				.asList(this.localhost));
+		List<Server> result = filter
+				.getFilteredListOfServers(Arrays.asList(this.localhost));
 		assertEquals(1, result.size());
 	}
 
@@ -51,8 +54,8 @@ public class ZonePreferenceServerListFilterTests {
 	public void withZoneSetAndNoMatches() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
-		List<Server> result = filter.getFilteredListOfServers(Arrays
-				.asList(this.localhost));
+		List<Server> result = filter
+				.getFilteredListOfServers(Arrays.asList(this.localhost));
 		assertEquals(1, result.size());
 	}
 
@@ -60,8 +63,8 @@ public class ZonePreferenceServerListFilterTests {
 	public void withZoneSetAndMatches() {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
-		List<Server> result = filter.getFilteredListOfServers(Arrays.asList(this.dsyer,
-				this.localhost));
+		List<Server> result = filter
+				.getFilteredListOfServers(Arrays.asList(this.dsyer, this.localhost));
 		assertEquals(1, result.size());
 	}
 

@@ -18,16 +18,16 @@ package org.springframework.cloud.netflix.zuul.filters.post;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 import com.netflix.zuul.monitoring.MonitoringHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -62,7 +62,8 @@ public class SendErrorFilterTests {
 		RequestContext context = new RequestContext();
 		context.setRequest(request);
 		context.setResponse(new MockHttpServletResponse());
-		context.setThrowable(new ZuulException(new RuntimeException(), HttpStatus.NOT_FOUND.value(), null));
+		context.setThrowable(new ZuulException(new RuntimeException(),
+				HttpStatus.NOT_FOUND.value(), null));
 		RequestContext.testSetCurrentContext(context);
 		SendErrorFilter filter = new SendErrorFilter();
 		filter.setErrorPath("/error");
@@ -93,7 +94,10 @@ public class SendErrorFilterTests {
 		int resCode = ctx.getResponse().getStatus();
 		int ctxCode = ctx.getResponseStatusCode();
 
-		assertEquals("invalid response code: " + resCode, HttpStatus.NOT_FOUND.value(), resCode);
-		assertEquals("invalid response code in RequestContext: " + ctxCode, resCode, ctxCode);
+		assertEquals("invalid response code: " + resCode, HttpStatus.NOT_FOUND.value(),
+				resCode);
+		assertEquals("invalid response code in RequestContext: " + ctxCode, resCode,
+				ctxCode);
 	}
+
 }

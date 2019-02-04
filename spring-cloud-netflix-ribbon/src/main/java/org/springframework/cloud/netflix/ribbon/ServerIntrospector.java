@@ -17,6 +17,7 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Map;
+
 import com.netflix.loadbalancer.Server;
 
 /**
@@ -27,4 +28,5 @@ public interface ServerIntrospector {
 	boolean isSecure(Server server);
 
 	Map<String, String> getMetadata(Server server);
+
 }

@@ -16,26 +16,20 @@
 
 package org.springframework.cloud.netflix.turbine.stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import rx.Observable;
-import rx.functions.Func1;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
 
 /**
  * @author Yongsung Yoon
  */
 public class TurbineStreamConfigurationTest {
+
 	TurbineStreamConfiguration turbineStreamConfiguration;
+
 	List<Map<String, Object>> testMetricList;
 
 	@Before
@@ -44,7 +38,7 @@ public class TurbineStreamConfigurationTest {
 		testMetricList = createBasicTestMetricList();
 	}
 
-	private List<Map<String,Object>> createBasicTestMetricList() {
+	private List<Map<String, Object>> createBasicTestMetricList() {
 		List<Map<String, Object>> testDataList = new ArrayList<>();
 		HashMap<String, Object> map = new HashMap<>();
 		map.put("instanceId", "abc:127.0.0.1:8080");
@@ -71,4 +65,5 @@ public class TurbineStreamConfigurationTest {
 
 		return testDataList;
 	}
+
 }

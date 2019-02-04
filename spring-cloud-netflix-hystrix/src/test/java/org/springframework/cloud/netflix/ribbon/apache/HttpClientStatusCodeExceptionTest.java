@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.ribbon.apache;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Locale;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;
@@ -49,7 +50,7 @@ public class HttpClientStatusCodeExceptionTest {
 		CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 		doReturn(new Locale("en")).when(response).getLocale();
 		Header foo = new BasicHeader("foo", "bar");
-		Header[] headers = new Header[]{foo};
+		Header[] headers = new Header[] {foo};
 		doReturn(headers).when(response).getAllHeaders();
 		StatusLine statusLine = new BasicStatusLine(new ProtocolVersion("http", 1, 1),
 				200, "Success");
@@ -59,16 +60,18 @@ public class HttpClientStatusCodeExceptionTest {
 		entity.setContentLength(3);
 		doReturn(entity).when(response).getEntity();
 		HttpEntity copiedEntity = HttpClientUtils.createEntity(response);
-		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service", response, copiedEntity,
-				new URI("http://service.com"));
+		HttpClientStatusCodeException ex = new HttpClientStatusCodeException("service",
+				response, copiedEntity, new URI("http://service.com"));
 		assertEquals("en", ex.getResponse().getLocale().toString());
 		assertArrayEquals(headers, ex.getResponse().getAllHeaders());
 		assertEquals("Success", ex.getResponse().getStatusLine().getReasonPhrase());
 		assertEquals(200, ex.getResponse().getStatusLine().getStatusCode());
-		assertEquals("http", ex.getResponse().getStatusLine().getProtocolVersion().getProtocol());
+		assertEquals("http",
+				ex.getResponse().getStatusLine().getProtocolVersion().getProtocol());
 		assertEquals(1, ex.getResponse().getStatusLine().getProtocolVersion().getMajor());
 		assertEquals(1, ex.getResponse().getStatusLine().getProtocolVersion().getMinor());
 		assertEquals("foo", EntityUtils.toString(ex.getResponse().getEntity()));
 		verify(response, times(1)).close();
 	}
+
 }

@@ -17,21 +17,21 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.junit4.SpringRunner;
-
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.EurekaClientConfig;
 import com.netflix.eureka.EurekaServerConfig;
 import com.netflix.eureka.cluster.PeerEurekaNodes;
 import com.netflix.eureka.registry.PeerAwareInstanceRegistry;
 import com.netflix.eureka.resources.ServerCodecs;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.junit.Assert.assertTrue;
 
@@ -41,8 +41,8 @@ import static org.junit.Assert.assertTrue;
 		"management.security.enabled=false" })
 public class EurekaCustomPeerNodesTests {
 
-	 @Autowired
-	 private PeerEurekaNodes peerEurekaNodes;
+	@Autowired
+	private PeerEurekaNodes peerEurekaNodes;
 
 	@Test
 	public void testCustomPeerNodesShouldTakePrecedenceOverDefault() {
@@ -75,6 +75,7 @@ public class EurekaCustomPeerNodesTests {
 			super(registry, serverConfig, clientConfig, serverCodecs,
 					applicationInfoManager);
 		}
+
 	}
 
 }

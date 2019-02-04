@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.turbine;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -47,8 +48,9 @@ public class TurbineAggregatorPropertiesTest {
 
 	@Test
 	public void shouldLoadCustomProperties() {
-		TestPropertyValues.of(
-				"turbine.aggregator.clusterConfig=cluster1, cluster2, cluster3").applyTo(this.context);
+		TestPropertyValues
+				.of("turbine.aggregator.clusterConfig=cluster1, cluster2, cluster3")
+				.applyTo(this.context);
 		setupContext();
 
 		TurbineAggregatorProperties actual = getProperties();
@@ -68,5 +70,7 @@ public class TurbineAggregatorPropertiesTest {
 	@Configuration
 	@EnableConfigurationProperties(TurbineAggregatorProperties.class)
 	static class TestConfiguration {
+
 	}
+
 }

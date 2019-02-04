@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Responsible for adding in a marker bean to trigger activation of 
+ * Responsible for adding in a marker bean to trigger activation of
  * {@link ZuulProxyAutoConfiguration}
  *
  * @author Biju Kunjummen
@@ -29,11 +29,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ZuulProxyMarkerConfiguration {
+
 	@Bean
 	public Marker zuulProxyMarkerBean() {
 		return new Marker();
 	}
 
 	class Marker {
+
 	}
+
 }

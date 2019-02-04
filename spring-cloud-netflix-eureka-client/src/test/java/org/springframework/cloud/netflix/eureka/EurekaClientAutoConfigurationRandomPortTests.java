@@ -52,4 +52,5 @@ public class EurekaClientAutoConfigurationRandomPortTests {
 	public static class TestConfig {
 
 	}
+
 }

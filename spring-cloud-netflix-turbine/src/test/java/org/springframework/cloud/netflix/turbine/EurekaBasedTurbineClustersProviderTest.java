@@ -1,11 +1,11 @@
 package org.springframework.cloud.netflix.turbine;
 
+import java.util.List;
+
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import org.junit.Test;
-
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +15,9 @@ import static org.mockito.Mockito.when;
 public class EurekaBasedTurbineClustersProviderTest {
 
 	EurekaClient eurekaClient = mock(EurekaClient.class);
-	TurbineClustersProvider provider = new EurekaBasedTurbineClustersProvider(eurekaClient);
+
+	TurbineClustersProvider provider = new EurekaBasedTurbineClustersProvider(
+			eurekaClient);
 
 	@Test
 	public void shouldProvideAllClustersNames() throws Exception {
@@ -39,4 +41,5 @@ public class EurekaBasedTurbineClustersProviderTest {
 		when(application.getName()).thenReturn(name);
 		return application;
 	}
+
 }

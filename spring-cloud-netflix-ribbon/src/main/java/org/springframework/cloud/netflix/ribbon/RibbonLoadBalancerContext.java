@@ -27,6 +27,7 @@ import com.netflix.servo.monitor.Timer;
  * @author Spencer Gibb
  */
 public class RibbonLoadBalancerContext extends LoadBalancerContext {
+
 	public RibbonLoadBalancerContext(ILoadBalancer lb) {
 		super(lb);
 	}

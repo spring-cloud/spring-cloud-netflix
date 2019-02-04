@@ -34,6 +34,7 @@ public class EmptyTracerFactory extends TracerFactory {
 	}
 
 	private static final class EmptyTracer implements Tracer {
+
 		@Override
 		public void setName(String name) {
 		}
@@ -41,5 +42,7 @@ public class EmptyTracerFactory extends TracerFactory {
 		@Override
 		public void stopAndLog() {
 		}
+
 	}
+
 }

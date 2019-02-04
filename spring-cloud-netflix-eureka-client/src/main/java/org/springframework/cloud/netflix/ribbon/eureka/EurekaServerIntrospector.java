@@ -18,11 +18,11 @@ package org.springframework.cloud.netflix.ribbon.eureka;
 
 import java.util.Map;
 
-import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+
+import org.springframework.cloud.netflix.ribbon.DefaultServerIntrospector;
 
 /**
  * @author Spencer Gibb
@@ -33,7 +33,8 @@ public class EurekaServerIntrospector extends DefaultServerIntrospector {
 	public boolean isSecure(Server server) {
 		if (server instanceof DiscoveryEnabledServer) {
 			DiscoveryEnabledServer discoveryServer = (DiscoveryEnabledServer) server;
-			return discoveryServer.getInstanceInfo().isPortEnabled(InstanceInfo.PortType.SECURE);
+			return discoveryServer.getInstanceInfo()
+					.isPortEnabled(InstanceInfo.PortType.SECURE);
 		}
 		return super.isSecure(server);
 	}
@@ -46,4 +47,5 @@ public class EurekaServerIntrospector extends DefaultServerIntrospector {
 		}
 		return super.getMetadata(server);
 	}
+
 }

@@ -18,16 +18,16 @@
 
 package org.springframework.cloud.netflix.eureka.config;
 
+import com.netflix.discovery.EurekaClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
 import org.springframework.cloud.netflix.eureka.sample.RefreshEurekaSampleApplication;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.netflix.discovery.EurekaClient;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,18 +44,22 @@ public class ConfigRefreshTests {
 	private ApplicationEventPublisher publisher;
 
 	@Autowired
-	//Mocked in RefreshEurekaSampleApplication
+	// Mocked in RefreshEurekaSampleApplication
 	private EurekaClient client;
 
 	@Test
-	// This test is used to verify that getApplications is called the correct number of times
-	// when a refresh event is fired.  The getApplications call in EurekaClientConfigurationRefresher.onApplicationEvent
-	// ensures that the EurekaClient bean is recreated after a refresh event and that we reregister the client with
-	//the server
+	// This test is used to verify that getApplications is called the correct number of
+	// times
+	// when a refresh event is fired. The getApplications call in
+	// EurekaClientConfigurationRefresher.onApplicationEvent
+	// ensures that the EurekaClient bean is recreated after a refresh event and that we
+	// reregister the client with
+	// the server
 	public void verifyGetApplications() {
-		if(publisher != null) {
+		if (publisher != null) {
 			publisher.publishEvent(new RefreshScopeRefreshedEvent());
 		}
 		verify(client, times(3)).getApplications();
 	}
+
 }

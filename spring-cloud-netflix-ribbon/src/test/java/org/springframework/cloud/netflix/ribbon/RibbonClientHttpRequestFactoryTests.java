@@ -18,10 +18,14 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
+
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -46,8 +50,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -59,7 +61,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = RANDOM_PORT, value = {
 		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
-		"spring.cloud.netflix.metrics.enabled=false", "ribbon.restclient.enabled=true", "debug=true" })
+		"spring.cloud.netflix.metrics.enabled=false", "ribbon.restclient.enabled=true",
+		"debug=true"})
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
@@ -150,10 +153,7 @@ public class RibbonClientHttpRequestFactoryTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			http.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.csrf().disable();
+			http.authorizeRequests().anyRequest().permitAll().and().csrf().disable();
 		}
 
 		@LoadBalanced
@@ -191,6 +191,7 @@ public class RibbonClientHttpRequestFactoryTests {
 		public String hiHeader(@RequestHeader("X-Param") String param) {
 			return "hello " + param;
 		}
+
 	}
 
 	@Configuration
@@ -205,4 +206,5 @@ public class RibbonClientHttpRequestFactoryTests {
 		}
 
 	}
+
 }

@@ -16,11 +16,17 @@
 
 package org.springframework.cloud.netflix.eureka.http;
 
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
+import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
 import com.netflix.discovery.shared.Applications;
+import com.netflix.discovery.shared.resolver.DefaultEndpoint;
+import com.netflix.discovery.shared.transport.EurekaHttpClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,12 +37,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
-import com.netflix.discovery.shared.resolver.DefaultEndpoint;
-import com.netflix.discovery.shared.transport.EurekaHttpClient;
-
 /**
  * @author Daniel Lavoie
  */
@@ -45,6 +45,7 @@ import com.netflix.discovery.shared.transport.EurekaHttpClient;
 		"security.basic.enabled=true" }, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 public class RestTemplateEurekaHttpClientTest {
+
 	@Autowired
 	private InetUtils inetUtils;
 
@@ -52,6 +53,7 @@ public class RestTemplateEurekaHttpClientTest {
 	private String serviceUrl;
 
 	private EurekaHttpClient eurekaHttpClient;
+
 	private InstanceInfo info;
 
 	@Before
@@ -145,4 +147,5 @@ public class RestTemplateEurekaHttpClientTest {
 		eurekaHttpClient.getInstance("test");
 		eurekaHttpClient.getInstance("test", "test");
 	}
+
 }

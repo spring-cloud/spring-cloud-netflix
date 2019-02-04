@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
@@ -48,8 +49,11 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
 public class RoutesEndpointDetailsTests {
+
 	private RouteLocator locator;
+
 	private RoutesEndpoint endpoint;
+
 	@Mock
 	private ApplicationEventPublisher publisher;
 
@@ -64,8 +68,10 @@ public class RoutesEndpointDetailsTests {
 			@Override
 			public List<Route> getRoutes() {
 				List<Route> routes = new ArrayList<>();
-				routes.add(new Route("foo", "foopath", "foolocation", null, true, Collections.EMPTY_SET));
-				routes.add(new Route("bar", "barpath", "barlocation", "bar-prefix", true, Collections.EMPTY_SET));
+				routes.add(new Route("foo", "foopath", "foolocation", null, true,
+						Collections.EMPTY_SET));
+				routes.add(new Route("bar", "barpath", "barlocation", "bar-prefix", true,
+						Collections.EMPTY_SET));
 				return routes;
 			}
 
@@ -81,10 +87,10 @@ public class RoutesEndpointDetailsTests {
 	public void reset() throws Exception {
 		this.endpoint.setApplicationEventPublisher(publisher);
 		Map<String, String> result = new HashMap<>();
-		for(Route r : locator.getRoutes()) {
+		for (Route r : locator.getRoutes()) {
 			result.put(r.getFullPath(), r.getLocation());
 		}
-		assertEquals(result , endpoint.reset());
+		assertEquals(result, endpoint.reset());
 		verify(endpoint, times(1)).invoke();
 		verify(publisher, times(1)).publishEvent(isA(RoutesRefreshedEvent.class));
 	}
@@ -95,7 +101,8 @@ public class RoutesEndpointDetailsTests {
 		for (Route route : locator.getRoutes()) {
 			results.put(route.getFullPath(), new RoutesEndpoint.RouteDetails(route));
 		}
-		assertEquals(results, this.endpoint.invokeRouteDetails(RoutesEndpoint.FORMAT_DETAILS));
+		assertEquals(results,
+				this.endpoint.invokeRouteDetails(RoutesEndpoint.FORMAT_DETAILS));
 		verify(endpoint, times(1)).invokeRouteDetails();
 	}
 

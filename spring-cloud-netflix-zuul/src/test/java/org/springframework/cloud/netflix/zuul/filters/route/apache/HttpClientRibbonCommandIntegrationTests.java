@@ -17,11 +17,6 @@
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpHeaders.SET_COOKIE;
-
 import java.util.Collections;
 import java.util.Set;
 
@@ -29,9 +24,15 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -67,11 +68,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.WebUtils;
 
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.IClientConfig;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 /**
  * @author Spencer Gibb
@@ -197,6 +197,7 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 				ErrorAttributes errorAttributes) {
 			return new ZuulProxyTestBase.MyErrorController(errorAttributes);
 		}
+
 	}
 
 	// Load balancer with fixed server list and defined ribbon rest client
@@ -214,12 +215,13 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		@Bean
 		public RibbonLoadBalancingHttpClient ribbonClient(IClientConfig config,
 				ILoadBalancer loadBalancer, RetryHandler retryHandler) {
-			final RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(config,
-					new DefaultServerIntrospector());
+			final RibbonLoadBalancingHttpClient client = new RibbonLoadBalancingHttpClient(
+					config, new DefaultServerIntrospector());
 			client.setLoadBalancer(loadBalancer);
 			client.setRetryHandler(retryHandler);
 			return client;
 		}
 
 	}
+
 }

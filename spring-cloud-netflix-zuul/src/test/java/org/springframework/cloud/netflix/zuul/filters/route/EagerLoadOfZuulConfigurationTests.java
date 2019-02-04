@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-
 package org.springframework.cloud.netflix.zuul.filters.route;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
@@ -31,8 +33,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,6 +52,7 @@ public class EagerLoadOfZuulConfigurationTests {
 	public void clear() {
 		RequestContext.getCurrentContext().clear();
 	}
+
 	@Test
 	public void testEagerLoading() {
 		// Child context FooConfig should have been eagerly instantiated..
@@ -67,6 +68,7 @@ public class EagerLoadOfZuulConfigurationTests {
 	}
 
 	static class Foo {
+
 		private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger();
 
 		public Foo() {
@@ -76,6 +78,7 @@ public class EagerLoadOfZuulConfigurationTests {
 		public static int getInstanceCount() {
 			return INSTANCE_COUNT.get();
 		}
+
 	}
 
 	static class FooConfig {
@@ -86,4 +89,5 @@ public class EagerLoadOfZuulConfigurationTests {
 		}
 
 	}
+
 }

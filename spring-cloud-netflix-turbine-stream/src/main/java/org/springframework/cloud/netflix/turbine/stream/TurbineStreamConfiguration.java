@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(TurbineStreamProperties.class)
 public class TurbineStreamConfiguration {
+
 	@Bean
 	public HasFeatures Feature() {
 		return HasFeatures.namedFeature("Turbine (Stream)",
@@ -44,7 +45,8 @@ public class TurbineStreamConfiguration {
 	}
 
 	@Bean
-	public TurbineController turbineController(PublishSubject<Map<String, Object>> hystrixSubject) {
+	public TurbineController turbineController(
+			PublishSubject<Map<String, Object>> hystrixSubject) {
 		return new TurbineController(hystrixSubject);
 	}
 

@@ -17,18 +17,19 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import java.util.Collections;
+
 import com.netflix.util.Pair;
 import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,14 +42,20 @@ import static org.mockito.Mockito.when;
 public class LocationRewriteFilterTests {
 
 	private final String ZUUL_HOST = "myzuul.com";
+
 	private final String ZUUL_SCHEME = "https";
+
 	private final int ZUUL_PORT = 8443;
+
 	private final String ZUUL_BASE_URL = String.format("%s://%s:%d", ZUUL_SCHEME,
 			ZUUL_HOST, ZUUL_PORT);
 
 	private final String SERVER_HOST = "someserver.com";
+
 	private final String SERVER_SCHEME = "http";
+
 	private final int SERVER_PORT = 8564;
+
 	private final String SERVER_BASE_URL = String.format("%s://%s:%d", SERVER_SCHEME,
 			SERVER_HOST, SERVER_PORT);
 
@@ -57,7 +64,6 @@ public class LocationRewriteFilterTests {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
-
 
 	@After
 	public void reset() {
@@ -182,4 +188,5 @@ public class LocationRewriteFilterTests {
 		}
 		return null;
 	}
+
 }

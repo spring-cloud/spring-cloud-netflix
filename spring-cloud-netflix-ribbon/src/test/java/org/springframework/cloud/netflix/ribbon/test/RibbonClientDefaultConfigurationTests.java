@@ -16,19 +16,20 @@
 
 package org.springframework.cloud.netflix.ribbon.test;
 
+import com.netflix.loadbalancer.BestAvailableRule;
+import com.netflix.loadbalancer.PingUrl;
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerListSubsetFilter;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.ribbon.test.RibbonClientDefaultConfigurationTestsConfig.BazServiceList;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.netflix.loadbalancer.BestAvailableRule;
-import com.netflix.loadbalancer.PingUrl;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerListSubsetFilter;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;

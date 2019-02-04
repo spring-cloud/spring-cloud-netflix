@@ -19,6 +19,7 @@ package org.springframework.cloud.netflix.eureka.config;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,12 +37,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 @ClassPathExclusions({ "jersey-client-*", "jersey-core-*", "jersey-apache-client4-*" })
 @SpringBootTest(classes = EurekaSampleApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class RestTemplateOptionalArgsConfigurationTest {
+
 	@Test
 	public void contextLoads() {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
-				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class).run()) {
+				.web(WebApplicationType.NONE).sources(EurekaSampleApplication.class)
+				.run()) {
 			Assert.assertNotNull(
 					context.getBean(RestTemplateDiscoveryClientOptionalArgs.class));
 		}
 	}
+
 }

@@ -30,7 +30,9 @@ import static org.hamcrest.Matchers.notNullValue;
 @RunWith(SpringJUnit4ClassRunner.class)
 // TODO: maybe this should be the default (the test fails without it because the JSON is
 // invalid)
-@TestPropertySource(properties = {"eureka.server.minAvailableInstancesForPeerReplication=0", "spring.jmx.enabled=false"})
+@TestPropertySource(properties = {
+		"eureka.server.minAvailableInstancesForPeerReplication=0",
+		"spring.jmx.enabled=false"})
 public class EurekaServerTests extends AbstractDocumentationTests {
 
 	@Test

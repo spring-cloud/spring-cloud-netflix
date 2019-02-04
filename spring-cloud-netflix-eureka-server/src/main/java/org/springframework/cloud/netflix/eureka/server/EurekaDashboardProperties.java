@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.server;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Objects;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for the Eureka dashboard (UI).
@@ -56,11 +56,14 @@ public class EurekaDashboardProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		EurekaDashboardProperties that = (EurekaDashboardProperties) o;
-		return enabled == that.enabled &&
-				Objects.equals(path, that.path);
+		return enabled == that.enabled && Objects.equals(path, that.path);
 	}
 
 	@Override
@@ -76,4 +79,5 @@ public class EurekaDashboardProperties {
 		sb.append('}');
 		return sb.toString();
 	}
+
 }

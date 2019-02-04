@@ -17,8 +17,13 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.PollingServerListUpdater;
+import com.netflix.loadbalancer.ServerListUpdater;
+import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,10 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.PollingServerListUpdater;
-import com.netflix.loadbalancer.ServerListUpdater;
-import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -40,8 +41,7 @@ import static org.junit.Assert.assertThat;
  * @author Dave Syer
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = RibbonClientConfigurationIntegrationTests.TestLBConfig.class,
-		properties = "test.ribbon.ServerListRefreshInterval=999")
+@SpringBootTest(classes = RibbonClientConfigurationIntegrationTests.TestLBConfig.class, properties = "test.ribbon.ServerListRefreshInterval=999")
 @DirtiesContext
 public class RibbonClientConfigurationIntegrationTests {
 
@@ -50,19 +50,25 @@ public class RibbonClientConfigurationIntegrationTests {
 
 	@Test
 	public void testLoadBalancerConstruction() {
-		ILoadBalancer loadBalancer = clientFactory.getInstance("test", ILoadBalancer.class);
+		ILoadBalancer loadBalancer = clientFactory.getInstance("test",
+				ILoadBalancer.class);
 		assertThat(loadBalancer, is(instanceOf(ZoneAwareLoadBalancer.class)));
 		ZoneAwareLoadBalancer lb = (ZoneAwareLoadBalancer) loadBalancer;
-		ServerListUpdater serverListUpdater = (PollingServerListUpdater) ReflectionTestUtils.getField(loadBalancer, "serverListUpdater");
-		Long refreshIntervalMs = (Long) ReflectionTestUtils.getField(serverListUpdater, "refreshIntervalMs");
+		ServerListUpdater serverListUpdater = (PollingServerListUpdater) ReflectionTestUtils
+				.getField(loadBalancer, "serverListUpdater");
+		Long refreshIntervalMs = (Long) ReflectionTestUtils.getField(serverListUpdater,
+				"refreshIntervalMs");
 		// assertThat(refreshIntervalMs, equalTo(999L));
 
-		ServerListUpdater updater = clientFactory.getInstance("test", ServerListUpdater.class);
+		ServerListUpdater updater = clientFactory.getInstance("test",
+				ServerListUpdater.class);
 		assertThat(updater, is(sameInstance(serverListUpdater)));
 	}
 
 	@Configuration
 	@EnableAutoConfiguration
-	protected static class TestLBConfig { }
+	protected static class TestLBConfig {
+
+	}
 
 }

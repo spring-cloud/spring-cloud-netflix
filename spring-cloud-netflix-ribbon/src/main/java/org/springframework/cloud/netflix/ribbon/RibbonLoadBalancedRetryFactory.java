@@ -33,10 +33,12 @@ public class RibbonLoadBalancedRetryFactory implements LoadBalancedRetryFactory 
 	}
 
 	@Override
-	public LoadBalancedRetryPolicy createRetryPolicy(String service, ServiceInstanceChooser serviceInstanceChooser) {
+	public LoadBalancedRetryPolicy createRetryPolicy(String service,
+			ServiceInstanceChooser serviceInstanceChooser) {
 		RibbonLoadBalancerContext lbContext = this.clientFactory
 				.getLoadBalancerContext(service);
-		return new RibbonLoadBalancedRetryPolicy(service, lbContext, serviceInstanceChooser, clientFactory.getClientConfig(service));
+		return new RibbonLoadBalancedRetryPolicy(service, lbContext,
+				serviceInstanceChooser, clientFactory.getClientConfig(service));
 	}
 
 	@Override
@@ -48,5 +50,5 @@ public class RibbonLoadBalancedRetryFactory implements LoadBalancedRetryFactory 
 	public BackOffPolicy createBackOffPolicy(String service) {
 		return null;
 	}
-}
 
+}

@@ -24,7 +24,9 @@ import com.netflix.zuul.monitoring.CounterFactory;
  * @author Anastasiia Smirnova
  */
 public class EmptyCounterFactory extends CounterFactory {
+
 	@Override
 	public void increment(String name) {
 	}
+
 }

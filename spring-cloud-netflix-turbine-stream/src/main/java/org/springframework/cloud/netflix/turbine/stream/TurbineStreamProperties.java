@@ -18,7 +18,6 @@ package org.springframework.cloud.netflix.turbine.stream;
 
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.netflix.hystrix.HystrixConstants;
 import org.springframework.http.MediaType;
@@ -68,8 +67,8 @@ public class TurbineStreamProperties {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("TurbineStreamProperties{")
-				.append(", ").append("destination='").append(destination).append("', ")
+		return new StringBuilder("TurbineStreamProperties{").append(", ")
+				.append("destination='").append(destination).append("', ")
 				.append("contentType='").append(contentType).append("'}").toString();
 	}
 

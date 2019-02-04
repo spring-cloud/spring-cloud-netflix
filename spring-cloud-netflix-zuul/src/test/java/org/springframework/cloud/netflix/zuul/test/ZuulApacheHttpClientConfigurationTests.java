@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockingDetails;
 import org.mockito.Mockito;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -59,8 +60,7 @@ import static org.mockito.Mockito.mockingDetails;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(properties = {
-		"ribbon.eureka.enabled = false"})
+@SpringBootTest(properties = {"ribbon.eureka.enabled = false"})
 @DirtiesContext
 public class ZuulApacheHttpClientConfigurationTests {
 
@@ -69,7 +69,6 @@ public class ZuulApacheHttpClientConfigurationTests {
 
 	@Autowired
 	HttpClientRibbonCommandFactory httpClientRibbonCommandFactory;
-
 
 	@Test
 	public void testHttpClientSimpleHostRoutingFilter() {
@@ -80,9 +79,9 @@ public class ZuulApacheHttpClientConfigurationTests {
 
 	@Test
 	public void testRibbonLoadBalancingHttpClient() {
-		RibbonCommandContext context = new RibbonCommandContext("foo"," GET", "http://localhost",
-				false, new LinkedMultiValueMap<>(), new LinkedMultiValueMap<>(),
-				null, new ArrayList<>(), 0l);
+		RibbonCommandContext context = new RibbonCommandContext("foo", " GET",
+				"http://localhost", false, new LinkedMultiValueMap<>(),
+				new LinkedMultiValueMap<>(), null, new ArrayList<>(), 0l);
 		HttpClientRibbonCommand command = httpClientRibbonCommandFactory.create(context);
 		RibbonLoadBalancingHttpClient ribbonClient = command.getClient();
 		CloseableHttpClient httpClient = getField(ribbonClient, "delegate");
@@ -95,7 +94,7 @@ public class ZuulApacheHttpClientConfigurationTests {
 		Field field = ReflectionUtils.findField(target.getClass(), name);
 		ReflectionUtils.makeAccessible(field);
 		Object value = ReflectionUtils.getField(field, target);
-		return (T)value;
+		return (T) value;
 	}
 
 	@SpringBootConfiguration
@@ -104,13 +103,14 @@ public class ZuulApacheHttpClientConfigurationTests {
 	static class TestConfig {
 
 		static class MyApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
+
 			public MyApacheHttpClientFactory(HttpClientBuilder builder) {
 				super(builder);
 			}
 
 			@Override
 			public HttpClientBuilder createBuilder() {
-				CloseableHttpClient client =  mock(CloseableHttpClient.class);
+				CloseableHttpClient client = mock(CloseableHttpClient.class);
 				CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 				StatusLine statusLine = mock(StatusLine.class);
 				doReturn(200).when(statusLine).getStatusCode();
@@ -118,21 +118,25 @@ public class ZuulApacheHttpClientConfigurationTests {
 				Header[] headers = new BasicHeader[0];
 				doReturn(headers).when(response).getAllHeaders();
 				try {
-					Mockito.doReturn(response).when(client).execute(any(HttpUriRequest.class));
-				} catch (IOException e) {
+					Mockito.doReturn(response).when(client)
+							.execute(any(HttpUriRequest.class));
+				}
+				catch (IOException e) {
 					e.printStackTrace();
 				}
 				HttpClientBuilder builder = mock(HttpClientBuilder.class);
 				Mockito.doReturn(client).when(builder).build();
 				return builder;
 			}
+
 		}
 
 		@Bean
-		public ApacheHttpClientFactory apacheHttpClientFactory(HttpClientBuilder builder) {
+		public ApacheHttpClientFactory apacheHttpClientFactory(
+				HttpClientBuilder builder) {
 			return new MyApacheHttpClientFactory(builder);
 		}
+
 	}
 
 }
-

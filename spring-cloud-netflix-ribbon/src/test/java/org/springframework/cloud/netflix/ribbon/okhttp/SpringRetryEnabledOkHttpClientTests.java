@@ -15,15 +15,22 @@
  */
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
 import java.net.URI;
 import java.util.Map;
 
+import com.netflix.client.ClientException;
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.RetryHandler;
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.loadbalancer.ILoadBalancer;
+import com.netflix.loadbalancer.Server;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.BeansException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.client.loadbalancer.LoadBalancedRetryFactory;
@@ -43,14 +50,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.netflix.client.ClientException;
-import com.netflix.client.DefaultLoadBalancerRetryHandler;
-import com.netflix.client.RetryHandler;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
-
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -65,15 +64,17 @@ import static org.mockito.Mockito.mock;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(value = { "ribbon.okhttp.enabled: true", "ribbon.httpclient.enabled: false" })
+@SpringBootTest(value = {"ribbon.okhttp.enabled: true",
+		"ribbon.httpclient.enabled: false"})
 @ContextConfiguration(classes = { RibbonAutoConfiguration.class,
 		HttpClientConfiguration.class, RibbonClientConfiguration.class,
 		LoadBalancerAutoConfiguration.class })
 public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAware {
 
 	private ApplicationContext context;
+
 	private ILoadBalancer loadBalancer;
-	
+
 	@Test
 	public void testLoadBalancedRetryFactoryBean() throws Exception {
 		Map<String, LoadBalancedRetryFactory> factories = context
@@ -86,21 +87,25 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		assertThat(clients.values(), hasSize(1));
 		assertThat(clients.values().toArray()[0],
 				instanceOf(RetryableOkHttpLoadBalancingClient.class));
-		
+
 		RibbonLoadBalancerContext ribbonLoadBalancerContext = (RibbonLoadBalancerContext) ReflectionTestUtils
-				.getField(clients.values().toArray()[0], RetryableOkHttpLoadBalancingClient.class, "ribbonLoadBalancerContext"); 
-		assertThat("RetryableOkHttpLoadBalancingClient.ribbonLoadBalancerContext should not be null",
+				.getField(clients.values().toArray()[0],
+						RetryableOkHttpLoadBalancingClient.class,
+						"ribbonLoadBalancerContext");
+		assertThat(
+				"RetryableOkHttpLoadBalancingClient.ribbonLoadBalancerContext should not be null",
 				ribbonLoadBalancerContext, IsNull.notNullValue());
-			
+
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.context = context;
 	}
-	
-	private RetryableOkHttpLoadBalancingClient setupClientForServerValidation(String serviceName, String host, int port,
-			OkHttpClient delegate, ILoadBalancer lb) throws Exception {
+
+	private RetryableOkHttpLoadBalancingClient setupClientForServerValidation(
+			String serviceName, String host, int port, OkHttpClient delegate,
+			ILoadBalancer lb) throws Exception {
 		ServerIntrospector introspector = mock(ServerIntrospector.class);
 		RetryHandler retryHandler = new DefaultLoadBalancerRetryHandler(1, 1, true);
 		DefaultClientConfigImpl clientConfig = new DefaultClientConfigImpl();
@@ -110,18 +115,20 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		clientConfig.set(RibbonLoadBalancedRetryPolicy.RETRYABLE_STATUS_CODES, "");
 		clientConfig.set(CommonClientConfigKey.IsSecure, false);
 		clientConfig.setClientName(serviceName);
-		RibbonLoadBalancerContext context = new RibbonLoadBalancerContext(lb, clientConfig, retryHandler);
+		RibbonLoadBalancerContext context = new RibbonLoadBalancerContext(lb,
+				clientConfig, retryHandler);
 		SpringClientFactory clientFactory = mock(SpringClientFactory.class);
 		doReturn(context).when(clientFactory).getLoadBalancerContext(eq(serviceName));
 		doReturn(clientConfig).when(clientFactory).getClientConfig(eq(serviceName));
-		LoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(clientFactory);
-		RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(delegate, clientConfig, introspector,
-				factory);
+		LoadBalancedRetryFactory factory = new RibbonLoadBalancedRetryFactory(
+				clientFactory);
+		RetryableOkHttpLoadBalancingClient client = new RetryableOkHttpLoadBalancingClient(
+				delegate, clientConfig, introspector, factory);
 		client.setLoadBalancer(lb);
 		ReflectionTestUtils.setField(client, "delegate", delegate);
 		return client;
 	}
-	
+
 	@Test
 	public void noServersFoundTest() throws Exception {
 		String serviceName = "noservers";
@@ -131,8 +138,9 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		URI uri = new URI("http://" + host + ":" + port);
 		OkHttpClient delegate = mock(OkHttpClient.class);
 		ILoadBalancer lb = mock(ILoadBalancer.class);
-		
-		RetryableOkHttpLoadBalancingClient client = setupClientForServerValidation(serviceName, host, port, delegate, lb);
+
+		RetryableOkHttpLoadBalancingClient client = setupClientForServerValidation(
+				serviceName, host, port, delegate, lb);
 		OkHttpRibbonRequest request = mock(OkHttpRibbonRequest.class);
 		doReturn(null).when(lb).chooseServer(eq(serviceName));
 		doReturn(method).when(request).getMethod();
@@ -143,11 +151,13 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		try {
 			client.execute(request, null);
 			fail("Expected ClientException for no servers available");
-		} catch (ClientException ex) {
-			assertThat(ex.getMessage(), containsString("Load balancer does not have available server for client"));
+		}
+		catch (ClientException ex) {
+			assertThat(ex.getMessage(), containsString(
+					"Load balancer does not have available server for client"));
 		}
 	}
-	
+
 	@Test
 	public void invalidServerTest() throws Exception {
 		String serviceName = "noservers";
@@ -157,10 +167,11 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		URI uri = new URI("http://" + host + ":" + port);
 		OkHttpClient delegate = mock(OkHttpClient.class);
 		ILoadBalancer lb = mock(ILoadBalancer.class);
-		
-		RetryableOkHttpLoadBalancingClient client = setupClientForServerValidation(serviceName, host, port, delegate, lb);
+
+		RetryableOkHttpLoadBalancingClient client = setupClientForServerValidation(
+				serviceName, host, port, delegate, lb);
 		OkHttpRibbonRequest request = mock(OkHttpRibbonRequest.class);
-		doReturn(new Server(null,8000)).when(lb).chooseServer(eq(serviceName));
+		doReturn(new Server(null, 8000)).when(lb).chooseServer(eq(serviceName));
 		doReturn(method).when(request).getMethod();
 		doReturn(uri).when(request).getURI();
 		doReturn(request).when(request).withNewUri(any(URI.class));
@@ -170,8 +181,10 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 		try {
 			client.execute(request, null);
 			fail("Expected ClientException for no Invalid Host");
-		} catch (ClientException ex) {
+		}
+		catch (ClientException ex) {
 			assertThat(ex.getMessage(), containsString("Invalid Server for: "));
 		}
 	}
+
 }

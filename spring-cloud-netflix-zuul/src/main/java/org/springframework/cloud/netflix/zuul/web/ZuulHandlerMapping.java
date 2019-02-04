@@ -21,6 +21,8 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.context.RequestContext;
+
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.RefreshableRouteLocator;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -30,8 +32,6 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
-
-import com.netflix.zuul.context.RequestContext;
 
 /**
  * MVC HandlerMapping that maps incoming request paths to remote services.
@@ -60,8 +60,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	@Override
-	protected HandlerExecutionChain getCorsHandlerExecutionChain(HttpServletRequest request,
-			HandlerExecutionChain chain, CorsConfiguration config) {
+	protected HandlerExecutionChain getCorsHandlerExecutionChain(
+			HttpServletRequest request, HandlerExecutionChain chain,
+			CorsConfiguration config) {
 		if (config == null) {
 			// Allow CORS requests to go to the backend
 			return chain;
@@ -81,11 +82,14 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 	}
 
 	@Override
-	protected Object lookupHandler(String urlPath, HttpServletRequest request) throws Exception {
-		if (this.errorController != null && urlPath.equals(this.errorController.getErrorPath())) {
+	protected Object lookupHandler(String urlPath, HttpServletRequest request)
+			throws Exception {
+		if (this.errorController != null
+				&& urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
-		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) return null;
+		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths()))
+			return null;
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {
 			return null;

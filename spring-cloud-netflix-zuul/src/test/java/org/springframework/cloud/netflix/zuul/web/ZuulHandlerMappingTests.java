@@ -17,21 +17,21 @@
 
 package org.springframework.cloud.netflix.zuul.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.netflix.zuul.context.RequestContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import com.netflix.zuul.context.RequestContext;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -101,16 +101,18 @@ public class ZuulHandlerMappingTests {
 				new Route("p1", "/p1/**/p4/", "p1", "", null, null))
 				.getHandler(requestForAPath("/p1/p2/p3/p4"))).isNull();
 	}
-	
-	private ZuulHandlerMapping mappingWithIgnoredPathsAndRoutes(List<String> ignoredPaths, Route route) {
+
+	private ZuulHandlerMapping mappingWithIgnoredPathsAndRoutes(List<String> ignoredPaths,
+			Route route) {
 		RouteLocator routeLocator = Mockito.mock(RouteLocator.class);
-		Mockito.when(routeLocator.getIgnoredPaths())
-				.thenReturn(ignoredPaths);
-		Mockito.when(routeLocator.getRoutes()).thenReturn(Collections.singletonList(route));
-		ZuulHandlerMapping zuulHandlerMapping = new ZuulHandlerMapping(routeLocator, new ZuulController());
+		Mockito.when(routeLocator.getIgnoredPaths()).thenReturn(ignoredPaths);
+		Mockito.when(routeLocator.getRoutes())
+				.thenReturn(Collections.singletonList(route));
+		ZuulHandlerMapping zuulHandlerMapping = new ZuulHandlerMapping(routeLocator,
+				new ZuulController());
 		return zuulHandlerMapping;
 	}
-	
+
 	private MockHttpServletRequest requestForAPath(String path) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setServletPath(path);

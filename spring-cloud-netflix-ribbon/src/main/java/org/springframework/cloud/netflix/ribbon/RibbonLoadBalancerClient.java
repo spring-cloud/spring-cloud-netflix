@@ -61,8 +61,10 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			RibbonServer ribbonServer = (RibbonServer) instance;
 			server = ribbonServer.getServer();
 			uri = updateToSecureConnectionIfNeeded(original, ribbonServer);
-		} else {
-			server = new Server(instance.getScheme(), instance.getHost(), instance.getPort());
+		}
+		else {
+			server = new Server(instance.getScheme(), instance.getHost(),
+					instance.getPort());
 			IClientConfig clientConfig = clientFactory.getClientConfig(serviceId);
 			ServerIntrospector serverIntrospector = serverIntrospector(serviceId);
 			uri = updateToSecureConnectionIfNeeded(original, clientConfig,
@@ -73,7 +75,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 
 	@Override
 	public ServiceInstance choose(String serviceId) {
-	    return choose(serviceId, null);
+		return choose(serviceId, null);
 	}
 
 	/**
@@ -89,32 +91,37 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	@Override
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request) throws IOException {
-	    return execute(serviceId, request, null);
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request)
+			throws IOException {
+		return execute(serviceId, request, null);
 	}
 
 	/**
-	 * New: Execute a request by selecting server using a 'key'.
-	 * The hint will have to be the last parameter to not mess with the `execute(serviceId, ServiceInstance, request)`
-	 * method. This somewhat breaks the fluent coding style when using a lambda to define the LoadBalancerRequest.
+	 * New: Execute a request by selecting server using a 'key'. The hint will have to be
+	 * the last parameter to not mess with the `execute(serviceId, ServiceInstance,
+	 * request)` method. This somewhat breaks the fluent coding style when using a lambda
+	 * to define the LoadBalancerRequest.
 	 */
-	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint) throws IOException {
+	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
+			throws IOException {
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
 		Server server = getServer(loadBalancer, hint);
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
 		}
-		RibbonServer ribbonServer = new RibbonServer(serviceId, server, isSecure(server,
-				serviceId), serverIntrospector(serviceId).getMetadata(server));
+		RibbonServer ribbonServer = new RibbonServer(serviceId, server,
+				isSecure(server, serviceId),
+				serverIntrospector(serviceId).getMetadata(server));
 
 		return execute(serviceId, ribbonServer, request);
 	}
 
 	@Override
-	public <T> T execute(String serviceId, ServiceInstance serviceInstance, LoadBalancerRequest<T> request) throws IOException {
+	public <T> T execute(String serviceId, ServiceInstance serviceInstance,
+			LoadBalancerRequest<T> request) throws IOException {
 		Server server = null;
-		if(serviceInstance instanceof RibbonServer) {
-			server = ((RibbonServer)serviceInstance).getServer();
+		if (serviceInstance instanceof RibbonServer) {
+			server = ((RibbonServer) serviceInstance).getServer();
 		}
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
@@ -164,7 +171,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	protected Server getServer(ILoadBalancer loadBalancer) {
-	    return getServer(loadBalancer, null);
+		return getServer(loadBalancer, null);
 	}
 
 	protected Server getServer(ILoadBalancer loadBalancer, Object hint) {
@@ -180,9 +187,13 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	}
 
 	public static class RibbonServer implements ServiceInstance {
+
 		private final String serviceId;
+
 		private final Server server;
+
 		private final boolean secure;
+
 		private Map<String, String> metadata;
 
 		public RibbonServer(String serviceId, Server server) {
@@ -251,6 +262,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			sb.append('}');
 			return sb.toString();
 		}
+
 	}
 
 }

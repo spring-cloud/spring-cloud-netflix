@@ -19,7 +19,6 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import javax.servlet.http.HttpServletRequest;
 
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,4 +70,5 @@ public class SendForwardFilterTests {
 		filter.run();
 		assertFalse("shouldFilter returned true", filter.shouldFilter());
 	}
+
 }

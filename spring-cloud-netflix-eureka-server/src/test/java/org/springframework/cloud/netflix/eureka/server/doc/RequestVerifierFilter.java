@@ -43,12 +43,12 @@ import io.restassured.http.Header;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
+import wiremock.com.google.common.base.Optional;
 
 import org.springframework.util.Base64Utils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-import wiremock.com.google.common.base.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +59,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RequestVerifierFilter implements Filter {
 
 	static final String CONTEXT_KEY_CONFIGURATION = "org.springframework.restdocs.configuration";
+
 	private Map<String, JsonPath> jsonPaths = new LinkedHashMap<>();
+
 	private MappingBuilder builder;
 
 	public static RequestVerifierFilter verify(String path) {
@@ -136,12 +138,15 @@ public class RequestVerifierFilter implements Filter {
 				.<Map<String, Object>>getValue(CONTEXT_KEY_CONFIGURATION);
 		return configuration;
 	}
+
 }
 
 class JsonPathValue {
 
 	private final JsonPath jsonPath;
+
 	private final String expression;
+
 	private final CharSequence actual;
 
 	JsonPathValue(JsonPath jsonPath, CharSequence actual) {

@@ -17,12 +17,15 @@
 
 package org.springframework.cloud.netflix.zuul.filters.post;
 
+import java.util.List;
+
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.context.RequestContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,8 +43,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -102,6 +103,7 @@ public class LocationRewriteFilterIntegrationTests {
 	}
 
 	public static class RibbonConfig {
+
 		@LocalServerPort
 		private int port;
 
@@ -111,4 +113,5 @@ public class LocationRewriteFilterIntegrationTests {
 		}
 
 	}
+
 }

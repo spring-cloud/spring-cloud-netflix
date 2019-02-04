@@ -21,17 +21,16 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.ReflectionUtils;
-
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
 import com.netflix.zuul.monitoring.CounterFactory;
 import com.netflix.zuul.monitoring.TracerFactory;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -42,9 +41,13 @@ import static org.mockito.Mockito.mock;
 public class ZuulFilterInitializerTests {
 
 	private Map<String, ZuulFilter> filters;
+
 	private CounterFactory counterFactory;
+
 	private TracerFactory tracerFactory;
+
 	private FilterLoader filterLoader;
+
 	private FilterRegistry filterRegistry;
 
 	private ZuulFilterInitializer initializer;
@@ -56,8 +59,8 @@ public class ZuulFilterInitializerTests {
 		tracerFactory = mock(TracerFactory.class);
 		filterLoader = new FilterLoader();
 		filterRegistry = getFilterRegistry();
-		initializer = new ZuulFilterInitializer(filters,
-				counterFactory, tracerFactory, filterLoader, filterRegistry);
+		initializer = new ZuulFilterInitializer(filters, counterFactory, tracerFactory,
+				filterLoader, filterRegistry);
 
 		initializer.contextInitialized();
 	}
@@ -67,8 +70,7 @@ public class ZuulFilterInitializerTests {
 
 		assertEquals(tracerFactory, TracerFactory.instance());
 		assertEquals(counterFactory, CounterFactory.instance());
-		assertThat(filterRegistry.getAllFilters())
-				.containsAll(filters.values());
+		assertThat(filterRegistry.getAllFilters()).containsAll(filters.values());
 
 		initializer.contextDestroyed();
 	}
@@ -108,4 +110,5 @@ public class ZuulFilterInitializerTests {
 			throw new RuntimeException(e);
 		}
 	}
+
 }

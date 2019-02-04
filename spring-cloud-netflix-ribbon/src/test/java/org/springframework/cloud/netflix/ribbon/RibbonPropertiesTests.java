@@ -36,4 +36,5 @@ public class RibbonPropertiesTests {
 		assertThat(properties.poolKeepAliveTime()).isEqualTo(714L);
 		assertThat(properties.getPoolKeepAliveTime()).isEqualTo(714L);
 	}
+
 }

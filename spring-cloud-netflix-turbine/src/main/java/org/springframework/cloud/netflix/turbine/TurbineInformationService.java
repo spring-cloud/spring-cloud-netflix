@@ -1,35 +1,41 @@
 package org.springframework.cloud.netflix.turbine;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.netflix.turbine.data.AggDataFromCluster;
 import com.netflix.turbine.data.DataFromSingleInstance;
 import com.netflix.turbine.monitor.MonitorConsole;
 import com.netflix.turbine.monitor.TurbineDataMonitor;
 import com.netflix.turbine.monitor.cluster.ClusterMonitor;
+
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import static com.netflix.turbine.monitor.cluster.AggregateClusterMonitor.AggregatorClusterMonitorConsole;
 
 public class TurbineInformationService {
 
-	public Collection<ClusterInformation> getClusterInformations(HttpServletRequest request) {
+	public Collection<ClusterInformation> getClusterInformations(
+			HttpServletRequest request) {
 		String hostName = getHostName(request);
 		return getClusterInformations(hostName);
 	}
 
 	private Collection<ClusterInformation> getClusterInformations(String hostName) {
-		Collection<TurbineDataMonitor<AggDataFromCluster>> monitors = AggregatorClusterMonitorConsole.getAllMonitors();
+		Collection<TurbineDataMonitor<AggDataFromCluster>> monitors = AggregatorClusterMonitorConsole
+				.getAllMonitors();
 		List<ClusterInformation> clusterInformations = new ArrayList<>();
 		for (TurbineDataMonitor<AggDataFromCluster> monitor : monitors) {
 			ClusterMonitor clusterMonitor = (ClusterMonitor) monitor;
-			MonitorConsole<DataFromSingleInstance> instanceConsole = clusterMonitor.getInstanceMonitors();
-			for (TurbineDataMonitor<DataFromSingleInstance> single : instanceConsole.getAllMonitors()) {
+			MonitorConsole<DataFromSingleInstance> instanceConsole = clusterMonitor
+					.getInstanceMonitors();
+			for (TurbineDataMonitor<DataFromSingleInstance> single : instanceConsole
+					.getAllMonitors()) {
 				String cluster = single.getStatsInstance().getCluster();
 				ClusterInformation info = new ClusterInformation(cluster,
 						getLink(hostName, cluster));

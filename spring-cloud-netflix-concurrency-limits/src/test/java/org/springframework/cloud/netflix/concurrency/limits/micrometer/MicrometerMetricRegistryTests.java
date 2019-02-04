@@ -26,6 +26,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MicrometerMetricRegistryTests {
+
 	@Test
 	public void testGuage() {
 		MeterRegistry registry = new SimpleMeterRegistry();
@@ -39,7 +40,7 @@ public class MicrometerMetricRegistryTests {
 	}
 
 	@Test
-	@Ignore //FIXME: micrometer doesn't allow recreating a gauge
+	@Ignore // FIXME: micrometer doesn't allow recreating a gauge
 	public void testUnregister() {
 		MeterRegistry registry = new SimpleMeterRegistry();
 		MicrometerMetricRegistry metricRegistry = new MicrometerMetricRegistry(registry);
@@ -52,5 +53,5 @@ public class MicrometerMetricRegistryTests {
 		assertThat(bar.value()).isEqualTo(20.0);
 
 	}
-}
 
+}

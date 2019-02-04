@@ -61,6 +61,14 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>io.spring.javaformat</groupId>
+				<artifactId>spring-javaformat-maven-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencyManagement>
@@ -132,6 +140,14 @@
 			<!-- end archaius deps -->
 		</dependencies>
 	</dependencyManagement>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
 	<modules>
 		<module>spring-cloud-netflix-dependencies</module>
 		<module>spring-cloud-netflix-archaius</module>

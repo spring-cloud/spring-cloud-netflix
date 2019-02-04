@@ -19,24 +19,20 @@ package org.springframework.cloud.netflix.zuul;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.cloud.netflix.zuul.test.NoSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -53,8 +49,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT,
-		properties = "zuul.routes[testclient]:/testing123/**")
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = "zuul.routes[testclient]:/testing123/**")
 @DirtiesContext
 public class SimpleZuulServerApplicationTests {
 
@@ -102,7 +97,6 @@ public class SimpleZuulServerApplicationTests {
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 	}
 
-
 	// Don't use @SpringBootApplication because we don't want to component scan
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
@@ -147,4 +141,5 @@ public class SimpleZuulServerApplicationTests {
 		}
 
 	}
+
 }

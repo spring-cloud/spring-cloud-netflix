@@ -20,10 +20,14 @@ package org.springframework.cloud.netflix.zuul.filters.discovery;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -49,10 +53,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.context.RequestContext;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -62,8 +62,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Stéphane Leroy
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = RANDOM_PORT,
-		properties = { "spring.application.name=regex-test-application", "spring.jmx.enabled=false",
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
+		"spring.application.name=regex-test-application", "spring.jmx.enabled=false",
 		"eureka.client.enabled=false" })
 @DirtiesContext
 public class PatternServiceRouteMapperIntegrationTests {
@@ -112,35 +112,35 @@ public class PatternServiceRouteMapperIntegrationTests {
 	}
 
 	@SpringBootConfiguration
-    @EnableAutoConfiguration
-    @RestController
-    @EnableZuulProxy
-    @RibbonClient(value = SERVICE_ID, configuration = SimpleRibbonClientConfiguration.class)
+	@EnableAutoConfiguration
+	@RestController
+	@EnableZuulProxy
+	@RibbonClient(value = SERVICE_ID, configuration = SimpleRibbonClientConfiguration.class)
 	@Import(NoSecurityConfiguration.class)
-    protected static class SampleCustomZuulProxyApplication {
+	protected static class SampleCustomZuulProxyApplication {
 
-        @Bean
-        public DiscoveryClient discoveryClient() {
-            DiscoveryClient discoveryClient = mock(DiscoveryClient.class);
-            List<String> services = new ArrayList<>();
-            services.add(SERVICE_ID);
-            when(discoveryClient.getServices()).thenReturn(services);
-            return discoveryClient;
-        }
+		@Bean
+		public DiscoveryClient discoveryClient() {
+			DiscoveryClient discoveryClient = mock(DiscoveryClient.class);
+			List<String> services = new ArrayList<>();
+			services.add(SERVICE_ID);
+			when(discoveryClient.getServices()).thenReturn(services);
+			return discoveryClient;
+		}
 
-        @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-        public String get(@PathVariable String id) {
-                                                         return "Get " + id;
-                                                                            }
+		@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+		public String get(@PathVariable String id) {
+			return "Get " + id;
+		}
 
-        @Bean
-        public PatternServiceRouteMapper serviceRouteMapper() {
-            return new PatternServiceRouteMapper(
-                    "(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
-                    "${version}/${domain}/${name}");
-        }
+		@Bean
+		public PatternServiceRouteMapper serviceRouteMapper() {
+			return new PatternServiceRouteMapper(
+					"(?<domain>^.+)-(?<name>.+)-(?<version>v.+$)",
+					"${version}/${domain}/${name}");
+		}
 
-    }
+	}
 
 	protected static class SimpleRibbonClientConfiguration {
 
@@ -151,5 +151,7 @@ public class PatternServiceRouteMapperIntegrationTests {
 		public ServerList<Server> ribbonServerList() {
 			return new StaticServerList<>(new Server("localhost", this.port));
 		}
+
 	}
+
 }

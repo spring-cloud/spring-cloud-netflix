@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,13 +57,8 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-		classes = ZuulProxyApplicationTests.ZuulProxyApplication.class,
-		webEnvironment = WebEnvironment.RANDOM_PORT,
-		properties = {
-				"zuul.routes.simplezpat:/simplezpat/**",
-				"logging.level.org.apache.http: DEBUG"
-		})
+@SpringBootTest(classes = ZuulProxyApplicationTests.ZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
+		"zuul.routes.simplezpat:/simplezpat/**", "logging.level.org.apache.http: DEBUG"})
 @DirtiesContext
 public class ZuulProxyApplicationTests {
 
@@ -85,7 +81,8 @@ public class ZuulProxyApplicationTests {
 
 	@Test
 	public void getHasCorrectTransferEncoding() {
-		ResponseEntity<String> result = testRestTemplate.getForEntity(url(), String.class);
+		ResponseEntity<String> result = testRestTemplate.getForEntity(url(),
+				String.class);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
@@ -93,7 +90,8 @@ public class ZuulProxyApplicationTests {
 
 	@Test
 	public void postHasCorrectTransferEncoding() {
-		ResponseEntity<String> result = testRestTemplate.postForEntity(url(), new HttpEntity<>("hello"), String.class);
+		ResponseEntity<String> result = testRestTemplate.postForEntity(url(),
+				new HttpEntity<>("hello"), String.class);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("missing", result.getBody());
@@ -131,7 +129,6 @@ public class ZuulProxyApplicationTests {
 
 		assertEquals(HttpStatus.FORBIDDEN, result.getStatusCode());
 	}
-
 
 	private String url() {
 		return "http://localhost:" + this.port + "/simplezpat/transferencoding";
@@ -192,4 +189,5 @@ public class ZuulProxyApplicationTests {
 		}
 
 	}
+
 }

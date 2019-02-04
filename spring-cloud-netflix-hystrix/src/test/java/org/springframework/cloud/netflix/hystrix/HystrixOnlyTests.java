@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -60,11 +59,12 @@ import static org.springframework.cloud.netflix.test.TestAutoConfiguration.USER;
  * @author Spencer Gibb
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = RANDOM_PORT,
-		properties = {"management.endpoint.health.show-details=ALWAYS"})
+@SpringBootTest(classes = HystrixOnlyApplication.class, webEnvironment = RANDOM_PORT, properties = {
+		"management.endpoint.health.show-details=ALWAYS"})
 @DirtiesContext
 @ActiveProfiles("proxysecurity")
 public class HystrixOnlyTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
@@ -114,7 +114,9 @@ public class HystrixOnlyTests {
 		// Poller takes some time to realize for new metrics
 		try {
 			Thread.sleep(2000);
-		} catch (InterruptedException e) {}
+		}
+		catch (InterruptedException e) {
+		}
 
 		Map<String, List<String>> map = (Map<String, List<String>>) getMetrics();
 
@@ -123,7 +125,6 @@ public class HystrixOnlyTests {
 		assertTrue("There is no latencyExecute group key specified",
 				map.get("names").contains("hystrix.latency.execution"));
 	}
-
 
 	private Map<?, ?> getMetrics() {
 		return getAuthenticatedEndpoint("/metrics");
@@ -136,12 +137,12 @@ public class HystrixOnlyTests {
 	private Map<?, ?> getAuthenticatedEndpoint(String endpoint) {
 		return new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + BASE_PATH + endpoint, HttpMethod.GET,
-				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)),
-				Map.class).getBody();
+				new HttpEntity<Void>(createBasicAuthHeader(USER, PASSWORD)), Map.class)
+				.getBody();
 	}
 
 	public static HttpHeaders createBasicAuthHeader(final String username,
-													final String password) {
+			final String password) {
 		return new HttpHeaders() {
 			private static final long serialVersionUID = 1766341693637204893L;
 
@@ -153,9 +154,11 @@ public class HystrixOnlyTests {
 			}
 		};
 	}
+
 }
 
 class Service {
+
 	@HystrixCommand
 	public String hello() {
 		return "Hello world";
@@ -169,6 +172,7 @@ class Service {
 	public String fallback() {
 		return "Fallback Hello world";
 	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan

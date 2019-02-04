@@ -20,8 +20,7 @@ import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 
 /**
- * @author Dave Syer
- *
+ *  @author Dave Syer
  */
 public interface HystrixStreamClient {
 
@@ -29,4 +28,5 @@ public interface HystrixStreamClient {
 
 	@Output(OUTPUT)
 	MessageChannel hystrixStreamOutput();
+
 }

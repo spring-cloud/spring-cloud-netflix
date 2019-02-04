@@ -17,8 +17,11 @@
 
 package org.springframework.cloud.netflix.ribbon;
 
+import com.netflix.client.config.CommonClientConfigKey;
+import com.netflix.client.config.IClientConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,8 +31,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.netflix.client.config.CommonClientConfigKey;
-import com.netflix.client.config.IClientConfig;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +38,8 @@ import static org.junit.Assert.assertEquals;
  * @author Dave Syer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = TestConfiguration.class, value = {"ribbon.ConnectTimeout=25000"})
+@SpringBootTest(classes = TestConfiguration.class, value = {
+		"ribbon.ConnectTimeout=25000"})
 @DirtiesContext
 public class RibbonAutoConfigurationIntegrationTests {
 
@@ -56,6 +58,7 @@ public class RibbonAutoConfigurationIntegrationTests {
 	@Import({ PropertyPlaceholderAutoConfiguration.class, ArchaiusAutoConfiguration.class,
 			RibbonAutoConfiguration.class })
 	protected static class TestConfiguration {
+
 	}
 
 }

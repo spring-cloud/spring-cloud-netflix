@@ -21,7 +21,6 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +28,10 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
@@ -60,8 +59,10 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = RetryableZuulProxyApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes[simplerzpat].path: /simplerzpat/**", "zuul.routes[simplerzpat].retryable: true",
-		"zuul.routes[simplerzpat].serviceId: simplerzpat", "ribbon.OkToRetryOnAllOperations: true",
+		"zuul.routes[simplerzpat].path: /simplerzpat/**",
+		"zuul.routes[simplerzpat].retryable: true",
+		"zuul.routes[simplerzpat].serviceId: simplerzpat",
+		"ribbon.OkToRetryOnAllOperations: true",
 		"simplerzpat.ribbon.retryableStatusCodes: 404" })
 @DirtiesContext
 public class RetryableZuulProxyApplicationTests {
@@ -155,4 +156,5 @@ class RetryableRibbonClientConfiguration {
 		return new StaticServerList<>(new Server("localhost", this.port),
 				new Server("failed-localhost", this.port));
 	}
+
 }

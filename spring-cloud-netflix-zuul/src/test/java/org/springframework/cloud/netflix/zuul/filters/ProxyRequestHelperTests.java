@@ -83,16 +83,18 @@ public class ProxyRequestHelperTests {
 		request.addHeader("multiName", "multiValue2");
 		RequestContext.getCurrentContext().setRequest(request);
 
-		TraceProxyRequestHelper helper = new TraceProxyRequestHelper(new ZuulProperties());
+		TraceProxyRequestHelper helper = new TraceProxyRequestHelper(
+				new ZuulProperties());
 		this.traceRepository = new InMemoryHttpTraceRepository();
 		helper.setTraces(this.traceRepository);
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
-		helper.debug("POST", "http://example.com", headers,
-				new LinkedMultiValueMap<>(), request.getInputStream());
+		helper.debug("POST", "http://example.com", headers, new LinkedMultiValueMap<>(),
+				request.getInputStream());
 		HttpTrace actual = this.traceRepository.findAll().get(0);
-		Assertions.assertThat(actual.getRequest().getHeaders()).containsKeys("singleName", "multiName");
+		Assertions.assertThat(actual.getRequest().getHeaders()).containsKeys("singleName",
+				"multiName");
 	}
 
 	@Test
@@ -182,7 +184,8 @@ public class ProxyRequestHelperTests {
 		request.addHeader("multiName", "multiValue1");
 		request.addHeader("multiName", "multiValue2");
 
-		TraceProxyRequestHelper helper = new TraceProxyRequestHelper(new ZuulProperties());
+		TraceProxyRequestHelper helper = new TraceProxyRequestHelper(
+				new ZuulProperties());
 		helper.setTraces(this.traceRepository);
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
@@ -297,10 +300,9 @@ public class ProxyRequestHelperTests {
 		headers.add("some-header", "some-value");
 
 		helper.setResponse(200, request.getInputStream(), headers);
-		assertThat(context.getOriginResponseHeaders(), containsInAnyOrder(
-				new Pair<>(HttpHeaders.CONTENT_TYPE, "text/plain"),
-				new Pair<>("some-header", "some-value")
-		));
+		assertThat(context.getOriginResponseHeaders(),
+				containsInAnyOrder(new Pair<>(HttpHeaders.CONTENT_TYPE, "text/plain"),
+						new Pair<>("some-header", "some-value")));
 	}
 
 	@Test
@@ -327,7 +329,8 @@ public class ProxyRequestHelperTests {
 		params.add("a", "1234");
 		params.add("b", "5678");
 
-		String queryString = new ProxyRequestHelper(new ZuulProperties()).getQueryString(params);
+		String queryString = new ProxyRequestHelper(new ZuulProperties())
+				.getQueryString(params);
 
 		assertThat(queryString, is("?a=1234&b=5678"));
 	}
@@ -337,7 +340,8 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("wsdl", "");
 
-		String queryString = new ProxyRequestHelper(new ZuulProperties()).getQueryString(params);
+		String queryString = new ProxyRequestHelper(new ZuulProperties())
+				.getQueryString(params);
 
 		assertThat(queryString, is("?wsdl"));
 	}
@@ -347,7 +351,8 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("foo", "weird#chars");
 
-		String queryString = new ProxyRequestHelper(new ZuulProperties()).getQueryString(params);
+		String queryString = new ProxyRequestHelper(new ZuulProperties())
+				.getQueryString(params);
 
 		assertThat(queryString, is("?foo=weird%23chars"));
 	}
@@ -359,7 +364,8 @@ public class ProxyRequestHelperTests {
 		params.add("foobar", "bam");
 		params.add("foo\fbar", "bat"); // form feed is the colon replacement char
 
-		String queryString = new ProxyRequestHelper(new ZuulProperties()).getQueryString(params);
+		String queryString = new ProxyRequestHelper(new ZuulProperties())
+				.getQueryString(params);
 
 		assertThat(queryString, is("?foo:bar=baz&foobar=bam&foo%0Cbar=bat"));
 	}
@@ -375,7 +381,8 @@ public class ProxyRequestHelperTests {
 		context.setRequest(request);
 		context.set(REQUEST_URI_KEY, decodedURI);
 
-		final String requestURI = new ProxyRequestHelper(new ZuulProperties()).buildZuulRequestURI(request);
+		final String requestURI = new ProxyRequestHelper(new ZuulProperties())
+				.buildZuulRequestURI(request);
 		assertThat(requestURI, equalTo(encodedURI));
 	}
 
@@ -389,7 +396,8 @@ public class ProxyRequestHelperTests {
 		context.setRequest(request);
 		context.set(REQUEST_URI_KEY, decodedURI);
 
-		final String requestURI = new ProxyRequestHelper(new ZuulProperties()).buildZuulRequestURI(request);
+		final String requestURI = new ProxyRequestHelper(new ZuulProperties())
+				.buildZuulRequestURI(request);
 		assertThat(requestURI, equalTo(encodedURI));
 	}
 
@@ -425,4 +433,5 @@ public class ProxyRequestHelperTests {
 
 		assertThat(uri, is(encodedRequestURI));
 	}
+
 }

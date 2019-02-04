@@ -17,9 +17,11 @@
 
 package org.springframework.cloud.netflix.eureka;
 
+import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
@@ -33,7 +35,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -47,7 +48,9 @@ import static org.junit.Assert.assertTrue;
 public class EurekaInstanceConfigBeanTests {
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
 	private String hostName;
+
 	private String ipAddress;
 
 	@Before
@@ -68,7 +71,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void basicBinding() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		assertEquals("mygroup", getInstanceConfig().getAppGroupName());
 	}
@@ -90,7 +94,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void initialHostName() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		if (this.hostName != null) {
 			assertEquals(this.hostName, getInstanceConfig().getHostname());
@@ -99,7 +104,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void refreshHostName() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		ReflectionTestUtils.setField(getInstanceConfig(), "hostname", "marvin");
 		assertEquals("marvin", getInstanceConfig().getHostname());
@@ -111,7 +117,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void refreshHostNameWhenSetByUser() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		getInstanceConfig().setHostname("marvin");
 		assertEquals("marvin", getInstanceConfig().getHostname());
@@ -121,7 +128,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void initialIpAddress() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		if (this.ipAddress != null) {
 			assertEquals(this.ipAddress, getInstanceConfig().getIpAddress());
@@ -130,7 +138,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void refreshIpAddress() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		ReflectionTestUtils.setField(getInstanceConfig(), "ipAddress", "10.0.0.1");
 		assertEquals("10.0.0.1", getInstanceConfig().getIpAddress());
@@ -142,7 +151,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void refreshIpAddressWhenSetByUser() {
-		TestPropertyValues.of("eureka.instance.appGroupName=mygroup").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.appGroupName=mygroup")
+				.applyTo(this.context);
 		setupContext();
 		getInstanceConfig().setIpAddress("10.0.0.1");
 		assertEquals("10.0.0.1", getInstanceConfig().getIpAddress());
@@ -165,7 +175,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void testCustomInitialStatus() {
-		TestPropertyValues.of("eureka.instance.initial-status:STARTING").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.initial-status:STARTING")
+				.applyTo(this.context);
 		setupContext();
 		assertEquals("initialStatus wrong", InstanceStatus.STARTING,
 				getInstanceConfig().getInitialStatus());
@@ -173,7 +184,8 @@ public class EurekaInstanceConfigBeanTests {
 
 	@Test
 	public void testPreferIpAddress() throws Exception {
-		TestPropertyValues.of("eureka.instance.preferIpAddress:true").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.preferIpAddress:true")
+				.applyTo(this.context);
 		setupContext();
 		EurekaInstanceConfigBean instance = getInstanceConfig();
 		assertTrue("Wrong hostname: " + instance.getHostname(),
@@ -185,47 +197,62 @@ public class EurekaInstanceConfigBeanTests {
 	public void testDefaultVirtualHostName() throws Exception {
 		TestPropertyValues.of("spring.application.name:myapp").applyTo(this.context);
 		setupContext();
-		assertEquals("virtualHostName wrong", "myapp", getInstanceConfig().getVirtualHostName());
-		assertEquals("secureVirtualHostName wrong", "myapp", getInstanceConfig().getSecureVirtualHostName());
+		assertEquals("virtualHostName wrong", "myapp",
+				getInstanceConfig().getVirtualHostName());
+		assertEquals("secureVirtualHostName wrong", "myapp",
+				getInstanceConfig().getSecureVirtualHostName());
 
 	}
 
 	@Test
 	public void testCustomVirtualHostName() throws Exception {
-		TestPropertyValues.of("spring.application.name:myapp", "eureka.instance.virtualHostName=myvirthost",
-				"eureka.instance.secureVirtualHostName=mysecurevirthost").applyTo(this.context);
+		TestPropertyValues
+				.of("spring.application.name:myapp",
+						"eureka.instance.virtualHostName=myvirthost",
+						"eureka.instance.secureVirtualHostName=mysecurevirthost")
+				.applyTo(this.context);
 		setupContext();
-		assertEquals("virtualHostName wrong", "myvirthost", getInstanceConfig().getVirtualHostName());
-		assertEquals("secureVirtualHostName wrong", "mysecurevirthost", getInstanceConfig().getSecureVirtualHostName());
+		assertEquals("virtualHostName wrong", "myvirthost",
+				getInstanceConfig().getVirtualHostName());
+		assertEquals("secureVirtualHostName wrong", "mysecurevirthost",
+				getInstanceConfig().getSecureVirtualHostName());
 
 	}
 
 	@Test
 	public void testDefaultAppName() throws Exception {
 		setupContext();
-		assertEquals("default app name is wrong", "unknown", getInstanceConfig().getAppname());
-		assertEquals("default virtual hostname is wrong", "unknown", getInstanceConfig().getVirtualHostName());
-		assertEquals("default secure virtual hostname is wrong", "unknown", getInstanceConfig().getSecureVirtualHostName());
+		assertEquals("default app name is wrong", "unknown",
+				getInstanceConfig().getAppname());
+		assertEquals("default virtual hostname is wrong", "unknown",
+				getInstanceConfig().getVirtualHostName());
+		assertEquals("default secure virtual hostname is wrong", "unknown",
+				getInstanceConfig().getSecureVirtualHostName());
 	}
 
 	@Test
 	public void testCustomInstanceId() throws Exception {
-		TestPropertyValues.of("eureka.instance.instanceId=myinstance").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.instanceId=myinstance")
+				.applyTo(this.context);
 		setupContext();
-		assertEquals("instance id is wrong", "myinstance", getInstanceConfig().getInstanceId());
+		assertEquals("instance id is wrong", "myinstance",
+				getInstanceConfig().getInstanceId());
 	}
 
 	@Test
 	public void testCustomInstanceIdWithMetadata() throws Exception {
-		TestPropertyValues.of("eureka.instance.metadataMap.instanceId=myinstance").applyTo(this.context);
+		TestPropertyValues.of("eureka.instance.metadataMap.instanceId=myinstance")
+				.applyTo(this.context);
 		setupContext();
-		assertEquals("instance id is wrong", "myinstance", getInstanceConfig().getInstanceId());
+		assertEquals("instance id is wrong", "myinstance",
+				getInstanceConfig().getInstanceId());
 	}
 
 	@Test
 	public void testDefaultInstanceId() throws Exception {
 		setupContext();
-		assertEquals("default instance id is wrong", null, getInstanceConfig().getInstanceId());
+		assertEquals("default instance id is wrong", null,
+				getInstanceConfig().getInstanceId());
 	}
 
 	private void setupContext() {
@@ -241,13 +268,16 @@ public class EurekaInstanceConfigBeanTests {
 	@Configuration
 	@EnableConfigurationProperties
 	protected static class TestConfiguration {
+
 		@Autowired
 		ConfigurableEnvironment env;
+
 		@Bean
 		public EurekaInstanceConfigBean eurekaInstanceConfigBean() {
-			EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean(new InetUtils(new InetUtilsProperties()));
+			EurekaInstanceConfigBean configBean = new EurekaInstanceConfigBean(
+					new InetUtils(new InetUtilsProperties()));
 			String springAppName = this.env.getProperty("spring.application.name", "");
-			if(StringUtils.hasText(springAppName)) {
+			if (StringUtils.hasText(springAppName)) {
 				configBean.setSecureVirtualHostName(springAppName);
 				configBean.setVirtualHostName(springAppName);
 				configBean.setAppname(springAppName);

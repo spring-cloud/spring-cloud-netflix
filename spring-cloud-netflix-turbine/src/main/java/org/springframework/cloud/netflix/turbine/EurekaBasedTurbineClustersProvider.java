@@ -16,14 +16,14 @@
 
 package org.springframework.cloud.netflix.turbine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides clusters names for Turbine based on applications names registered in Eureka.
@@ -32,7 +32,9 @@ import java.util.List;
  */
 public class EurekaBasedTurbineClustersProvider implements TurbineClustersProvider {
 
-	private static final Log log = LogFactory.getLog(EurekaBasedTurbineClustersProvider.class);
+	private static final Log log = LogFactory
+			.getLog(EurekaBasedTurbineClustersProvider.class);
+
 	private final EurekaClient eurekaClient;
 
 	public EurekaBasedTurbineClustersProvider(EurekaClient eurekaClient) {
@@ -42,7 +44,8 @@ public class EurekaBasedTurbineClustersProvider implements TurbineClustersProvid
 	@Override
 	public List<String> getClusterNames() {
 		Applications applications = eurekaClient.getApplications();
-		List<Application> registeredApplications = applications.getRegisteredApplications();
+		List<Application> registeredApplications = applications
+				.getRegisteredApplications();
 		List<String> appNames = new ArrayList<>(registeredApplications.size());
 		for (Application application : registeredApplications) {
 			appNames.add(application.getName());
@@ -50,4 +53,5 @@ public class EurekaBasedTurbineClustersProvider implements TurbineClustersProvid
 		log.trace("Using clusters names: " + appNames);
 		return appNames;
 	}
+
 }

@@ -17,15 +17,16 @@
 
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okio.Buffer;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okio.Buffer;
 import org.junit.Test;
+
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.ribbon.support.RibbonRequestCustomizer;
 import org.springframework.util.LinkedMultiValueMap;
@@ -129,4 +130,5 @@ public class OkHttpRibbonRequestTests {
 			assertThat("content is wrong", string, is(equalTo(entityValue)));
 		}
 	}
+
 }

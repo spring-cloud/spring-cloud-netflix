@@ -32,4 +32,5 @@ import org.junit.runners.Suite;
 })
 @Ignore
 public class AdhocTurbineTestSuite {
+
 }

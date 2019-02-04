@@ -19,8 +19,17 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+
+import com.netflix.zuul.FilterLoader;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.filters.FilterRegistry;
+import com.netflix.zuul.filters.ZuulServletFilter;
+import com.netflix.zuul.http.ZuulServlet;
+import com.netflix.zuul.monitoring.CounterFactory;
+import com.netflix.zuul.monitoring.TracerFactory;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -67,16 +76,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.netflix.zuul.FilterLoader;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.filters.FilterRegistry;
-import com.netflix.zuul.filters.ZuulServletFilter;
-import com.netflix.zuul.http.ZuulServlet;
-import com.netflix.zuul.monitoring.CounterFactory;
-import com.netflix.zuul.monitoring.TracerFactory;
-
-import io.micrometer.core.instrument.MeterRegistry;
-
 import static java.util.Collections.emptyList;
 
 /**
@@ -108,7 +107,8 @@ public class ZuulServerAutoConfiguration {
 
 	@Bean
 	public HasFeatures zuulFeature() {
-		return HasFeatures.namedFeature("Zuul (Simple)", ZuulServerAutoConfiguration.class);
+		return HasFeatures.namedFeature("Zuul (Simple)",
+				ZuulServerAutoConfiguration.class);
 	}
 
 	@Bean
@@ -141,8 +141,7 @@ public class ZuulServerAutoConfiguration {
 	protected final Map<String, CorsConfiguration> getCorsConfigurations() {
 		if (this.corsConfigurations == null) {
 			ZuulCorsRegistry registry = new ZuulCorsRegistry();
-			this.configurers
-					.forEach(configurer -> configurer.addCorsMappings(registry));
+			this.configurers.forEach(configurer -> configurer.addCorsMappings(registry));
 			this.corsConfigurations = registry.getCorsConfigurations();
 		}
 		return this.corsConfigurations;
@@ -157,8 +156,8 @@ public class ZuulServerAutoConfiguration {
 	@ConditionalOnMissingBean(name = "zuulServlet")
 	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "false", matchIfMissing = true)
 	public ServletRegistrationBean zuulServlet() {
-		ServletRegistrationBean<ZuulServlet> servlet = new ServletRegistrationBean<>(new ZuulServlet(),
-				this.zuulProperties.getServletPattern());
+		ServletRegistrationBean<ZuulServlet> servlet = new ServletRegistrationBean<>(
+				new ZuulServlet(), this.zuulProperties.getServletPattern());
 		// The whole point of exposing this servlet is to provide a route that doesn't
 		// buffer requests.
 		servlet.addInitParameter("buffer-requests", "false");
@@ -168,9 +167,10 @@ public class ZuulServerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(name = "zuulServletFilter")
 	@ConditionalOnProperty(name = "zuul.use-filter", havingValue = "true", matchIfMissing = false)
-	public FilterRegistrationBean zuulServletFilter(){
+	public FilterRegistrationBean zuulServletFilter() {
 		final FilterRegistrationBean<ZuulServletFilter> filterRegistration = new FilterRegistrationBean<>();
-		filterRegistration.setUrlPatterns(Collections.singleton(this.zuulProperties.getServletPattern()));
+		filterRegistration.setUrlPatterns(
+				Collections.singleton(this.zuulProperties.getServletPattern()));
 		filterRegistration.setFilter(new ZuulServletFilter());
 		filterRegistration.setOrder(Ordered.LOWEST_PRECEDENCE);
 		// The whole point of exposing this servlet is to provide a route that doesn't
@@ -233,11 +233,12 @@ public class ZuulServerAutoConfiguration {
 		private Map<String, ZuulFilter> filters;
 
 		@Bean
-		public ZuulFilterInitializer zuulFilterInitializer(
-				CounterFactory counterFactory, TracerFactory tracerFactory) {
+		public ZuulFilterInitializer zuulFilterInitializer(CounterFactory counterFactory,
+				TracerFactory tracerFactory) {
 			FilterLoader filterLoader = FilterLoader.getInstance();
 			FilterRegistry filterRegistry = FilterRegistry.instance();
-			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory, filterLoader, filterRegistry);
+			return new ZuulFilterInitializer(this.filters, counterFactory, tracerFactory,
+					filterLoader, filterRegistry);
 		}
 
 	}
@@ -252,6 +253,7 @@ public class ZuulServerAutoConfiguration {
 		public CounterFactory counterFactory(MeterRegistry meterRegistry) {
 			return new DefaultCounterFactory(meterRegistry);
 		}
+
 	}
 
 	@Configuration
@@ -307,6 +309,7 @@ public class ZuulServerAutoConfiguration {
 		private void reset() {
 			this.zuulHandlerMapping.setDirty(true);
 		}
+
 	}
 
 	private static class ZuulCorsRegistry extends CorsRegistry {
@@ -315,5 +318,7 @@ public class ZuulServerAutoConfiguration {
 		protected Map<String, CorsConfiguration> getCorsConfigurations() {
 			return super.getCorsConfigurations();
 		}
+
 	}
+
 }

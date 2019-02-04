@@ -17,17 +17,20 @@
 package org.springframework.cloud.netflix.ribbon;
 
 import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /*
- * Configuration Properties to indicate which Ribbon configurations 
+ * Configuration Properties to indicate which Ribbon configurations
  * should be eagerly loaded up
- * 
+ *
  * @author Biju Kunjummen
  */
 @ConfigurationProperties(prefix = "ribbon.eager-load")
 public class RibbonEagerLoadProperties {
+
 	private boolean enabled = false;
+
 	private List<String> clients;
 
 	public boolean isEnabled() {
@@ -45,4 +48,5 @@ public class RibbonEagerLoadProperties {
 	public void setClients(List<String> clients) {
 		this.clients = clients;
 	}
+
 }

@@ -1,9 +1,9 @@
 package org.springframework.cloud.netflix.turbine;
 
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,4 +29,5 @@ public class ConfigurationBasedTurbineClustersProviderTest {
 
 		assertThat(clusterNames).containsOnly("cluster1", "cluster2", "cluster3");
 	}
+
 }

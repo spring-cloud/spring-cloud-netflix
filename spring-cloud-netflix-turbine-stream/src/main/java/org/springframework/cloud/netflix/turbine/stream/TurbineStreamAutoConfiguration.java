@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import rx.subjects.PublishSubject;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -30,8 +31,6 @@ import org.springframework.cloud.stream.config.BindingProperties;
 import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import rx.subjects.PublishSubject;
 
 /**
  * Autoconfiguration for a Spring Cloud Turbine using Spring Cloud Stream. Enabled by

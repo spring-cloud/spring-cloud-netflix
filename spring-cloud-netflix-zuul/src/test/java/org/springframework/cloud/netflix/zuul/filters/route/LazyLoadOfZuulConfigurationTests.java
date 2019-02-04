@@ -99,9 +99,11 @@ public class LazyLoadOfZuulConfigurationTests {
 		public String sampleEndpoint() {
 			return "sample";
 		}
+
 	}
 
 	static class Foo {
+
 		private static final AtomicInteger INSTANCE_COUNT = new AtomicInteger();
 
 		public Foo() {
@@ -111,6 +113,7 @@ public class LazyLoadOfZuulConfigurationTests {
 		public static int getInstanceCount() {
 			return INSTANCE_COUNT.get();
 		}
+
 	}
 
 	static class FooConfig {

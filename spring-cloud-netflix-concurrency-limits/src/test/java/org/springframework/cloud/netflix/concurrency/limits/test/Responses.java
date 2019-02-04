@@ -17,21 +17,22 @@
 
 package org.springframework.cloud.netflix.concurrency.limits.test;
 
-import org.springframework.core.style.ToStringCreator;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.core.style.ToStringCreator;
+
 public class Responses {
+
 	public AtomicInteger success = new AtomicInteger(0);
+
 	public AtomicInteger tooManyReqs = new AtomicInteger(0);
+
 	public AtomicInteger other = new AtomicInteger(0);
 
 	@Override
 	public String toString() {
-		return new ToStringCreator(this)
-				.append("success", success)
-				.append("tooManyReqs", tooManyReqs)
-				.append("other", other)
-				.toString();
+		return new ToStringCreator(this).append("success", success)
+				.append("tooManyReqs", tooManyReqs).append("other", other).toString();
 	}
+
 }

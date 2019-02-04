@@ -14,12 +14,11 @@
  */
 package org.springframework.cloud.netflix.ribbon.eureka;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
+
 /**
- * 
  * @author Ryan Baxter
  *
  */
@@ -29,7 +28,8 @@ public class ZoneUtilsTests {
 	public void extractApproximateZoneTest() {
 		assertTrue("foo".equals(ZoneUtils.extractApproximateZone("foo")));
 		assertTrue("bar".equals(ZoneUtils.extractApproximateZone("foo.bar")));
-		assertTrue("world.foo.bar".equals(ZoneUtils
-				.extractApproximateZone("hello.world.foo.bar")));
+		assertTrue("world.foo.bar"
+				.equals(ZoneUtils.extractApproximateZone("hello.world.foo.bar")));
 	}
+
 }

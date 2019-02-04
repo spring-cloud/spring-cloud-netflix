@@ -27,13 +27,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.zuul.context.RequestContext;
+import com.netflix.zuul.util.HTTPRequestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -42,12 +45,7 @@ import org.springframework.web.util.UriTemplate;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-import com.netflix.zuul.context.RequestContext;
-import com.netflix.zuul.util.HTTPRequestUtils;
-
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
-import static org.springframework.http.HttpHeaders.CONTENT_ENCODING;
-import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 
 /**
  * @author Dave Syer
@@ -64,8 +62,14 @@ public class ProxyRequestHelper {
 	 */
 	public static final String IGNORED_HEADERS = "ignoredHeaders";
 
+	/**
+	 * Form feed pattern.
+	 */
 	public static final Pattern FORM_FEED_PATTERN = Pattern.compile("\f");
 
+	/**
+	 * Colon pattern.
+	 */
 	public static final Pattern COLON_PATTERN = Pattern.compile(":");
 
 	private Set<String> ignoredHeaders = new LinkedHashSet<>();
@@ -81,8 +85,9 @@ public class ProxyRequestHelper {
 	private boolean urlDecoded = true;
 
 	@Deprecated
-	//TODO Remove in 2.1.x
-	public ProxyRequestHelper() {}
+	// TODO Remove in 2.1.x
+	public ProxyRequestHelper() {
+	}
 
 	public ProxyRequestHelper(ZuulProperties zuulProperties) {
 		this.ignoredHeaders.addAll(zuulProperties.getIgnoredHeaders());
@@ -100,13 +105,13 @@ public class ProxyRequestHelper {
 	}
 
 	@Deprecated
-	//TODO Remove in 2.1.x
+	// TODO Remove in 2.1.x
 	public void setIgnoredHeaders(Set<String> ignoredHeaders) {
 		this.ignoredHeaders.addAll(ignoredHeaders);
 	}
 
 	@Deprecated
-	//TODO Remove in 2.1.x
+	// TODO Remove in 2.1.x
 	public void setTraceRequestBody(boolean traceRequestBody) {
 		this.traceRequestBody = traceRequestBody;
 	}
@@ -170,11 +175,11 @@ public class ProxyRequestHelper {
 		}
 		Map<String, String> zuulRequestHeaders = context.getZuulRequestHeaders();
 		for (String header : zuulRequestHeaders.keySet()) {
-			if (isIncludedHeader(header)){
+			if (isIncludedHeader(header)) {
 				headers.set(header, zuulRequestHeaders.get(header));
 			}
 		}
-		if(!headers.containsKey(HttpHeaders.ACCEPT_ENCODING)) {
+		if (!headers.containsKey(HttpHeaders.ACCEPT_ENCODING)) {
 			headers.set(HttpHeaders.ACCEPT_ENCODING, "gzip");
 		}
 		return headers;
@@ -235,7 +240,7 @@ public class ProxyRequestHelper {
 		}
 		switch (name) {
 		case "host":
-			if(addHostHeader) {
+			if (addHostHeader) {
 				return true;
 			}
 		case "connection":
@@ -273,10 +278,10 @@ public class ProxyRequestHelper {
 	}
 
 	/**
-	 * Get url encoded query string. Pay special attention to single parameters with no values
-	 * and parameter names with colon (:) from use of UriTemplate.
+	 * Get url encoded query string. Pay special attention to single parameters with no
+	 * values and parameter names with colon (:) from use of UriTemplate.
 	 * @param params Un-encoded request parameters
-	 * @return
+	 * @return url-encoded query String built from provided parameters
 	 */
 	public String getQueryString(MultiValueMap<String, String> params) {
 		if (params.isEmpty()) {
@@ -289,7 +294,8 @@ public class ProxyRequestHelper {
 			for (String value : params.get(param)) {
 				query.append("&");
 				query.append(param);
-				if (!"".equals(value)) { // don't add =, if original is ?wsdl, output is not ?wsdl=
+				if (!"".equals(value)) { // don't add =, if original is ?wsdl, output is
+					// not ?wsdl=
 					String key = param;
 					// if form feed is already part of param name double
 					// since form feed is used as the colon replacement below
@@ -313,4 +319,5 @@ public class ProxyRequestHelper {
 		UriTemplate template = new UriTemplate("?" + query.toString().substring(1));
 		return template.expand(singles).toString();
 	}
+
 }

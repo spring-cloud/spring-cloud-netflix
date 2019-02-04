@@ -17,10 +17,12 @@
 package org.springframework.cloud.netflix.zuul.filters.route;
 
 import com.netflix.hystrix.HystrixExecutable;
+
 import org.springframework.http.client.ClientHttpResponse;
 
 /**
  * @author Spencer Gibb
  */
 public interface RibbonCommand extends HystrixExecutable<ClientHttpResponse> {
+
 }

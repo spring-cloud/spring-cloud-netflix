@@ -65,6 +65,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 @SpringBootTest(properties = "zuul.routes.filtertest:/filtertest/**", webEnvironment = RANDOM_PORT)
 @DirtiesContext
 public class SendErrorFilterIntegrationTests {
+
 	@Autowired
 	private MeterRegistry meterRegistry;
 
@@ -93,7 +94,8 @@ public class SendErrorFilterIntegrationTests {
 	}
 
 	private void assertMetrics(String filterType) {
-		Double count = meterRegistry.counter("ZUUL::EXCEPTION:"+ filterType +"::500").count();
+		Double count = meterRegistry.counter("ZUUL::EXCEPTION:" + filterType + "::500")
+				.count();
 		assertThat(count.longValue()).isEqualTo(1L);
 		count = meterRegistry.counter("ZUUL::EXCEPTION:null:500").count();
 		assertThat(count.longValue()).isEqualTo(0L);
@@ -116,7 +118,7 @@ public class SendErrorFilterIntegrationTests {
 				String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 
-		//FIXME: 2.1.0 assertMetrics("post");
+		// FIXME: 2.1.0 assertMetrics("post");
 	}
 
 	@SpringBootConfiguration
@@ -166,10 +168,12 @@ public class SendErrorFilterIntegrationTests {
 		public MeterRegistry meterRegistry() {
 			return new SimpleMeterRegistry(SimpleConfig.DEFAULT, new MockClock());
 		}
+
 	}
 
 	@Configuration
 	private static class RibbonConfig {
+
 		@LocalServerPort
 		private int port;
 
@@ -181,6 +185,7 @@ public class SendErrorFilterIntegrationTests {
 	}
 
 	private abstract static class FailureFilter extends ZuulFilter {
+
 		@Override
 		public int filterOrder() {
 			return Integer.MIN_VALUE;
@@ -200,5 +205,7 @@ public class SendErrorFilterIntegrationTests {
 			}
 			return null;
 		}
+
 	}
+
 }

@@ -38,14 +38,15 @@ import static org.assertj.core.api.Assertions.fail;
 public class HystrixAutoConfigurationTests {
 
 	@Test
-	@Ignore //TODO: why does this test fail in maven, but not in IDE?
+	@Ignore // TODO: why does this test fail in maven, but not in IDE?
 	public void contextStarts() {
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
 				.web(WebApplicationType.NONE).sources(TestApp.class).run()) {
 			try {
 				context.getBean("hystrixMetricsBinder");
 				fail("HystrixMetricsBinder class should not be found");
-			} catch (NoSuchBeanDefinitionException e) {
+			}
+			catch (NoSuchBeanDefinitionException e) {
 				// this is the correct case
 			}
 		}
@@ -54,5 +55,8 @@ public class HystrixAutoConfigurationTests {
 	@EnableCircuitBreaker
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
-	protected static class TestApp {}
+	protected static class TestApp {
+
+	}
+
 }

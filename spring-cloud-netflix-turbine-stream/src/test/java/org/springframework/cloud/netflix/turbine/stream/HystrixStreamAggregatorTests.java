@@ -19,9 +19,9 @@ package org.springframework.cloud.netflix.turbine.stream;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.junit.Rule;
 import org.junit.Test;
+import rx.subjects.PublishSubject;
 
 import org.springframework.boot.test.rule.OutputCapture;
 
@@ -29,8 +29,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-
-import rx.subjects.PublishSubject;
 
 public class HystrixStreamAggregatorTests {
 
@@ -58,7 +56,8 @@ public class HystrixStreamAggregatorTests {
 		this.publisher.subscribe(map -> {
 			assertThat(map.get("type"), equalTo("HystrixCommand"));
 		});
-		this.aggregator.sendToSubject(new StringBuilder().append("[").append(PAYLOAD).append("]").toString().getBytes());
+		this.aggregator.sendToSubject(new StringBuilder().append("[").append(PAYLOAD)
+				.append("]").toString().getBytes());
 		this.output.expect(not(containsString("ERROR")));
 	}
 
@@ -74,4 +73,5 @@ public class HystrixStreamAggregatorTests {
 	}
 
 	private static String PAYLOAD = "{\"origin\":{\"host\":\"dsyer\",\"port\":-1,\"serviceId\":\"application\",\"id\":\"application\"},\"data\":{\"type\":\"HystrixCommand\",\"name\":\"application.ok\",\"group\":\"MyService\",\"currentTime\":1457089387160,\"isCircuitBreakerOpen\":false,\"errorPercentage\":0,\"errorCount\":0,\"requestCount\":0,\"rollingCountCollapsedRequests\":0,\"rollingCountExceptionsThrown\":0,\"rollingCountFailure\":0,\"rollingCountFallbackFailure\":0,\"rollingCountFallbackRejection\":0,\"rollingCountFallbackSuccess\":0,\"rollingCountResponsesFromCache\":0,\"rollingCountSemaphoreRejected\":0,\"rollingCountShortCircuited\":0,\"rollingCountSuccess\":1,\"rollingCountThreadPoolRejected\":0,\"rollingCountTimeout\":0,\"currentConcurrentExecutionCount\":0,\"latencyExecute_mean\":0,\"latencyExecute\":{\"0\":0,\"25\":0,\"50\":0,\"75\":0,\"90\":0,\"95\":0,\"99\":0,\"99.5\":0,\"100\":0},\"latencyTotal_mean\":0,\"latencyTotal\":{\"0\":0,\"25\":0,\"50\":0,\"75\":0,\"90\":0,\"95\":0,\"99\":0,\"99.5\":0,\"100\":0},\"propertyValue_circuitBreakerRequestVolumeThreshold\":20,\"propertyValue_circuitBreakerSleepWindowInMilliseconds\":5000,\"propertyValue_circuitBreakerErrorThresholdPercentage\":50,\"propertyValue_circuitBreakerForceOpen\":false,\"propertyValue_circuitBreakerForceClosed\":false,\"propertyValue_circuitBreakerEnabled\":true,\"propertyValue_executionIsolationStrategy\":\"THREAD\",\"propertyValue_executionIsolationThreadTimeoutInMilliseconds\":1000,\"propertyValue_executionIsolationThreadInterruptOnTimeout\":true,\"propertyValue_executionIsolationThreadPoolKeyOverride\":null,\"propertyValue_executionIsolationSemaphoreMaxConcurrentRequests\":10,\"propertyValue_fallbackIsolationSemaphoreMaxConcurrentRequests\":10,\"propertyValue_metricsRollingStatisticalWindowInMilliseconds\":10000,\"propertyValue_requestCacheEnabled\":true,\"propertyValue_requestLogEnabled\":true,\"reportingHosts\":1}}";
+
 }

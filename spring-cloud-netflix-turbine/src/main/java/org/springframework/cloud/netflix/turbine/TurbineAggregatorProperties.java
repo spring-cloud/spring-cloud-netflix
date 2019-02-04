@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.netflix.turbine;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Anastasiia Smirnova
@@ -29,6 +29,7 @@ import java.util.Objects;
 public class TurbineAggregatorProperties {
 
 	private static final String DEFAULT = "default";
+
 	/**
 	 * The list of cluster names.
 	 */
@@ -62,4 +63,5 @@ public class TurbineAggregatorProperties {
 		return "TurbineAggregatorProperties{" + "clusterConfig='" + clusterConfig + '\''
 				+ '}';
 	}
+
 }

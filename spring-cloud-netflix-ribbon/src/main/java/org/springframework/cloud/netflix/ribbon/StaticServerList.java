@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.util.Arrays;
 import java.util.List;
+
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
@@ -41,4 +42,5 @@ public class StaticServerList<T extends Server> implements ServerList<T> {
 	public List<T> getUpdatedListOfServers() {
 		return servers;
 	}
+
 }

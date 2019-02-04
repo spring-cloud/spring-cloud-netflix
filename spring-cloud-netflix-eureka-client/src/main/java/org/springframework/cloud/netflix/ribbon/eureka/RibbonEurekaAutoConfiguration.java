@@ -23,9 +23,9 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Spring configuration for configuring Ribbon defaults to be Eureka based 
- * if Eureka client is enabled
- * 
+ * Spring configuration for configuring Ribbon defaults to be Eureka based if Eureka
+ * client is enabled
+ *
  * @author Dave Syer
  * @author Biju Kunjummen
  */
@@ -35,6 +35,5 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureAfter(RibbonAutoConfiguration.class)
 @RibbonClients(defaultConfiguration = EurekaRibbonClientConfiguration.class)
 public class RibbonEurekaAutoConfiguration {
-
 
 }

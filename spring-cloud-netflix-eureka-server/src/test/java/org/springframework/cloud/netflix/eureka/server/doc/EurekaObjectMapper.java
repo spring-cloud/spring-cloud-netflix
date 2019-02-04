@@ -25,8 +25,8 @@ import com.netflix.discovery.converters.EntityBodyConverter;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
 
-final class EurekaObjectMapper
-		implements io.restassured.mapper.ObjectMapper {
+final class EurekaObjectMapper implements io.restassured.mapper.ObjectMapper {
+
 	private EntityBodyConverter converter = new EntityBodyConverter();
 
 	@Override
@@ -43,15 +43,14 @@ final class EurekaObjectMapper
 	}
 
 	@Override
-	public Object deserialize(
-			ObjectMapperDeserializationContext context) {
+	public Object deserialize(ObjectMapperDeserializationContext context) {
 		try {
-			return converter.read(
-					context.getDataToDeserialize().asInputStream(),
-					(Class)context.getType(), MediaType.APPLICATION_JSON_TYPE);
+			return converter.read(context.getDataToDeserialize().asInputStream(),
+					(Class) context.getType(), MediaType.APPLICATION_JSON_TYPE);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot deserialize", e);
 		}
 	}
+
 }

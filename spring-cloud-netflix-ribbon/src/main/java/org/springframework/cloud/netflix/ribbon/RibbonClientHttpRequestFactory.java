@@ -18,12 +18,14 @@ package org.springframework.cloud.netflix.ribbon;
 
 import java.io.IOException;
 import java.net.URI;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.http.client.ClientHttpRequestFactory;
+
 import com.netflix.client.config.IClientConfig;
 import com.netflix.client.http.HttpRequest;
 import com.netflix.niws.client.http.RestClient;
+
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
 
 /**
  * @author Spencer Gibb

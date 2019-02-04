@@ -72,6 +72,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs"})
 @AutoConfigureStubRunner(stubsMode = StubsMode.LOCAL)
 public class TurbineStreamTests {
+
 	@Autowired
 	StubTrigger stubTrigger;
 
@@ -93,20 +94,28 @@ public class TurbineStreamTests {
 	@EnableAutoConfiguration
 	@EnableTurbineStream
 	public static class Application {
+
 		// Workaround for stub runner lowercasing id somewhere
 		@Bean
 		BeanDefinitionRegistryPostProcessor myBeanDefinitionRegistryPostProcessor() {
 			return new BeanDefinitionRegistryPostProcessor() {
 				@Override
-				public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-					BeanDefinition beanDefinition = registry.getBeanDefinition(TurbineStreamClient.INPUT);
-					registry.registerBeanDefinition(TurbineStreamClient.INPUT.toLowerCase(), beanDefinition);
+				public void postProcessBeanDefinitionRegistry(
+						BeanDefinitionRegistry registry) throws BeansException {
+					BeanDefinition beanDefinition = registry
+							.getBeanDefinition(TurbineStreamClient.INPUT);
+					registry.registerBeanDefinition(
+							TurbineStreamClient.INPUT.toLowerCase(), beanDefinition);
 				}
 
 				@Override
-				public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException { }
+				public void postProcessBeanFactory(
+						ConfigurableListableBeanFactory beanFactory)
+						throws BeansException {
+				}
 			};
 		}
+
 	}
 
 	@Test
@@ -114,16 +123,16 @@ public class TurbineStreamTests {
 		rest.getInterceptors().add(new NonClosingInterceptor());
 		int count = ((MessageChannelMetrics) input).getSendCount();
 		ResponseEntity<String> response = rest.execute(
-				new URI("http://localhost:" + port + "/"),
-				HttpMethod.GET, null, this::extract);
-		assertThat(response.getHeaders().getContentType().isCompatibleWith(MediaType.TEXT_EVENT_STREAM))
-				.isTrue();
+				new URI("http://localhost:" + port + "/"), HttpMethod.GET, null,
+				this::extract);
+		assertThat(response.getHeaders().getContentType()
+				.isCompatibleWith(MediaType.TEXT_EVENT_STREAM)).isTrue();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, Object> metrics = extractMetrics(response.getBody());
 		assertThat(metrics).containsEntry("type", "HystrixCommand");
 		assertThat(((MessageChannelMetrics) input).getSendCount()).isEqualTo(count + 1);
 	}
-	
+
 	private boolean containsMetrics(String line) {
 		return line.startsWith("data:") && !line.contains("Ping");
 	}
@@ -214,4 +223,5 @@ public class TurbineStreamTests {
 		}
 
 	}
+
 }

@@ -17,10 +17,14 @@
 package org.springframework.cloud.netflix.eureka;
 
 /**
+ * Class containing Eureka-specific constants.
  * @author Spencer Gibb
  */
-public class EurekaConstants {
+public final class EurekaConstants {
 
+	/**
+	 * Default Eureka prefix.
+	 */
 	public static final String DEFAULT_PREFIX = "/eureka";
 
 	private EurekaConstants() {

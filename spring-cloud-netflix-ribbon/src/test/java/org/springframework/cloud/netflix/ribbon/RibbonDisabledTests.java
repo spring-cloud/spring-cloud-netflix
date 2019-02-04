@@ -19,13 +19,13 @@ package org.springframework.cloud.netflix.ribbon;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Ryan Baxter
@@ -34,13 +34,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunWith(ModifiedClassPathRunner.class)
 @ClassPathExclusions({ "ribbon-{version:\\d.*}.jar" })
 public class RibbonDisabledTests {
+
 	@Test
 	public void testRibbonDisabled() {
 		new ApplicationContextRunner()
-			.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class))
-			.run(context -> {
-				assertThat(context.getBeanNamesForType(SpringClientFactory.class))
-					.hasSize(0);
-			});
+				.withConfiguration(AutoConfigurations.of(RibbonAutoConfiguration.class))
+				.run(context -> {
+					assertThat(context.getBeanNamesForType(SpringClientFactory.class))
+							.hasSize(0);
+				});
 	}
+
 }

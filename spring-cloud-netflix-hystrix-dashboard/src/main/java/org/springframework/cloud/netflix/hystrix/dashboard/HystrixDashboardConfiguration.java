@@ -67,7 +67,8 @@ public class HystrixDashboardConfiguration {
 
 	@Bean
 	public HasFeatures hystrixDashboardFeature() {
-		return HasFeatures.namedFeature("Hystrix Dashboard", HystrixDashboardConfiguration.class);
+		return HasFeatures.namedFeature("Hystrix Dashboard",
+				HystrixDashboardConfiguration.class);
 	}
 
 	/**
@@ -136,9 +137,8 @@ public class HystrixDashboardConfiguration {
 			String origin = request.getParameter("origin");
 			if (origin == null) {
 				response.setStatus(500);
-				response.getWriter()
-						.println(
-								"Required parameter 'origin' missing. Example: 107.20.175.135:7001");
+				response.getWriter().println(
+						"Required parameter 'origin' missing. Example: 107.20.175.135:7001");
 				return;
 			}
 			origin = origin.trim();
@@ -204,7 +204,8 @@ public class HystrixDashboardConfiguration {
 									.equalsIgnoreCase("ClientAbortException")) {
 								// don't throw an exception as this means the user closed
 								// the connection
-								log.debug("Connection closed by client. Will stop proxying ...");
+								log.debug(
+										"Connection closed by client. Will stop proxying ...");
 								// break out of the while loop
 								break;
 							}
@@ -262,7 +263,8 @@ public class HystrixDashboardConfiguration {
 						&& CONNECTION_CLOSE_VALUE.equalsIgnoreCase(header.getValue())) {
 					log.warn("Ignoring 'Connection: close' header from stream response");
 				}
-				else if (!HttpHeaders.TRANSFER_ENCODING.equalsIgnoreCase(header.getName())) {
+				else if (!HttpHeaders.TRANSFER_ENCODING
+						.equalsIgnoreCase(header.getName())) {
 					response.addHeader(header.getName(), header.getValue());
 				}
 			}
@@ -271,7 +273,8 @@ public class HystrixDashboardConfiguration {
 		@SuppressWarnings("deprecation")
 		private static class ProxyConnectionManager {
 
-			private final static PoolingClientConnectionManager threadSafeConnectionManager = new PoolingClientConnectionManager();
+			private final static PoolingClientConnectionManager threadSafeConnectionManager
+					= new PoolingClientConnectionManager();
 
 			private final static HttpClient httpClient = new DefaultHttpClient(
 					threadSafeConnectionManager);
@@ -291,4 +294,5 @@ public class HystrixDashboardConfiguration {
 		}
 
 	}
+
 }

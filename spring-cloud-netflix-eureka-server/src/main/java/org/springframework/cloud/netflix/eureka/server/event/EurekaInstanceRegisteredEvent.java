@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import org.springframework.context.ApplicationEvent;
+import java.util.Objects;
 
 import com.netflix.appinfo.InstanceInfo;
 
-import java.util.Objects;
+import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Spencer Gibb
@@ -69,12 +69,15 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		EurekaInstanceRegisteredEvent that = (EurekaInstanceRegisteredEvent) o;
-		return Objects.equals(instanceInfo, that.instanceInfo) &&
-				leaseDuration == leaseDuration &&
-				replication == replication;
+		return Objects.equals(instanceInfo, that.instanceInfo)
+				&& leaseDuration == leaseDuration && replication == replication;
 	}
 
 	@Override
@@ -84,10 +87,10 @@ public class EurekaInstanceRegisteredEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("EurekaInstanceRegisteredEvent{")
-				.append("instanceInfo=").append(instanceInfo).append(", ")
-				.append("leaseDuration=").append(leaseDuration).append(", ")
-				.append("replication=").append(replication).append("}")
-				.toString();
+		return new StringBuilder("EurekaInstanceRegisteredEvent{").append("instanceInfo=")
+				.append(instanceInfo).append(", ").append("leaseDuration=")
+				.append(leaseDuration).append(", ").append("replication=")
+				.append(replication).append("}").toString();
 	}
+
 }

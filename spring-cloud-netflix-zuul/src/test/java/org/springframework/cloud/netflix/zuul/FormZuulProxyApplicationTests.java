@@ -22,6 +22,10 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.servlet.http.Part;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,11 +60,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static org.junit.Assert.assertEquals;
@@ -194,7 +193,8 @@ public class FormZuulProxyApplicationTests {
 		headers.setContentType(MediaType.valueOf(
 				MediaType.APPLICATION_FORM_URLENCODED_VALUE + "; charset=UTF-8"));
 
-		ResponseEntity result = sendPost("/simplefzpat/form?uriParam=uriValue", form, headers);
+		ResponseEntity result = sendPost("/simplefzpat/form?uriParam=uriValue", form,
+				headers);
 
 		assertEquals(HttpStatus.OK, result.getStatusCode());
 		assertEquals("Posted! {uriParam=[uriValue], foo=[bar]}", result.getBody());
@@ -217,6 +217,7 @@ public class FormZuulProxyApplicationTests {
 	private ResponseEntity<String> sendGet(String url) {
 		return restTemplate.getForEntity(url, String.class);
 	}
+
 }
 
 // Don't use @SpringBootApplication because we don't want to component scan

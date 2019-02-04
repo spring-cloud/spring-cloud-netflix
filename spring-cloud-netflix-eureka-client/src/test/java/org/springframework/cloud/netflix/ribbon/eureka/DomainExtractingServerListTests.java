@@ -22,14 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -52,8 +51,8 @@ public class DomainExtractingServerListTests {
 
 	static final String INSTANCE_ID = "myInstanceId";
 
-	private Map<String, String> metadata = Collections.<String, String> singletonMap(
-			"instanceId", INSTANCE_ID);
+	private Map<String, String> metadata = Collections
+			.<String, String>singletonMap("instanceId", INSTANCE_ID);
 
 	@Test
 	public void testDomainExtractingServer() {
@@ -127,8 +126,8 @@ public class DomainExtractingServerListTests {
 		given(instanceInfo.getHostName()).willReturn(HOST_NAME);
 		given(instanceInfo.getIPAddr()).willReturn(IP_ADDR);
 		given(instanceInfo.getPort()).willReturn(PORT);
-		given(originalServerList.getInitialListOfServers()).willReturn(
-				Arrays.asList(server));
+		given(originalServerList.getInitialListOfServers())
+				.willReturn(Arrays.asList(server));
 		return new DomainExtractingServerList(originalServerList, config,
 				approximateZoneFromHostname);
 	}

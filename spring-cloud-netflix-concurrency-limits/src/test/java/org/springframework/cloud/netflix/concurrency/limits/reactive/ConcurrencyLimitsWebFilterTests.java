@@ -45,7 +45,7 @@ public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTe
 	@Before
 	public void init() {
 		port = SocketUtils.findAvailableTcpPort();
-		client = WebClient.create("http://localhost:"+port);
+		client = WebClient.create("http://localhost:" + port);
 	}
 
 	@Test
@@ -53,7 +53,8 @@ public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTe
 	public void webFilterWorks() {
 
 		try (ConfigurableApplicationContext context = new SpringApplicationBuilder()
-				.properties("server.port="+port, "spring.main.web-application-type=reactive")
+				.properties("server.port=" + port,
+						"spring.main.web-application-type=reactive")
 				.sources(TestConfig.class).run()) {
 
 			assertLimiter(client);
@@ -67,9 +68,9 @@ public class ConcurrencyLimitsWebFilterTests extends AbstractConcurrencyLimitsTe
 
 		@Bean
 		public Consumer<ServerWebExchangeLimiterBuilder> limiterBuilderConfigurer() {
-			return limiterBuilder -> limiterBuilder
-					.limit(FixedLimit.of(1));
+			return limiterBuilder -> limiterBuilder.limit(FixedLimit.of(1));
 		}
+
 	}
 
 }

@@ -22,10 +22,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.cloud.netflix.zuul.filters.Route;
@@ -33,8 +35,6 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
 import org.springframework.cloud.netflix.zuul.util.RequestUtils;
 import org.springframework.core.env.ConfigurableEnvironment;
-
-import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -67,6 +67,7 @@ public class DiscoveryClientRouteLocatorTests {
 	private ZuulProperties properties = new ZuulProperties();
 
 	public static class RegexMapper {
+
 		private boolean enabled = false;
 
 		private String servicePattern = "(?<name>.*)-(?<version>v.*$)";
@@ -105,6 +106,7 @@ public class DiscoveryClientRouteLocatorTests {
 		public void setRoutePattern(String routePattern) {
 			this.routePattern = routePattern;
 		}
+
 	}
 
 	private RegexMapper regexMapper = new RegexMapper();
@@ -669,7 +671,7 @@ public class DiscoveryClientRouteLocatorTests {
 		given(this.discovery.getServices()).willReturn(Collections.<String>emptyList());
 
 		DiscoveryClientRouteLocator routeLocator = new DiscoveryClientRouteLocator("/",
-				this.discovery, this.properties, (Registration)null);
+				this.discovery, this.properties, (Registration) null);
 
 		// if no exception is thrown in constructor, this is a success
 		routeLocator.locateRoutes();
@@ -742,4 +744,5 @@ public class DiscoveryClientRouteLocatorTests {
 		RequestContext context = new RequestContext();
 		RequestContext.testSetCurrentContext(context);
 	}
+
 }

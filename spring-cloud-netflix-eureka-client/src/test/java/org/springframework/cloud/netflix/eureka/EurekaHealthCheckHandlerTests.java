@@ -19,9 +19,9 @@ package org.springframework.cloud.netflix.eureka;
 import java.util.List;
 
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
@@ -94,7 +94,8 @@ public class EurekaHealthCheckHandlerTests {
 	}
 
 	private void initialize(Class<?>... configurations) throws Exception {
-		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(configurations);
+		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
+				configurations);
 		healthCheckHandler.setApplicationContext(applicationContext);
 		healthCheckHandler.afterPropertiesSet();
 	}
@@ -106,10 +107,11 @@ public class EurekaHealthCheckHandlerTests {
 			return new AbstractHealthIndicator() {
 				@Override
 				protected void doHealthCheck(Health.Builder builder) throws Exception {
-				   builder.up();
+					builder.up();
 				}
 			};
 		}
+
 	}
 
 	public static class DownHealthConfiguration {
@@ -123,6 +125,7 @@ public class EurekaHealthCheckHandlerTests {
 				}
 			};
 		}
+
 	}
 
 	public static class FatalHealthConfiguration {
@@ -136,10 +139,11 @@ public class EurekaHealthCheckHandlerTests {
 				}
 			};
 		}
+
 	}
 
-
 	public static class EurekaDownHealthConfiguration {
+
 		@Bean
 		public DiscoveryHealthIndicator discoveryHealthIndicator() {
 			return new DiscoveryClientHealthIndicator(null, null) {
@@ -161,8 +165,12 @@ public class EurekaHealthCheckHandlerTests {
 		}
 
 		@Bean
-		public DiscoveryCompositeHealthIndicator discoveryCompositeHealthIndicator(List<DiscoveryHealthIndicator> indicators) {
-			return new DiscoveryCompositeHealthIndicator(new OrderedHealthAggregator(), indicators);
+		public DiscoveryCompositeHealthIndicator discoveryCompositeHealthIndicator(
+				List<DiscoveryHealthIndicator> indicators) {
+			return new DiscoveryCompositeHealthIndicator(new OrderedHealthAggregator(),
+					indicators);
 		}
+
 	}
+
 }

@@ -20,8 +20,10 @@ package org.springframework.cloud.netflix.zuul;
 import java.util.List;
 import java.util.Map;
 
+import com.netflix.zuul.ZuulFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -29,8 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.netflix.zuul.ZuulFilter;
 
 import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -66,9 +66,9 @@ public class FiltersEndpointTests {
 			}
 		}
 
-		assertTrue(foundFilter, "Could not find expected sample filter from filters endpoint");
+		assertTrue(foundFilter,
+				"Could not find expected sample filter from filters endpoint");
 	}
-
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
@@ -83,6 +83,7 @@ public class FiltersEndpointTests {
 	}
 
 	static class TestFilter extends ZuulFilter {
+
 		@Override
 		public String filterType() {
 			return "sample";
@@ -102,5 +103,7 @@ public class FiltersEndpointTests {
 		public int filterOrder() {
 			return 0;
 		}
+
 	}
+
 }

@@ -25,35 +25,41 @@ import com.netflix.concurrency.limits.limiter.AbstractPartitionedLimiter;
 
 import org.springframework.web.server.ServerWebExchange;
 
-public class ServerWebExchangeLimiterBuilder extends AbstractPartitionedLimiter.Builder<ServerWebExchangeLimiterBuilder, ServerWebExchange> {
+public class ServerWebExchangeLimiterBuilder extends
+		AbstractPartitionedLimiter.Builder<ServerWebExchangeLimiterBuilder, ServerWebExchange> {
+
 	/**
 	 * Partition the limit by header
 	 * @return Chainable builder
 	 */
 	public ServerWebExchangeLimiterBuilder partitionByHeader(String name) {
-		return partitionResolver(exchange -> exchange.getRequest().getHeaders().getFirst(name));
+		return partitionResolver(
+				exchange -> exchange.getRequest().getHeaders().getFirst(name));
 	}
 
 	/**
-	 * Partition the limit by {@link Principal}. Percentages of the limit are partitioned to named
-	 * groups.  Group membership is derived from the provided mapping function.
+	 * Partition the limit by {@link Principal}. Percentages of the limit are partitioned
+	 * to named groups. Group membership is derived from the provided mapping function.
 	 * @param principalToGroup Mapping function from {@link Principal} to a named group.
-	 * @param configurer Configuration function though which group percentages may be specified
-	 *                   Unspecified group values may only use excess capacity.
+	 * @param configurer Configuration function though which group percentages may be
+	 * specified Unspecified group values may only use excess capacity.
 	 * @return Chainable builder
 	 */
-	/*public ServerWebExchangeLimiterBuilder partitionByUserPrincipal(Function<Principal, String> principalToGroup, Consumer<LookupPartitionStrategy.Builder<ServerWebExchange>> configurer) {
-		return partitionResolver(
-				exchange -> Optional.ofNullable(request.getUserPrincipal()).map(principalToGroup).orElse(null),
-				configurer);
-	}*/
+	/*
+	 * public ServerWebExchangeLimiterBuilder partitionByUserPrincipal(Function<Principal,
+	 * String> principalToGroup,
+	 * Consumer<LookupPartitionStrategy.Builder<ServerWebExchange>> configurer) { return
+	 * partitionResolver( exchange ->
+	 * Optional.ofNullable(request.getUserPrincipal()).map(principalToGroup).orElse(null),
+	 * configurer); }
+	 */
 
 	/**
 	 * Partition the limit by request attribute
 	 * @return Chainable builder
 	 */
 	public ServerWebExchangeLimiterBuilder partitionByAttribute(String name) {
-		return partitionResolver( exchange -> exchange.getAttribute(name));
+		return partitionResolver(exchange -> exchange.getAttribute(name));
 	}
 
 	/**
@@ -61,22 +67,23 @@ public class ServerWebExchangeLimiterBuilder extends AbstractPartitionedLimiter.
 	 * @return Chainable builder
 	 */
 	public ServerWebExchangeLimiterBuilder partitionByParameter(String name) {
-		return partitionResolver(exchange -> exchange.getRequest().getQueryParams().getFirst(name));
+		return partitionResolver(
+				exchange -> exchange.getRequest().getQueryParams().getFirst(name));
 	}
 
 	/**
-	 * Partition the limit by the full path. Percentages of the limit are partitioned to named
-	 * groups.  Group membership is derived from the provided mapping function.
+	 * Partition the limit by the full path. Percentages of the limit are partitioned to
+	 * named groups. Group membership is derived from the provided mapping function.
 	 * @param pathToGroup Mapping function from full path to a named group.
 	 * @return Chainable builder
 	 */
-	public ServerWebExchangeLimiterBuilder partitionByPathInfo(Function<String, String> pathToGroup) {
-		return partitionResolver(
-				exchange -> {
-					//TODO: pathWithinApplication?
-					String path = exchange.getRequest().getPath().contextPath().value();
-					return Optional.ofNullable(path).map(pathToGroup).orElse(null);
-				});
+	public ServerWebExchangeLimiterBuilder partitionByPathInfo(
+			Function<String, String> pathToGroup) {
+		return partitionResolver(exchange -> {
+			// TODO: pathWithinApplication?
+			String path = exchange.getRequest().getPath().contextPath().value();
+			return Optional.ofNullable(path).map(pathToGroup).orElse(null);
+		});
 	}
 
 	@Override

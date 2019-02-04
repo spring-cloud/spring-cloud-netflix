@@ -26,19 +26,19 @@ import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity
 public class RibbonUtils {
 
 	public static final String VALUE_NOT_SET = "__not__set__";
+
 	public static final String DEFAULT_NAMESPACE = "ribbon";
 
 	private static final Map<String, String> unsecureSchemeMapping;
-	static
-	{
+
+	static {
 		unsecureSchemeMapping = new HashMap<>();
 		unsecureSchemeMapping.put("http", "https");
 		unsecureSchemeMapping.put("ws", "wss");
 	}
 
 	public static void initializeRibbonDefaults(String serviceId) {
-		setRibbonProperty(serviceId, DeploymentContextBasedVipAddresses.key(),
-				serviceId);
+		setRibbonProperty(serviceId, DeploymentContextBasedVipAddresses.key(), serviceId);
 		setRibbonProperty(serviceId, EnableZoneAffinity.key(), "true");
 	}
 
@@ -60,14 +60,16 @@ public class RibbonUtils {
 	}
 
 	/**
-	 * Determine if client is secure. If the supplied {@link IClientConfig} has the {@link CommonClientConfigKey#IsSecure}
-	 * set, return that value. Otherwise, query the supplied {@link ServerIntrospector}.
+	 * Determine if client is secure. If the supplied {@link IClientConfig} has the
+	 * {@link CommonClientConfigKey#IsSecure} set, return that value. Otherwise, query the
+	 * supplied {@link ServerIntrospector}.
 	 * @param config the supplied client configuration.
 	 * @param serverIntrospector
 	 * @param server
 	 * @return true if the client is secure
 	 */
-	public static boolean isSecure(IClientConfig config, ServerIntrospector serverIntrospector, Server server) {
+	public static boolean isSecure(IClientConfig config,
+			ServerIntrospector serverIntrospector, Server server) {
 		if (config != null) {
 			Boolean isSecure = config.get(CommonClientConfigKey.IsSecure);
 			if (isSecure != null) {
@@ -80,27 +82,25 @@ public class RibbonUtils {
 
 	/**
 	 * Replace the scheme to https if needed. If the uri doesn't start with https and
-	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the scheme.
-	 * This assumes the uri is already encoded to avoid double encoding.
-	 *
+	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the
+	 * scheme. This assumes the uri is already encoded to avoid double encoding.
 	 * @param uri
 	 * @param config
 	 * @param serverIntrospector
 	 * @param server
 	 * @return
-	 *
 	 * @deprecated use {@link #updateToSecureConnectionIfNeeded}
 	 */
-	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config, ServerIntrospector serverIntrospector,
-			Server server) {
+	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config,
+			ServerIntrospector serverIntrospector, Server server) {
 		return updateToSecureConnectionIfNeeded(uri, config, serverIntrospector, server);
 	}
 
 	/**
-	 * Replace the scheme to the secure variant if needed. If the {@link #unsecureSchemeMapping} map contains the uri
-	 * scheme and {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the scheme.
-	 * This assumes the uri is already encoded to avoid double encoding.
-	 *
+	 * Replace the scheme to the secure variant if needed. If the
+	 * {@link #unsecureSchemeMapping} map contains the uri scheme and
+	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the
+	 * scheme. This assumes the uri is already encoded to avoid double encoding.
 	 * @param uri
 	 * @param ribbonServer
 	 * @return
@@ -113,18 +113,17 @@ public class RibbonUtils {
 		}
 
 		if (!StringUtils.isEmpty(uri.toString())
-				&& unsecureSchemeMapping.containsKey(scheme)
-				&& ribbonServer.isSecure()) {
+				&& unsecureSchemeMapping.containsKey(scheme) && ribbonServer.isSecure()) {
 			return upgradeConnection(uri, unsecureSchemeMapping.get(scheme));
 		}
 		return uri;
 	}
 
 	/**
-	 * Replace the scheme to the secure variant if needed. If the {@link #unsecureSchemeMapping} map contains the uri
-	 * scheme and {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the scheme.
-	 * This assumes the uri is already encoded to avoid double encoding.
-	 *
+	 * Replace the scheme to the secure variant if needed. If the
+	 * {@link #unsecureSchemeMapping} map contains the uri scheme and
+	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the
+	 * scheme. This assumes the uri is already encoded to avoid double encoding.
 	 * @param uri
 	 * @param config
 	 * @param serverIntrospector
@@ -132,7 +131,7 @@ public class RibbonUtils {
 	 * @return
 	 */
 	public static URI updateToSecureConnectionIfNeeded(URI uri, IClientConfig config,
-													   ServerIntrospector serverIntrospector, Server server) {
+			ServerIntrospector serverIntrospector, Server server) {
 		String scheme = uri.getScheme();
 
 		if (StringUtils.isEmpty(scheme)) {
@@ -148,13 +147,16 @@ public class RibbonUtils {
 	}
 
 	private static URI upgradeConnection(URI uri, String scheme) {
-		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri).scheme(scheme);
+		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(uri)
+				.scheme(scheme);
 		if (uri.getRawQuery() != null) {
-			// When building the URI, UriComponentsBuilder verify the allowed characters and does not
+			// When building the URI, UriComponentsBuilder verify the allowed characters
+			// and does not
 			// support the '+' so we replace it for its equivalent '%20'.
 			// See issue https://jira.spring.io/browse/SPR-10172
 			uriComponentsBuilder.replaceQuery(uri.getRawQuery().replace("+", "%20"));
 		}
 		return uriComponentsBuilder.build(true).toUri();
 	}
+
 }

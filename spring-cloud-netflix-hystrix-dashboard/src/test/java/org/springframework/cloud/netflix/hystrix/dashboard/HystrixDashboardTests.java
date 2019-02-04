@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.hystrix.dashboard;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,6 +76,7 @@ public class HystrixDashboardTests {
 	@EnableAutoConfiguration
 	@EnableHystrixDashboard
 	protected static class Application {
+
 	}
 
 }

@@ -30,11 +30,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.netflix.loadbalancer.Server;
+import com.netflix.loadbalancer.ServerList;
+import com.netflix.zuul.ZuulFilter;
+import com.netflix.zuul.context.RequestContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
@@ -71,11 +76,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerList;
-import com.netflix.zuul.ZuulFilter;
-import com.netflix.zuul.context.RequestContext;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -486,6 +486,7 @@ public abstract class ZuulProxyTestBase {
 				}
 			};
 		}
+
 	}
 
 	@Configuration
@@ -501,6 +502,7 @@ public abstract class ZuulProxyTestBase {
 			converters.add(converter);
 			super.configureMessageConverters(converters);
 		}
+
 	}
 
 	// Load balancer with fixed server list for "simple" pointing to localhost
@@ -531,6 +533,7 @@ public abstract class ZuulProxyTestBase {
 	}
 
 	public static class MyErrorController extends BasicErrorController {
+
 		ThreadLocal<String> uriToMatch = new ThreadLocal<>();
 
 		AtomicBoolean controllerUsed = new AtomicBoolean();
@@ -562,5 +565,7 @@ public abstract class ZuulProxyTestBase {
 		public void clear() {
 			this.controllerUsed.set(false);
 		}
+
 	}
+
 }

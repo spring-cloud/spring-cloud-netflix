@@ -16,16 +16,17 @@
 
 package org.springframework.cloud.netflix.sidecar;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.mockito.BDDMockito.*;
-
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * @author Spencer Gibb
@@ -63,8 +64,10 @@ public class LocalApplicationHealthCheckHandlerTests {
 	private void assertStatus(InstanceStatus expected, Health.Builder builder) {
 		given(healthIndicator.health()).willReturn(builder.build());
 
-		LocalApplicationHealthCheckHandler handler = new LocalApplicationHealthCheckHandler(healthIndicator);
+		LocalApplicationHealthCheckHandler handler = new LocalApplicationHealthCheckHandler(
+				healthIndicator);
 		InstanceStatus status = handler.getStatus(InstanceStatus.UP);
 		assertEquals(expected, status);
 	}
+
 }

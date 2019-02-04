@@ -50,6 +50,7 @@ public class HystrixStreamAutoConfigurationTests {
 	@EnableAutoConfiguration
 	@SpringBootConfiguration
 	protected static class Config {
+
 	}
 
 }

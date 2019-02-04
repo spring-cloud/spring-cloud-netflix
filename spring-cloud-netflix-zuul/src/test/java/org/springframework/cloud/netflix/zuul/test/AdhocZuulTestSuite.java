@@ -21,6 +21,7 @@ import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+
 import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFilterIntegrationTests;
 
 /**
@@ -30,7 +31,7 @@ import org.springframework.cloud.netflix.zuul.filters.route.SimpleHostRoutingFil
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-org.springframework.cloud.netflix.zuul.ContextPathZuulProxyApplicationTests.class,
+		org.springframework.cloud.netflix.zuul.ContextPathZuulProxyApplicationTests.class,
 		org.springframework.cloud.netflix.zuul.filters.CompositeRouteLocatorTests.class,
 		org.springframework.cloud.netflix.zuul.filters.CustomHostRoutingFilterTests.class,
 		org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocatorTests.class,
@@ -84,8 +85,7 @@ org.springframework.cloud.netflix.zuul.ContextPathZuulProxyApplicationTests.clas
 		org.springframework.cloud.netflix.zuul.ZuulProxyApplicationTests.class,
 		org.springframework.cloud.netflix.zuul.ZuulProxyAutoConfigurationTests.class,
 		org.springframework.cloud.netflix.zuul.ZuulProxyConfigurationTests.class,
-		org.springframework.cloud.netflix.zuul.ZuulServerAutoConfigurationTests.class,
-})
+		org.springframework.cloud.netflix.zuul.ZuulServerAutoConfigurationTests.class,})
 @Ignore
 public class AdhocZuulTestSuite {
 

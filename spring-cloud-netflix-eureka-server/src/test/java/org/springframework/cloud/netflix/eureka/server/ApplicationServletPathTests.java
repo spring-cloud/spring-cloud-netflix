@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,8 +45,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT, properties = {
 		"spring.application.name=eureka", "server.servlet.context-path=/servlet",
-		"management.security.enabled=false", "management.endpoints.web.exposure.include=*" })
+		"management.security.enabled=false",
+		"management.endpoints.web.exposure.include=*"})
 public class ApplicationServletPathTests {
+
 	private static final String BASE_PATH = new WebEndpointProperties().getBasePath();
 
 	@LocalServerPort
@@ -55,6 +58,7 @@ public class ApplicationServletPathTests {
 	@EnableAutoConfiguration
 	@EnableEurekaServer
 	protected static class Application {
+
 	}
 
 	@Test
@@ -102,8 +106,8 @@ public class ApplicationServletPathTests {
 
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = new TestRestTemplate().exchange(
-				"http://localhost:" + this.port + "/servlet" + BASE_PATH + "/env", HttpMethod.GET,
-				new HttpEntity<>("parameters", headers), Map.class);
+				"http://localhost:" + this.port + "/servlet" + BASE_PATH + "/env",
+				HttpMethod.GET, new HttpEntity<>("parameters", headers), Map.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 	}
 

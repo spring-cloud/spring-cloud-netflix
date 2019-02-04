@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.zuul.filters;
 
 import java.util.ArrayList;
@@ -29,7 +30,9 @@ import org.springframework.util.Assert;
  *
  */
 public class CompositeRouteLocator implements RefreshableRouteLocator {
+
 	private final Collection<? extends RouteLocator> routeLocators;
+
 	private ArrayList<RouteLocator> rl;
 
 	public CompositeRouteLocator(Collection<? extends RouteLocator> routeLocators) {

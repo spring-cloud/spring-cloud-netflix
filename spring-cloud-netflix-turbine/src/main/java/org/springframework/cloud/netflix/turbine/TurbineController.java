@@ -1,11 +1,12 @@
 package org.springframework.cloud.netflix.turbine;
 
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
 
 @RestController
 public class TurbineController {

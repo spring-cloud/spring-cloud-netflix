@@ -18,6 +18,7 @@
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.netflix.zuul.filters.route.support.RibbonRetryIntegrationTestBase;
 import org.springframework.test.annotation.DirtiesContext;
@@ -29,12 +30,17 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class,
-		webEnvironment = RANDOM_PORT,
-		properties = {
+@SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class, webEnvironment = RANDOM_PORT, properties = {
 		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
-		"hystrix.command.default.execution.timeout.enabled: false", /* Disable hystrix so its timeout doesnt get in the way */
-		"ribbon.ReadTimeout: 1000", /* Make sure ribbon will timeout before the thread is done sleeping */
+		"hystrix.command.default.execution.timeout.enabled: false", /*
+ * Disable hystrix so
+ * its timeout doesnt
+ * get in the way
+ */
+		"ribbon.ReadTimeout: 1000", /*
+ * Make sure ribbon will timeout before the thread is
+ * done sleeping
+ */
 		"zuul.routes.retryable.id: retryable",
 		"zuul.routes.retryable.path: /retryable/**",
 		"zuul.routes.retryable.retryable: true",
@@ -54,8 +60,9 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
 		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
 		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1",
-		"retryable.ribbon.retryableStatusCodes: 404,403"
-})
+		"retryable.ribbon.retryableStatusCodes: 404,403"})
 @DirtiesContext
-public class HttpClientRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
+public class HttpClientRibbonRetryIntegrationTests
+		extends RibbonRetryIntegrationTestBase {
+
 }

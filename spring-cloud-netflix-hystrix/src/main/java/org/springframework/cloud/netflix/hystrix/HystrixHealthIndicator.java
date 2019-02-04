@@ -19,18 +19,18 @@ package org.springframework.cloud.netflix.hystrix;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.netflix.hystrix.HystrixCircuitBreaker;
+import com.netflix.hystrix.HystrixCommandMetrics;
+
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 
-import com.netflix.hystrix.HystrixCircuitBreaker;
-import com.netflix.hystrix.HystrixCommandMetrics;
-
 /**
  * A {@link HealthIndicator} implementation for Hystrix circuit breakers.
  * <p>
- * This default implementation will not change the system state (e.g.  <code>OK</code>) but
+ * This default implementation will not change the system state (e.g. <code>OK</code>) but
  * includes all open circuits by name.
  *
  * @author Christian Dupuis

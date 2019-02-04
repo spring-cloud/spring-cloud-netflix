@@ -26,4 +26,5 @@ import java.util.List;
 public interface TurbineClustersProvider {
 
 	List<String> getClusterNames();
+
 }

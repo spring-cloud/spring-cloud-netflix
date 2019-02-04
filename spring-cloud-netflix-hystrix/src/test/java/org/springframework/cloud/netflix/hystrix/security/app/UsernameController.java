@@ -26,8 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/username")
 public class UsernameController {
+
 	@RequestMapping
-	public String getUsername(@RequestHeader String username){
+	public String getUsername(@RequestHeader String username) {
 		return username;
 	}
+
 }

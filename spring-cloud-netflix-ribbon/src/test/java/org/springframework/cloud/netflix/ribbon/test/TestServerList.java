@@ -18,6 +18,7 @@ package org.springframework.cloud.netflix.ribbon.test;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
@@ -45,4 +46,5 @@ public class TestServerList<T extends Server> implements ServerList<T> {
 	public List<T> getUpdatedListOfServers() {
 		return servers;
 	}
+
 }

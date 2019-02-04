@@ -34,9 +34,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * To test the auto-configuration of Zuul Proxy
- * 
+ *
  * @author Biju Kunjummen
- * 
+ *
  */
 
 @RunWith(SpringRunner.class)
@@ -60,5 +60,7 @@ public class ZuulProxyAutoConfigurationTests {
 	@EnableAutoConfiguration
 	@EnableZuulProxy
 	static class TestConfig {
+
 	}
+
 }

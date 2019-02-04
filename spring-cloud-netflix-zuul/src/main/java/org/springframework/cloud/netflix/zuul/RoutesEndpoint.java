@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.annotation.Selector;
@@ -29,9 +32,6 @@ import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Endpoint to display the zuul proxy routes
@@ -90,7 +90,8 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 	public Object invokeRouteDetails(@Selector String format) {
 		if (FORMAT_DETAILS.equalsIgnoreCase(format)) {
 			return invokeRouteDetails();
-		} else {
+		}
+		else {
 			return invoke();
 		}
 	}
@@ -173,18 +174,19 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
 			RouteDetails that = (RouteDetails) o;
-			return Objects.equals(id, that.id) &&
-					Objects.equals(fullPath, that.fullPath) &&
-					Objects.equals(path, that.path) &&
-					Objects.equals(location, that.location) &&
-					Objects.equals(prefix, that.prefix) &&
-					Objects.equals(retryable, that.retryable) &&
-					Objects.equals(sensitiveHeaders, that.sensitiveHeaders) &&
-					customSensitiveHeaders == that.customSensitiveHeaders &&
-					prefixStripped == that.prefixStripped;
+			return Objects.equals(id, that.id) && Objects.equals(fullPath, that.fullPath)
+					&& Objects.equals(path, that.path)
+					&& Objects.equals(location, that.location)
+					&& Objects.equals(prefix, that.prefix)
+					&& Objects.equals(retryable, that.retryable)
+					&& Objects.equals(sensitiveHeaders, that.sensitiveHeaders)
+					&& customSensitiveHeaders == that.customSensitiveHeaders
+					&& prefixStripped == that.prefixStripped;
 		}
 
 		@Override
@@ -192,6 +194,7 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 			return Objects.hash(id, fullPath, path, location, prefix, retryable,
 					sensitiveHeaders, customSensitiveHeaders, prefixStripped);
 		}
+
 	}
 
 }

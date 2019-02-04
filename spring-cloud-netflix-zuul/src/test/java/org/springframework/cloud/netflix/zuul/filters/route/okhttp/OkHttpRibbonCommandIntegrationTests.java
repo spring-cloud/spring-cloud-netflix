@@ -20,11 +20,15 @@ package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
 import java.util.Collections;
 import java.util.Set;
 
+import com.netflix.client.DefaultLoadBalancerRetryHandler;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,9 +56,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RestController;
-import com.netflix.client.DefaultLoadBalancerRetryHandler;
-import com.netflix.client.config.DefaultClientConfigImpl;
-import com.netflix.client.config.IClientConfig;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -143,8 +144,11 @@ public class OkHttpRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 			client.setRetryHandler(new DefaultLoadBalancerRetryHandler());
 			return client;
 		}
+
 	}
 
 	static class TestLoadBalancer<T extends Server> extends ZoneAwareLoadBalancer<T> {
+
 	}
+
 }

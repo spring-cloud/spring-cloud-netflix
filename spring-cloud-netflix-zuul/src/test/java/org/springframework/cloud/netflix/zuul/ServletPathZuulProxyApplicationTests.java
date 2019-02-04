@@ -19,11 +19,13 @@ package org.springframework.cloud.netflix.zuul;
 
 import java.net.URI;
 
+import com.netflix.zuul.context.RequestContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -47,8 +49,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.netflix.zuul.context.RequestContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -83,7 +83,7 @@ public class ServletPathZuulProxyApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void getOnSelfViaSimpleHostRoutingFilter() {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
@@ -94,7 +94,7 @@ public class ServletPathZuulProxyApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void optionsOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = testRestTemplate.exchange(
 				RequestEntity.options(new URI("/app/local/1"))
@@ -108,7 +108,7 @@ public class ServletPathZuulProxyApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void optionsOnSelf() throws Exception {
 		this.routes.addRoute("/self/**", "http://localhost:" + this.port + "/app/local");
 		this.endpoint.reset();
@@ -124,7 +124,7 @@ public class ServletPathZuulProxyApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void contentOnRawEndpoint() throws Exception {
 		ResponseEntity<String> result = testRestTemplate.exchange(
 				RequestEntity.get(new URI("/app/local/1")).build(), String.class);
@@ -133,7 +133,7 @@ public class ServletPathZuulProxyApplicationTests {
 	}
 
 	@Test
-	@Ignore //FIXME: 2.1.0
+	@Ignore // FIXME: 2.1.0
 	public void stripPrefixFalseAppendsPath() {
 		this.routes.addRoute(new ZuulRoute("strip", "/strip/**", "strip",
 				"http://localhost:" + this.port + "/app/local", false, false, null));
@@ -160,4 +160,5 @@ public class ServletPathZuulProxyApplicationTests {
 		}
 
 	}
+
 }

@@ -17,14 +17,14 @@
 
 package org.springframework.cloud.netflix.hystrix.security;
 
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.netflix.hystrix.strategy.HystrixPlugins;
-import com.netflix.hystrix.strategy.concurrency.HystrixConcurrencyStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,8 +35,10 @@ public class HystrixSecurityNoFeignTests {
 
 	@Test
 	public void testSecurityConcurrencyStrategyInstalled() {
-		HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance().getConcurrencyStrategy();
-		assertThat(concurrencyStrategy).isInstanceOf(SecurityContextConcurrencyStrategy.class);
+		HystrixConcurrencyStrategy concurrencyStrategy = HystrixPlugins.getInstance()
+				.getConcurrencyStrategy();
+		assertThat(concurrencyStrategy)
+				.isInstanceOf(SecurityContextConcurrencyStrategy.class);
 	}
 
 }

@@ -23,4 +23,5 @@ import com.netflix.loadbalancer.ZoneAwareLoadBalancer;
  * @author Spencer Gibb
  */
 public class TestLoadBalancer<T extends Server> extends ZoneAwareLoadBalancer<T> {
+
 }

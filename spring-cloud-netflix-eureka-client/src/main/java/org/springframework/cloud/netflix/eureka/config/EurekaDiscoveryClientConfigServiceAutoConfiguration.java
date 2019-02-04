@@ -18,13 +18,13 @@ package org.springframework.cloud.netflix.eureka.config;
 
 import javax.annotation.PostConstruct;
 
+import com.netflix.discovery.EurekaClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import com.netflix.discovery.EurekaClient;
 
 /**
  * Bootstrap configuration for a config client that wants to lookup the config server via

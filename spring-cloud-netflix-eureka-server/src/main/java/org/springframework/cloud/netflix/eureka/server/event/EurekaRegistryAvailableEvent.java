@@ -16,9 +16,9 @@
 
 package org.springframework.cloud.netflix.eureka.server.event;
 
-import org.springframework.context.ApplicationEvent;
-
 import com.netflix.eureka.EurekaServerConfig;
+
+import org.springframework.context.ApplicationEvent;
 
 /**
  * @author Dave Syer
@@ -27,7 +27,7 @@ import com.netflix.eureka.EurekaServerConfig;
 public class EurekaRegistryAvailableEvent extends ApplicationEvent {
 
 	/**
-	 * @param eurekaServerConfig
+	 * @param eurekaServerConfig {@link EurekaServerConfig} event source
 	 */
 	public EurekaRegistryAvailableEvent(EurekaServerConfig eurekaServerConfig) {
 		super(eurekaServerConfig);
