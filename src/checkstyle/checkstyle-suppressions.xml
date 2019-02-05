@@ -5,4 +5,5 @@
 <suppressions>
 <suppress files=".*OkHttpRibbonResponse\.java" checks="IllegalImportCheck"/>
 <suppress files=".*RibbonApacheHttpResponse\.java" checks="IllegalImportCheck"/>
+<suppress files=".*TurbineApplication\.java" checks="HideUtilityClassConstructorCheck"/>
 </suppressions>

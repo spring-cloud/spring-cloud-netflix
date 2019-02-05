@@ -108,8 +108,8 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	 * @param serviceId id of the service to execute the request to
 	 * @param request to be executed
 	 * @param hint used to choose appropriate {@link Server} instance
-	 * @throws IOException executing the request may result in an {@link IOException}
 	 * @return request execution result
+	 * @throws IOException executing the request may result in an {@link IOException}
 	 */
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
 			throws IOException {

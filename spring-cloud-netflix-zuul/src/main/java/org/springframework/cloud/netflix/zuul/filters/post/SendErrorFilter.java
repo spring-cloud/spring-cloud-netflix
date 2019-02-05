@@ -153,6 +153,10 @@ public class SendErrorFilter extends ZuulFilter {
 
 	}
 
+	public void setErrorPath(String errorPath) {
+		this.errorPath = errorPath;
+	}
+
 	protected static class DefaultExceptionHolder implements ExceptionHolder {
 
 		private final Throwable throwable;
@@ -190,11 +194,5 @@ public class SendErrorFilter extends ZuulFilter {
 		public String getErrorCause() {
 			return this.exception.errorCause;
 		}
-
 	}
-
-	public void setErrorPath(String errorPath) {
-		this.errorPath = errorPath;
-	}
-
 }

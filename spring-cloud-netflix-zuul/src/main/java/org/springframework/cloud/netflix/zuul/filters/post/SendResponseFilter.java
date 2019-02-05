@@ -307,7 +307,7 @@ public class SendResponseFilter extends ZuulFilter {
 
 		private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
-		public RecordingInputStream(InputStream delegate) {
+		RecordingInputStream(InputStream delegate) {
 			super();
 			this.delegate = Objects.requireNonNull(delegate);
 		}

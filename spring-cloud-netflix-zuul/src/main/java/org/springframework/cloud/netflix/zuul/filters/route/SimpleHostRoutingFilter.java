@@ -444,7 +444,7 @@ public class SimpleHostRoutingFilter extends ZuulFilter
 
 	/**
 	 * Add header names to exclude from proxied response in the current request.
-	 * @param names
+	 * @param names names of headers to exclude
 	 */
 	protected void addIgnoredHeaders(String... names) {
 		this.helper.addIgnoredHeaders(names);

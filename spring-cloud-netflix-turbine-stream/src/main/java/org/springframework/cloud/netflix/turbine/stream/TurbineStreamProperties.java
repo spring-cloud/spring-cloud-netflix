@@ -51,10 +51,12 @@ public class TurbineStreamProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		TurbineStreamProperties that = (TurbineStreamProperties) o;
 		return Objects.equals(destination, that.destination)
 				&& Objects.equals(contentType, that.contentType);

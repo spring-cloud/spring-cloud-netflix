@@ -106,8 +106,12 @@ public class SidecarProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		SidecarProperties that = (SidecarProperties) o;
 		return Objects.equals(healthUri, that.healthUri) &&
 				Objects.equals(homePageUri, that.homePageUri) &&
@@ -121,7 +125,8 @@ public class SidecarProperties {
 	@Override
 	public int hashCode() {
 		return Objects.hash(
-				healthUri, homePageUri, port, hostname, ipAddress,acceptAllSslCertificates, securePortEnabled
+				healthUri, homePageUri, port, hostname, ipAddress,
+				acceptAllSslCertificates, securePortEnabled
 		);
 	}
 

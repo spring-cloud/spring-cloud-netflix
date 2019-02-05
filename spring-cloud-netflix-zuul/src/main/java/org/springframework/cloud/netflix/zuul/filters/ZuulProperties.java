@@ -218,6 +218,9 @@ public class ZuulProperties {
 		}
 	}
 
+	/**
+	 * Represents a Zuul route.
+	 */
 	public static class ZuulRoute {
 
 		/**
@@ -400,10 +403,12 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o)
+			if (this == o) {
 				return true;
-			if (o == null || getClass() != o.getClass())
+			}
+			if (o == null || getClass() != o.getClass()) {
 				return false;
+			}
 			ZuulRoute that = (ZuulRoute) o;
 			return customSensitiveHeaders == that.customSensitiveHeaders
 					&& Objects.equals(id, that.id) && Objects.equals(path, that.path)
@@ -544,10 +549,12 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o)
+			if (this == o) {
 				return true;
-			if (o == null || getClass() != o.getClass())
+			}
+			if (o == null || getClass() != o.getClass()) {
 				return false;
+			}
 			Host host = (Host) o;
 			return maxTotalConnections == host.maxTotalConnections
 					&& maxPerRouteConnections == host.maxPerRouteConnections
@@ -603,10 +610,12 @@ public class ZuulProperties {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o)
+			if (this == o) {
 				return true;
-			if (o == null || getClass() != o.getClass())
+			}
+			if (o == null || getClass() != o.getClass()) {
 				return false;
+			}
 			HystrixSemaphore that = (HystrixSemaphore) o;
 			return maxSemaphores == that.maxSemaphores;
 		}
@@ -871,10 +880,12 @@ public class ZuulProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		ZuulProperties that = (ZuulProperties) o;
 		return addHostHeader == that.addHostHeader
 				&& addProxyHeaders == that.addProxyHeaders

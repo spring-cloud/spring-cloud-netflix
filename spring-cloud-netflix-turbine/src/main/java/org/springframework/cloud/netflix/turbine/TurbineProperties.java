@@ -74,10 +74,12 @@ public class TurbineProperties {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		TurbineProperties that = (TurbineProperties) o;
 		return Objects.equals(clusterNameExpression, that.clusterNameExpression)
 				&& Objects.equals(appConfig, that.appConfig)

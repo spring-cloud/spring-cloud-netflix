@@ -23,6 +23,8 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
 
 /**
+ * Represents list of servers used by Ribbon.
+ * @param <T> {@link Server} subtype
  * @author Spencer Gibb
  */
 public class StaticServerList<T extends Server> implements ServerList<T> {

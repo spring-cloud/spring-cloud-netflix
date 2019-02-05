@@ -88,7 +88,7 @@ public class SpringAggregatorFactory
 	}
 
 	/**
-	 * shutdown all configured cluster monitors
+	 * shutdown all configured cluster monitors.
 	 */
 	@Override
 	public void shutdownClusterMonitors() {

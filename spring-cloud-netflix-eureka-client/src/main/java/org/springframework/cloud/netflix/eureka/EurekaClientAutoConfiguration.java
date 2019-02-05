@@ -194,10 +194,8 @@ public class EurekaClientAutoConfiguration {
 				instance.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
 			}
 			Map<String, String> metadataMap = instance.getMetadataMap();
-			if (metadataMap.get("management.port") == null) {
-				metadataMap.put("management.port",
-						String.valueOf(metadata.getManagementPort()));
-			}
+			metadataMap.computeIfAbsent("management.port",
+					k -> String.valueOf(metadata.getManagementPort()));
 		}
 		else {
 			// without the metadata the status and health check URLs will not be set

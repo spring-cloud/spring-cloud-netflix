@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.web;
@@ -88,8 +87,9 @@ public class ZuulHandlerMapping extends AbstractUrlHandlerMapping {
 				&& urlPath.equals(this.errorController.getErrorPath())) {
 			return null;
 		}
-		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths()))
+		if (isIgnoredPath(urlPath, this.routeLocator.getIgnoredPaths())) {
 			return null;
+		}
 		RequestContext ctx = RequestContext.getCurrentContext();
 		if (ctx.containsKey("forward.to")) {
 			return null;

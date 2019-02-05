@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.concurrency.limits.reactive;
 
-import java.security.Principal;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -25,11 +23,16 @@ import com.netflix.concurrency.limits.limiter.AbstractPartitionedLimiter;
 
 import org.springframework.web.server.ServerWebExchange;
 
+/**
+ * Builder for ServerWebExchange Limiter.
+ * @author Spencer Gibb
+ */
 public class ServerWebExchangeLimiterBuilder extends
 		AbstractPartitionedLimiter.Builder<ServerWebExchangeLimiterBuilder, ServerWebExchange> {
 
 	/**
-	 * Partition the limit by header
+	 * Partition the limit by header.
+	 * @param name header name
 	 * @return Chainable builder
 	 */
 	public ServerWebExchangeLimiterBuilder partitionByHeader(String name) {
@@ -55,7 +58,8 @@ public class ServerWebExchangeLimiterBuilder extends
 	 */
 
 	/**
-	 * Partition the limit by request attribute
+	 * Partition the limit by request attribute.
+	 * @param name attribute name
 	 * @return Chainable builder
 	 */
 	public ServerWebExchangeLimiterBuilder partitionByAttribute(String name) {
@@ -63,7 +67,8 @@ public class ServerWebExchangeLimiterBuilder extends
 	}
 
 	/**
-	 * Partition the limit by request parameter
+	 * Partition the limit by request parameter.
+	 * @param name parameter name
 	 * @return Chainable builder
 	 */
 	public ServerWebExchangeLimiterBuilder partitionByParameter(String name) {

@@ -31,7 +31,7 @@ import com.netflix.hystrix.strategy.properties.HystrixProperty;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 
 /**
- * @author daniellavoie
+ * @author Daniel Lavoie
  */
 public class SecurityContextConcurrencyStrategy extends HystrixConcurrencyStrategy {
 

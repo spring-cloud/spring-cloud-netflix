@@ -82,6 +82,36 @@ public class SidecarConfiguration {
 		return new SidecarProperties();
 	}
 
+	@Bean
+	@ConditionalOnMissingClass("org.apache.http.client.HttpClient")
+	public RestTemplate restTemplate() {
+		return new RestTemplateBuilder().build();
+	}
+
+	@Bean
+	@ConditionalOnClass(HttpClient.class)
+	public RestTemplate sslRestTemplate(SidecarProperties properties) {
+		RestTemplateBuilder builder = new RestTemplateBuilder();
+		if (properties.acceptAllSslCertificates()) {
+			CloseableHttpClient httpClient = HttpClients.custom()
+					.setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
+			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+			requestFactory.setHttpClient(httpClient);
+			builder = builder.requestFactory(() -> requestFactory);
+		}
+		return builder.build();
+	}
+
+	@Bean
+	public LocalApplicationHealthIndicator localApplicationHealthIndicator() {
+		return new LocalApplicationHealthIndicator();
+	}
+
+	@Bean
+	public SidecarController sidecarController() {
+		return new SidecarController();
+	}
+
 	@Configuration
 	@ConditionalOnClass(EurekaClientConfig.class)
 	protected static class EurekaInstanceConfigBeanConfiguration {
@@ -92,7 +122,7 @@ public class SidecarConfiguration {
 		@Autowired
 		private InetUtils inetUtils;
 
-		@Value(value = "${management.server.port:${MANAGEMENT_PORT:#{null}}}")
+		@Value("${management.server.port:${MANAGEMENT_PORT:#{null}}}")
 		private Integer managementPort;
 
 		@Value("${server.port:${SERVER_PORT:${PORT:8080}}}")
@@ -152,10 +182,8 @@ public class SidecarConfiguration {
 					config.setSecureHealthCheckUrl(metadata.getSecureHealthCheckUrl());
 				}
 				Map<String, String> metadataMap = config.getMetadataMap();
-				if (metadataMap.get("management.port") == null) {
-					metadataMap.put("management.port",
-							String.valueOf(metadata.getManagementPort()));
-				}
+				metadataMap.computeIfAbsent("management.port",
+						k -> String.valueOf(metadata.getManagementPort()));
 			}
 			config.setHomePageUrl(scheme + "://" + config.getHostname() + ":" + port
 					+ config.getHomePageUrlPath());
@@ -168,36 +196,6 @@ public class SidecarConfiguration {
 			return new LocalApplicationHealthCheckHandler(healthIndicator);
 		}
 
-	}
-
-	@Bean
-	@ConditionalOnMissingClass("org.apache.http.client.HttpClient")
-	public RestTemplate restTemplate() {
-		return new RestTemplateBuilder().build();
-	}
-
-	@Bean
-	@ConditionalOnClass(HttpClient.class)
-	public RestTemplate sslRestTemplate(SidecarProperties properties) {
-		RestTemplateBuilder builder = new RestTemplateBuilder();
-		if (properties.acceptAllSslCertificates()) {
-			CloseableHttpClient httpClient = HttpClients.custom()
-					.setSSLHostnameVerifier(new NoopHostnameVerifier()).build();
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setHttpClient(httpClient);
-			builder = builder.requestFactory(() -> requestFactory);
-		}
-		return builder.build();
-	}
-
-	@Bean
-	public LocalApplicationHealthIndicator localApplicationHealthIndicator() {
-		return new LocalApplicationHealthIndicator();
-	}
-
-	@Bean
-	public SidecarController sidecarController() {
-		return new SidecarController();
 	}
 
 }

@@ -45,6 +45,10 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the rest client associated with the name.
+	 * @param name name to search by
+	 * @param clientClass the class of the client bean
+	 * @param <C> {@link IClient} subtype
+	 * @return {@link IClient} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public <C extends IClient<?, ?>> C getClient(String name, Class<C> clientClass) {
@@ -53,6 +57,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the load balancer associated with the name.
+	 * @param name name to search by
+	 * @return {@link ILoadBalancer} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public ILoadBalancer getLoadBalancer(String name) {
@@ -61,6 +67,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the client config associated with the name.
+	 * @param name name to search by
+	 * @return {@link IClientConfig} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public IClientConfig getClientConfig(String name) {
@@ -69,6 +77,8 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 
 	/**
 	 * Get the load balancer context associated with the name.
+	 * @param serviceId id of the service to search by
+	 * @return {@link RibbonLoadBalancerContext} instance
 	 * @throws RuntimeException if any error occurs
 	 */
 	public RibbonLoadBalancerContext getLoadBalancerContext(String serviceId) {
