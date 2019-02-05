@@ -105,7 +105,7 @@ public class RibbonAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "ribbon.eager-load.enabled")
+	@ConditionalOnProperty("ribbon.eager-load.enabled")
 	public RibbonApplicationContextInitializer ribbonApplicationContextInitializer() {
 		return new RibbonApplicationContextInitializer(springClientFactory(),
 				ribbonEagerLoadProperties.getClients());
@@ -145,7 +145,7 @@ public class RibbonAutoConfiguration {
 
 	private static class OnRibbonRestClientCondition extends AnyNestedCondition {
 
-		public OnRibbonRestClientCondition() {
+		OnRibbonRestClientCondition() {
 			super(ConfigurationPhase.REGISTER_BEAN);
 		}
 
@@ -163,7 +163,7 @@ public class RibbonAutoConfiguration {
 	}
 
 	/**
-	 * {@link AllNestedConditions} that checks that either multiple classes are present
+	 * {@link AllNestedConditions} that checks that either multiple classes are present.
 	 */
 	static class RibbonClassesConditions extends AllNestedConditions {
 

@@ -56,10 +56,12 @@ public class RibbonClientSpecification implements NamedContextFactory.Specificat
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		RibbonClientSpecification that = (RibbonClientSpecification) o;
 		return Arrays.equals(configuration, that.configuration)
 				&& Objects.equals(name, that.name);

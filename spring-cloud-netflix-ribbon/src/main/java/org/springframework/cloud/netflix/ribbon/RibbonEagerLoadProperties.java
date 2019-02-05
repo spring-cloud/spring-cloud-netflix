@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/*
+/**
  * Configuration Properties to indicate which Ribbon configurations
- * should be eagerly loaded up
+ * should be eagerly loaded up.
  *
  * @author Biju Kunjummen
  */

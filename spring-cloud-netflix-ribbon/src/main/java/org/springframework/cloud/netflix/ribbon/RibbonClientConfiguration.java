@@ -71,10 +71,19 @@ import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecur
 		RestClientRibbonConfiguration.class, HttpClientRibbonConfiguration.class})
 public class RibbonClientConfiguration {
 
+	/**
+	 * Ribbon client default connect timeout.
+	 */
 	public static final int DEFAULT_CONNECT_TIMEOUT = 1000;
 
+	/**
+	 * Ribbon client default read timeout.
+	 */
 	public static final int DEFAULT_READ_TIMEOUT = 1000;
 
+	/**
+	 * Ribbon client default Gzip Payload flag.
+	 */
 	public static final boolean DEFAULT_GZIP_PAYLOAD = true;
 
 	@RibbonClientName

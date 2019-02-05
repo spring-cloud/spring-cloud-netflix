@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.ribbon;
 
 import java.net.URI;
@@ -23,10 +39,16 @@ import static com.netflix.client.config.CommonClientConfigKey.EnableZoneAffinity
  * @author Jacques-Etienne Beaudet
  * @author Tim Ysewyn
  */
-public class RibbonUtils {
+public final class RibbonUtils {
 
+	/**
+	 * Used to verify if property value is set.
+	 */
 	public static final String VALUE_NOT_SET = "__not__set__";
 
+	/**
+	 * Default Ribbon namespace.
+	 */
 	public static final String DEFAULT_NAMESPACE = "ribbon";
 
 	private static final Map<String, String> unsecureSchemeMapping;
@@ -35,6 +57,10 @@ public class RibbonUtils {
 		unsecureSchemeMapping = new HashMap<>();
 		unsecureSchemeMapping.put("http", "https");
 		unsecureSchemeMapping.put("ws", "wss");
+	}
+
+	private RibbonUtils() {
+		throw new AssertionError("Must not instantiate utility class.");
 	}
 
 	public static void initializeRibbonDefaults(String serviceId) {
@@ -64,8 +90,8 @@ public class RibbonUtils {
 	 * {@link CommonClientConfigKey#IsSecure} set, return that value. Otherwise, query the
 	 * supplied {@link ServerIntrospector}.
 	 * @param config the supplied client configuration.
-	 * @param serverIntrospector
-	 * @param server
+	 * @param serverIntrospector used to verify if the server provides secure connections
+	 * @param server to verify
 	 * @return true if the client is secure
 	 */
 	public static boolean isSecure(IClientConfig config,
@@ -84,11 +110,11 @@ public class RibbonUtils {
 	 * Replace the scheme to https if needed. If the uri doesn't start with https and
 	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the
 	 * scheme. This assumes the uri is already encoded to avoid double encoding.
-	 * @param uri
-	 * @param config
-	 * @param serverIntrospector
-	 * @param server
-	 * @return
+	 * @param uri to modify if required
+	 * @param config Ribbon {@link IClientConfig} configuration
+	 * @param serverIntrospector used to verify if the server provides secure connections
+	 * @param server to verify
+	 * @return {@link URI} updated to  https if necessary
 	 * @deprecated use {@link #updateToSecureConnectionIfNeeded}
 	 */
 	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config,
@@ -101,9 +127,9 @@ public class RibbonUtils {
 	 * {@link #unsecureSchemeMapping} map contains the uri scheme and
 	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the
 	 * scheme. This assumes the uri is already encoded to avoid double encoding.
-	 * @param uri
-	 * @param ribbonServer
-	 * @return
+	 * @param uri to modify if required
+	 * @param ribbonServer to verify if it provides secure connections
+	 * @return {@link URI} updated if required
 	 */
 	static URI updateToSecureConnectionIfNeeded(URI uri, ServiceInstance ribbonServer) {
 		String scheme = uri.getScheme();
@@ -124,11 +150,11 @@ public class RibbonUtils {
 	 * {@link #unsecureSchemeMapping} map contains the uri scheme and
 	 * {@link #isSecure(IClientConfig, ServerIntrospector, Server)} is true, update the
 	 * scheme. This assumes the uri is already encoded to avoid double encoding.
-	 * @param uri
-	 * @param config
-	 * @param serverIntrospector
-	 * @param server
-	 * @return
+	 * @param uri to modify if required
+	 * @param config the supplied client configuration
+	 * @param serverIntrospector used to verify if the server provides secure connections
+	 * @param server to verify
+	 * @return {@link URI} updated if required
 	 */
 	public static URI updateToSecureConnectionIfNeeded(URI uri, IClientConfig config,
 			ServerIntrospector serverIntrospector, Server server) {

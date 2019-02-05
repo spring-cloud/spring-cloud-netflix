@@ -19,7 +19,9 @@ package org.springframework.cloud.netflix.zuul.filters.route;
 import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 
 /**
+ * @param <T> a {@link RibbonCommand subtype}
  * @author Spencer Gibb
+ *
  */
 public interface RibbonCommandFactory<T extends RibbonCommand> {
 

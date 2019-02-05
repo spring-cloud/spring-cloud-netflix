@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Spring configuration for configuring Ribbon defaults to be Eureka based if Eureka
- * client is enabled
+ * client is enabled.
  *
  * @author Dave Syer
  * @author Biju Kunjummen

@@ -73,7 +73,7 @@ public class RibbonCommandFactoryConfiguration {
 
 	private static class OnRibbonHttpClientCondition extends AnyNestedCondition {
 
-		public OnRibbonHttpClientCondition() {
+		OnRibbonHttpClientCondition() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
@@ -129,7 +129,7 @@ public class RibbonCommandFactoryConfiguration {
 
 	private static class OnRibbonOkHttpClientCondition extends AnyNestedCondition {
 
-		public OnRibbonOkHttpClientCondition() {
+		OnRibbonOkHttpClientCondition() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 
@@ -150,7 +150,7 @@ public class RibbonCommandFactoryConfiguration {
 
 	private static class OnRibbonRestClientCondition extends AnyNestedCondition {
 
-		public OnRibbonRestClientCondition() {
+		OnRibbonRestClientCondition() {
 			super(ConfigurationPhase.PARSE_CONFIGURATION);
 		}
 

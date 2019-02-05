@@ -34,7 +34,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
- * Endpoint to display the zuul proxy routes
+ * Endpoint to display the zuul proxy routes.
  *
  * @author Spencer Gibb
  * @author Dave Syer
@@ -85,6 +85,9 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 
 	/**
 	 * Expose Zuul {@link Route} information with details.
+	 * @param format used to determine whether only locations or route details
+	 *               should be provided
+	 * @return a map of routes and their details
 	 */
 	@ReadOperation
 	public Object invokeRouteDetails(@Selector String format) {
@@ -174,10 +177,12 @@ public class RoutesEndpoint implements ApplicationEventPublisherAware {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o)
+			if (this == o) {
 				return true;
-			if (o == null || getClass() != o.getClass())
+			}
+			if (o == null || getClass() != o.getClass()) {
 				return false;
+			}
 			RouteDetails that = (RouteDetails) o;
 			return Objects.equals(id, that.id) && Objects.equals(fullPath, that.fullPath)
 					&& Objects.equals(path, that.path)

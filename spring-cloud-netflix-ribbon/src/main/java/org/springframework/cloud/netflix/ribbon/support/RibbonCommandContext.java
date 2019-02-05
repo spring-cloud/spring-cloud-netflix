@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,14 @@ public class RibbonCommandContext {
 	private Object loadBalancerKey;
 
 	/**
-	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions
+	 * Kept for backwards compatibility with Spring Cloud Sleuth 1.x versions.
+	 * @param serviceId to be used with Ribbon request
+	 * @param method to be used with Ribbon request
+	 * @param uri {@link String} value of the uri to be used with Ribbon request
+	 * @param retryable determines whether the requests should be retried
+	 * @param headers to pass to the Ribbon request
+	 * @param params parameters to pass to the Ribbon request
+	 * @param requestEntity request content {@link InputStream}
 	 */
 	@Deprecated
 	public RibbonCommandContext(String serviceId, String method, String uri,
@@ -115,8 +122,8 @@ public class RibbonCommandContext {
 	}
 
 	/**
-	 * Use getMethod()
-	 * @return
+	 * Use {@link #getMethod()}.
+	 * @return request method
 	 */
 	@Deprecated
 	public String getVerb() {
@@ -194,10 +201,12 @@ public class RibbonCommandContext {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		RibbonCommandContext that = (RibbonCommandContext) o;
 		return Objects.equals(serviceId, that.serviceId)
 				&& Objects.equals(method, that.method) && Objects.equals(uri, that.uri)

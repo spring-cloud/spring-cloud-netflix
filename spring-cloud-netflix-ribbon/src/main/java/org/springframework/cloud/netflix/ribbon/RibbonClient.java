@@ -44,15 +44,17 @@ import org.springframework.context.annotation.Import;
 public @interface RibbonClient {
 
 	/**
-	 * Synonym for name (the name of the client)
+	 * Synonym for name (the name of the client).
 	 *
 	 * @see #name()
+	 * @return name of the Ribbon client
 	 */
 	String value() default "";
 
 	/**
 	 * The name of the ribbon client, uniquely identifying a set of client resources,
 	 * including a load balancer.
+	 * @return name of the Ribbon client
 	 */
 	String name() default "";
 
@@ -62,6 +64,7 @@ public @interface RibbonClient {
 	 * {@link ILoadBalancer}, {@link ServerListFilter}, {@link IRule}.
 	 *
 	 * @see RibbonClientConfiguration for the defaults
+	 * @return the custom Ribbon client configuration
 	 */
 	Class<?>[] configuration() default {};
 
