@@ -121,7 +121,9 @@ public class ZuulServerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(SimpleRouteLocator.class)
 	public SimpleRouteLocator simpleRouteLocator() {
-		return new SimpleRouteLocator(this.server.getServlet().getContextPath(),
+		String contextPath = this.server.getServlet().getContextPath();
+		if(contextPath == null) contextPath = "";
+		return new SimpleRouteLocator(contextPath,
 				this.zuulProperties);
 	}
 

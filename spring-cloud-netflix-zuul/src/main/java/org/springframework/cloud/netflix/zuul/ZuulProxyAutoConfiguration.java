@@ -89,7 +89,9 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(DiscoveryClientRouteLocator.class)
 	public DiscoveryClientRouteLocator discoveryRouteLocator() {
-		return new DiscoveryClientRouteLocator(this.server.getServlet().getContextPath(), this.discovery, this.zuulProperties,
+		String contextPath = this.server.getServlet().getContextPath();
+		if(contextPath == null) contextPath = "";
+		return new DiscoveryClientRouteLocator(contextPath, this.discovery, this.zuulProperties,
 				this.serviceRouteMapper, this.registration);
 	}
 
@@ -97,7 +99,9 @@ public class ZuulProxyAutoConfiguration extends ZuulServerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(PreDecorationFilter.class)
 	public PreDecorationFilter preDecorationFilter(RouteLocator routeLocator, ProxyRequestHelper proxyRequestHelper) {
-		return new PreDecorationFilter(routeLocator, this.server.getServlet().getContextPath(), this.zuulProperties,
+		String contextPath = this.server.getServlet().getContextPath();
+		if(contextPath == null) contextPath = "";
+		return new PreDecorationFilter(routeLocator, contextPath, this.zuulProperties,
 				proxyRequestHelper);
 	}
 
