@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Roy Clarkson
@@ -47,8 +44,8 @@ public class HystrixDashboardConfigurationTests {
 		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
-		assertThat(response.getHeaderNames().size(), is(1));
-		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Content-Type")).isEqualTo("text/proxy.stream");
 	}
 
 	@Test
@@ -60,9 +57,9 @@ public class HystrixDashboardConfigurationTests {
 		HystrixDashboardConfiguration.ProxyStreamServlet proxyStreamServlet = new HystrixDashboardConfiguration.ProxyStreamServlet();
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
-		assertThat(response.getHeaderNames().size(), is(2));
-		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
-		assertThat(response.getHeader("Connection"), is("close"));
+		assertThat(response.getHeaderNames().size()).isEqualTo(2);
+		assertThat(response.getHeader("Content-Type")).isEqualTo("text/proxy.stream");
+		assertThat(response.getHeader("Connection")).isEqualTo("close");
 	}
 
 	@Test
@@ -75,9 +72,9 @@ public class HystrixDashboardConfigurationTests {
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(true);
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
-		assertThat(response.getHeaderNames().size(), is(1));
-		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
-		assertNull(response.getHeader("Connection"));
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Content-Type")).isEqualTo("text/proxy.stream");
+		assertThat(response.getHeader("Connection")).isNull();
 	}
 
 	@Test
@@ -90,9 +87,9 @@ public class HystrixDashboardConfigurationTests {
 		proxyStreamServlet.setEnableIgnoreConnectionCloseHeader(false);
 		ReflectionTestUtils.invokeMethod(proxyStreamServlet,
 				"copyHeadersToServletResponse", headers, response);
-		assertThat(response.getHeaderNames().size(), is(2));
-		assertThat(response.getHeader("Content-Type"), is("text/proxy.stream"));
-		assertThat(response.getHeader("Connection"), is("close"));
+		assertThat(response.getHeaderNames().size()).isEqualTo(2);
+		assertThat(response.getHeader("Content-Type")).isEqualTo("text/proxy.stream");
+		assertThat(response.getHeader("Connection")).isEqualTo("close");
 	}
 
 	@Test
@@ -104,13 +101,13 @@ public class HystrixDashboardConfigurationTests {
 				.run(context -> {
 					final ServletRegistrationBean registration = context
 							.getBean(ServletRegistrationBean.class);
-					assertNotNull(registration);
+					assertThat(registration).isNotNull();
 
 					final Map<String, String> initParameters = registration
 							.getInitParameters();
-					assertNotNull(initParameters);
-					assertThat(initParameters.get("wl-dispatch-polixy"),
-							is("work-manager-hystrix"));
+					assertThat(initParameters).isNotNull();
+					assertThat(initParameters.get("wl-dispatch-polixy"))
+							.isEqualTo("work-manager-hystrix");
 				});
 	}
 

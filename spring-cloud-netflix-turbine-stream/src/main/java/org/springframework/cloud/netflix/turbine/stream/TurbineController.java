@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Turbine stream controller.
+ *
  * @author Spencer Gibb
  * @author Ryan Baxter
  */

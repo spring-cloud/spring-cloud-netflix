@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ public final class FilterConstants {
 	public static final String FORWARD_TO_KEY = "forward.to";
 
 	/**
-	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use
-	 * in TODO: determine  use.
+	 * Zuul {@link com.netflix.zuul.context.RequestContext} key for use in TODO: determine
+	 * use.
 	 */
 	public static final String PROXY_KEY = "proxy";
 

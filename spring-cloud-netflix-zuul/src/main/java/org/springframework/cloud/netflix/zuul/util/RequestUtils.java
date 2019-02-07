@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import com.netflix.zuul.context.RequestContext;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.IS_DISPATCHER_SERVLET_REQUEST_KEY;
 
 /**
- * Utility class providing methods to verify if the current request is
- * a dispatcher servlet or a Zuul servlet request.
+ * Utility class providing methods to verify if the current request is a dispatcher
+ * servlet or a Zuul servlet request.
+ *
  * @author Adrian Ivan
  * @author Spencer Gibb
  */

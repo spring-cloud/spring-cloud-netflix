@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Turbine application class.
+ *
  * @author Dave Syer
  * @author Spencer Gibb
  */

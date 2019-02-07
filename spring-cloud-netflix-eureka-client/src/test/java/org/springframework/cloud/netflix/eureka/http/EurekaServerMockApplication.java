@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ public class EurekaServerMockApplication {
 		isTrue(instanceInfo.getPort() != DEFAULT_PORT && instanceInfo.getPort() != 0,
 				"Port not received from client");
 		isTrue(instanceInfo.getSecurePort() != DEFAULT_SECURE_PORT
-						&& instanceInfo.getSecurePort() != 0,
+				&& instanceInfo.getSecurePort() != 0,
 				"Secure Port not received from client");
 		// Nothing to do
 	}
@@ -131,10 +131,9 @@ public class EurekaServerMockApplication {
 		if ("fourOFour".equals(appName)) {
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<InstanceInfo>(
-				new InstanceInfo(null, null, null, null, null, null, null, null, null,
-						null, null, null, null, 0, null, null, null, null, null, null,
-						null, new HashMap<String, String>(), 0l, 0l, null, null),
+		return new ResponseEntity<InstanceInfo>(new InstanceInfo(null, null, null, null,
+				null, null, null, null, null, null, null, null, null, 0, null, null, null,
+				null, null, null, null, new HashMap<>(), 0L, 0L, null, null),
 				HttpStatus.OK);
 	}
 
@@ -153,7 +152,7 @@ public class EurekaServerMockApplication {
 
 	}
 
-	@GetMapping(value = { "/apps", "/apps/delta", "/vips/{address}", "/svips/{address}" })
+	@GetMapping({ "/apps", "/apps/delta", "/vips/{address}", "/svips/{address}" })
 	public Applications getApplications(@PathVariable(required = false) String address,
 			@RequestParam(required = false) String regions) {
 		Applications applications = new Applications();
@@ -162,12 +161,12 @@ public class EurekaServerMockApplication {
 		return applications;
 	}
 
-	@GetMapping(value = "/apps/{appName}")
+	@GetMapping("/apps/{appName}")
 	public Application getApplication(@PathVariable String appName) {
 		return new Application();
 	}
 
-	@GetMapping(value = { "/apps/{appName}/{id}", "/instances/{id}" })
+	@GetMapping({ "/apps/{appName}/{id}", "/instances/{id}" })
 	public InstanceInfo getInstance(@PathVariable(required = false) String appName,
 			@PathVariable String id) {
 		return INFO;

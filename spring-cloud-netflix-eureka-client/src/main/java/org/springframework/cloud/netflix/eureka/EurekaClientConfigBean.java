@@ -37,6 +37,7 @@ import static org.springframework.cloud.netflix.eureka.EurekaConstants.DEFAULT_P
 
 /**
  * Eureka client configuration bean.
+ *
  * @author Dave Syer
  * @author Gregor Zurowski
  */
@@ -359,8 +360,8 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 	private String dollarReplacement = "_-";
 
 	/**
-	 * Get a replacement string for underscore sign <code>_</code> during
-	 * serializing/ deserializing information in eureka server.
+	 * Get a replacement string for underscore sign <code>_</code> during serializing/
+	 * deserializing information in eureka server.
 	 */
 	private String escapeCharReplacement = "__";
 
@@ -987,10 +988,10 @@ public class EurekaClientConfigBean implements EurekaClientConfig, Ordered {
 				&& Objects.equals(eurekaServerDNSName, that.eurekaServerDNSName)
 				&& Objects.equals(region, that.region)
 				&& Objects.equals(registryRefreshSingleVipAddress,
-				that.registryRefreshSingleVipAddress)
+						that.registryRefreshSingleVipAddress)
 				&& Objects.equals(serviceUrl, that.serviceUrl)
 				&& Objects.equals(fetchRemoteRegionsRegistry,
-				that.fetchRemoteRegionsRegistry)
+						that.fetchRemoteRegionsRegistry)
 				&& Objects.equals(availabilityZones, that.availabilityZones)
 				&& Objects.equals(dollarReplacement, that.dollarReplacement)
 				&& Objects.equals(escapeCharReplacement, that.escapeCharReplacement)

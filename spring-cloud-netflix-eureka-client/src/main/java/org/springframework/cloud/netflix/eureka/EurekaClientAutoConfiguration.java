@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ import static org.springframework.cloud.commons.util.IdUtils.getDefaultInstanceI
 @AutoConfigureAfter(name = {
 		"org.springframework.cloud.autoconfigure.RefreshAutoConfiguration",
 		"org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration",
-		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration"})
+		"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationAutoConfiguration" })
 public class EurekaClientAutoConfiguration {
 
 	private ConfigurableEnvironment env;
@@ -144,15 +144,15 @@ public class EurekaClientAutoConfiguration {
 		int serverPort = Integer
 				.valueOf(env.getProperty("server.port", env.getProperty("port", "8080")));
 
-		Integer managementPort = env
-				.getProperty("management.server.port", Integer.class); // nullable.
+		Integer managementPort = env.getProperty("management.server.port", Integer.class); // nullable.
 		// should
 		// be
 		// wrapped
 		// into
 		// optional
 		String managementContextPath = env
-				.getProperty("management.server.servlet.context-path"); // nullable. should
+				.getProperty("management.server.servlet.context-path"); // nullable.
+																		// should
 		// be wrapped into
 		// optional
 		Integer jmxPort = env.getProperty("com.sun.management.jmxremote.port",

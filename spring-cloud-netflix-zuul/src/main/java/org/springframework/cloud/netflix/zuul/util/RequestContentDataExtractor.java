@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,9 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
 import static org.springframework.util.StringUtils.uriDecode;
 
 /**
- * Utility class providing methods for extracting {@link HttpServletRequest} content
- * as a {@link MultiValueMap}.
+ * Utility class providing methods for extracting {@link HttpServletRequest} content as a
+ * {@link MultiValueMap}.
+ *
  * @author Eloi Poch
  * @author Spencer Gibb
  * @author Dmitrii Priporov
@@ -56,7 +57,6 @@ public final class RequestContentDataExtractor {
 	private RequestContentDataExtractor() {
 		throw new AssertionError("Must not instantiate utility class.");
 	}
-
 
 	public static MultiValueMap<String, Object> extract(HttpServletRequest request)
 			throws IOException {

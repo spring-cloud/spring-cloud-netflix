@@ -39,6 +39,7 @@ import static com.netflix.client.config.DefaultClientConfigImpl.DEFAULT_READ_TIM
 
 /**
  * Stores and allows the access to Ribbon {@link IClientConfig}.
+ *
  * @author Spencer Gibb
  * @author Tomasz Juchniewicz
  */
@@ -217,4 +218,5 @@ public class RibbonProperties {
 	public <T> T get(IClientConfigKey<T> key, T defaultValue) {
 		return this.config.get(key, defaultValue);
 	}
+
 }

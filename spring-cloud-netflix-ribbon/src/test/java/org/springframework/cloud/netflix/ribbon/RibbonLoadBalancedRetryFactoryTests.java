@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonLoadBalancerClient.RibbonS
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -125,9 +124,9 @@ public class RibbonLoadBalancedRetryFactoryTests {
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.GET).when(request).getMethod();
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
-		assertThat(policy.canRetryNextServer(context), is(true));
-		assertThat(policy.canRetrySameServer(context), is(false));
-		assertThat(policy.retryableStatusCode(400), is(false));
+		assertThat(policy.canRetryNextServer(context)).isTrue();
+		assertThat(policy.canRetrySameServer(context)).isFalse();
+		assertThat(policy.retryableStatusCode(400)).isFalse();
 	}
 
 	@Test
@@ -163,9 +162,9 @@ public class RibbonLoadBalancedRetryFactoryTests {
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.POST).when(request).getMethod();
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
-		assertThat(policy.canRetryNextServer(context), is(false));
-		assertThat(policy.canRetrySameServer(context), is(false));
-		assertThat(policy.retryableStatusCode(400), is(false));
+		assertThat(policy.canRetryNextServer(context)).isFalse();
+		assertThat(policy.canRetrySameServer(context)).isFalse();
+		assertThat(policy.retryableStatusCode(400)).isFalse();
 	}
 
 	@Test
@@ -201,9 +200,9 @@ public class RibbonLoadBalancedRetryFactoryTests {
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.POST).when(request).getMethod();
 		LoadBalancedRetryContext context = new LoadBalancedRetryContext(null, request);
-		assertThat(policy.canRetryNextServer(context), is(true));
-		assertThat(policy.canRetrySameServer(context), is(true));
-		assertThat(policy.retryableStatusCode(400), is(false));
+		assertThat(policy.canRetryNextServer(context)).isTrue();
+		assertThat(policy.canRetrySameServer(context)).isTrue();
+		assertThat(policy.retryableStatusCode(400)).isFalse();
 	}
 
 	@Test
@@ -241,22 +240,22 @@ public class RibbonLoadBalancedRetryFactoryTests {
 			// the same sever counter and increment the next server counter
 			for (int j = 0; j < sameServer + 1; j++) {
 				if (j < 3) {
-					assertThat(policy.canRetrySameServer(context), is(true));
+					assertThat(policy.canRetrySameServer(context)).isTrue();
 				}
 				else {
-					assertThat(policy.canRetrySameServer(context), is(false));
+					assertThat(policy.canRetrySameServer(context)).isFalse();
 				}
 				policy.registerThrowable(context, new IOException());
 			}
 			if (i < 3) {
-				assertThat(policy.canRetryNextServer(context), is(true));
+				assertThat(policy.canRetryNextServer(context)).isTrue();
 			}
 			else {
-				assertThat(policy.canRetryNextServer(context), is(false));
+				assertThat(policy.canRetryNextServer(context)).isFalse();
 			}
 		}
-		assertThat(context.isExhaustedOnly(), is(true));
-		assertThat(policy.retryableStatusCode(400), is(false));
+		assertThat(context.isExhaustedOnly()).isTrue();
+		assertThat(policy.retryableStatusCode(400)).isFalse();
 		verify(context, times(4)).setServiceInstance(any(ServiceInstance.class));
 	}
 
@@ -323,10 +322,10 @@ public class RibbonLoadBalancedRetryFactoryTests {
 				client);
 		HttpRequest request = mock(HttpRequest.class);
 		doReturn(HttpMethod.GET).when(request).getMethod();
-		assertThat(policy.retryableStatusCode(400), is(false));
-		assertThat(policy.retryableStatusCode(404), is(true));
-		assertThat(policy.retryableStatusCode(418), is(true));
-		assertThat(policy.retryableStatusCode(502), is(true));
+		assertThat(policy.retryableStatusCode(400)).isFalse();
+		assertThat(policy.retryableStatusCode(404)).isTrue();
+		assertThat(policy.retryableStatusCode(418)).isTrue();
+		assertThat(policy.retryableStatusCode(502)).isTrue();
 	}
 
 	protected RibbonLoadBalancerClient getRibbonLoadBalancerClient(

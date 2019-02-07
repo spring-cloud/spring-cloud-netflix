@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ public class SpringAggregatorFactory
 	}
 
 	/**
-	 * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}<
-	 * {@link com.netflix.turbine.data.AggDataFromCluster}>
+	 * @return {@link com.netflix.turbine.monitor.cluster.ClusterMonitor}
+	 * {@link com.netflix.turbine.data.AggDataFromCluster}
 	 */
 	@Override
 	public ClusterMonitor<AggDataFromCluster> getClusterMonitor(String name) {
@@ -73,6 +73,7 @@ public class SpringAggregatorFactory
 	@Override
 	public void initClusterMonitors() {
 		for (String clusterName : clustersProvider.getClusterNames()) {
+
 			ClusterMonitor<AggDataFromCluster> clusterMonitor = (ClusterMonitor<AggDataFromCluster>) findOrRegisterAggregateMonitor(
 					clusterName);
 			clusterMonitor.registerListenertoClusterMonitor(this.StaticListener);

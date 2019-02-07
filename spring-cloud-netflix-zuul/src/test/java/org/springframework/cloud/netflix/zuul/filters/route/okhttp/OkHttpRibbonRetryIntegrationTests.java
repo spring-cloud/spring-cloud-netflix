@@ -1,19 +1,17 @@
 /*
+ * Copyright 2017-2019 the original author or authors.
  *
- *  * Copyright 2013-2016 the original author or authors.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.okhttp;
@@ -33,14 +31,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
 		"ribbon.okhttp.enabled: true",
 		"hystrix.command.default.execution.timeout.enabled: false", /*
- * Disable hystrix so
- * its timeout doesnt
- * get in the way
- */
+																	 * Disable hystrix so
+																	 * its timeout doesnt
+																	 * get in the way
+																	 */
 		"ribbon.ReadTimeout: 1000", /*
- * Make sure ribbon will timeout before the thread is
- * done sleeping
- */
+									 * Make sure ribbon will timeout before the thread is
+									 * done sleeping
+									 */
 		"zuul.routes.retryable.id: retryable",
 		"zuul.routes.retryable.path: /retryable/**",
 		"zuul.routes.retryable.retryable: true",
@@ -60,7 +58,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"disableretry.ribbon.MaxAutoRetriesNextServer: 1",
 		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
 		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
-		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1"})
+		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1" })
 @DirtiesContext
 public class OkHttpRibbonRetryIntegrationTests extends RibbonRetryIntegrationTestBase {
 

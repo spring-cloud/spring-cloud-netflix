@@ -45,7 +45,8 @@ public final class HystrixCommands {
 	}
 
 	/**
-	 * @param publisher A {@link Publisher} to pass to the new {@link PublisherHystrixCommand}
+	 * @param publisher A {@link Publisher} to pass to the new
+	 * {@link PublisherHystrixCommand}
 	 * @param <T> type of the {@link Publisher}s to be built by the returned builder
 	 * @return a builder for Hystrix-command-specific {@link Publisher}s
 	 */
@@ -55,6 +56,7 @@ public final class HystrixCommands {
 
 	/**
 	 * A builder class for building Hystrix-command-specific {@link Publisher}s.
+	 *
 	 * @param <T> type of the {@link Publisher}s to be built
 	 */
 	public static class PublisherBuilder<T> {

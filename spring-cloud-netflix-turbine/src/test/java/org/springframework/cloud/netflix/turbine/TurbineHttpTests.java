@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -53,6 +53,16 @@ public class TurbineHttpTests {
 
 	@Autowired
 	TestRestTemplate rest;
+
+	@Test
+	public void contextLoads() {
+		ClusterInformation[] clusters = rest.getForObject("/clusters",
+				ClusterInformation[].class);
+		System.err.println(Arrays.asList(clusters));
+		assertThat(clusters.length).isEqualTo(2);
+		assertThat(clusters[0]).isEqualTo(foo);
+		assertThat(clusters[1]).isEqualTo(bar);
+	}
 
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
@@ -74,16 +84,6 @@ public class TurbineHttpTests {
 			};
 		}
 
-	}
-
-	@Test
-	public void contextLoads() {
-		ClusterInformation[] clusters = rest.getForObject("/clusters",
-				ClusterInformation[].class);
-		System.err.println(Arrays.asList(clusters));
-		assertEquals(2, clusters.length);
-		assertEquals(foo, clusters[0]);
-		assertEquals(bar, clusters[1]);
 	}
 
 }

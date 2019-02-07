@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -33,42 +32,12 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Dave Syer
  *
  */
 public class SpringClientFactoryTests {
-
-	public static class ClientConfigInjectedByConstructor {
-
-		private IClientConfig clientConfig;
-
-		public ClientConfigInjectedByConstructor(IClientConfig clientConfig) {
-			this.clientConfig = clientConfig;
-		}
-
-	}
-
-	public static class ClientConfigInjectedByInitMethod implements IClientConfigAware {
-
-		private IClientConfig clientConfig;
-
-		@Override
-		public void initWithNiwsConfig(IClientConfig clientConfig) {
-			this.clientConfig = clientConfig;
-		}
-
-	}
-
-	public static class NoClientConfigAware {
-
-		public NoClientConfigAware() {
-			// no client config
-		}
-
-	}
 
 	@Test
 	public void testConfigureRetry() {
@@ -80,7 +49,7 @@ public class SpringClientFactoryTests {
 		factory.setApplicationContext(parent);
 		DefaultLoadBalancerRetryHandler retryHandler = (DefaultLoadBalancerRetryHandler) factory
 				.getLoadBalancerContext("foo").getRetryHandler();
-		assertEquals(2, retryHandler.getMaxRetriesOnSameServer());
+		assertThat(retryHandler.getMaxRetriesOnSameServer()).isEqualTo(2);
 		parent.close();
 		factory.destroy();
 	}
@@ -96,8 +65,9 @@ public class SpringClientFactoryTests {
 		factory.setApplicationContext(parent);
 		RestClient client = factory.getClient("foo", RestClient.class);
 		ApacheHttpClient4 jerseyClient = (ApacheHttpClient4) client.getJerseyClient();
-		assertEquals(CookiePolicy.IGNORE_COOKIES, jerseyClient.getClientHandler()
-				.getHttpClient().getParams().getParameter(ClientPNames.COOKIE_POLICY));
+		assertThat(jerseyClient.getClientHandler().getHttpClient().getParams()
+				.getParameter(ClientPNames.COOKIE_POLICY))
+						.isEqualTo(CookiePolicy.IGNORE_COOKIES);
 		parent.close();
 		factory.destroy();
 	}
@@ -126,6 +96,35 @@ public class SpringClientFactoryTests {
 		NoClientConfigAware instance = SpringClientFactory
 				.instantiateWithConfig(NoClientConfigAware.class, clientConfig);
 		assertThat(instance).isNotNull();
+	}
+
+	public static class ClientConfigInjectedByConstructor {
+
+		private IClientConfig clientConfig;
+
+		public ClientConfigInjectedByConstructor(IClientConfig clientConfig) {
+			this.clientConfig = clientConfig;
+		}
+
+	}
+
+	public static class ClientConfigInjectedByInitMethod implements IClientConfigAware {
+
+		private IClientConfig clientConfig;
+
+		@Override
+		public void initWithNiwsConfig(IClientConfig clientConfig) {
+			this.clientConfig = clientConfig;
+		}
+
+	}
+
+	public static class NoClientConfigAware {
+
+		public NoClientConfigAware() {
+			// no client config
+		}
+
 	}
 
 }

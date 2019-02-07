@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
 import java.net.URI;
@@ -27,7 +28,6 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,11 +50,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -64,8 +61,7 @@ import static org.mockito.Mockito.mock;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(value = {"ribbon.okhttp.enabled: true",
-		"ribbon.httpclient.enabled: false"})
+@SpringBootTest({ "ribbon.okhttp.enabled: true", "ribbon.httpclient.enabled: false" })
 @ContextConfiguration(classes = { RibbonAutoConfiguration.class,
 		HttpClientConfiguration.class, RibbonClientConfiguration.class,
 		LoadBalancerAutoConfiguration.class })
@@ -79,22 +75,22 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 	public void testLoadBalancedRetryFactoryBean() throws Exception {
 		Map<String, LoadBalancedRetryFactory> factories = context
 				.getBeansOfType(LoadBalancedRetryFactory.class);
-		assertThat(factories.values(), hasSize(1));
-		assertThat(factories.values().toArray()[0],
-				instanceOf(RibbonLoadBalancedRetryFactory.class));
+		assertThat(factories.values()).hasSize(1);
+		assertThat(factories.values().toArray()[0])
+				.isInstanceOf(RibbonLoadBalancedRetryFactory.class);
 		Map<String, OkHttpLoadBalancingClient> clients = context
 				.getBeansOfType(OkHttpLoadBalancingClient.class);
-		assertThat(clients.values(), hasSize(1));
-		assertThat(clients.values().toArray()[0],
-				instanceOf(RetryableOkHttpLoadBalancingClient.class));
+		assertThat(clients.values()).hasSize(1);
+		assertThat(clients.values().toArray()[0])
+				.isInstanceOf(RetryableOkHttpLoadBalancingClient.class);
 
 		RibbonLoadBalancerContext ribbonLoadBalancerContext = (RibbonLoadBalancerContext) ReflectionTestUtils
 				.getField(clients.values().toArray()[0],
 						RetryableOkHttpLoadBalancingClient.class,
 						"ribbonLoadBalancerContext");
-		assertThat(
-				"RetryableOkHttpLoadBalancingClient.ribbonLoadBalancerContext should not be null",
-				ribbonLoadBalancerContext, IsNull.notNullValue());
+		assertThat(ribbonLoadBalancerContext).as(
+				"RetryableOkHttpLoadBalancingClient.ribbonLoadBalancerContext should not be null")
+				.isNotNull();
 
 	}
 
@@ -153,8 +149,8 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 			fail("Expected ClientException for no servers available");
 		}
 		catch (ClientException ex) {
-			assertThat(ex.getMessage(), containsString(
-					"Load balancer does not have available server for client"));
+			assertThat(ex.getMessage())
+					.contains("Load balancer does not have available server for client");
 		}
 	}
 
@@ -183,7 +179,7 @@ public class SpringRetryEnabledOkHttpClientTests implements ApplicationContextAw
 			fail("Expected ClientException for no Invalid Host");
 		}
 		catch (ClientException ex) {
-			assertThat(ex.getMessage(), containsString("Invalid Server for: "));
+			assertThat(ex.getMessage()).contains("Invalid Server for: ");
 		}
 	}
 

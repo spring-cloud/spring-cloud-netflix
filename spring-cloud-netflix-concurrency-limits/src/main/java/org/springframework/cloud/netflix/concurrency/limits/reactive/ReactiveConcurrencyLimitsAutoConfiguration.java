@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,12 @@ import org.springframework.web.server.WebFilter;
 
 /**
  * Reactive autoconfiguration class for registering Netflix {@link Limiter} bean.
+ *
  * @author Spencer Gibb
  */
 @Configuration
 @ConditionalOnWebApplication(type = Type.REACTIVE)
-@ConditionalOnClass({WebFilter.class, Mono.class})
+@ConditionalOnClass({ WebFilter.class, Mono.class })
 public class ReactiveConcurrencyLimitsAutoConfiguration {
 
 	private final ObjectProvider<Consumer<ServerWebExchangeLimiterBuilder>> configurerProvider;
@@ -62,4 +63,5 @@ public class ReactiveConcurrencyLimitsAutoConfiguration {
 			Limiter<ServerWebExchange> limiter) {
 		return new ConcurrencyLimitsWebFilter(limiter);
 	}
+
 }

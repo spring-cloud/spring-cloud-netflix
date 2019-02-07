@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,7 @@ import org.springframework.cloud.netflix.eureka.EurekaClientConfigBean;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.VALUE_NOT_SET;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.getProperty;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.getRibbonKey;
@@ -64,12 +62,13 @@ public class EurekaRibbonClientConfigurationTests {
 				client, "service", configBean, false);
 		clientPreprocessor.preprocess();
 		ILoadBalancer balancer = clientFactory.getLoadBalancer("service");
-		assertNotNull(balancer);
+		assertThat(balancer).isNotNull();
 		@SuppressWarnings("unchecked")
 		ZoneAwareLoadBalancer<DiscoveryEnabledServer> aware = (ZoneAwareLoadBalancer<DiscoveryEnabledServer>) balancer;
-		assertTrue(aware.getServerListImpl() instanceof DomainExtractingServerList);
-		assertEquals("foo",
-				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertThat(aware.getServerListImpl() instanceof DomainExtractingServerList)
+				.isTrue();
+		assertThat(ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone))
+				.isEqualTo("foo");
 	}
 
 	private EurekaInstanceConfigBean getEurekaInstanceConfigBean() {
@@ -86,12 +85,12 @@ public class EurekaRibbonClientConfigurationTests {
 		String suffix = "mySuffix";
 		String value = "myValue";
 		DynamicStringProperty property = getProperty(getRibbonKey(serviceId, suffix));
-		assertEquals("property doesn't have default value", VALUE_NOT_SET,
-				property.get());
+		assertThat(property.get()).as("property doesn't have default value")
+				.isEqualTo(VALUE_NOT_SET);
 		setRibbonProperty(serviceId, suffix, value);
-		assertEquals("property has wrong value", value, property.get());
+		assertThat(property.get()).as("property has wrong value").isEqualTo(value);
 		setRibbonProperty(serviceId, suffix, value);
-		assertEquals("property has wrong value", value, property.get());
+		assertThat(property.get()).as("property has wrong value").isEqualTo(value);
 	}
 
 	@Test
@@ -102,8 +101,8 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, false);
 		preprocessor.preprocess();
-		assertEquals("myZone",
-				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertThat(ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone))
+				.isEqualTo("myZone");
 	}
 
 	@Test
@@ -113,8 +112,8 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, false);
 		preprocessor.preprocess();
-		assertEquals("defaultZone",
-				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertThat(ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone))
+				.isEqualTo("defaultZone");
 	}
 
 	@Test
@@ -125,8 +124,8 @@ public class EurekaRibbonClientConfigurationTests {
 		EurekaRibbonClientConfiguration preprocessor = new EurekaRibbonClientConfiguration(
 				client, "myService", configBean, true);
 		preprocessor.preprocess();
-		assertEquals("is.a.test.com",
-				ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone));
+		assertThat(ConfigurationManager.getDeploymentContext().getValue(ContextKey.zone))
+				.isEqualTo("is.a.test.com");
 	}
 
 }

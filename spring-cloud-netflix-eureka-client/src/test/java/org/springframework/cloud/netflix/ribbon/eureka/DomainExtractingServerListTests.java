@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,7 @@ import com.netflix.loadbalancer.ServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -59,10 +57,11 @@ public class DomainExtractingServerListTests {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), true);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
-		assertNotNull("servers was null", servers);
-		assertEquals("servers was not size 1", 1, servers.size());
+		assertThat(servers).as("servers was null").isNotNull();
+		assertThat(servers.size()).as("servers was not size 1").isEqualTo(1);
 		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
-		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
+		assertThat(des.getHostPort()).as("hostPort was wrong")
+				.isEqualTo(HOST_NAME + ":" + PORT);
 	}
 
 	@Test
@@ -73,10 +72,10 @@ public class DomainExtractingServerListTests {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), false);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
-		assertNotNull("servers was null", servers);
-		assertEquals("servers was not size 1", 1, servers.size());
+		assertThat(servers).as("servers was null").isNotNull();
+		assertThat(servers.size()).as("servers was not size 1").isEqualTo(1);
 		DomainExtractingServer des = assertDomainExtractingServer(servers, "us-west-1");
-		assertEquals("Zone was wrong", "us-west-1", des.getZone());
+		assertThat(des.getZone()).as("Zone was wrong").isEqualTo("us-west-1");
 	}
 
 	@Test
@@ -84,20 +83,22 @@ public class DomainExtractingServerListTests {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(
 				new DefaultClientConfigImpl(), false);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
-		assertNotNull("servers was null", servers);
-		assertEquals("servers was not size 1", 1, servers.size());
+		assertThat(servers).as("servers was null").isNotNull();
+		assertThat(servers.size()).as("servers was not size 1").isEqualTo(1);
 		DomainExtractingServer des = assertDomainExtractingServer(servers, null);
-		assertEquals("hostPort was wrong", HOST_NAME + ":" + PORT, des.getHostPort());
+		assertThat(des.getHostPort()).as("hostPort was wrong")
+				.isEqualTo(HOST_NAME + ":" + PORT);
 	}
 
 	protected DomainExtractingServer assertDomainExtractingServer(
 			List<DiscoveryEnabledServer> servers, String zone) {
 		Server actualServer = servers.get(0);
-		assertTrue("server was not a DomainExtractingServer",
-				actualServer instanceof DomainExtractingServer);
+		assertThat(actualServer instanceof DomainExtractingServer)
+				.as("server was not a DomainExtractingServer").isTrue();
 		DomainExtractingServer des = DomainExtractingServer.class.cast(actualServer);
-		assertEquals("zone was wrong", zone, des.getZone());
-		assertEquals("instanceId was wrong", HOST_NAME + ":" + INSTANCE_ID, des.getId());
+		assertThat(des.getZone()).as("zone was wrong").isEqualTo(zone);
+		assertThat(des.getId()).as("instanceId was wrong")
+				.isEqualTo(HOST_NAME + ":" + INSTANCE_ID);
 		return des;
 	}
 
@@ -108,10 +109,11 @@ public class DomainExtractingServerListTests {
 		DomainExtractingServerList serverList = getDomainExtractingServerList(config,
 				true);
 		List<DiscoveryEnabledServer> servers = serverList.getInitialListOfServers();
-		assertNotNull("servers was null", servers);
-		assertEquals("servers was not size 1", 1, servers.size());
+		assertThat(servers).as("servers was null").isNotNull();
+		assertThat(servers.size()).as("servers was not size 1").isEqualTo(1);
 		DomainExtractingServer des = assertDomainExtractingServer(servers, ZONE);
-		assertEquals("hostPort was wrong", IP_ADDR + ":" + PORT, des.getHostPort());
+		assertThat(des.getHostPort()).as("hostPort was wrong")
+				.isEqualTo(IP_ADDR + ":" + PORT);
 	}
 
 	protected DomainExtractingServerList getDomainExtractingServerList(

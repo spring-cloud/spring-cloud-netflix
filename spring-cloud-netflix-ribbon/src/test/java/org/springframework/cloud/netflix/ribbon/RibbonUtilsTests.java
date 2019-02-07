@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -24,10 +23,9 @@ import java.util.Map;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
 import com.netflix.loadbalancer.Server;
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.isSecure;
 import static org.springframework.cloud.netflix.ribbon.RibbonUtils.updateToSecureConnectionIfNeeded;
 
@@ -55,37 +53,37 @@ public class RibbonUtilsTests {
 	@Test
 	public void noRibbonPropSecureIntrospector() {
 		boolean secure = isSecure(NO_IS_SECURE_CONFIG, SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("isSecure was wrong", secure, is(true));
+		assertThat(secure).as("isSecure was wrong").isTrue();
 	}
 
 	@Test
 	public void noRibbonPropNonSecureIntrospector() {
 		boolean secure = isSecure(NO_IS_SECURE_CONFIG, NON_SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("isSecure was wrong", secure, is(false));
+		assertThat(secure).as("isSecure was wrong").isFalse();
 	}
 
 	@Test
 	public void isSecureRibbonPropSecureIntrospector() {
 		boolean secure = isSecure(SECURE_CONFIG, SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("isSecure was wrong", secure, is(true));
+		assertThat(secure).as("isSecure was wrong").isTrue();
 	}
 
 	@Test
 	public void nonSecureRibbonPropNonSecureIntrospector() {
 		boolean secure = isSecure(NON_SECURE_CONFIG, NON_SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("isSecure was wrong", secure, is(false));
+		assertThat(secure).as("isSecure was wrong").isFalse();
 	}
 
 	@Test
 	public void isSecureRibbonPropNonSecureIntrospector() {
 		boolean secure = isSecure(SECURE_CONFIG, NON_SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("isSecure was wrong", secure, is(true));
+		assertThat(secure).as("isSecure was wrong").isTrue();
 	}
 
 	@Test
 	public void nonSecureRibbonPropSecureIntrospector() {
 		boolean secure = isSecure(NON_SECURE_CONFIG, SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("isSecure was wrong", secure, is(false));
+		assertThat(secure).as("isSecure was wrong").isFalse();
 	}
 
 	@Test
@@ -93,8 +91,9 @@ public class RibbonUtilsTests {
 		URI original = new URI("http://foo");
 		URI updated = updateToSecureConnectionIfNeeded(original, NON_SECURE_CONFIG,
 				NON_SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("URI should not have been updated since server is not secured.",
-				original, is(updated));
+		assertThat(original)
+				.as("URI should not have been updated since server is not secured.")
+				.isEqualTo(updated);
 	}
 
 	@Test
@@ -103,9 +102,9 @@ public class RibbonUtilsTests {
 		URI original = new URI("https://foo");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat(
-				"URI should not have been updated since uri is already in https.",
-				original, is(updated));
+		assertThat(original)
+				.as("URI should not have been updated since uri is already in https.")
+				.isEqualTo(updated);
 	}
 
 	@Test
@@ -114,8 +113,8 @@ public class RibbonUtilsTests {
 		URI original = new URI("http://foo");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("URI should have been updated to https.", updated,
-				is(new URI("https://foo")));
+		assertThat(updated).as("URI should have been updated to https.")
+				.isEqualTo(new URI("https://foo"));
 	}
 
 	@Test
@@ -124,8 +123,8 @@ public class RibbonUtilsTests {
 		URI original = new URI("ws://foo");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("URI should have been updated to wss.", updated,
-				is(new URI("wss://foo")));
+		assertThat(updated).as("URI should have been updated to wss.")
+				.isEqualTo(new URI("wss://foo"));
 	}
 
 	@Test
@@ -133,8 +132,9 @@ public class RibbonUtilsTests {
 		URI original = new URI("http://foo/%20bar?hello=1+2");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("URI should have had its plus sign replaced in query string.",
-				updated, is(new URI("https://foo/%20bar?hello=1%202")));
+		assertThat(updated)
+				.as("URI should have had its plus sign replaced in query string.")
+				.isEqualTo(new URI("https://foo/%20bar?hello=1%202"));
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class RibbonUtilsTests {
 		URI original = new URI("");
 		URI updated = updateToSecureConnectionIfNeeded(original, SECURE_CONFIG,
 				SECURE_INTROSPECTOR, SERVER);
-		Assert.assertThat("URI should be the emptry string", updated, is(new URI("")));
+		assertThat(updated).as("URI should be the emptry string").isEqualTo(new URI(""));
 	}
 
 	static DefaultClientConfigImpl getConfig(boolean value) {
@@ -155,7 +155,7 @@ public class RibbonUtilsTests {
 
 		final boolean secure;
 
-		public StaticServerIntrospector(boolean secure) {
+		StaticServerIntrospector(boolean secure) {
 			this.secure = secure;
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.hystrix;
@@ -51,7 +50,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
 		"spring.main.web-application-type=reactive",
-		"spring.application.name=hystrixstreamwebfluxtest", /* "debug=true" */})
+		"spring.application.name=hystrixstreamwebfluxtest" /* "debug=true" */ })
 @DirtiesContext
 public class HystrixWebfluxEndpointTests {
 
@@ -85,7 +84,7 @@ public class HystrixWebfluxEndpointTests {
 	@EnableAutoConfiguration(exclude = TestAutoConfiguration.class, excludeName = {
 			"org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration",
 			"org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration",
-			"org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration"})
+			"org.springframework.boot.actuate.autoconfigure.security.reactive.ReactiveManagementWebSecurityAutoConfiguration" })
 	@SpringBootConfiguration
 	protected static class Config {
 

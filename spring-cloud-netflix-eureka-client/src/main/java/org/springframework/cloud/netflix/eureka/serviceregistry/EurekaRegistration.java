@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
 
 /**
  * Eureka-specific implementation of service instance {@link Registration}.
+ *
  * @author Spencer Gibb
  * @author Tim Ysewyn
  */
@@ -122,7 +123,7 @@ public final class EurekaRegistration implements Registration {
 		return this.cloudEurekaClient.get();
 	}
 
-	@SuppressWarnings({"unchecked"})
+	@SuppressWarnings({ "unchecked" })
 	protected <T> T getTargetObject(Object proxy, Class<T> targetClass) throws Exception {
 		if (AopUtils.isJdkDynamicProxy(proxy)) {
 			return (T) ((Advised) proxy).getTargetSource().getTarget();
@@ -232,4 +233,5 @@ public final class EurekaRegistration implements Registration {
 		}
 
 	}
+
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.ReflectionUtils;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockingDetails;
 
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mockingDetails;
  * @author Ryan Baxter
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(properties = {"spring.cloud.httpclientfactories.ok.enabled: true",
+@SpringBootTest(properties = { "spring.cloud.httpclientfactories.ok.enabled: true",
 		"ribbon.eureka.enabled = false", "ribbon.okhttp.enabled: true",
 		"ribbon.httpclient.enabled: false" })
 @DirtiesContext
@@ -68,12 +68,12 @@ public class ZuulOkHttpClientConfigurationTests {
 	public void testOkHttpLoadBalancingHttpClient() {
 		RibbonCommandContext context = new RibbonCommandContext("foo", " GET",
 				"http://localhost", false, new LinkedMultiValueMap<>(),
-				new LinkedMultiValueMap<>(), null, new ArrayList<>(), 0l);
+				new LinkedMultiValueMap<>(), null, new ArrayList<>(), 0L);
 		OkHttpRibbonCommand command = okHttpRibbonCommandFactory.create(context);
 		OkHttpLoadBalancingClient ribbonClient = command.getClient();
 		OkHttpClient httpClient = getField(ribbonClient, "delegate");
 		MockingDetails httpClientDetails = mockingDetails(httpClient);
-		assertTrue(httpClientDetails.isMock());
+		assertThat(httpClientDetails.isMock()).isTrue();
 	}
 
 	protected <T> T getField(Object target, String name) {

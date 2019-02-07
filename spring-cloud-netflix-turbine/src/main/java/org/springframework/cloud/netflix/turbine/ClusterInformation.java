@@ -20,8 +20,7 @@ import java.util.Objects;
 
 /**
  * @author Nastya Smirnova
- * @author Ryan Baxter
- * Contains cluster-relevant information, such as name and link.
+ * @author Ryan Baxter Contains cluster-relevant information, such as name and link.
  */
 public class ClusterInformation {
 

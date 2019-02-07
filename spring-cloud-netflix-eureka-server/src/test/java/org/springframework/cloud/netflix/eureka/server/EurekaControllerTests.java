@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka.server;
@@ -41,11 +40,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.ReflectionUtils;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -114,15 +109,15 @@ public class EurekaControllerTests {
 		Map<String, Object> instanceInfo = getFirst(app, "instanceInfos");
 		Map<String, Object> instance = getFirst(instanceInfo, "instances");
 
-		assertThat("id was wrong", (String) instance.get("id"), is(equalTo("myapp:1")));
-		assertThat("url was not null", instance.get("url"), is(nullValue()));
-		assertThat("isHref was wrong", (Boolean) instance.get("isHref"), is(false));
+		assertThat((String) instance.get("id")).as("id was wrong").isEqualTo("myapp:1");
+		assertThat(instance.get("url")).as("url was not null").isNull();
+		assertThat((Boolean) instance.get("isHref")).as("isHref was wrong").isFalse();
 	}
 
 	@SuppressWarnings("unchecked")
 	Map<String, Object> getFirst(Map<String, Object> model, String key) {
 		List<Map<String, Object>> apps = (List<Map<String, Object>>) model.get(key);
-		assertThat(key + " was wrong size", apps, is(hasSize(1)));
+		assertThat(apps).as(key + " was wrong size").hasSize(1);
 		return apps.get(0);
 	}
 

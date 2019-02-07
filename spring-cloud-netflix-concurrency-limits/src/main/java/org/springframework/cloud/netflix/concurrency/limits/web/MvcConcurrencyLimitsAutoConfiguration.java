@@ -37,11 +37,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * MVC autoconfiguration class for registering Netflix {@link Limiter} bean.
+ *
  * @author Spencer Gibb
  */
 @Configuration
 @ConditionalOnWebApplication(type = Type.SERVLET)
-@ConditionalOnClass({HttpServletRequest.class, HandlerInterceptor.class})
+@ConditionalOnClass({ HttpServletRequest.class, HandlerInterceptor.class })
 public class MvcConcurrencyLimitsAutoConfiguration implements WebMvcConfigurer {
 
 	private final ObjectProvider<Consumer<ServletLimiterBuilder>> configurerProvider;
@@ -71,5 +72,7 @@ public class MvcConcurrencyLimitsAutoConfiguration implements WebMvcConfigurer {
 		public void addInterceptors(InterceptorRegistry registry) {
 			registry.addInterceptor(new ConcurrencyLimitsHandlerInterceptor(limiter));
 		}
+
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.resttemplate;
@@ -59,7 +58,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @RunWith(SpringRunner.class)
@@ -67,7 +65,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		"spring.application.name=resttemplatetest", "logging.level.com.netflix=DEBUG",
 		"logging.level.org.springframework.cloud.netflix.resttemplate=DEBUG",
 		"logging.level.com.netflix=DEBUG", "badClients.ribbon.MaxAutoRetries=25",
-		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled"})
+		"badClients.ribbon.OkToRetryOnAllOperations=true", "ribbon.http.client.enabled" })
 @DirtiesContext
 public class RestTemplateRetryTests {
 
@@ -111,8 +109,8 @@ public class RestTemplateRetryTests {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		assertTrue(badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(badServer2Stats.isCircuitBreakerTripped());
+		assertThat(badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(badServer2Stats.isCircuitBreakerTripped()).isTrue();
 		assertThat(targetConnectionCount)
 				.isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
 
@@ -158,8 +156,8 @@ public class RestTemplateRetryTests {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		assertTrue(badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(badServer2Stats.isCircuitBreakerTripped());
+		assertThat(badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(badServer2Stats.isCircuitBreakerTripped()).isTrue();
 		assertThat(targetConnectionCount)
 				.isLessThanOrEqualTo(goodServerStats.getTotalRequestsCount());
 		assertThat(hits).isGreaterThanOrEqualTo(numCalls);
@@ -180,8 +178,8 @@ public class RestTemplateRetryTests {
 
 		badServer1Stats.clearSuccessiveConnectionFailureCount();
 		badServer2Stats.clearSuccessiveConnectionFailureCount();
-		assertTrue(!badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(!badServer2Stats.isCircuitBreakerTripped());
+		assertThat(!badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(!badServer2Stats.isCircuitBreakerTripped()).isTrue();
 
 		int hits = 0;
 
@@ -194,9 +192,9 @@ public class RestTemplateRetryTests {
 		logServerStats(LocalBadClientConfiguration.badServer2);
 		logServerStats(LocalBadClientConfiguration.goodServer);
 
-		assertTrue(badServer1Stats.isCircuitBreakerTripped());
-		assertTrue(badServer2Stats.isCircuitBreakerTripped());
-		assertTrue(!goodServerStats.isCircuitBreakerTripped());
+		assertThat(badServer1Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(badServer2Stats.isCircuitBreakerTripped()).isTrue();
+		assertThat(!goodServerStats.isCircuitBreakerTripped()).isTrue();
 
 		// 15 + 4 timeouts. See the endpoint for timeout conditions.
 		assertThat(hits).isGreaterThanOrEqualTo(numCalls + 4);
@@ -262,7 +260,7 @@ public class RestTemplateRetryTests {
 		static Server badServer;
 		static Server badServer2;
 
-		public LocalBadClientConfiguration() {
+		LocalBadClientConfiguration() {
 		}
 
 		@Value("${local.server.port}")
@@ -301,7 +299,7 @@ public class RestTemplateRetryTests {
 
 		static class OverrideRetryHandler extends HttpClientLoadBalancerErrorHandler {
 
-			public OverrideRetryHandler() {
+			OverrideRetryHandler() {
 				this.circuitRelated.add(UnknownHostException.class);
 				this.retriable.add(UnknownHostException.class);
 			}

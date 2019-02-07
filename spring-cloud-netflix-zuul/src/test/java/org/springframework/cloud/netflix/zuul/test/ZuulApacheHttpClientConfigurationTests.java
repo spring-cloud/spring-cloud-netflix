@@ -1,11 +1,11 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,7 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.ReflectionUtils;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -60,7 +60,7 @@ import static org.mockito.Mockito.mockingDetails;
  * @author Ryan Baxter
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(properties = {"ribbon.eureka.enabled = false"})
+@SpringBootTest(properties = { "ribbon.eureka.enabled = false" })
 @DirtiesContext
 public class ZuulApacheHttpClientConfigurationTests {
 
@@ -74,19 +74,19 @@ public class ZuulApacheHttpClientConfigurationTests {
 	public void testHttpClientSimpleHostRoutingFilter() {
 		CloseableHttpClient httpClient = getField(simpleHostRoutingFilter, "httpClient");
 		MockingDetails httpClientDetails = mockingDetails(httpClient);
-		assertTrue(httpClientDetails.isMock());
+		assertThat(httpClientDetails.isMock());
 	}
 
 	@Test
 	public void testRibbonLoadBalancingHttpClient() {
 		RibbonCommandContext context = new RibbonCommandContext("foo", " GET",
 				"http://localhost", false, new LinkedMultiValueMap<>(),
-				new LinkedMultiValueMap<>(), null, new ArrayList<>(), 0l);
+				new LinkedMultiValueMap<>(), null, new ArrayList<>(), 0L);
 		HttpClientRibbonCommand command = httpClientRibbonCommandFactory.create(context);
 		RibbonLoadBalancingHttpClient ribbonClient = command.getClient();
 		CloseableHttpClient httpClient = getField(ribbonClient, "delegate");
 		MockingDetails httpClientDetails = mockingDetails(httpClient);
-		assertTrue(httpClientDetails.isMock());
+		assertThat(httpClientDetails.isMock());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -97,6 +97,11 @@ public class ZuulApacheHttpClientConfigurationTests {
 		return (T) value;
 	}
 
+	@Bean
+	public ApacheHttpClientFactory apacheHttpClientFactory(HttpClientBuilder builder) {
+		return new TestConfig.MyApacheHttpClientFactory(builder);
+	}
+
 	@SpringBootConfiguration
 	@EnableAutoConfiguration
 	@EnableZuulProxy
@@ -104,7 +109,7 @@ public class ZuulApacheHttpClientConfigurationTests {
 
 		static class MyApacheHttpClientFactory extends DefaultApacheHttpClientFactory {
 
-			public MyApacheHttpClientFactory(HttpClientBuilder builder) {
+			MyApacheHttpClientFactory(HttpClientBuilder builder) {
 				super(builder);
 			}
 
@@ -129,12 +134,6 @@ public class ZuulApacheHttpClientConfigurationTests {
 				return builder;
 			}
 
-		}
-
-		@Bean
-		public ApacheHttpClientFactory apacheHttpClientFactory(
-				HttpClientBuilder builder) {
-			return new MyApacheHttpClientFactory(builder);
 		}
 
 	}

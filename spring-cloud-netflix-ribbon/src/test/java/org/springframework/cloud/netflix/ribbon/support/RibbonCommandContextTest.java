@@ -21,17 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 
-import com.google.common.collect.Lists;
 import okhttp3.Request;
 import org.junit.Test;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.util.LinkedMultiValueMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Andre Dörnbrack
@@ -47,22 +43,22 @@ public class RibbonCommandContextTest {
 		givenRibbonCommandContextIsSetup();
 
 		InputStream requestEntity = ribbonCommandContext.getRequestEntity();
-		assertTrue(requestEntity instanceof ResettableServletInputStreamWrapper);
+		assertThat(requestEntity instanceof ResettableServletInputStreamWrapper).isTrue();
 
 		whenInputStreamIsConsumed(requestEntity);
-		assertEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isEqualTo(-1);
 
 		requestEntity.reset();
-		assertNotEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isNotEqualTo(-1);
 
 		whenInputStreamIsConsumed(requestEntity);
-		assertEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isEqualTo(-1);
 
 		requestEntity.reset();
-		assertNotEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isNotEqualTo(-1);
 
 		whenInputStreamIsConsumed(requestEntity);
-		assertEquals(-1, requestEntity.read());
+		assertThat(requestEntity.read()).isEqualTo(-1);
 	}
 
 	private void whenInputStreamIsConsumed(InputStream requestEntity) throws IOException {
@@ -90,7 +86,7 @@ public class RibbonCommandContextTest {
 		ribbonCommandContext = new RibbonCommandContext("serviceId",
 				HttpMethod.POST.toString(), "/my/route", true, headers, params,
 				new ByteArrayInputStream(TEST_CONTENT),
-				Lists.newArrayList(requestCustomizer));
+				Collections.singletonList(requestCustomizer));
 	}
 
 	@Test
@@ -103,8 +99,8 @@ public class RibbonCommandContextTest {
 				new ByteArrayInputStream(TEST_CONTENT),
 				Collections.<RibbonRequestCustomizer>emptyList(), null, null);
 
-		assertNotEquals(0, testContext.hashCode());
-		assertNotNull(testContext.toString());
+		assertThat(testContext.hashCode()).isNotEqualTo(0);
+		assertThat(testContext.toString()).isNotNull();
 	}
 
 }

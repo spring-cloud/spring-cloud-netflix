@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka.server;
@@ -33,7 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = EurekaCustomPeerNodesTests.Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
@@ -46,8 +45,8 @@ public class EurekaCustomPeerNodesTests {
 
 	@Test
 	public void testCustomPeerNodesShouldTakePrecedenceOverDefault() {
-		assertTrue("PeerEurekaNodes should be the user created one",
-				peerEurekaNodes instanceof CustomEurekaPeerNodes);
+		assertThat(peerEurekaNodes instanceof CustomEurekaPeerNodes)
+				.as("PeerEurekaNodes should be the user created one").isTrue();
 	}
 
 	@Configuration
@@ -68,7 +67,7 @@ public class EurekaCustomPeerNodesTests {
 
 	private static class CustomEurekaPeerNodes extends PeerEurekaNodes {
 
-		public CustomEurekaPeerNodes(PeerAwareInstanceRegistry registry,
+		CustomEurekaPeerNodes(PeerAwareInstanceRegistry registry,
 				EurekaServerConfig serverConfig, EurekaClientConfig clientConfig,
 				ServerCodecs serverCodecs,
 				ApplicationInfoManager applicationInfoManager) {

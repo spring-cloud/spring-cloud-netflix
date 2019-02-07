@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,34 +113,30 @@ public class SidecarProperties {
 			return false;
 		}
 		SidecarProperties that = (SidecarProperties) o;
-		return Objects.equals(healthUri, that.healthUri) &&
-				Objects.equals(homePageUri, that.homePageUri) &&
-				port == that.port &&
-				Objects.equals(securePortEnabled, that.securePortEnabled) &&
-				Objects.equals(hostname, that.hostname) &&
-				Objects.equals(ipAddress, that.ipAddress) &&
-				Objects.equals(acceptAllSslCertificates, that.acceptAllSslCertificates);
+		return Objects.equals(healthUri, that.healthUri)
+				&& Objects.equals(homePageUri, that.homePageUri) && port == that.port
+				&& Objects.equals(securePortEnabled, that.securePortEnabled)
+				&& Objects.equals(hostname, that.hostname)
+				&& Objects.equals(ipAddress, that.ipAddress) && Objects
+						.equals(acceptAllSslCertificates, that.acceptAllSslCertificates);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(
-				healthUri, homePageUri, port, hostname, ipAddress,
-				acceptAllSslCertificates, securePortEnabled
-		);
+		return Objects.hash(healthUri, homePageUri, port, hostname, ipAddress,
+				acceptAllSslCertificates, securePortEnabled);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder("SidecarProperties{")
-				.append("healthUri=").append(healthUri).append(", ")
-				.append("homePageUri=").append(homePageUri).append(", ")
-				.append("port=").append(port).append(", ")
-				.append("hostname='").append(hostname).append("', ")
-				.append("ipAddress='").append(ipAddress).append("', ")
-				.append("securePortEnabled='").append(securePortEnabled).append("', ")
-				.append("acceptAllSslCertificates='").append(acceptAllSslCertificates).append("'}")
-				.toString();
+		return new StringBuilder("SidecarProperties{").append("healthUri=")
+				.append(healthUri).append(", ").append("homePageUri=").append(homePageUri)
+				.append(", ").append("port=").append(port).append(", ")
+				.append("hostname='").append(hostname).append("', ").append("ipAddress='")
+				.append(ipAddress).append("', ").append("securePortEnabled='")
+				.append(securePortEnabled).append("', ")
+				.append("acceptAllSslCertificates='").append(acceptAllSslCertificates)
+				.append("'}").toString();
 	}
 
 }

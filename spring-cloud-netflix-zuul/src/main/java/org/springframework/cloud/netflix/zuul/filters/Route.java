@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Represents Zuul route.
+ *
  * @author Dave Syer
  * @author Biju Kunjummen
  * @author Gregor Zurowski
@@ -180,4 +181,5 @@ public class Route {
 				.append(", ").append("prefixStripped=").append(prefixStripped).append("}")
 				.toString();
 	}
+
 }

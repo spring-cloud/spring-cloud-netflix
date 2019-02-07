@@ -114,7 +114,7 @@ public final class RibbonUtils {
 	 * @param config Ribbon {@link IClientConfig} configuration
 	 * @param serverIntrospector used to verify if the server provides secure connections
 	 * @param server to verify
-	 * @return {@link URI} updated to  https if necessary
+	 * @return {@link URI} updated to https if necessary
 	 * @deprecated use {@link #updateToSecureConnectionIfNeeded}
 	 */
 	public static URI updateToHttpsIfNeeded(URI uri, IClientConfig config,

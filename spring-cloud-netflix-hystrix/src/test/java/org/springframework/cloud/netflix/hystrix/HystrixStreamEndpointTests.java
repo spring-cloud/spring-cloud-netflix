@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.hystrix;
@@ -47,8 +46,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Dave Syer
@@ -73,7 +72,8 @@ public class HystrixStreamEndpointTests {
 		// you have to hit a Hystrix circuit breaker before the stream sends anything
 		ResponseEntity<String> response = new TestRestTemplate().getForEntity(url,
 				String.class);
-		assertEquals("bad response code", HttpStatus.OK, response.getStatusCode());
+		assertThat(response.getStatusCode()).as("bad response code")
+				.isEqualTo(HttpStatus.OK);
 
 		URL hystrixUrl = new URL(url + BASE_PATH + "/hystrix.stream");
 

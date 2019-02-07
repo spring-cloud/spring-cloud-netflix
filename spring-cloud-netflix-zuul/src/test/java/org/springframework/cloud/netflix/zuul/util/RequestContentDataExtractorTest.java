@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,13 +31,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -67,12 +66,13 @@ public class RequestContentDataExtractorTest {
 				.extract(request);
 
 		// then
-		assertThat(result, notNullValue());
-		assertThat(result.size(), equalTo(1));
-		assertThat(result.get("uid"), notNullValue());
-		assertThat(result.get("uid"), hasSize(1));
-		assertThat(result.get("uid"), hasItem(hasProperty("body", equalTo("65"))));
-		assertThat(result.get("uid"), hasItem(hasProperty("headers", notNullValue())));
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get("uid")).isNotNull();
+		assertThat(result.get("uid")).hasSize(1);
+		Assert.assertThat(result.get("uid"), hasItem(hasProperty("body", equalTo("65"))));
+		Assert.assertThat(result.get("uid"),
+				hasItem(hasProperty("headers", notNullValue())));
 	}
 
 	@Test
@@ -94,8 +94,8 @@ public class RequestContentDataExtractorTest {
 				.extract(request);
 
 		// then
-		assertThat(result, notNullValue());
-		assertThat(result.size(), equalTo(0));
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -108,8 +108,8 @@ public class RequestContentDataExtractorTest {
 				.findQueryParamsGroupedByName(request);
 
 		// then
-		assertThat(result, hasEntry("uid", asList("12", "34")));
-		assertThat(result.size(), equalTo(1));
+		assertThat(result).containsEntry("uid", asList("12", "34"));
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -122,8 +122,8 @@ public class RequestContentDataExtractorTest {
 				.findQueryParamsGroupedByName(request);
 
 		// then
-		assertThat(result, notNullValue());
-		assertThat(result.size(), equalTo(0));
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -136,8 +136,8 @@ public class RequestContentDataExtractorTest {
 				.findQueryParamsGroupedByName(request);
 
 		// then
-		assertThat(result, notNullValue());
-		assertThat(result.size(), equalTo(0));
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(0);
 	}
 
 }

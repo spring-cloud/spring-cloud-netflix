@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import io.micrometer.core.instrument.Tags;
 
 /**
  * A Micrometer-specific {@link MetricRegistry} implementation.
+ *
  * @author Spencer Gibb
  */
 public class MicrometerMetricRegistry implements MetricRegistry {
@@ -48,4 +49,5 @@ public class MicrometerMetricRegistry implements MetricRegistry {
 			String... tagNameValuePairs) {
 		this.meterRegistry.gauge(id, Tags.of(tagNameValuePairs), supplier.get());
 	}
+
 }

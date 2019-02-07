@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,8 +101,8 @@ public class SendResponseFilter extends ZuulFilter {
 		RequestContext context = RequestContext.getCurrentContext();
 		return context.getThrowable() == null
 				&& (!context.getZuulResponseHeaders().isEmpty()
-				|| context.getResponseDataStream() != null
-				|| context.getResponseBody() != null);
+						|| context.getResponseDataStream() != null
+						|| context.getResponseBody() != null);
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class SendResponseFilter extends ZuulFilter {
 				log.warn(
 						"gzip response expected but failed to read gzip headers, assuming unencoded response for request "
 								+ RequestContext.getCurrentContext().getRequest()
-								.getRequestURL().toString());
+										.getRequestURL().toString());
 
 				stream.reset();
 				return stream;

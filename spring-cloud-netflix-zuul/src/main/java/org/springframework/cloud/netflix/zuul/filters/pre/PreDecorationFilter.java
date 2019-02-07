@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 /**
  * Pre {@link ZuulFilter} that determines where and how to route based on the supplied
  * {@link RouteLocator}. Also sets various proxy related headers for downstream requests.
+ *
  * @author Spencer Gibb
  * @author Dave Syer
  * @author Philip Webb

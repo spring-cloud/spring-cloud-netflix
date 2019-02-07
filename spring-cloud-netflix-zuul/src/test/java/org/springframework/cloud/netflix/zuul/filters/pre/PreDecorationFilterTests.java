@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.FORWARD_TO_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
@@ -57,7 +54,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 // This is needed for sensitiveHeadersOverrideEmpty, if Spring Security is on the
 // classpath
 // then sensitive headers will always be present.
-@ClassPathExclusions({"spring-security-*.jar"})
+@ClassPathExclusions({ "spring-security-*.jar" })
 public class PreDecorationFilterTests {
 
 	private PreDecorationFilter filter;
@@ -94,21 +91,21 @@ public class PreDecorationFilterTests {
 
 	@Test
 	public void basicProperties() throws Exception {
-		assertEquals(5, this.filter.filterOrder());
-		assertEquals(true, this.filter.shouldFilter());
-		assertEquals(PRE_TYPE, this.filter.filterType());
+		assertThat(this.filter.filterOrder()).isEqualTo(5);
+		assertThat(this.filter.shouldFilter()).isEqualTo(true);
+		assertThat(this.filter.filterType()).isEqualTo(PRE_TYPE);
 	}
 
 	@Test
 	public void skippedIfServiceIdSet() throws Exception {
 		RequestContext.getCurrentContext().set(SERVICE_ID_KEY, "myservice");
-		assertEquals(false, this.filter.shouldFilter());
+		assertThat(this.filter.shouldFilter()).isEqualTo(false);
 	}
 
 	@Test
 	public void skippedIfForwardToSet() throws Exception {
 		RequestContext.getCurrentContext().set(FORWARD_TO_KEY, "myconteext");
-		assertEquals(false, this.filter.shouldFilter());
+		assertThat(this.filter.shouldFilter()).isEqualTo(false);
 	}
 
 	@Test
@@ -121,8 +118,8 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost:8080");
 	}
 
 	@Test
@@ -137,10 +134,12 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("example.com,localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("443,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("example.com,localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port"))
+				.isEqualTo("443,8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("https,http");
 	}
 
 	@Test
@@ -154,10 +153,11 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("example.com,localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("example.com,localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
 	}
 
 	@Test
@@ -171,10 +171,12 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("443,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port"))
+				.isEqualTo("443,8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("https,http");
 	}
 
 	@Test
@@ -188,10 +190,12 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port"))
+				.isEqualTo("80,8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http,http");
 	}
 
 	@Test
@@ -205,10 +209,12 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("456,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port"))
+				.isEqualTo("456,8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
 	}
 
 	@Test
@@ -223,10 +229,12 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("456,8080", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("https,http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port"))
+				.isEqualTo("456,8080");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("https,http");
 	}
 
 	@Test
@@ -240,9 +248,9 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("localhost:8080",
-				ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("localhost:8080", ctx.getZuulRequestHeaders().get("host"));
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost:8080");
+		assertThat(ctx.getZuulRequestHeaders().get("host")).isEqualTo("localhost:8080");
 	}
 
 	@Test
@@ -256,15 +264,18 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/foo/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/api", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("1.2.3.4, 5.6.7.8",
-				ctx.getZuulRequestHeaders().get("x-forwarded-for"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/foo/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("80");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/api");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-for"))
+				.isEqualTo("1.2.3.4, 5.6.7.8");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -279,16 +290,18 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/foo/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/prefix/api",
-				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("1.2.3.4, 5.6.7.8",
-				ctx.getZuulRequestHeaders().get("x-forwarded-for"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/foo/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("80");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/prefix/api");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-for"))
+				.isEqualTo("1.2.3.4, 5.6.7.8");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -300,14 +313,16 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/api/foo/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/context-path",
-				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/api/foo/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("80");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/context-path");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -320,14 +335,16 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/foo/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/context-path/api",
-				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/foo/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("80");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/context-path/api");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -343,7 +360,7 @@ public class PreDecorationFilterTests {
 				this.proxyRequestHelper);
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/foo/encoded%2Fpath", ctx.get(REQUEST_URI_KEY));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/foo/encoded%2Fpath");
 	}
 
 	@Test
@@ -356,13 +373,16 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/api/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/api/foo/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/prefix", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/api/foo/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("80");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/prefix");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -376,14 +396,16 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", "foo", null, false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/foo/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("80", ctx.getZuulRequestHeaders().get("x-forwarded-port"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/prefix/api",
-				ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/foo/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-port")).isEqualTo("80");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/prefix/api");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -395,7 +417,7 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", null, "forward:/foo", true, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/foo/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/foo/1");
 	}
 
 	@Test
@@ -405,7 +427,7 @@ public class PreDecorationFilterTests {
 				new ZuulRoute("foo", "/foo/**", null, "forward:/bar", false, null, null));
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/bar/foo/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/bar/foo/1");
 	}
 
 	@Test
@@ -416,12 +438,15 @@ public class PreDecorationFilterTests {
 		this.routeLocator.addRoute("/foo/**", "foo");
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/1", ctx.get(REQUEST_URI_KEY));
-		assertEquals("localhost", ctx.getZuulRequestHeaders().get("x-forwarded-host"));
-		assertEquals("http", ctx.getZuulRequestHeaders().get("x-forwarded-proto"));
-		assertEquals("/api/foo", ctx.getZuulRequestHeaders().get("x-forwarded-prefix"));
-		assertEquals("foo",
-				getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"));
+		assertThat(ctx.get(REQUEST_URI_KEY)).isEqualTo("/1");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-host"))
+				.isEqualTo("localhost");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-proto"))
+				.isEqualTo("http");
+		assertThat(ctx.getZuulRequestHeaders().get("x-forwarded-prefix"))
+				.isEqualTo("/api/foo");
+		assertThat(getHeader(ctx.getOriginResponseHeaders(), "x-zuul-serviceid"))
+				.isEqualTo("foo");
 	}
 
 	@Test
@@ -435,7 +460,7 @@ public class PreDecorationFilterTests {
 
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/api/bar/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/api/bar/1");
 	}
 
 	@Test
@@ -453,7 +478,7 @@ public class PreDecorationFilterTests {
 
 		this.filter.run();
 		RequestContext ctx = RequestContext.getCurrentContext();
-		assertEquals("/special/api/bar/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/special/api/bar/1");
 	}
 
 	@Test
@@ -472,7 +497,7 @@ public class PreDecorationFilterTests {
 
 		this.filter.run();
 
-		assertEquals("/api/bar/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/api/bar/1");
 	}
 
 	@Test
@@ -494,7 +519,7 @@ public class PreDecorationFilterTests {
 
 		this.filter.run();
 
-		assertEquals("/special/api/bar/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/special/api/bar/1");
 	}
 
 	@Test
@@ -517,7 +542,7 @@ public class PreDecorationFilterTests {
 
 		this.filter.run();
 
-		assertEquals("/special/api/bar/1", ctx.get(FORWARD_TO_KEY));
+		assertThat(ctx.get(FORWARD_TO_KEY)).isEqualTo("/special/api/bar/1");
 	}
 
 	@Test
@@ -534,10 +559,10 @@ public class PreDecorationFilterTests {
 		@SuppressWarnings("unchecked")
 		Set<String> sensitiveHeaders = (Set<String>) ctx
 				.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
-		assertFalse("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.contains("Cookie"));
+		assertThat(sensitiveHeaders.containsAll(Collections.singletonList("x-foo")))
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isTrue();
+		assertThat(sensitiveHeaders.contains("Cookie"))
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isFalse();
 	}
 
 	@Test
@@ -554,8 +579,8 @@ public class PreDecorationFilterTests {
 		@SuppressWarnings("unchecked")
 		Set<String> sensitiveHeaders = (Set<String>) ctx
 				.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.isEmpty());
+		assertThat(sensitiveHeaders.isEmpty())
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isTrue();
 	}
 
 	@Test
@@ -570,9 +595,10 @@ public class PreDecorationFilterTests {
 		@SuppressWarnings("unchecked")
 		Set<String> sensitiveHeaders = (Set<String>) ctx
 				.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
-		assertFalse("sensitiveHeaders is wrong", sensitiveHeaders.contains("Cookie"));
+		assertThat(sensitiveHeaders.containsAll(Collections.singletonList("x-bar")))
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isTrue();
+		assertThat(sensitiveHeaders.contains("Cookie")).as("sensitiveHeaders is wrong")
+				.isFalse();
 	}
 
 	@Test
@@ -587,8 +613,8 @@ public class PreDecorationFilterTests {
 		@SuppressWarnings("unchecked")
 		Set<String> sensitiveHeaders = (Set<String>) ctx
 				.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.containsAll(Collections.singletonList("x-bar")));
+		assertThat(sensitiveHeaders.containsAll(Collections.singletonList("x-bar")))
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isTrue();
 	}
 
 	@Test
@@ -605,8 +631,8 @@ public class PreDecorationFilterTests {
 		@SuppressWarnings("unchecked")
 		Set<String> sensitiveHeaders = (Set<String>) ctx
 				.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.containsAll(Collections.singletonList("x-foo")));
+		assertThat(sensitiveHeaders.containsAll(Collections.singletonList("x-foo")))
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isTrue();
 	}
 
 	@Test
@@ -624,8 +650,8 @@ public class PreDecorationFilterTests {
 		@SuppressWarnings("unchecked")
 		Set<String> sensitiveHeaders = (Set<String>) ctx
 				.get(ProxyRequestHelper.IGNORED_HEADERS);
-		assertTrue("sensitiveHeaders is wrong: " + sensitiveHeaders,
-				sensitiveHeaders.containsAll(Arrays.asList("x-bar", "x-foo")));
+		assertThat(sensitiveHeaders.containsAll(Arrays.asList("x-bar", "x-foo")))
+				.as("sensitiveHeaders is wrong: " + sensitiveHeaders).isTrue();
 	}
 
 	@Test
@@ -638,7 +664,7 @@ public class PreDecorationFilterTests {
 		RequestContext ctx = RequestContext.getCurrentContext();
 		this.filter.run();
 		String decodedRequestURI = (String) ctx.get(REQUEST_URI_KEY);
-		assertTrue(decodedRequestURI.equals("/oléדרעק"));
+		assertThat(decodedRequestURI.equals("/oléדרעק")).isTrue();
 	}
 
 	@Test
@@ -651,9 +677,9 @@ public class PreDecorationFilterTests {
 		MultiValueMap<String, String> result = proxyRequestHelper
 				.buildZuulRequestHeaders(request);
 
-		assertTrue(result.containsKey("x-forwarded-proto"));
-		assertFalse(result.containsKey("x-forwarded-host"));
-		assertFalse(result.containsKey("x-forwarded-port"));
+		assertThat(result.containsKey("x-forwarded-proto")).isTrue();
+		assertThat(result.containsKey("x-forwarded-host")).isFalse();
+		assertThat(result.containsKey("x-forwarded-port")).isFalse();
 	}
 
 	@Test

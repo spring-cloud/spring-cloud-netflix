@@ -37,4 +37,5 @@ public class EurekaApplications extends com.netflix.discovery.shared.Application
 			@JsonProperty("application") List<Application> registeredApplications) {
 		super(appsHashCode, versionDelta, registeredApplications);
 	}
+
 }

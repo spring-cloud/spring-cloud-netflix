@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.cloud.config.server.config.ConfigServerProperties;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -37,8 +37,9 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 		new ApplicationContextRunner().withConfiguration(
 				AutoConfigurations.of(EurekaClientConfigServerAutoConfiguration.class))
 				.run(c -> {
-					assertEquals(0,
-							c.getBeanNamesForType(EurekaInstanceConfigBean.class).length);
+					assertThat(
+							c.getBeanNamesForType(EurekaInstanceConfigBean.class).length)
+									.isEqualTo(0);
 				});
 	}
 
@@ -50,10 +51,11 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 						ConfigServerProperties.class, EurekaInstanceConfigBean.class))
 				.withPropertyValues("spring.cloud.config.server.prefix=/config")
 				.run(c -> {
-					assertEquals(1,
-							c.getBeanNamesForType(EurekaInstanceConfig.class).length);
+					assertThat(c.getBeanNamesForType(EurekaInstanceConfig.class).length)
+							.isEqualTo(1);
 					EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
-					assertEquals("/config", instance.getMetadataMap().get("configPath"));
+					assertThat(instance.getMetadataMap().get("configPath"))
+							.isEqualTo("/config");
 				});
 	}
 
@@ -67,11 +69,11 @@ public class EurekaClientConfigServerAutoConfigurationTests {
 				.withPropertyValues(
 						"eureka.instance.metadataMap.configPath=/differentpath")
 				.run(c -> {
-					assertEquals(1,
-							c.getBeanNamesForType(EurekaInstanceConfig.class).length);
+					assertThat(c.getBeanNamesForType(EurekaInstanceConfig.class).length)
+							.isEqualTo(1);
 					EurekaInstanceConfig instance = c.getBean(EurekaInstanceConfig.class);
-					assertEquals("/differentpath",
-							instance.getMetadataMap().get("configPath"));
+					assertThat(instance.getMetadataMap().get("configPath"))
+							.isEqualTo("/differentpath");
 				});
 	}
 

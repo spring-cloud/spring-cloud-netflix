@@ -85,8 +85,8 @@ public class RestTemplateTransportClientFactory implements TransportClientFactor
 	 * Provides the serialization configurations required by the Eureka Server. JSON
 	 * content exchanged with eureka requires a root node matching the entity being
 	 * serialized or deserialized. Achived with
-	 * {@link SerializationFeature.WRAP_ROOT_VALUE} and
-	 * {@link DeserializationFeature.UNWRAP_ROOT_VALUE}.
+	 * {@link SerializationFeature#WRAP_ROOT_VALUE} and
+	 * {@link DeserializationFeature#UNWRAP_ROOT_VALUE}.
 	 * {@link PropertyNamingStrategy.SnakeCaseStrategy} is applied to the underlying
 	 * {@link ObjectMapper}.
 	 * @return a {@link MappingJackson2HttpMessageConverter} object

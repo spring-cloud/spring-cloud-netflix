@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
@@ -33,14 +32,14 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = RibbonRetryIntegrationTestBase.RetryableTestConfig.class, webEnvironment = RANDOM_PORT, properties = {
 		"zuul.retryable: false", /* Disable retry by default, have each route enable it */
 		"hystrix.command.default.execution.timeout.enabled: false", /*
- * Disable hystrix so
- * its timeout doesnt
- * get in the way
- */
+																	 * Disable hystrix so
+																	 * its timeout doesnt
+																	 * get in the way
+																	 */
 		"ribbon.ReadTimeout: 1000", /*
- * Make sure ribbon will timeout before the thread is
- * done sleeping
- */
+									 * Make sure ribbon will timeout before the thread is
+									 * done sleeping
+									 */
 		"zuul.routes.retryable.id: retryable",
 		"zuul.routes.retryable.path: /retryable/**",
 		"zuul.routes.retryable.retryable: true",
@@ -60,7 +59,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		"zuul.routes.globalretrydisabled: /globalretrydisabled/**",
 		"globalretrydisabled.ribbon.MaxAutoRetries: 1",
 		"globalretrydisabled.ribbon.MaxAutoRetriesNextServer: 1",
-		"retryable.ribbon.retryableStatusCodes: 404,403"})
+		"retryable.ribbon.retryableStatusCodes: 404,403" })
 @DirtiesContext
 public class HttpClientRibbonRetryIntegrationTests
 		extends RibbonRetryIntegrationTestBase {

@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon;
@@ -52,7 +51,6 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
@@ -62,7 +60,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = RibbonClientHttpRequestFactoryTests.App.class, webEnvironment = RANDOM_PORT, value = {
 		"spring.application.name=ribbonclienttest", "spring.jmx.enabled=true",
 		"spring.cloud.netflix.metrics.enabled=false", "ribbon.restclient.enabled=true",
-		"debug=true"})
+		"debug=true" })
 @DirtiesContext
 public class RibbonClientHttpRequestFactoryTests {
 
@@ -83,49 +81,55 @@ public class RibbonClientHttpRequestFactoryTests {
 	public void vanillaRequestWorks() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity("http://simple/",
 				String.class);
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello", response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello");
 	}
 
 	@Test
 	public void requestWithPathParamWorks() {
 		ResponseEntity<String> response = this.restTemplate
 				.getForEntity("http://simple/path/{param}", String.class, "world");
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello world", response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
 	}
 
 	@Test
 	public void requestWithEncodedPathParamWorks() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity(
 				"http://simple/path/{param}", String.class, "world & everyone else");
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello world & everyone else",
-				response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body")
+				.isEqualTo("hello world & everyone else");
 	}
 
 	@Test
 	public void requestWithRequestParamWorks() {
 		ResponseEntity<String> response = this.restTemplate.getForEntity(
 				"http://simple/request?param={param}", String.class, "world");
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello world", response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
 	}
 
 	@Test
 	public void requestWithPostWorks() {
 		ResponseEntity<String> response = this.restTemplate
 				.postForEntity("http://simple/post", "world", String.class);
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello world", response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
 	}
 
 	@Test
 	public void requestWithEmptyPostWorks() {
 		ResponseEntity<String> response = this.restTemplate
 				.postForEntity("http://simple/emptypost", "", String.class);
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello empty", response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello empty");
 	}
 
 	@Test
@@ -134,8 +138,9 @@ public class RibbonClientHttpRequestFactoryTests {
 				.header("X-Param", "world").build();
 		ResponseEntity<String> response = this.restTemplate.exchange(entity,
 				String.class);
-		assertEquals("wrong response code", HttpStatus.OK, response.getStatusCode());
-		assertEquals("wrong response body", "hello world", response.getBody());
+		assertThat(response.getStatusCode()).as("wrong response code")
+				.isEqualTo(HttpStatus.OK);
+		assertThat(response.getBody()).as("wrong response body").isEqualTo("hello world");
 	}
 
 	@Test

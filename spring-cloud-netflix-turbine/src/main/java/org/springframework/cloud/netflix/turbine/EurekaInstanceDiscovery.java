@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ public class EurekaInstanceDiscovery extends CommonsInstanceDiscovery {
 	 * Private helper that fetches the Instances for each application.
 	 * @param serviceId of the service that the instance list should be returned for
 	 * @return List of instances for a given service id
-	 * @throws Exception - retrieving and marshalling service instances may result
-	 * in an Exception
+	 * @throws Exception - retrieving and marshalling service instances may result in an
+	 * Exception
 	 */
 	@Override
 	protected List<Instance> getInstancesForApp(String serviceId) throws Exception {

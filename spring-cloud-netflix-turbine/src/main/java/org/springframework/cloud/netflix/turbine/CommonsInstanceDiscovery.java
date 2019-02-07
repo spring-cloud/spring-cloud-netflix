@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,8 +135,8 @@ public class CommonsInstanceDiscovery implements InstanceDiscovery {
 	 * helper that fetches the Instances for each application from DiscoveryClient.
 	 * @param serviceId Id of the service whose instances should be returned
 	 * @return List of instances
-	 * @throws Exception - retrieving and marshalling service instances may result
-	 * in an Exception
+	 * @throws Exception - retrieving and marshalling service instances may result in an
+	 * Exception
 	 */
 	protected List<Instance> getInstancesForApp(String serviceId) throws Exception {
 		List<Instance> instances = new ArrayList<>();

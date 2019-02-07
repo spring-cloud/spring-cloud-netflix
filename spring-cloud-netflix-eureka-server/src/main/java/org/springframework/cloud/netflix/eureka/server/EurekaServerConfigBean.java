@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -998,7 +998,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 				&& gZipContentFromRemoteRegion == that.gZipContentFromRemoteRegion
 				&& Objects.equals(jsonCodecName, that.jsonCodecName)
 				&& Objects.equals(listAutoScalingGroupsRoleName,
-				that.listAutoScalingGroupsRoleName)
+						that.listAutoScalingGroupsRoleName)
 				&& logIdentityHeaders == that.logIdentityHeaders
 				&& maxElementsInPeerReplicationPool == that.maxElementsInPeerReplicationPool
 				&& maxElementsInStatusReplicationPool == that.maxElementsInStatusReplicationPool
@@ -1024,7 +1024,7 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 				&& rateLimiterEnabled == that.rateLimiterEnabled
 				&& rateLimiterFullFetchAverageRate == that.rateLimiterFullFetchAverageRate
 				&& Objects.equals(rateLimiterPrivilegedClients,
-				that.rateLimiterPrivilegedClients)
+						that.rateLimiterPrivilegedClients)
 				&& rateLimiterRegistryFetchAverageRate == that.rateLimiterRegistryFetchAverageRate
 				&& rateLimiterThrottleStandardClients == that.rateLimiterThrottleStandardClients
 				&& registrySyncRetries == that.registrySyncRetries
@@ -1039,11 +1039,11 @@ public class EurekaServerConfigBean implements EurekaServerConfig {
 				&& remoteRegionTotalConnectionsPerHost == that.remoteRegionTotalConnectionsPerHost
 				&& Objects.equals(remoteRegionTrustStore, that.remoteRegionTrustStore)
 				&& Objects.equals(remoteRegionTrustStorePassword,
-				that.remoteRegionTrustStorePassword)
+						that.remoteRegionTrustStorePassword)
 				&& Arrays.equals(remoteRegionUrls, that.remoteRegionUrls)
 				&& Objects.equals(remoteRegionUrlsWithName, that.remoteRegionUrlsWithName)
 				&& Double.compare(that.renewalPercentThreshold,
-				renewalPercentThreshold) == 0
+						renewalPercentThreshold) == 0
 				&& renewalThresholdUpdateIntervalMs == that.renewalThresholdUpdateIntervalMs
 				&& responseCacheAutoExpirationInSeconds == that.responseCacheAutoExpirationInSeconds
 				&& responseCacheUpdateIntervalMs == that.responseCacheUpdateIntervalMs

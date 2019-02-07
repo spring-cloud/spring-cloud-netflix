@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 package org.springframework.cloud.netflix.ribbon.okhttp;
 
 import java.util.Map;
@@ -31,16 +31,14 @@ import org.springframework.cloud.netflix.ribbon.RibbonClientConfiguration;
 import org.springframework.cloud.test.ClassPathExclusions;
 import org.springframework.cloud.test.ModifiedClassPathRunner;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Ryan Baxter
  * @author Biju Kunjummen
  */
 @RunWith(ModifiedClassPathRunner.class)
-@ClassPathExclusions({"spring-retry-*.jar", "spring-boot-starter-aop-*.jar"})
+@ClassPathExclusions({ "spring-retry-*.jar", "spring-boot-starter-aop-*.jar" })
 public class SpringRetryDisableOkHttpClientTests {
 
 	@Test
@@ -54,12 +52,12 @@ public class SpringRetryDisableOkHttpClientTests {
 				.run(context -> {
 					Map<String, LoadBalancedRetryFactory> factories = context
 							.getBeansOfType(LoadBalancedRetryFactory.class);
-					assertThat(factories.values(), hasSize(0));
+					assertThat(factories.values()).hasSize(0);
 					Map<String, OkHttpLoadBalancingClient> clients = context
 							.getBeansOfType(OkHttpLoadBalancingClient.class);
-					assertThat(clients.values(), hasSize(1));
-					assertThat(clients.values().toArray()[0],
-							instanceOf(OkHttpLoadBalancingClient.class));
+					assertThat(clients.values()).hasSize(1);
+					assertThat(clients.values().toArray()[0])
+							.isInstanceOf(OkHttpLoadBalancingClient.class);
 				});
 	}
 

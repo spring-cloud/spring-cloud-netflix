@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -53,7 +52,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.LOAD_BALANCER_KEY;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
@@ -62,7 +61,7 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CanaryTestZuulProxyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, value = {
-		"zuul.routes.simple.path: /simple/**"})
+		"zuul.routes.simple.path: /simple/**" })
 @DirtiesContext
 public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 
@@ -87,8 +86,8 @@ public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 
 		ResponseEntity<String> result = testRestTemplate.exchange("/simple/hello",
 				HttpMethod.GET, new HttpEntity<>(headers), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("canary", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("canary");
 	}
 
 	@Test
@@ -96,7 +95,7 @@ public class RibbonRoutingFilterLoadBalancerKeyIntegrationTests {
 		HttpHeaders headers = new HttpHeaders();
 		ResponseEntity<String> result = testRestTemplate.exchange("/simple/hello",
 				HttpMethod.GET, new HttpEntity<>(headers), String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

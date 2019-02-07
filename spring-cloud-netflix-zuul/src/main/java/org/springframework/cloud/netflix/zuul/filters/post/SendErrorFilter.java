@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,10 @@ public class SendErrorFilter extends ZuulFilter {
 		return new DefaultExceptionHolder(throwable);
 	}
 
+	public void setErrorPath(String errorPath) {
+		this.errorPath = errorPath;
+	}
+
 	protected interface ExceptionHolder {
 
 		Throwable getThrowable();
@@ -151,10 +155,6 @@ public class SendErrorFilter extends ZuulFilter {
 			return null;
 		}
 
-	}
-
-	public void setErrorPath(String errorPath) {
-		this.errorPath = errorPath;
 	}
 
 	protected static class DefaultExceptionHolder implements ExceptionHolder {
@@ -194,5 +194,7 @@ public class SendErrorFilter extends ZuulFilter {
 		public String getErrorCause() {
 			return this.exception.errorCause;
 		}
+
 	}
+
 }

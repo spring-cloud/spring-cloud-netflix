@@ -21,8 +21,8 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Configuration Properties to indicate which Ribbon configurations
- * should be eagerly loaded up.
+ * Configuration Properties to indicate which Ribbon configurations should be eagerly
+ * loaded up.
  *
  * @author Biju Kunjummen
  */

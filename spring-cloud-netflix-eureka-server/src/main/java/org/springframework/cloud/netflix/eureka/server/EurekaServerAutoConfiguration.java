@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * List of packages containing Jersey resources required by the Eureka server.
 	 */
 	private static final String[] EUREKA_PACKAGES = new String[] {
-			"com.netflix.discovery", "com.netflix.eureka"};
+			"com.netflix.discovery", "com.netflix.eureka" };
 
 	@Autowired
 	private ApplicationInfoManager applicationInfoManager;
@@ -195,7 +195,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 	 * @param environment an {@link Environment} instance to retrieve classpath resources
 	 * @param resourceLoader a {@link ResourceLoader} instance to get classloader from
 	 * @return created {@link Application} object
-	 * */
+	 */
 	@Bean
 	public javax.ws.rs.core.Application jerseyApplication(Environment environment,
 			ResourceLoader resourceLoader) {
@@ -255,13 +255,15 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 			}
 			return server;
 		}
+
 	}
 
 	/**
 	 * {@link PeerEurekaNodes} which updates peers when /refresh is invoked. Peers are
 	 * updated only if <code>eureka.client.use-dns-for-fetching-service-urls</code> is
 	 * <code>false</code> and one of following properties have changed.
-	 * <p></p>
+	 * <p>
+	 * </p>
 	 * <ul>
 	 * <li><code>eureka.client.availability-zones</code></li>
 	 * <li><code>eureka.client.region</code></li>
@@ -322,5 +324,7 @@ public class EurekaServerAutoConfiguration extends WebMvcConfigurerAdapter {
 					getFullXml(serverConfig),
 					CodecWrappers.getCodec(CodecWrappers.JacksonXmlMini.class));
 		}
+
 	}
+
 }

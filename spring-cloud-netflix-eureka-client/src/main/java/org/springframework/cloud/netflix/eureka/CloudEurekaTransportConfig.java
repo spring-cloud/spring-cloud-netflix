@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,7 +171,7 @@ public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 		CloudEurekaTransportConfig that = (CloudEurekaTransportConfig) o;
 		return sessionedClientReconnectIntervalSeconds == that.sessionedClientReconnectIntervalSeconds
 				&& Double.compare(retryableClientQuarantineRefreshPercentage,
-				that.retryableClientQuarantineRefreshPercentage) == 0
+						that.retryableClientQuarantineRefreshPercentage) == 0
 				&& bootstrapResolverRefreshIntervalSeconds == that.bootstrapResolverRefreshIntervalSeconds
 				&& applicationsResolverDataStalenessThresholdSeconds == that.applicationsResolverDataStalenessThresholdSeconds
 				&& asyncResolverRefreshIntervalMs == that.asyncResolverRefreshIntervalMs
@@ -181,7 +181,7 @@ public class CloudEurekaTransportConfig implements EurekaTransportConfig {
 				&& Objects.equals(writeClusterVip, that.writeClusterVip)
 				&& bootstrapResolverForQuery == that.bootstrapResolverForQuery
 				&& Objects.equals(bootstrapResolverStrategy,
-				that.bootstrapResolverStrategy)
+						that.bootstrapResolverStrategy)
 				&& applicationsResolverUseIp == that.applicationsResolverUseIp;
 	}
 

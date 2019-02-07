@@ -135,8 +135,7 @@ public class RetryableRibbonLoadBalancingHttpClient
 			}
 			return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 		};
-		LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback
-				= new LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
+		LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse> recoveryCallback = new LoadBalancedRecoveryCallback<RibbonApacheHttpResponse, HttpResponse>() {
 			@Override
 			protected RibbonApacheHttpResponse createResponse(HttpResponse response,
 					URI uri) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ZuulFilterInitializerTests {
@@ -68,8 +65,8 @@ public class ZuulFilterInitializerTests {
 	@Test
 	public void shouldSetupOnContextInitializedEvent() {
 
-		assertEquals(tracerFactory, TracerFactory.instance());
-		assertEquals(counterFactory, CounterFactory.instance());
+		assertThat(TracerFactory.instance()).isEqualTo(tracerFactory);
+		assertThat(CounterFactory.instance()).isEqualTo(counterFactory);
 		assertThat(filterRegistry.getAllFilters()).containsAll(filters.values());
 
 		initializer.contextDestroyed();
@@ -80,10 +77,12 @@ public class ZuulFilterInitializerTests {
 
 		initializer.contextDestroyed();
 
-		assertNull(ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"));
-		assertNull(ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"));
+		assertThat(ReflectionTestUtils.getField(TracerFactory.class, "INSTANCE"))
+				.isNull();
+		assertThat(ReflectionTestUtils.getField(CounterFactory.class, "INSTANCE"))
+				.isNull();
 		assertThat(filterRegistry.getAllFilters()).isEmpty();
-		assertTrue(getHashFiltersByType().isEmpty());
+		assertThat(getHashFiltersByType().isEmpty()).isTrue();
 	}
 
 	private Map getHashFiltersByType() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -41,10 +40,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
@@ -55,7 +51,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT, value = {
 		"zuul.routes.sslservice.url=https://localhost:8443",
 		"management.security.enabled=false",
-		"management.endpoints.web.exposure.include=*"})
+		"management.endpoints.web.exposure.include=*" })
 @DirtiesContext
 public class RoutesEndpointIntegrationTests {
 
@@ -74,7 +70,7 @@ public class RoutesEndpointIntegrationTests {
 				Map.class);
 		Assertions.assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, String> routes = entity.getBody();
-		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
+		assertThat(routes.get("/sslservice/**")).isEqualTo("https://localhost:8443");
 	}
 
 	@Test
@@ -84,8 +80,8 @@ public class RoutesEndpointIntegrationTests {
 				null, Map.class);
 		Assertions.assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Map<String, String> routes = entity.getBody();
-		assertEquals("https://localhost:8443", routes.get("/sslservice/**"));
-		assertTrue(refreshListener.wasCalled());
+		assertThat(routes.get("/sslservice/**")).isEqualTo("https://localhost:8443");
+		assertThat(refreshListener.wasCalled()).isTrue();
 	}
 
 	@Test
@@ -95,15 +91,15 @@ public class RoutesEndpointIntegrationTests {
 						new ParameterizedTypeReference<Map<String, RoutesEndpoint.RouteDetails>>() {
 						});
 
-		assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+		assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		RoutesEndpoint.RouteDetails details = responseEntity.getBody()
 				.get("/sslservice/**");
-		assertThat(details.getPath(), is("/**"));
-		assertThat(details.getFullPath(), is("/sslservice/**"));
-		assertThat(details.getLocation(), is("https://localhost:8443"));
-		assertThat(details.getPrefix(), is("/sslservice"));
-		assertTrue(details.isPrefixStripped());
+		assertThat(details.getPath()).isEqualTo("/**");
+		assertThat(details.getFullPath()).isEqualTo("/sslservice/**");
+		assertThat(details.getLocation()).isEqualTo("https://localhost:8443");
+		assertThat(details.getPrefix()).isEqualTo("/sslservice");
+		assertThat(details.isPrefixStripped()).isTrue();
 	}
 
 	@Configuration

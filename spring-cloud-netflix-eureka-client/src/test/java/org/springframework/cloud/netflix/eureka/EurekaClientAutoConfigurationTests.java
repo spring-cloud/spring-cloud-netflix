@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.eureka;
@@ -55,8 +54,6 @@ import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Spencer Gibb
@@ -93,7 +90,7 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals("8989", instance.getMetadataMap().get("management.port"));
+		assertThat(instance.getMetadataMap().get("management.port")).isEqualTo("8989");
 	}
 
 	@Test
@@ -105,8 +102,8 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals(null, instance.getMetadataMap().get("management.port"));
-		assertEquals(null, instance.getMetadataMap().get("jmx.port"));
+		assertThat(instance.getMetadataMap().get("management.port")).isEqualTo(null);
+		assertThat(instance.getMetadataMap().get("jmx.port")).isEqualTo(null);
 	}
 
 	@Test
@@ -117,8 +114,8 @@ public class EurekaClientAutoConfigurationTests {
 
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertEquals("9999", instance.getMetadataMap().get("management.port"));
-		assertEquals("6789", instance.getMetadataMap().get("jmx.port"));
+		assertThat(instance.getMetadataMap().get("management.port")).isEqualTo("9999");
+		assertThat(instance.getMetadataMap().get("jmx.port")).isEqualTo("6789");
 	}
 
 	@Test
@@ -132,8 +129,8 @@ public class EurekaClientAutoConfigurationTests {
 
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertEquals("7878", instance.getMetadataMap().get("management.port"));
-		assertEquals("9898", instance.getMetadataMap().get("jmx.port"));
+		assertThat(instance.getMetadataMap().get("management.port")).isEqualTo("7878");
+		assertThat(instance.getMetadataMap().get("jmx.port")).isEqualTo("9898");
 	}
 
 	@Test
@@ -149,8 +146,8 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void nonSecurePort() {
 		testNonSecurePortSystemProp("PORT");
-		assertEquals("eurekaClient",
-				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+		assertThat(this.context.getBeanDefinition("eurekaClient").getFactoryMethodName())
+				.isEqualTo("eurekaClient");
 	}
 
 	@Test
@@ -164,14 +161,14 @@ public class EurekaClientAutoConfigurationTests {
 				.applyTo(this.context);
 		addSystemEnvironment(this.context.getEnvironment(), "SERVER_PORT:8443");
 		setupContext();
-		assertEquals(8443, getInstanceConfig().getSecurePort());
+		assertThat(getInstanceConfig().getSecurePort()).isEqualTo(8443);
 	}
 
 	@Test
 	public void securePort() {
 		testSecurePort("PORT");
-		assertEquals("eurekaClient",
-				this.context.getBeanDefinition("eurekaClient").getFactoryMethodName());
+		assertThat(this.context.getBeanDefinition("eurekaClient").getFactoryMethodName())
+				.isEqualTo("eurekaClient");
 	}
 
 	@Test
@@ -181,8 +178,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("9999"));
+		assertThat(instance.getStatusPageUrl().contains("9999"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -194,8 +191,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("/myStatusPage"));
+		assertThat(instance.getStatusPageUrl().contains("/myStatusPage"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -207,8 +204,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+		assertThat(instance.getHealthCheckUrl().contains("/myHealthCheck"))
+				.as("Wrong health check: " + instance.getHealthCheckUrl()).isTrue();
 	}
 
 	@Test
@@ -220,10 +217,10 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().endsWith(":9999/actuator/info"));
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().endsWith(":9999/actuator/health"));
+		assertThat(instance.getStatusPageUrl().endsWith(":9999/actuator/info"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
+		assertThat(instance.getHealthCheckUrl().endsWith(":9999/actuator/health"))
+				.as("Wrong health check: " + instance.getHealthCheckUrl()).isTrue();
 	}
 
 	@Test
@@ -237,10 +234,12 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().endsWith(":8989/management/actuator/info"));
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(), instance
-				.getHealthCheckUrl().endsWith(":8989/management/actuator/health"));
+		assertThat(instance.getStatusPageUrl().endsWith(":8989/management/actuator/info"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
+		assertThat(
+				instance.getHealthCheckUrl().endsWith(":8989/management/actuator/health"))
+						.as("Wrong health check: " + instance.getHealthCheckUrl())
+						.isTrue();
 	}
 
 	@Test
@@ -253,10 +252,10 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrlPath(),
-				instance.getStatusPageUrlPath().equals("/management/actuator/info"));
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrlPath(),
-				instance.getHealthCheckUrlPath().equals("/management/actuator/health"));
+		assertThat(instance.getStatusPageUrlPath().equals("/management/actuator/info"))
+				.as("Wrong status page: " + instance.getStatusPageUrlPath()).isTrue();
+		assertThat(instance.getHealthCheckUrlPath().equals("/management/actuator/health"))
+				.as("Wrong health check: " + instance.getHealthCheckUrlPath()).isTrue();
 	}
 
 	@Test
@@ -269,8 +268,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().endsWith(":9999/manage/myStatusPage"));
+		assertThat(instance.getStatusPageUrl().endsWith(":9999/manage/myStatusPage"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -283,8 +282,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().endsWith(":9999/manage/myHealthCheck"));
+		assertThat(instance.getHealthCheckUrl().endsWith(":9999/manage/myHealthCheck"))
+				.as("Wrong health check: " + instance.getHealthCheckUrl()).isTrue();
 	}
 
 	@Test
@@ -297,8 +296,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().endsWith(":9999/manage/myStatusPage"));
+		assertThat(instance.getStatusPageUrl().endsWith(":9999/manage/myStatusPage"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -311,8 +310,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().endsWith(":9999/manage/myHealthCheck"));
+		assertThat(instance.getHealthCheckUrl().endsWith(":9999/manage/myHealthCheck"))
+				.as("Wrong health check: " + instance.getHealthCheckUrl()).isTrue();
 	}
 
 	@Test
@@ -324,8 +323,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("/myStatusPage"));
+		assertThat(instance.getStatusPageUrl().contains("/myStatusPage"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -338,12 +337,10 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals("statusPageUrl is wrong",
-				"http://" + instance.getIpAddress() + ":9999/actuator/info",
-				instance.getStatusPageUrl());
-		assertEquals("healthCheckUrl is wrong",
-				"http://" + instance.getIpAddress() + ":9999/actuator/health",
-				instance.getHealthCheckUrl());
+		assertThat(instance.getStatusPageUrl()).as("statusPageUrl is wrong")
+				.isEqualTo("http://" + instance.getIpAddress() + ":9999/actuator/info");
+		assertThat(instance.getHealthCheckUrl()).as("healthCheckUrl is wrong")
+				.isEqualTo("http://" + instance.getIpAddress() + ":9999/actuator/health");
 	}
 
 	@Test
@@ -357,11 +354,10 @@ public class EurekaClientAutoConfigurationTests {
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
 
-		assertEquals("statusPageUrl is wrong", "http://192.168.13.90:9999/actuator/info",
-				instance.getStatusPageUrl());
-		assertEquals("healthCheckUrl is wrong",
-				"http://192.168.13.90:9999/actuator/health",
-				instance.getHealthCheckUrl());
+		assertThat(instance.getStatusPageUrl()).as("statusPageUrl is wrong")
+				.isEqualTo("http://192.168.13.90:9999/actuator/info");
+		assertThat(instance.getHealthCheckUrl()).as("healthCheckUrl is wrong")
+				.isEqualTo("http://192.168.13.90:9999/actuator/health");
 	}
 
 	@Test
@@ -373,8 +369,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+		assertThat(instance.getHealthCheckUrl().contains("/myHealthCheck"))
+				.as("Wrong health check: " + instance.getHealthCheckUrl()).isTrue();
 	}
 
 	@Test
@@ -386,8 +382,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("/myStatusPage"));
+		assertThat(instance.getStatusPageUrl().contains("/myStatusPage"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -399,8 +395,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong health check: " + instance.getHealthCheckUrl(),
-				instance.getHealthCheckUrl().contains("/myHealthCheck"));
+		assertThat(instance.getHealthCheckUrl().contains("/myHealthCheck"))
+				.as("Wrong health check: " + instance.getHealthCheckUrl()).isTrue();
 	}
 
 	@Test
@@ -410,8 +406,8 @@ public class EurekaClientAutoConfigurationTests {
 		setupContext(RefreshAutoConfiguration.class);
 		EurekaInstanceConfigBean instance = this.context
 				.getBean(EurekaInstanceConfigBean.class);
-		assertTrue("Wrong status page: " + instance.getStatusPageUrl(),
-				instance.getStatusPageUrl().contains("foo"));
+		assertThat(instance.getStatusPageUrl().contains("foo"))
+				.as("Wrong status page: " + instance.getStatusPageUrl()).isTrue();
 	}
 
 	@Test
@@ -422,7 +418,7 @@ public class EurekaClientAutoConfigurationTests {
 						GenericScope.class.getName() + "$LockedScopedProxyFactoryBean");
 		assertThat(this.context.getBeanDefinition("eurekaApplicationInfoManager")
 				.getBeanClassName()).startsWith(
-				GenericScope.class.getName() + "$LockedScopedProxyFactoryBean");
+						GenericScope.class.getName() + "$LockedScopedProxyFactoryBean");
 	}
 
 	@Test
@@ -483,18 +479,18 @@ public class EurekaClientAutoConfigurationTests {
 	@Test
 	public void testDefaultAppName() throws Exception {
 		setupContext();
-		assertEquals("unknown", getInstanceConfig().getAppname());
-		assertEquals("unknown", getInstanceConfig().getVirtualHostName());
-		assertEquals("unknown", getInstanceConfig().getSecureVirtualHostName());
+		assertThat(getInstanceConfig().getAppname()).isEqualTo("unknown");
+		assertThat(getInstanceConfig().getVirtualHostName()).isEqualTo("unknown");
+		assertThat(getInstanceConfig().getSecureVirtualHostName()).isEqualTo("unknown");
 	}
 
 	@Test
 	public void testAppName() throws Exception {
 		TestPropertyValues.of("spring.application.name=mytest").applyTo(this.context);
 		setupContext();
-		assertEquals("mytest", getInstanceConfig().getAppname());
-		assertEquals("mytest", getInstanceConfig().getVirtualHostName());
-		assertEquals("mytest", getInstanceConfig().getSecureVirtualHostName());
+		assertThat(getInstanceConfig().getAppname()).isEqualTo("mytest");
+		assertThat(getInstanceConfig().getVirtualHostName()).isEqualTo("mytest");
+		assertThat(getInstanceConfig().getSecureVirtualHostName()).isEqualTo("mytest");
 	}
 
 	@Test
@@ -502,9 +498,10 @@ public class EurekaClientAutoConfigurationTests {
 		addSystemEnvironment(this.context.getEnvironment(),
 				"SPRING_APPLICATION_NAME=mytestupper");
 		setupContext();
-		assertEquals("mytestupper", getInstanceConfig().getAppname());
-		assertEquals("mytestupper", getInstanceConfig().getVirtualHostName());
-		assertEquals("mytestupper", getInstanceConfig().getSecureVirtualHostName());
+		assertThat(getInstanceConfig().getAppname()).isEqualTo("mytestupper");
+		assertThat(getInstanceConfig().getVirtualHostName()).isEqualTo("mytestupper");
+		assertThat(getInstanceConfig().getSecureVirtualHostName())
+				.isEqualTo("mytestupper");
 	}
 
 	private void addSystemEnvironment(ConfigurableEnvironment environment,
@@ -549,7 +546,7 @@ public class EurekaClientAutoConfigurationTests {
 		TestPropertyValues.of("eureka.instance.appname=mytesteurekaappname")
 				.applyTo(this.context);
 		setupContext();
-		assertEquals("mytesteurekaappname", getInstanceConfig().getAppname());
+		assertThat(getInstanceConfig().getAppname()).isEqualTo("mytesteurekaappname");
 	}
 
 	@Test
@@ -571,13 +568,13 @@ public class EurekaClientAutoConfigurationTests {
 	private void testNonSecurePortSystemProp(String propName) {
 		addSystemEnvironment(this.context.getEnvironment(), propName + ":8888");
 		setupContext();
-		assertEquals(8888, getInstanceConfig().getNonSecurePort());
+		assertThat(getInstanceConfig().getNonSecurePort()).isEqualTo(8888);
 	}
 
 	private void testNonSecurePort(String propName) {
 		TestPropertyValues.of(propName + ":8888").applyTo(this.context);
 		setupContext();
-		assertEquals(8888, getInstanceConfig().getNonSecurePort());
+		assertThat(getInstanceConfig().getNonSecurePort()).isEqualTo(8888);
 	}
 
 	private void testSecurePort(String propName) {
@@ -585,7 +582,7 @@ public class EurekaClientAutoConfigurationTests {
 				.of("eureka.instance.secure-port-enabled=true", propName + ":8443")
 				.applyTo(this.context);
 		setupContext();
-		assertEquals(8443, getInstanceConfig().getSecurePort());
+		assertThat(getInstanceConfig().getSecurePort()).isEqualTo(8443);
 	}
 
 	private EurekaInstanceConfigBean getInstanceConfig() {

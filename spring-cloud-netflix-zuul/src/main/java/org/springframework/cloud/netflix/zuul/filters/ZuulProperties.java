@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,461 +216,6 @@ public class ZuulProperties {
 				value.path = "/" + entry.getKey() + "/**";
 			}
 		}
-	}
-
-	/**
-	 * Represents a Zuul route.
-	 */
-	public static class ZuulRoute {
-
-		/**
-		 * The ID of the route (the same as its map key by default).
-		 */
-		private String id;
-
-		/**
-		 * The path (pattern) for the route, e.g. /foo/**.
-		 */
-		private String path;
-
-		/**
-		 * The service ID (if any) to map to this route. You can specify a physical URL or
-		 * a service, but not both.
-		 */
-		private String serviceId;
-
-		/**
-		 * A full physical URL to map to the route. An alternative is to use a service ID
-		 * and service discovery to find the physical address.
-		 */
-		private String url;
-
-		/**
-		 * Flag to determine whether the prefix for this route (the path, minus pattern
-		 * patcher) should be stripped before forwarding.
-		 */
-		private boolean stripPrefix = true;
-
-		/**
-		 * Flag to indicate that this route should be retryable (if supported). Generally
-		 * retry requires a service ID and ribbon.
-		 */
-		private Boolean retryable;
-
-		/**
-		 * List of sensitive headers that are not passed to downstream requests. Defaults
-		 * to a "safe" set of headers that commonly contain user credentials. It's OK to
-		 * remove those from the list if the downstream service is part of the same system
-		 * as the proxy, so they are sharing authentication data. If using a physical URL
-		 * outside your own domain, then generally it would be a bad idea to leak user
-		 * credentials.
-		 */
-		private Set<String> sensitiveHeaders = new LinkedHashSet<>();
-
-		private boolean customSensitiveHeaders = false;
-
-		public ZuulRoute() {
-		}
-
-		public ZuulRoute(String id, String path, String serviceId, String url,
-				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
-			this.id = id;
-			this.path = path;
-			this.serviceId = serviceId;
-			this.url = url;
-			this.stripPrefix = stripPrefix;
-			this.retryable = retryable;
-			this.sensitiveHeaders = sensitiveHeaders;
-			this.customSensitiveHeaders = sensitiveHeaders != null;
-		}
-
-		public ZuulRoute(String text) {
-			String location = null;
-			String path = text;
-			if (text.contains("=")) {
-				String[] values = StringUtils
-						.trimArrayElements(StringUtils.split(text, "="));
-				location = values[1];
-				path = values[0];
-			}
-			this.id = extractId(path);
-			if (!path.startsWith("/")) {
-				path = "/" + path;
-			}
-			setLocation(location);
-			this.path = path;
-		}
-
-		public ZuulRoute(String path, String location) {
-			this.id = extractId(path);
-			this.path = path;
-			setLocation(location);
-		}
-
-		public String getLocation() {
-			if (StringUtils.hasText(this.url)) {
-				return this.url;
-			}
-			return this.serviceId;
-		}
-
-		public void setLocation(String location) {
-			if (location != null
-					&& (location.startsWith("http:") || location.startsWith("https:"))) {
-				this.url = location;
-			}
-			else {
-				this.serviceId = location;
-			}
-		}
-
-		private String extractId(String path) {
-			path = path.startsWith("/") ? path.substring(1) : path;
-			path = path.replace("/*", "").replace("*", "");
-			return path;
-		}
-
-		public Route getRoute(String prefix) {
-			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
-					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,
-					this.stripPrefix);
-		}
-
-		public void setSensitiveHeaders(Set<String> headers) {
-			this.customSensitiveHeaders = true;
-			this.sensitiveHeaders = new LinkedHashSet<>(headers);
-		}
-
-		public boolean isCustomSensitiveHeaders() {
-			return this.customSensitiveHeaders;
-		}
-
-		public String getId() {
-			return id;
-		}
-
-		public void setId(String id) {
-			this.id = id;
-		}
-
-		public String getPath() {
-			return path;
-		}
-
-		public void setPath(String path) {
-			this.path = path;
-		}
-
-		public String getServiceId() {
-			return serviceId;
-		}
-
-		public void setServiceId(String serviceId) {
-			this.serviceId = serviceId;
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public boolean isStripPrefix() {
-			return stripPrefix;
-		}
-
-		public void setStripPrefix(boolean stripPrefix) {
-			this.stripPrefix = stripPrefix;
-		}
-
-		public Boolean getRetryable() {
-			return retryable;
-		}
-
-		public void setRetryable(Boolean retryable) {
-			this.retryable = retryable;
-		}
-
-		public Set<String> getSensitiveHeaders() {
-			return sensitiveHeaders;
-		}
-
-		public void setCustomSensitiveHeaders(boolean customSensitiveHeaders) {
-			this.customSensitiveHeaders = customSensitiveHeaders;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-			ZuulRoute that = (ZuulRoute) o;
-			return customSensitiveHeaders == that.customSensitiveHeaders
-					&& Objects.equals(id, that.id) && Objects.equals(path, that.path)
-					&& Objects.equals(retryable, that.retryable)
-					&& Objects.equals(sensitiveHeaders, that.sensitiveHeaders)
-					&& Objects.equals(serviceId, that.serviceId)
-					&& stripPrefix == that.stripPrefix && Objects.equals(url, that.url);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(customSensitiveHeaders, id, path, retryable,
-					sensitiveHeaders, serviceId, stripPrefix, url);
-		}
-
-		@Override
-		public String toString() {
-			return new StringBuilder("ZuulRoute{").append("id='").append(id).append("', ")
-					.append("path='").append(path).append("', ").append("serviceId='")
-					.append(serviceId).append("', ").append("url='").append(url)
-					.append("', ").append("stripPrefix=").append(stripPrefix).append(", ")
-					.append("retryable=").append(retryable).append(", ")
-					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
-					.append("customSensitiveHeaders=").append(customSensitiveHeaders)
-					.append(", ").append("}").toString();
-		}
-
-	}
-
-	public static class Host {
-
-		/**
-		 * The maximum number of total connections the proxy can hold open to backends.
-		 */
-		private int maxTotalConnections = 200;
-
-		/**
-		 * The maximum number of connections that can be used by a single route.
-		 */
-		private int maxPerRouteConnections = 20;
-
-		/**
-		 * The socket timeout in millis. Defaults to 10000.
-		 */
-		private int socketTimeoutMillis = 10000;
-
-		/**
-		 * The connection timeout in millis. Defaults to 2000.
-		 */
-		private int connectTimeoutMillis = 2000;
-
-		/**
-		 * The timeout in milliseconds used when requesting a connection from the
-		 * connection manager. Defaults to -1, undefined use the system default.
-		 */
-		private int connectionRequestTimeoutMillis = -1;
-
-		/**
-		 * The lifetime for the connection pool.
-		 */
-		private long timeToLive = -1;
-
-		/**
-		 * The time unit for timeToLive.
-		 */
-		private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-
-		public Host() {
-		}
-
-		public Host(int maxTotalConnections, int maxPerRouteConnections,
-				int socketTimeoutMillis, int connectTimeoutMillis, long timeToLive,
-				TimeUnit timeUnit) {
-			this.maxTotalConnections = maxTotalConnections;
-			this.maxPerRouteConnections = maxPerRouteConnections;
-			this.socketTimeoutMillis = socketTimeoutMillis;
-			this.connectTimeoutMillis = connectTimeoutMillis;
-			this.timeToLive = timeToLive;
-			this.timeUnit = timeUnit;
-		}
-
-		public int getMaxTotalConnections() {
-			return maxTotalConnections;
-		}
-
-		public void setMaxTotalConnections(int maxTotalConnections) {
-			this.maxTotalConnections = maxTotalConnections;
-		}
-
-		public int getMaxPerRouteConnections() {
-			return maxPerRouteConnections;
-		}
-
-		public void setMaxPerRouteConnections(int maxPerRouteConnections) {
-			this.maxPerRouteConnections = maxPerRouteConnections;
-		}
-
-		public int getSocketTimeoutMillis() {
-			return socketTimeoutMillis;
-		}
-
-		public void setSocketTimeoutMillis(int socketTimeoutMillis) {
-			this.socketTimeoutMillis = socketTimeoutMillis;
-		}
-
-		public int getConnectTimeoutMillis() {
-			return connectTimeoutMillis;
-		}
-
-		public void setConnectTimeoutMillis(int connectTimeoutMillis) {
-			this.connectTimeoutMillis = connectTimeoutMillis;
-		}
-
-		public int getConnectionRequestTimeoutMillis() {
-			return connectionRequestTimeoutMillis;
-		}
-
-		public void setConnectionRequestTimeoutMillis(
-				int connectionRequestTimeoutMillis) {
-			this.connectionRequestTimeoutMillis = connectionRequestTimeoutMillis;
-		}
-
-		public long getTimeToLive() {
-			return timeToLive;
-		}
-
-		public void setTimeToLive(long timeToLive) {
-			this.timeToLive = timeToLive;
-		}
-
-		public TimeUnit getTimeUnit() {
-			return timeUnit;
-		}
-
-		public void setTimeUnit(TimeUnit timeUnit) {
-			this.timeUnit = timeUnit;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-			Host host = (Host) o;
-			return maxTotalConnections == host.maxTotalConnections
-					&& maxPerRouteConnections == host.maxPerRouteConnections
-					&& socketTimeoutMillis == host.socketTimeoutMillis
-					&& connectTimeoutMillis == host.connectTimeoutMillis
-					&& connectionRequestTimeoutMillis == host.connectionRequestTimeoutMillis
-					&& timeToLive == host.timeToLive && timeUnit == host.timeUnit;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(maxTotalConnections, maxPerRouteConnections,
-					socketTimeoutMillis, connectTimeoutMillis,
-					connectionRequestTimeoutMillis, timeToLive, timeUnit);
-		}
-
-		@Override
-		public String toString() {
-			return new ToStringCreator(this)
-					.append("maxTotalConnections", maxTotalConnections)
-					.append("maxPerRouteConnections", maxPerRouteConnections)
-					.append("socketTimeoutMillis", socketTimeoutMillis)
-					.append("connectTimeoutMillis", connectTimeoutMillis)
-					.append("connectionRequestTimeoutMillis",
-							connectionRequestTimeoutMillis)
-					.append("timeToLive", timeToLive).append("timeUnit", timeUnit)
-					.toString();
-		}
-
-	}
-
-	public static class HystrixSemaphore {
-
-		/**
-		 * The maximum number of total semaphores for Hystrix.
-		 */
-		private int maxSemaphores = 100;
-
-		public HystrixSemaphore() {
-		}
-
-		public HystrixSemaphore(int maxSemaphores) {
-			this.maxSemaphores = maxSemaphores;
-		}
-
-		public int getMaxSemaphores() {
-			return maxSemaphores;
-		}
-
-		public void setMaxSemaphores(int maxSemaphores) {
-			this.maxSemaphores = maxSemaphores;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-			HystrixSemaphore that = (HystrixSemaphore) o;
-			return maxSemaphores == that.maxSemaphores;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(maxSemaphores);
-		}
-
-		@Override
-		public String toString() {
-			final StringBuilder sb = new StringBuilder("HystrixSemaphore{");
-			sb.append("maxSemaphores=").append(maxSemaphores);
-			sb.append('}');
-			return sb.toString();
-		}
-
-	}
-
-	public static class HystrixThreadPool {
-
-		/**
-		 * Flag to determine whether RibbonCommands should use separate thread pools for
-		 * hystrix. By setting to true, RibbonCommands will be executed in a hystrix's
-		 * thread pool that it is associated with. Each RibbonCommand will be associated
-		 * with a thread pool according to its commandKey (serviceId). As default, all
-		 * commands will be executed in a single thread pool whose threadPoolKey is
-		 * "RibbonCommand". This property is only applicable when using THREAD as
-		 * ribbonIsolationStrategy
-		 */
-		private boolean useSeparateThreadPools = false;
-
-		/**
-		 * A prefix for HystrixThreadPoolKey of hystrix's thread pool that is allocated to
-		 * each service Id. This property is only applicable when using THREAD as
-		 * ribbonIsolationStrategy and useSeparateThreadPools = true
-		 */
-		private String threadPoolKeyPrefix = "";
-
-		public boolean isUseSeparateThreadPools() {
-			return useSeparateThreadPools;
-		}
-
-		public void setUseSeparateThreadPools(boolean useSeparateThreadPools) {
-			this.useSeparateThreadPools = useSeparateThreadPools;
-		}
-
-		public String getThreadPoolKeyPrefix() {
-			return threadPoolKeyPrefix;
-		}
-
-		public void setThreadPoolKeyPrefix(String threadPoolKeyPrefix) {
-			this.threadPoolKeyPrefix = threadPoolKeyPrefix;
-		}
-
 	}
 
 	public String getServletPattern() {
@@ -953,6 +498,470 @@ public class ZuulProperties {
 				.append("includeDebugHeader=").append(includeDebugHeader).append(", ")
 				.append("initialStreamBufferSize=").append(initialStreamBufferSize)
 				.append(", ").append("}").toString();
+	}
+
+	/**
+	 * Represents a Zuul route.
+	 */
+	public static class ZuulRoute {
+
+		/**
+		 * The ID of the route (the same as its map key by default).
+		 */
+		private String id;
+
+		/**
+		 * The path (pattern) for the route, e.g. /foo/**.
+		 */
+		private String path;
+
+		/**
+		 * The service ID (if any) to map to this route. You can specify a physical URL or
+		 * a service, but not both.
+		 */
+		private String serviceId;
+
+		/**
+		 * A full physical URL to map to the route. An alternative is to use a service ID
+		 * and service discovery to find the physical address.
+		 */
+		private String url;
+
+		/**
+		 * Flag to determine whether the prefix for this route (the path, minus pattern
+		 * patcher) should be stripped before forwarding.
+		 */
+		private boolean stripPrefix = true;
+
+		/**
+		 * Flag to indicate that this route should be retryable (if supported). Generally
+		 * retry requires a service ID and ribbon.
+		 */
+		private Boolean retryable;
+
+		/**
+		 * List of sensitive headers that are not passed to downstream requests. Defaults
+		 * to a "safe" set of headers that commonly contain user credentials. It's OK to
+		 * remove those from the list if the downstream service is part of the same system
+		 * as the proxy, so they are sharing authentication data. If using a physical URL
+		 * outside your own domain, then generally it would be a bad idea to leak user
+		 * credentials.
+		 */
+		private Set<String> sensitiveHeaders = new LinkedHashSet<>();
+
+		private boolean customSensitiveHeaders = false;
+
+		public ZuulRoute() {
+		}
+
+		public ZuulRoute(String id, String path, String serviceId, String url,
+				boolean stripPrefix, Boolean retryable, Set<String> sensitiveHeaders) {
+			this.id = id;
+			this.path = path;
+			this.serviceId = serviceId;
+			this.url = url;
+			this.stripPrefix = stripPrefix;
+			this.retryable = retryable;
+			this.sensitiveHeaders = sensitiveHeaders;
+			this.customSensitiveHeaders = sensitiveHeaders != null;
+		}
+
+		public ZuulRoute(String text) {
+			String location = null;
+			String path = text;
+			if (text.contains("=")) {
+				String[] values = StringUtils
+						.trimArrayElements(StringUtils.split(text, "="));
+				location = values[1];
+				path = values[0];
+			}
+			this.id = extractId(path);
+			if (!path.startsWith("/")) {
+				path = "/" + path;
+			}
+			setLocation(location);
+			this.path = path;
+		}
+
+		public ZuulRoute(String path, String location) {
+			this.id = extractId(path);
+			this.path = path;
+			setLocation(location);
+		}
+
+		public String getLocation() {
+			if (StringUtils.hasText(this.url)) {
+				return this.url;
+			}
+			return this.serviceId;
+		}
+
+		public void setLocation(String location) {
+			if (location != null
+					&& (location.startsWith("http:") || location.startsWith("https:"))) {
+				this.url = location;
+			}
+			else {
+				this.serviceId = location;
+			}
+		}
+
+		private String extractId(String path) {
+			path = path.startsWith("/") ? path.substring(1) : path;
+			path = path.replace("/*", "").replace("*", "");
+			return path;
+		}
+
+		public Route getRoute(String prefix) {
+			return new Route(this.id, this.path, getLocation(), prefix, this.retryable,
+					isCustomSensitiveHeaders() ? this.sensitiveHeaders : null,
+					this.stripPrefix);
+		}
+
+		public boolean isCustomSensitiveHeaders() {
+			return this.customSensitiveHeaders;
+		}
+
+		public void setCustomSensitiveHeaders(boolean customSensitiveHeaders) {
+			this.customSensitiveHeaders = customSensitiveHeaders;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public String getPath() {
+			return path;
+		}
+
+		public void setPath(String path) {
+			this.path = path;
+		}
+
+		public String getServiceId() {
+			return serviceId;
+		}
+
+		public void setServiceId(String serviceId) {
+			this.serviceId = serviceId;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}
+
+		public boolean isStripPrefix() {
+			return stripPrefix;
+		}
+
+		public void setStripPrefix(boolean stripPrefix) {
+			this.stripPrefix = stripPrefix;
+		}
+
+		public Boolean getRetryable() {
+			return retryable;
+		}
+
+		public void setRetryable(Boolean retryable) {
+			this.retryable = retryable;
+		}
+
+		public Set<String> getSensitiveHeaders() {
+			return sensitiveHeaders;
+		}
+
+		public void setSensitiveHeaders(Set<String> headers) {
+			this.customSensitiveHeaders = true;
+			this.sensitiveHeaders = new LinkedHashSet<>(headers);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			ZuulRoute that = (ZuulRoute) o;
+			return customSensitiveHeaders == that.customSensitiveHeaders
+					&& Objects.equals(id, that.id) && Objects.equals(path, that.path)
+					&& Objects.equals(retryable, that.retryable)
+					&& Objects.equals(sensitiveHeaders, that.sensitiveHeaders)
+					&& Objects.equals(serviceId, that.serviceId)
+					&& stripPrefix == that.stripPrefix && Objects.equals(url, that.url);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(customSensitiveHeaders, id, path, retryable,
+					sensitiveHeaders, serviceId, stripPrefix, url);
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder("ZuulRoute{").append("id='").append(id).append("', ")
+					.append("path='").append(path).append("', ").append("serviceId='")
+					.append(serviceId).append("', ").append("url='").append(url)
+					.append("', ").append("stripPrefix=").append(stripPrefix).append(", ")
+					.append("retryable=").append(retryable).append(", ")
+					.append("sensitiveHeaders=").append(sensitiveHeaders).append(", ")
+					.append("customSensitiveHeaders=").append(customSensitiveHeaders)
+					.append(", ").append("}").toString();
+		}
+
+	}
+
+	/**
+	 * Represents a host.
+	 */
+	public static class Host {
+
+		/**
+		 * The maximum number of total connections the proxy can hold open to backends.
+		 */
+		private int maxTotalConnections = 200;
+
+		/**
+		 * The maximum number of connections that can be used by a single route.
+		 */
+		private int maxPerRouteConnections = 20;
+
+		/**
+		 * The socket timeout in millis. Defaults to 10000.
+		 */
+		private int socketTimeoutMillis = 10000;
+
+		/**
+		 * The connection timeout in millis. Defaults to 2000.
+		 */
+		private int connectTimeoutMillis = 2000;
+
+		/**
+		 * The timeout in milliseconds used when requesting a connection from the
+		 * connection manager. Defaults to -1, undefined use the system default.
+		 */
+		private int connectionRequestTimeoutMillis = -1;
+
+		/**
+		 * The lifetime for the connection pool.
+		 */
+		private long timeToLive = -1;
+
+		/**
+		 * The time unit for timeToLive.
+		 */
+		private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+
+		public Host() {
+		}
+
+		public Host(int maxTotalConnections, int maxPerRouteConnections,
+				int socketTimeoutMillis, int connectTimeoutMillis, long timeToLive,
+				TimeUnit timeUnit) {
+			this.maxTotalConnections = maxTotalConnections;
+			this.maxPerRouteConnections = maxPerRouteConnections;
+			this.socketTimeoutMillis = socketTimeoutMillis;
+			this.connectTimeoutMillis = connectTimeoutMillis;
+			this.timeToLive = timeToLive;
+			this.timeUnit = timeUnit;
+		}
+
+		public int getMaxTotalConnections() {
+			return maxTotalConnections;
+		}
+
+		public void setMaxTotalConnections(int maxTotalConnections) {
+			this.maxTotalConnections = maxTotalConnections;
+		}
+
+		public int getMaxPerRouteConnections() {
+			return maxPerRouteConnections;
+		}
+
+		public void setMaxPerRouteConnections(int maxPerRouteConnections) {
+			this.maxPerRouteConnections = maxPerRouteConnections;
+		}
+
+		public int getSocketTimeoutMillis() {
+			return socketTimeoutMillis;
+		}
+
+		public void setSocketTimeoutMillis(int socketTimeoutMillis) {
+			this.socketTimeoutMillis = socketTimeoutMillis;
+		}
+
+		public int getConnectTimeoutMillis() {
+			return connectTimeoutMillis;
+		}
+
+		public void setConnectTimeoutMillis(int connectTimeoutMillis) {
+			this.connectTimeoutMillis = connectTimeoutMillis;
+		}
+
+		public int getConnectionRequestTimeoutMillis() {
+			return connectionRequestTimeoutMillis;
+		}
+
+		public void setConnectionRequestTimeoutMillis(
+				int connectionRequestTimeoutMillis) {
+			this.connectionRequestTimeoutMillis = connectionRequestTimeoutMillis;
+		}
+
+		public long getTimeToLive() {
+			return timeToLive;
+		}
+
+		public void setTimeToLive(long timeToLive) {
+			this.timeToLive = timeToLive;
+		}
+
+		public TimeUnit getTimeUnit() {
+			return timeUnit;
+		}
+
+		public void setTimeUnit(TimeUnit timeUnit) {
+			this.timeUnit = timeUnit;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			Host host = (Host) o;
+			return maxTotalConnections == host.maxTotalConnections
+					&& maxPerRouteConnections == host.maxPerRouteConnections
+					&& socketTimeoutMillis == host.socketTimeoutMillis
+					&& connectTimeoutMillis == host.connectTimeoutMillis
+					&& connectionRequestTimeoutMillis == host.connectionRequestTimeoutMillis
+					&& timeToLive == host.timeToLive && timeUnit == host.timeUnit;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(maxTotalConnections, maxPerRouteConnections,
+					socketTimeoutMillis, connectTimeoutMillis,
+					connectionRequestTimeoutMillis, timeToLive, timeUnit);
+		}
+
+		@Override
+		public String toString() {
+			return new ToStringCreator(this)
+					.append("maxTotalConnections", maxTotalConnections)
+					.append("maxPerRouteConnections", maxPerRouteConnections)
+					.append("socketTimeoutMillis", socketTimeoutMillis)
+					.append("connectTimeoutMillis", connectTimeoutMillis)
+					.append("connectionRequestTimeoutMillis",
+							connectionRequestTimeoutMillis)
+					.append("timeToLive", timeToLive).append("timeUnit", timeUnit)
+					.toString();
+		}
+
+	}
+
+	/**
+	 * Represents Hystrix Sempahores.
+	 */
+	public static class HystrixSemaphore {
+
+		/**
+		 * The maximum number of total semaphores for Hystrix.
+		 */
+		private int maxSemaphores = 100;
+
+		public HystrixSemaphore() {
+		}
+
+		public HystrixSemaphore(int maxSemaphores) {
+			this.maxSemaphores = maxSemaphores;
+		}
+
+		public int getMaxSemaphores() {
+			return maxSemaphores;
+		}
+
+		public void setMaxSemaphores(int maxSemaphores) {
+			this.maxSemaphores = maxSemaphores;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			HystrixSemaphore that = (HystrixSemaphore) o;
+			return maxSemaphores == that.maxSemaphores;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(maxSemaphores);
+		}
+
+		@Override
+		public String toString() {
+			final StringBuilder sb = new StringBuilder("HystrixSemaphore{");
+			sb.append("maxSemaphores=").append(maxSemaphores);
+			sb.append('}');
+			return sb.toString();
+		}
+
+	}
+
+	/**
+	 * Represents Hystrix ThreadPool.
+	 */
+	public static class HystrixThreadPool {
+
+		/**
+		 * Flag to determine whether RibbonCommands should use separate thread pools for
+		 * hystrix. By setting to true, RibbonCommands will be executed in a hystrix's
+		 * thread pool that it is associated with. Each RibbonCommand will be associated
+		 * with a thread pool according to its commandKey (serviceId). As default, all
+		 * commands will be executed in a single thread pool whose threadPoolKey is
+		 * "RibbonCommand". This property is only applicable when using THREAD as
+		 * ribbonIsolationStrategy
+		 */
+		private boolean useSeparateThreadPools = false;
+
+		/**
+		 * A prefix for HystrixThreadPoolKey of hystrix's thread pool that is allocated to
+		 * each service Id. This property is only applicable when using THREAD as
+		 * ribbonIsolationStrategy and useSeparateThreadPools = true
+		 */
+		private String threadPoolKeyPrefix = "";
+
+		public boolean isUseSeparateThreadPools() {
+			return useSeparateThreadPools;
+		}
+
+		public void setUseSeparateThreadPools(boolean useSeparateThreadPools) {
+			this.useSeparateThreadPools = useSeparateThreadPools;
+		}
+
+		public String getThreadPoolKeyPrefix() {
+			return threadPoolKeyPrefix;
+		}
+
+		public void setThreadPoolKeyPrefix(String threadPoolKeyPrefix) {
+			this.threadPoolKeyPrefix = threadPoolKeyPrefix;
+		}
+
 	}
 
 }

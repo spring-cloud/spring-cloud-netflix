@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doThrow;
@@ -110,7 +106,7 @@ public class SendResponseFilterTests {
 
 		String debugHeader = RequestContext.getCurrentContext().getResponse()
 				.getHeader(X_ZUUL_DEBUG_HEADER);
-		assertThat("wrong debug header", debugHeader, equalTo("[[[test]]]"));
+		assertThat(debugHeader).as("wrong debug header").isEqualTo("[[[test]]]");
 	}
 
 	/*
@@ -129,7 +125,7 @@ public class SendResponseFilterTests {
 
 		String contentLength = RequestContext.getCurrentContext().getResponse()
 				.getHeader("Content-Length");
-		assertThat("wrong origin content length", contentLength, equalTo("6"));
+		assertThat(contentLength).as("wrong origin content length").isEqualTo("6");
 	}
 
 	/*
@@ -145,8 +141,7 @@ public class SendResponseFilterTests {
 
 		byte[] gzipData = gzipData("hello");
 
-		RequestContext.getCurrentContext()
-				.setOriginContentLength((long) gzipData.length); // for
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for
 		// test
 		RequestContext.getCurrentContext().setResponseGZipped(true);
 		RequestContext.getCurrentContext()
@@ -183,8 +178,7 @@ public class SendResponseFilterTests {
 
 		byte[] gzipData = gzipData("hello");
 
-		RequestContext.getCurrentContext()
-				.setOriginContentLength((long) gzipData.length); // for
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for
 		// test
 		RequestContext.getCurrentContext().setResponseGZipped(true);
 		RequestContext.getCurrentContext()
@@ -196,7 +190,7 @@ public class SendResponseFilterTests {
 				.getCurrentContext().getResponse();
 		assertThat(response.getHeader("Content-Length")).isNull();
 		assertThat(response.getHeader("Content-Encoding")).isNull();
-		assertThat("wrong content", response.getContentAsString(), equalTo("hello"));
+		assertThat(response.getContentAsString()).as("wrong content").isEqualTo("hello");
 	}
 
 	/*
@@ -213,8 +207,7 @@ public class SendResponseFilterTests {
 
 		byte[] gzipData = "hello".getBytes();
 
-		RequestContext.getCurrentContext()
-				.setOriginContentLength((long) gzipData.length); // for
+		RequestContext.getCurrentContext().setOriginContentLength((long) gzipData.length); // for
 		// test
 		RequestContext.getCurrentContext().setResponseGZipped(true); // say it is GZipped
 		// although not
@@ -228,8 +221,7 @@ public class SendResponseFilterTests {
 				.getCurrentContext().getResponse();
 		assertThat(response.getHeader("Content-Length")).isNull();
 		assertThat(response.getHeader("Content-Encoding")).isNull();
-		assertThat("wrong content", response
-				.getContentAsString(), equalTo("hello")); // response
+		assertThat(response.getContentAsString()).as("wrong content").isEqualTo("hello"); // response
 		// sent
 		// "asis"
 	}
@@ -257,7 +249,7 @@ public class SendResponseFilterTests {
 				.getCurrentContext().getResponse();
 		assertThat(response.getHeader("Content-Length")).isNull();
 		assertThat(response.getHeader("Content-Encoding")).isNull();
-		assertThat(response.getContentAsByteArray(), equalTo(gzipData));
+		assertThat(response.getContentAsByteArray()).isEqualTo(gzipData);
 	}
 
 	@Test
@@ -287,8 +279,8 @@ public class SendResponseFilterTests {
 			filter.run();
 		}
 		catch (UndeclaredThrowableException ex) {
-			assertThat(ex.getUndeclaredThrowable().getMessage(),
-					is("Response to client closed"));
+			assertThat(ex.getUndeclaredThrowable().getMessage())
+					.isEqualTo("Response to client closed");
 		}
 
 		verify(zuulResponse).close();
@@ -324,14 +316,14 @@ public class SendResponseFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		SendResponseFilter filter = createFilter(content, characterEncoding, response,
 				streamContent);
-		assertTrue("shouldFilter returned false", filter.shouldFilter());
+		assertThat(filter.shouldFilter()).as("shouldFilter returned false").isTrue();
 		filter.run();
 		String encoding = RequestContext.getCurrentContext().getResponse()
 				.getCharacterEncoding();
 		String expectedEncoding = characterEncoding != null ? characterEncoding
 				: WebUtils.DEFAULT_CHARACTER_ENCODING;
-		assertThat("wrong character encoding", encoding, equalTo(expectedEncoding));
-		assertThat("wrong content", response.getContentAsString(), equalTo(content));
+		assertThat(encoding).as("wrong character encoding").isEqualTo(expectedEncoding);
+		assertThat(response.getContentAsString()).as("wrong content").isEqualTo(content);
 	}
 
 	private SendResponseFilter createFilter(String content, String characterEncoding,

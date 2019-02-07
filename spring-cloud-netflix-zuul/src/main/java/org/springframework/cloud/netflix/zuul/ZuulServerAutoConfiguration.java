@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul;
@@ -85,7 +84,7 @@ import static java.util.Collections.emptyList;
  */
 @Configuration
 @EnableConfigurationProperties({ ZuulProperties.class })
-@ConditionalOnClass({ZuulServlet.class, ZuulServletFilter.class})
+@ConditionalOnClass({ ZuulServlet.class, ZuulServletFilter.class })
 @ConditionalOnBean(ZuulServerMarkerConfiguration.Marker.class)
 // Make sure to get the ServerProperties from the same place as a normal web app would
 // FIXME @Import(ServerPropertiesAutoConfiguration.class)
@@ -219,7 +218,7 @@ public class ZuulServerAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "zuul.ribbon.eager-load.enabled")
+	@ConditionalOnProperty("zuul.ribbon.eager-load.enabled")
 	public ZuulRouteApplicationContextInitializer zuulRoutesApplicationContextInitiazer(
 			SpringClientFactory springClientFactory) {
 		return new ZuulRouteApplicationContextInitializer(springClientFactory,

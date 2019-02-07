@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,7 @@ import org.springframework.cloud.netflix.ribbon.test.RibbonClientDefaultConfigur
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -49,20 +47,20 @@ public class RibbonClientDefaultConfigurationTests {
 
 	@Test
 	public void ruleOverridesDefault() throws Exception {
-		assertThat("wrong rule type", getLoadBalancer("baz").getRule(),
-				is(instanceOf(BestAvailableRule.class)));
+		assertThat(getLoadBalancer("baz").getRule()).as("wrong rule type")
+				.isInstanceOf(BestAvailableRule.class);
 	}
 
 	@Test
 	public void pingOverridesDefault() throws Exception {
-		assertThat("wrong ping type", getLoadBalancer("baz").getPing(),
-				is(instanceOf(PingUrl.class)));
+		assertThat(getLoadBalancer("baz").getPing()).as("wrong ping type")
+				.isInstanceOf(PingUrl.class);
 	}
 
 	@Test
 	public void serverListOverridesDefault() throws Exception {
-		assertThat("wrong server list type", getLoadBalancer("baz").getServerListImpl(),
-				is(instanceOf(BazServiceList.class)));
+		assertThat(getLoadBalancer("baz").getServerListImpl())
+				.as("wrong server list type").isInstanceOf(BazServiceList.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,8 +70,8 @@ public class RibbonClientDefaultConfigurationTests {
 
 	@Test
 	public void serverListFilterOverride() throws Exception {
-		assertThat("wrong filter type", getLoadBalancer("baz").getFilter(),
-				is(instanceOf(ServerListSubsetFilter.class)));
+		assertThat(getLoadBalancer("baz").getFilter()).as("wrong filter type")
+				.isInstanceOf(ServerListSubsetFilter.class);
 	}
 
 }

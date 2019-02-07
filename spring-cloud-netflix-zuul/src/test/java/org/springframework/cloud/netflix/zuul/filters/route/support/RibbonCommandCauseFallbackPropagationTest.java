@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
@@ -138,44 +137,66 @@ public class RibbonCommandCauseFallbackPropagationTest {
 				.isEqualTo(HystrixTimeoutException.class);
 	}
 
-	public static class TestRibbonCommand extends
-			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
+	private static ClientHttpResponse getClientHttpResponse(final HttpStatus status) {
+		return new ClientHttpResponse() {
+			@Override
+			public HttpStatus getStatusCode() throws IOException {
+				return status;
+			}
 
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				FallbackProvider fallbackProvider, RibbonCommandContext context) {
-			this(client, new ZuulProperties(), fallbackProvider, context);
-		}
+			@Override
+			public int getRawStatusCode() throws IOException {
+				return getStatusCode().value();
+			}
 
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				ZuulProperties zuulProperties, FallbackProvider fallbackProvider,
-				RibbonCommandContext context) {
-			super("testCommand" + UUID.randomUUID(), client, context, zuulProperties,
-					fallbackProvider);
-		}
+			@Override
+			public String getStatusText() throws IOException {
+				return getStatusCode().getReasonPhrase();
+			}
 
-		public TestRibbonCommand(
-				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
-				FallbackProvider fallbackProvider, int timeout,
-				RibbonCommandContext context) {
-			// different name is used because of properties caching
-			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(),
-					new DefaultClientConfigImpl()).andCommandPropertiesDefaults(
-					defauts(timeout)),
-					client, context, fallbackProvider, null);
-		}
+			@Override
+			public void close() {
+			}
 
-		private static HystrixCommandProperties.Setter defauts(final int timeout) {
-			return HystrixCommandProperties.Setter().withExecutionTimeoutEnabled(true)
-					.withExecutionIsolationStrategy(
-							HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
-					.withExecutionTimeoutInMilliseconds(timeout);
+			@Override
+			public InputStream getBody() throws IOException {
+				return new ByteArrayInputStream("test".getBytes());
+			}
+
+			@Override
+			public HttpHeaders getHeaders() {
+				return new HttpHeaders();
+			}
+		};
+	}
+
+	public static class TestFallbackProvider implements FallbackProvider {
+
+		private final ClientHttpResponse response;
+
+		private Throwable cause;
+
+		public TestFallbackProvider(final ClientHttpResponse response) {
+			this.response = response;
 		}
 
 		@Override
-		protected ClientRequest createRequest() throws Exception {
-			return null;
+		public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
+			this.cause = cause;
+			return response;
+		}
+
+		@Override
+		public String getRoute() {
+			return "test-route";
+		}
+
+		public Throwable getCause() {
+			return cause;
+		}
+
+		public static TestFallbackProvider withResponse(final HttpStatus status) {
+			return new TestFallbackProvider(getClientHttpResponse(status));
 		}
 
 	}
@@ -210,68 +231,46 @@ public class RibbonCommandCauseFallbackPropagationTest {
 
 	}
 
-	public static class TestFallbackProvider implements FallbackProvider {
+	public static class TestRibbonCommand extends
+			AbstractRibbonCommand<AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse>, ClientRequest, HttpResponse> {
 
-		private final ClientHttpResponse response;
+		public TestRibbonCommand(
+				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+				FallbackProvider fallbackProvider, RibbonCommandContext context) {
+			this(client, new ZuulProperties(), fallbackProvider, context);
+		}
 
-		private Throwable cause;
+		public TestRibbonCommand(
+				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+				ZuulProperties zuulProperties, FallbackProvider fallbackProvider,
+				RibbonCommandContext context) {
+			super("testCommand" + UUID.randomUUID(), client, context, zuulProperties,
+					fallbackProvider);
+		}
 
-		public TestFallbackProvider(final ClientHttpResponse response) {
-			this.response = response;
+		public TestRibbonCommand(
+				AbstractLoadBalancerAwareClient<ClientRequest, HttpResponse> client,
+				FallbackProvider fallbackProvider, int timeout,
+				RibbonCommandContext context) {
+			// different name is used because of properties caching
+			super(getSetter("testCommand" + UUID.randomUUID(), new ZuulProperties(),
+					new DefaultClientConfigImpl()).andCommandPropertiesDefaults(
+							defauts(timeout)),
+					client, context, fallbackProvider, null);
+		}
+
+		private static HystrixCommandProperties.Setter defauts(final int timeout) {
+			return HystrixCommandProperties.Setter().withExecutionTimeoutEnabled(true)
+					.withExecutionIsolationStrategy(
+							HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
+					.withExecutionTimeoutInMilliseconds(timeout);
 		}
 
 		@Override
-		public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
-			this.cause = cause;
-			return response;
+		protected ClientRequest createRequest() throws Exception {
+			return null;
 		}
 
-		@Override
-		public String getRoute() {
-			return "test-route";
-		}
-
-		public Throwable getCause() {
-			return cause;
-		}
-
-		public static TestFallbackProvider withResponse(final HttpStatus status) {
-			return new TestFallbackProvider(getClientHttpResponse(status));
-		}
-
-	}
-
-	private static ClientHttpResponse getClientHttpResponse(final HttpStatus status) {
-		return new ClientHttpResponse() {
-			@Override
-			public HttpStatus getStatusCode() throws IOException {
-				return status;
-			}
-
-			@Override
-			public int getRawStatusCode() throws IOException {
-				return getStatusCode().value();
-			}
-
-			@Override
-			public String getStatusText() throws IOException {
-				return getStatusCode().getReasonPhrase();
-			}
-
-			@Override
-			public void close() {
-			}
-
-			@Override
-			public InputStream getBody() throws IOException {
-				return new ByteArrayInputStream("test".getBytes());
-			}
-
-			@Override
-			public HttpHeaders getHeaders() {
-				return new HttpHeaders();
-			}
-		};
 	}
 
 }

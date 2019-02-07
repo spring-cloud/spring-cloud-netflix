@@ -20,6 +20,7 @@ import java.util.Objects;
 
 /**
  * Stores management metadata for Eureka.
+ *
  * @author Nastya Smirnova
  * @author Ryan Baxter
  */

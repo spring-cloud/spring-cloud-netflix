@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Dave Syer
@@ -47,7 +47,7 @@ public class ZonePreferenceServerListFilterTests {
 		ZonePreferenceServerListFilter filter = new ZonePreferenceServerListFilter();
 		List<Server> result = filter
 				.getFilteredListOfServers(Arrays.asList(this.localhost));
-		assertEquals(1, result.size());
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class ZonePreferenceServerListFilterTests {
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
 		List<Server> result = filter
 				.getFilteredListOfServers(Arrays.asList(this.localhost));
-		assertEquals(1, result.size());
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class ZonePreferenceServerListFilterTests {
 		ReflectionTestUtils.setField(filter, "zone", "dsyer");
 		List<Server> result = filter
 				.getFilteredListOfServers(Arrays.asList(this.dsyer, this.localhost));
-		assertEquals(1, result.size());
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 }

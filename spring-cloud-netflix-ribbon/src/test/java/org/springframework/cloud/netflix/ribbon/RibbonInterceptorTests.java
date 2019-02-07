@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,7 @@ import org.springframework.http.client.support.HttpRequestWrapper;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
@@ -76,11 +75,11 @@ public class RibbonInterceptorTests {
 				.forClass(HttpRequestWrapper.class);
 		ClientHttpResponse response = interceptor.intercept(this.request, new byte[0],
 				this.execution);
-		assertNotNull("response was null", response);
+		assertThat(response).as("response was null").isNotNull();
 		verify(this.execution).execute(argument.capture(), isA(byte[].class));
 		HttpRequestWrapper wrapper = argument.getValue();
-		assertEquals("wrong constructed uri", new URL("http://myhost:8080").toURI(),
-				wrapper.getURI());
+		assertThat(wrapper.getURI()).as("wrong constructed uri")
+				.isEqualTo(new URL("http://myhost:8080").toURI());
 	}
 
 	protected static class MyClient implements LoadBalancerClient {

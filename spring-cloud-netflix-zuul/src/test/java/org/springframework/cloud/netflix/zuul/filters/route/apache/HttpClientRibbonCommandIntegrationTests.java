@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
@@ -68,9 +67,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.WebUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 /**
@@ -96,8 +93,8 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.PATCH,
 				new HttpEntity<>("TestPatch"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Patched 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Patched 1!");
 	}
 
 	@Test
@@ -105,8 +102,8 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.POST,
 				new HttpEntity<>("TestPost"), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Posted 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Posted 1!");
 	}
 
 	@Test
@@ -114,8 +111,8 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/local/1", HttpMethod.DELETE,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Deleted 1!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Deleted 1!");
 	}
 
 	@Test
@@ -123,9 +120,9 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/simple/downstream_cookie",
 				HttpMethod.POST, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Cookie 434354454!", result.getBody());
-		assertNull(result.getHeaders().getFirst(SET_COOKIE));
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Cookie 434354454!");
+		assertThat(result.getHeaders().getFirst(SET_COOKIE)).isNull();
 
 		// if new instance of RibbonLoadBalancingHttpClient is getting created every time
 		// and HttpClient is not reused then there are no concerns for the shared cookie
@@ -135,21 +132,22 @@ public class HttpClientRibbonCommandIntegrationTests extends ZuulProxyTestBase {
 		result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/singleton/downstream_cookie",
 				HttpMethod.POST, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Cookie 434354454!", result.getBody());
-		assertEquals("jsessionid=434354454", result.getHeaders().getFirst(SET_COOKIE));
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Cookie 434354454!");
+		assertThat(result.getHeaders().getFirst(SET_COOKIE))
+				.isEqualTo("jsessionid=434354454");
 
 		result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + "/singleton/downstream_cookie",
 				HttpMethod.GET, new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("Cookie null!", result.getBody());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).isEqualTo("Cookie null!");
 	}
 
 	@Test
 	public void ribbonCommandFactoryOverridden() {
-		assertTrue("ribbonCommandFactory not a HttpClientRibbonCommandFactory",
-				this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory);
+		assertThat(this.ribbonCommandFactory instanceof HttpClientRibbonCommandFactory)
+				.as("ribbonCommandFactory not a HttpClientRibbonCommandFactory").isTrue();
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan

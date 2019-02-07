@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.web;
@@ -68,7 +67,6 @@ public class ZuulHandlerMappingTests {
 	public void defaultPath() throws Exception {
 		Mockito.when(this.locator.getRoutes()).thenReturn(Collections
 				.singletonList(new Route("default", "/**", "foo", "", null, null)));
-		;
 		this.request.setServletPath("/");
 		this.mapping.setDirty(true);
 		assertThat(this.mapping.getHandler(this.request)).isNotNull();
@@ -91,15 +89,15 @@ public class ZuulHandlerMappingTests {
 
 		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p3/"),
 				new Route("p1", "/p1/**/p3", "p1", "", null, null))
-				.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
+						.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
 
 		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p3/**"),
 				new Route("p1", "/p1/**/p3", "p1", "", null, null))
-				.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
+						.getHandler(requestForAPath("/p1/p2/p3"))).isNull();
 
 		assertThat(mappingWithIgnoredPathsAndRoutes(Arrays.asList("/p1/**/p4/"),
 				new Route("p1", "/p1/**/p4/", "p1", "", null, null))
-				.getHandler(requestForAPath("/p1/p2/p3/p4"))).isNull();
+						.getHandler(requestForAPath("/p1/p2/p3/p4"))).isNull();
 	}
 
 	private ZuulHandlerMapping mappingWithIgnoredPathsAndRoutes(List<String> ignoredPaths,

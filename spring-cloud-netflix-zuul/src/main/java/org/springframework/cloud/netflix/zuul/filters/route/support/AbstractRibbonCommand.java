@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,13 +48,11 @@ import org.springframework.http.client.ClientHttpResponse;
 /**
  * @param <RQ> {@link ClientRequest} subtype
  * @param <LBC> {@link AbstractLoadBalancingClient} subtype
- * @param <RQ>  {@link  ClientRequest} subtype
+ * @param <RQ> {@link ClientRequest} subtype
  * @param <RS> {@link HttpResponse} subtype
  * @author Spencer Gibb
  */
-public abstract class AbstractRibbonCommand
-		<LBC extends AbstractLoadBalancerAwareClient<RQ, RS>, RQ extends ClientRequest,
-				RS extends HttpResponse>
+public abstract class AbstractRibbonCommand<LBC extends AbstractLoadBalancerAwareClient<RQ, RS>, RQ extends ClientRequest, RS extends HttpResponse>
 		extends HystrixCommand<ClientHttpResponse> implements RibbonCommand {
 
 	private static final Log LOGGER = LogFactory.getLog(AbstractRibbonCommand.class);
@@ -214,7 +212,7 @@ public abstract class AbstractRibbonCommand
 
 		boolean retryableClient = this.client instanceof AbstractLoadBalancingClient
 				&& ((AbstractLoadBalancingClient) this.client)
-				.isClientRetryable((ContextAwareRequest) request);
+						.isClientRetryable((ContextAwareRequest) request);
 
 		if (retryableClient) {
 			response = this.client.execute(request, config);

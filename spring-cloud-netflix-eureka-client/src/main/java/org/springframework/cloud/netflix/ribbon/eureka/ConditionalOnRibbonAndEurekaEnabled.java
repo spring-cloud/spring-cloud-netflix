@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Conditional;
  * @author Ihor Kryvenko
  * @author Spencer Gibb
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional(ConditionalOnRibbonAndEurekaEnabled.OnRibbonAndEurekaEnabledCondition.class)

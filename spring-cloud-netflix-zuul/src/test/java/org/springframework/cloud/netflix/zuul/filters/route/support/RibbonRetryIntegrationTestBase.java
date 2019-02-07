@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route.support;
@@ -52,7 +51,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Ryan Baxter
@@ -78,7 +77,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
@@ -87,7 +86,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
@@ -96,7 +95,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
@@ -105,7 +104,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.OK, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 
 	@Test
@@ -114,7 +113,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 		ResponseEntity<String> result = new TestRestTemplate().exchange(
 				"http://localhost:" + this.port + uri, HttpMethod.POST,
 				new HttpEntity<>((Void) null), String.class);
-		assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@Test
@@ -124,7 +123,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		LOG.info("Response Body: " + result.getBody());
-		assertEquals(HttpStatus.GATEWAY_TIMEOUT, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
 	}
 
 	@Test
@@ -134,7 +133,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 				"http://localhost:" + this.port + uri, HttpMethod.GET,
 				new HttpEntity<>((Void) null), String.class);
 		LOG.info("Response Body: " + result.getBody());
-		assertEquals(HttpStatus.GATEWAY_TIMEOUT, result.getStatusCode());
+		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
 	}
 
 	// Don't use @SpringBootApplication because we don't want to component scan
@@ -237,7 +236,7 @@ public abstract class RibbonRetryIntegrationTestBase {
 
 			class MyLoadBalancedRetryPolicy extends RibbonLoadBalancedRetryPolicy {
 
-				public MyLoadBalancedRetryPolicy(String serviceId,
+				MyLoadBalancedRetryPolicy(String serviceId,
 						RibbonLoadBalancerContext context,
 						ServiceInstanceChooser loadBalanceChooser) {
 					super(serviceId, context, loadBalanceChooser);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
 
@@ -105,7 +96,7 @@ public class ProxyRequestHelperTests {
 		zuulProperties.setTraceRequestBody(false);
 		ProxyRequestHelper helper = new ProxyRequestHelper(zuulProperties);
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isFalse();
 	}
 
 	@Test
@@ -117,7 +108,7 @@ public class ProxyRequestHelperTests {
 
 		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isFalse();
 	}
 
 	@Test
@@ -129,7 +120,7 @@ public class ProxyRequestHelperTests {
 
 		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isFalse();
 	}
 
 	@Test
@@ -141,7 +132,7 @@ public class ProxyRequestHelperTests {
 
 		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(true));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isTrue();
 	}
 
 	@Test
@@ -150,7 +141,7 @@ public class ProxyRequestHelperTests {
 
 		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(true));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isTrue();
 	}
 
 	@Test
@@ -162,7 +153,7 @@ public class ProxyRequestHelperTests {
 
 		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(true));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isTrue();
 	}
 
 	@Test
@@ -174,7 +165,7 @@ public class ProxyRequestHelperTests {
 
 		ProxyRequestHelper helper = new ProxyRequestHelper(new ZuulProperties());
 
-		assertThat("shouldDebugBody wrong", helper.shouldDebugBody(context), is(false));
+		assertThat(helper.shouldDebugBody(context)).as("shouldDebugBody wrong").isFalse();
 	}
 
 	@Test
@@ -190,15 +181,15 @@ public class ProxyRequestHelperTests {
 
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 		List<String> singleName = headers.get("singleName");
-		assertThat(singleName, is(notNullValue()));
-		assertThat(singleName.size(), is(1));
+		assertThat(singleName).isNotNull();
+		assertThat(singleName.size()).isEqualTo(1);
 
 		List<String> multiName = headers.get("multiName");
-		assertThat(multiName, is(notNullValue()));
-		assertThat(multiName.size(), is(2));
+		assertThat(multiName).isNotNull();
+		assertThat(multiName.size()).isEqualTo(2);
 
 		List<String> missingName = headers.get("missingName");
-		assertThat(missingName, is(nullValue()));
+		assertThat(missingName).isNull();
 
 	}
 
@@ -211,8 +202,8 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
 		List<String> acceptEncodings = headers.get("accept-encoding");
-		assertThat(acceptEncodings, hasSize(1));
-		assertThat(acceptEncodings, contains("gzip"));
+		assertThat(acceptEncodings).hasSize(1);
+		assertThat(acceptEncodings).containsExactly("gzip");
 	}
 
 	@Test
@@ -225,8 +216,8 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
 		List<String> contentEncodings = headers.get("content-encoding");
-		assertThat(contentEncodings, hasSize(1));
-		assertThat(contentEncodings, contains("identity"));
+		assertThat(contentEncodings).hasSize(1);
+		assertThat(contentEncodings).containsExactly("identity");
 	}
 
 	@Test
@@ -239,8 +230,8 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
 		List<String> acceptEncodings = headers.get("accept-encoding");
-		assertThat(acceptEncodings, hasSize(1));
-		assertThat(acceptEncodings, contains("identity"));
+		assertThat(acceptEncodings).hasSize(1);
+		assertThat(acceptEncodings).containsExactly("identity");
 	}
 
 	@Test
@@ -255,15 +246,15 @@ public class ProxyRequestHelperTests {
 		MultiValueMap<String, String> headers = helper.buildZuulRequestHeaders(request);
 
 		List<String> acceptEncodings = headers.get("host");
-		assertThat(acceptEncodings, hasSize(1));
-		assertThat(acceptEncodings, contains("foo.com"));
+		assertThat(acceptEncodings).hasSize(1);
+		assertThat(acceptEncodings).containsExactly("foo.com");
 
 		zuulProperties.setAddHostHeader(false);
 		helper = new ProxyRequestHelper(zuulProperties);
 		headers = helper.buildZuulRequestHeaders(request);
 
 		acceptEncodings = headers.get("host");
-		assertNull(acceptEncodings);
+		assertThat(acceptEncodings).isNull();
 	}
 
 	@Test
@@ -281,7 +272,7 @@ public class ProxyRequestHelperTests {
 		headers.add(HttpHeaders.CONTENT_ENCODING.toLowerCase(), "gzip");
 
 		helper.setResponse(200, request.getInputStream(), headers);
-		assertTrue(context.getResponseGZipped());
+		assertThat(context.getResponseGZipped()).isTrue();
 	}
 
 	@Test
@@ -300,9 +291,9 @@ public class ProxyRequestHelperTests {
 		headers.add("some-header", "some-value");
 
 		helper.setResponse(200, request.getInputStream(), headers);
-		assertThat(context.getOriginResponseHeaders(),
-				containsInAnyOrder(new Pair<>(HttpHeaders.CONTENT_TYPE, "text/plain"),
-						new Pair<>("some-header", "some-value")));
+		assertThat(context.getOriginResponseHeaders()).contains(
+				new Pair<>(HttpHeaders.CONTENT_TYPE, "text/plain"),
+				new Pair<>("some-header", "some-value"));
 	}
 
 	@Test
@@ -320,7 +311,7 @@ public class ProxyRequestHelperTests {
 		headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
 
 		helper.setResponse(200, request.getInputStream(), headers);
-		assertTrue(context.getResponseGZipped());
+		assertThat(context.getResponseGZipped()).isTrue();
 	}
 
 	@Test
@@ -332,7 +323,7 @@ public class ProxyRequestHelperTests {
 		String queryString = new ProxyRequestHelper(new ZuulProperties())
 				.getQueryString(params);
 
-		assertThat(queryString, is("?a=1234&b=5678"));
+		assertThat(queryString).isEqualTo("?a=1234&b=5678");
 	}
 
 	@Test
@@ -343,7 +334,7 @@ public class ProxyRequestHelperTests {
 		String queryString = new ProxyRequestHelper(new ZuulProperties())
 				.getQueryString(params);
 
-		assertThat(queryString, is("?wsdl"));
+		assertThat(queryString).isEqualTo("?wsdl");
 	}
 
 	@Test
@@ -354,7 +345,7 @@ public class ProxyRequestHelperTests {
 		String queryString = new ProxyRequestHelper(new ZuulProperties())
 				.getQueryString(params);
 
-		assertThat(queryString, is("?foo=weird%23chars"));
+		assertThat(queryString).isEqualTo("?foo=weird%23chars");
 	}
 
 	@Test
@@ -367,7 +358,7 @@ public class ProxyRequestHelperTests {
 		String queryString = new ProxyRequestHelper(new ZuulProperties())
 				.getQueryString(params);
 
-		assertThat(queryString, is("?foo:bar=baz&foobar=bam&foo%0Cbar=bat"));
+		assertThat(queryString).isEqualTo("?foo:bar=baz&foobar=bam&foo%0Cbar=bat");
 	}
 
 	@Test
@@ -383,7 +374,7 @@ public class ProxyRequestHelperTests {
 
 		final String requestURI = new ProxyRequestHelper(new ZuulProperties())
 				.buildZuulRequestURI(request);
-		assertThat(requestURI, equalTo(encodedURI));
+		assertThat(requestURI).isEqualTo(encodedURI);
 	}
 
 	@Test
@@ -398,7 +389,7 @@ public class ProxyRequestHelperTests {
 
 		final String requestURI = new ProxyRequestHelper(new ZuulProperties())
 				.buildZuulRequestURI(request);
-		assertThat(requestURI, equalTo(encodedURI));
+		assertThat(requestURI).isEqualTo(encodedURI);
 	}
 
 	@Test
@@ -415,7 +406,7 @@ public class ProxyRequestHelperTests {
 
 		String uri = helper.buildZuulRequestURI(request);
 
-		assertThat(uri, is(encodedRequestURI));
+		assertThat(uri).isEqualTo(encodedRequestURI);
 	}
 
 	@Test
@@ -431,7 +422,7 @@ public class ProxyRequestHelperTests {
 
 		String uri = helper.buildZuulRequestURI(request);
 
-		assertThat(uri, is(encodedRequestURI));
+		assertThat(uri).isEqualTo(encodedRequestURI);
 	}
 
 }

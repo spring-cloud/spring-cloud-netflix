@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -55,7 +54,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-		"server.servlet.context-path: /app"})
+		"server.servlet.context-path: /app" })
 @DirtiesContext
 public class SimpleHostRoutingFilterIntegrationTests {
 
@@ -358,7 +357,7 @@ public class SimpleHostRoutingFilterIntegrationTests {
 			return null;
 		}
 
-		@RequestMapping(value = "/echo")
+		@RequestMapping("/echo")
 		public Map<String, Object> echoRequestAttributes(
 				@RequestHeader HttpHeaders httpHeaders, HttpServletRequest request)
 				throws IOException {
@@ -370,7 +369,7 @@ public class SimpleHostRoutingFilterIntegrationTests {
 
 		@Bean
 		MultipartConfigElement multipartConfigElement() {
-			long maxSize = 10l * 1024 * 1024 * 1024;
+			long maxSize = 10L * 1024 * 1024 * 1024;
 			return new MultipartConfigElement("", maxSize, maxSize, 0);
 		}
 

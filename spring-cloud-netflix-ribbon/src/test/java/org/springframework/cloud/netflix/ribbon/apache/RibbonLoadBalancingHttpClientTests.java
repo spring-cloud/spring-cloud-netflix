@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.ribbon.apache;
@@ -78,13 +77,8 @@ import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -124,7 +118,7 @@ public class RibbonLoadBalancingHttpClientTests {
 	public void testRequestConfigUseDefaultsNoOverride() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
 
-		assertThat(result.isRedirectsEnabled(), is(false));
+		assertThat(result.isRedirectsEnabled()).isFalse();
 
 	}
 
@@ -132,34 +126,34 @@ public class RibbonLoadBalancingHttpClientTests {
 	public void testRequestConfigDoNotFollowRedirectsNoOverride() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(DoNotFollowRedirects.class, null);
 
-		assertThat(result.isRedirectsEnabled(), is(false));
+		assertThat(result.isRedirectsEnabled()).isFalse();
 	}
 
 	@Test
 	public void testRequestConfigFollowRedirectsNoOverride() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(FollowRedirects.class, null);
 
-		assertThat(result.isRedirectsEnabled(), is(true));
+		assertThat(result.isRedirectsEnabled()).isTrue();
 	}
 
 	@Test
 	public void testTimeouts() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(Timeouts.class, null);
-		assertThat(result.getConnectTimeout(), is(60000));
-		assertThat(result.getSocketTimeout(), is(50000));
+		assertThat(result.getConnectTimeout()).isEqualTo(60000);
+		assertThat(result.getSocketTimeout()).isEqualTo(50000);
 	}
 
 	@Test
 	public void testDefaultTimeouts() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
-		assertThat(result.getConnectTimeout(), is(1000));
-		assertThat(result.getSocketTimeout(), is(1000));
+		assertThat(result.getConnectTimeout()).isEqualTo(1000);
+		assertThat(result.getSocketTimeout()).isEqualTo(1000);
 	}
 
 	@Test
 	public void testCompressionDefault() throws Exception {
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, null);
-		assertTrue(result.isContentCompressionEnabled());
+		assertThat(result.isContentCompressionEnabled()).isTrue();
 	}
 
 	@Test
@@ -168,7 +162,7 @@ public class RibbonLoadBalancingHttpClientTests {
 				.getClientConfigWithDefaultValues();
 		configOverride.set(CommonClientConfigKey.GZipPayload, false);
 		RequestConfig result = getBuiltRequestConfig(UseDefaults.class, configOverride);
-		assertFalse(result.isContentCompressionEnabled());
+		assertThat(result.isContentCompressionEnabled()).isFalse();
 	}
 
 	@Test
@@ -182,8 +176,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		HttpClient delegate = client.getDelegate();
 		PoolingHttpClientConnectionManager connManager = (PoolingHttpClientConnectionManager) ReflectionTestUtils
 				.getField(delegate, "connManager");
-		assertThat(connManager.getMaxTotal(), is(101));
-		assertThat(connManager.getDefaultMaxPerRoute(), is(201));
+		assertThat(connManager.getMaxTotal()).isEqualTo(101);
+		assertThat(connManager.getDefaultMaxPerRoute()).isEqualTo(201);
 	}
 
 	@Test
@@ -197,7 +191,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RequestConfig result = getBuiltRequestConfig(DoNotFollowRedirects.class,
 				override);
 
-		assertThat(result.isRedirectsEnabled(), is(true));
+		assertThat(result.isRedirectsEnabled()).isTrue();
 	}
 
 	@Test
@@ -210,21 +204,21 @@ public class RibbonLoadBalancingHttpClientTests {
 
 		RequestConfig result = getBuiltRequestConfig(FollowRedirects.class, override);
 
-		assertThat(result.isRedirectsEnabled(), is(false));
+		assertThat(result.isRedirectsEnabled()).isFalse();
 	}
 
 	@Test
 	public void testUpdatedTimeouts() throws Exception {
 		SpringClientFactory factory = new SpringClientFactory();
 		RequestConfig result = getBuiltRequestConfig(Timeouts.class, null, factory);
-		assertThat(result.getConnectTimeout(), is(60000));
-		assertThat(result.getSocketTimeout(), is(50000));
+		assertThat(result.getConnectTimeout()).isEqualTo(60000);
+		assertThat(result.getSocketTimeout()).isEqualTo(50000);
 		IClientConfig config = factory.getClientConfig("service");
 		config.set(CommonClientConfigKey.ConnectTimeout, 60);
 		config.set(CommonClientConfigKey.ReadTimeout, 50);
 		result = getBuiltRequestConfig(Timeouts.class, null, factory);
-		assertThat(result.getConnectTimeout(), is(60));
-		assertThat(result.getSocketTimeout(), is(50));
+		assertThat(result.getConnectTimeout()).isEqualTo(60);
+		assertThat(result.getSocketTimeout()).isEqualTo(50);
 	}
 
 	@Test
@@ -300,7 +294,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		byte[] buf = new byte[100];
 		InputStream inputStream = returnedResponse.getInputStream();
 		int read = inputStream.read(buf);
-		assertThat(new String(buf, 0, read), is("test"));
+		assertThat(new String(buf, 0, read)).isEqualTo("test");
 	}
 
 	private RetryableRibbonLoadBalancingHttpClient setupClientForRetry(
@@ -475,7 +469,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		client.execute(request, null);
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
-		assertEquals(2, myBackOffPolicy.getCount());
+		assertThat(myBackOffPolicy.getCount()).isEqualTo(2);
 	}
 
 	@Test
@@ -514,7 +508,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
-		assertEquals(2, myBackOffPolicy.getCount());
+		assertThat(myBackOffPolicy.getCount()).isEqualTo(2);
 	}
 
 	@Test
@@ -691,7 +685,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(fourOFourResponse, times(1)).close();
 		verify(delegate, times(2)).execute(any(HttpUriRequest.class));
 		verify(lb, times(1)).chooseServer(eq(serviceName));
-		assertEquals(1, myBackOffPolicy.getCount());
+		assertThat(myBackOffPolicy.getCount()).isEqualTo(1);
 	}
 
 	@Test
@@ -720,7 +714,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(
 				retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
 				serviceName, host, port, delegate, lb, "", myBackOffPolicy, false,
-				new RetryListener[] {myRetryListener});
+				new RetryListener[] { myRetryListener });
 		client.setRibbonLoadBalancerContext(ribbonLoadBalancerContext);
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(method).when(request).getMethod();
@@ -732,8 +726,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
-		assertEquals(2, myBackOffPolicy.getCount());
-		assertEquals(2, myRetryListener.getOnError());
+		assertThat(myBackOffPolicy.getCount()).isEqualTo(2);
+		assertThat(myRetryListener.getOnError()).isEqualTo(2);
 	}
 
 	@Test
@@ -774,8 +768,8 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
-		assertEquals(2, myBackOffPolicy.getCount());
-		assertEquals(0, myRetryListener.getOnError());
+		assertThat(myBackOffPolicy.getCount()).isEqualTo(2);
+		assertThat(myRetryListener.getOnError()).isEqualTo(0);
 	}
 
 	@Test(expected = TerminatedRetryException.class)
@@ -802,7 +796,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		RetryableRibbonLoadBalancingHttpClient client = setupClientForRetry(
 				retriesNextServer, retriesSameServer, retryable, retryOnAllOps,
 				serviceName, host, port, delegate, lb, "", myBackOffPolicy, false,
-				new RetryListener[] {myRetryListenerNotRetry});
+				new RetryListener[] { myRetryListenerNotRetry });
 		RibbonApacheHttpRequest request = mock(RibbonApacheHttpRequest.class);
 		doReturn(method).when(request).getMethod();
 		doReturn(uri).when(request).getURI();
@@ -849,7 +843,7 @@ public class RibbonLoadBalancingHttpClientTests {
 		verify(response, times(0)).close();
 		verify(delegate, times(3)).execute(any(HttpUriRequest.class));
 		verify(lb, times(2)).chooseServer(eq(serviceName));
-		assertEquals(2, myBackOffPolicy.getCount());
+		assertThat(myBackOffPolicy.getCount()).isEqualTo(2);
 	}
 
 	private RetryableRibbonLoadBalancingHttpClient setupClientForServerValidation(
@@ -903,8 +897,8 @@ public class RibbonLoadBalancingHttpClientTests {
 			fail("Expected IOException for no servers available");
 		}
 		catch (ClientException ex) {
-			assertThat(ex.getMessage(), containsString(
-					"Load balancer does not have available server for client"));
+			assertThat(ex.getMessage())
+					.contains("Load balancer does not have available server for client");
 		}
 	}
 
@@ -932,63 +926,8 @@ public class RibbonLoadBalancingHttpClientTests {
 			fail("Expected IOException for no servers available");
 		}
 		catch (ClientException ex) {
-			assertThat(ex.getMessage(), containsString("Invalid Server for: "));
+			assertThat(ex.getMessage()).contains("Invalid Server for: ");
 		}
-	}
-
-	@Configuration
-	protected static class UseDefaults {
-
-	}
-
-	@Configuration
-	protected static class FollowRedirects {
-
-		@Bean
-		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-			config.set(CommonClientConfigKey.FollowRedirects, true);
-			return config;
-		}
-
-	}
-
-	@Configuration
-	protected static class DoNotFollowRedirects {
-
-		@Bean
-		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-			config.set(CommonClientConfigKey.FollowRedirects, false);
-			return config;
-		}
-
-	}
-
-	@Configuration
-	protected static class Timeouts {
-
-		@Bean
-		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
-			config.set(CommonClientConfigKey.ReadTimeout, 50000);
-			return config;
-		}
-
-	}
-
-	@Configuration
-	protected static class Connections {
-
-		@Bean
-		public IClientConfig clientConfig() {
-			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
-			config.set(CommonClientConfigKey.MaxTotalConnections, 101);
-			config.set(CommonClientConfigKey.MaxConnectionsPerHost, 201);
-			return config;
-		}
-
 	}
 
 	private RequestConfig getBuiltRequestConfig(Class<?> defaultConfigurationClass,
@@ -1077,6 +1016,61 @@ public class RibbonLoadBalancingHttpClientTests {
 		public <T, E extends Throwable> void onError(RetryContext context,
 				RetryCallback<T, E> callback, Throwable throwable) {
 			onError++;
+		}
+
+	}
+
+	@Configuration
+	protected static class DoNotFollowRedirects {
+
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.FollowRedirects, false);
+			return config;
+		}
+
+	}
+
+	@Configuration
+	protected static class Connections {
+
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.MaxTotalConnections, 101);
+			config.set(CommonClientConfigKey.MaxConnectionsPerHost, 201);
+			return config;
+		}
+
+	}
+
+	@Configuration
+	protected static class Timeouts {
+
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.ConnectTimeout, 60000);
+			config.set(CommonClientConfigKey.ReadTimeout, 50000);
+			return config;
+		}
+
+	}
+
+	@Configuration
+	protected static class UseDefaults {
+
+	}
+
+	@Configuration
+	protected static class FollowRedirects {
+
+		@Bean
+		public IClientConfig clientConfig() {
+			DefaultClientConfigImpl config = new DefaultClientConfigImpl();
+			config.set(CommonClientConfigKey.FollowRedirects, true);
+			return config;
 		}
 
 	}

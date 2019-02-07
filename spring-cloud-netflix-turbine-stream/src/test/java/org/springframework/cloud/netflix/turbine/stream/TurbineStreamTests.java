@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.turbine.stream;
@@ -69,7 +68,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 		// https://github.com/spring-cloud/spring-cloud-netflix/issues/1948
 		"spring.cloud.stream.bindings.turbineStreamInput.destination=hystrixStreamOutput",
 		"spring.jmx.enabled=true", "stubrunner.workOffline=true",
-		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs"})
+		"stubrunner.ids=org.springframework.cloud:spring-cloud-netflix-hystrix-stream:${projectVersion:2.0.0.BUILD-SNAPSHOT}:stubs" })
 @AutoConfigureStubRunner(stubsMode = StubsMode.LOCAL)
 public class TurbineStreamTests {
 
@@ -90,33 +89,6 @@ public class TurbineStreamTests {
 
 	@LocalServerPort
 	int port;
-
-	@EnableAutoConfiguration
-	@EnableTurbineStream
-	public static class Application {
-
-		// Workaround for stub runner lowercasing id somewhere
-		@Bean
-		BeanDefinitionRegistryPostProcessor myBeanDefinitionRegistryPostProcessor() {
-			return new BeanDefinitionRegistryPostProcessor() {
-				@Override
-				public void postProcessBeanDefinitionRegistry(
-						BeanDefinitionRegistry registry) throws BeansException {
-					BeanDefinition beanDefinition = registry
-							.getBeanDefinition(TurbineStreamClient.INPUT);
-					registry.registerBeanDefinition(
-							TurbineStreamClient.INPUT.toLowerCase(), beanDefinition);
-				}
-
-				@Override
-				public void postProcessBeanFactory(
-						ConfigurableListableBeanFactory beanFactory)
-						throws BeansException {
-				}
-			};
-		}
-
-	}
 
 	@Test
 	public void contextLoads() throws Exception {
@@ -171,17 +143,50 @@ public class TurbineStreamTests {
 				.headers(response.getHeaders()).body(responseBody);
 	}
 
+	@EnableAutoConfiguration
+	@EnableTurbineStream
+	public static class Application {
+
+		// Workaround for stub runner lowercasing id somewhere
+		@Bean
+		BeanDefinitionRegistryPostProcessor myBeanDefinitionRegistryPostProcessor() {
+			return new BeanDefinitionRegistryPostProcessor() {
+				@Override
+				public void postProcessBeanDefinitionRegistry(
+						BeanDefinitionRegistry registry) throws BeansException {
+					BeanDefinition beanDefinition = registry
+							.getBeanDefinition(TurbineStreamClient.INPUT);
+					registry.registerBeanDefinition(
+							TurbineStreamClient.INPUT.toLowerCase(), beanDefinition);
+				}
+
+				@Override
+				public void postProcessBeanFactory(
+						ConfigurableListableBeanFactory beanFactory)
+						throws BeansException {
+				}
+			};
+		}
+
+	}
+
 	/**
 	 * Special interceptor that prevents the response from being closed and allows us to
 	 * assert on the contents of an event stream.
 	 */
 	private class NonClosingInterceptor implements ClientHttpRequestInterceptor {
 
+		@Override
+		public ClientHttpResponse intercept(HttpRequest request, byte[] body,
+				ClientHttpRequestExecution execution) throws IOException {
+			return new NonClosingResponse(execution.execute(request, body));
+		}
+
 		private class NonClosingResponse implements ClientHttpResponse {
 
 			private ClientHttpResponse delegate;
 
-			public NonClosingResponse(ClientHttpResponse delegate) {
+			NonClosingResponse(ClientHttpResponse delegate) {
 				this.delegate = delegate;
 			}
 
@@ -214,12 +219,6 @@ public class TurbineStreamTests {
 			public void close() {
 			}
 
-		}
-
-		@Override
-		public ClientHttpResponse intercept(HttpRequest request, byte[] body,
-				ClientHttpRequestExecution execution) throws IOException {
-			return new NonClosingResponse(execution.execute(request, body));
 		}
 
 	}

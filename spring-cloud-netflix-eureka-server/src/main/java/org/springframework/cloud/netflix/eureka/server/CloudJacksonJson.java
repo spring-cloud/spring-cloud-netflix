@@ -168,6 +168,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			InstanceInfo updated = updateIfNeeded(info);
 			super.serialize(updated, jgen, provider);
 		}
+
 	}
 
 	static class CloudInstanceInfoDeserializer extends InstanceInfoDeserializer {
@@ -183,5 +184,7 @@ public class CloudJacksonJson extends LegacyJacksonJson {
 			InstanceInfo updated = updateIfNeeded(info);
 			return updated;
 		}
+
 	}
+
 }

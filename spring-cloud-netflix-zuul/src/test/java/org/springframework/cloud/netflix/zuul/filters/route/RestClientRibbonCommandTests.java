@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.springframework.cloud.netflix.zuul.filters.route;
@@ -35,12 +34,7 @@ import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Spencer Gibb
@@ -71,26 +65,22 @@ public class RestClientRibbonCommandTests {
 
 		HttpRequest request = command.createRequest();
 
-		assertThat("uri is wrong", request.getUri().toString(), startsWith(uri));
-		assertThat("my-header is wrong",
-				request.getHttpHeaders().getFirstValue("my-header"),
-				is(equalTo("my-value")));
-		assertThat("myparam is missing",
-				request.getQueryParams().get("myparam").iterator().next(),
-				is(equalTo("myparamval")));
+		assertThat(request.getUri().toString()).as("uri is wrong").startsWith(uri);
+		assertThat(request.getHttpHeaders().getFirstValue("my-header"))
+				.as("my-header is wrong").isEqualTo("my-value");
+		assertThat(request.getQueryParams().get("myparam").iterator().next())
+				.as("myparam is missing").isEqualTo("myparamval");
 
 		command = new RestClientRibbonCommand("cmd", null, new RibbonCommandContext(
 				"example", "GET", uri, false, headers, params, null), zuulProperties);
 
 		request = command.createRequest();
 
-		assertThat("uri is wrong", request.getUri().toString(), startsWith(uri));
-		assertThat("my-header is wrong",
-				request.getHttpHeaders().getFirstValue("my-header"),
-				is(equalTo("my-value")));
-		assertThat("myparam is missing",
-				request.getQueryParams().get("myparam").iterator().next(),
-				is(equalTo("myparamval")));
+		assertThat(request.getUri().toString()).as("uri is wrong").startsWith(uri);
+		assertThat(request.getHttpHeaders().getFirstValue("my-header"))
+				.as("my-header is wrong").isEqualTo("my-value");
+		assertThat(request.getQueryParams().get("myparam").iterator().next())
+				.as("myparam is missing").isEqualTo("myparamval");
 	}
 
 	@Test
@@ -102,18 +92,16 @@ public class RestClientRibbonCommandTests {
 		params.add("myparam", "myparamval");
 		RestClientRibbonCommand command = new RestClientRibbonCommand(
 				"cmd", null, new RibbonCommandContext("example", "GET", uri, false,
-				headers, params, null, new ArrayList<RibbonRequestCustomizer>()),
+						headers, params, null, new ArrayList<RibbonRequestCustomizer>()),
 				zuulProperties);
 
 		HttpRequest request = command.createRequest();
 
-		assertThat("uri is wrong", request.getUri().toString(), startsWith(uri));
-		assertThat("my-header is wrong",
-				request.getHttpHeaders().getFirstValue("my-header"),
-				is(equalTo("my-value")));
-		assertThat("myparam is missing",
-				request.getQueryParams().get("myparam").iterator().next(),
-				is(equalTo("myparamval")));
+		assertThat(request.getUri().toString()).as("uri is wrong").startsWith(uri);
+		assertThat(request.getHttpHeaders().getFirstValue("my-header"))
+				.as("my-header is wrong").isEqualTo("my-value");
+		assertThat(request.getQueryParams().get("myparam").iterator().next())
+				.as("myparam is missing").isEqualTo("myparamval");
 	}
 
 	@Test
@@ -170,28 +158,25 @@ public class RestClientRibbonCommandTests {
 
 		HttpRequest request = command.createRequest();
 
-		assertThat("uri is wrong", request.getUri().toString(),
-				startsWith(uri.toString()));
+		assertThat(request.getUri().toString()).as("uri is wrong")
+				.startsWith(uri.toString());
 		if (addContentLengthHeader) {
-			assertThat("Content-Length is wrong",
-					request.getHttpHeaders().getFirstValue("Content-Length"),
-					is(equalTo(lengthString)));
+			assertThat(request.getHttpHeaders().getFirstValue("Content-Length"))
+					.as("Content-Length is wrong").isEqualTo(lengthString);
 		}
-		assertThat("from-customizer is wrong",
-				request.getHttpHeaders().getFirstValue("from-customizer"),
-				is(equalTo("foo")));
+		assertThat(request.getHttpHeaders().getFirstValue("from-customizer"))
+				.as("from-customizer is wrong").isEqualTo("foo");
 
 		if (method.equalsIgnoreCase("DELETE")) {
-			assertThat("entity is was non-null", request.getEntity(), is(nullValue()));
+			assertThat(request.getEntity()).as("entity is was non-null").isNull();
 		}
 		else {
-			assertThat("entity is missing", request.getEntity(), is(notNullValue()));
-			assertThat("entity is wrong type",
-					InputStream.class.isAssignableFrom(request.getEntity().getClass()),
-					is(true));
+			assertThat(request.getEntity()).as("entity is missing").isNotNull();
+			assertThat(InputStream.class.isAssignableFrom(request.getEntity().getClass()))
+					.as("entity is wrong type").isTrue();
 			InputStream entity = (InputStream) request.getEntity();
 			String string = StreamUtils.copyToString(entity, Charset.forName("UTF-8"));
-			assertThat("content is wrong", string, is(equalTo(entityValue)));
+			assertThat(string).as("content is wrong").isEqualTo(entityValue);
 		}
 	}
 

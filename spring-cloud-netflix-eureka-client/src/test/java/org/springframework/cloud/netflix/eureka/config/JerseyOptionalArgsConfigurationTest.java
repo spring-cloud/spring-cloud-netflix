@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2017-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.cloud.netflix.eureka.config;
 
 import com.netflix.discovery.DiscoveryClient.DiscoveryClientOptionalArgs;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +26,8 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.netflix.eureka.sample.EurekaSampleApplication;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Daniel Lavoie
@@ -41,7 +42,7 @@ public class JerseyOptionalArgsConfigurationTest {
 
 	@Test
 	public void contextLoads() {
-		Assert.assertNotNull(optionalArgs);
+		assertThat(optionalArgs).isNotNull();
 	}
 
 }

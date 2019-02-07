@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2017 the original author or authors.
+ * Copyright 2013-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,7 @@ import static com.netflix.appinfo.InstanceInfo.InstanceStatus;
 public class EurekaHealthCheckHandler
 		implements HealthCheckHandler, ApplicationContextAware, InitializingBean {
 
-	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING
-			= new HashMap<Status, InstanceInfo.InstanceStatus>() {
+	private static final Map<Status, InstanceInfo.InstanceStatus> STATUS_MAPPING = new HashMap<Status, InstanceInfo.InstanceStatus>() {
 		{
 			put(Status.UNKNOWN, InstanceStatus.UNKNOWN);
 			put(Status.OUT_OF_SERVICE, InstanceStatus.OUT_OF_SERVICE);

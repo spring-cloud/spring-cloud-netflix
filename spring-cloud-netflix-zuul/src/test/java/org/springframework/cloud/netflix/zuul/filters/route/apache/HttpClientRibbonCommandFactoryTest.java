@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.netflix.zuul.filters.route.apache;
 
 import java.util.HashSet;
@@ -17,7 +33,7 @@ import org.springframework.cloud.netflix.ribbon.support.RibbonCommandContext;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -61,8 +77,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = this.ribbonCommandFactory.create(context);
-		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(4000);
 	}
 
 	@Test
@@ -73,8 +89,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = this.ribbonCommandFactory.create(context);
-		assertEquals(50, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(50);
 	}
 
 	@Test
@@ -85,8 +101,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = this.ribbonCommandFactory.create(context);
-		assertEquals(50, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(50);
 	}
 
 	@Test
@@ -100,8 +116,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = this.ribbonCommandFactory.create(context);
-		assertEquals(50, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(50);
 	}
 
 	@Test
@@ -121,8 +137,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(1200, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(1200);
 	}
 
 	@Test
@@ -153,8 +169,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(30, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(30);
 	}
 
 	@Test
@@ -188,8 +204,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(50, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(50);
 	}
 
 	@Test
@@ -207,8 +223,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = commandFactory.create(context);
-		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(4000);
 	}
 
 	@Test
@@ -233,8 +249,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(1200, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(1200);
 	}
 
 	@Test
@@ -259,8 +275,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(4000);
 	}
 
 	@Test
@@ -287,8 +303,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(4000, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(4000);
 	}
 
 	@Test
@@ -312,8 +328,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(3600, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(3600);
 	}
 
 	@Test
@@ -342,8 +358,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(12000, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(12000);
 	}
 
 	@Test
@@ -368,8 +384,8 @@ public class HttpClientRibbonCommandFactoryTest {
 		RibbonCommandContext context = mock(RibbonCommandContext.class);
 		doReturn("service").when(context).getServiceId();
 		HttpClientRibbonCommand ribbonCommand = ribbonCommandFactory.create(context);
-		assertEquals(6000, ribbonCommand.getProperties().executionTimeoutInMilliseconds()
-				.get().intValue());
+		assertThat(ribbonCommand.getProperties().executionTimeoutInMilliseconds().get()
+				.intValue()).isEqualTo(6000);
 	}
 
 }

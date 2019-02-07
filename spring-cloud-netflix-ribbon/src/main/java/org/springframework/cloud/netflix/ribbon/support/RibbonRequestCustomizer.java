@@ -20,6 +20,7 @@ import java.util.List;
 
 /**
  * Interface providing methods for customizing Ribbon requests.
+ *
  * @param <B> Request builder type
  * @author Spencer Gibb
  */
